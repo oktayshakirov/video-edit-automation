@@ -1,0 +1,146 @@
+"""Every tunable number in Phase 1 lives here.
+
+The tuning round after the first real run touches this file and nothing else.
+Values marked GUESS have never been validated against footage.
+"""
+
+VIDEO_EXTS = {".mp4", ".mov", ".m4v", ".mkv", ".avi"}
+
+# --- proxy ---------------------------------------------------------------
+PROXY_WIDTH = 320
+PROXY_FPS = 10
+PROXY_DIRNAME = ".analysis_cache"
+DB_NAME = "clip_index.sqlite"
+
+# --- feature tracking ----------------------------------------------------
+MAX_FEATURES = 300
+FEATURE_QUALITY = 0.01
+MIN_FEATURE_DIST = 8
+REDETECT_BELOW = 60          # re-seed features when tracked count drops under this
+MIN_TRACKED_FOR_FIT = 12     # below this, the affine fit is untrustworthy
+
+# --- move classification (GUESS: all per-second, never validated) ---------
+HOVER_PAN_MAX = 0.015        # frame-widths/sec below which nothing is moving
+HOVER_ROT_MAX = 1.0          # deg/sec
+HOVER_ZOOM_MAX = 0.01        # fractional zoom/sec
+
+# Weights that put translation, rotation and zoom on a comparable scale, used
+# both to pick the dominant move and to build motion_energy. (GUESS)
+W_PAN = 1.0
+W_ROT = 0.05
+W_ZOOM = 2.0
+
+# --- reporting -----------------------------------------------------------
+LOW_CONFIDENCE = 0.6         # fraction of frames with a usable affine fit
+
+
+# =========================================================================
+# Phase 2 — music analysis
+# =========================================================================
+
+SR = 22050                   # analysis sample rate; plenty for beats and RMS
+HOP = 512                    # ~23ms frames at SR
+
+BEATS_PER_BAR = 4            # GUESS in general, safe for 4/4 produced music
+
+# Downbeat voting uses onset strength restricted below this, so the kick decides
+# the phase rather than the snare (which sits on 2 and 4 and is louder broadband).
+DOWNBEAT_FMAX = 200.0
+
+# Target number of bars per structural section. Segment count is derived from
+# track length so short tracks don't get chopped into meaningless pieces.
+BARS_PER_SECTION = 8
+
+
+# =========================================================================
+# Phase 3 — edit decisions
+# =========================================================================
+
+TIMELINE_FPS = 30            # overridden from the footage; all cuts snap to this
+
+# Legal slot lengths in bars, longest first. The engine takes the longest one a
+# clip can actually fill — the reverse of imposing a grid and hunting for footage.
+LEGAL_SLOT_BARS = (8, 4, 2, 1)
+
+# Section energy (0..1) -> preferred slot length in bars. (GUESS)
+SLOT_BARS_BY_ENERGY = ((0.33, 4), (0.66, 2), (1.01, 1))
+
+# Retiming is SPEED-UP ONLY. Slow motion is never used: nothing below 1.0.
+# rate is source frames consumed per timeline frame, so 2.0 fits twice as much
+# clip into the same slot. This is also how long selects earn their keep — a
+# 45s take is no longer mostly waste.
+ALLOW_SPEEDUP = True
+SPEED_CHOICES = (1.0, 2.0)
+
+# "If a clip is too long, do it 2x" — so 2x is gated on the clip actually being
+# long, not on the engine wanting more coverage. Without this gate, coverage
+# pressure alone speeds up half the video and the whole thing reads time-lapsed.
+SPEEDUP_MIN_REMAINING = 12.0   # seconds of unused material required for 2x
+
+# A speed-up reads as intent on an energetic section and as a mistake on a calm
+# one, so it is penalised in inverse proportion to section energy.
+PENALTY_SPEEDUP_WHEN_CALM = 0.55
+
+HEAD_TRIM = 0.3              # seconds skipped at the head of a select (settle-in)
+MIN_TAIL_MARGIN = 0.1        # never run to the exact last frame
+
+# Variety penalties, applied against the previously placed clip. (GUESS)
+PENALTY_SAME_MOVE = 0.35
+PENALTY_SAME_GROUP = 0.25
+PENALTY_CLOSE_HUE = 0.15
+HUE_CLOSE_DEG = 25.0
+
+# Reuse. A clip may return after this many slots, and takes a later region.
+REUSE_COOLDOWN_SLOTS = 4
+PENALTY_REUSE = 0.40         # applied at zero gap, decaying to 0 across the window
+REUSE_RECENCY_WINDOW = 12    # slots over which the reuse penalty decays
+PENALTY_OVERUSE = 0.18       # spreads the library; at 0.05 one clip took 19% of the cut
+
+# Musical phrases are 4 bars. Holding a longer shot on the phrase boundary and
+# shorter ones inside it is what stops a section reading as metronomic.
+PHRASE_BARS = 4
+PHRASE_ACCENT_MULTIPLIER = 2  # slot length preference at a phrase boundary
+
+# Hard ceiling on a single shot regardless of bar maths. At 95 BPM an 8-bar slot
+# is 20 seconds, which is a lot of one drone shot in a four-minute video.
+MAX_SHOT_SECONDS = 12.0
+
+# A slow orbit or a steady lateral looks near-identical in any short window, so
+# two 1-bar cuts from one read as the same shot played twice. Moves whose framing
+# changes quickly (push_in, pull_back, vertical) do not have that problem.
+# hover was in this list and is now out: it was my addition, never asked for,
+# and it lengthened the cut away from the pacing that read best.
+MIN_SLOT_BARS_BY_MOVE = {"orbit": 2, "lateral": 2}
+
+# Ceiling on how many slots one clip may take. Raised now that speed-ups let a
+# long take be consumed in a few large bites instead of many small ones.
+MAX_USES_DEFAULT = 8
+MAX_USES_BY_MOVE = {"orbit": 3}
+
+# Pressure toward using the whole library rather than the head of every clip.
+W_COVERAGE = 0.25             # favours clips with material left
+W_BITE = 0.30                 # favours consuming more of a clip per cut
+
+# Two clips that travel the same way read as the same shot. Reversing one buys
+# variety for free. Only applied to moves where reversal just flips direction —
+# reversing a push_in would turn it into a pull_back, which is a different shot.
+AUTO_REVERSE = True
+REVERSIBLE_MOVES = {"lateral", "vertical"}
+
+# Punch ramps: the shot bridging into a more energetic section accelerates from
+# normal speed up to RAMP_END_SPEED, landing the downbeat of the drop. Speed
+# never drops below 1.0 at any point on the curve — there is no slow half.
+ALLOW_RAMPS = True
+RAMP_MIN_BARS = 2
+RAMP_END_SPEED = 3.0          # instantaneous speed at the end of the ramp
+RAMP_POINTS = 7               # linear segments approximating the curve
+W_PUNCH = 0.35                # bonus so a ramp wins its slot where one fits
+
+# If the footage runs out before the track does, end the music under the last
+# shot rather than letting it play over black.
+MUSIC_FADE_SECONDS = 4.0
+
+W_SLOT_LENGTH = 0.30         # how hard to push toward the preferred length
+
+# Weight on matching clip motion energy to section musical energy. (GUESS)
+W_ENERGY_MATCH = 1.0

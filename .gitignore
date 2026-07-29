@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Proxies and the SQLite index live inside each footage folder, not here, but
+# ignore them anyway in case a batch is ever symlinked in.
+.analysis_cache/
+
+# Generated timelines and grid-check audio. These are outputs — the project
+# .toml plus a commit is what reproduces them.
+*.fcpxml
+*.wav
+
+# Footage never belongs in git.
+*.mp4
+*.mov
+*.mp3

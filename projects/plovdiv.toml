@@ -1,0 +1,16 @@
+# Plovdiv, Bulgaria — first batch. 15 graded selects, 3840x2160p30.
+#
+# Paths are absolute because footage lives outside the repo (it is hundreds of
+# gigabytes and has no business in git). Anything under [overrides] must name a
+# real constant in dronecut/config.py or the build fails loudly.
+
+name = "Plovdiv"
+profile = "youtube"
+
+footage = "~/Desktop/Plovdiv"
+music = "~/Desktop/Plovdiv/background music.mp3"
+
+[overrides]
+# Hill Tower is the only orbit in this batch, so the same-move penalty can never
+# push against it. Capped by hand instead.
+MAX_USES_BY_MOVE = { orbit = 3 }

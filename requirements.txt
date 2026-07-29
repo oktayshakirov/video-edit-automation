@@ -1,0 +1,9 @@
+# Nothing here is speculative — every package is used by code that exists today.
+opencv-python==4.11.0.86   # Lucas-Kanade tracking, RANSAC affine fit, HSV/Laplacian metrics
+numpy==2.2.6               # medians/percentiles over per-frame metric arrays
+librosa==0.11.0            # beat tracking, onset strength, RMS, bar-synced segmentation
+jinja2==3.1.6              # FCPXML templating
+
+# madmom deliberately NOT used. Its downbeat RNN is more accurate in general, but it
+# is pinned to old numpy/Cython and does not build on Python 3.13. For 4/4 produced
+# music the downbeat phase is recoverable by low-band onset voting (see music.py).
