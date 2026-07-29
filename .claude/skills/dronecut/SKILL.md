@@ -49,6 +49,30 @@ Map a complaint to the right knob:
 | speed effects overused | `SPEEDUP_MIN_REMAINING`, `PENALTY_SPEEDUP_WHEN_CALM` |
 | not enough footage used | `W_COVERAGE`, `W_BITE` |
 | two clips move alike | `AUTO_REVERSE`, `REVERSIBLE_MOVES` |
+| want a speed launch into a cut | `ESCALATE_AT_BARS` (per project) |
+| cuts feel a beat late | `SNAP_SECTIONS_TO_PHRASE` — read the warning below |
+
+## Protecting an approved running order
+
+Once the user has signed off on the clip order, treat it as load-bearing.
+Anything that moves section boundaries or slot lengths re-lays the whole grid
+downstream and reshuffles which clip lands where — `SNAP_SECTIONS_TO_PHRASE`
+moved 39 of 49 positions. Before shipping a structural change, dry-run it and
+diff the clip order against the approved tag:
+
+```bash
+git show <tag>:/dev/null 2>/dev/null; .venv/bin/python -m dronecut build --project <p> --dry-run
+```
+
+If positions move, say so and let the user choose. Do not present a reshuffled
+edit as if only the requested thing changed.
+
+Effects that consume extra source (escalates, 2x) shift a clip's *later* slices
+even when selection is untouched, so a clip used several times can still move.
+Say that too.
+
+Change one thing per round. A batch of changes that includes one the user
+dislikes tends to take the good parts down with it.
 
 ## Hard constraints
 

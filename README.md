@@ -123,11 +123,29 @@ plovdiv-v3` instead of reconstructing settings from memory.
   played twice.
 - Two clips travelling the same direction are detected by the sign of their
   dominant translation axis, and every second one is reversed.
+- The one ramp is an *escalate*: 200% through the body of the shot, launching to
+  2000% across its final second so it slings into the next clip. Source position
+  is the integral of that speed profile — linear through the body, quadratic
+  through the tail — and the slope of that curve *is* the playback speed, so it
+  holds at 200% and only ever climbs. Control points are concentrated in the
+  tail: sampled evenly, the whole launch collapses into one averaged segment and
+  plays as a step rather than a ramp.
+- Escalates are placed by `ESCALATE_AT_BARS`, per project, **not** by scoring.
+  When they competed for slots on merit they won them from other clips and
+  reshuffled the running order. Applied as a positional upgrade after the clip
+  is chosen, switching one on changes only how that clip plays — though it does
+  consume more of that clip, which can still move its later appearances.
 
 ## Known limits
 
 - **Cuts land on bar lines only.** An accent falling mid-bar cannot be hit
   exactly. Half-bar cut points would need slot lengths in beats, not bars.
+- **Phrase-snapped section boundaries and an approved running order are mutually
+  exclusive.** Slots restart at every boundary, so moving one re-lays the whole
+  grid downstream and changes which clip lands where — 39 of 49 positions in
+  practice. `SNAP_SECTIONS_TO_PHRASE` is the switch. Half-bar cutting would
+  soften this, since an off-phrase boundary would cost half a bar, not a whole
+  one.
 - **Slice selection is sequential**, not content-aware: each clip is carved from
   the head forward. The back of a long take is used only if the clip is reused
   enough times to reach it, which biases against the *end* of push-ins and

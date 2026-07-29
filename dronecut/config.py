@@ -51,6 +51,16 @@ DOWNBEAT_FMAX = 200.0
 # track length so short tracks don't get chopped into meaningless pieces.
 BARS_PER_SECTION = 8
 
+# Snap section boundaries onto phrase lines. Slots restart at every boundary, so
+# a boundary landing off-phrase throws every cut after it a bar out of step with
+# the music and stays wrong for the rest of the track.
+#
+# Turning this on RE-LAYS THE SLOT GRID after the first moved boundary, which
+# changes which clip lands in which slot from that point on. It is the correct
+# setting musically, but it cannot be combined with holding an approved running
+# order — the two are mutually exclusive.
+SNAP_SECTIONS_TO_PHRASE = True
+
 
 # =========================================================================
 # Phase 3 — edit decisions
@@ -127,14 +137,24 @@ W_BITE = 0.30                 # favours consuming more of a clip per cut
 AUTO_REVERSE = True
 REVERSIBLE_MOVES = {"lateral", "vertical"}
 
-# Punch ramps: the shot bridging into a more energetic section accelerates from
-# normal speed up to RAMP_END_SPEED, landing the downbeat of the drop. Speed
-# never drops below 1.0 at any point on the curve — there is no slow half.
+# ESCALATE: the shot runs at ESCALATE_BODY_SPEED for most of its length, then
+# accelerates over the last stretch to ESCALATE_TAIL_SPEED so it launches into
+# the next clip. This replaced a ramp that started at 1.0x and accelerated
+# throughout; that one looked wrong on this footage. Being already fast and
+# escalating only at the end is the move.
 ALLOW_RAMPS = True
-RAMP_MIN_BARS = 2
-RAMP_END_SPEED = 3.0          # instantaneous speed at the end of the ramp
-RAMP_POINTS = 7               # linear segments approximating the curve
-W_PUNCH = 0.35                # bonus so a ramp wins its slot where one fits
+ESCALATE_BODY_SPEED = 2.0      # 200% for the body of the shot
+ESCALATE_TAIL_SECONDS = 1.0    # length of the launch, in timeline seconds
+ESCALATE_TAIL_SPEED = 20.0     # 2000% at the very last frame
+RAMP_POINTS = 9                # linear segments approximating the curve
+
+# Slot start bars that receive an escalate, set per project.
+#
+# Deliberately explicit rather than scored. When an escalate competed for slots
+# on merit it won them from other clips and reshuffled the running order, which
+# is not acceptable while the order is being approved by hand. As a positional
+# upgrade it changes how the already-chosen clip plays and nothing else.
+ESCALATE_AT_BARS: tuple[int, ...] = ()
 
 # If the footage runs out before the track does, end the music under the last
 # shot rather than letting it play over black.

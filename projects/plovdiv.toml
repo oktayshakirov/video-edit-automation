@@ -14,3 +14,8 @@ music = "~/Desktop/Plovdiv/background music.mp3"
 # Hill Tower is the only orbit in this batch, so the same-move penalty can never
 # push against it. Capped by hand instead.
 MAX_USES_BY_MOVE = { orbit = 3 }
+
+# Escalate the shot ending at 0:20 (the slot starting at bar 4): 200% through
+# the body, launching to 2000% across its final second into the next clip.
+ESCALATE_AT_BARS = [4]
+SNAP_SECTIONS_TO_PHRASE = false

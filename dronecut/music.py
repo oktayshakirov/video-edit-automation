@@ -32,6 +32,8 @@ from .config import (
     BEATS_PER_BAR,
     DOWNBEAT_FMAX,
     HOP,
+    PHRASE_BARS,
+    SNAP_SECTIONS_TO_PHRASE,
     SR,
 )
 
@@ -118,7 +120,18 @@ def _sections(bar_energy: np.ndarray, n_bars: int) -> list[Section]:
     """
     k = max(2, min(n_bars // BARS_PER_SECTION, 12))
     edges = np.linspace(0, n_bars, k + 1).round().astype(int)
-    edges = np.unique(edges)
+
+    # Snap interior boundaries onto phrase lines. Slots restart at every section
+    # boundary, so a boundary landing off-phrase (bar 25, bar 49...) throws every
+    # cut after it a full bar out of step with the music and stays wrong for the
+    # rest of the track. Music changes on phrase lines; sections must too.
+    if SNAP_SECTIONS_TO_PHRASE:
+        edges = np.array(
+            [0]
+            + [int(round(e / PHRASE_BARS)) * PHRASE_BARS for e in edges[1:-1]]
+            + [n_bars]
+        )
+    edges = np.unique(np.clip(edges, 0, n_bars))
 
     # Merge neighbouring blocks whose energy is close, so a flat track doesn't
     # get split into identical-looking sections.

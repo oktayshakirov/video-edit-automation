@@ -39,7 +39,13 @@ from urllib.parse import quote
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from .config import MUSIC_FADE_SECONDS, RAMP_END_SPEED, RAMP_POINTS
+from .config import (
+    ESCALATE_BODY_SPEED,
+    ESCALATE_TAIL_SECONDS,
+    ESCALATE_TAIL_SPEED,
+    MUSIC_FADE_SECONDS,
+    RAMP_POINTS,
+)
 from .edit import Cut
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
@@ -83,22 +89,48 @@ def _time_map(c: Cut, fps: int) -> list[dict] | None:
 
     s, length, dur = c.source_start, c.source_duration, c.duration
 
-    if c.ramp == "punch":
-        # Instantaneous speed rises linearly 1.0 -> RAMP_END_SPEED, so the
-        # source position follows the integral: a quadratic. The slope of this
-        # curve is the playback speed, and it starts at exactly 1.0 and only
-        # increases — the curve never contains a slow section.
-        a, b = 1.0, RAMP_END_SPEED
+    if c.ramp == "escalate":
+        # Flat at ESCALATE_BODY_SPEED, then a linear rise to ESCALATE_TAIL_SPEED
+        # across the last ESCALATE_TAIL_SECONDS. Source position is the integral
+        # of that speed profile: linear through the body, quadratic through the
+        # tail. The slope of this curve *is* the playback speed, so it holds at
+        # 200% and only ever climbs. Normalised so the curve lands exactly on
+        # the last frame of the allotted source.
+        body, tail = ESCALATE_BODY_SPEED, ESCALATE_TAIL_SPEED
+        tf = min(ESCALATE_TAIL_SECONDS * fps, dur) / dur
+        knee = 1.0 - tf
+
+        def _raw(u: float) -> float:
+            if u <= knee or tf <= 0:
+                return body * u
+            v = u - knee
+            return body * knee + body * v + (tail - body) * v * v / (2.0 * tf)
+
+        span = _raw(1.0)
+
         def travelled(u: float) -> float:
-            return (a * u + (b - a) * u * u / 2.0) / ((a + b) / 2.0)
+            return _raw(u) / span
     else:
+        knee = 0.0
+
         def travelled(u: float) -> float:
             return u
 
-    n = RAMP_POINTS if c.ramp else 2
+    if c.ramp == "escalate":
+        # Sample where the curve actually bends. The body is constant speed, so
+        # two points describe it exactly; spending points there instead left the
+        # whole 200%->2000% launch as a single averaged segment, which plays as
+        # a step rather than a ramp.
+        tail_pts = max(RAMP_POINTS - 2, 4)
+        us = [0.0, knee] + [knee + (1.0 - knee) * (i + 1) / tail_pts
+                            for i in range(tail_pts)]
+    elif c.ramp:
+        us = [i / (RAMP_POINTS - 1) for i in range(RAMP_POINTS)]
+    else:
+        us = [0.0, 1.0]
+
     points = []
-    for i in range(n):
-        u = i / (n - 1)
+    for u in us:
         f = travelled(u)
         if c.reverse:
             f = 1.0 - f

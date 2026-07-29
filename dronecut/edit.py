@@ -26,18 +26,19 @@ from .config import (
     ALLOW_RAMPS,
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
+    ESCALATE_AT_BARS,
+    ESCALATE_BODY_SPEED,
+    ESCALATE_TAIL_SECONDS,
+    ESCALATE_TAIL_SPEED,
     HEAD_TRIM,
     PENALTY_SPEEDUP_WHEN_CALM,
-    RAMP_END_SPEED,
     SPEED_CHOICES,
     SPEEDUP_MIN_REMAINING,
     W_BITE,
     W_COVERAGE,
-    W_PUNCH,
     MAX_USES_BY_MOVE,
     MAX_USES_DEFAULT,
     MIN_SLOT_BARS_BY_MOVE,
-    RAMP_MIN_BARS,
     REVERSIBLE_MOVES,
     HUE_CLOSE_DEG,
     LEGAL_SLOT_BARS,
@@ -198,6 +199,20 @@ def _preferred_bars(section_energy_norm: float) -> int:
     return SLOT_BARS_BY_ENERGY[-1][1]
 
 
+def escalate_source_frames(tl_frames: int, fps: int) -> int:
+    """Source consumed by an escalate: flat body, then a linear launch.
+
+    Speed holds at ESCALATE_BODY_SPEED, then rises across the last
+    ESCALATE_TAIL_SECONDS to ESCALATE_TAIL_SPEED. The tail is specified in
+    timeline seconds rather than as a fraction so the launch feels the same
+    length whether the shot is 5s or 10s.
+    """
+    tail = min(int(round(ESCALATE_TAIL_SECONDS * fps)), tl_frames)
+    body = tl_frames - tail
+    mean_tail = (ESCALATE_BODY_SPEED + ESCALATE_TAIL_SPEED) / 2.0
+    return int(round(body * ESCALATE_BODY_SPEED + tail * mean_tail))
+
+
 def _hue_distance(a: float, b: float) -> float:
     d = abs(a - b) % 360.0
     return min(d, 360.0 - d)
@@ -215,12 +230,13 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
     legal_bars = tuple(b for b in LEGAL_SLOT_BARS
                        if b * track.bar_period <= MAX_SHOT_SECONDS) or (1,)
 
-    # Bars where a peak section begins — the landing points a punch ramp aims at.
-    peak_starts = {s.start_bar for s in track.sections if s.label == "peak"}
+    # Structural boundaries an escalate is allowed to launch from.
+    boundaries = {s.start_bar for s in track.sections} | {track.sections[-1].end_bar}
 
     cuts: list[Cut] = []
     bar = 0
     slot_i = 0
+    last_escalate = -999
     prev: Clip | None = None
 
     for section in track.sections:
@@ -262,20 +278,11 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                     # ramps after the fact let them eat footage later cuts had
                     # already claimed, and the same seconds appeared twice.
                     modes = [(r, None) for r in (SPEED_CHOICES if ALLOW_SPEEDUP else (1.0,))]
-                    # An escalate is offered only where it means something: the
-                    # shot has to end on a structural boundary, so the launch
-                    # lands on a real musical change rather than an arbitrary bar.
-                    if ALLOW_RAMPS and bars >= RAMP_MIN_BARS and (bar + bars) in peak_starts:
-                        modes.append((1.0, "punch"))
-
                     for rate, ramp in modes:
                         # Speed-up only: a clip never runs slower than recorded,
                         # so a slot it cannot fill at 1x simply goes to another
                         # clip rather than being stretched.
-                        if ramp == "punch":
-                            src_frames = int(round(tl_frames * (1.0 + RAMP_END_SPEED) / 2.0))
-                        else:
-                            src_frames = int(round(tl_frames * rate))
+                        src_frames = int(round(tl_frames * rate))
                         if avail < src_frames:
                             continue
                         if rate > 1.0 and avail < SPEEDUP_MIN_REMAINING * fps:
@@ -310,8 +317,6 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
 
                         if rate != 1.0:
                             score -= PENALTY_SPEEDUP_WHEN_CALM * (1.0 - target_e)
-                        if ramp:
-                            score += W_PUNCH      # ramps are wanted, where they fit
 
                         if best is None or score > best[0]:
                             best = (score, clip, bars, tl_frames, src_frames, rate, ramp)
@@ -329,6 +334,21 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                 break
 
             _, clip, bars, tl_frames, src_frames, rate, ramp = best
+
+            # Escalate is applied AFTER the clip is chosen, never as a competitor
+            # for the slot, so switching it on cannot change the running order —
+            # only how the clip that already won plays. The extra source it eats
+            # is booked here, before the cursor advances, which is what keeps
+            # slices from overlapping.
+            if ALLOW_RAMPS and bar in ESCALATE_AT_BARS and rate == 1.0:
+                need = escalate_source_frames(tl_frames, fps)
+                if clip.remaining(fps) >= need:
+                    ramp, src_frames = "escalate", need
+                else:
+                    short = (need - clip.remaining(fps)) / fps
+                    print(f"  note: no escalate at bar {bar} — {clip.filename} is "
+                          f"{short:.1f}s short of the {need/fps:.1f}s it needs")
+
             t0 = track.bar_time(bar)
             cuts.append(Cut(
                 clip=clip,
@@ -346,6 +366,8 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             clip.cursor += src_frames
             clip.last_used_slot = slot_i
             clip.times_used += 1
+            if ramp:
+                last_escalate = slot_i
             if ramp:
                 last_escalate = slot_i
             prev = clip
