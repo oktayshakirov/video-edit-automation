@@ -97,7 +97,10 @@ def _time_map(c: Cut, fps: int) -> list[dict] | None:
         # tail. The slope of this curve *is* the playback speed, so it holds at
         # 200% and only ever climbs. Normalised so the curve lands exactly on
         # the last frame of the allotted source.
-        body, tail = ESCALATE_BODY_SPEED, ESCALATE_TAIL_SPEED
+        # The pair is whatever the clip could actually fund (see fit_escalate);
+        # it falls back to the configured ideal for edits built without a lock.
+        body = c.body_speed or ESCALATE_BODY_SPEED
+        tail = c.tail_speed or ESCALATE_TAIL_SPEED
         tf = min(ESCALATE_TAIL_SECONDS * fps, dur) / dur
         knee = 1.0 - tf
 
@@ -162,7 +165,7 @@ def _audio_duration(path: Path) -> float:
 
 
 def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
-           project_name: str, event_name: str = "dronecut") -> str:
+           project_name: str, event_name: str = "drone_automation") -> str:
     if not cuts:
         raise ValueError("no cuts to write")
 

@@ -1,9 +1,9 @@
 ---
-name: dronecut
+name: drone-automation
 description: Build or tune a music-synced Final Cut Pro timeline from graded drone selects. Use when the user wants to cut footage to a track, generate or regenerate an FCPXML, adjust pacing/speed/shot-selection of an existing edit, index a new batch of footage, save an approved edit stage, or diagnose an FCPXML that Final Cut refused to import.
 ---
 
-# dronecut
+# Drone Automation
 
 Turns a folder of graded drone selects plus a music track into a Final Cut Pro
 XML timeline. **It never renders video** — it reads, analyses and writes XML.
@@ -15,14 +15,14 @@ ffmpeg -version | head -1        # required; brew install ffmpeg
 ls .venv || python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
 ```
 
-All commands run from the repo root as `.venv/bin/python -m dronecut ...`.
+All commands run from the repo root as `.venv/bin/python -m drone_automation ...`.
 
 ## The loop
 
 ```bash
-.venv/bin/python -m dronecut index  <footage>              # once per batch; slow, then cached
-.venv/bin/python -m dronecut build  --project <name> --dry-run   # edit list, seconds
-.venv/bin/python -m dronecut build  --project <name>             # writes the FCPXML
+.venv/bin/python -m drone_automation index  <footage>              # once per batch; slow, then cached
+.venv/bin/python -m drone_automation build  --project <name> --dry-run   # edit list, seconds
+.venv/bin/python -m drone_automation build  --project <name>             # writes the FCPXML
 ```
 
 **Always `--dry-run` first when tuning.** It reruns the whole decision engine in
@@ -32,7 +32,7 @@ usage. Read that before regenerating XML.
 
 ## Tuning
 
-Every knob is in `dronecut/config.py`, grouped by phase, with `GUESS` marking
+Every knob is in `drone_automation/config.py`, grouped by phase, with `GUESS` marking
 values never validated against real output. Per-video changes belong in
 `projects/<name>.toml` under `[overrides]`, not in `config.py` — that file is
 the shared baseline across all videos.
@@ -54,22 +54,37 @@ Map a complaint to the right knob:
 
 ## Protecting an approved running order
 
-Once the user has signed off on the clip order, treat it as load-bearing.
-Anything that moves section boundaries or slot lengths re-lays the whole grid
-downstream and reshuffles which clip lands where — `SNAP_SECTIONS_TO_PHRASE`
-moved 39 of 49 positions. Before shipping a structural change, dry-run it and
-diff the clip order against the approved tag:
+The scorer is greedy: any change to weights, section boundaries, or slot
+lengths re-lays the whole grid downstream and can reshuffle every clip after
+the change point. Tuning parameters cannot reliably preserve an approved
+timeline — this was tried three separate times on Plovdiv and reshuffled the
+order every time, including one round where the opening shot changed as an
+uncalled-out side effect.
+
+**Once a project has an approved edit, lock it.** `build --lock-out
+projects/<name>.lock.toml` dumps the current slot grid and clip assignment.
+Reference it from the project file (`lock = "<name>.lock.toml"`), and `build`
+replays it verbatim — the scorer is bypassed entirely, so nothing tuned
+elsewhere can move a clip that isn't named in the request.
+
+With a lock in place, a request to swap or resize one shot is a **direct edit
+to the lock file** — change the `clip` value, the `bars` count, or `rate` — not
+a scoring change. This is the only way to guarantee everything else stays put.
+Effects that consume extra source (escalates, 2x) can still be capped by what a
+clip owes its *other* locked slots; when that happens, fit the effect down to
+what's actually available (see `fit_escalate` in `edit.py`) and say what the
+achieved numbers are, rather than silently taking footage from a later slot and
+moving the timeline anyway.
+
+For a project **without** a lock yet, dry-run any structural change and diff
+the clip order against the last approved tag before presenting it:
 
 ```bash
-git show <tag>:/dev/null 2>/dev/null; .venv/bin/python -m dronecut build --project <p> --dry-run
+git show <tag>:/dev/null 2>/dev/null; .venv/bin/python -m drone_automation build --project <p> --dry-run
 ```
 
-If positions move, say so and let the user choose. Do not present a reshuffled
+If positions move, say so and let the user choose — never present a reshuffled
 edit as if only the requested thing changed.
-
-Effects that consume extra source (escalates, 2x) shift a clip's *later* slices
-even when selection is untouched, so a clip used several times can still move.
-Say that too.
 
 Change one thing per round. A batch of changes that includes one the user
 dislikes tends to take the good parts down with it.
@@ -92,7 +107,7 @@ FCP still complains, reproduce it locally rather than guessing:
 
 ```bash
 .venv/bin/python -c "
-from pathlib import Path; from dronecut.validate import check
+from pathlib import Path; from drone_automation.validate import check
 print(check(Path('<file>.fcpxml')) or 'clean')"
 ```
 

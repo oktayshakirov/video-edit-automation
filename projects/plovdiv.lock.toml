@@ -1,0 +1,288 @@
+# Locked edit. Replayed verbatim by `build`, bypassing the scorer, so an
+# approved running order survives changes made elsewhere.
+#
+# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one
+# musical bar), `rate` sets a constant speed-up.
+# Regenerate from the current edit with `build --lock-out <file>`.
+
+[[lock]]
+bar = 0
+clip = "City 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 4
+clip = "Hills Monument.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 8
+clip = "City 8.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 10
+clip = "City Above.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 11
+clip = "Hill Tower.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 13
+clip = "City 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 15
+clip = "City 7.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 16
+clip = "City 5.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 20
+clip = "City 11.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 24
+clip = "City 3.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 26
+clip = "City 12.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 27
+clip = "City Above.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 28
+clip = "Hill Tower.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 30
+clip = "City 8.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 31
+clip = "City 4.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 33
+clip = "City 6.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 34
+clip = "City 10.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 35
+clip = "City Above.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 36
+clip = "City 12.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 38
+clip = "Hills Monument.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 39
+clip = "City 7.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 40
+clip = "City 9.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 42
+clip = "City 11.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 43
+clip = "City 9.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 44
+clip = "City 4.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 46
+clip = "City 6.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 47
+clip = "City 10.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 48
+clip = "City 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 52
+clip = "Hills Monument.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 56
+clip = "City 7.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 58
+clip = "City 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 59
+clip = "City 12.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 60
+clip = "City 4.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 62
+clip = "City 6.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 63
+clip = "City 9.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 64
+clip = "City 11.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 66
+clip = "City 10.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 67
+clip = "City 5.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 68
+clip = "City 4.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 70
+clip = "City 7.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 71
+clip = "City 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 72
+clip = "City 11.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 76
+clip = "City 9.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 80
+clip = "City 6.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 82
+clip = "City 10.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 84
+clip = "City 7.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 88
+clip = "City 1.mp4"
+bars = 2
+rate = 1.000

@@ -1,4 +1,4 @@
-# dronecut
+# Drone Automation
 
 Turns a folder of graded drone selects plus a music track into a **Final Cut Pro
 XML timeline** — clips chosen, ordered, trimmed and cut on the music's bar grid.
@@ -30,9 +30,9 @@ Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 ## Use
 
 ```bash
-.venv/bin/python -m dronecut index ~/Desktop/Plovdiv          # once per batch
-.venv/bin/python -m dronecut build --project plovdiv --dry-run
-.venv/bin/python -m dronecut build --project plovdiv
+.venv/bin/python -m drone_automation index ~/Desktop/Plovdiv          # once per batch
+.venv/bin/python -m drone_automation build --project plovdiv --dry-run
+.venv/bin/python -m drone_automation build --project plovdiv
 ```
 
 `index` is incremental — clips are identified by a partial hash (size + first
@@ -50,7 +50,7 @@ The older explicit form still works: `build <footage> --music <track>`.
 ## Repository layout
 
 ```
-dronecut/           the package
+drone_automation/           the package
   config.py         every tunable, grouped by phase, GUESS-marked where unvalidated
   media.py          ffprobe/ffmpeg wrappers, clip hashing, proxy build
   analysis.py       per-frame CV, motion fit, move classification
@@ -61,7 +61,7 @@ dronecut/           the package
   project.py        per-video TOML loading and config overrides
   cli.py            subcommands: index, report, build
 projects/           one .toml per video — see projects/README.md
-.claude/skills/     the dronecut skill, so the workflow travels with the repo
+.claude/skills/     the Drone Automation skill, so the workflow travels with the repo
 CHANGELOG.md        approved stages and their metrics
 ```
 

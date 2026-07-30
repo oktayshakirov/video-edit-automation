@@ -92,6 +92,13 @@ SPEEDUP_MIN_REMAINING = 12.0   # seconds of unused material required for 2x
 PENALTY_SPEEDUP_WHEN_CALM = 0.55
 
 HEAD_TRIM = 0.3              # seconds skipped at the head of a select (settle-in)
+
+# Extra seconds to ignore at the head of named clips, on top of HEAD_TRIM:
+# {filename substring: seconds}. For when the opening of a select is weaker than
+# the rest — overexposed, unsteady — which is a judgement the index cannot make.
+# Slices are handed out sequentially, so skipping the head also shifts every
+# later use of that clip one segment along.
+CLIP_HEAD_SKIP: dict[str, float] = {}
 MIN_TAIL_MARGIN = 0.1        # never run to the exact last frame
 
 # Variety penalties, applied against the previously placed clip. (GUESS)

@@ -4,12 +4,12 @@ A project pins the footage folder, the track, and any tuning that differs from
 the defaults, so each video is reproducible from one file and the shared
 defaults in config.py never have to be edited per shoot.
 
-    dronecut build --project projects/plovdiv.toml
+    drone_automation build --project projects/plovdiv.toml
 
 Overrides are applied to the config module before the edit modules import it,
 which is why cli.py imports those lazily. They therefore affect phases 2-4
 (music, edit decisions, export). Changing an indexing constant needs a
-`dronecut index --reanalyze` instead, because the clip index is already built.
+`drone_automation index --reanalyze` instead, because the clip index is already built.
 """
 
 from __future__ import annotations
@@ -28,7 +28,13 @@ class Project:
     music: Path
     profile: str = "youtube"
     out: Path | None = None
+    lock: Path | None = None
     overrides: dict = field(default_factory=dict)
+
+    def load_lock(self) -> list[dict] | None:
+        if self.lock is None or not self.lock.is_file():
+            return None
+        return tomllib.loads(self.lock.read_text(encoding="utf-8")).get("lock") or None
 
 
 def resolve(ref: str) -> Path:
@@ -57,6 +63,7 @@ def load(ref: str) -> Project:
         music=Path(data["music"]).expanduser(),
         profile=data.get("profile", "youtube"),
         out=Path(data["out"]).expanduser() if data.get("out") else None,
+        lock=(path.parent / data["lock"]) if data.get("lock") else None,
         overrides=data.get("overrides", {}),
     )
 

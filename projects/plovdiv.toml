@@ -2,7 +2,7 @@
 #
 # Paths are absolute because footage lives outside the repo (it is hundreds of
 # gigabytes and has no business in git). Anything under [overrides] must name a
-# real constant in dronecut/config.py or the build fails loudly.
+# real constant in drone_automation/config.py or the build fails loudly.
 
 name = "Plovdiv"
 profile = "youtube"
@@ -10,22 +10,27 @@ profile = "youtube"
 footage = "~/Desktop/Plovdiv"
 music = "~/Desktop/Plovdiv/background music.mp3"
 
+# The approved running order, replayed verbatim. With a lock present the scorer
+# is bypassed entirely, so nothing changed here can reshuffle the timeline.
+# Swap a shot by editing the lock file, not by retuning weights.
+# The clip pins that produced this order are baked into the lock.
+lock = "plovdiv.lock.toml"
+
 [overrides]
 # Hill Tower is the only orbit in this batch, so the same-move penalty can never
 # push against it. Capped by hand instead.
 MAX_USES_BY_MOVE = { orbit = 3 }
 
-# Escalate the shot ending at 0:20 (the slot starting at bar 4): 200% through
-# the body, launching to 2000% across its final second into the next clip.
-ESCALATE_AT_BARS = [4]
+# Escalates, by slot start bar.
+#   4  -> the shot ending at 0:20
+#   20 -> City 11 launching into the cut at 1:00
+ESCALATE_AT_BARS = [4, 20]
 
-# Cuts at 2:11 and 2:21 were landing a bar late because section boundaries sat
-# off-phrase. Snapping them fixes the sync; the cost is that the slot grid is
-# re-laid, so clip placement downstream moves.
+# Hill Tower's opening segment is overexposed. Skipping it shifts its remaining
+# uses one segment along: the slot that showed segment 1 now shows segment 2,
+# and the slot that showed segment 2 shows segment 3.
+CLIP_HEAD_SKIP = { "Hill Tower" = 10.1 }
+
+# Section boundaries snap to phrase lines — this is what put the cuts at 2:11
+# and 2:21 on the beat. The lock preserves the resulting grid.
 SNAP_SECTIONS_TO_PHRASE = true
-
-# Hand-placed clips, by slot start bar.
-#   13 -> 0:32.83  City 2 replaces City 3
-#   15 -> 0:37.87  City 7 replaces City 12
-PIN_CLIPS = { 13 = "City 2", 15 = "City 7" }
-PIN_SLOT_BARS = { 13 = 2 }   # City 2 spans 0:32.83-0:37.87, as City 3 did

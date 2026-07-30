@@ -26,6 +26,7 @@ from .config import (
     ALLOW_RAMPS,
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
+    CLIP_HEAD_SKIP,
     ESCALATE_AT_BARS,
     PIN_CLIPS,
     PIN_SLOT_BARS,
@@ -76,6 +77,7 @@ class Clip:
     tx_rate: float = 0.0
     ty_rate: float = 0.0
     reverse: bool = False        # play backwards, to break direction duplication
+    head_skip: float = 0.0       # extra seconds ignored at the head of this clip
     energy_rank: float = 0.0     # 0..1 within the library
     cursor: int = 0              # source frames already consumed
     last_used_slot: int = -999
@@ -105,10 +107,12 @@ class Cut:
     duration: int            # frames on the timeline
     source_start: int        # frames into the source
     source_duration: int     # frames consumed from the source
-    rate: float              # 1.0 normal, <1.0 slower
+    rate: float              # 1.0 normal, >1.0 faster
     section_label: str
     reverse: bool = False
-    ramp: str | None = None  # None | "accel" | "decel"
+    ramp: str | None = None  # None | "escalate"
+    body_speed: float = 0.0  # actual body speed of an escalate, once fitted
+    tail_speed: float = 0.0  # actual peak speed of an escalate, once fitted
 
 
 def _group_of(filename: str) -> str:
@@ -133,7 +137,9 @@ def load_clips(db_path: Path) -> list[Clip]:
     clips = [
         Clip(hash=r[0], path=r[1], filename=r[2], duration=r[3], fps=r[4],
              move_type=r[5], motion_energy=r[6], hue=r[7], group=_group_of(r[2]),
-             tx_rate=r[8], ty_rate=r[9])
+             tx_rate=r[8], ty_rate=r[9],
+             head_skip=next((s for name, s in CLIP_HEAD_SKIP.items()
+                             if name.lower() in r[2].lower()), 0.0))
         for r in rows
     ]
     if AUTO_REVERSE:
@@ -201,18 +207,177 @@ def _preferred_bars(section_energy_norm: float) -> int:
     return SLOT_BARS_BY_ENERGY[-1][1]
 
 
-def escalate_source_frames(tl_frames: int, fps: int) -> int:
+def _label_at(track: Track, bar: int) -> str:
+    for s in track.sections:
+        if s.start_bar <= bar < s.end_bar:
+            return s.label
+    return track.sections[-1].label if track.sections else ""
+
+
+def build_locked(track: Track, clips: list[Clip], fps: int,
+                 lock: list[dict]) -> list[Cut]:
+    """Replay an approved assignment instead of re-deciding it.
+
+    The scorer is greedy: change any input and every later slot can land on a
+    different clip. That makes parameter tuning useless for "keep this timeline
+    but change one shot" — the single change drags the whole running order with
+    it.
+
+    A lock records the slot grid and clip assignment of an approved edit, and
+    this replays it exactly. Nothing here consults the scoring weights, so the
+    only things that vary are what was edited in the lock file or applied on top
+    (escalates, head skips).
+    """
+    by_name = {c.filename: c for c in clips}
+    entries = sorted(lock, key=lambda e: e["bar"])
+
+    # What each clip owes its *other* slots at nominal speed. An escalate is
+    # sized against this so it takes only genuinely spare footage — otherwise a
+    # ramp early on eats the material a later slot in the approved order needs,
+    # and that slot has to be dropped or re-clipped, which moves the timeline.
+    committed: dict[str, int] = {}
+    for e in entries:
+        bar_, bars_ = int(e["bar"]), int(e["bars"])
+        if ALLOW_RAMPS and bar_ in ESCALATE_AT_BARS:
+            continue
+        tl = round(track.bar_time(bar_ + bars_) * fps) - round(track.bar_time(bar_) * fps)
+        name_ = e["clip"]
+        committed[name_] = committed.get(name_, 0) + int(round(tl * float(e.get("rate", 1.0))))
+
+    cuts: list[Cut] = []
+
+    for entry in entries:
+        bar, bars = int(entry["bar"]), int(entry["bars"])
+        name = entry["clip"]
+        clip = by_name.get(name) or next(
+            (c for c in clips if name.lower() in c.filename.lower()), None)
+        if clip is None:
+            print(f"  note: lock names '{name}' at bar {bar}, not found in the index")
+            continue
+
+        t0, t1 = track.bar_time(bar), track.bar_time(bar + bars)
+        tl_frames = round(t1 * fps) - round(t0 * fps)
+        rate = float(entry.get("rate", 1.0))
+
+        ramp = None
+        body_speed = tail_speed = 0.0
+        src_frames = int(round(tl_frames * rate))
+        if ALLOW_RAMPS and bar in ESCALATE_AT_BARS:
+            # "Speed up to the max that allows the transition": the launch is
+            # as fast as the footage this clip can spare, not a fixed number.
+            # The budget subtracts what the clip is already committed to in
+            # later slots, so escalating here cannot starve them.
+            budget = clip.remaining(fps) - committed.get(clip.filename, 0)
+            ideal = escalate_source_frames(tl_frames, fps)
+            body_speed, tail_speed = fit_escalate(tl_frames, min(ideal, budget), fps)
+            if tail_speed:
+                ramp, rate = "escalate", 1.0
+                src_frames = escalate_source_frames(
+                    tl_frames, fps, tail_speed, body_speed)
+                if tail_speed < ESCALATE_TAIL_SPEED - 0.05:
+                    print(f"  note: escalate at bar {bar} fitted to "
+                          f"{body_speed*100:.0f}% -> {tail_speed*100:.0f}% "
+                          f"(ideal {ESCALATE_BODY_SPEED*100:.0f}% -> "
+                          f"{ESCALATE_TAIL_SPEED*100:.0f}%): {clip.filename} must "
+                          f"keep {committed.get(clip.filename,0)/fps:.1f}s for its "
+                          f"later slots")
+            else:
+                print(f"  note: no escalate at bar {bar} — {clip.filename} cannot "
+                      f"spare the footage without starving its later slots")
+
+        if clip.remaining(fps) < src_frames:
+            # Drop to natural speed before giving up on the slot entirely.
+            if clip.remaining(fps) >= tl_frames:
+                print(f"  note: bar {bar} {clip.filename} lacks material for "
+                      f"{rate:.2f}x — using 1.0x")
+                ramp, rate, src_frames = None, 1.0, tl_frames
+            else:
+                print(f"  note: bar {bar} {clip.filename} has only "
+                      f"{clip.remaining(fps)/fps:.1f}s left, needs "
+                      f"{src_frames/fps:.1f}s")
+                src_frames = max(clip.remaining(fps), 1)
+
+        cuts.append(Cut(
+            clip=clip, start_bar=bar, bars=bars,
+            timeline_start=round(t0 * fps), duration=tl_frames,
+            source_start=clip.cursor, source_duration=src_frames,
+            rate=rate, section_label=_label_at(track, bar),
+            reverse=clip.reverse, ramp=ramp,
+            body_speed=body_speed, tail_speed=tail_speed,
+        ))
+        clip.cursor += src_frames
+        clip.times_used += 1
+
+    _absorb_lead_in(cuts, fps)
+    return cuts
+
+
+def dump_lock(cuts: list[Cut]) -> str:
+    """Serialise an edit's slot grid and assignment as an editable TOML lock."""
+    lines = [
+        "# Locked edit. Replayed verbatim by `build`, bypassing the scorer, so an",
+        "# approved running order survives changes made elsewhere.",
+        "#",
+        "# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one",
+        "# musical bar), `rate` sets a constant speed-up.",
+        "# Regenerate from the current edit with `build --lock-out <file>`.",
+        "",
+    ]
+    for c in cuts:
+        lines += [
+            "[[lock]]",
+            f"bar = {c.start_bar}",
+            f'clip = "{c.clip.filename}"',
+            f"bars = {c.bars}",
+            f"rate = {c.rate:.3f}",
+            "",
+        ]
+    return "\n".join(lines)
+
+
+def escalate_source_frames(tl_frames: int, fps: int,
+                           tail_speed: float | None = None,
+                           body_speed: float | None = None) -> int:
     """Source consumed by an escalate: flat body, then a linear launch.
 
     Speed holds at ESCALATE_BODY_SPEED, then rises across the last
-    ESCALATE_TAIL_SECONDS to ESCALATE_TAIL_SPEED. The tail is specified in
-    timeline seconds rather than as a fraction so the launch feels the same
-    length whether the shot is 5s or 10s.
+    ESCALATE_TAIL_SECONDS to `tail_speed`. The tail is specified in timeline
+    seconds rather than as a fraction so the launch feels the same length
+    whether the shot is 5s or 10s.
     """
+    peak = ESCALATE_TAIL_SPEED if tail_speed is None else tail_speed
+    base = ESCALATE_BODY_SPEED if body_speed is None else body_speed
     tail = min(int(round(ESCALATE_TAIL_SECONDS * fps)), tl_frames)
     body = tl_frames - tail
-    mean_tail = (ESCALATE_BODY_SPEED + ESCALATE_TAIL_SPEED) / 2.0
-    return int(round(body * ESCALATE_BODY_SPEED + tail * mean_tail))
+    return int(round(body * base + tail * (base + peak) / 2.0))
+
+
+def fit_escalate(tl_frames: int, budget: int, fps: int) -> tuple[float, float]:
+    """Strongest (body, tail) speed pair this much source can pay for.
+
+    "Speed up to the max that allows the transition." The ideal profile is
+    ESCALATE_BODY_SPEED through the body and ESCALATE_TAIL_SPEED at the last
+    frame, but a clip that also has to serve later slots may not be able to
+    fund it. Body speed is walked down from the ideal and the launch is
+    recomputed each step, so the result is the fastest profile that fits rather
+    than no effect at all. Returns (0, 0) when even a mild launch is impossible.
+    """
+    tail_f = min(int(round(ESCALATE_TAIL_SECONDS * fps)), tl_frames)
+    if tail_f <= 0 or budget <= 0:
+        return 0.0, 0.0
+    body_f = tl_frames - tail_f
+
+    body = ESCALATE_BODY_SPEED
+    while body >= 1.0:
+        spare = budget - body_f * body
+        peak = 2.0 * spare / tail_f - body
+        peak = min(peak, ESCALATE_TAIL_SPEED)
+        # The launch has to be clearly faster than the body or it reads as a
+        # flat speed-up rather than a ramp.
+        if peak >= body * 2.0:
+            return body, peak
+        body -= 0.1
+    return 0.0, 0.0
 
 
 def _hue_distance(a: float, b: float) -> float:
@@ -429,7 +594,7 @@ def _absorb_lead_in(cuts: list[Cut], fps: int) -> None:
 
 def reset(clips: list[Clip], fps: int) -> None:
     for c in clips:
-        c.cursor = int(HEAD_TRIM * fps)
+        c.cursor = int((HEAD_TRIM + c.head_skip) * fps)
         c.last_used_slot = -999
         c.times_used = 0
 

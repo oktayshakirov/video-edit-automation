@@ -1,8 +1,8 @@
 """Command line entry point.
 
-    python -m dronecut index  ~/Desktop/Plovdiv
-    python -m dronecut index  ~/Desktop/Plovdiv --reanalyze   # keep proxies, redo metrics
-    python -m dronecut report ~/Desktop/Plovdiv
+    python -m drone_automation index  ~/Desktop/Plovdiv
+    python -m drone_automation index  ~/Desktop/Plovdiv --reanalyze   # keep proxies, redo metrics
+    python -m drone_automation report ~/Desktop/Plovdiv
 
 Subcommands rather than flags, because Phase 2-4 add `music`, `edit` and
 `export` alongside these.
@@ -89,7 +89,8 @@ def cmd_report(root: Path) -> int:
 
 
 def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
-              click: bool = False) -> int:
+              click: bool = False, lock: list[dict] | None = None,
+              lock_out: Path | None = None) -> int:
     """Music -> bar grid -> edit decisions -> FCPXML."""
     require_tools()
 
@@ -100,7 +101,7 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
     db_path = root / PROXY_DIRNAME / DB_NAME
     if not db_path.exists():
-        print(f"No index at {db_path}. Run `dronecut index` first.", file=sys.stderr)
+        print(f"No index at {db_path}. Run `drone_automation index` first.", file=sys.stderr)
         return 1
 
     clips = edit_mod.load_clips(db_path)
@@ -136,9 +137,18 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
         print()
 
     edit_mod.reset(clips, fps)
-    cuts = edit_mod.build_edit(track, clips, fps)
+    if lock:
+        print(f"Replaying locked edit — {len(lock)} slots, scorer bypassed.")
+        cuts = edit_mod.build_locked(track, clips, fps, lock)
+    else:
+        cuts = edit_mod.build_edit(track, clips, fps)
     print(edit_mod.describe(cuts, fps))
     print()
+
+    if lock_out:
+        lock_out.write_text(edit_mod.dump_lock(cuts), encoding="utf-8")
+        print(f"Wrote lock: {lock_out}  ({len(cuts)} slots)")
+        print()
 
     dupes = edit_mod.overlapping_slices(cuts)
     if dupes:
@@ -176,7 +186,7 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        prog="dronecut", description="Beat-driven editor for drone selects."
+        prog="drone_automation", description="Drone Automation — beat-driven editor for drone selects."
     )
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -199,11 +209,16 @@ def main(argv: list[str] | None = None) -> int:
                          help="print the edit list without writing FCPXML")
     p_build.add_argument("--click", action="store_true",
                          help="also write a click-track WAV to check the bar grid by ear")
+    p_build.add_argument("--lock-out", type=Path, default=None,
+                         help="write this edit's assignment to a lock file")
+    p_build.add_argument("--no-lock", action="store_true",
+                         help="ignore the project's lock and re-run the scorer")
 
     args = ap.parse_args(argv)
 
     out = getattr(args, "out", None)
     music = getattr(args, "music", None)
+    lock = None
 
     try:
         # A project file supplies footage, music and tuning in one place, and
@@ -216,6 +231,8 @@ def main(argv: list[str] | None = None) -> int:
             for line in changed:
                 print(f"  override  {line}")
             root, music, out = proj.footage, proj.music, out or proj.out
+            if not getattr(args, "no_lock", False):
+                lock = proj.load_lock()
         elif args.cmd == "build" and args.folder is None:
             print("build needs either a footage folder or --project", file=sys.stderr)
             return 1
@@ -237,7 +254,8 @@ def main(argv: list[str] | None = None) -> int:
             if not music.is_file():
                 print(f"Music file not found: {music}", file=sys.stderr)
                 return 1
-            return cmd_build(root, music, out, args.dry_run, args.click)
+            return cmd_build(root, music, out, args.dry_run, args.click,
+                             lock, args.lock_out)
         return cmd_report(root)
     except (ToolMissing, FileNotFoundError, KeyError) as e:
         print(f"error: {e}", file=sys.stderr)

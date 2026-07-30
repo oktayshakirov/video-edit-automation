@@ -34,7 +34,7 @@ def _staged_dtd(src: Path) -> Path:
     spaces, so pointing it straight at the app bundle fails with a misleading
     "Could not parse DTD" that looks like the DTD itself is broken.
     """
-    dst = Path(tempfile.gettempdir()) / "dronecut-dtd" / src.name
+    dst = Path(tempfile.gettempdir()) / "drone_automation-dtd" / src.name
     dst.parent.mkdir(parents=True, exist_ok=True)
     if not dst.exists() or dst.stat().st_mtime < src.stat().st_mtime:
         shutil.copyfile(src, dst)

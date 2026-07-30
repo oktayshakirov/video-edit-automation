@@ -2,12 +2,12 @@
 
 One TOML file per video. Each pins its footage folder, its track, and any tuning
 that differs from the shared defaults, so a video is reproducible from one file
-and `dronecut/config.py` stays the common baseline rather than being rewritten
+and `drone_automation/config.py` stays the common baseline rather than being rewritten
 per shoot.
 
 ```bash
-dronecut build --project plovdiv
-dronecut build --project plovdiv --dry-run     # edit list only, seconds
+.venv/bin/python -m drone_automation build --project plovdiv
+.venv/bin/python -m drone_automation build --project plovdiv --dry-run     # edit list only, seconds
 ```
 
 ## Fields
@@ -19,7 +19,7 @@ dronecut build --project plovdiv --dry-run     # edit list only, seconds
 | `music` | **yes** | the track |
 | `profile` | no | `youtube` (default) or `tiktok` |
 | `out` | no | where to write the FCPXML; defaults next to the footage |
-| `[overrides]` | no | any constant from `dronecut/config.py` |
+| `[overrides]` | no | any constant from `drone_automation/config.py` |
 
 Footage is never committed. Only the recipe is.
 
@@ -36,8 +36,8 @@ when it is built, so changing those means re-running `index --reanalyze`.
 ## Adding a video
 
 1. Copy an existing `.toml` and repoint `footage` and `music`.
-2. `dronecut index <footage>` — slow once, cached afterwards.
-3. `dronecut build --project <name> --dry-run` and read the edit list.
+2. `.venv/bin/python -m drone_automation index <footage>` — slow once, cached afterwards.
+3. `.venv/bin/python -m drone_automation build --project <name> --dry-run` and read the edit list.
 4. Tune under `[overrides]`, repeat step 3.
-5. `dronecut build --project <name>`, import, review in Final Cut.
+5. `.venv/bin/python -m drone_automation build --project <name>`, import, review in Final Cut.
 6. When it's good, commit and tag — see the root README.
