@@ -22,7 +22,14 @@ transcoding, no proxy rendering of output, no MP4 export.
 brew install ffmpeg
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
+
+# make /drone-edit available in any session, from any folder
+ln -s "$PWD/.claude/skills/drone-edit" ~/.claude/skills/drone-edit
 ```
+
+The symlink matters: skills under `.claude/skills/` are project-scoped, so
+without it `/drone-edit` is invisible when a session starts in a footage folder
+rather than in this repo.
 
 Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 3.11+ (`tomllib`).
@@ -61,7 +68,8 @@ drone_automation/           the package
   project.py        per-video TOML loading and config overrides
   cli.py            subcommands: index, report, build
 projects/           one .toml per video — see projects/README.md
-.claude/skills/     the Drone Automation skill, so the workflow travels with the repo
+.claude/skills/     the drone-edit skill — symlink it into ~/.claude/skills/
+assets/             reusable overlays + captured FCPXML fragments
 CHANGELOG.md        approved stages and their metrics
 ```
 
