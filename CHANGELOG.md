@@ -9,6 +9,7 @@ Return to any stage with `git checkout <tag>`.
 
 | tag | cuts | mean shot | coverage | effects | notes |
 |---|---|---|---|---|---|
+| `plovdiv-v7` | 47 | 4.81s | 74% | 12 sped up, 2 escalates, 4 reversed | City 4 dropped from 2x to 100% (reverse kept) — it read too fast over the city. Order byte-identical to v6. |
 | `plovdiv-v6` | 47 | 4.81s | 81% | 16 sped up, 2 escalates, 4 reversed | Locked timeline — opening restored to v4's order (City 1 first). Hill Tower's overexposed head skipped, cascading its remaining uses forward. Second escalate before 1:00, fitted to 160%→403% (footage-limited). |
 | `plovdiv-v5` | 47 | 4.81s | 81% | 16 sped up, 1 escalate, 4 reversed | Phrase-snapped sections: 2:11 and 2:21 now on the beat. Pinned City 2 @0:32.83 and City 7 @0:37.87. Picture and music fade together 222.03→226.03s. Opener drifted to City 5 as a side effect — caught and fixed in v6. |
 | `plovdiv-v4` | 49 | 4.61s | 83% | 14 sped up, 1 escalate, 5 reversed | Escalate on Hills Monument at 0:10–0:20: 200% body, 2000% final second. Order matches v3 through 2:28. |
@@ -43,6 +44,30 @@ Return to any stage with `git checkout <tag>`.
   owes 22.5s to its later slots in the locked order, so the escalate fits
   itself down to whatever speed the spare footage can fund (160%→403% here)
   rather than borrowing from those slots and moving the timeline again.
+
+- **v7** — City 4's four instances dropped from 2x to 100%, reverse retained.
+  First change made purely by editing the lock file; the running order came out
+  byte-identical, which is what the lock exists to guarantee.
+
+### Colour notes (measured, not yet acted on)
+
+The 15 clips split into two colour families rather than drifting: warm 10-79°
+(ten clips) and cool 184-201° (City 11, 4, 3, 2), with City Above alone at 346°.
+**20 of 46 cuts jump more than 120° in hue** and this was never flagged during
+review — on a ~4.8s average shot length the warm/cool alternation reads as
+energy, not error. Treated as taste, not a fault.
+
+More visible than hue, and worth addressing first:
+
+- **Brightness**: City Above (0.41) and Hill Tower (0.43) sit well under the
+  0.56-0.70 cluster — roughly a 1.5-stop step at some cuts.
+- **Saturation**: Hill Tower (0.59) is ~3x City 1 (0.18) and City 11 (0.19),
+  so it reads as the most processed shot whenever it appears.
+- **City 11's 28.3% blown highlights are NOT recoverable.** The clipping is the
+  sunset cloud, uniform across the whole clip (27.5-29.0% in every 5s window),
+  and these are graded exports — pixels at 255 have nothing behind them. What
+  *is* fixable there is haze: City 11 measures 186 on detail density, the lowest
+  of all 15 and ~10x below the sharpest.
 
 ### Known open items
 
