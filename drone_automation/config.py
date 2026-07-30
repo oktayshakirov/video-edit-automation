@@ -66,6 +66,10 @@ SNAP_SECTIONS_TO_PHRASE = True
 # Phase 3 — edit decisions
 # =========================================================================
 
+# Name of the event the timeline lands in inside Final Cut. A display name, so
+# it takes spaces and capitals — unlike the Python module name, which cannot.
+EVENT_NAME = "Claude Drone"
+
 TIMELINE_FPS = 30            # overridden from the footage; all cuts snap to this
 
 # Legal slot lengths in bars, longest first. The engine takes the longest one a

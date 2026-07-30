@@ -40,6 +40,7 @@ from urllib.parse import quote
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from .config import (
+    EVENT_NAME,
     ESCALATE_BODY_SPEED,
     ESCALATE_TAIL_SECONDS,
     ESCALATE_TAIL_SPEED,
@@ -165,7 +166,7 @@ def _audio_duration(path: Path) -> float:
 
 
 def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
-           project_name: str, event_name: str = "drone_automation") -> str:
+           project_name: str, event_name: str = EVENT_NAME) -> str:
     if not cuts:
         raise ValueError("no cuts to write")
 
