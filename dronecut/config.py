@@ -156,6 +156,23 @@ RAMP_POINTS = 9                # linear segments approximating the curve
 # upgrade it changes how the already-chosen clip plays and nothing else.
 ESCALATE_AT_BARS: tuple[int, ...] = ()
 
+# Force a specific clip into a specific slot: {start bar: filename substring}.
+# Set per project. A pin overrides scoring, the reuse cooldown and the use cap —
+# it is a direct instruction, not a preference. It still cannot invent footage,
+# so a pin whose clip has no material left is reported rather than applied
+# silently.
+PIN_CLIPS: dict[int, str] = {}
+
+# Slot length for a pin, in bars: {start bar: bars}. Without this the pinned
+# clip's length is still chosen by scoring, which can differ from the length the
+# clip it replaced happened to have — a 2-bar shot becomes a 1-bar one and the
+# replacement does not cover the same span.
+PIN_SLOT_BARS: dict[int, int] = {}
+
+# Fade the picture to black under the closing music fade. Length follows
+# MUSIC_FADE_SECONDS so the two land together.
+FADE_TO_BLACK = True
+
 # If the footage runs out before the track does, end the music under the last
 # shot rather than letting it play over black.
 MUSIC_FADE_SECONDS = 4.0

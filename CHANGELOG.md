@@ -9,6 +9,7 @@ Return to any stage with `git checkout <tag>`.
 
 | tag | cuts | mean shot | coverage | effects | notes |
 |---|---|---|---|---|---|
+| `plovdiv-v5` | 47 | 4.81s | 81% | 16 sped up, 1 escalate, 4 reversed | Phrase-snapped sections: 2:11 and 2:21 now on the beat. Pinned City 2 @0:32.83 and City 7 @0:37.87. Picture and music fade together 222.03→226.03s. |
 | `plovdiv-v4` | 49 | 4.61s | 83% | 14 sped up, 1 escalate, 5 reversed | Escalate on Hills Monument at 0:10–0:20: 200% body, 2000% final second. Order matches v3 through 2:28. |
 | `plovdiv-v3` | 49 | 4.61s | 80% | 15 sped up, 2 punch ramps, 5 reversed | Opening order approved. Speed-up only, no slow motion. Zero repeated source ranges. |
 
@@ -26,6 +27,11 @@ Return to any stage with `git checkout <tag>`.
   2000% across the last second, launching into the next clip. Placed explicitly
   via `ESCALATE_AT_BARS` rather than won by scoring, because a scored escalate
   took slots from other clips and reshuffled the running order.
+
+- **v5** — `SNAP_SECTIONS_TO_PHRASE` turned on, fixing 2:11 and 2:21 at the cost
+  of re-laying the slot grid (37 of 47 positions moved). Added `PIN_CLIPS` /
+  `PIN_SLOT_BARS` for hand-placing a clip in a slot, and a picture fade to black
+  under the closing music fade.
 
 ### Known open items
 

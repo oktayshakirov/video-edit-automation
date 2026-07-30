@@ -43,6 +43,7 @@ from .config import (
     ESCALATE_BODY_SPEED,
     ESCALATE_TAIL_SECONDS,
     ESCALATE_TAIL_SPEED,
+    FADE_TO_BLACK,
     MUSIC_FADE_SECONDS,
     RAMP_POINTS,
 )
@@ -206,9 +207,23 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             "start": "0s" if tm else _rational(c.source_start, fps),
             "duration": _rational(c.duration, fps),
             "timemap": tm,
+            "fade": None,
         })
 
     video_end = max(c.timeline_start + c.duration for c in cuts)
+
+    # Fade the picture out under the closing music fade so both land together.
+    # Keyframe times are in the clip's own time base, which starts at `start` —
+    # and `start` is 0s whenever a timeMap is present, so the base differs
+    # between a plain cut and a retimed one.
+    if FADE_TO_BLACK:
+        last, entry = cuts[-1], rendered_cuts[-1]
+        fade = min(int(MUSIC_FADE_SECONDS * fps), last.duration)
+        base = 0 if entry["timemap"] else last.source_start
+        entry["fade"] = {
+            "from": _rational(base + last.duration - fade, fps),
+            "to": _rational(base + last.duration, fps),
+        }
 
     # If the footage runs out before the track does, end the music under the
     # last shot and fade it, rather than letting it play on over black.

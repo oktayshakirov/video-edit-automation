@@ -18,4 +18,14 @@ MAX_USES_BY_MOVE = { orbit = 3 }
 # Escalate the shot ending at 0:20 (the slot starting at bar 4): 200% through
 # the body, launching to 2000% across its final second into the next clip.
 ESCALATE_AT_BARS = [4]
-SNAP_SECTIONS_TO_PHRASE = false
+
+# Cuts at 2:11 and 2:21 were landing a bar late because section boundaries sat
+# off-phrase. Snapping them fixes the sync; the cost is that the slot grid is
+# re-laid, so clip placement downstream moves.
+SNAP_SECTIONS_TO_PHRASE = true
+
+# Hand-placed clips, by slot start bar.
+#   13 -> 0:32.83  City 2 replaces City 3
+#   15 -> 0:37.87  City 7 replaces City 12
+PIN_CLIPS = { 13 = "City 2", 15 = "City 7" }
+PIN_SLOT_BARS = { 13 = 2 }   # City 2 spans 0:32.83-0:37.87, as City 3 did

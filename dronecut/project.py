@@ -61,6 +61,17 @@ def load(ref: str) -> Project:
     )
 
 
+# TOML table keys are always strings, but some config values are keyed by bar
+# number. Without this, `PIN_CLIPS = { 13 = "City 2" }` arrives as {"13": ...},
+# the integer lookup silently misses, and the pin is neither applied nor
+# reported — which reads as the feature being broken.
+_COERCE = {
+    "PIN_CLIPS": lambda v: {int(k): s for k, s in v.items()},
+    "PIN_SLOT_BARS": lambda v: {int(k): int(s) for k, s in v.items()},
+    "ESCALATE_AT_BARS": lambda v: tuple(int(x) for x in v),
+}
+
+
 def apply_overrides(overrides: dict) -> list[str]:
     """Write project overrides onto the config module. Returns what changed.
 
@@ -74,6 +85,8 @@ def apply_overrides(overrides: dict) -> list[str]:
     for key, value in overrides.items():
         if not hasattr(config, key):
             raise KeyError(f"unknown config key in project overrides: {key}")
+        if key in _COERCE:
+            value = _COERCE[key](value)
         old = getattr(config, key)
         if old != value:
             setattr(config, key, value)

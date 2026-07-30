@@ -27,6 +27,8 @@ from .config import (
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
     ESCALATE_AT_BARS,
+    PIN_CLIPS,
+    PIN_SLOT_BARS,
     ESCALATE_BODY_SPEED,
     ESCALATE_TAIL_SECONDS,
     ESCALATE_TAIL_SPEED,
@@ -253,17 +255,32 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             slot_pref = pref_bars * (PHRASE_ACCENT_MULTIPLIER if on_phrase else 1)
             best = None
 
+            # A pin is a direct instruction: it overrides scoring, the cooldown
+            # and the use cap. Everything else about the slot is unchanged.
+            pin = PIN_CLIPS.get(bar)
+
             for clip in clips:
                 if clip.remaining(fps) <= 0:
                     continue
-                cooling = (slot_i - clip.last_used_slot) < REUSE_COOLDOWN_SLOTS
-                if cooling and clip.times_used > 0:
-                    continue
-                if clip.times_used >= clip.max_uses:
-                    continue
+                if pin is not None:
+                    if pin.lower() not in clip.filename.lower():
+                        continue
+                else:
+                    cooling = (slot_i - clip.last_used_slot) < REUSE_COOLDOWN_SLOTS
+                    if cooling and clip.times_used > 0:
+                        continue
+                    if clip.times_used >= clip.max_uses:
+                        continue
 
+                pinned_bars = PIN_SLOT_BARS.get(bar)
                 for bars in legal_bars:
-                    if bars > room or bars < clip.min_slot_bars:
+                    if bars > room:
+                        continue
+                    if pinned_bars is not None and bars != pinned_bars:
+                        continue
+                    # A pinned clip is allowed to take a shorter slot than its
+                    # move type would normally justify — the instruction wins.
+                    if pin is None and bars < clip.min_slot_bars:
                         continue
                     t0 = track.bar_time(bar)
                     t1 = track.bar_time(bar + bars)
@@ -320,6 +337,10 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
 
                         if best is None or score > best[0]:
                             best = (score, clip, bars, tl_frames, src_frames, rate, ramp)
+
+            if best is None and pin is not None:
+                print(f"  note: pin at bar {bar} ('{pin}') could not be placed — "
+                      f"no material left, or it cannot fill the slot at 1x")
 
             if best is None:
                 # Every clip is either cooling or exhausted. Recycle the ones

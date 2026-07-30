@@ -26,6 +26,16 @@
 {% endfor %}
                             </timeMap>
 {% endif %}
+{% if c.fade %}
+                            <adjust-blend amount="1">
+                                <param name="amount">
+                                    <keyframeAnimation>
+                                        <keyframe time="{{ c.fade.from }}" value="1"/>
+                                        <keyframe time="{{ c.fade.to }}" value="0"/>
+                                    </keyframeAnimation>
+                                </param>
+                            </adjust-blend>
+{% endif %}
 {% if loop.first %}
                             <asset-clip ref="{{ audio.id }}" lane="-1" offset="{{ c.start }}" name="{{ audio.name }}" start="0s" duration="{{ audio.duration }}" audioRole="music">
 {% if audio.fade_from %}
