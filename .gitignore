@@ -16,3 +16,10 @@ __pycache__/
 *.mp4
 *.mov
 *.mp3
+
+# ...but reusable overlay assets do. They are small, they are needed on every
+# machine, and re-deriving them from a source pack by hand is exactly the kind
+# of step that gets lost. Exception must come after the rules above.
+!assets/**/*.mp4
+!assets/**/*.mov
+!assets/fcpxml/*.xml

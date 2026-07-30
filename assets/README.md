@@ -1,62 +1,70 @@
 # Assets
 
-Overlay elements reused across videos.
+Reusable overlay elements, and the FCPXML fragments needed to place them.
 
-## The media files are deliberately NOT committed
+These *are* committed — they are small, needed on every machine, and
+re-deriving them by hand is exactly the step that gets lost between videos.
 
-`.gitignore` excludes `*.mp4`, and that is intentional here rather than
-incidental: **this repository is public**, and the pin animation is licensed
-third-party stock (it carries a "pixel edge" branding card at its head).
-Publishing it would redistribute someone else's asset. The files stay local;
-this README records what belongs here so another machine can be set up.
+> The pin animation is third-party stock (its source pack opens with a
+> "pixel edge" branding card) and this repository is public. Committing it was
+> a deliberate call; check it against the pack's licence if the repo ever
+> matters commercially.
 
 ## Location pin
 
-Source: `location.mp4` — 1920×1080, 24 fps, 54.8 s, a pack of nine ~5-second
-pin animations in different colours, preceded by a branding card.
+| file | what |
+|---|---|
+| `location-pin-source.mp4` | the full source pack — 1920×1080, 24 fps, 54.8 s, nine ~5 s pin animations in different colours behind a branding card |
+| `pins/location-pin-red.mp4` | the red pin alone, 5.04 s, standalone |
+| `fcpxml/location-pin-overlay.xml` | the exact keyer + placement, captured from a real Final Cut export |
 
-| file | source range | colour | notes |
-|---|---|---|---|
-| `pins/location-pin-red.mp4` | 24.88 – 29.80 s | **red** | the one in use |
-| `pins/location-pin-orange.mp4` | 14.88 – 19.80 s | orange | same animation, warmer pin |
-
-Both are 4.96 s, extracted at CRF 12 (visually lossless) so the green screen
-survives a second encode — chroma keying suffers badly from repeated
-compression, and the source is already 4:2:0 at a low bitrate.
-
-The pin **slides left to right** across the frame over its ~5 s, so the in-point
-chosen determines where it sits horizontally.
-
-### Setting this up on another machine
-
-Put the original at `~/Movies/location.mp4`, then:
+**The red pin is source 9.833 – 14.867 s** of the pack. Worth stating plainly
+because it is not guessable: measured by hue it reads as ~345°, which
+classifies as pink/magenta, and the block that *measures* as red (14.88 s) is
+visibly orange. The value above came from a real FCPXML export, not analysis.
 
 ```bash
-ffmpeg -ss 24.88 -to 29.80 -i ~/Movies/location.mp4 -an \
+ffmpeg -ss 9.8333 -to 14.8667 -i assets/location-pin-source.mp4 -an \
   -c:v libx264 -crf 12 -preset slow -pix_fmt yuv420p \
   assets/pins/location-pin-red.mp4
 ```
 
-### Points to watch when placing it
+CRF 12 is deliberate: chroma keying degrades badly through a second lossy pass
+and the source is already 4:2:0 at a low bitrate.
 
-- **24 fps into a 30 fps timeline.** Final Cut conforms it, but that means
-  duplicated frames. It is a graphic on a static background, so this is
-  invisible in practice — worth knowing rather than fixing.
-- **Trim past 6.67 s of the original.** Everything before that is the stock
-  provider's branding card.
-- Keying is not something the generated FCPXML can carry (see below), so the
-  keyer, position and scale are applied by hand for now.
+## How it is placed
 
-## Automating this
+From the Final Cut export, verbatim:
 
-FCPXML 1.10 has no colour or keying element — the whole `adjust-*` set is crop,
-transform, blend, stabilisation and volume. A keyer has to go through
-`<filter-video>` referencing an `<effect uid="…">`, where the UID is an
-FCP-internal identifier. Guessing one is what caused two failed imports earlier
-in this project, so it is not guessed.
+```xml
+<asset-clip ref="r4" lane="1" offset="0s" name="location"
+            start="29500/3000s" duration="15100/3000s" format="r5" tcFormat="NDF">
+    <conform-rate scaleEnabled="0" srcFrameRate="24"/>
+    <adjust-transform position="-81.524 42.1759" scale="0.06 0.06"/>
+    <filter-video ref="r6" name="Green Screen Keyer"> … </filter-video>
+</asset-clip>
+```
 
-**The fix is a round trip.** Export the finished timeline as FCPXML
-(`File ▸ Export XML…`) and the exact structure can be read out of it: the
-keyer's effect UID and parameters, the pin's lane, offset, duration, scale and
-position, and any colour corrections applied to the drone clips. After that all
-of it can be generated automatically, for this video and every future one.
+- **lane 1**, offset `0s` — sits over the first spine clip, at the very start.
+- `start="29500/3000s"` = 9.833 s into the source; duration 5.033 s.
+- **scale 0.06** — six percent. A 1920×1080 element shrunk into a corner badge.
+- position `-81.524 42.1759` — left of centre, above.
+- `conform-rate srcFrameRate="24"` handles 24 fps into the 30 fps timeline.
+
+## The keyer cannot be authored by hand
+
+`uid="FxPlug:41122549-B8A6-470E-94DA-211294D20B62"` plus two base64 payloads
+(`effectConfig`, `effectData`) that encode the keyer's internal state. Those are
+FCP-internal — there is no way to write them from a specification, which is why
+`fcpxml/location-pin-overlay.xml` stores the whole thing captured rather than
+generated. Reuse it as-is: declare the `<effect>` in `<resources>`, nest the
+`<asset-clip>` in the spine clip it belongs over.
+
+## Still to capture
+
+The export contained **no colour corrections** on the drone clips — only
+`adjust-colorConform` (automatic), the pin's transform, the music `adjust-volume`
+and the fade's `adjust-blend`. So the colour pass in `projects/plovdiv-colour.md`
+is still unapplied, and the effect UID for Final Cut's colour tools is still
+unknown. One clip with a colour correction, exported, would settle it the same
+way this file settled the keyer.
