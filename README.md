@@ -24,16 +24,16 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
 # make the skills available in any session, from any folder
-ln -s "$PWD/.claude/skills/drone-edit"  ~/.claude/skills/drone-edit
-ln -s "$PWD/.claude/skills/drone-short" ~/.claude/skills/drone-short
+ln -s "$PWD/.claude/skills/video-drone-long"  ~/.claude/skills/video-drone-long
+ln -s "$PWD/.claude/skills/video-drone-short" ~/.claude/skills/video-drone-short
 ```
 
 The symlinks matter: skills under `.claude/skills/` are project-scoped, so
 without them the commands are invisible when a session starts in a footage
 folder rather than in this repo.
 
-Two skills, deliberately. **`/drone-edit`** produces a long-form FCPXML timeline
-and never renders video. **`/drone-short`** renders finished vertical MP4s for
+Two skills, deliberately. **`/video-drone-long`** produces a long-form FCPXML
+timeline and never renders video. **`/video-drone-short`** renders vertical MP4s for
 TikTok and Shorts, with text and optional narration. They share the clip index
 but have different pacing models, different output, and different numbers behind
 them — one skill covering both would need a description vague enough to hurt
@@ -76,7 +76,7 @@ drone_automation/           the package
   project.py        per-video TOML loading and config overrides
   cli.py            subcommands: index, report, build
 projects/           one .toml per video — see projects/README.md
-.claude/skills/     the drone-edit skill — symlink it into ~/.claude/skills/
+.claude/skills/     video-drone-long, video-drone-short — symlink into ~/.claude/skills/
 assets/             reusable overlays + captured FCPXML fragments
 CHANGELOG.md        approved stages and their metrics
 ```

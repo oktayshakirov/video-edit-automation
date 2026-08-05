@@ -1,6 +1,6 @@
 ---
-name: drone-edit
-description: Cut a folder of graded drone selects to a music track and produce a long-form Final Cut Pro timeline for YouTube. Use when the user runs /drone-edit, points at a new footage folder, or wants a full-length edit synced to music. Also use to tune an existing edit (pacing, shot choice, speed, clip swaps), save an approved stage, place the location-pin overlay, or diagnose an FCPXML that Final Cut refused to import. For vertical TikTok or Shorts, use drone-short instead.
+name: video-drone-long
+description: Cut a folder of graded drone selects to a music track and produce a long-form Final Cut Pro timeline for YouTube. Use when the user runs /video-drone-long, points at a new footage folder, or wants a full-length edit synced to music. Also use to tune an existing edit (pacing, shot choice, speed, clip swaps), save an approved stage, place the location-pin overlay, or diagnose an FCPXML that Final Cut refused to import. For vertical TikTok or Shorts, use video-drone-short instead.
 ---
 
 # Drone Automation
@@ -8,7 +8,7 @@ description: Cut a folder of graded drone selects to a music track and produce a
 Turns graded drone selects plus a music track into a Final Cut Pro XML timeline.
 **It never renders video** — it reads, analyses and writes XML.
 
-**Repo:** `~/coding/drone-edit-automation` — run everything from there. Footage
+**Repo:** `~/coding/video-drone-long-automation` — run everything from there. Footage
 lives outside it.
 
 ## Scope
@@ -17,13 +17,13 @@ Long-form YouTube only — a Final Cut timeline, cut to music, finished by hand.
 **This pipeline never renders video.**
 
 Vertical short-form (TikTok, Shorts, Reels) is a different product with its own
-pacing model, its own crop problem and its own numbers. That is `drone-short`.
+pacing model, its own crop problem and its own numbers. That is `video-drone-short`.
 The clip index is shared, so a folder indexed here is ready for both.
 
 ## New footage folder
 
 ```bash
-cd ~/coding/drone-edit-automation
+cd ~/coding/video-drone-long-automation
 .venv/bin/python -m drone_automation index /path/to/footage      # slow once, then cached
 ```
 
@@ -162,4 +162,4 @@ effect to one clip, `File ▸ Export XML`, and read the exact structure out.
 - Let CV touch source files.
 - Present a guessed parameter as validated — say when something is a guess.
 - Change `config.py` for one video's taste; that is what project overrides are for.
-- Produce a 16:9 cut when the user asked for vertical — hand that to `drone-short`.
+- Produce a 16:9 cut when the user asked for vertical — hand that to `video-drone-short`.

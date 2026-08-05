@@ -1,32 +1,38 @@
 ---
-name: drone-short
-description: Make vertical short-form videos for TikTok and YouTube Shorts from drone footage — 9:16 crop, quote or motivational text, optional AI voiceover with synced captions. Use when the user runs /drone-short, asks for a TikTok or Short or Reel, wants a vertical or cropped version of drone footage, wants text or a quote over a clip, or wants narration read over footage. For long-form YouTube edits cut to music, use drone-edit instead.
+name: video-drone-short
+description: Make vertical short-form videos for TikTok and YouTube Shorts from drone footage — 9:16 crop, quote or motivational text, optional AI voiceover with synced captions. Use when the user runs /video-drone-short, asks for a TikTok or Short or Reel, wants a vertical or cropped version of drone footage, wants text or a quote over a clip, or wants narration read over footage. For long-form YouTube edits cut to music, use video-drone-long instead.
 ---
 
 # Drone Automation — short form
 
 Renders finished vertical MP4s. **This is the one part of the project that
-renders video**; the long-form pipeline (`drone-edit`) only writes FCPXML.
+renders video**; the long-form pipeline (`video-drone-long`) only writes FCPXML.
 
-**Repo:** `~/coding/drone-edit-automation` — run from there.
+**Repo:** `~/coding/video-drone-long-automation` — run from there.
 Footage must already be indexed: `.venv/bin/python -m drone_automation index <folder>`
-(shared with `drone-edit`; the proxies and clip index are the same).
+(shared with `video-drone-long`; the proxies and clip index are the same).
 
 ## What the channel's own numbers say
 
 Do not re-derive these. Pulled from the real channel, and they decide the format.
 
-**Length dominates everything:**
+**Length correlated strongly with performance in past uploads:**
 
 | length | median retention | median views |
 |---|---|---|
-| **10–19 s** | **85%** | **693** |
+| 10–19 s | 85% | 693 |
 | 20–29 s | 71% | 176 |
 | 30–39 s | 38% | 141 |
 | 60 s | 26% | 80 |
 
-Target **12 s**. Hard ceiling 15. Going to 20 s costs roughly three quarters of
-the reach.
+**Do not treat this as a fixed target.** It is historic correlation on a small
+sample, from before the quote/voiceover format existed, and a narrated piece may
+hold attention differently than a silent scenery clip did. The format is still
+being tested.
+
+**Working rule: keep it under 30 seconds**, and shorter when nothing is lost by
+it. Report the runtime and let the user judge rather than trimming a script to
+hit a number. Revisit once there are real numbers on the new format.
 
 **The angle beats the scenery.** A joke about German train delays did 2,075; a
 hyperlapse tutorial hit 180% retention (people watching twice); "Golden Hour
@@ -143,9 +149,9 @@ The ~4% pitch-down and the short echo tail are what sell it — without them it 
 the same voice reading slower. The motivational treatment is **not yet approved**
 and needs more work.
 
-**Melancholic scripts need ~25% fewer words** than motivational ones to hit the
-same runtime; slow delivery eats the budget fast. A 12s melancholic read is
-roughly 30 words.
+**Melancholic scripts need ~25% fewer words** than motivational ones for the
+same runtime — slow delivery eats the budget fast. Roughly 30 words lands near
+12 seconds at melancholic pace, useful as a sanity check when drafting.
 
 ## Caption sync
 
@@ -158,7 +164,7 @@ Phrases under three words are merged forward; splitting on every comma produced
 fragments that flashed past unread ("lost here," measured 0.65s).
 
 Video length follows the narration, so **the script is what controls runtime**.
-Write to 12 seconds.
+Stay under 30 seconds; beyond that, say what it is costing.
 
 ## Audio strategy
 
@@ -171,7 +177,7 @@ Write to 12 seconds.
 
 ## Do not
 
-- Exceed 15 seconds without saying what it costs.
+- Exceed 30 seconds. Under that, report the runtime rather than forcing a number.
 - Ship pure scenery with no angle — it measurably does not work here.
 - Redesign the text template; it was iterated against real references.
 - Claim an emotion was synthesised when it was pace and post-processing.
