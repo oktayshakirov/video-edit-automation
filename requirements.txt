@@ -3,6 +3,9 @@ opencv-python==4.11.0.86   # Lucas-Kanade tracking, RANSAC affine fit, HSV/Lapla
 numpy==2.2.6               # medians/percentiles over per-frame metric arrays
 librosa==0.11.0            # beat tracking, onset strength, RMS, bar-synced segmentation
 jinja2==3.1.6              # FCPXML templating
+Pillow==12.3.0             # text rendering for vertical exports (this ffmpeg
+                           # has no libfreetype, so drawtext is unavailable;
+                           # OpenCV only offers Hershey vector fonts)
 
 # madmom deliberately NOT used. Its downbeat RNN is more accurate in general, but it
 # is pinned to old numpy/Cython and does not build on Python 3.13. For 4/4 produced
