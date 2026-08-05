@@ -9,10 +9,11 @@ each caption is shown for precisely as long as its own audio runs — and the
 small pauses it creates between phrases suit motivational delivery, which is
 already pausey, rather than fighting it.
 
-The TTS backend is deliberately isolated in `synth_phrase`. macOS `say` needs no
-key and no network, but the legacy voices sound synthetic; Enhanced/Premium
-voices (System Settings > Accessibility > Spoken Content > Manage Voices) are a
-free and large improvement, and a hosted API can be dropped in here unchanged.
+The TTS backend is isolated in `synth_phrase`. Three are wired up, in order of
+quality: kokoro (local, unlimited, default), edge (Microsoft neural voices over
+the network, free, no key), say (macOS, legacy, last resort). A hosted API drops
+in at the same seam. Because caption timing comes from *measured* audio duration
+rather than a prediction, changing engine cannot desynchronise the captions.
 """
 
 from __future__ import annotations
@@ -25,21 +26,31 @@ from pathlib import Path
 
 from .vertical import OUT_H, OUT_W, render_short, render_text_png, sample_bg_luma
 
-# Piper is a small local neural TTS — ~120MB per voice, no network, no key, and
-# far closer to human than the legacy macOS voices. Kokoro sounds better still
-# but drags in ~3GB of PyTorch, which is not a fair trade on a machine with
-# 17GB free. macOS Enhanced/Premium voices sit between the two and need a manual
-# download in System Settings, so they cannot be installed from here.
-TTS_BACKEND = "edge"                        # "edge" | "piper" | "say"
+TTS_BACKEND = "kokoro"                      # "kokoro" | "edge" | "say"
+
+# Kokoro-82M, Apache 2.0, fully local and unlimited. Installed as kokoro-onnx
+# rather than the PyTorch package: the latter pulls spacy, which has no Python
+# 3.13 wheels and fails to build, and ~2.5GB of torch besides. The ONNX build
+# reuses the onnxruntime already present and totals ~350MB.
+KOKORO_DIR = Path.home() / ".local/share/kokoro"
+KOKORO_VOICE = "am_michael"
+KOKORO_SPEED = 0.88     # unhurried; motivational reads are not brisk
+
+# Kokoro has no emotion parameter, so mood is carried by pace and voice choice.
+# Stated plainly because it is a real limit, not a tuned feature.
+KOKORO_MOODS = {
+    "reflective": 0.84,
+    "motivational": 0.95,
+    "sad": 0.80,
+    "neutral": 0.90,
+}
 
 # Microsoft's current neural voices, reached through the Edge endpoint: free,
 # no API key, ~1MB install, and clearly the most natural of the three. The
 # "Multilingual" variants are the newest generation and the ones worth using.
-# Trade-off: it is a network call, and heavy use can be rate-limited — piper
-# stays as the offline fallback.
+# Trade-off: it is a network call and heavy use can be rate-limited, so it is
+# the fallback rather than the default now that Kokoro runs locally.
 EDGE_VOICE = "en-US-AndrewMultilingualNeural"
-EDGE_RATE = "-12%"      # unhurried; motivational reads are not brisk
-
 # Delivery per mood. The free Edge endpoint ignores SSML express-as styles, so
 # tone is shaped with the levers it does honour — rate and pitch — plus voice
 # choice, which does more for mood than either.
@@ -50,16 +61,22 @@ EDGE_MOODS = {
     "neutral": {"rate": "-10%", "pitch": "+0Hz"},
 }
 
-PIPER_VOICE = "en_US-ryan-high"
-PIPER_DATA = Path.home() / ".local/share/piper-voices"
-
-# Slightly under natural pace. Motivational delivery is unhurried, and it also
-# gives each caption a little longer on screen.
-PIPER_LENGTH_SCALE = 1.06
-
 DEFAULT_VOICE = "Samantha"                  # only used by the `say` backend
 GAP = 0.18          # seconds of silence between phrases
 TAIL = 1.0          # hold the last caption this long after the audio ends
+
+
+_KOKORO = None
+
+
+def _kokoro():
+    """Load the model once — it is ~325MB and the load dominates a short script."""
+    global _KOKORO
+    if _KOKORO is None:
+        from kokoro_onnx import Kokoro
+        _KOKORO = Kokoro(str(KOKORO_DIR / "kokoro-v1.0.onnx"),
+                         str(KOKORO_DIR / "voices-v1.0.bin"))
+    return _KOKORO
 
 
 @dataclass
@@ -115,20 +132,19 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
     """
     raw = out.with_suffix(".raw.wav")
 
-    if backend == "edge":
+    if backend == "kokoro":
+        import soundfile as sf
+        audio, sr = _kokoro().create(
+            text, voice=voice or KOKORO_VOICE,
+            speed=KOKORO_MOODS.get(mood, KOKORO_SPEED), lang="en-us")
+        sf.write(str(raw), audio, sr)
+    elif backend == "edge":
         mood_args = EDGE_MOODS.get(mood, EDGE_MOODS["neutral"])
         raw = out.with_suffix(".raw.mp3")
         subprocess.run(
             [sys.executable, "-m", "edge_tts", "--voice", voice or EDGE_VOICE,
              f"--rate={mood_args['rate']}", f"--pitch={mood_args['pitch']}",
              "--text", text, "--write-media", str(raw)],
-            check=True, capture_output=True)
-    elif backend == "piper":
-        subprocess.run(
-            [sys.executable, "-m", "piper", "-m", voice or PIPER_VOICE,
-             "--data-dir", str(PIPER_DATA),
-             "--length-scale", str(PIPER_LENGTH_SCALE),
-             "-f", str(raw), "--", text],
             check=True, capture_output=True)
     else:
         aiff = out.with_suffix(".aiff")

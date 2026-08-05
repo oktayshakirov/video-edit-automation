@@ -3,12 +3,13 @@ opencv-python==4.11.0.86   # Lucas-Kanade tracking, RANSAC affine fit, HSV/Lapla
 numpy==2.2.6               # medians/percentiles over per-frame metric arrays
 librosa==0.11.0            # beat tracking, onset strength, RMS, bar-synced segmentation
 jinja2==3.1.6              # FCPXML templating
-edge-tts                   # free Microsoft neural voices, no API key. Most
-                           # natural option that needs no model download; a
-                           # network call, so piper stays as offline fallback.
-piper-tts                  # local neural TTS for narrated shorts. ~120MB per
-                           # voice, no key, no network. Kokoro sounds better but
-                           # needs ~3GB of PyTorch, which did not fit the disk.
+kokoro-onnx                # Kokoro-82M, Apache 2.0, local and unlimited. The
+                           # ONNX build, not the PyTorch one: that pulls spacy,
+                           # which has no 3.13 wheels and fails to build.
+                           # Model files (~350MB) live in ~/.local/share/kokoro.
+edge-tts                   # free Microsoft neural voices, no API key. Fallback
+                           # for when a networked voice is wanted; not default
+                           # because it is a network call and can be throttled.
 Pillow==12.3.0             # text rendering for vertical exports (this ffmpeg
                            # has no libfreetype, so drawtext is unavailable;
                            # OpenCV only offers Hershey vector fonts)
