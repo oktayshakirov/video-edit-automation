@@ -23,13 +23,21 @@ brew install ffmpeg
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
-# make /drone-edit available in any session, from any folder
-ln -s "$PWD/.claude/skills/drone-edit" ~/.claude/skills/drone-edit
+# make the skills available in any session, from any folder
+ln -s "$PWD/.claude/skills/drone-edit"  ~/.claude/skills/drone-edit
+ln -s "$PWD/.claude/skills/drone-short" ~/.claude/skills/drone-short
 ```
 
-The symlink matters: skills under `.claude/skills/` are project-scoped, so
-without it `/drone-edit` is invisible when a session starts in a footage folder
-rather than in this repo.
+The symlinks matter: skills under `.claude/skills/` are project-scoped, so
+without them the commands are invisible when a session starts in a footage
+folder rather than in this repo.
+
+Two skills, deliberately. **`/drone-edit`** produces a long-form FCPXML timeline
+and never renders video. **`/drone-short`** renders finished vertical MP4s for
+TikTok and Shorts, with text and optional narration. They share the clip index
+but have different pacing models, different output, and different numbers behind
+them — one skill covering both would need a description vague enough to hurt
+routing.
 
 Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 3.11+ (`tomllib`).

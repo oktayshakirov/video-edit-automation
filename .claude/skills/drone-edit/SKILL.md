@@ -1,6 +1,6 @@
 ---
 name: drone-edit
-description: Cut a folder of graded drone selects to a music track and produce a Final Cut Pro timeline. Use when the user runs /drone-edit, points at a new footage folder, or asks to edit drone footage for YouTube or TikTok. Also use to tune an existing edit (pacing, shot choice, speed, clip swaps), save an approved stage, place the location-pin overlay, or diagnose an FCPXML that Final Cut refused to import.
+description: Cut a folder of graded drone selects to a music track and produce a long-form Final Cut Pro timeline for YouTube. Use when the user runs /drone-edit, points at a new footage folder, or wants a full-length edit synced to music. Also use to tune an existing edit (pacing, shot choice, speed, clip swaps), save an approved stage, place the location-pin overlay, or diagnose an FCPXML that Final Cut refused to import. For vertical TikTok or Shorts, use drone-short instead.
 ---
 
 # Drone Automation
@@ -11,17 +11,14 @@ Turns graded drone selects plus a music track into a Final Cut Pro XML timeline.
 **Repo:** `~/coding/drone-edit-automation` — run everything from there. Footage
 lives outside it.
 
-## First question: YouTube or TikTok?
+## Scope
 
-If the user did not say, ask before doing anything. The two are not the same job.
+Long-form YouTube only — a Final Cut timeline, cut to music, finished by hand.
+**This pipeline never renders video.**
 
-- **YouTube** — built and validated across seven approved edits. Proceed.
-- **TikTok** — **not built.** `profile = "tiktok"` is accepted by the project
-  loader but does nothing: no vertical reframing, no 9:16 conform, no subject
-  tracking, no short-form pacing model. Say so plainly rather than producing a
-  16:9 timeline and calling it a TikTok edit. What is possible today is a normal
-  16:9 cut, shorter, reframed by hand afterwards. Building the real thing is
-  separate work.
+Vertical short-form (TikTok, Shorts, Reels) is a different product with its own
+pacing model, its own crop problem and its own numbers. That is `drone-short`.
+The clip index is shared, so a folder indexed here is ready for both.
 
 ## New footage folder
 
@@ -165,4 +162,4 @@ effect to one clip, `File ▸ Export XML`, and read the exact structure out.
 - Let CV touch source files.
 - Present a guessed parameter as validated — say when something is a guess.
 - Change `config.py` for one video's taste; that is what project overrides are for.
-- Claim a TikTok edit exists when only a 16:9 cut was produced.
+- Produce a 16:9 cut when the user asked for vertical — hand that to `drone-short`.
