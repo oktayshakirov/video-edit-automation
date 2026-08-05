@@ -19,12 +19,26 @@ from __future__ import annotations
 
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 from .vertical import OUT_H, OUT_W, render_short, render_text_png, sample_bg_luma
 
-DEFAULT_VOICE = "Samantha"
+# Piper is a small local neural TTS — ~120MB per voice, no network, no key, and
+# far closer to human than the legacy macOS voices. Kokoro sounds better still
+# but drags in ~3GB of PyTorch, which is not a fair trade on a machine with
+# 17GB free. macOS Enhanced/Premium voices sit between the two and need a manual
+# download in System Settings, so they cannot be installed from here.
+TTS_BACKEND = "piper"                       # "piper" | "say"
+PIPER_VOICE = "en_US-ryan-high"
+PIPER_DATA = Path.home() / ".local/share/piper-voices"
+
+# Slightly under natural pace. Motivational delivery is unhurried, and it also
+# gives each caption a little longer on screen.
+PIPER_LENGTH_SCALE = 1.06
+
+DEFAULT_VOICE = "Samantha"                  # only used by the `say` backend
 GAP = 0.18          # seconds of silence between phrases
 TAIL = 1.0          # hold the last caption this long after the audio ends
 
@@ -71,16 +85,34 @@ def split_phrases(text: str, max_words: int = 6, min_words: int = 3) -> list[str
     return out
 
 
-def synth_phrase(text: str, out: Path, voice: str = DEFAULT_VOICE,
-                 rate: int = 165) -> float:
-    """Render one phrase to audio and return its duration in seconds."""
-    aiff = out.with_suffix(".aiff")
-    subprocess.run(["say", "-v", voice, "-r", str(rate), "-o", str(aiff), text],
-                   check=True, capture_output=True)
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(aiff),
+def synth_phrase(text: str, out: Path, voice: str | None = None,
+                 rate: int = 165, backend: str = TTS_BACKEND) -> float:
+    """Render one phrase to audio and return its measured duration.
+
+    The only place a TTS engine is named. Everything downstream works off the
+    measured duration, so swapping engines — or moving to a hosted API — cannot
+    desynchronise the captions.
+    """
+    raw = out.with_suffix(".raw.wav")
+
+    if backend == "piper":
+        subprocess.run(
+            [sys.executable, "-m", "piper", "-m", voice or PIPER_VOICE,
+             "--data-dir", str(PIPER_DATA),
+             "--length-scale", str(PIPER_LENGTH_SCALE),
+             "-f", str(raw), "--", text],
+            check=True, capture_output=True)
+    else:
+        aiff = out.with_suffix(".aiff")
+        subprocess.run(["say", "-v", voice or DEFAULT_VOICE, "-r", str(rate),
+                        "-o", str(aiff), text], check=True, capture_output=True)
+        raw = aiff
+
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw),
                     "-ar", "48000", "-ac", "2", str(out)],
                    check=True, capture_output=True)
-    aiff.unlink(missing_ok=True)
+    raw.unlink(missing_ok=True)
+
     dur = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(out)],
@@ -88,8 +120,8 @@ def synth_phrase(text: str, out: Path, voice: str = DEFAULT_VOICE,
     return float(dur)
 
 
-def build_narration(text: str, workdir: Path, voice: str = DEFAULT_VOICE,
-                    rate: int = 165) -> tuple[Path, list[Caption], float]:
+def build_narration(text: str, workdir: Path, voice: str | None = None,
+                    rate: int = 165, backend: str = TTS_BACKEND) -> tuple[Path, list[Caption], float]:
     """Speak the quote phrase by phrase; return the mixed track and caption times."""
     workdir.mkdir(parents=True, exist_ok=True)
     phrases = split_phrases(text)
@@ -99,7 +131,7 @@ def build_narration(text: str, workdir: Path, voice: str = DEFAULT_VOICE,
     t = 0.0
     for i, ph in enumerate(phrases):
         wav = workdir / f"ph{i:02d}.wav"
-        dur = synth_phrase(ph, wav, voice, rate)
+        dur = synth_phrase(ph, wav, voice, rate, backend)
         captions.append(Caption(ph, t, t + dur + GAP))
         pieces.append(wav)
         t += dur + GAP
@@ -127,14 +159,15 @@ def build_narration(text: str, workdir: Path, voice: str = DEFAULT_VOICE,
 
 def render_narrated(src: Path, out: Path, start: float,
                     box: tuple[int, int, int, int], text: str,
-                    workdir: Path, voice: str = DEFAULT_VOICE,
-                    rate: int = 165, font_size: int = 46) -> tuple[Path, float]:
+                    workdir: Path, voice: str | None = None,
+                    rate: int = 165, font_size: int = 46,
+                    backend: str = TTS_BACKEND) -> tuple[Path, float]:
     """Cut, crop, burn synced captions, and lay the narration underneath.
 
     Video length follows the narration rather than a fixed target — a caption
     cut off mid-sentence is worse than a clip a second longer than planned.
     """
-    track, captions, total = build_narration(text, workdir, voice, rate)
+    track, captions, total = build_narration(text, workdir, voice, rate, backend)
     luma = sample_bg_luma(src, box, start + total / 2)
 
     pngs = []
