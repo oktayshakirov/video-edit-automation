@@ -23,15 +23,15 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 OUT_W, OUT_H = 1080, 1920
-FONT_BOLD = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
+# SF Rounded is the closest system face to what the quote genre actually uses.
+FONT_ROUNDED = "/System/Library/Fonts/SFNSRounded.ttf"
 
-# TikTok and Shorts overlay their own UI on the bottom band and right edge.
-# Text lives above that, below centre.
-TEXT_TOP = 1120
-TEXT_MAX_W = 900
+# TikTok and Shorts put their UI on the bottom band and right edge. The genre
+# sits type near 40% height, well clear of both, and keeps the block narrow.
+TEXT_MAX_W = 780
 
 
 def interest_map(proxy: Path) -> np.ndarray | None:
@@ -101,7 +101,34 @@ def pick_crop(proxy: Path, zoom: float = 1.0,
             max(0, min(y, src_h - crop_h)), crop_w, crop_h)
 
 
+def sample_bg_luma(src: Path, box: tuple[int, int, int, int], t: float) -> float:
+    """Mean luminance of the band the text will sit in, 0-1.
+
+    Drives the white-or-black decision. Sampling the actual crop at the actual
+    timecode beats guessing from the clip average — a sunset clip can be bright
+    sky at the top and near-black ground where the text lands.
+    """
+    x, y, w, h = box
+    cap = cv2.VideoCapture(str(src))
+    cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000.0)
+    ok, frame = cap.read()
+    cap.release()
+    if not ok:
+        return 0.5
+    crop = frame[y:y + h, x:x + w]
+    if crop.size == 0:
+        return 0.5
+    band = crop[int(h * 0.32):int(h * 0.62), :]     # where the type goes
+    return float(cv2.cvtColor(band, cv2.COLOR_BGR2GRAY).mean() / 255.0)
+
+
 def _wrap(draw, text, font, max_w):
+    """Greedy wrap, then pull back a word so the last line is never a widow.
+
+    A single orphaned word on the final line is the tell that separates a
+    generated card from a hand-set one, and this genre lives or dies on looking
+    native to the platform.
+    """
     words, lines, cur = text.split(), [], ""
     for w in words:
         trial = f"{cur} {w}".strip()
@@ -112,42 +139,64 @@ def _wrap(draw, text, font, max_w):
             cur = w
     if cur:
         lines.append(cur)
+
+    while len(lines) > 1 and len(lines[-1].split()) < 2:
+        prev = lines[-2].split()
+        if len(prev) < 3:
+            break
+        lines[-2] = " ".join(prev[:-1])
+        lines[-1] = f"{prev[-1]} {lines[-1]}"
     return lines
 
 
-def render_text_png(text: str, out: Path, size: int = 66) -> Path:
-    """Text card with a scrim behind it.
+def render_text_png(text: str, out: Path, size: int = 46,
+                    bg_luma: float = 0.5) -> Path:
+    """Quote card in the style the genre actually uses.
 
-    The channel's recurring legibility failure is light type over bright sky,
-    which disappears at feed size. A gradient scrim plus a drop shadow keeps it
-    readable over a blown-out sunset, which most of this footage is.
+    Deliberately unlike a lower-third: small type, centred at ~40% height, no
+    scrim or box. The legibility that a scrim was doing is handled by a soft
+    blurred shadow instead, which stays invisible until it is needed.
+
+    Ink follows the background — white on dark, near-black on bright — sampled
+    from the frame the text will actually sit over.
     """
-    img = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(FONT_BOLD, size)
-    lines = _wrap(draw, text, font, TEXT_MAX_W)
-    line_h = int(size * 1.28)
+    dark_text = bg_luma > 0.62
+    ink = (18, 18, 18, 255) if dark_text else (255, 255, 255, 255)
+    halo = (255, 255, 255, 128) if dark_text else (0, 0, 0, 150)
+
+    font = ImageFont.truetype(FONT_ROUNDED, size)
+    try:                                   # SF Rounded is variable; ask for Semibold
+        font.set_variation_by_name("Semibold")
+    except Exception:
+        pass
+
+    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+    lines = _wrap(probe, text, font, TEXT_MAX_W)
+    line_h = int(size * 1.34)
     block_h = line_h * len(lines)
+    top = int(OUT_H * 0.40) - block_h // 2
 
-    # Gradient scrim: transparent well above the text, ~62% opaque under it.
-    scrim_top = max(TEXT_TOP - 220, 0)
-    scrim_bot = min(TEXT_TOP + block_h + 220, OUT_H)
-    grad = Image.new("RGBA", (OUT_W, scrim_bot - scrim_top), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(grad)
-    span = grad.height
-    for i in range(span):
-        a = int(158 * min(1.0, (i / span) * 1.9))
-        gd.line([(0, i), (OUT_W, i)], fill=(0, 0, 0, a))
-    img.alpha_composite(grad, (0, scrim_top))
-
-    y = TEXT_TOP
+    layer = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    y = top
     for ln in lines:
-        w = draw.textlength(ln, font=font)
-        x = (OUT_W - w) / 2
-        draw.text((x + 3, y + 3), ln, font=font, fill=(0, 0, 0, 170))   # shadow
-        draw.text((x, y), ln, font=font, fill=(255, 255, 255, 255))
+        w = d.textlength(ln, font=font)
+        d.text(((OUT_W - w) / 2, y), ln, font=font, fill=ink)
         y += line_h
 
+    # Soft halo from the glyphs themselves — reads as depth, not as a box.
+    shadow = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(shadow)
+    y = top
+    for ln in lines:
+        w = sd.textlength(ln, font=font)
+        sd.text(((OUT_W - w) / 2, y + 2), ln, font=font, fill=halo)
+        y += line_h
+    shadow = shadow.filter(ImageFilter.GaussianBlur(7))
+
+    img = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+    img.alpha_composite(shadow)
+    img.alpha_composite(layer)
     img.save(out)
     return out
 
