@@ -7,6 +7,11 @@ Open it in Final Cut and do the taste pass.
 **It never renders video.** It reads, analyses and writes an XML file. No
 transcoding, no proxy rendering of output, no MP4 export.
 
+## Picking up where the last session left off
+
+See [HANDOFF.md](HANDOFF.md) — current state, open items, and the FCPXML traps
+that are expensive to rediscover.
+
 ## Status
 
 | Phase | What | State |
