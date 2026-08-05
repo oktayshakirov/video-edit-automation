@@ -3,6 +3,9 @@ opencv-python==4.11.0.86   # Lucas-Kanade tracking, RANSAC affine fit, HSV/Lapla
 numpy==2.2.6               # medians/percentiles over per-frame metric arrays
 librosa==0.11.0            # beat tracking, onset strength, RMS, bar-synced segmentation
 jinja2==3.1.6              # FCPXML templating
+edge-tts                   # free Microsoft neural voices, no API key. Most
+                           # natural option that needs no model download; a
+                           # network call, so piper stays as offline fallback.
 piper-tts                  # local neural TTS for narrated shorts. ~120MB per
                            # voice, no key, no network. Kokoro sounds better but
                            # needs ~3GB of PyTorch, which did not fit the disk.

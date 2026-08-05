@@ -30,7 +30,26 @@ from .vertical import OUT_H, OUT_W, render_short, render_text_png, sample_bg_lum
 # but drags in ~3GB of PyTorch, which is not a fair trade on a machine with
 # 17GB free. macOS Enhanced/Premium voices sit between the two and need a manual
 # download in System Settings, so they cannot be installed from here.
-TTS_BACKEND = "piper"                       # "piper" | "say"
+TTS_BACKEND = "edge"                        # "edge" | "piper" | "say"
+
+# Microsoft's current neural voices, reached through the Edge endpoint: free,
+# no API key, ~1MB install, and clearly the most natural of the three. The
+# "Multilingual" variants are the newest generation and the ones worth using.
+# Trade-off: it is a network call, and heavy use can be rate-limited — piper
+# stays as the offline fallback.
+EDGE_VOICE = "en-US-AndrewMultilingualNeural"
+EDGE_RATE = "-12%"      # unhurried; motivational reads are not brisk
+
+# Delivery per mood. The free Edge endpoint ignores SSML express-as styles, so
+# tone is shaped with the levers it does honour — rate and pitch — plus voice
+# choice, which does more for mood than either.
+EDGE_MOODS = {
+    "reflective": {"rate": "-14%", "pitch": "-3Hz"},
+    "motivational": {"rate": "-6%", "pitch": "+2Hz"},
+    "sad": {"rate": "-18%", "pitch": "-6Hz"},
+    "neutral": {"rate": "-10%", "pitch": "+0Hz"},
+}
+
 PIPER_VOICE = "en_US-ryan-high"
 PIPER_DATA = Path.home() / ".local/share/piper-voices"
 
@@ -86,7 +105,8 @@ def split_phrases(text: str, max_words: int = 6, min_words: int = 3) -> list[str
 
 
 def synth_phrase(text: str, out: Path, voice: str | None = None,
-                 rate: int = 165, backend: str = TTS_BACKEND) -> float:
+                 rate: int = 165, backend: str = TTS_BACKEND,
+                 mood: str = "reflective") -> float:
     """Render one phrase to audio and return its measured duration.
 
     The only place a TTS engine is named. Everything downstream works off the
@@ -95,7 +115,15 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
     """
     raw = out.with_suffix(".raw.wav")
 
-    if backend == "piper":
+    if backend == "edge":
+        mood_args = EDGE_MOODS.get(mood, EDGE_MOODS["neutral"])
+        raw = out.with_suffix(".raw.mp3")
+        subprocess.run(
+            [sys.executable, "-m", "edge_tts", "--voice", voice or EDGE_VOICE,
+             f"--rate={mood_args['rate']}", f"--pitch={mood_args['pitch']}",
+             "--text", text, "--write-media", str(raw)],
+            check=True, capture_output=True)
+    elif backend == "piper":
         subprocess.run(
             [sys.executable, "-m", "piper", "-m", voice or PIPER_VOICE,
              "--data-dir", str(PIPER_DATA),
@@ -121,7 +149,8 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
 
 
 def build_narration(text: str, workdir: Path, voice: str | None = None,
-                    rate: int = 165, backend: str = TTS_BACKEND) -> tuple[Path, list[Caption], float]:
+                    rate: int = 165, backend: str = TTS_BACKEND,
+                    mood: str = "reflective") -> tuple[Path, list[Caption], float]:
     """Speak the quote phrase by phrase; return the mixed track and caption times."""
     workdir.mkdir(parents=True, exist_ok=True)
     phrases = split_phrases(text)
@@ -131,7 +160,7 @@ def build_narration(text: str, workdir: Path, voice: str | None = None,
     t = 0.0
     for i, ph in enumerate(phrases):
         wav = workdir / f"ph{i:02d}.wav"
-        dur = synth_phrase(ph, wav, voice, rate, backend)
+        dur = synth_phrase(ph, wav, voice, rate, backend, mood)
         captions.append(Caption(ph, t, t + dur + GAP))
         pieces.append(wav)
         t += dur + GAP
@@ -161,13 +190,13 @@ def render_narrated(src: Path, out: Path, start: float,
                     box: tuple[int, int, int, int], text: str,
                     workdir: Path, voice: str | None = None,
                     rate: int = 165, font_size: int = 46,
-                    backend: str = TTS_BACKEND) -> tuple[Path, float]:
+                    backend: str = TTS_BACKEND, mood: str = "reflective") -> tuple[Path, float]:
     """Cut, crop, burn synced captions, and lay the narration underneath.
 
     Video length follows the narration rather than a fixed target — a caption
     cut off mid-sentence is worse than a clip a second longer than planned.
     """
-    track, captions, total = build_narration(text, workdir, voice, rate, backend)
+    track, captions, total = build_narration(text, workdir, voice, rate, backend, mood)
     luma = sample_bg_luma(src, box, start + total / 2)
 
     pngs = []
