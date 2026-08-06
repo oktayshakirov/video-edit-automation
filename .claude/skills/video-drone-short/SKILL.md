@@ -81,7 +81,8 @@ render_narrated(
     src, out, start=2.0, box=box,
     text=" ".join(c for s in SENTENCES for c, _ in s), workdir=work,
     sentences=SENTENCES,    # NOT phrases= — see Caption sync
-    voice="am_onyx", mood="melancholic",
+    voice=None,             # the approved am_onyx 60 / am_puck 40 blend
+    mood="melancholic",
     font_path=FUTURA, font_index=0,
     font_size=44, stroke=4, y_frac=0.34,
     gap=0.65, tail=2.2,     # gap is between sentences only
@@ -192,7 +193,25 @@ Model files: `~/.local/share/kokoro` (~350MB). Installed as **kokoro-onnx**, not
 the PyTorch `kokoro` package — that one depends on spacy, which has no Python
 3.13 wheels and fails to build, and would add ~2.5GB of torch.
 
-**Approved voice: `am_onyx`.**
+**Approved voice: a blend — `am_onyx` 0.60 + `am_puck` 0.40.** It is the default
+in `KOKORO_VOICE`; pass `voice=None` to get it.
+
+**A voice is a `(510, 1, 256)` style tensor, not a model**, so a weighted sum is
+a new speaker identity the model renders as one person — not two voices mixed as
+audio. `voice_style()` accepts a name, a `{name: weight}` mapping, or `None`.
+`Kokoro.create` takes the resulting array directly.
+
+Why a blend: `am_onyx` was chosen by ear over five alternatives, but the model
+card grades it **D on 10–100 minutes of data**, the weakest of the American
+males. `am_puck`, `am_michael` and `am_fenrir` are all **C+ with hours**. The
+60/40 keeps the onyx character on a steadier base, and was picked over straight
+onyx and eight other mixes for sounding more human. Grades are in the model
+card's `VOICES.md`; the best English voices overall are `af_heart` (A) and
+`af_bella` (A−), both female.
+
+**Kokoro cannot clone a voice.** No training or fine-tuning code has been
+released, so blending existing embeddings is the ceiling without leaving Kokoro.
+A small CC0 community collection exists at `n33kos/kokoro-voices`.
 
 **Kokoro has no emotion parameter.** Mood comes from three stacked levers, and
 the writing carries most of it:

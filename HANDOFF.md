@@ -79,9 +79,12 @@ Built and committed:
   empty sky. But **`pick_crop` still cannot be trusted unchecked**: it dropped
   the monument on Hills Monument and the sun on City 1, both times preferring
   busy rooftop texture. Render a still and look.
-- **Voice: `am_onyx`** via Kokoro, chosen over five alternatives on identical
-  scripts. The melancholic filter chain is approved; the pitch-down and echo
-  tail are what sell it.
+- **Voice: a blend, `am_onyx` 0.60 + `am_puck` 0.40**, via Kokoro. `am_onyx` won
+  on character over five alternatives but is graded D on 10-100 minutes of data;
+  `am_puck` is C+ with hours, and the blend won over straight onyx and eight
+  other mixes. Voices are style tensors, so blending is a weighted sum — but
+  Kokoro cannot clone a new voice, as no training code has been released. The
+  melancholic filter chain is approved; the pitch-down and echo tail sell it.
 - **Speak whole sentences, align captions inside them.** Per-phrase synthesis
   gives exact sync but robotic delivery, because the engine sees each fragment
   without context. DTW alignment against throwaway solo renders recovers the

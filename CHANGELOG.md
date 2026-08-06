@@ -10,7 +10,7 @@ Return to any stage with `git checkout <tag>`.
 
 | video | clip | runtime | voice | text | notes |
 |---|---|---|---|---|---|
-| City 1 — "ordinary tuesday" | City 1, `crop=1215:2160:0:0`, start 2.0s | 11.05s | `am_onyx`, melancholic, aligned sentences | Futura Medium 44px, stroke 4, `y_frac=0.34`, `gap=0.65`, `tail=2.2` | First approved narrated short. Crop is manual — `pick_crop` chose rooftops at x=1776 and left the sun out. |
+| City 1 — "ordinary tuesday" | City 1, `crop=1215:2160:0:0`, start 2.0s | 10.91s | `am_onyx` 0.60 + `am_puck` 0.40, melancholic, aligned sentences | Futura Medium 44px, stroke 4, `y_frac=0.34`, `gap=0.65`, `tail=2.2` | First approved narrated short. Voice is a blend — straight `am_onyx` is graded D on minutes of data; the blend sounded more human across ten candidates. Crop is manual: `pick_crop` chose rooftops at x=1776 and left the sun out. |
 
 ## Plovdiv
 

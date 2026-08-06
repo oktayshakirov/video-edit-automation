@@ -54,7 +54,17 @@ TTS_BACKEND = "kokoro"                      # "kokoro" | "edge" | "say"
 # 3.13 wheels and fails to build, and ~2.5GB of torch besides. The ONNX build
 # reuses the onnxruntime already present and totals ~350MB.
 KOKORO_DIR = Path.home() / ".local/share/kokoro"
-KOKORO_VOICE = "am_onyx"
+
+# A voice is a (510, 1, 256) style tensor, not a model, so a weighted sum of
+# two of them is a new speaker identity the model renders as one person — not
+# two voices mixed as audio.
+#
+# The approved voice is a blend. `am_onyx` was chosen by ear over five
+# alternatives, but the model card grades it D on 10-100 minutes of data, the
+# weakest of the American males. `am_puck` is C+ with hours. 60/40 keeps the
+# onyx character on the steadier base and was picked over straight onyx and
+# eight other mixes for sounding more human.
+KOKORO_VOICE: "str | dict[str, float]" = {"am_onyx": 0.60, "am_puck": 0.40}
 KOKORO_SPEED = 0.88     # unhurried; motivational reads are not brisk
 
 # Kokoro has no emotion parameter, so mood is carried by pace, voice choice and
@@ -136,6 +146,9 @@ class Caption:
 # spelling than the screen does.
 Phrase = str | tuple[str, str]
 
+# A voice name, a {name: weight} blend, or None for the approved default.
+VoiceSpec = "str | dict[str, float] | None"
+
 
 def split_phrases(text: str, max_words: int = 6, min_words: int = 3) -> list[str]:
     """Break a quote into caption-sized phrases.
@@ -172,7 +185,21 @@ def split_phrases(text: str, max_words: int = 6, min_words: int = 3) -> list[str
     return out
 
 
-def _synth_raw(text: str, voice: str | None, mood: str) -> "np.ndarray":
+def voice_style(voice=None):
+    """Resolve a voice spec to something `Kokoro.create` accepts.
+
+    A name passes through; a `{name: weight}` mapping is blended into a style
+    tensor. `None` means the approved default, which is itself a blend.
+    """
+    if voice is None:
+        voice = KOKORO_VOICE
+    if isinstance(voice, dict):
+        k = _kokoro()
+        return sum(k.get_voice_style(n) * w for n, w in voice.items())
+    return voice
+
+
+def _synth_raw(text: str, voice, mood: str) -> "np.ndarray":
     """Kokoro samples at KOKORO_SR, trimmed of the padding it adds.
 
     Alignment-only path, so it stays on the kokoro backend rather than going
@@ -180,7 +207,7 @@ def _synth_raw(text: str, voice: str | None, mood: str) -> "np.ndarray":
     """
     import librosa
     import numpy as np                                          # noqa: F401
-    audio, _ = _kokoro().create(text, voice=voice or KOKORO_VOICE,
+    audio, _ = _kokoro().create(text, voice=voice_style(voice),
                                 speed=KOKORO_MOODS.get(mood, KOKORO_SPEED),
                                 lang="en-us")
     trimmed, _ = librosa.effects.trim(audio.astype("float32"), top_db=TRIM_DB)
@@ -188,7 +215,7 @@ def _synth_raw(text: str, voice: str | None, mood: str) -> "np.ndarray":
 
 
 def align_chunks(sentence_audio: "np.ndarray", chunks: list[str],
-                 voice: str | None = None, mood: str = "melancholic") -> list[float]:
+                 voice: VoiceSpec = None, mood: str = "melancholic") -> list[float]:
     """End time of each caption chunk within a naturally-spoken sentence.
 
     Synthesises each chunk alone as a timing reference, concatenates them, and
@@ -234,7 +261,7 @@ def align_chunks(sentence_audio: "np.ndarray", chunks: list[str],
     return ends
 
 
-def synth_phrase(text: str, out: Path, voice: str | None = None,
+def synth_phrase(text: str, out: Path, voice: VoiceSpec = None,
                  rate: int = 165, backend: str = TTS_BACKEND,
                  mood: str = "reflective") -> float:
     """Render one phrase to audio and return its measured duration.
@@ -248,7 +275,7 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
     if backend == "kokoro":
         import soundfile as sf
         audio, sr = _kokoro().create(
-            text, voice=voice or KOKORO_VOICE,
+            text, voice=voice_style(voice),
             speed=KOKORO_MOODS.get(mood, KOKORO_SPEED), lang="en-us")
         sf.write(str(raw), audio, sr)
     elif backend == "edge":
@@ -280,7 +307,7 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
     return float(dur)
 
 
-def build_narration(text: str, workdir: Path, voice: str | None = None,
+def build_narration(text: str, workdir: Path, voice: VoiceSpec = None,
                     rate: int = 165, backend: str = TTS_BACKEND,
                     mood: str = "reflective",
                     phrases: list[Phrase] | None = None,
@@ -343,7 +370,7 @@ def build_narration(text: str, workdir: Path, voice: str | None = None,
 
 
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
-                            voice: str | None = None,
+                            voice: VoiceSpec = None,
                             mood: str = "melancholic",
                             gap: float = 0.55,
                             tail: float = TAIL,
@@ -431,7 +458,7 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
 
 def render_narrated(src: Path, out: Path, start: float,
                     box: tuple[int, int, int, int], text: str,
-                    workdir: Path, voice: str | None = None,
+                    workdir: Path, voice: VoiceSpec = None,
                     rate: int = 165, font_size: int = FONT_CAPTION_SIZE,
                     backend: str = TTS_BACKEND, mood: str = "reflective",
                     phrases: list[Phrase] | None = None,
