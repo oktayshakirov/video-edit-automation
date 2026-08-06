@@ -8,7 +8,8 @@ description: Make vertical short-form videos for TikTok and YouTube Shorts from 
 Renders finished vertical MP4s. **This is the one part of the project that
 renders video**; the long-form pipeline (`video-drone-long`) only writes FCPXML.
 
-**Repo:** `~/coding/video-drone-long-automation` — run from there.
+**Repo:** `~/Coding/drone-edit-automation` — run from there, with `PYTHONPATH=.`
+so `drone_automation` imports from the working copy.
 Footage must already be indexed: `.venv/bin/python -m drone_automation index <folder>`
 (shared with `video-drone-long`; the proxies and clip index are the same).
 
@@ -64,7 +65,27 @@ render_short(src, out, start, 12.0, box, png)
 Narrated with synced captions:
 
 ```python
-render_narrated(src, out, start, box, script, workdir, mood="reflective")
+FUTURA = "/System/Library/Fonts/Supplemental/Futura.ttc"
+
+# One inner list = one spoken sentence, chunked only for the captions.
+# (caption, spoken) where screen and engine differ — heteronyms, quote marks.
+SENTENCES = [
+    [("i read a quote that said", "i red a quote that said,")],
+    [("“you'll spend years", "you'll spend years"),
+     ("chasing a feeling",        "chasing a feeling"),
+     ("tuesday.",                 "tuesday,"),      # comma = the breath
+     ...],
+]
+
+render_narrated(
+    src, out, start=2.0, box=box,
+    text=" ".join(c for s in SENTENCES for c, _ in s), workdir=work,
+    sentences=SENTENCES,    # NOT phrases= — see Caption sync
+    voice="am_onyx", mood="melancholic",
+    font_path=FUTURA, font_index=0,
+    font_size=44, stroke=4, y_frac=0.34,
+    gap=0.65, tail=2.2,     # gap is between sentences only
+)
 ```
 
 Write outputs to the Desktop unless told otherwise — they are for uploading, not
@@ -99,10 +120,12 @@ For laterals, use the stacked layout (two or three horizontal crops filling the
 **Never use "rotate your phone".** It spends the one second that decides
 retention on an instruction. Cropping and stacking both perform; friction does not.
 
-## Text template — settled, do not redesign
+## Text — two templates, pick by whether there is narration
 
-Matches the genre the user referenced. A lower-third with a scrim was tried
-first and rejected.
+Both live in `render_text_png`; `stroke` selects between them. Neither should be
+redesigned — each was iterated against real reference videos.
+
+**Silent quote card** (`stroke=0`, the default)
 
 - **SF Rounded Semibold, 46px**, block max 780px wide
 - **Centred at 40% height** — clear of TikTok's bottom bar and right rail
@@ -111,11 +134,53 @@ first and rejected.
 - **Ink follows the footage** — `sample_bg_luma` reads the actual crop at the
   actual timecode, because a sunset clip is bright sky up top and near-black
   where type lands. White below 0.62, near-black above
-- **No widows.** The wrap pulls a word back so the last line is never a single
-  orphan; that is the usual tell that a card was generated
+
+**Narrated captions** (`stroke=4`) — approved on the City 1 cut
+
+- **Futura Medium 44px** (`Futura.ttc`, index 0), max 920px wide. Chosen against
+  Avenir Next, Baskerville SemiBold Italic and Didot Bold on a real frame:
+  **serifs and a stroke do not mix** — the stroke swallows the thin strokes and
+  both serif faces went muddy. Futura's geometric forms hold the border, and the
+  slightly vintage cast suits the nostalgic register
+- **`y_frac` follows the frame, not a fixed number.** 0.50 on Hills Monument,
+  where the horizon sits low; 0.34 on City 1, to clear the sun and skyline and
+  put the type in open sky. Sample the crop and place the block in the emptiest
+  band above the bottom UI — dead centre is a default, not a rule
+- **White ink, solid black border.** Not the halo: captions move, so the type
+  crosses whatever the footage is doing under it. One ink colour sampled from
+  one frame will be wrong for some of the captions — the stroke is the only
+  treatment that survives a line lying across a horizon
+- **`max_w` is wider than the silent card on purpose.** A spoken phrase wrapped
+  onto two lines reads as two thoughts. At 920px every phrase up to about eight
+  words sets on one line; if one wraps, shorten the phrase rather than the font
+
+Both wrap with **no widows** — the wrap pulls a word back so the last line is
+never a single orphan; that is the usual tell that a card was generated.
 
 Copy style: lowercase, conversational, six to twelve words. Payoff in the second
 half so the eye has to finish — that is what drives the rewatch.
+
+**Open a narrated quote with "i read a quote that said".** Approved by the user
+on City 1. It does more than add warmth: it promises a payoff, so the first
+second buys the next nineteen, and it frames the line as something overheard
+rather than something the channel is preaching.
+
+**Put the quote itself in curly quotes** — `“` on the first quoted caption, `”`
+on the last, and only around the quote, never the opener. Straight `"` sets as a
+double-prime and looks like a typo. The marks go in the caption half of the
+`(caption, spoken)` pair; the engine never sees them.
+
+**Give one word its own caption where the line turns.** On City 1 the sequence
+is "on an ordinary" / "tuesday." — the whole line is the deflation from spending
+years chasing a feeling to something as small as a Tuesday, and holding the beat
+before that word is what lands it. One or two per script, on the turn. Doing it
+to every line is just slow, and `split_phrases` merges sub-three-word fragments
+for exactly that reason — this is a deliberate override, not a new default.
+
+**Write the quotes rather than sourcing them.** Aphorisms of this kind circulate
+with confident but wrong attributions, and a misattributed line in a caption is
+the sort of thing the comments catch. Original lines in the voice of a quote
+carry the same weight with nothing to get wrong.
 
 ## Voiceover
 
@@ -138,7 +203,9 @@ the writing carries most of it:
 2. **Pace** — `KOKORO_MOODS`, roughly 0.80 sad to 0.95 motivational.
 3. **Post-processing**, which does more than expected.
 
-**The melancholic chain is approved and should be reused verbatim:**
+**The melancholic chain is approved and should be reused verbatim.** It is wired
+into `POST_CHAINS["melancholic"]` and applied inside `synth_phrase`, before the
+duration is measured — so the echo tail is counted and captions stay in sync:
 
 ```
 asetrate=24000*0.96,aresample=24000,atempo=1.0417,
@@ -155,16 +222,72 @@ same runtime — slow delivery eats the budget fast. Roughly 30 words lands near
 
 ## Caption sync
 
-Each caption phrase is spoken as its own file and shown for exactly its
-**measured** duration. Sync is exact by construction — no aligner, no Whisper,
-no drift — and because timing is measured rather than predicted, changing TTS
-engine cannot desynchronise the captions.
+**Use `sentences=`, not `phrases=`, for narrated quotes.** This reversed an
+earlier decision, on real output.
 
-Phrases under three words are merged forward; splitting on every comma produced
-fragments that flashed past unread ("lost here," measured 0.65s).
+Per-phrase synthesis (`phrases=`) gives exact sync by construction, but the
+engine sees each fragment with no context, so every chunk lands with a terminal
+falling contour and its own pause. The user's verdict on the City 1 cut was
+"very robotic, especially the word 'years' and 'ordinary'" — and the finer the
+captions, the worse it got, which is backwards. **Caption chunking and delivery
+speed must not be the same knob.**
 
-Video length follows the narration, so **the script is what controls runtime**.
-Stay under 30 seconds; beyond that, say what it is costing.
+`sentences=` is a list of sentences, each a list of caption chunks. The sentence
+is spoken *whole*, so the contour is a real sentence, and the chunk boundaries
+are recovered afterwards by DTW-aligning it against throwaway solo renders of
+each chunk on log-mel. No aligner model, no Whisper, no download — same engine
+and voice on both sides, so the warp absorbs only the prosody that context added.
+
+- **Boundaries land within ~0.19s** of a syllable-count expectation, and where
+  they differ the alignment is the more credible one — it gives a pre-comma word
+  its real length, which syllable counting cannot know. Chunks show for ~1s, so
+  that error is invisible.
+- **Trim the padding first.** Kokoro pads each solo render with silence; leaving
+  it in shifted a boundary a full word early in testing.
+- **Punctuation in the spoken half is the delivery.** Keep the comma on
+  "tuesday," and the engine takes the breath. This is now the only way to get a
+  pause inside a sentence — `gap` no longer applies there.
+- **`gap` is between sentences only.**
+- Captions are held until the next one starts, so an inter-sentence gap does not
+  play over an empty frame.
+
+`phrases=` is still right when the captions really are separate utterances.
+
+Phrases under three words are merged forward by `split_phrases`; splitting on
+every comma produced fragments that flashed past unread ("lost here," measured
+0.65s).
+
+**A natural read is much shorter than a chunked one** — the same script went
+from 20.4s to 11.1s, because roughly 9s of it had been inter-phrase silence.
+That is a real gain, not a shortfall: 10–19s is the channel's strongest bucket.
+Do not pad silence to reach a number; write more quote instead.
+
+**Pass `phrases=` for written verse.** `split_phrases` counts words, so a
+nine-word line becomes "the things you'll miss are never" / "the things you
+planned" — broken in the one place it must not be. Verse already carries its own
+line breaks, and those are the right caption *and* speech boundaries.
+
+**Heteronyms are spoken wrong and you will not hear it unless you check.**
+espeak phonemizes from spelling, not context: `read` is `/ɹiːd/` in every
+sentence, so "i read a quote that said" is delivered in the present tense. A
+`phrases` entry may be `(caption, spoken)` — screen keeps `read`, engine gets
+`red`. Same trap waits on *lead, live, wind, tear, close, bow, wound, minute*.
+
+Check before rendering rather than after:
+
+```python
+_kokoro().tokenizer.phonemize("i read a quote that said", lang="en-us")
+```
+
+**`gap` is the honest runtime lever.** Speech length is fixed by the script, and
+trimming words to hit a number is the wrong trade. Silence between phrases is
+not: at melancholic pace ~1.0s reads as deliberate where the 0.18s default reads
+as a list. Hills Monument is 13.4s of speech + 5×1.02s + 1.5s tail = 20.0s.
+
+**The tail is real silence on the audio track**, not just a longer last caption.
+The render maps the narration with `-shortest`, so a track shorter than the
+reported total silently truncates the video — this shipped once, reporting
+20.01s for a file that was 18.51s. Always ffprobe the output and report *that*.
 
 ## Audio strategy
 
@@ -177,9 +300,14 @@ Stay under 30 seconds; beyond that, say what it is costing.
 
 ## Do not
 
-- Exceed 30 seconds. Under that, report the runtime rather than forcing a number.
+- Exceed 30 seconds. Under that, report the runtime rather than forcing a number,
+  and report the **ffprobed** runtime, not the one the builder returned.
 - Ship pure scenery with no angle — it measurably does not work here.
-- Redesign the text template; it was iterated against real references.
+- Redesign either text template; both were iterated against real references.
+- **Trust `pick_crop` without looking at it.** On Hills Monument it chose x=24 —
+  dense city texture on the far left outscored the hill, and the monument was cut
+  out of frame entirely. Any clip with a lone subject against busy ground will
+  fail the same way. Render a still from the chosen box and look before rendering.
 - Claim an emotion was synthesised when it was pace and post-processing.
 - Commit rendered MP4s to the repo — they are outputs. `assets/` is for reusable
   overlays only.

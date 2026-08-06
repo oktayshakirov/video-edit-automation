@@ -26,8 +26,15 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 OUT_W, OUT_H = 1080, 1920
-# SF Rounded is the closest system face to what the quote genre actually uses.
+# SF Rounded is the closest system face to what the silent quote-card genre uses.
 FONT_ROUNDED = "/System/Library/Fonts/SFNSRounded.ttf"
+# Futura Medium — the caption face for narrated shorts, chosen on real frames
+# against Avenir Next, Baskerville and Didot. Serif faces lose to the stroke:
+# the border swallows the thin strokes and the type goes muddy. A .ttc, so the
+# weight is selected by index rather than by a variation name.
+FONT_CAPTION = "/System/Library/Fonts/Supplemental/Futura.ttc"
+FONT_CAPTION_INDEX = 0
+FONT_CAPTION_SIZE = 44
 
 # TikTok and Shorts put their UI on the bottom band and right edge. The genre
 # sits type near 40% height, well clear of both, and keeps the block narrow.
@@ -149,32 +156,62 @@ def _wrap(draw, text, font, max_w):
     return lines
 
 
+def _load_font(path: str, size: int, index: int = 0):
+    font = ImageFont.truetype(path, size, index=index)
+    if path == FONT_ROUNDED:
+        try:                               # SF Rounded is variable; ask for Semibold
+            font.set_variation_by_name("Semibold")
+        except Exception:
+            pass
+    return font
+
+
 def render_text_png(text: str, out: Path, size: int = 46,
-                    bg_luma: float = 0.5) -> Path:
+                    bg_luma: float = 0.5, font_path: str = FONT_ROUNDED,
+                    font_index: int = 0, y_frac: float = 0.40,
+                    stroke: int = 0, max_w: int = TEXT_MAX_W) -> Path:
     """Quote card in the style the genre actually uses.
 
-    Deliberately unlike a lower-third: small type, centred at ~40% height, no
-    scrim or box. The legibility that a scrim was doing is handled by a soft
-    blurred shadow instead, which stays invisible until it is needed.
+    Deliberately unlike a lower-third: small type, no scrim or box.
 
-    Ink follows the background — white on dark, near-black on bright — sampled
-    from the frame the text will actually sit over.
+    Two legibility treatments, and which one is right depends on the footage:
+
+    * **Halo** (`stroke=0`, the default) — a soft blurred shadow drawn from the
+      glyphs, invisible until it is needed, with the ink following the
+      background: white on dark, near-black on bright. Quiet, and the better
+      look when the background under the type is uniform.
+    * **Stroke** (`stroke>0`) — white ink with a solid black border. Louder, and
+      the only one that survives type crossing a horizon, where a single ink
+      colour is wrong for half the line. `bg_luma` is ignored, because the
+      contrast no longer comes from the background.
+
+    `y_frac` is the centre of the text block as a fraction of frame height.
+    `max_w` is the wrap width; captions run wider than the silent quote card,
+    because a spoken phrase broken across two lines reads as two thoughts.
     """
+    font = _load_font(font_path, size, font_index)
+
+    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+    lines = _wrap(probe, text, font, max_w)
+    line_h = int(size * 1.34)
+    block_h = line_h * len(lines)
+    top = int(OUT_H * y_frac) - block_h // 2
+
+    if stroke:
+        img = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        y = top
+        for ln in lines:
+            w = d.textlength(ln, font=font)
+            d.text(((OUT_W - w) / 2, y), ln, font=font, fill=(255, 255, 255, 255),
+                   stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
+            y += line_h
+        img.save(out)
+        return out
+
     dark_text = bg_luma > 0.62
     ink = (18, 18, 18, 255) if dark_text else (255, 255, 255, 255)
     halo = (255, 255, 255, 128) if dark_text else (0, 0, 0, 150)
-
-    font = ImageFont.truetype(FONT_ROUNDED, size)
-    try:                                   # SF Rounded is variable; ask for Semibold
-        font.set_variation_by_name("Semibold")
-    except Exception:
-        pass
-
-    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
-    lines = _wrap(probe, text, font, TEXT_MAX_W)
-    line_h = int(size * 1.34)
-    block_h = line_h * len(lines)
-    top = int(OUT_H * 0.40) - block_h // 2
 
     layer = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)

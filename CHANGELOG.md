@@ -1,9 +1,16 @@
 # Approved stages
 
-One row per edit signed off in Final Cut. Metrics come straight from the `build`
-output, so a stage can be compared to the next without re-running it.
+One row per edit signed off. Long-form metrics come straight from the `build`
+output; short-form rows record the parameters the render was approved at, since
+those are what reproduce it.
 
 Return to any stage with `git checkout <tag>`.
+
+## Shorts
+
+| video | clip | runtime | voice | text | notes |
+|---|---|---|---|---|---|
+| City 1 — "ordinary tuesday" | City 1, `crop=1215:2160:0:0`, start 2.0s | 11.05s | `am_onyx`, melancholic, aligned sentences | Futura Medium 44px, stroke 4, `y_frac=0.34`, `gap=0.65`, `tail=2.2` | First approved narrated short. Crop is manual — `pick_crop` chose rooftops at x=1776 and left the sun out. |
 
 ## Plovdiv
 

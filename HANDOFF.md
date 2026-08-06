@@ -59,28 +59,35 @@ locked project.
 
 ## Where the short-form work stands
 
-**Working, untested on the platform.** Nothing has been posted yet, so no
-performance data exists for the new formats.
+**First narrated short approved** — City 1, "ordinary tuesday", 11.05s. Still
+unposted, so there is no platform data on the format yet. Parameters are in
+`CHANGELOG.md`; the reasoning is in the skill.
 
 Built and committed:
 
 - `vertical.py` — 9:16 crop placement (2D interest search plus per-clip zoom),
-  quote-card renderer
-- `voiceover.py` — Kokoro / edge-tts / say backends, captions synced to measured
-  audio duration
+  two text treatments (halo card, stroked caption)
+- `voiceover.py` — Kokoro / edge-tts / say backends, and two caption-sync modes
 
 ### Settled by testing
 
-- **Text template** — SF Rounded Semibold 46px, centred at 40% height, no scrim,
-  soft glyph halo, ink auto-picked from background luminance, no widows. A
-  lower-third with a gradient scrim was tried first and rejected against real
-  reference videos.
-- **Crop needs a 2D search.** Scoring columns alone put ~60% of the frame on
-  empty sky for wide landscapes. Zoom ≈1.45 for landscapes, 1.0 for clips with a
-  strong vertical subject.
-- **Voice: `am_onyx`** via Kokoro (local, unlimited, Apache 2.0).
-- **The melancholic treatment is approved** and the exact filter chain is in the
-  skill. The pitch-down and echo tail are what sell it.
+- **Two text templates.** Silent quote card: SF Rounded Semibold 46px at 40%,
+  soft glyph halo, ink from background luminance. Narrated captions: Futura
+  Medium 44px, white with a solid black stroke, `y_frac` placed per frame.
+  Serif faces lose to the stroke — Baskerville and Didot both went muddy.
+- **Crop needs a 2D search** — scoring columns alone put ~60% of the frame on
+  empty sky. But **`pick_crop` still cannot be trusted unchecked**: it dropped
+  the monument on Hills Monument and the sun on City 1, both times preferring
+  busy rooftop texture. Render a still and look.
+- **Voice: `am_onyx`** via Kokoro, chosen over five alternatives on identical
+  scripts. The melancholic filter chain is approved; the pitch-down and echo
+  tail are what sell it.
+- **Speak whole sentences, align captions inside them.** Per-phrase synthesis
+  gives exact sync but robotic delivery, because the engine sees each fragment
+  without context. DTW alignment against throwaway solo renders recovers the
+  boundaries to ~0.19s, with no aligner model.
+- **A natural read is roughly half the length** of a chunked one — the same
+  script went 20.4s → 11.1s once the inter-phrase silence was gone.
 
 ### Explicitly not settled
 

@@ -1,13 +1,32 @@
 """Narrated shorts — spoken quote with captions synced to it.
 
-Sync approach: **speak each caption phrase separately and measure it.**
+Two sync modes, and the second one replaced the first for narrated quotes.
 
-The obvious alternative is to speak the whole line, then recover word timings
-with a forced aligner or Whisper. That works but drags in a model download and
-can drift. Speaking phrase by phrase makes the timing exact by construction —
-each caption is shown for precisely as long as its own audio runs — and the
-small pauses it creates between phrases suit motivational delivery, which is
-already pausey, rather than fighting it.
+**Per-phrase** (`build_narration`) — each caption is spoken as its own file and
+shown for exactly its measured duration. Timing is exact by construction. Its
+cost is prosody: the engine sees each fragment with no context, so every one
+gets a terminal falling contour and its own pause. Rejected on real output — a
+single-word caption like "tuesday" came out as an isolated announcement, and the
+whole read landed robotic. Still correct when the captions really are separate
+utterances.
+
+**Per-sentence with alignment** (`build_narration_aligned`) — the sentence is
+spoken *whole*, so the prosody is a real sentence contour, and caption
+boundaries inside it are recovered afterwards. That means chunking the captions
+finely no longer slows the delivery down, which is the whole point.
+
+Recovering those boundaries needs no aligner model. Each chunk is also
+synthesised alone as a throwaway timing reference, the references are
+concatenated, and the two are DTW-aligned on log-mel — same voice, same engine,
+same speed, so the only difference between the sequences is the prosody the
+context added. Measured against a syllable-count expectation the boundaries
+agree to ~0.19s mean, and they disagree in the direction that favours the
+alignment (it gives a pre-comma word its real length, which syllable counting
+cannot know). Chunks are on screen for a second or more, so a fifth of a second
+of placement error is not visible.
+
+Trimming matters: Kokoro pads each isolated render with silence, and leaving it
+in shifts the reference enough to put a boundary a full word early.
 
 The TTS backend is isolated in `synth_phrase`. Three are wired up, in order of
 quality: kokoro (local, unlimited, default), edge (Microsoft neural voices over
@@ -24,7 +43,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from .vertical import OUT_H, OUT_W, render_short, render_text_png, sample_bg_luma
+from .vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
+                       OUT_H, OUT_W,
+                       render_short, render_text_png, sample_bg_luma)
 
 TTS_BACKEND = "kokoro"                      # "kokoro" | "edge" | "say"
 
@@ -33,16 +54,29 @@ TTS_BACKEND = "kokoro"                      # "kokoro" | "edge" | "say"
 # 3.13 wheels and fails to build, and ~2.5GB of torch besides. The ONNX build
 # reuses the onnxruntime already present and totals ~350MB.
 KOKORO_DIR = Path.home() / ".local/share/kokoro"
-KOKORO_VOICE = "am_michael"
+KOKORO_VOICE = "am_onyx"
 KOKORO_SPEED = 0.88     # unhurried; motivational reads are not brisk
 
-# Kokoro has no emotion parameter, so mood is carried by pace and voice choice.
-# Stated plainly because it is a real limit, not a tuned feature.
+# Kokoro has no emotion parameter, so mood is carried by pace, voice choice and
+# post-processing. Stated plainly because it is a real limit, not a tuned
+# feature — nothing here makes the model perform an emotion.
 KOKORO_MOODS = {
     "reflective": 0.84,
     "motivational": 0.95,
+    "melancholic": 0.82,
     "sad": 0.80,
     "neutral": 0.90,
+}
+
+# Post-processing does more for mood than pace does. The melancholic chain is
+# approved and should not be re-tuned: the ~4% pitch-down (asetrate, with atempo
+# restoring real time) and the short echo tail are what sell it. Without them it
+# is the same voice reading slower.
+POST_CHAINS = {
+    "melancholic": (
+        "asetrate=24000*0.96,aresample=24000,atempo=1.0417,"
+        "aecho=0.85:0.8:55:0.18,equalizer=f=250:t=q:w=1.5:g=2,loudnorm=I=-16"
+    ),
 }
 
 # Microsoft's current neural voices, reached through the Edge endpoint: free,
@@ -62,8 +96,20 @@ EDGE_MOODS = {
 }
 
 DEFAULT_VOICE = "Samantha"                  # only used by the `say` backend
+# Silence between phrases is the one honest lever on total runtime — the script
+# sets how long the speech takes, and trimming words to hit a number is the
+# wrong trade. A melancholic read wants a real beat between lines anyway: ~1s
+# reads as deliberate, where 0.18s reads as a list.
 GAP = 0.18          # seconds of silence between phrases
 TAIL = 1.0          # hold the last caption this long after the audio ends
+
+CAPTION_MAX_W = 920         # wider than the silent card: one phrase, one line
+
+KOKORO_SR = 24000           # the model's native rate; alignment works pre-resample
+ALIGN_HOP = 128             # ~5.3ms frames — finer than the error we care about
+TRIM_DB = 35                # Kokoro's padding sits well below this
+MIN_CHUNK = 0.20            # floor on a caption's span, so a bad warp cannot
+                            # collapse one to zero frames
 
 
 _KOKORO = None
@@ -84,6 +130,11 @@ class Caption:
     text: str
     start: float
     end: float
+
+
+# A caption line, or a (caption, spoken) pair when the engine needs a different
+# spelling than the screen does.
+Phrase = str | tuple[str, str]
 
 
 def split_phrases(text: str, max_words: int = 6, min_words: int = 3) -> list[str]:
@@ -121,6 +172,68 @@ def split_phrases(text: str, max_words: int = 6, min_words: int = 3) -> list[str
     return out
 
 
+def _synth_raw(text: str, voice: str | None, mood: str) -> "np.ndarray":
+    """Kokoro samples at KOKORO_SR, trimmed of the padding it adds.
+
+    Alignment-only path, so it stays on the kokoro backend rather than going
+    through `synth_phrase`'s file round-trip and post-processing.
+    """
+    import librosa
+    import numpy as np                                          # noqa: F401
+    audio, _ = _kokoro().create(text, voice=voice or KOKORO_VOICE,
+                                speed=KOKORO_MOODS.get(mood, KOKORO_SPEED),
+                                lang="en-us")
+    trimmed, _ = librosa.effects.trim(audio.astype("float32"), top_db=TRIM_DB)
+    return trimmed
+
+
+def align_chunks(sentence_audio: "np.ndarray", chunks: list[str],
+                 voice: str | None = None, mood: str = "melancholic") -> list[float]:
+    """End time of each caption chunk within a naturally-spoken sentence.
+
+    Synthesises each chunk alone as a timing reference, concatenates them, and
+    DTW-aligns that against the real sentence on log-mel. The warp path maps a
+    reference boundary onto a timestamp in the natural read.
+
+    The references are throwaway — none of that audio is used, only its
+    boundaries. Same engine, voice and speed on both sides, so the warp is
+    absorbing the prosody that sentence context added and nothing else.
+    """
+    import librosa
+    import numpy as np
+
+    if len(chunks) == 1:
+        return [len(sentence_audio) / KOKORO_SR]
+
+    ref_parts, bounds, t = [], [], 0.0
+    for c in chunks:
+        a = _synth_raw(c, voice, mood)
+        ref_parts.append(a)
+        t += len(a) / KOKORO_SR
+        bounds.append(t)
+    ref = np.concatenate(ref_parts)
+
+    def logmel(y):
+        m = librosa.feature.melspectrogram(y=y, sr=KOKORO_SR,
+                                           hop_length=ALIGN_HOP, n_mels=40)
+        return librosa.power_to_db(m)
+
+    _, path = librosa.sequence.dtw(X=logmel(ref), Y=logmel(sentence_audio),
+                                   metric="euclidean")
+    path = path[::-1]                       # (ref_frame, sentence_frame), ascending
+    fps = KOKORO_SR / ALIGN_HOP
+
+    ends, last = [], 0.0
+    total = len(sentence_audio) / KOKORO_SR
+    for b in bounds:
+        rf = min(int(b * fps), int(path[-1][0]))
+        at = float(path[np.searchsorted(path[:, 0], rf)][1]) / fps
+        last = min(max(at, last + MIN_CHUNK), total)   # monotonic, never zero-length
+        ends.append(last)
+    ends[-1] = total
+    return ends
+
+
 def synth_phrase(text: str, out: Path, voice: str | None = None,
                  rate: int = 165, backend: str = TTS_BACKEND,
                  mood: str = "reflective") -> float:
@@ -152,8 +265,11 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
                         "-o", str(aiff), text], check=True, capture_output=True)
         raw = aiff
 
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw),
-                    "-ar", "48000", "-ac", "2", str(out)],
+    post = ["-ar", "48000", "-ac", "2"]
+    chain = POST_CHAINS.get(mood)
+    if chain:
+        post = ["-af", chain] + post
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw), *post, str(out)],
                    check=True, capture_output=True)
     raw.unlink(missing_ok=True)
 
@@ -166,31 +282,55 @@ def synth_phrase(text: str, out: Path, voice: str | None = None,
 
 def build_narration(text: str, workdir: Path, voice: str | None = None,
                     rate: int = 165, backend: str = TTS_BACKEND,
-                    mood: str = "reflective") -> tuple[Path, list[Caption], float]:
-    """Speak the quote phrase by phrase; return the mixed track and caption times."""
+                    mood: str = "reflective",
+                    phrases: list[Phrase] | None = None,
+                    gap: float = GAP,
+                    tail: float = TAIL) -> tuple[Path, list[Caption], float]:
+    """Speak the quote phrase by phrase; return the mixed track and caption times.
+
+    Pass `phrases` to override `split_phrases`. Written verse already carries its
+    own line breaks, and those are better caption boundaries than anything the
+    splitter can infer — it counts words, so a nine-word line becomes "the things
+    you'll miss are never" / "the things you planned", which breaks the sentence
+    in the one place it should not.
+
+    An entry may be `(caption, speech)` to spell a word differently for the
+    engine than for the screen. Needed for heteronyms: espeak phonemizes "read"
+    as /ɹiːd/ in every context, so "i read a quote that said" is spoken in the
+    present tense. The caption keeps the real spelling; only the engine sees
+    "red".
+    """
     workdir.mkdir(parents=True, exist_ok=True)
-    phrases = split_phrases(text)
+    pairs = [(p, p) if isinstance(p, str) else p
+             for p in (phrases or split_phrases(text))]
 
     captions: list[Caption] = []
     pieces: list[Path] = []
     t = 0.0
-    for i, ph in enumerate(phrases):
+    for i, (caption, spoken) in enumerate(pairs):
         wav = workdir / f"ph{i:02d}.wav"
-        dur = synth_phrase(ph, wav, voice, rate, backend, mood)
-        captions.append(Caption(ph, t, t + dur + GAP))
+        dur = synth_phrase(spoken, wav, voice, rate, backend, mood)
+        captions.append(Caption(caption, t, t + dur + gap))
         pieces.append(wav)
-        t += dur + GAP
+        t += dur + gap
 
     # Concatenate with the gaps baked in, so audio and captions cannot drift.
+    # The tail is real silence on the end of the track, not just a longer last
+    # caption: the render maps this track with `-shortest`, so an audio track
+    # shorter than the reported total silently truncates the video — which is
+    # exactly what happened, and it cost 1.5s off the end of a finished cut.
     listing = workdir / "concat.txt"
     silence = workdir / "gap.wav"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
-                    f"anullsrc=r=48000:cl=stereo:d={GAP}", str(silence)],
-                   check=True, capture_output=True)
+    tail_wav = workdir / "tail.wav"
+    for path, dur in ((silence, gap), (tail_wav, tail)):
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                        f"anullsrc=r=48000:cl=stereo:d={dur}", str(path)],
+                       check=True, capture_output=True)
     lines = []
     for p in pieces:
         lines.append(f"file '{p.name}'")
         lines.append(f"file '{silence.name}'")
+    lines.append(f"file '{tail_wav.name}'")
     listing.write_text("\n".join(lines), encoding="utf-8")
 
     track = workdir / "narration.wav"
@@ -198,27 +338,137 @@ def build_narration(text: str, workdir: Path, voice: str | None = None,
                     "-i", str(listing), "-c", "copy", str(track)],
                    check=True, capture_output=True, cwd=workdir)
     if captions:
-        captions[-1].end += TAIL
-    return track, captions, t + TAIL
+        captions[-1].end += tail
+    return track, captions, t + tail
+
+
+def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
+                            voice: str | None = None,
+                            mood: str = "melancholic",
+                            gap: float = 0.55,
+                            tail: float = TAIL,
+                            ) -> tuple[Path, list[Caption], float]:
+    """Speak each sentence whole; recover caption boundaries inside it.
+
+    `sentences` is a list of sentences, each a list of caption chunks. A chunk
+    may be a `(caption, spoken)` pair. The spoken halves are joined into one
+    utterance, so punctuation on them shapes the delivery — keep the comma on
+    "tuesday," and the engine will actually take that breath.
+
+    `gap` is silence *between sentences only*. Chunking finely inside a sentence
+    no longer costs anything, which is the reason this exists: captions can be
+    one word without the read slowing to match.
+    """
+    import soundfile as sf
+
+    workdir.mkdir(parents=True, exist_ok=True)
+    captions: list[Caption] = []
+    pieces: list[Path] = []
+    t = 0.0
+
+    for si, chunks in enumerate(sentences):
+        pairs = [(c, c) if isinstance(c, str) else c for c in chunks]
+        spoken = " ".join(s for _, s in pairs)
+
+        audio = _synth_raw(spoken, voice, mood)
+        raw = workdir / f"sent{si:02d}.raw.wav"
+        wav = workdir / f"sent{si:02d}.wav"
+        sf.write(str(raw), audio, KOKORO_SR)
+
+        post = ["-ar", "48000", "-ac", "2"]
+        chain = POST_CHAINS.get(mood)
+        if chain:
+            post = ["-af", chain] + post
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw), *post, str(wav)],
+                       check=True, capture_output=True)
+        raw.unlink(missing_ok=True)
+
+        # The post chain restores real time (atempo cancels asetrate) but its
+        # echo adds a tail, so boundaries are scaled onto the processed length
+        # rather than assumed equal.
+        played = float(subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "csv=p=0", str(wav)],
+            check=True, capture_output=True, text=True).stdout.strip())
+        scale = played / (len(audio) / KOKORO_SR)
+
+        ends = align_chunks(audio, [s for _, s in pairs], voice, mood)
+        prev = 0.0
+        for (caption, _), end in zip(pairs, ends):
+            captions.append(Caption(caption, t + prev * scale, t + end * scale))
+            prev = end
+
+        pieces.append(wav)
+        t += played + gap
+
+    listing = workdir / "concat.txt"
+    silence, tail_wav = workdir / "gap.wav", workdir / "tail.wav"
+    for path, dur in ((silence, gap), (tail_wav, tail)):
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                        f"anullsrc=r=48000:cl=stereo:d={dur}", str(path)],
+                       check=True, capture_output=True)
+    lines = []
+    for p in pieces:
+        lines.append(f"file '{p.name}'")
+        lines.append(f"file '{silence.name}'")
+    lines.append(f"file '{tail_wav.name}'")
+    listing.write_text("\n".join(lines), encoding="utf-8")
+
+    track = workdir / "narration.wav"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0",
+                    "-i", str(listing), "-c", "copy", str(track)],
+                   check=True, capture_output=True, cwd=workdir)
+
+    # Hold each caption until the next one arrives. Otherwise the inter-sentence
+    # gap plays over an empty frame, which reads as a dropped caption rather than
+    # as a beat.
+    for a, b in zip(captions, captions[1:]):
+        a.end = b.start
+    if captions:
+        captions[-1].end += tail
+    return track, captions, t + tail
 
 
 def render_narrated(src: Path, out: Path, start: float,
                     box: tuple[int, int, int, int], text: str,
                     workdir: Path, voice: str | None = None,
-                    rate: int = 165, font_size: int = 46,
-                    backend: str = TTS_BACKEND, mood: str = "reflective") -> tuple[Path, float]:
+                    rate: int = 165, font_size: int = FONT_CAPTION_SIZE,
+                    backend: str = TTS_BACKEND, mood: str = "reflective",
+                    phrases: list[Phrase] | None = None,
+                    sentences: list[list[Phrase]] | None = None,
+                    font_path: str = FONT_CAPTION,
+                    font_index: int = FONT_CAPTION_INDEX,
+                    y_frac: float = 0.34, stroke: int = 4,
+                    max_w: int = CAPTION_MAX_W,
+                    gap: float = GAP, tail: float = TAIL) -> tuple[Path, float]:
     """Cut, crop, burn synced captions, and lay the narration underneath.
 
     Video length follows the narration rather than a fixed target — a caption
     cut off mid-sentence is worse than a clip a second longer than planned.
+
+    Captions default to the stroked treatment rather than the halo: they move,
+    so the type crosses whatever the footage happens to be doing under it, and a
+    single ink colour chosen from one sampled frame will be wrong for some of
+    them.
+
+    Pass `sentences` for the aligned mode — whole sentences spoken naturally,
+    captions chunked inside them. That is the right mode for a quote; `phrases`
+    speaks each caption in isolation and reads robotic when the chunks are short.
     """
-    track, captions, total = build_narration(text, workdir, voice, rate, backend, mood)
+    if sentences is not None:
+        track, captions, total = build_narration_aligned(
+            sentences, workdir, voice, mood, gap, tail)
+    else:
+        track, captions, total = build_narration(
+            text, workdir, voice, rate, backend, mood, phrases, gap, tail)
     luma = sample_bg_luma(src, box, start + total / 2)
 
     pngs = []
     for i, c in enumerate(captions):
         p = workdir / f"cap{i:02d}.png"
-        render_text_png(c.text, p, size=font_size, bg_luma=luma)
+        render_text_png(c.text, p, size=font_size, bg_luma=luma,
+                        font_path=font_path, font_index=font_index,
+                        y_frac=y_frac, stroke=stroke, max_w=max_w)
         pngs.append(p)
 
     x, y, w, h = box
