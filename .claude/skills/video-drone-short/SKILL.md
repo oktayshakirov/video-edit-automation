@@ -283,6 +283,49 @@ and needs more work.
 same runtime — slow delivery eats the budget fast. Roughly 30 words lands near
 12 seconds at melancholic pace, useful as a sanity check when drafting.
 
+## Punctuation in the spoken half
+
+Tested against measured audio, three finished renders compared by ear, and
+**settled: keep writing with plain commas.** Do not re-run this.
+
+Punctuation only affects the `spoken` half of a `(caption, spoken)` pair, so
+none of it ever reaches the screen. Longest internal pause, one voice, one
+line, only the mark changed:
+
+| mark | pause | vs comma |
+|---|---|---|
+| nothing | 0.213s | — |
+| comma | 0.235s | baseline |
+| em dash `—` | 0.256s | +0.02s |
+| ellipsis `...` | 0.299s | +0.06s |
+| period | 0.341s | +0.11s |
+
+**The ordering is real but the magnitude is not.** Em dashes and ellipses pause
+longer than a comma by amounts too small to hear: a full render written with
+them came out 10.46s against the comma baseline's 10.55s — *shorter*. They buy
+nothing. The user compared all three and chose the plain-comma version.
+
+**The period is the only mark that moves anything**, at 2–3× a comma. It costs
+what it buys: a period makes Kokoro treat the clause as a sentence and give it
+a terminal falling contour, which is exactly the robotic per-fragment delivery
+that `sentences=` exists to avoid. Reach for it only when a line genuinely
+needs a full stop.
+
+**`--` is silently dropped.** Only the real `—` survives into the phoneme
+string. Nothing warns you; you just get no pause.
+
+**`!` buys a pause, not excitement.** It measured the same as an ellipsis.
+Kokoro has no emotion parameter, so intensity comes from the writing, the pace
+and the post chain — never from a mark.
+
+**`gap` is the real lever.** At 0.65s between sentences it is roughly double
+what any punctuation mark buys, and it is exact rather than inferred. If a line
+needs a beat, split it into another sentence entry instead of decorating it.
+
+None of these marks are ever spoken aloud — they stay punctuation in the
+phonemes. ALL CAPS and bracketed emotion tags were not tested; keep avoiding
+them.
+
 ## Caption sync
 
 **Use `sentences=`, not `phrases=`, for narrated quotes.** This reversed an
@@ -372,5 +415,8 @@ reported total silently truncates the video — this shipped once, reporting
   out of frame entirely. Any clip with a lone subject against busy ground will
   fail the same way. Render a still from the chosen box and look before rendering.
 - Claim an emotion was synthesised when it was pace and post-processing.
+- Reach for em dashes, ellipses or exclamation marks to add feeling. Measured,
+  compared by ear, rejected — plain commas won. See *Punctuation in the spoken
+  half*.
 - Commit rendered MP4s to the repo — they are outputs. `assets/` is for reusable
   overlays only.
