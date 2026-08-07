@@ -123,8 +123,25 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
     width, height = conn.execute(
         "SELECT width, height FROM clips LIMIT 1").fetchone()
 
+    from .config import (MUSIC_LOOP, MUSIC_LOOP_CROSSFADE_BARS,
+                         MUSIC_LOOP_HANDOFF_BAR, MUSIC_LOOP_RETURN_BAR,
+                         PHRASE_BARS)
+
     print(f"Analysing {music.name} ...")
     track = music_mod.analyze_track(music)
+
+    if MUSIC_LOOP:
+        # Default handoff is the last phrase line of the song, so pass 1 runs as
+        # far as it can before handing over.
+        handoff = MUSIC_LOOP_HANDOFF_BAR
+        if handoff is None:
+            handoff = (track.n_bars // PHRASE_BARS) * PHRASE_BARS
+        ret = MUSIC_LOOP_RETURN_BAR
+        if ret is None:
+            ret = PHRASE_BARS
+        track = music_mod.extend_with_loop(
+            track, handoff, ret, MUSIC_LOOP_CROSSFADE_BARS)
+
     print()
     print(music_mod.describe(track))
     print()
@@ -164,7 +181,7 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
     xml = fcpxml_mod.render(
         cuts, music, fps=fps, width=width, height=height,
-        project_name=root.name,
+        project_name=root.name, track=track,
     )
     out = out or (root / f"{root.name}.fcpxml")
     out.write_text(xml, encoding="utf-8")

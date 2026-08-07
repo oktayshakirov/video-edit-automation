@@ -21,7 +21,7 @@ Two decisions here matter more than the rest:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import librosa
@@ -30,6 +30,8 @@ import numpy as np
 from .config import (
     BARS_PER_SECTION,
     BEATS_PER_BAR,
+    BPM_SEARCH_HI,
+    BPM_SEARCH_LO,
     DOWNBEAT_FMAX,
     HOP,
     PHRASE_BARS,
@@ -51,6 +53,14 @@ class Section:
 
 
 @dataclass
+class LoopPlan:
+    """Where a second pass of the track takes over from the first."""
+    handoff_bar: int       # timeline bar at which pass 2 has fully taken over
+    return_bar: int        # bar of the source that pass 2 re-enters at
+    crossfade_bars: int
+
+
+@dataclass
 class Track:
     path: Path
     duration: float
@@ -63,10 +73,20 @@ class Track:
     sections: list[Section]
     downbeat_confidence: float
     intro_bars: int       # bars extrapolated backwards before the first detected beat
+    grid_score: float = 0.0        # onset strength on the chosen grid
+    grid_octaves: dict = field(default_factory=dict)   # half/double, for comparison
+    source_bars: int = 0           # bars in one pass of the audio
+    loop: "LoopPlan | None" = None
 
     def bar_time(self, n: int) -> float:
         """Closed form, so error never accumulates."""
         return self.grid_phase + self.bar_period * n
+
+    def source_bar(self, n: int) -> int:
+        """Timeline bar -> which bar of the audio actually plays there."""
+        if self.loop is None or n < self.loop.handoff_bar:
+            return n
+        return self.loop.return_bar + (n - self.loop.handoff_bar)
 
 
 def _fit_beat_grid(beat_times: np.ndarray, period_hint: float) -> tuple[float, float]:
@@ -75,6 +95,9 @@ def _fit_beat_grid(beat_times: np.ndarray, period_hint: float) -> tuple[float, f
     Detected beats may be missing or doubled, so each beat is first assigned an
     integer index against the hint, then phase and period are refit. Two passes
     is enough to settle.
+
+    Only used to polish a grid that `_search_beat_grid` has already located.
+    Run against librosa's raw beat times it silently fits noise — see there.
     """
     phase, period = float(beat_times[0]), float(period_hint)
     for _ in range(3):
@@ -85,6 +108,69 @@ def _fit_beat_grid(beat_times: np.ndarray, period_hint: float) -> tuple[float, f
         A = np.vstack([n_u, np.ones_like(n_u)]).T
         period, phase = np.linalg.lstsq(A, t_u, rcond=None)[0]
     return float(phase), float(period)
+
+
+def _grid_score(onset_z: np.ndarray, sr: int, duration: float,
+                period: float, phase: float) -> float:
+    """Mean normalised onset strength sampled on a (phase, period) grid."""
+    t = np.arange(phase, duration - 0.05, period)
+    if len(t) < 8:
+        return -np.inf
+    frames = np.clip(librosa.time_to_frames(t, sr=sr, hop_length=HOP),
+                     0, len(onset_z) - 1)
+    return float(onset_z[frames].mean())
+
+
+def _search_beat_grid(onset_env: np.ndarray, sr: int, duration: float
+                      ) -> tuple[float, float, dict]:
+    """Locate the beat grid by direct search over (period, phase).
+
+    This replaced trusting `librosa.beat.beat_track`'s tempo, which on the first
+    real track outside Plovdiv returned 152.11 BPM for a 75.00 BPM song. The
+    least-squares fit downstream then happily fitted a regular grid to those
+    wrong beat times and reported a clean-looking result: mean residual 95 ms on
+    a 394 ms beat, off-beat onset strength *higher* than on-beat. Nothing in the
+    old path could notice, because it never asked whether the grid it produced
+    actually landed on the music. This does ask — the score is exactly that
+    question — so a wrong tempo now loses to the right one by a factor of 280
+    instead of passing silently.
+
+    Octave ambiguity is left to the score rather than to a prior. A tempo prior
+    centred near 120 BPM would have picked the 150 BPM double here and been
+    wrong; the half and double of the winner are reported so the choice is
+    visible instead of implicit.
+    """
+    onset_z = (onset_env - onset_env.mean()) / (onset_env.std() + 1e-9)
+
+    def best_phase(period: float, step: float, around: float | None = None,
+                   span: float | None = None) -> tuple[float, float]:
+        if around is None:
+            phases = np.arange(0.0, period, step)
+        else:
+            phases = np.arange(around - span, around + span, step) % period
+        scored = [(_grid_score(onset_z, sr, duration, period, ph), ph)
+                  for ph in phases]
+        return max(scored)
+
+    # Coarse sweep, then refine tempo and phase around the winner.
+    coarse = [(*best_phase(60.0 / bpm, 0.010), bpm)
+              for bpm in np.arange(BPM_SEARCH_LO, BPM_SEARCH_HI, 0.5)]
+    coarse.sort(reverse=True)
+    _, _, bpm0 = coarse[0]
+
+    fine = [(*best_phase(60.0 / bpm, 0.005), bpm)
+            for bpm in np.arange(bpm0 - 0.6, bpm0 + 0.6, 0.02)]
+    fine.sort(reverse=True)
+    score, phase, bpm = fine[0]
+    period = 60.0 / bpm
+
+    octaves = {}
+    for label, factor in (("half", 0.5), ("double", 2.0)):
+        p = period / factor
+        if BPM_SEARCH_LO <= 60.0 / p <= BPM_SEARCH_HI:
+            octaves[label] = (60.0 / p, best_phase(p, 0.005)[0])
+
+    return float(phase), float(period), {"score": score, "octaves": octaves}
 
 
 def _downbeat_phase(y, sr, phase, period, n_beats) -> tuple[int, float]:
@@ -161,15 +247,22 @@ def analyze_track(path: Path) -> Track:
     duration = float(len(y) / sr)
 
     onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=HOP)
-    bpm, beat_frames = librosa.beat.beat_track(
-        onset_envelope=onset_env, sr=sr, hop_length=HOP, units="frames"
-    )
-    bpm = float(np.atleast_1d(bpm)[0])
-    beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=HOP)
-    if len(beat_times) < 8:
-        raise RuntimeError(f"only {len(beat_times)} beats detected — track too short or too quiet")
 
-    beat_phase, beat_period = _fit_beat_grid(beat_times, 60.0 / bpm)
+    # Search for the grid rather than trusting librosa's tempo. See
+    # _search_beat_grid for why: the reported tempo can be an unrelated number
+    # and every downstream check still looks healthy.
+    beat_phase, beat_period, grid_info = _search_beat_grid(onset_env, sr, duration)
+
+    # Polish the phase against detected beats that already sit near this grid.
+    # Beats far from it are the doubled/spurious detections that misled the old
+    # path, so they are excluded rather than fitted.
+    beat_frames = librosa.beat.beat_track(
+        onset_envelope=onset_env, sr=sr, hop_length=HOP, units="frames")[1]
+    beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=HOP)
+    resid = (beat_times - beat_phase + beat_period / 2) % beat_period - beat_period / 2
+    near = beat_times[np.abs(resid) < beat_period * 0.15]
+    if len(near) >= 8:
+        beat_phase, beat_period = _fit_beat_grid(near, beat_period)
     fitted_bpm = 60.0 / beat_period
 
     n_beats = int((duration - beat_phase) / beat_period)
@@ -219,6 +312,56 @@ def analyze_track(path: Path) -> Track:
         sections=_sections(bar_energy, n_bars),
         downbeat_confidence=db_conf,
         intro_bars=intro_bars,
+        grid_score=grid_info["score"],
+        grid_octaves=grid_info["octaves"],
+        source_bars=n_bars,
+    )
+
+
+def extend_with_loop(t: Track, handoff_bar: int, return_bar: int,
+                     crossfade_bars: int) -> Track:
+    """Play the track a second time so the picture can run past its length.
+
+    The song hands off at `handoff_bar` and re-enters at `return_bar`, both
+    counted in bars of the source. Because every bar is the same length, the
+    timeline grid continues unbroken across the splice — `bar_time` stays the
+    same closed form and no cut after the loop point moves off the beat.
+
+    Both bars must be phrase-aligned and should sit in sections of similar
+    energy: the splice is audible in proportion to how far the arrangement jumps
+    across it, not to the crossfade length. The crossfade only hides the seam in
+    the mix; it cannot hide a drop landing on an intro.
+    """
+    if not 0 < return_bar < handoff_bar <= t.source_bars:
+        raise ValueError(
+            f"loop needs 0 < return_bar ({return_bar}) < handoff_bar "
+            f"({handoff_bar}) <= {t.source_bars}")
+
+    tail_bars = t.source_bars - return_bar
+    n_bars = handoff_bar + tail_bars
+
+    # Timeline bar -> source bar, and the energy contour that follows from it.
+    src_of = np.array([n if n < handoff_bar else return_bar + (n - handoff_bar)
+                       for n in range(n_bars)])
+    bar_energy = t.bar_energy[np.clip(src_of, 0, len(t.bar_energy) - 1)]
+
+    return Track(
+        path=t.path,
+        duration=t.grid_phase + t.bar_period * n_bars,
+        bpm=t.bpm,
+        beat_period=t.beat_period,
+        bar_period=t.bar_period,
+        grid_phase=t.grid_phase,
+        n_bars=n_bars,
+        bar_energy=bar_energy,
+        sections=_sections(bar_energy, n_bars),
+        downbeat_confidence=t.downbeat_confidence,
+        intro_bars=t.intro_bars,
+        grid_score=t.grid_score,
+        grid_octaves=t.grid_octaves,
+        source_bars=t.source_bars,
+        loop=LoopPlan(handoff_bar=handoff_bar, return_bar=return_bar,
+                      crossfade_bars=crossfade_bars),
     )
 
 
@@ -235,8 +378,13 @@ def write_click_track(t: Track, out: Path) -> Path:
     import soundfile as sf
 
     y, sr = librosa.load(str(t.path), sr=SR, mono=True)
-    bars = t.grid_phase + t.bar_period * np.arange(t.n_bars)
-    beats = t.grid_phase + t.beat_period * np.arange(t.n_bars * BEATS_PER_BAR)
+    # The grid may run past the audio when the track is looped; clicks only
+    # exist for bars that are actually in the file.
+    audible = t.source_bars or t.n_bars
+    bars = t.grid_phase + t.bar_period * np.arange(audible)
+    beats = t.grid_phase + t.beat_period * np.arange(audible * BEATS_PER_BAR)
+    beats = beats[beats < len(y) / sr - 0.05]
+    bars = bars[bars < len(y) / sr - 0.05]
     offbeats = np.array([b for i, b in enumerate(beats) if i % BEATS_PER_BAR != 0])
 
     downs = librosa.clicks(times=bars, sr=sr, length=len(y), click_freq=1600.0)
@@ -258,6 +406,20 @@ def describe(t: Track) -> str:
         f"  downbeat confidence {t.downbeat_confidence:.2f}"
         f"{'  <-- LOW, check the grid by ear' if t.downbeat_confidence < 0.15 else ''}"
         f"   ({t.intro_bars} intro bars extrapolated)",
+    ]
+    if t.grid_octaves:
+        alt = "  ".join(f"{k} {bpm:.2f} BPM scores {s:.2f}"
+                        for k, (bpm, s) in t.grid_octaves.items())
+        lines.append(f"  grid score {t.grid_score:.2f}   (vs {alt})")
+    if t.loop:
+        lp = t.loop
+        lines.append(
+            f"  LOOPED: pass 2 re-enters at bar {lp.return_bar} "
+            f"({t.grid_phase + t.bar_period * lp.return_bar:.1f}s of the song) "
+            f"under a {lp.crossfade_bars}-bar crossfade ending at "
+            f"{t.bar_time(lp.handoff_bar):.1f}s"
+            f"  —  {t.source_bars} source bars -> {t.n_bars} timeline bars")
+    lines += [
         "",
         f"  {'section':<10} {'bars':>10} {'time':>16} {'energy':>7}",
     ]

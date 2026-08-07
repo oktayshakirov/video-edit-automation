@@ -13,6 +13,17 @@ Return to any stage with `git checkout <tag>`.
 | Cingene — "self-care" | Sunset Sea 5, `crop=838:1490:1632:624` (zoom 1.45), start 8.0s | 10.55s | `leo`, aligned sentences | Futura Medium 44px, stroke 4, `y_frac=0.64`, `gap=0.65`, `tail=2.2` | First short in `leo`. Approved as the plain-comma variant of a three-way punctuation test — em dashes and ellipses were measurably negligible and lost by ear. A `hover` clip, so framing does not drift and one sampled frame sets `y_frac` for the whole run. Quote is Katie Reed's; the "i read a quote that said" opener carries the attribution. |
 | City 1 — "ordinary tuesday" | City 1, `crop=1215:2160:0:0`, start 2.0s | 10.91s | `am_onyx` 0.60 + `am_puck` 0.40, melancholic, aligned sentences | Futura Medium 44px, stroke 4, `y_frac=0.34`, `gap=0.65`, `tail=2.2` | First approved narrated short. Voice is a blend — straight `am_onyx` is graded D on minutes of data; the blend sounded more human across ten candidates. Crop is manual: `pick_crop` chose rooftops at x=1776 and left the sun out. That voice was retired when `leo` was approved; the recipe survives as the `melancholic` chain. |
 
+## Nessebar
+
+| tag | cuts | mean shot | coverage | effects | notes |
+|---|---|---|---|---|---|
+| `nessebar-v1` | 38 | 6.32s | 83% | 3 sped up, 9 reversed, 0 repeated ranges | First edit on a correctly-detected grid. **librosa reported 152.11 BPM for a 75.00 BPM track**, and the least-squares fit made that look clean — off-beat onsets measured *stronger* than on-beat. Tempo is now found by direct (period, phase) search scored on onset energy: wrong grid scores 0.008, right grid 2.296; downbeat confidence 0.08 → 0.53. Track looped once (hands off 2:08.1, re-enters 0:38.5, 6.4s crossfade, both phrase lines, energy 0.93 vs 0.90) to carry a 2:36 song over a 4:00 picture. Approved on cuts and on the loop seam. |
+
+### History
+
+- **v0** — built on the 152 BPM misread: 53 cuts, mean 2.94s, 63% coverage, cuts
+  landing on a grid unrelated to the music. Superseded, never tagged.
+
 ## Plovdiv
 
 | tag | cuts | mean shot | coverage | effects | notes |

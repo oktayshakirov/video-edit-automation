@@ -165,8 +165,58 @@ def _audio_duration(path: Path) -> float:
     return float(out.splitlines()[0])
 
 
+def _music_clips(audio: dict, music_frames: int, video_end: int, base: int,
+                 fps: int, track) -> list[dict]:
+    """Lay the music out, once or looped, as connected clips.
+
+    Unlooped this is one clip. Looped it is two passes of the same asset on
+    separate lanes, overlapping across the crossfade — connected clips on one
+    lane may not overlap, and a butt join between two passes of the same song
+    is exactly the click the crossfade exists to avoid.
+
+    Volume keyframe times live in each clip's own time base, which starts at its
+    `start` value rather than at zero. For pass 2 that base is the source
+    in-point, not the timeline position, which is the easy thing to get wrong
+    here: the fade would still render, just in the wrong place.
+    """
+    if track is None or track.loop is None:
+        clip = dict(audio, lane=-1, offset=_rational(base, fps), start="0s",
+                    duration=_rational(min(music_frames, video_end), fps))
+        # Footage outlasting the track is the caller's problem; footage running
+        # out first ends the music under the last shot rather than over black.
+        if music_frames > video_end:
+            fade = min(int(MUSIC_FADE_SECONDS * fps), video_end)
+            clip["volume"] = [(video_end - fade, "0dB"), (video_end, "-96dB")]
+        return [clip]
+
+    lp = track.loop
+    xf = int(round(lp.crossfade_bars * track.bar_period * fps))
+    handoff = round(track.bar_time(lp.handoff_bar) * fps)
+    return_at = round(track.bar_time(lp.return_bar) * fps)
+
+    # Pass 1: source 0 up to the handoff, fading out across the crossfade.
+    first = dict(audio, lane=-1, offset=_rational(base, fps), start="0s",
+                 duration=_rational(handoff, fps),
+                 volume=[(handoff - xf, "0dB"), (handoff, "-96dB")])
+
+    # Pass 2: re-enters so that the return bar lands exactly on the handoff.
+    src_in = max(return_at - xf, 0)
+    tl_in = handoff - xf
+    dur = min(video_end - tl_in, music_frames - src_in)
+    vol = [(src_in, "-96dB"), (src_in + xf, "0dB")]
+    if tl_in + dur >= video_end:
+        fade = min(int(MUSIC_FADE_SECONDS * fps), dur - xf)
+        if fade > 0:
+            vol += [(src_in + dur - fade, "0dB"), (src_in + dur, "-96dB")]
+    second = dict(audio, lane=-2, offset=_rational(base + tl_in, fps),
+                  start=_rational(src_in, fps), duration=_rational(dur, fps),
+                  volume=vol)
+
+    return [first, second]
+
+
 def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
-           project_name: str, event_name: str = EVENT_NAME) -> str:
+           project_name: str, event_name: str = EVENT_NAME, track=None) -> str:
     if not cuts:
         raise ValueError("no cuts to write")
 
@@ -229,14 +279,16 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             "to": _rational(base + last.duration, fps),
         }
 
-    # If the footage runs out before the track does, end the music under the
-    # last shot and fade it, rather than letting it play on over black.
-    if music_frames > video_end:
-        fade_frames = min(int(MUSIC_FADE_SECONDS * fps), video_end)
-        audio["duration"] = _rational(video_end, fps)
-        audio["fade_from"] = _rational(video_end - fade_frames, fps)
-        audio["fade_to"] = _rational(video_end, fps)
-    seq_frames = max(video_end, music_frames if music_frames <= video_end else video_end)
+    # A connected clip's offset is in the parent's local time base, which starts
+    # at the parent's `start` — not at zero. That base is 0 whenever the first
+    # clip carries a timeMap, and its source in-point otherwise.
+    base = 0 if rendered_cuts[0]["timemap"] else cuts[0].source_start
+    music_clips = _music_clips(audio, music_frames, video_end, base, fps, track)
+    for mc in music_clips:
+        mc["volume"] = [{"time": _rational(t, fps), "value": v}
+                        for t, v in mc.get("volume", [])]
+
+    seq_frames = video_end
 
     return env.get_template("timeline.fcpxml.j2").render(
         fmt_name=_FORMAT_NAMES.get((width, height, fps), f"FFVideoFormat{width}x{height}p{fps}"),
@@ -245,6 +297,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         height=height,
         video_assets=list(assets.values()),
         audio=audio,
+        music_clips=music_clips,
         cuts=rendered_cuts,
         sequence_duration=_rational(seq_frames, fps),
         project_name=project_name,

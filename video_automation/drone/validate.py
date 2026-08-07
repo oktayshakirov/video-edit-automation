@@ -98,6 +98,9 @@ def check(path: Path) -> list[str]:
         problems.append("spine contains no asset-clip elements")
         return problems
 
+    seq = root.find(".//sequence")
+    seq_dur = parse_time(seq.get("duration")) if seq is not None else None
+
     expected = Fraction(0)
     for i, c in enumerate(clips):
         off = parse_time(c.get("offset"))
@@ -173,19 +176,53 @@ def check(path: Path) -> list[str]:
                 problems.append(f"clip {i+1}: {attr} is not a whole number of frames ({v})")
 
     # Connected clips express offset in the parent's time base, which begins at
-    # the parent's `start` — not at zero.
+    # the parent's `start` — not at zero. So the timeline position of a
+    # connected clip is (its offset - the parent's start), and it is that
+    # position, not the raw offset, that has to make sense.
+    #
+    # This used to require offset == parent start, i.e. every connected clip
+    # beginning at timeline zero. That held only while there was exactly one
+    # music clip; a looped track has a second pass that is *supposed* to start
+    # partway in, and the old rule called the correct output a sync error.
     for i, c in enumerate(clips):
-        for child in c.findall("asset-clip"):
-            if child.get("lane") is None:
-                continue
-            parent_start = parse_time(c.get("start"))
-            child_off = parse_time(child.get("offset"))
-            if child_off != parent_start:
+        parent_start = parse_time(c.get("start"))
+        connected = [ch for ch in c.findall("asset-clip")
+                     if ch.get("lane") is not None]
+        for j, child in enumerate(connected):
+            pos = parse_time(child.get("offset")) - parent_start
+            if pos < 0:
+                problems.append(
+                    f"connected clip '{child.get('name')}' on clip {i+1}: starts "
+                    f"{float(-pos):.3f}s before the timeline"
+                )
+            elif j == 0 and pos != 0:
                 problems.append(
                     f"connected clip '{child.get('name')}' on clip {i+1}: offset "
                     f"{child.get('offset')} != parent start {c.get('start')} — "
-                    f"audio will sit {float((child_off - parent_start)):.3f}s out of sync"
+                    f"audio will sit {float(pos):.3f}s out of sync"
                 )
+            if seq_dur is not None and pos + parse_time(child.get("duration")) > seq_dur:
+                problems.append(
+                    f"connected clip '{child.get('name')}' on clip {i+1}: runs "
+                    f"{float(pos + parse_time(child.get('duration')) - seq_dur):.3f}s "
+                    f"past the end of the sequence"
+                )
+
+        # Two connected clips on one lane may not overlap; a looped track puts
+        # its crossfading passes on separate lanes precisely to avoid this.
+        by_lane: dict[str, list] = {}
+        for child in connected:
+            by_lane.setdefault(child.get("lane"), []).append(child)
+        for lane, group in by_lane.items():
+            spans = sorted((parse_time(ch.get("offset")) - parent_start,
+                            parse_time(ch.get("duration")), ch.get("name"))
+                           for ch in group)
+            for (a0, ad, an), (b0, _, bn) in zip(spans, spans[1:]):
+                if b0 < a0 + ad:
+                    problems.append(
+                        f"connected clips '{an}' and '{bn}' overlap by "
+                        f"{float(a0 + ad - b0):.3f}s on lane {lane}"
+                    )
 
     return problems
 

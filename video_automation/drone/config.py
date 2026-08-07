@@ -41,6 +41,16 @@ HOP = 512                    # ~23ms frames at SR
 
 BEATS_PER_BAR = 4            # GUESS in general, safe for 4/4 produced music
 
+# The beat grid is found by direct search over (period, phase) within this
+# range, not taken from librosa's reported tempo. librosa returned 152.11 BPM
+# for a 75.00 BPM track and the downstream least-squares fit made that look
+# clean; the search scores each candidate by how much onset energy actually
+# lands on it, so a wrong tempo loses by orders of magnitude instead of passing.
+# Widen this only for genuinely fast or slow material — a wider range is more
+# octave ambiguity, not more accuracy.
+BPM_SEARCH_LO = 55.0
+BPM_SEARCH_HI = 185.0
+
 # Downbeat voting uses onset strength restricted below this, so the kick decides
 # the phase rather than the snare (which sits on 2 and 4 and is louder broadband).
 DOWNBEAT_FMAX = 200.0
@@ -140,6 +150,13 @@ MAX_USES_BY_MOVE = {"orbit": 3}
 W_COVERAGE = 0.25             # favours clips with material left
 W_BITE = 0.30                 # favours consuming more of a clip per cut
 
+# What to do when every clip is spent and slots remain. Rewinding cursors fills
+# the timeline by replaying footage already on screen, which reads as the edit
+# repeating itself — the complaint it looks like, rather than the "we ran out"
+# it actually is. Ending a few seconds short is the cheaper failure, so that is
+# the default; the engine says which one it did either way.
+REWIND_WHEN_EXHAUSTED = False
+
 # Two clips that travel the same way read as the same shot. Reversing one buys
 # variety for free. Only applied to moves where reversal just flips direction —
 # reversing a push_in would turn it into a pull_back, which is a different shot.
@@ -185,6 +202,21 @@ FADE_TO_BLACK = True
 # If the footage runs out before the track does, end the music under the last
 # shot rather than letting it play over black.
 MUSIC_FADE_SECONDS = 4.0
+
+# --- looping the track -----------------------------------------------------
+# When there is more footage than music, play the track a second time instead
+# of ending the video early. The song hands off at MUSIC_LOOP_HANDOFF_BAR and
+# re-enters at MUSIC_LOOP_RETURN_BAR, under a crossfade.
+#
+# Both are counted in bars and both must be phrase-aligned, so the bar grid
+# continues unbroken and no cut after the splice moves off the beat. Choose them
+# for matching arrangement energy: the seam is audible in proportion to how far
+# the music jumps across it. A crossfade hides the level change, never a drop
+# landing on an intro.
+MUSIC_LOOP = False
+MUSIC_LOOP_HANDOFF_BAR: int | None = None   # None = last phrase line of the song
+MUSIC_LOOP_RETURN_BAR: int | None = None
+MUSIC_LOOP_CROSSFADE_BARS = 2
 
 W_SLOT_LENGTH = 0.30         # how hard to push toward the preferred length
 

@@ -35,6 +35,7 @@ from .config import (
     ESCALATE_TAIL_SPEED,
     HEAD_TRIM,
     PENALTY_SPEEDUP_WHEN_CALM,
+    REWIND_WHEN_EXHAUSTED,
     SPEED_CHOICES,
     SPEEDUP_MIN_REMAINING,
     W_BITE,
@@ -405,8 +406,11 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
     slot_i = 0
     last_escalate = -999
     prev: Clip | None = None
+    exhausted = False
 
     for section in track.sections:
+        if exhausted:
+            break
         target_e = float((section.energy - lo) / span)
         pref_bars = _preferred_bars(target_e)
         bar = max(bar, section.start_bar)
@@ -424,19 +428,31 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             # and the use cap. Everything else about the slot is unchanged.
             pin = PIN_CLIPS.get(bar)
 
-            for clip in clips:
-                if clip.remaining(fps) <= 0:
-                    continue
-                if pin is not None:
-                    if pin.lower() not in clip.filename.lower():
+            def eligible(relax_uses: bool) -> list[Clip]:
+                out = []
+                for clip in clips:
+                    if clip.remaining(fps) <= 0:
                         continue
-                else:
-                    cooling = (slot_i - clip.last_used_slot) < REUSE_COOLDOWN_SLOTS
-                    if cooling and clip.times_used > 0:
-                        continue
-                    if clip.times_used >= clip.max_uses:
-                        continue
+                    if pin is not None:
+                        if pin.lower() not in clip.filename.lower():
+                            continue
+                    else:
+                        cooling = (slot_i - clip.last_used_slot) < REUSE_COOLDOWN_SLOTS
+                        if cooling and clip.times_used > 0:
+                            continue
+                        if clip.times_used >= clip.max_uses and not relax_uses:
+                            continue
+                    out.append(clip)
+                return out
 
+            # Lift the use cap before giving up. A clip with 30 unseen seconds
+            # left is always a better answer than the fallback below, which
+            # rewinds cursors and puts footage the viewer has already seen back
+            # on screen — the most visible failure this engine has, and the one
+            # that reads as "the same shot again" even when the take continues.
+            candidates = eligible(False) or eligible(True)
+
+            for clip in candidates:
                 pinned_bars = PIN_SLOT_BARS.get(bar)
                 for bars in legal_bars:
                     if bars > room:
@@ -508,15 +524,25 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                       f"no material left, or it cannot fill the slot at 1x")
 
             if best is None:
-                # Every clip is either cooling or exhausted. Recycle the ones
-                # not used recently rather than leave a hole in the timeline.
-                recycled = False
-                for clip in clips:
-                    if (slot_i - clip.last_used_slot) >= REUSE_COOLDOWN_SLOTS:
+                # Genuinely out of material: the use cap has already been lifted
+                # above, so every clip is either cooling or spent. Either outcome
+                # is announced — a silent rewind here is indistinguishable from
+                # the edit simply repeating itself, which is how it went
+                # unnoticed until someone watched the result and said so.
+                recycled = [c for c in clips
+                            if (slot_i - c.last_used_slot) >= REUSE_COOLDOWN_SLOTS]
+                if recycled and REWIND_WHEN_EXHAUSTED:
+                    print(f"  note: bar {bar} — out of unused footage, rewinding "
+                          f"{len(recycled)} clip(s) to the head; from here the "
+                          f"edit repeats material")
+                    for clip in recycled:
                         clip.cursor = int(HEAD_TRIM * fps)
-                        recycled = True
-                if recycled:
                     continue
+                left = (track.bar_time(track.n_bars) - track.bar_time(bar))
+                print(f"  note: out of unused footage at bar {bar} — ending "
+                      f"{left:.1f}s short of the track rather than repeating "
+                      f"material (REWIND_WHEN_EXHAUSTED)")
+                exhausted = True
                 break
 
             _, clip, bars, tl_frames, src_frames, rate, ramp = best

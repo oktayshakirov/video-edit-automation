@@ -37,18 +37,21 @@
                             </adjust-blend>
 {% endif %}
 {% if loop.first %}
-                            <asset-clip ref="{{ audio.id }}" lane="-1" offset="{{ c.start }}" name="{{ audio.name }}" start="0s" duration="{{ audio.duration }}" audioRole="music">
-{% if audio.fade_from %}
+{% for m in music_clips %}
+                            <asset-clip ref="{{ m.id }}" lane="{{ m.lane }}" offset="{{ m.offset }}" name="{{ m.name }}" start="{{ m.start }}" duration="{{ m.duration }}" audioRole="music">
+{% if m.volume %}
                                 <adjust-volume amount="0dB">
                                     <param name="amount">
                                         <keyframeAnimation>
-                                            <keyframe time="{{ audio.fade_from }}" value="0dB"/>
-                                            <keyframe time="{{ audio.fade_to }}" value="-96dB"/>
+{% for k in m.volume %}
+                                            <keyframe time="{{ k.time }}" value="{{ k.value }}"/>
+{% endfor %}
                                         </keyframeAnimation>
                                     </param>
                                 </adjust-volume>
 {% endif %}
                             </asset-clip>
+{% endfor %}
 {% endif %}
                         </asset-clip>
 {% endfor %}
