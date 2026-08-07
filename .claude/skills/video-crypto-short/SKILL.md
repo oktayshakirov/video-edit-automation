@@ -21,17 +21,20 @@ Five shortlisted voices, all reproducing their audition WAVs sample-for-sample:
 
 ```bash
 .venv/bin/python -m video_automation voices list
-.venv/bin/python -m video_automation voices show heart
-.venv/bin/python -m video_automation voices render heart
+.venv/bin/python -m video_automation voices show mia
+.venv/bin/python -m video_automation voices render mia
 ```
 
 | profile | voice | note |
 |---|---|---|
-| `heart` | `af_heart` 1.10 | graded A, the strongest English voice in Kokoro |
-| `heart-slow` | `af_heart` 1.00 | same voice, unhurried |
-| `emma` | `bf_emma` 1.10 | British — an audience choice as much as a voice one |
-| `puck` | `am_puck` 1.10 | C+ with hours of data, steadiest American male |
-| `adam` | `am_adam` 1.10 | lowest grade on the list, shortlisted by ear anyway |
+| `mia` | female, `af_heart` 1.10 | graded A, the strongest English voice in Kokoro |
+| `mia-calm` | female, `af_heart` 1.00 | the same speaker as mia, unhurried — a suffix, not a new name |
+| `ivy` | female, `bf_emma` 1.10 | British — an audience choice as much as a voice one |
+| `sam` | male, `am_puck` 1.10 | C+ with hours of data, steadiest American male |
+| `theo` | male, `am_adam` 1.10 | lowest grade on the list, shortlisted by ear anyway |
+
+Profiles are named after people; the Kokoro voice underneath is an
+implementation detail.
 
 **None is approved.** The user shortlisted all five and has not chosen.
 

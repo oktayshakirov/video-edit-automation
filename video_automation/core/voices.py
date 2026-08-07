@@ -122,107 +122,111 @@ class VoiceProfile:
     folder: str = ""                # where the user filed that WAV
 
 
+# Profiles are named after people, not after their ingredients — the Kokoro
+# voice names underneath are an implementation detail, and "onyx-nicole-60"
+# told you the recipe but never which voice it was. Male-sounding profiles get
+# male names, female-sounding ones female names, so the roster reads at a
+# glance. The recipe is still one `voices show <name>` away.
 PROFILES: dict[str, VoiceProfile] = {
 
     # --- drone -----------------------------------------------------------
-    "onyx-puck-melancholic": VoiceProfile(
-        voice={"am_onyx": 0.60, "am_puck": 0.40}, speed=0.82, chain=MELANCHOLIC,
+    "leo": VoiceProfile(
+        voice={"am_onyx": 0.60, "af_nicole": 0.40}, speed=0.95, chain=SOFT,
         projects=("drone",), status="approved", script="quote",
-        note="Currently shipping on video-drone-short. am_onyx was chosen by "
-             "ear but the model card grades it D; am_puck is C+ with hours of "
-             "data, so the 60/40 keeps the onyx character on a steadier base.",
+        note="THE DRONE VOICE. Chosen over three other blends and the previous "
+             "am_onyx/am_puck default, on two quotes and two clips. A blend of "
+             "the old male voice with Kokoro's only breathy one.",
+        source="A4_onyx60_nicole40.wav", folder="Drone voices",
     ),
-    "nicole": VoiceProfile(
-        voice="af_nicole", speed=1.10, chain=ENERGETIC,
-        projects=("drone", "tinnitus"), status="candidate", script="crypto",
-        note="Kokoro's only breathy/ASMR voice — renders 23.3s where every "
-             "other female voice lands 12-15s on the same script. That is the "
-             "voice's character, not a pace setting. Filed for both projects.",
-        source="03_af_nicole.wav", folder="Drone voices, Tinnitus Help Voice",
-    ),
-    "michael-nicole-60": VoiceProfile(
+    "max": VoiceProfile(
         voice={"am_michael": 0.60, "af_nicole": 0.40}, speed=0.95, chain=SOFT,
         projects=("drone",), status="candidate", script="quote",
-        note="Cross-gender style blend. Measured caveat: the blends lost most "
-             "of nicole's slowness — 10.2s at speed 0.95 against nicole's "
-             "11.7s at the faster 1.05.",
+        note="Runner-up. Same idea as leo on am_michael instead of am_onyx. "
+             "Measured caveat on all these blends: they lose most of luna's "
+             "slowness — 10.2s at speed 0.95 against luna's 11.7s at 1.05.",
         source="A2_michael60_nicole40.wav", folder="Drone voices",
     ),
-    "michael-nicole-50": VoiceProfile(
+    "noah": VoiceProfile(
         voice={"am_michael": 0.50, "af_nicole": 0.50}, speed=0.95, chain=SOFT,
         projects=("drone",), status="candidate", script="quote",
-        note="Even split — the most nicole that still reads male.",
+        note="Even split — the most breath that still reads male.",
         source="A3_michael50_nicole50.wav", folder="Drone voices",
     ),
-    "onyx-nicole-60": VoiceProfile(
-        voice={"am_onyx": 0.60, "af_nicole": 0.40}, speed=0.95, chain=SOFT,
-        projects=("drone",), status="candidate", script="quote",
-        note="Same blend ratio on the current approved male voice rather than "
-             "am_michael.",
-        source="A4_onyx60_nicole40.wav", folder="Drone voices",
+    "luna": VoiceProfile(
+        voice="af_nicole", speed=1.10, chain=ENERGETIC,
+        projects=("drone", "tinnitus"), status="candidate", script="crypto",
+        note="Female. Kokoro's only breathy/ASMR voice — renders 23.3s where "
+             "every other female voice lands 12-15s on the same script. That "
+             "is the voice's character, not a pace setting. The base voice "
+             "inside leo, max, noah and every tinnitus profile.",
+        source="03_af_nicole.wav", folder="Drone voices, Tinnitus Help Voice",
     ),
 
     # --- crypto ----------------------------------------------------------
-    "heart": VoiceProfile(
+    "mia": VoiceProfile(
         voice="af_heart", speed=1.10, chain=ENERGETIC,
         projects=("crypto",), status="candidate", script="crypto",
-        note="Graded A — the strongest English voice in Kokoro. Grade matters "
-             "here because artifacts show at speed.",
+        note="Female. Graded A — the strongest English voice in Kokoro. Grade "
+             "matters here because artifacts show at speed.",
         source="01_af_heart.wav", folder="Crypto Wiki Voices",
     ),
-    "heart-slow": VoiceProfile(
+    "mia-calm": VoiceProfile(
         voice="af_heart", speed=1.00, chain=ENERGETIC,
         projects=("crypto",), status="candidate", script="crypto",
-        note="Same voice, unhurried. Kokoro's speed is sublinear — 1.00 vs "
-             "1.10 is only 15.6s vs 14.9s, so this is a delivery choice more "
-             "than a runtime one.",
+        note="Female. The same voice as mia, unhurried — kept as a suffix "
+             "rather than a new name because it is one speaker, not two. "
+             "Kokoro's speed is sublinear, so 1.00 vs 1.10 is only 15.6s vs "
+             "14.9s: a delivery choice more than a runtime one.",
         source="20_pace_1.00_af_heart.wav", folder="Crypto Wiki Voices",
     ),
-    "emma": VoiceProfile(
+    "ivy": VoiceProfile(
         voice="bf_emma", speed=1.10, chain=ENERGETIC,
         projects=("crypto",), status="candidate", script="crypto",
-        note="British, graded B-. An audience choice as much as a voice one.",
+        note="Female, British, graded B-. An audience choice as much as a "
+             "voice one.",
         source="04_bf_emma.wav", folder="Crypto Wiki Voices",
     ),
-    "puck": VoiceProfile(
+    "sam": VoiceProfile(
         voice="am_puck", speed=1.10, chain=ENERGETIC,
         projects=("crypto",), status="candidate", script="crypto",
-        note="Graded C+ with hours of data — the steadiest American male.",
+        note="Male. Graded C+ with hours of data — the steadiest American male.",
         source="M_am_puck.wav", folder="Crypto Wiki Voices",
     ),
-    "adam": VoiceProfile(
+    "theo": VoiceProfile(
         voice="am_adam", speed=1.10, chain=ENERGETIC,
         projects=("crypto",), status="candidate", script="crypto",
-        note="Lowest-graded voice on the shortlist (F on the model card) but "
-             "shortlisted by ear, which outranks the grade.",
+        note="Male. Lowest-graded voice on the shortlist (F on the model card) "
+             "but shortlisted by ear, which outranks the grade.",
         source="M_am_adam.wav", folder="Crypto Wiki Voices",
     ),
 
     # --- tinnitus --------------------------------------------------------
-    # af_nicole pitched toward a male register. Keeps 100% of the breath by
-    # construction, which the cross-gender blends did not.
-    "nicole-p88": VoiceProfile(
+    # All four are luna pitched toward a male register. That keeps 100% of the
+    # breath by construction, which the cross-gender blends did not. They carry
+    # male names because that is what they are *for* — but whether they read as
+    # male or as a processed woman is still unconfirmed by ear.
+    "elias": VoiceProfile(
         voice="af_nicole", speed=1.05, chain=f"{pitch(0.88)},{SOFT}",
         projects=("tinnitus",), status="candidate", script="quote",
-        note="12% down, real time restored.",
+        note="luna 12% down, real time restored.",
         source="B1_nicole_p88.wav", folder="Tinnitus Help Voice",
     ),
-    "nicole-p84": VoiceProfile(
+    "felix": VoiceProfile(
         voice="af_nicole", speed=1.05, chain=f"{pitch(0.84)},{SOFT}",
         projects=("tinnitus",), status="candidate", script="quote",
-        note="16% down, real time restored.",
+        note="luna 16% down, real time restored.",
         source="B2_nicole_p84.wav", folder="Tinnitus Help Voice",
     ),
-    "nicole-slow-p88": VoiceProfile(
+    "jonas": VoiceProfile(
         voice="af_nicole", speed=1.05, chain=f"{pitch_slow(0.88)},{SOFT}",
         projects=("tinnitus",), status="candidate", script="quote",
-        note="12% down and the slowdown kept — no time-stretch artifacts.",
+        note="luna 12% down with the slowdown kept — no time-stretch artifacts.",
         source="D1_nicole_slow_p88.wav", folder="Tinnitus Help Voice",
     ),
-    "nicole-slow-p84-air": VoiceProfile(
+    "caspar": VoiceProfile(
         voice="af_nicole", speed=1.05, chain=f"{pitch_slow(0.84)},{SOFT},{AIR}",
         projects=("tinnitus",), status="candidate", script="quote",
-        note="16% down, slowdown kept, plus the aspiration boost. The most "
+        note="luna 16% down, slowdown kept, plus the aspiration boost. The most "
              "processed of the set and the closest to male ASMR.",
         source="D4_nicole_slow_p84_aspirate.wav", folder="Tinnitus Help Voice",
     ),
@@ -231,9 +235,14 @@ PROFILES: dict[str, VoiceProfile] = {
 APPROVED = {n: p for n, p in PROFILES.items() if p.status == "approved"}
 
 # The single source of truth for what video-drone-short ships with. voiceover.py
-# derives KOKORO_VOICE and POST_CHAINS["melancholic"] from this, so the approved
-# recipe is written down once and cannot drift between the two files.
-APPROVED_DRONE = PROFILES["onyx-puck-melancholic"]
+# derives KOKORO_VOICE from this, so the approved recipe is written down once
+# and cannot drift between the two files.
+#
+# The previous default — am_onyx 0.60 + am_puck 0.40 on the MELANCHOLIC chain —
+# was retired when leo was approved. The chain itself is kept above and still
+# registered as the "melancholic" mood, because videos already shipped with it
+# and CHANGELOG entries refer to that sound.
+APPROVED_DRONE = PROFILES["leo"]
 
 # Where the user filed the shortlists. Used only by `voices verify`.
 AUDITION_DIRS = [

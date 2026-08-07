@@ -29,26 +29,26 @@ Five shortlisted voices, all reproducing their audition WAVs sample-for-sample:
 
 ```bash
 .venv/bin/python -m video_automation voices list
-.venv/bin/python -m video_automation voices show nicole-slow-p84-air
-.venv/bin/python -m video_automation voices render nicole-p84
+.venv/bin/python -m video_automation voices show caspar
+.venv/bin/python -m video_automation voices render felix
 ```
 
 | profile | recipe | note |
 |---|---|---|
-| `nicole` | `af_nicole` 1.10, energetic | the only breathy voice Kokoro has |
-| `nicole-p88` | 12% down, time restored | |
-| `nicole-p84` | 16% down, time restored | |
-| `nicole-slow-p88` | 12% down, slowdown kept | no time-stretch artifacts |
-| `nicole-slow-p84-air` | 16% down, slowdown kept, aspiration boost | most processed of the set |
+| `luna` | female, `af_nicole` 1.10, energetic | the only breathy voice Kokoro has, and the base for the four below |
+| `elias` | 12% down, time restored | |
+| `felix` | 16% down, time restored | |
+| `jonas` | 12% down, slowdown kept | no time-stretch artifacts |
+| `caspar` | 16% down, slowdown kept, aspiration boost | most processed of the set |
 
 **None is approved.** All five were shortlisted by ear and are waiting on a
 decision.
 
-The `p*` profiles exist because **Kokoro has no male breathy voice** — this was
+elias, felix, jonas and caspar are all luna pitched down. They exist because **Kokoro has no male breathy voice** — this was
 measured, not assumed. All twelve male voices ran 11.7–16.2s where `af_nicole`
 ran 23.3s on the same script. Cross-gender style blends were tried and lose the
 character: the blends came in *shorter* at a slower speed setting. Pitching
-`af_nicole` down keeps 100% of the breath by construction, which is why that is
+luna down keeps 100% of the breath by construction, which is why that is
 the surviving approach. Kokoro has released no fine-tuning code, so blending
 and DSP are the whole ceiling.
 

@@ -195,37 +195,50 @@ Model files: `~/.local/share/kokoro` (~350MB). Installed as **kokoro-onnx**, not
 the PyTorch `kokoro` package — that one depends on spacy, which has no Python
 3.13 wheels and fails to build, and would add ~2.5GB of torch.
 
-**Approved voice: a blend — `am_onyx` 0.60 + `am_puck` 0.40.** Registered as
-the profile `onyx-puck-melancholic`, which is where `KOKORO_VOICE` and
-`POST_CHAINS["melancholic"]` now come from. Pass `voice=None` to get it.
+**Approved voice: `leo`** — `am_onyx` 0.60 + `af_nicole` 0.40 at speed 0.95 on
+the soft chain. Chosen over three other blends and the previous default, tested
+on two quotes and two clips.
+
+```python
+render_narrated(..., **profile_args("leo"))
+```
+
+**Always pass the profile explicitly.** `voice=None` still resolves to leo's
+voice, but the mood defaults independently, so the defaults no longer describe
+one coherent recipe. `profile_args` is the only call that keeps voice and chain
+together — and half a profile is a different voice.
+
+The previous default (`am_onyx` 0.60 + `am_puck` 0.40 on the melancholic chain)
+was **retired** when leo was approved. The chain itself is still registered as
+the `melancholic` mood, because shipped videos and CHANGELOG entries refer to
+that sound — but no profile uses it now.
 
 **Every voice lives in `video_automation/core/voices.py`.** A profile is the
 whole recipe — voice, Kokoro speed and post chain — because those three are one
-decision, not three. Use one by spreading `profile_args()`, which hands back the
-`voice=`/`mood=` pair `render_narrated` already takes:
-
-```python
-render_narrated(..., **profile_args("michael-nicole-60"))
-```
+decision, not three. Profiles are named after people; the Kokoro voices
+underneath are an implementation detail.
 
 ```bash
-.venv/bin/python -m video_automation voices list          # all profiles
-.venv/bin/python -m video_automation voices show nicole   # full recipe
-.venv/bin/python -m video_automation voices render nicole # sample to Desktop
-.venv/bin/python -m video_automation voices verify        # reproduce the auditions
+.venv/bin/python -m video_automation voices list        # all profiles
+.venv/bin/python -m video_automation voices show leo    # full recipe
+.venv/bin/python -m video_automation voices render leo  # sample to Desktop
 ```
 
 **`status` is not a rating.** `approved` means it shipped in a finished video;
 `candidate` means the user shortlisted it by ear and has not decided. Do not
 promote one without being told to.
 
-**Four candidates are shortlisted for drone and not yet chosen:** `nicole`
-(`af_nicole` — the only breathy voice Kokoro has, and 23.3s where every other
-female voice lands 12–15s on the same script), and three cross-gender blends,
-`michael-nicole-60`, `michael-nicole-50`, `onyx-nicole-60`. Measured caveat on
-the blends: they lose most of nicole's slowness — 10.2s at speed 0.95 against
-nicole's 11.7s at the *faster* 1.05. Whatever encodes that character averages
-away in the sum.
+**Three alternates are kept for experiments**, not for shipping:
+
+| profile | what it is |
+|---|---|
+| `max` | runner-up — leo's idea on `am_michael` instead of `am_onyx` |
+| `noah` | even 50/50 split — the most breath that still reads male |
+| `luna` | female. `af_nicole`, the only breathy voice Kokoro has, and the base inside all three blends |
+
+Measured caveat on the blends: they lose most of luna's slowness — 10.2s at
+speed 0.95 against luna's 11.7s at the *faster* 1.05. Whatever encodes that
+character averages away in the sum.
 
 **A voice is a `(510, 1, 256)` style tensor, not a model**, so a weighted sum is
 a new speaker identity the model renders as one person — not two voices mixed as

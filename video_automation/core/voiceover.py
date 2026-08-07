@@ -84,7 +84,11 @@ KOKORO_MOODS = {
 # restoring real time) and the short echo tail are what sell it. Without them it
 # is the same voice reading slower.
 POST_CHAINS = {
-    "melancholic": voices.APPROVED_DRONE.chain,
+    # Deliberately the MELANCHOLIC chain rather than the approved profile's —
+    # those were the same thing until leo was approved, and leo uses SOFT.
+    # Wiring this to APPROVED_DRONE.chain would silently redefine what the
+    # "melancholic" mood means for anything still asking for it.
+    "melancholic": voices.MELANCHOLIC,
 }
 
 # Every registered profile is also reachable as a mood, because a mood here is

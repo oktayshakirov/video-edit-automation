@@ -121,11 +121,17 @@ that matters.
 .venv/bin/python -m video_automation voices verify
 ```
 
+Profiles are named after people — the Kokoro voices underneath are an
+implementation detail, and a name like `onyx-nicole-60` told you the recipe but
+never which voice it was. Male-sounding profiles carry male names, female ones
+female names, so the roster reads at a glance.
+
 Kokoro's ONNX inference is deterministic, so `verify` re-renders every profile
-and checks it reproduces its audition WAV sample-for-sample. **`approved` means
-it has shipped in a finished video; `candidate` means it was shortlisted by ear
-and is waiting on a decision.** One profile is approved (drone's
-`onyx-puck-melancholic`); thirteen are candidates.
+and checks it reproduces its audition WAV sample-for-sample (it reports the
+files as missing once those WAVs are cleared, which is harmless — the recipes
+are the archive now). **`approved` means it has shipped in a finished video;
+`candidate` means it was shortlisted by ear and is waiting on a decision.**
+Drone's `leo` is approved; the rest are candidates.
 
 Footage and proxies are **not** in the repo. Proxies and the SQLite index live
 in `.analysis_cache/` inside each footage folder, so a batch carries its own
