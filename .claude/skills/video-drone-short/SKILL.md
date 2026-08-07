@@ -8,9 +8,11 @@ description: Make vertical short-form videos for TikTok and YouTube Shorts from 
 Renders finished vertical MP4s. **This is the one part of the project that
 renders video**; the long-form pipeline (`video-drone-long`) only writes FCPXML.
 
-**Repo:** `~/Coding/drone-edit-automation` — run from there, with `PYTHONPATH=.`
-so `drone_automation` imports from the working copy.
-Footage must already be indexed: `.venv/bin/python -m drone_automation index <folder>`
+**Repo:** `~/Coding/video-edit-automation` — run from there, with `PYTHONPATH=.`
+so `video_automation` imports from the working copy. The repo is shared with the
+crypto and tinnitus projects; drone code lives in `video_automation/drone/`, and
+everything voice- and render-related in `video_automation/core/`.
+Footage must already be indexed: `.venv/bin/python -m video_automation drone index <folder>`
 (shared with `video-drone-long`; the proxies and clip index are the same).
 
 ## What the channel's own numbers say
@@ -49,8 +51,8 @@ five long-form videos over the same period.
 ## Building one
 
 ```python
-from drone_automation.vertical import pick_crop, render_text_png, render_short, sample_bg_luma
-from drone_automation.voiceover import render_narrated
+from video_automation.core.vertical import pick_crop, render_text_png, render_short, sample_bg_luma
+from video_automation.core.voiceover import render_narrated, profile_args
 ```
 
 Silent quote card:
@@ -193,8 +195,37 @@ Model files: `~/.local/share/kokoro` (~350MB). Installed as **kokoro-onnx**, not
 the PyTorch `kokoro` package — that one depends on spacy, which has no Python
 3.13 wheels and fails to build, and would add ~2.5GB of torch.
 
-**Approved voice: a blend — `am_onyx` 0.60 + `am_puck` 0.40.** It is the default
-in `KOKORO_VOICE`; pass `voice=None` to get it.
+**Approved voice: a blend — `am_onyx` 0.60 + `am_puck` 0.40.** Registered as
+the profile `onyx-puck-melancholic`, which is where `KOKORO_VOICE` and
+`POST_CHAINS["melancholic"]` now come from. Pass `voice=None` to get it.
+
+**Every voice lives in `video_automation/core/voices.py`.** A profile is the
+whole recipe — voice, Kokoro speed and post chain — because those three are one
+decision, not three. Use one by spreading `profile_args()`, which hands back the
+`voice=`/`mood=` pair `render_narrated` already takes:
+
+```python
+render_narrated(..., **profile_args("michael-nicole-60"))
+```
+
+```bash
+.venv/bin/python -m video_automation voices list          # all profiles
+.venv/bin/python -m video_automation voices show nicole   # full recipe
+.venv/bin/python -m video_automation voices render nicole # sample to Desktop
+.venv/bin/python -m video_automation voices verify        # reproduce the auditions
+```
+
+**`status` is not a rating.** `approved` means it shipped in a finished video;
+`candidate` means the user shortlisted it by ear and has not decided. Do not
+promote one without being told to.
+
+**Four candidates are shortlisted for drone and not yet chosen:** `nicole`
+(`af_nicole` — the only breathy voice Kokoro has, and 23.3s where every other
+female voice lands 12–15s on the same script), and three cross-gender blends,
+`michael-nicole-60`, `michael-nicole-50`, `onyx-nicole-60`. Measured caveat on
+the blends: they lose most of nicole's slowness — 10.2s at speed 0.95 against
+nicole's 11.7s at the *faster* 1.05. Whatever encodes that character averages
+away in the sum.
 
 **A voice is a `(510, 1, 256)` style tensor, not a model**, so a weighted sum is
 a new speaker identity the model renders as one person — not two voices mixed as

@@ -1,8 +1,8 @@
 """Command line entry point.
 
-    python -m drone_automation index  ~/Desktop/Plovdiv
-    python -m drone_automation index  ~/Desktop/Plovdiv --reanalyze   # keep proxies, redo metrics
-    python -m drone_automation report ~/Desktop/Plovdiv
+    python -m video_automation drone index  ~/Desktop/Plovdiv
+    python -m video_automation drone index  ~/Desktop/Plovdiv --reanalyze   # keep proxies, redo metrics
+    python -m video_automation drone report ~/Desktop/Plovdiv
 
 Subcommands rather than flags, because Phase 2-4 add `music`, `edit` and
 `export` alongside these.
@@ -17,7 +17,8 @@ from pathlib import Path
 from .analysis import analyze_proxy
 from .config import LOW_CONFIDENCE, PROXY_DIRNAME
 from .db import open_db, upsert
-from .media import ToolMissing, build_proxy, ffprobe_meta, is_clip, quick_hash, require_tools
+from ..core.media import (ToolMissing, build_proxy, ffprobe_meta, is_clip,
+                          quick_hash, require_tools)
 from .report import print_report
 
 
@@ -101,7 +102,7 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
     db_path = root / PROXY_DIRNAME / DB_NAME
     if not db_path.exists():
-        print(f"No index at {db_path}. Run `drone_automation index` first.", file=sys.stderr)
+        print(f"No index at {db_path}. Run `video_automation drone index` first.", file=sys.stderr)
         return 1
 
     clips = edit_mod.load_clips(db_path)
@@ -186,7 +187,7 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        prog="drone_automation", description="Drone Automation — beat-driven editor for drone selects."
+        prog="video_automation drone", description="Drone Automation — beat-driven editor for drone selects."
     )
     sub = ap.add_subparsers(dest="cmd", required=True)
 

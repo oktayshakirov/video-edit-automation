@@ -2,7 +2,7 @@
 #
 # Paths are absolute because footage lives outside the repo (it is hundreds of
 # gigabytes and has no business in git). Anything under [overrides] must name a
-# real constant in drone_automation/config.py or the build fails loudly.
+# real constant in video_automation/drone/config.py or the build fails loudly.
 
 name = "Plovdiv"
 profile = "youtube"

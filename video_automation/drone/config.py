@@ -4,13 +4,11 @@ The tuning round after the first real run touches this file and nothing else.
 Values marked GUESS have never been validated against footage.
 """
 
-VIDEO_EXTS = {".mp4", ".mov", ".m4v", ".mkv", ".avi"}
-
-# --- proxy ---------------------------------------------------------------
-PROXY_WIDTH = 320
-PROXY_FPS = 10
-PROXY_DIRNAME = ".analysis_cache"
-DB_NAME = "clip_index.sqlite"
+# Proxy and container constants are shared with the other projects; re-exported
+# here so drone modules can keep importing everything from one config.
+from ..core.config import (          # noqa: F401
+    DB_NAME, PROXY_DIRNAME, PROXY_FPS, PROXY_WIDTH, VIDEO_EXTS,
+)
 
 # --- feature tracking ----------------------------------------------------
 MAX_FEATURES = 300

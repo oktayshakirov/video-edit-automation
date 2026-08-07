@@ -1,11 +1,21 @@
-# Drone Automation
+# Video Automation
 
-Turns a folder of graded drone selects plus a music track into a **Final Cut Pro
-XML timeline** — clips chosen, ordered, trimmed and cut on the music's bar grid.
-Open it in Final Cut and do the taste pass.
+One engine, three projects. A shared core — voice profiles, TTS, caption
+alignment, type rendering, 9:16 crop and vertical render — with a package per
+project on top.
 
-**It never renders video.** It reads, analyses and writes an XML file. No
-transcoding, no proxy rendering of output, no MP4 export.
+| project | state | what it makes |
+|---|---|---|
+| **drone** | working | long-form FCPXML montages cut to music; narrated vertical shorts |
+| **crypto** | stub — voices only | thecrypto.wiki article shorts |
+| **tinnitus** | stub — voices only | tinnitushelp.me shorts + ASMR sound therapy |
+
+Only drone is built. Crypto and tinnitus have their shortlisted voices
+registered in `core/voices.py` and nothing else; their packages say so.
+
+**Long-form never renders video.** It reads, analyses and writes an XML file for
+Final Cut. Short-form does render finished MP4s — that is the one place output
+is encoded.
 
 ## Picking up where the last session left off
 
@@ -29,20 +39,22 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
 # make the skills available in any session, from any folder
-ln -s "$PWD/.claude/skills/video-drone-long"  ~/.claude/skills/video-drone-long
-ln -s "$PWD/.claude/skills/video-drone-short" ~/.claude/skills/video-drone-short
+for s in video-drone-long video-drone-short video-crypto-short video-tinnitus-short; do
+  ln -sfn "$PWD/.claude/skills/$s" ~/.claude/skills/$s
+done
 ```
 
 The symlinks matter: skills under `.claude/skills/` are project-scoped, so
 without them the commands are invisible when a session starts in a footage
 folder rather than in this repo.
 
-Two skills, deliberately. **`/video-drone-long`** produces a long-form FCPXML
-timeline and never renders video. **`/video-drone-short`** renders vertical MP4s for
-TikTok and Shorts, with text and optional narration. They share the clip index
-but have different pacing models, different output, and different numbers behind
-them — one skill covering both would need a description vague enough to hurt
-routing.
+One skill per format, deliberately. **`/video-drone-long`** produces a long-form
+FCPXML timeline and never renders video; **`/video-drone-short`** renders vertical
+MP4s with text and optional narration. They share the clip index but have
+different pacing models, different output and different numbers behind them —
+one skill covering both would need a description vague enough to hurt routing.
+**`/video-crypto-short`** and **`/video-tinnitus-short`** are stubs that record
+their saved voices and state plainly that nothing else is built.
 
 Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 3.11+ (`tomllib`).
@@ -50,9 +62,9 @@ Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 ## Use
 
 ```bash
-.venv/bin/python -m drone_automation index ~/Desktop/Plovdiv          # once per batch
-.venv/bin/python -m drone_automation build --project plovdiv --dry-run
-.venv/bin/python -m drone_automation build --project plovdiv
+.venv/bin/python -m video_automation drone index ~/Desktop/Plovdiv          # once per batch
+.venv/bin/python -m video_automation drone build --project plovdiv --dry-run
+.venv/bin/python -m video_automation drone build --project plovdiv
 ```
 
 `index` is incremental — clips are identified by a partial hash (size + first
@@ -70,21 +82,50 @@ The older explicit form still works: `build <footage> --music <track>`.
 ## Repository layout
 
 ```
-drone_automation/           the package
-  config.py         every tunable, grouped by phase, GUESS-marked where unvalidated
-  media.py          ffprobe/ffmpeg wrappers, clip hashing, proxy build
-  analysis.py       per-frame CV, motion fit, move classification
-  music.py          beat grid, downbeat phase, energy envelope, sections
-  edit.py           slot filling, clip scoring, speed decisions, frame snapping
-  fcpxml.py         Jinja-rendered FCPXML
-  validate.py       DTD + semantic checks before anything reaches Final Cut
-  project.py        per-video TOML loading and config overrides
-  cli.py            subcommands: index, report, build
-projects/           one .toml per video — see projects/README.md
-.claude/skills/     video-drone-long, video-drone-short — symlink into ~/.claude/skills/
+video_automation/
+  cli.py            top-level dispatch: <project> <subcommand>
+  core/             shared by every project
+    voices.py       named voice profiles — the record of what was auditioned
+    voiceover.py    Kokoro TTS, caption alignment, narrated render
+    vertical.py     9:16 crop search, type rendering, vertical export
+    media.py        ffprobe/ffmpeg wrappers, clip hashing, proxy build
+    config.py       constants shared across projects (proxy, container types)
+  drone/            the only built project
+    config.py       every drone tunable, GUESS-marked where unvalidated
+    analysis.py     per-frame CV, motion fit, move classification
+    music.py        beat grid, downbeat phase, energy envelope, sections
+    edit.py         slot filling, clip scoring, speed decisions, frame snapping
+    fcpxml.py       Jinja-rendered FCPXML
+    validate.py     DTD + semantic checks before anything reaches Final Cut
+    project.py      per-video TOML loading and config overrides
+    cli.py          subcommands: index, report, build
+  crypto/           stub
+  tinnitus/         stub
+projects/drone/     one .toml per video — see projects/README.md
+.claude/skills/     four skills — symlink into ~/.claude/skills/
 assets/             reusable overlays + captured FCPXML fragments
 CHANGELOG.md        approved stages and their metrics
 ```
+
+## Voices
+
+A profile is the whole recipe — voice, Kokoro speed and post chain — because
+those are one decision, not three. `af_nicole` through the energetic chain and
+`af_nicole` pitched through the soft chain are different voices in every way
+that matters.
+
+```bash
+.venv/bin/python -m video_automation voices list
+.venv/bin/python -m video_automation voices show nicole
+.venv/bin/python -m video_automation voices render nicole
+.venv/bin/python -m video_automation voices verify
+```
+
+Kokoro's ONNX inference is deterministic, so `verify` re-renders every profile
+and checks it reproduces its audition WAV sample-for-sample. **`approved` means
+it has shipped in a finished video; `candidate` means it was shortlisted by ear
+and is waiting on a decision.** One profile is approved (drone's
+`onyx-puck-melancholic`); thirteen are candidates.
 
 Footage and proxies are **not** in the repo. Proxies and the SQLite index live
 in `.analysis_cache/` inside each footage folder, so a batch carries its own

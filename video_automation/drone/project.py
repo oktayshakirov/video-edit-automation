@@ -4,12 +4,12 @@ A project pins the footage folder, the track, and any tuning that differs from
 the defaults, so each video is reproducible from one file and the shared
 defaults in config.py never have to be edited per shoot.
 
-    drone_automation build --project projects/plovdiv.toml
+    video_automation drone build --project projects/plovdiv.toml
 
 Overrides are applied to the config module before the edit modules import it,
 which is why cli.py imports those lazily. They therefore affect phases 2-4
 (music, edit decisions, export). Changing an indexing constant needs a
-`drone_automation index --reanalyze` instead, because the clip index is already built.
+`video_automation drone index --reanalyze` instead, because the clip index is already built.
 """
 
 from __future__ import annotations
@@ -18,7 +18,10 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-PROJECT_DIR = Path(__file__).resolve().parent.parent / "projects"
+# Repo root is three levels up now (video_automation/drone/project.py), and
+# each project keeps its own folder so crypto and tinnitus configs cannot
+# collide with drone's.
+PROJECT_DIR = Path(__file__).resolve().parents[2] / "projects" / "drone"
 
 
 @dataclass

@@ -8,7 +8,7 @@ description: Cut a folder of graded drone selects to a music track and produce a
 Turns graded drone selects plus a music track into a Final Cut Pro XML timeline.
 **It never renders video** — it reads, analyses and writes XML.
 
-**Repo:** `~/coding/video-drone-long-automation` — run everything from there. Footage
+**Repo:** `~/Coding/video-edit-automation` — run everything from there. Footage
 lives outside it.
 
 ## Scope
@@ -23,16 +23,16 @@ The clip index is shared, so a folder indexed here is ready for both.
 ## New footage folder
 
 ```bash
-cd ~/coding/video-drone-long-automation
-.venv/bin/python -m drone_automation index /path/to/footage      # slow once, then cached
+cd ~/Coding/video-edit-automation
+.venv/bin/python -m video_automation drone index /path/to/footage      # slow once, then cached
 ```
 
-Create `projects/<name>.toml` (copy `plovdiv.toml`, repoint `footage` and
+Create `projects/drone/<name>.toml` (copy `projects/drone/plovdiv.toml`, repoint `footage` and
 `music`). Then the loop:
 
 ```bash
-.venv/bin/python -m drone_automation build --project <name> --dry-run   # seconds
-.venv/bin/python -m drone_automation build --project <name>             # writes FCPXML
+.venv/bin/python -m video_automation drone build --project <name> --dry-run   # seconds
+.venv/bin/python -m video_automation drone build --project <name>             # writes FCPXML
 ```
 
 **Always `--dry-run` while tuning.** It reruns the whole engine off cached
@@ -45,8 +45,8 @@ by two beats every cut lands on the backbeat.
 
 ## Tuning
 
-Every knob is in `drone_automation/config.py`, grouped by phase, `GUESS`-marked
-where unvalidated. **Per-video changes go in `projects/<name>.toml` under
+Every knob is in `video_automation/drone/config.py`, grouped by phase, `GUESS`-marked
+where unvalidated. **Per-video changes go in `projects/drone/<name>.toml` under
 `[overrides]`**, never in `config.py` — that is the shared baseline.
 
 | Symptom | Look at |
@@ -74,8 +74,8 @@ on Plovdiv and reshuffled it every time, once silently changing the opening shot
 **As soon as the user approves an edit, lock it:**
 
 ```bash
-.venv/bin/python -m drone_automation build --project <name> \
-    --lock-out projects/<name>.lock.toml
+.venv/bin/python -m video_automation drone build --project <name> \
+    --lock-out projects/drone/<name>.lock.toml
 ```
 
 Add `lock = "<name>.lock.toml"` to the project file. `build` then replays the
@@ -135,7 +135,7 @@ complains, reproduce it locally instead of guessing:
 
 ```bash
 .venv/bin/python -c "
-from pathlib import Path; from drone_automation.validate import check
+from pathlib import Path; from video_automation.drone.validate import check
 print(check(Path('<file>.fcpxml')) or 'clean')"
 ```
 

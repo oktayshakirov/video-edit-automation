@@ -43,6 +43,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import voices
 from .vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
                        OUT_H, OUT_W,
                        render_short, render_text_png, sample_bg_luma)
@@ -64,7 +65,7 @@ KOKORO_DIR = Path.home() / ".local/share/kokoro"
 # weakest of the American males. `am_puck` is C+ with hours. 60/40 keeps the
 # onyx character on the steadier base and was picked over straight onyx and
 # eight other mixes for sounding more human.
-KOKORO_VOICE: "str | dict[str, float]" = {"am_onyx": 0.60, "am_puck": 0.40}
+KOKORO_VOICE: "str | dict[str, float]" = voices.APPROVED_DRONE.voice
 KOKORO_SPEED = 0.88     # unhurried; motivational reads are not brisk
 
 # Kokoro has no emotion parameter, so mood is carried by pace, voice choice and
@@ -83,11 +84,26 @@ KOKORO_MOODS = {
 # restoring real time) and the short echo tail are what sell it. Without them it
 # is the same voice reading slower.
 POST_CHAINS = {
-    "melancholic": (
-        "asetrate=24000*0.96,aresample=24000,atempo=1.0417,"
-        "aecho=0.85:0.8:55:0.18,equalizer=f=250:t=q:w=1.5:g=2,loudnorm=I=-16"
-    ),
+    "melancholic": voices.APPROVED_DRONE.chain,
 }
+
+# Every registered profile is also reachable as a mood, because a mood here is
+# exactly what a profile is: a speed plus a post chain. Registering them means
+# the render path needs no new parameter — `profile_args()` below hands back
+# the `voice=`/`mood=` pair that `render_narrated` already accepts.
+for _name, _p in voices.PROFILES.items():
+    KOKORO_MOODS[_name] = _p.speed
+    POST_CHAINS[_name] = _p.chain
+
+
+def profile_args(name: str) -> dict:
+    """Spread into `render_narrated` to use a named profile.
+
+        render_narrated(..., **profile_args("nicole"))
+
+    Voice and chain must travel together — half a profile is a different voice.
+    """
+    return {"voice": voices.get(name).voice, "mood": name}
 
 # Microsoft's current neural voices, reached through the Edge endpoint: free,
 # no API key, ~1MB install, and clearly the most natural of the three. The

@@ -1,0 +1,20 @@
+# Nessebar, Bulgaria — 14 graded selects, 3840x2160p30, ~5.1 min of footage.
+# Track is 2:36, so the edit has roughly twice the footage it needs.
+#
+# Paths are absolute because footage lives outside the repo. Anything under
+# [overrides] must name a real constant in video_automation/drone/config.py or the
+# build fails loudly.
+
+name = "Nessebar"
+profile = "youtube"
+
+footage = "~/Desktop/Nessebar"
+music = "~/Desktop/Nessebar/Minorq - Forever Young.mp3"
+
+# No lock yet — the scorer is live. Lock this as soon as an edit is approved,
+# otherwise any later tuning reshuffles the whole running order.
+
+[overrides]
+# Windmill is the only orbit in this batch, so the same-move penalty can never
+# push against it. Capped by hand, as on Plovdiv.
+MAX_USES_BY_MOVE = { orbit = 3 }
