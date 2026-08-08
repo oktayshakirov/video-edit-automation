@@ -15,9 +15,34 @@ everything voice- and render-related in `video_automation/core/`.
 Footage must already be indexed: `.venv/bin/python -m video_automation drone index <folder>`
 (shared with `video-drone-long`; the proxies and clip index are the same).
 
+## TikTok and YouTube are not one audience
+
+**Everything in the next section is YouTube data.** It was written before the
+TikTok account was ever measured, and it does not describe TikTok. Pulled
+2026-08-09:
+
+| | views |
+|---|---|
+| YouTube, lifetime since 2015 | 26,113 |
+| TikTok, last 365 days | **678,600** |
+
+TikTok is the bigger platform by a wide margin — 86.3% For You, healthy
+distribution, one video at 621K. Three YouTube-derived rules **measurably do not
+hold there**: 30s+ posts do fine (best recent is 0:31 with 231 likes), Bulgaria
+is TikTok's *strongest* material rather than off-audience, and plain scenery
+beats angle-driven quote videos on engagement — the reverse of YouTube.
+
+Like-for-like on TikTok, same weeks: scenery posts run ~2–5% likes, narrated
+quote shorts ~0.4–0.9%. The user has seen this and chose to keep posting quotes
+to both, because one asset for two platforms is worth more than the delta.
+**Do not re-litigate that; do not quote YouTube numbers as if they cover TikTok.**
+
+Note the 678.6K is skewed by that one 621K video — the realistic per-post
+baseline is closer to ~1,000.
+
 ## What the channel's own numbers say
 
-Do not re-derive these. Pulled from the real channel, and they decide the format.
+YouTube only. Do not re-derive these, and do not apply them to TikTok.
 
 **Length correlated strongly with performance in past uploads:**
 
@@ -52,7 +77,7 @@ five long-form videos over the same period.
 
 ```python
 from video_automation.core.vertical import pick_crop, render_text_png, render_short, sample_bg_luma
-from video_automation.core.voiceover import render_narrated, profile_args
+from video_automation.core.voiceover import render_narrated, render_narrated_cuts, profile_args
 ```
 
 Silent quote card:
@@ -90,6 +115,26 @@ render_narrated(
     gap=0.65, tail=2.2,     # gap is between sentences only
 )
 ```
+
+Across several clips — `render_narrated_cuts` takes `(src, in-point, box)` per
+clip and returns `(out, total, cuts)`:
+
+```python
+render_narrated_cuts(
+    [(clip_a, 2.0, box_a), (clip_b, 8.0, box_b), (clip_c, 8.0, box_c)],
+    out, SENTENCES, work, y_frac=0.48, gap=[0.65, 1.9, 0.65], tail=2.2,
+    font_path=FUTURA, font_index=0, font_size=44, stroke=4, fps=30,
+    **profile_args("leo"))
+```
+
+`plan_cuts` snaps cut points to **caption boundaries**, never to even time —
+cutting mid-caption reads as a mistake, because the eye is on a line of type
+and the ground changes underneath it. Every segment gets at least `min_hold`
+(2s); a shot too short to register is worse than an uneven cut. Sources must
+share fps and dimensions, because `concat` demands it.
+
+**But reach for one clip first.** See *The reveal format* below — a clip that
+already moves usually beats cutting between clips that do not.
 
 Write outputs to the Desktop unless told otherwise — they are for uploading, not
 for the repo.
@@ -326,6 +371,45 @@ None of these marks are ever spoken aloud — they stay punctuation in the
 phonemes. ALL CAPS and bracketed emotion tags were not tested; keep avoiding
 them.
 
+## The reveal format
+
+**An approved format, and the first one that gives a viewer a reason to rewatch
+rather than a hope that they will.** Three beats:
+
+1. `i read a quote that said` — the approved opener
+2. a metaphor with a concrete vehicle — trees, rivers, weather, maps, gardens
+3. `this is not about <the vehicle> btw` — **spoken, never shown**
+
+Rewatch is the one thing this channel has hard evidence for: the hyperlapse
+tutorial hit 180% retention and the best TikTok hit 228%. Both were watched
+twice. This format engineers that instead of hoping for it.
+
+**Let the footage run the misdirection.** The approved cut is `Forest Coast
+Reveal 1` — a single continuous shot that tilts off dense canopy up to open
+sunset sea. The trees leave frame by themselves, so the reveal lands on water
+with no tree in shot. An earlier three-clip version was cutting to manufacture
+exactly what that one clip already did continuously, and the cuts interrupted
+the move that made the point. **Look for a clip that already performs the turn
+before reaching for `render_narrated_cuts`.**
+
+**The kicker is an empty caption** — `("", "this is not about trees, by the
+way.")`. No PNG, no overlay. The last line of the quote holds through the
+pause, then the frame clears and only the voice delivers it.
+
+**The pause before the reveal needs its own gap.** `gap=[0.65, 1.9, 0.65]` —
+one value per sentence. A pause only reads as a beat if it is longer than the
+pauses around it; at a uniform 0.65 the reveal landed as just another line.
+
+**Abbreviations in the kicker are a phonemization trap.** `btw` comes out as
+`bˌiːtˌiːdˈʌbəljˌuː` — Kokoro says "bee-tee-double-you" out loud. A casual
+kicker invites exactly this, so `idk`, `fyi`, `rn`, `tbh` will all do it. The
+`(caption, spoken)` pair fixes it; the point is to check the phonemes *before*
+rendering, not after.
+
+**Watch the runtime against the clip.** The approved cut leaves 0.18s of
+headroom at `start=1.0` on a 17.5s clip. The render maps with `-shortest`, so
+a video shorter than the audio truncates silently. Always ffprobe.
+
 ## Caption sync
 
 **Use `sentences=`, not `phrases=`, for narrated quotes.** This reversed an
@@ -403,6 +487,10 @@ reported total silently truncates the video — this shipped once, reporting
 - **Shorts** — trends matter far less; own music is fine.
 - **Voiceover competes with the trending sound.** They cannot both be the
   audio. Narrated shorts give up that lever and must earn it on retention.
+- **Background music is added by hand after the render.** The pipeline outputs
+  narration only. This is why long gaps and a long `tail` are not a problem —
+  under music they read as room for the quote to breathe rather than as dead
+  air, so do not shorten a pause to avoid silence that will not exist.
 
 ## Do not
 
@@ -418,5 +506,10 @@ reported total silently truncates the video — this shipped once, reporting
 - Reach for em dashes, ellipses or exclamation marks to add feeling. Measured,
   compared by ear, rejected — plain commas won. See *Punctuation in the spoken
   half*.
+- Apply the YouTube length and angle rules to TikTok. They were measured on
+  YouTube and three of them are false there.
+- Shorten a pause or a `tail` to avoid silence. Music is laid over the render
+  by hand, so that silence does not survive to the upload.
+- Cut between clips before checking whether one clip already makes the move.
 - Commit rendered MP4s to the repo — they are outputs. `assets/` is for reusable
   overlays only.
