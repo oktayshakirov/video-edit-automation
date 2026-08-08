@@ -1,0 +1,211 @@
+# Locked edit. Replayed verbatim by `build`, bypassing the scorer, so an
+# approved running order survives changes made elsewhere.
+#
+# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one
+# musical bar), `rate` sets a constant speed-up.
+# Regenerate from the current edit with `build --lock-out <file>`.
+
+[[lock]]
+bar = 0
+clip = "Coast Houses 4.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 4
+clip = "Coast Houses 2.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 8
+clip = "Coast Above 3.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 10
+clip = "Coast Houses Above 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 12
+clip = "Windmill.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 14
+clip = "Coast Above 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 15
+clip = "Coast Houses 3.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 16
+clip = "Coast Houses Above 2.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 18
+clip = "Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 19
+clip = "Coast Above 2.mp4"
+bars = 1
+rate = 2.000
+
+[[lock]]
+bar = 20
+clip = "Coast 3.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 22
+clip = "Coast 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 24
+clip = "Coast 4.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 28
+clip = "Coast Houses 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 32
+clip = "Windmill.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 36
+clip = "Coast Houses 3.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 40
+clip = "Coast Above 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 42
+clip = "Coast Houses Above 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 43
+clip = "Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 44
+clip = "Coast Houses Above 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 46
+clip = "Coast Above 2.mp4"
+bars = 6
+rate = 1.000
+
+[[lock]]
+bar = 52
+clip = "Coast Houses 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 54
+clip = "Coast Houses 4.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 55
+clip = "Windmill.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 57
+clip = "Coast Above 3.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 58
+clip = "Coast Houses 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 59
+clip = "Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 60
+clip = "Coast Houses Above 2.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 64
+clip = "Coast Houses 2.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 68
+clip = "Coast Above 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 70
+clip = "Coast Houses Above 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 71
+clip = "Coast Houses 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 72
+clip = "Coast Above 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 74
+clip = "Coast 2.mp4"
+bars = 1
+rate = 1.000
+

@@ -27,6 +27,7 @@ from .config import (
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
     CLIP_HEAD_SKIP,
+    CLIP_SKIP_RANGES,
     ESCALATE_AT_BARS,
     PIN_CLIPS,
     PIN_SLOT_BARS,
@@ -79,6 +80,7 @@ class Clip:
     ty_rate: float = 0.0
     reverse: bool = False        # play backwards, to break direction duplication
     head_skip: float = 0.0       # extra seconds ignored at the head of this clip
+    skips: tuple = ()            # (from, to) source seconds never to use
     energy_rank: float = 0.0     # 0..1 within the library
     cursor: int = 0              # source frames already consumed
     last_used_slot: int = -999
@@ -87,6 +89,21 @@ class Clip:
     @property
     def max_uses(self) -> int:
         return MAX_USES_BY_MOVE.get(self.move_type, MAX_USES_DEFAULT)
+
+    def start_for(self, need: int, fps: int) -> int | None:
+        """Where the next `need` frames can start, hopping excluded ranges.
+
+        Returns None when the clip cannot supply that many clean frames. The
+        cursor is not moved; the caller commits by assigning it the returned
+        start plus what it took, which is what keeps slices non-overlapping.
+        """
+        pos = self.cursor
+        for a, b in sorted((round(a * fps), round(b * fps)) for a, b in self.skips):
+            if pos + need <= a:
+                break            # fits entirely before this exclusion
+            if pos < b:
+                pos = b          # would run into it — start after instead
+        return pos if pos + need <= self.total_frames(fps) else None
 
     @property
     def min_slot_bars(self) -> int:
@@ -140,7 +157,9 @@ def load_clips(db_path: Path) -> list[Clip]:
              move_type=r[5], motion_energy=r[6], hue=r[7], group=_group_of(r[2]),
              tx_rate=r[8], ty_rate=r[9],
              head_skip=next((s for name, s in CLIP_HEAD_SKIP.items()
-                             if name.lower() in r[2].lower()), 0.0))
+                             if name.lower() in r[2].lower()), 0.0),
+             skips=tuple(tuple(rng) for name, rngs in CLIP_SKIP_RANGES.items()
+                         if name.lower() in r[2].lower() for rng in rngs))
         for r in rows
     ]
     if AUTO_REVERSE:
@@ -268,7 +287,10 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
             # as fast as the footage this clip can spare, not a fixed number.
             # The budget subtracts what the clip is already committed to in
             # later slots, so escalating here cannot starve them.
-            budget = clip.remaining(fps) - committed.get(clip.filename, 0)
+            clean = clip.remaining(fps) - sum(
+                max(0, min(round(b * fps), clip.total_frames(fps)) - max(round(a * fps), clip.cursor))
+                for a, b in clip.skips)
+            budget = clean - committed.get(clip.filename, 0)
             ideal = escalate_source_frames(tl_frames, fps)
             body_speed, tail_speed = fit_escalate(tl_frames, min(ideal, budget), fps)
             if tail_speed:
@@ -286,27 +308,30 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
                 print(f"  note: no escalate at bar {bar} — {clip.filename} cannot "
                       f"spare the footage without starving its later slots")
 
-        if clip.remaining(fps) < src_frames:
+        src_at = clip.start_for(src_frames, fps)
+        if src_at is None:
             # Drop to natural speed before giving up on the slot entirely.
-            if clip.remaining(fps) >= tl_frames:
+            at_natural = clip.start_for(tl_frames, fps)
+            if at_natural is not None:
                 print(f"  note: bar {bar} {clip.filename} lacks material for "
                       f"{rate:.2f}x — using 1.0x")
-                ramp, rate, src_frames = None, 1.0, tl_frames
+                ramp, rate, src_frames, src_at = None, 1.0, tl_frames, at_natural
             else:
                 print(f"  note: bar {bar} {clip.filename} has only "
                       f"{clip.remaining(fps)/fps:.1f}s left, needs "
                       f"{src_frames/fps:.1f}s")
+                src_at = clip.cursor
                 src_frames = max(clip.remaining(fps), 1)
 
         cuts.append(Cut(
             clip=clip, start_bar=bar, bars=bars,
             timeline_start=round(t0 * fps), duration=tl_frames,
-            source_start=clip.cursor, source_duration=src_frames,
+            source_start=src_at, source_duration=src_frames,
             rate=rate, section_label=_label_at(track, bar),
             reverse=clip.reverse, ramp=ramp,
             body_speed=body_speed, tail_speed=tail_speed,
         ))
-        clip.cursor += src_frames
+        clip.cursor = src_at + src_frames
         clip.times_used += 1
 
     _absorb_lead_in(cuts, fps)
@@ -481,7 +506,8 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                         # so a slot it cannot fill at 1x simply goes to another
                         # clip rather than being stretched.
                         src_frames = int(round(tl_frames * rate))
-                        if avail < src_frames:
+                        src_at = clip.start_for(src_frames, fps)
+                        if src_at is None:
                             continue
                         if rate > 1.0 and avail < SPEEDUP_MIN_REMAINING * fps:
                             continue     # 2x is for long clips, not for coverage
@@ -517,7 +543,8 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                             score -= PENALTY_SPEEDUP_WHEN_CALM * (1.0 - target_e)
 
                         if best is None or score > best[0]:
-                            best = (score, clip, bars, tl_frames, src_frames, rate, ramp)
+                            best = (score, clip, bars, tl_frames, src_frames,
+                                    rate, ramp, src_at)
 
             if best is None and pin is not None:
                 print(f"  note: pin at bar {bar} ('{pin}') could not be placed — "
@@ -545,7 +572,7 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                 exhausted = True
                 break
 
-            _, clip, bars, tl_frames, src_frames, rate, ramp = best
+            _, clip, bars, tl_frames, src_frames, rate, ramp, src_at = best
 
             # Escalate is applied AFTER the clip is chosen, never as a competitor
             # for the slot, so switching it on cannot change the running order —
@@ -554,8 +581,9 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             # slices from overlapping.
             if ALLOW_RAMPS and bar in ESCALATE_AT_BARS and rate == 1.0:
                 need = escalate_source_frames(tl_frames, fps)
-                if clip.remaining(fps) >= need:
-                    ramp, src_frames = "escalate", need
+                at = clip.start_for(need, fps)
+                if at is not None:
+                    ramp, src_frames, src_at = "escalate", need, at
                 else:
                     short = (need - clip.remaining(fps)) / fps
                     print(f"  note: no escalate at bar {bar} — {clip.filename} is "
@@ -568,14 +596,14 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                 bars=bars,
                 timeline_start=round(t0 * fps),
                 duration=tl_frames,
-                source_start=clip.cursor,
+                source_start=src_at,
                 source_duration=src_frames,
                 rate=rate,
                 section_label=section.label,
                 reverse=clip.reverse,
                 ramp=ramp,
             ))
-            clip.cursor += src_frames
+            clip.cursor = src_at + src_frames
             clip.last_used_slot = slot_i
             clip.times_used += 1
             if ramp:

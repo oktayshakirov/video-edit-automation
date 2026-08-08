@@ -113,6 +113,14 @@ HEAD_TRIM = 0.3              # seconds skipped at the head of a select (settle-i
 CLIP_HEAD_SKIP: dict[str, float] = {}
 MIN_TAIL_MARGIN = 0.1        # never run to the exact last frame
 
+# Source ranges never to use, in seconds: {filename substring: [[from, to], ...]}.
+# For a bad stretch in the middle of an otherwise good take — a gust, a rotation,
+# a moment the framing goes wrong. CLIP_HEAD_SKIP only covers a weak opening;
+# without this the only way to avoid a mid-clip fault is to drop the slot that
+# happens to land on it, and because slices are handed out by an advancing
+# cursor, the *next* use of that clip then lands on the same fault instead.
+CLIP_SKIP_RANGES: dict[str, list[list[float]]] = {}
+
 # Variety penalties, applied against the previously placed clip. (GUESS)
 PENALTY_SAME_MOVE = 0.35
 PENALTY_SAME_GROUP = 0.25
@@ -194,6 +202,18 @@ PIN_CLIPS: dict[int, str] = {}
 # clip it replaced happened to have — a 2-bar shot becomes a 1-bar one and the
 # replacement does not cover the same span.
 PIN_SLOT_BARS: dict[int, int] = {}
+
+# --- location pin overlay --------------------------------------------------
+# The animated map pin from assets/, keyed over the opening shot.
+#
+# Everything here except the timing is captured verbatim from a real Final Cut
+# export (assets/fcpxml/location-pin-overlay.xml): the Green Screen Keyer's UID
+# and its two base64 payloads are FCP-internal and cannot be authored from a
+# specification. The red pin is source 9.833-14.867s of the pack — not
+# guessable, since by hue it measures ~345 deg and classifies as pink.
+LOCATION_PIN = False
+LOCATION_PIN_START = 1.0       # seconds into the timeline
+LOCATION_PIN_SECONDS = 5.03    # full length of the red pin segment
 
 # Fade the picture to black under the closing music fade. Length follows
 # MUSIC_FADE_SECONDS so the two land together.

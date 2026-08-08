@@ -11,8 +11,10 @@ profile = "youtube"
 footage = "~/Desktop/Nessebar"
 music = "~/Desktop/Nessebar/Minorq - Forever Young.mp3"
 
-# No lock yet — the scorer is live. Lock as soon as an edit is approved,
-# otherwise any later tuning reshuffles the whole running order.
+# The approved running order (nessebar-v1), replayed verbatim. With a lock
+# present the scorer is bypassed entirely, so nothing under [overrides] can
+# reshuffle the timeline. Swap or resize a shot by editing the lock file.
+lock = "nessebar.lock.toml"
 
 [overrides]
 # --- music loop ----------------------------------------------------------
@@ -56,6 +58,32 @@ REUSE_RECENCY_WINDOW = 16
 # the engine to finish clips rather than nibble their heads.
 W_COVERAGE = 0.45
 W_BITE = 0.55
+
+# --- speed ramps ---------------------------------------------------------
+# Two escalates, by slot start bar.
+#   22 -> Coast 1 at 1:10.47. A vertical reveal of the horizon and the sunset,
+#         so it cannot be cut into short pieces — it now runs once, as a single
+#         2-bar shot consuming the whole clip, and launches out of the reveal.
+#   46 -> Coast Above 2 at 2:27.27, launching into the section line at bar 52.
+#         The long shot plays out in full and only the last second whips, which
+#         is the "speed up the end of the clip" effect rather than a fast shot.
+#
+# Bar 36 was the first choice — it launches into both a section line and the
+# track's hand-off to its second pass — but Coast Houses 3 is 18.7s and cannot
+# fund a 12.8s escalate without starving its other slot, so the build refused
+# it rather than fitting a launch that would not read. Bar 46 is the only slot
+# whose clip has the footage for the full 2000% ideal.
+ESCALATE_AT_BARS = [22, 46]
+
+# --- unusable source ------------------------------------------------------
+# Coast Above 3 rotates off-angle between 6.7s and 9.9s. Dropping the slot that
+# landed on it is not enough on its own: slices advance a cursor, so the next
+# use of the clip would simply take the same seconds instead.
+CLIP_SKIP_RANGES = { "Coast Above 3" = [[6.7, 9.9]] }
+
+# --- location pin ---------------------------------------------------------
+LOCATION_PIN = true
+LOCATION_PIN_START = 1.5      # into the 12.8s opening shot
 
 # A 2x slot eats twice its length in source. With 304s of footage under a 256s
 # timeline the budget is only 1.19x overall, so unrestricted speed-ups spend
