@@ -392,7 +392,7 @@ def build_narration(text: str, workdir: Path, voice: VoiceSpec = None,
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                             voice: VoiceSpec = None,
                             mood: str = "melancholic",
-                            gap: float = 0.55,
+                            gap: "float | list[float]" = 0.55,
                             tail: float = TAIL,
                             ) -> tuple[Path, list[Caption], float]:
     """Speak each sentence whole; recover caption boundaries inside it.
@@ -405,10 +405,24 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     `gap` is silence *between sentences only*. Chunking finely inside a sentence
     no longer costs anything, which is the reason this exists: captions can be
     one word without the read slowing to match.
+
+    `gap` may be a float — the same silence after every sentence — or a list of
+    exactly one float per sentence, when one beat has to be longer than the
+    others. A reveal needs the pause before it to be longer than the pauses
+    inside the setup, or it lands as just another line.
+
+    A chunk whose *caption* is empty is spoken but never shown. The screen
+    clears and only the voice carries it, which is a different instrument from
+    a caption and worth having.
     """
     import soundfile as sf
 
     workdir.mkdir(parents=True, exist_ok=True)
+    gaps = ([float(gap)] * len(sentences) if isinstance(gap, (int, float))
+            else [float(g) for g in gap])
+    if len(gaps) != len(sentences):
+        raise ValueError(f"gap list must have one entry per sentence "
+                         f"({len(sentences)}), got {len(gaps)}")
     captions: list[Caption] = []
     pieces: list[Path] = []
     t = 0.0
@@ -446,18 +460,19 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
             prev = end
 
         pieces.append(wav)
-        t += played + gap
+        t += played + gaps[si]
 
     listing = workdir / "concat.txt"
-    silence, tail_wav = workdir / "gap.wav", workdir / "tail.wav"
-    for path, dur in ((silence, gap), (tail_wav, tail)):
+    tail_wav = workdir / "tail.wav"
+    silences = [workdir / f"gap{i:02d}.wav" for i in range(len(gaps))]
+    for path, dur in list(zip(silences, gaps)) + [(tail_wav, tail)]:
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
                         f"anullsrc=r=48000:cl=stereo:d={dur}", str(path)],
                        check=True, capture_output=True)
     lines = []
-    for p in pieces:
+    for p, s in zip(pieces, silences):
         lines.append(f"file '{p.name}'")
-        lines.append(f"file '{silence.name}'")
+        lines.append(f"file '{s.name}'")
     lines.append(f"file '{tail_wav.name}'")
     listing.write_text("\n".join(lines), encoding="utf-8")
 
@@ -487,7 +502,7 @@ def render_narrated(src: Path, out: Path, start: float,
                     font_index: int = FONT_CAPTION_INDEX,
                     y_frac: float = 0.34, stroke: int = 4,
                     max_w: int = CAPTION_MAX_W,
-                    gap: float = GAP, tail: float = TAIL) -> tuple[Path, float]:
+                    gap: "float | list[float]" = GAP, tail: float = TAIL) -> tuple[Path, float]:
     """Cut, crop, burn synced captions, and lay the narration underneath.
 
     Video length follows the narration rather than a fixed target — a caption
@@ -573,7 +588,7 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
                          font_index: int = FONT_CAPTION_INDEX,
                          y_frac: float = 0.34, stroke: int = 4,
                          max_w: int = CAPTION_MAX_W, fps: int = 30,
-                         gap: float = GAP, tail: float = TAIL,
+                         gap: "float | list[float]" = GAP, tail: float = TAIL,
                          ) -> tuple[Path, float, list[float]]:
     """Narrated short cut across several clips instead of holding on one.
 
@@ -596,8 +611,11 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
     # sampled colour could be right for all of them anyway.
     luma = sample_bg_luma(clips[0][0], clips[0][2], clips[0][1] + 1.0)
 
+    # An empty caption is spoken but not shown — no PNG, no overlay, so the
+    # frame is simply clear while the voice carries the line.
+    shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
     pngs = []
-    for i, c in enumerate(captions):
+    for i, c in shown:
         p = workdir / f"cap{i:02d}.png"
         render_text_png(c.text, p, size=font_size, bg_luma=luma,
                         font_path=font_path, font_index=font_index,
@@ -621,9 +639,9 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
                  + f"concat=n={len(clips)}:v=1:a=0[base]")
 
     prev = "[base]"
-    for i, c in enumerate(captions):
-        dst = f"[v{i+1}]"
-        chain.append(f"{prev}[{len(clips)+i}:v]overlay=0:0:"
+    for n, (_, c) in enumerate(shown):
+        dst = f"[v{n+1}]"
+        chain.append(f"{prev}[{len(clips)+n}:v]overlay=0:0:"
                      f"enable='between(t,{c.start:.3f},{c.end:.3f})'{dst}")
         prev = dst
     chain.append(f"{prev}fade=t=out:st={max(total-0.5, 0):.2f}:d=0.5[vout]")
