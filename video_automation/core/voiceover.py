@@ -540,3 +540,98 @@ def render_narrated(src: Path, out: Path, start: float,
             "-shortest", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True, capture_output=True)
     return out, total
+
+
+def plan_cuts(captions: list[Caption], total: float, n: int,
+              min_hold: float = 2.0) -> list[float]:
+    """Cut points for `n` clips, snapped to caption boundaries.
+
+    Cutting mid-caption reads as a mistake — the eye is on a line of type and
+    the ground changes underneath it. Snapping to a boundary makes the cut
+    land with the words, so it reads as punctuation instead.
+
+    Targets are even thirds (or halves), then moved to the nearest caption
+    start that leaves every segment at least `min_hold` long. A shot too short
+    to register is worse than an uneven cut.
+    """
+    starts = [c.start for c in captions]
+    cuts = [0.0]
+    for k in range(1, n):
+        target = total * k / n
+        room = [s for s in starts
+                if s >= cuts[-1] + min_hold and s <= total - min_hold * (n - k)]
+        cuts.append(min(room, key=lambda s: abs(s - target)) if room else target)
+    cuts.append(total)
+    return cuts
+
+
+def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int]]],
+                         out: Path, sentences: list[list[Phrase]], workdir: Path,
+                         voice: VoiceSpec = None, mood: str = "melancholic",
+                         font_size: int = FONT_CAPTION_SIZE,
+                         font_path: str = FONT_CAPTION,
+                         font_index: int = FONT_CAPTION_INDEX,
+                         y_frac: float = 0.34, stroke: int = 4,
+                         max_w: int = CAPTION_MAX_W, fps: int = 30,
+                         gap: float = GAP, tail: float = TAIL,
+                         ) -> tuple[Path, float, list[float]]:
+    """Narrated short cut across several clips instead of holding on one.
+
+    `clips` is `[(src, source_in_point, crop_box), ...]`; each supplies one
+    segment, in order. Cut points come from `plan_cuts`, so they land on
+    caption boundaries rather than at arbitrary times.
+
+    Sources must share frame rate and dimensions — `concat` demands it, and a
+    silent conform would be worse than the refusal.
+
+    Everything downstream of the narration is unchanged from `render_narrated`:
+    same alignment, same caption treatment, same audio mapping.
+    """
+    track, captions, total = build_narration_aligned(
+        sentences, workdir, voice, mood, gap, tail)
+
+    cuts = plan_cuts(captions, total, len(clips))
+    # Ink is sampled once, from the first clip, and the stroke carries the rest
+    # — the type crosses several different backgrounds now, so no single
+    # sampled colour could be right for all of them anyway.
+    luma = sample_bg_luma(clips[0][0], clips[0][2], clips[0][1] + 1.0)
+
+    pngs = []
+    for i, c in enumerate(captions):
+        p = workdir / f"cap{i:02d}.png"
+        render_text_png(c.text, p, size=font_size, bg_luma=luma,
+                        font_path=font_path, font_index=font_index,
+                        y_frac=y_frac, stroke=stroke, max_w=max_w)
+        pngs.append(p)
+
+    cmd = ["ffmpeg", "-v", "error", "-y"]
+    for i, (src, src_in, _) in enumerate(clips):
+        seg = cuts[i + 1] - cuts[i]
+        cmd += ["-ss", f"{src_in}", "-t", f"{seg:.3f}", "-i", str(src)]
+    for p in pngs:
+        cmd += ["-i", str(p)]
+    cmd += ["-i", str(track)]
+
+    chain = []
+    for i, (_, _, box) in enumerate(clips):
+        x, y, w, h = box
+        chain.append(f"[{i}:v]crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}:"
+                     f"flags=lanczos,fps={fps},setsar=1,settb=AVTB[c{i}]")
+    chain.append("".join(f"[c{i}]" for i in range(len(clips)))
+                 + f"concat=n={len(clips)}:v=1:a=0[base]")
+
+    prev = "[base]"
+    for i, c in enumerate(captions):
+        dst = f"[v{i+1}]"
+        chain.append(f"{prev}[{len(clips)+i}:v]overlay=0:0:"
+                     f"enable='between(t,{c.start:.3f},{c.end:.3f})'{dst}")
+        prev = dst
+    chain.append(f"{prev}fade=t=out:st={max(total-0.5, 0):.2f}:d=0.5[vout]")
+
+    cmd += ["-filter_complex", ";".join(chain),
+            "-map", "[vout]", "-map", f"{len(clips)+len(pngs)}:a",
+            "-c:v", "libx264", "-crf", "18", "-preset", "slow",
+            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+            "-shortest", "-movflags", "+faststart", str(out)]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return out, total, cuts

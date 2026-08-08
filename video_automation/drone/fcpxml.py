@@ -33,7 +33,9 @@ Four things FCPXML is unforgiving about, all handled here:
 from __future__ import annotations
 
 import math
+import re
 import subprocess
+from fractions import Fraction
 from pathlib import Path
 from urllib.parse import quote
 
@@ -41,6 +43,9 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from .config import (
     EVENT_NAME,
+    LOCATION_PIN,
+    LOCATION_PIN_SECONDS,
+    LOCATION_PIN_START,
     ESCALATE_BODY_SPEED,
     ESCALATE_TAIL_SECONDS,
     ESCALATE_TAIL_SPEED,
@@ -163,6 +168,51 @@ def _audio_duration(path: Path) -> float:
          "-of", "csv=p=0", str(path)],
         capture_output=True, text=True, check=True).stdout.strip()
     return float(out.splitlines()[0])
+
+
+ASSET_DIR = Path(__file__).resolve().parents[2] / "assets"
+PIN_FRAGMENT = ASSET_DIR / "fcpxml" / "location-pin-overlay.xml"
+PIN_SOURCE = ASSET_DIR / "location-pin-source.mp4"
+
+# In-point of the red pin inside the pack, from the captured export. By hue the
+# red pin measures ~345 deg and classifies as pink, so this cannot be found by
+# searching for "red" — it is a measured constant, not a derivation.
+PIN_SRC_IN = Fraction(29500, 3000)
+
+
+def _location_pin(offset_frames: int, dur_frames: int, fps: int,
+                  asset_id: str, format_id: str, effect_id: str) -> dict | None:
+    """Splice the captured pin overlay, rewritten onto our resource ids.
+
+    The fragment is reused as text rather than rebuilt, because the keyer's UID
+    and its two base64 payloads encode FCP-internal state that cannot be
+    authored from a specification — guessing that class of value caused two
+    failed imports earlier in this project. Only the ids and the timing are
+    rewritten; everything inside <filter-video> is passed through untouched.
+    """
+    if not PIN_FRAGMENT.is_file() or not PIN_SOURCE.is_file():
+        return None
+
+    # Strip comments before locating anything. The fragment's header comment
+    # explains itself using the literal text "<asset-clip>", so searching the
+    # raw file finds the prose first and splices the comment into the spine.
+    text = re.sub(r"<!--.*?-->", "", PIN_FRAGMENT.read_text(encoding="utf-8"),
+                  flags=re.S)
+    body = text[text.index("<asset-clip"):text.rindex("</asset-clip>") + len("</asset-clip>")]
+    effect = re.search(r"<effect\b[^>]*/>", text).group(0)
+
+    # The fragment's own ids (r4 asset, r5 format, r6 effect) collide with the
+    # ones this timeline allocates, so they are rewritten rather than assumed.
+    body = body.replace('ref="r4"', f'ref="{asset_id}"', 1)
+    body = body.replace('format="r5"', f'format="{format_id}"', 1)
+    body = body.replace('ref="r6"', f'ref="{effect_id}"')
+    effect = re.sub(r'id="r6"', f'id="{effect_id}"', effect, count=1)
+
+    body = re.sub(r'offset="[^"]*"', f'offset="{_rational(offset_frames, fps)}"', body, count=1)
+    body = re.sub(r'duration="[^"]*"', f'duration="{_rational(dur_frames, fps)}"', body, count=1)
+
+    return {"effect": effect, "clip": body, "asset_id": asset_id,
+            "format_id": format_id, "src": _file_url(PIN_SOURCE)}
 
 
 def _music_clips(audio: dict, music_frames: int, video_end: int, base: int,
@@ -288,6 +338,24 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         mc["volume"] = [{"time": _rational(t, fps), "value": v}
                         for t, v in mc.get("volume", [])]
 
+    pin = None
+    if LOCATION_PIN:
+        pin_off = int(round(LOCATION_PIN_START * fps))
+        pin_dur = int(round(LOCATION_PIN_SECONDS * fps))
+        # The pin is a connected clip, so it has to live inside a spine clip
+        # that actually spans it; anchoring it past the first shot's outgoing
+        # cut would put it on a clip that is no longer on screen.
+        if pin_off + pin_dur > cuts[0].duration:
+            pin_dur = max(cuts[0].duration - pin_off, 0)
+        if pin_dur > 0:
+            pin = _location_pin(
+                base + pin_off, pin_dur, fps,
+                asset_id=f"r{len(assets) + 2}", format_id=f"r{len(assets) + 3}",
+                effect_id=f"r{len(assets) + 4}")
+        if pin is None:
+            print("  note: LOCATION_PIN is on but the overlay could not be "
+                  "placed — check assets/ and the opening shot's length")
+
     seq_frames = video_end
 
     return env.get_template("timeline.fcpxml.j2").render(
@@ -298,6 +366,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         video_assets=list(assets.values()),
         audio=audio,
         music_clips=music_clips,
+        pin=pin,
         cuts=rendered_cuts,
         sequence_duration=_rational(seq_frames, fps),
         project_name=project_name,
