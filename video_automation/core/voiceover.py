@@ -525,8 +525,11 @@ def render_narrated(src: Path, out: Path, start: float,
             text, workdir, voice, rate, backend, mood, phrases, gap, tail)
     luma = sample_bg_luma(src, box, start + total / 2)
 
+    # An empty caption is spoken but not shown — same rule as
+    # `render_narrated_cuts`, so a reveal works on one clip or several.
+    shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
     pngs = []
-    for i, c in enumerate(captions):
+    for i, c in shown:
         p = workdir / f"cap{i:02d}.png"
         render_text_png(c.text, p, size=font_size, bg_luma=luma,
                         font_path=font_path, font_index=font_index,
@@ -535,12 +538,12 @@ def render_narrated(src: Path, out: Path, start: float,
 
     x, y, w, h = box
     chain = [f"[0:v]crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos[v0]"]
-    for i, c in enumerate(captions):
-        src_lbl, dst_lbl = f"[v{i}]", f"[v{i+1}]"
+    for n, (_, c) in enumerate(shown):
+        src_lbl, dst_lbl = f"[v{n}]", f"[v{n+1}]"
         chain.append(
-            f"{src_lbl}[{i+1}:v]overlay=0:0:enable='between(t,{c.start:.3f},{c.end:.3f})'{dst_lbl}"
+            f"{src_lbl}[{n+1}:v]overlay=0:0:enable='between(t,{c.start:.3f},{c.end:.3f})'{dst_lbl}"
         )
-    last = f"[v{len(captions)}]"
+    last = f"[v{len(shown)}]"
     chain.append(f"{last}fade=t=out:st={max(total-0.5,0):.2f}:d=0.5[vout]")
 
     cmd = ["ffmpeg", "-v", "error", "-y",
