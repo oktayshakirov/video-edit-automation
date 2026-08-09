@@ -32,6 +32,7 @@ Four things FCPXML is unforgiving about, all handled here:
 
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 import subprocess
@@ -48,6 +49,7 @@ from .config import (
     LOCATION_PIN,
     LOCATION_TITLE_TEXT,
     LOCATION_TITLE_STYLE,
+    MUSIC_UID,
     SOUND_EFFECTS,
     LOCATION_PIN_SECONDS,
     LOCATION_PIN_START,
@@ -346,7 +348,12 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
     audio = {
         "id": f"r{len(assets) + 1}",
         "name": Path(music.name).stem,
-        "uid": "music-" + str(abs(hash(str(music))))[:12],
+        # Deterministic. This was Python's hash(), which is salted per process,
+        # so every build produced a different uid for the same file — and Final
+        # Cut refuses a document offering media it already holds under another
+        # identifier. It imported once, then failed forever after.
+        "uid": MUSIC_UID or ("music-" + hashlib.sha1(
+            music.name.encode("utf-8")).hexdigest()[:12]),
         "duration": _rational(music_frames, fps),
         "src": _file_url(music),
         "rate": _audio_rate(music),
@@ -406,7 +413,10 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             aid = f"r{len(assets) + 6 + len(sfx_assets)}"
             sfx_assets.append({
                 "id": aid, "path": str(path), "name": path.stem,
-                "uid": "sfx-" + str(abs(hash(str(path))))[:12],
+                # No invented uid: see SOUND_EFFECTS in config.py. Final Cut
+                # rejects the whole document if it already knows this file under
+                # a different identifier.
+                "uid": fx.get("uid"),
                 "duration": _rational(int(_audio_duration(path) * fps), fps),
                 "src": _file_url(path), "rate": _audio_rate(path),
             })

@@ -264,6 +264,20 @@ LOCATION_TITLE_STYLE: dict[str, str] = {}
 # added by hand in Final Cut is gone on the next run. An effect placed by ear is
 # worth keeping; recording it here is what makes the generated file the source
 # of truth instead of a thing you must not regenerate.
+#
+# An entry may also carry `uid`. Final Cut assigns its own content-hash uid to
+# any media imported into the library by hand, and refuses an XML that offers
+# the same file under a different one:
+#
+#     The media already exists in the library with a different unique
+#     identifier. <file> cannot be imported again with a different uid
+#
+# That uid is not derivable — read it out of a File > Export XML. Assets this
+# pipeline introduces are unaffected, because the library learned them from our
+# XML in the first place; it is specifically media you imported yourself. With
+# no `uid` the attribute is omitted entirely (the DTD marks it #IMPLIED) and
+# Final Cut matches on the media-rep path instead, which is the safe default for
+# a file it has never seen.
 SOUND_EFFECTS: list[dict] = []
 
 # Fade the picture to black under the closing music fade. Length follows
@@ -273,6 +287,12 @@ FADE_TO_BLACK = True
 # If the footage runs out before the track does, end the music under the last
 # shot rather than letting it play over black.
 MUSIC_FADE_SECONDS = 4.0
+
+# Pin the music asset's uid to the one Final Cut already holds for this file.
+# Needed only once a library has imported the track; before that the derived
+# value is fine. Read it out of a File > Export XML. See SOUND_EFFECTS for why
+# a mismatched uid fails the whole import rather than just that asset.
+MUSIC_UID: str | None = None
 
 # --- looping the track -----------------------------------------------------
 # When there is more footage than music, play the track a second time instead

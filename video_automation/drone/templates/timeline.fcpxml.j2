@@ -22,7 +22,7 @@
         {{ title.effect | safe }}
 {% endif %}
 {% for a in sfx_assets %}
-        <asset id="{{ a.id }}" name="{{ a.name }}" uid="{{ a.uid }}" start="0s" duration="{{ a.duration }}" hasAudio="1" audioSources="1" audioChannels="2" audioRate="{{ a.rate }}">
+        <asset id="{{ a.id }}" name="{{ a.name }}"{% if a.uid %} uid="{{ a.uid }}"{% endif %} start="0s" duration="{{ a.duration }}" hasAudio="1" audioSources="1" audioChannels="2" audioRate="{{ a.rate }}">
             <media-rep kind="original-media" src="{{ a.src }}"/>
         </asset>
 {% endfor %}

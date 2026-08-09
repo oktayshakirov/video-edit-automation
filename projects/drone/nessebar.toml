@@ -28,6 +28,9 @@ lock = "nessebar.lock.toml"
 # the timeline 80 bars, and the footage only funds 76: the last four bars had
 # no unused material and the engine rewound to the head, replaying the opening
 # shots. Four bars later costs nothing visible and ends the repeats.
+# The library already holds this track under this uid, from the first import.
+MUSIC_UID = "music-187001585465"
+
 MUSIC_LOOP = true
 MUSIC_LOOP_HANDOFF_BAR = 40
 MUSIC_LOOP_RETURN_BAR = 12
@@ -106,10 +109,14 @@ LOCATION_TITLE_STYLE = {}
 # Hand-placed by ear in Final Cut and recorded here so a rebuild keeps them.
 # Media lives in the Final Cut library bundle, which is where FCP put it on
 # import; `at` is the timeline position, `start` the in-point into the source.
+#
+# `uid` is Final Cut's own, read out of a File > Export XML. This file was
+# imported into the library by hand, so FCP already knows it under that content
+# hash and rejects the whole document if offered a different one.
 SOUND_EFFECTS = [
-  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 76.95, start = 0.00, duration = 4.81 },
-  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 88.86, start = 4.81, duration = 7.65 },
-  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 147.36, start = 27.61, duration = 8.46 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", uid = "51AF7073AB4B68E7394327F2748FBA0C", at = 76.95, start = 0.00, duration = 4.81 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", uid = "51AF7073AB4B68E7394327F2748FBA0C", at = 88.86, start = 4.81, duration = 7.65 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", uid = "51AF7073AB4B68E7394327F2748FBA0C", at = 147.36, start = 27.61, duration = 8.46 },
 ]
 
 # A 2x slot eats twice its length in source. With 304s of footage under a 256s
