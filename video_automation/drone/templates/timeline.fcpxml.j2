@@ -21,6 +21,11 @@
 {% if title %}
         {{ title.effect | safe }}
 {% endif %}
+{% for a in sfx_assets %}
+        <asset id="{{ a.id }}" name="{{ a.name }}" uid="{{ a.uid }}" start="0s" duration="{{ a.duration }}" hasAudio="1" audioSources="1" audioChannels="2" audioRate="{{ a.rate }}">
+            <media-rep kind="original-media" src="{{ a.src }}"/>
+        </asset>
+{% endfor %}
     </resources>
     <library>
         <event name="{{ event_name }}">
@@ -69,6 +74,9 @@
                             {{ title.clip | safe }}
 {% endif %}
 {% endif %}
+{% for f in c.sfx %}
+                            <asset-clip ref="{{ f.ref }}" lane="{{ f.lane }}" offset="{{ f.offset }}" name="{{ f.name }}" start="{{ f.start }}" duration="{{ f.duration }}" audioRole="effects"/>
+{% endfor %}
                         </asset-clip>
 {% endfor %}
                     </spine>
