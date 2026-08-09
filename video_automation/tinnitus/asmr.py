@@ -40,7 +40,8 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX, OUT_H, OUT_W
+from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, OUT_H, OUT_W,
+                             add_caption_emoji)
 
 # tinnitushelp.me's own palette, straight from the app's `constants/Colors`.
 # Using it means a short scrolled past on TikTok and the app's first screen
@@ -190,11 +191,6 @@ def _ring_sprite(r_max: int) -> Image.Image:
 
 
 MASCOT = Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png"
-EMOJI_FONT = "/System/Library/Fonts/Apple Color Emoji.ttc"
-# Apple Color Emoji is a bitmap font and only loads at the sizes it has strikes
-# for — 44 and 137 both raise "invalid pixel size". Render at 160 and scale
-# down, which is the only size-independent way to use it.
-EMOJI_STRIKE = 160
 
 # The union of what TikTok, Reels and Shorts each cover with their own UI, at
 # 1080x1920. All three stack buttons down the right edge and text along the
@@ -364,45 +360,6 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
     if proc.wait() != 0:
         raise RuntimeError("ffmpeg failed while encoding the visual")
     return out
-
-
-def add_caption_emoji(png: Path, text: str, char: str, size: int,
-                      y_frac: float, font_path: str, font_index: int,
-                      gap: int = 16) -> None:
-    """Set an emoji after a caption, in place, keeping the pair centred.
-
-    Done as a second pass over the finished PNG rather than inside
-    `render_text_png`: that template is shared with the drone shorts and is not
-    to be redesigned. The whole text layer shifts left by half the emoji block
-    and the emoji lands in the space that opens up, so the line reads as one
-    centred unit rather than as type with something bolted to the end.
-
-    Single-line captions only — which is what a caption worth an emoji is.
-    """
-    font = ImageFont.truetype(font_path, size, index=font_index)
-    emoji_font = ImageFont.truetype(EMOJI_FONT, EMOJI_STRIKE)
-
-    big = Image.new("RGBA", (EMOJI_STRIKE * 2, EMOJI_STRIKE * 2), (0, 0, 0, 0))
-    ImageDraw.Draw(big).text((EMOJI_STRIKE // 4, EMOJI_STRIKE // 4), char,
-                             font=emoji_font, embedded_color=True)
-    big = big.crop(big.getbbox())
-    h = int(size * 1.02)
-    emoji = big.resize((max(1, int(big.width * h / big.height)), h),
-                       Image.LANCZOS)
-
-    layer = Image.open(png).convert("RGBA")
-    probe = ImageDraw.Draw(Image.new("RGBA", (8, 8)))
-    tw = probe.textlength(text, font=font)
-    dx = (emoji.width + gap) // 2
-
-    shifted = Image.new("RGBA", layer.size, (0, 0, 0, 0))
-    shifted.paste(layer, (-dx, 0))
-
-    line_h = int(size * 1.34)
-    top = int(OUT_H * y_frac) - line_h // 2
-    shifted.alpha_composite(
-        emoji, (int((OUT_W - tw) / 2 - dx + tw + gap), top + (line_h - h) // 2))
-    shifted.save(png)
 
 
 def _centred(draw: ImageDraw.ImageDraw, text: str, y: int,

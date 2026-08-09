@@ -6,6 +6,13 @@ those are what reproduce it.
 
 Return to any stage with `git checkout <tag>`.
 
+## Crypto Wiki — shorts
+
+| video | source | runtime | voice | notes |
+|---|---|---|---|---|
+| `crypto-satoshi-proof` v2 | same | 34.75s | `sam` (candidate) | Nine shots. Captions moved **under** the photograph — over it they covered the subject and left the lower third empty; `build.py` reads each shot's `photo_box(0.5)` and sets that sentence's caption y from it. Checklist reworked: white ink throughout (grey-on-dark was not readable on a phone), drawn over a dimmed photo at 0.5 rather than flat black, and items now reveal on their own caption starts instead of even fractions of the shot. Script extended with the verification step and a closing question for comments; two emoji, via `add_caption_emoji` moved from tinnitus into `core.vertical`. -14.9 LUFS. |
+| `crypto-satoshi-proof` v1 | `what-it-actually-takes-to-prove-someone-is-satoshi-nakamoto` | 23.45s | `theo` (candidate) | First build of the format. Seven shots, one per sentence, cut to measured narration. Picture is the site's own images in a blurred-fill layout: the source scaled to cover, blurred and dimmed to 42%, sharp copy over it, nothing upscaled past 1.45. Sources are 700-1200px and all landscape, so each is cropped toward a 1.15 aspect first — at full width a landscape image is a third of a 9:16 frame and the rest is blur. `crypto-ogs/satoshi.png` (400px) was swapped for `posts/hacker.jpg` (996px) because below ~750px the upscale cap leaves the photo floating in blur. Sixth beat is a drawn checklist rather than a photo — the tick and cross are line segments because Futura renders both glyphs as tofu. Captions at `y_frac=0.70`; centred type lands on faces. Watermark is the site logo, upper-left, levitating. -15.0 LUFS, -1.5 dBTP. |
+
 ## Tinnitus Help — shorts
 
 | video | format | runtime | voice | notes |
