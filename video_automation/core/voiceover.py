@@ -40,6 +40,7 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -494,7 +495,8 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
 def render_narrated(src: Path, out: Path, start: float,
                     box: tuple[int, int, int, int], text: str,
                     workdir: Path, voice: VoiceSpec = None,
-                    rate: int = 165, font_size: int = FONT_CAPTION_SIZE,
+                    rate: int = 165,
+                    font_size: "int | Callable[[str], int]" = FONT_CAPTION_SIZE,
                     backend: str = TTS_BACKEND, mood: str = "reflective",
                     phrases: list[Phrase] | None = None,
                     sentences: list[list[Phrase]] | None = None,
@@ -516,6 +518,11 @@ def render_narrated(src: Path, out: Path, start: float,
     Pass `sentences` for the aligned mode — whole sentences spoken naturally,
     captions chunked inside them. That is the right mode for a quote; `phrases`
     speaks each caption in isolation and reads robotic when the chunks are short.
+
+    `font_size` may be a callable taking the caption text, so the one word a
+    quote turns on can be set larger than the lines around it. Size is the only
+    emphasis available here — the treatment is already white-on-black-stroke,
+    so there is no weight or colour left to reach for.
     """
     if sentences is not None:
         track, captions, total = build_narration_aligned(
@@ -531,7 +538,8 @@ def render_narrated(src: Path, out: Path, start: float,
     pngs = []
     for i, c in shown:
         p = workdir / f"cap{i:02d}.png"
-        render_text_png(c.text, p, size=font_size, bg_luma=luma,
+        size = font_size(c.text) if callable(font_size) else font_size
+        render_text_png(c.text, p, size=size, bg_luma=luma,
                         font_path=font_path, font_index=font_index,
                         y_frac=y_frac, stroke=stroke, max_w=max_w)
         pngs.append(p)
@@ -543,8 +551,10 @@ def render_narrated(src: Path, out: Path, start: float,
         chain.append(
             f"{src_lbl}[{n+1}:v]overlay=0:0:enable='between(t,{c.start:.3f},{c.end:.3f})'{dst_lbl}"
         )
+    # No fade to black — see `render_short`. Shorts loop, and the fade spent
+    # the last half-second announcing the end instead of holding the picture.
     last = f"[v{len(shown)}]"
-    chain.append(f"{last}fade=t=out:st={max(total-0.5,0):.2f}:d=0.5[vout]")
+    chain.append(f"{last}null[vout]")
 
     cmd = ["ffmpeg", "-v", "error", "-y",
            "-ss", f"{start}", "-t", f"{total:.3f}", "-i", str(src)]
@@ -586,7 +596,7 @@ def plan_cuts(captions: list[Caption], total: float, n: int,
 def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int]]],
                          out: Path, sentences: list[list[Phrase]], workdir: Path,
                          voice: VoiceSpec = None, mood: str = "melancholic",
-                         font_size: int = FONT_CAPTION_SIZE,
+                         font_size: "int | Callable[[str], int]" = FONT_CAPTION_SIZE,
                          font_path: str = FONT_CAPTION,
                          font_index: int = FONT_CAPTION_INDEX,
                          y_frac: float = 0.34, stroke: int = 4,
@@ -620,7 +630,8 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
     pngs = []
     for i, c in shown:
         p = workdir / f"cap{i:02d}.png"
-        render_text_png(c.text, p, size=font_size, bg_luma=luma,
+        size = font_size(c.text) if callable(font_size) else font_size
+        render_text_png(c.text, p, size=size, bg_luma=luma,
                         font_path=font_path, font_index=font_index,
                         y_frac=y_frac, stroke=stroke, max_w=max_w)
         pngs.append(p)
@@ -647,7 +658,7 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
         chain.append(f"{prev}[{len(clips)+n}:v]overlay=0:0:"
                      f"enable='between(t,{c.start:.3f},{c.end:.3f})'{dst}")
         prev = dst
-    chain.append(f"{prev}fade=t=out:st={max(total-0.5, 0):.2f}:d=0.5[vout]")
+    chain.append(f"{prev}null[vout]")      # no fade to black — see `render_short`
 
     cmd += ["-filter_complex", ";".join(chain),
             "-map", "[vout]", "-map", f"{len(clips)+len(pngs)}:a",

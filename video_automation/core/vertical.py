@@ -239,20 +239,22 @@ def render_text_png(text: str, out: Path, size: int = 46,
 
 
 def render_short(src: Path, out: Path, start: float, duration: float,
-                 box: tuple[int, int, int, int], text_png: Path | None = None,
-                 fade_out: float = 0.4) -> Path:
-    """Cut, crop to 9:16, scale to 1080x1920, burn the text card, drop audio."""
+                 box: tuple[int, int, int, int], text_png: Path | None = None) -> Path:
+    """Cut, crop to 9:16, scale to 1080x1920, burn the text card, drop audio.
+
+    No fade to black. Shorts loop, and a fade spends the last half-second
+    telling the viewer it is over — the loop point should land on picture.
+    """
     x, y, w, h = box
     crop = f"crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos"
-    fade = f",fade=t=out:st={max(duration - fade_out, 0):.2f}:d={fade_out}"
     if text_png:
-        vf = f"[0:v]{crop}[v];[v][1:v]overlay=0:0{fade}[o]"
+        vf = f"[0:v]{crop}[v];[v][1:v]overlay=0:0[o]"
         cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{start}", "-t", f"{duration}",
                "-i", str(src), "-i", str(text_png),
                "-filter_complex", vf, "-map", "[o]"]
     else:
         cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{start}", "-t", f"{duration}",
-               "-i", str(src), "-vf", crop + fade]
+               "-i", str(src), "-vf", crop]
     cmd += ["-an", "-c:v", "libx264", "-crf", "18", "-preset", "slow",
             "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True, capture_output=True)
