@@ -46,6 +46,7 @@ from .config import (
     MIN_SLOT_BARS_BY_MOVE,
     REVERSIBLE_MOVES,
     HUE_CLOSE_DEG,
+    INTEGER_SPEEDS_ONLY,
     LEGAL_SLOT_BARS,
     MAX_SHOT_SECONDS,
     MIN_TAIL_MARGIN,
@@ -393,16 +394,23 @@ def fit_escalate(tl_frames: int, budget: int, fps: int) -> tuple[float, float]:
         return 0.0, 0.0
     body_f = tl_frames - tail_f
 
-    body = ESCALATE_BODY_SPEED
+    # Whole multiples only. Stepping by 0.1 found "the fastest profile that
+    # fits" and answered 160%, which stutters — see INTEGER_SPEEDS_ONLY. The
+    # honest choices are 200% or 100%, and 100% with a longer launch is a
+    # better shot than 160% with a shorter one.
+    step = 1.0 if INTEGER_SPEEDS_ONLY else 0.1
+    body = float(int(ESCALATE_BODY_SPEED)) if INTEGER_SPEEDS_ONLY else ESCALATE_BODY_SPEED
     while body >= 1.0:
         spare = budget - body_f * body
         peak = 2.0 * spare / tail_f - body
         peak = min(peak, ESCALATE_TAIL_SPEED)
+        if INTEGER_SPEEDS_ONLY:
+            peak = float(int(peak))
         # The launch has to be clearly faster than the body or it reads as a
         # flat speed-up rather than a ramp.
         if peak >= body * 2.0:
             return body, peak
-        body -= 0.1
+        body -= step
     return 0.0, 0.0
 
 

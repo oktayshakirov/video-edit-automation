@@ -31,43 +31,31 @@ rate = 1.000
 
 [[lock]]
 bar = 12
-clip = "Windmill.mp4"
+clip = "Coast Above 2.mp4"
 bars = 2
 rate = 1.000
 
 [[lock]]
 bar = 14
-clip = "Coast Above 1.mp4"
-bars = 1
-rate = 1.000
-
-[[lock]]
-bar = 15
-clip = "Coast Houses 3.mp4"
-bars = 1
+clip = "Windmill.mp4"
+bars = 2
 rate = 1.000
 
 [[lock]]
 bar = 16
+clip = "Coast Above 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 18
 clip = "Coast Houses Above 2.mp4"
 bars = 2
 rate = 2.000
 
 [[lock]]
-bar = 18
-clip = "Coast 2.mp4"
-bars = 1
-rate = 1.000
-
-[[lock]]
-bar = 19
-clip = "Coast Above 2.mp4"
-bars = 1
-rate = 2.000
-
-[[lock]]
 bar = 20
-clip = "Coast 3.mp4"
+clip = "Coast 4.mp4"
 bars = 2
 rate = 1.000
 
@@ -79,7 +67,7 @@ rate = 1.000
 
 [[lock]]
 bar = 24
-clip = "Coast 4.mp4"
+clip = "Coast Houses 3.mp4"
 bars = 4
 rate = 1.000
 
@@ -97,8 +85,14 @@ rate = 1.000
 
 [[lock]]
 bar = 36
-clip = "Coast Houses 3.mp4"
-bars = 4
+clip = "Coast 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 38
+clip = "Coast 4.mp4"
+bars = 2
 rate = 1.000
 
 [[lock]]
@@ -145,7 +139,7 @@ rate = 1.000
 
 [[lock]]
 bar = 55
-clip = "Windmill.mp4"
+clip = "Coast 3.mp4"
 bars = 2
 rate = 1.000
 
@@ -182,7 +176,13 @@ rate = 1.000
 [[lock]]
 bar = 68
 clip = "Coast Above 1.mp4"
-bars = 2
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 69
+clip = "Coast Houses 3.mp4"
+bars = 1
 rate = 1.000
 
 [[lock]]
