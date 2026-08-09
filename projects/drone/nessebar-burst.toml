@@ -1,0 +1,122 @@
+# Nessebar, Bulgaria — 14 graded selects, 3840x2160p30, 304s of footage.
+#
+# The track is 156s, so it is looped once to give the footage room: see the
+# MUSIC_LOOP_* block below. Paths are absolute because footage lives outside the
+# repo. Anything under [overrides] must name a real constant in
+# video_automation/drone/config.py or the build fails loudly.
+
+name = "Nessebar (intro burst)"
+profile = "youtube"
+
+footage = "~/Desktop/Nessebar"
+music = "~/Desktop/Nessebar/Minorq - Forever Young.mp3"
+
+# The approved running order (nessebar-v1), replayed verbatim. With a lock
+# present the scorer is bypassed entirely, so nothing under [overrides] can
+# reshuffle the timeline. Swap or resize a shot by editing the lock file.
+lock = "nessebar-burst.lock.toml"
+out = "~/Desktop/Nessebar/Nessebar-burst.fcpxml"
+
+[overrides]
+# --- music loop ----------------------------------------------------------
+# 48 source bars at 3.200s. Pass 1 runs to bar 40 (2:08.1), the start of the
+# closing peak, and pass 2 re-enters at bar 12 (0:38.5), inside the first peak.
+# Energy either side is 0.93 vs 0.90 — the two most similar moments in the
+# track — and both are phrase lines, so the bar grid continues unbroken and the
+# video still ends on the song's own ending.
+#
+# Returning at bar 8 rather than 12 is the more natural musical seam but makes
+# the timeline 80 bars, and the footage only funds 76: the last four bars had
+# no unused material and the engine rewound to the head, replaying the opening
+# shots. Four bars later costs nothing visible and ends the repeats.
+MUSIC_LOOP = true
+MUSIC_LOOP_HANDOFF_BAR = 40
+MUSIC_LOOP_RETURN_BAR = 12
+MUSIC_LOOP_CROSSFADE_BARS = 2      # 6.4s crossfade
+
+# --- shot length ---------------------------------------------------------
+# A bar is 3.200s now that the tempo is read correctly, so every slot length is
+# already twice what the 152 BPM misread produced. Held one step longer again
+# on top of that: calm 4 bars (12.8s), build 2 (6.4s), peak 1 (3.2s), doubled
+# on phrase lines. MAX_SHOT_SECONDS has to clear 12.8s or the 4-bar slot is
+# illegal and calm sections collapse back to 6.4s.
+SLOT_BARS_BY_ENERGY = [[0.33, 4], [0.66, 2], [1.01, 1]]
+MAX_SHOT_SECONDS = 13.0
+
+# --- stop clips reading as repeats ---------------------------------------
+# Same clip returning 5 times reads as the same shot played again even when the
+# footage genuinely continues. Fewer, bigger bites instead: the use cap comes
+# down, the overuse penalty roughly doubles, and the cooldown widens so a return
+# is far enough away not to register as a repeat.
+MAX_USES_DEFAULT = 4
+MAX_USES_BY_MOVE = { orbit = 3 }
+PENALTY_OVERUSE = 0.34
+REUSE_COOLDOWN_SLOTS = 6
+REUSE_RECENCY_WINDOW = 16
+
+# --- coverage ------------------------------------------------------------
+# Target is 80%+ of 304s. The longer timeline does most of the work; these push
+# the engine to finish clips rather than nibble their heads.
+W_COVERAGE = 0.45
+W_BITE = 0.55
+
+# --- speed ramps ---------------------------------------------------------
+# Two escalates, by slot start bar.
+#   46 -> Coast Above 2 at 2:27.27, launching into the section line at bar 52.
+#         The long shot plays out in full and only the last second whips, which
+#         is the "speed up the end of the clip" effect rather than a fast shot.
+#
+# Bar 36 was the first choice — it launches into both a section line and the
+# track's hand-off to its second pass — but Coast Houses 3 is 18.7s and cannot
+# fund a 12.8s escalate without starving its other slot, so the build refused
+# it rather than fitting a launch that would not read. Bar 46 is the only slot
+# whose clip has the footage for the full 2000% ideal.
+ESCALATE_AT_BARS = [46]
+
+# Coast 1 plays straight: one 2-bar shot at 100%, no ramp. It is a vertical
+# reveal of the horizon and the sunset, and it reads better at real time than
+# with a launch on the end.
+CLIP_HEAD_SKIP = { "Coast 1" = 2.0 }
+
+# --- direction ------------------------------------------------------------
+# AUTO_REVERSE pairs clips that travel the same way and flips the alternate,
+# which it did to Coast Houses Above 2 — but that shot has traffic in it, so
+# reversing drives the cars backwards. The index cannot see that; only watching
+# it can.
+CLIP_REVERSE_OVERRIDE = { "Coast Houses Above 2" = false }
+
+# --- unusable source ------------------------------------------------------
+# Coast Above 3 rotates off-angle between 6.7s and 9.9s. Dropping the slot that
+# landed on it is not enough on its own: slices advance a cursor, so the next
+# use of the clip would simply take the same seconds instead.
+CLIP_SKIP_RANGES = { "Coast Above 3" = [[6.7, 9.9]] }
+
+# --- location pin ---------------------------------------------------------
+LOCATION_PIN = true
+LOCATION_PIN_START = 10.8     # onto the settle shot, after the burst
+LOCATION_TITLE_TEXT = "NESSEBAR, BULGARIA"
+
+# The style now lives in the captured fragment itself, re-captured from a Final
+# Cut export after the first attempt rendered solid black: strokeWidth has to be
+# NEGATIVE for an outside stroke, and the MotionSimpleValues block carrying the
+# face fill has to be present. Nothing to override here — leaving this empty is
+# what guarantees the file matches what was checked on screen.
+LOCATION_TITLE_STYLE = {}
+
+# --- sound effects --------------------------------------------------------
+# Hand-placed by ear in Final Cut and recorded here so a rebuild keeps them.
+# Media lives in the Final Cut library bundle, which is where FCP put it on
+# import; `at` is the timeline position, `start` the in-point into the source.
+SOUND_EFFECTS = [
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 76.95, start = 0.00, duration = 4.81 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 88.86, start = 4.81, duration = 7.65 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 147.36, start = 27.61, duration = 8.46 },
+]
+
+# A 2x slot eats twice its length in source. With 304s of footage under a 256s
+# timeline the budget is only 1.19x overall, so unrestricted speed-ups spend
+# footage the edit does not have: at the default gate 19 cuts ran at 2x, demand
+# hit 339s, the library ran dry and the recycler replayed the opening shots.
+# Raised so only the genuinely long takes — Coast Above 2 at 49.9s and Coast
+# Houses Above 2 at 35.2s — can fund one.
+SPEEDUP_MIN_REMAINING = 30.0

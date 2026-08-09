@@ -24,6 +24,7 @@ import numpy as np
 
 from .config import (
     ALLOW_RAMPS,
+    BEATS_PER_BAR,
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
     CLIP_HEAD_SKIP,
@@ -133,6 +134,8 @@ class Cut:
     ramp: str | None = None  # None | "escalate"
     body_speed: float = 0.0  # actual body speed of an escalate, once fitted
     tail_speed: float = 0.0  # actual peak speed of an escalate, once fitted
+    start_beat: int = 0      # slot start on the beat grid (bar * BEATS_PER_BAR)
+    beats: int = 0           # slot length in beats; sub-bar slots need this
 
 
 def _group_of(filename: str) -> str:
@@ -241,6 +244,21 @@ def _label_at(track: Track, bar: int) -> str:
     return track.sections[-1].label if track.sections else ""
 
 
+def _slot_beats(entry: dict) -> tuple[int, int]:
+    """A lock entry's (start, length) on the beat grid.
+
+    Slots are normally written in bars, which is all a music-cut edit needs. An
+    opening burst wants shots shorter than a bar, so an entry may instead give
+    `beat` and `beats` — one beat is a quarter of a bar. Everything downstream
+    works in beats and bars are just the coarse case, so the two forms mix
+    freely inside one lock.
+    """
+    if "beat" in entry or "beats" in entry:
+        return (int(entry.get("beat", int(entry.get("bar", 0)) * BEATS_PER_BAR)),
+                int(entry.get("beats", int(entry.get("bars", 1)) * BEATS_PER_BAR)))
+    return int(entry["bar"]) * BEATS_PER_BAR, int(entry["bars"]) * BEATS_PER_BAR
+
+
 def build_locked(track: Track, clips: list[Clip], fps: int,
                  lock: list[dict]) -> list[Cut]:
     """Replay an approved assignment instead of re-deciding it.
@@ -256,7 +274,7 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
     (escalates, head skips).
     """
     by_name = {c.filename: c for c in clips}
-    entries = sorted(lock, key=lambda e: e["bar"])
+    entries = sorted(lock, key=lambda e: _slot_beats(e)[0])
 
     # What each clip owes its *other* slots at nominal speed. An escalate is
     # sized against this so it takes only genuinely spare footage — otherwise a
@@ -269,20 +287,23 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
     # lengthened, which is exactly when it bites.
     owed: dict[str, list[tuple[int, int]]] = {}
     for e in entries:
-        bar_, bars_ = int(e["bar"]), int(e["bars"])
-        if ALLOW_RAMPS and bar_ in ESCALATE_AT_BARS:
+        b0, blen = _slot_beats(e)
+        if ALLOW_RAMPS and b0 % BEATS_PER_BAR == 0 and b0 // BEATS_PER_BAR in ESCALATE_AT_BARS:
             continue
-        tl = round(track.bar_time(bar_ + bars_) * fps) - round(track.bar_time(bar_) * fps)
+        tl = round(track.beat_time(b0 + blen) * fps) - round(track.beat_time(b0) * fps)
         owed.setdefault(e["clip"], []).append(
-            (bar_, int(round(tl * float(e.get("rate", 1.0))))))
+            (b0, int(round(tl * float(e.get("rate", 1.0))))))
 
-    def owed_after(name: str, at_bar: int) -> int:
-        return sum(f for b, f in owed.get(name, []) if b > at_bar)
+    def owed_after(name: str, at_beat: int) -> int:
+        """Frames this clip still owes slots that start after `at_beat`."""
+        return sum(f for b, f in owed.get(name, []) if b > at_beat)
 
     cuts: list[Cut] = []
 
     for entry in entries:
-        bar, bars = int(entry["bar"]), int(entry["bars"])
+        b0, blen = _slot_beats(entry)
+        bar, bars = b0 // BEATS_PER_BAR, max(blen // BEATS_PER_BAR, 1)
+        on_bar = b0 % BEATS_PER_BAR == 0
         name = entry["clip"]
         clip = by_name.get(name) or next(
             (c for c in clips if name.lower() in c.filename.lower()), None)
@@ -290,14 +311,14 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
             print(f"  note: lock names '{name}' at bar {bar}, not found in the index")
             continue
 
-        t0, t1 = track.bar_time(bar), track.bar_time(bar + bars)
+        t0, t1 = track.beat_time(b0), track.beat_time(b0 + blen)
         tl_frames = round(t1 * fps) - round(t0 * fps)
         rate = float(entry.get("rate", 1.0))
 
         ramp = None
         body_speed = tail_speed = 0.0
         src_frames = int(round(tl_frames * rate))
-        if ALLOW_RAMPS and bar in ESCALATE_AT_BARS:
+        if ALLOW_RAMPS and on_bar and bar in ESCALATE_AT_BARS:
             # "Speed up to the max that allows the transition": the launch is
             # as fast as the footage this clip can spare, not a fixed number.
             # The budget subtracts what the clip is already committed to in
@@ -305,7 +326,7 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
             clean = clip.remaining(fps) - sum(
                 max(0, min(round(b * fps), clip.total_frames(fps)) - max(round(a * fps), clip.cursor))
                 for a, b in clip.skips)
-            budget = clean - owed_after(clip.filename, bar)
+            budget = clean - owed_after(clip.filename, b0)
             ideal = escalate_source_frames(tl_frames, fps)
             body_speed, tail_speed = fit_escalate(tl_frames, min(ideal, budget), fps)
             if tail_speed:
@@ -317,7 +338,7 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
                           f"{body_speed*100:.0f}% -> {tail_speed*100:.0f}% "
                           f"(ideal {ESCALATE_BODY_SPEED*100:.0f}% -> "
                           f"{ESCALATE_TAIL_SPEED*100:.0f}%): {clip.filename} must "
-                          f"keep {owed_after(clip.filename, bar)/fps:.1f}s for its "
+                          f"keep {owed_after(clip.filename, b0)/fps:.1f}s for its "
                           f"later slots")
             else:
                 print(f"  note: no escalate at bar {bar} — {clip.filename} cannot "
@@ -332,14 +353,21 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
                       f"{rate:.2f}x — using 1.0x")
                 ramp, rate, src_frames, src_at = None, 1.0, tl_frames, at_natural
             else:
-                print(f"  note: bar {bar} {clip.filename} has only "
-                      f"{clip.remaining(fps)/fps:.1f}s left, needs "
-                      f"{src_frames/fps:.1f}s")
+                blocked = sum(
+                    max(0, min(round(b * fps), clip.total_frames(fps))
+                        - max(round(a * fps), clip.cursor))
+                    for a, b in clip.skips)
+                print(f"  note: bar {bar} {clip.filename} cannot supply "
+                      f"{src_frames/fps:.1f}s from {clip.cursor/fps:.1f}s — "
+                      f"{clip.remaining(fps)/fps:.1f}s remain"
+                      + (f", but {blocked/fps:.1f}s of it is excluded and the rest "
+                         f"does not run long enough in one piece" if blocked else ""))
                 src_at = clip.cursor
                 src_frames = max(clip.remaining(fps), 1)
 
         cuts.append(Cut(
             clip=clip, start_bar=bar, bars=bars,
+            start_beat=b0, beats=blen,
             timeline_start=round(t0 * fps), duration=tl_frames,
             source_start=src_at, source_duration=src_frames,
             rate=rate, section_label=_label_at(track, bar),
@@ -677,16 +705,22 @@ def reset(clips: list[Clip], fps: int) -> None:
 
 def describe(cuts: list[Cut], fps: int) -> str:
     lines = [
-        f"{'#':>3} {'bar':>4} {'tc':>9} {'len':>6} {'bars':>4} "
+        f"{'#':>3} {'bar':>6} {'tc':>9} {'len':>6} {'bars':>5} "
         f"{'clip':<20} {'move':<10} {'sect':<6} {'src in':>8} {'rate':>6} {'fx':<12}"
     ]
     lines.append("-" * 104)
     for i, c in enumerate(cuts, 1):
         tc = c.timeline_start / fps
         fx = " ".join(filter(None, ["REV" if c.reverse else "", c.ramp or ""]))
+        # Sub-bar slots exist, so both columns are shown in bars-and-fractions
+        # rather than rounded to whole bars — six 0.5-bar shots all reporting
+        # "1 bar" starting at bar 0, 0, 1, 1 is unreadable.
+        beats = c.beats or c.bars * 4
+        at = (c.start_beat or c.start_bar * 4) / 4
+        fmt = lambda v: f"{v:g}"
         lines.append(
-            f"{i:>3} {c.start_bar:>4} {int(tc)//60:>1}:{tc%60:0>5.2f} "
-            f"{c.duration/fps:>5.2f}s {c.bars:>4} "
+            f"{i:>3} {fmt(at):>6} {int(tc)//60:>1}:{tc%60:0>5.2f} "
+            f"{c.duration/fps:>5.2f}s {fmt(beats/4):>5} "
             f"{c.clip.filename[:19]:<20} {c.clip.move_type:<10} {c.section_label:<6} "
             f"{c.source_start/fps:>7.2f}s {c.rate:>6.3f} {fx:<12}"
         )

@@ -67,6 +67,8 @@
 {% endif %}
                             </asset-clip>
 {% endfor %}
+{% endif %}
+{% if loop.index0 == pin_host %}
 {% if pin %}
                             {{ pin.clip | safe }}
 {% endif %}

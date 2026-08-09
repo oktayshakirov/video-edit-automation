@@ -82,6 +82,10 @@ class Track:
         """Closed form, so error never accumulates."""
         return self.grid_phase + self.bar_period * n
 
+    def beat_time(self, n: int) -> float:
+        """Closed form in beats — the finer grid, for sub-bar cutting."""
+        return self.grid_phase + self.beat_period * n
+
     def source_bar(self, n: int) -> int:
         """Timeline bar -> which bar of the audio actually plays there."""
         if self.loop is None or n < self.loop.handoff_bar:
