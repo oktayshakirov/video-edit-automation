@@ -1,10 +1,16 @@
-# Handoff — state as of 2026-08-06
+# Handoff — state as of 2026-08-09
 
 Written to close out a long session. Everything below is committed and pushed;
 nothing is in-flight.
 
-**Repo:** `~/coding/drone-edit-automation` → https://github.com/oktayshakirov/drone-edit-automation
-**Footage:** `~/Desktop/Plovdiv` (15 graded selects, 3840×2160p30, ~6.3 min)
+**Repo:** `~/Coding/video-edit-automation` → https://github.com/oktayshakirov/video-edit-automation
+Renamed and restructured from `drone-edit-automation`: the package is
+`video_automation`, with `core/`, `drone/`, `crypto/` and `tinnitus/` inside it,
+and drone projects live in `projects/drone/`.
+
+**Footage:** `~/Desktop/Nessebar` (14 graded selects, 3840×2160p30, ~5.1 min)
+and `~/Desktop/Plovdiv` (15 selects — **the folder is gone from disk**, so
+Plovdiv can be inspected in git but not rebuilt).
 
 Two skills, symlinked into `~/.claude/skills/`, so they work from any folder:
 
@@ -17,14 +23,28 @@ Read the relevant SKILL.md first; it carries the rules that were paid for.
 
 ## Where the long-form pipeline stands
 
-**Done and approved.** Plovdiv is finished and published:
-*Europe's Oldest City From Above — Plovdiv, Bulgaria in 4K*.
+**Nessebar is finished.** Ship `nessebar-v6` — 31 cuts, 7.74 s mean shot, 82%
+footage used, one escalate, three seagull SFX, 4:00.03, DTD-valid.
 
-Seven tagged stages, `plovdiv-v3` through `plovdiv-v7`. `git checkout <tag>`
-returns to any of them exactly.
+**Use the v6 tag, not v5.** The picture is identical; v6 adds the asset uid
+fixes, and without them Final Cut refuses the whole document.
 
-Current state: 47 cuts, 4.81 s mean shot, 81% footage used, 2 escalates,
-4 reversed clips, DTD-valid.
+Plovdiv shipped earlier as *Europe's Oldest City From Above*, tags `plovdiv-v3`
+through `plovdiv-v7`. Its footage folder no longer exists, so those tags are
+history rather than something to rebuild.
+
+### The intro-burst experiment — built, parked, not rejected
+
+`projects/drone/nessebar-burst.toml` opens on six 1.6 s shots in the first
+9.7 s, then settles into the approved order from 0:25.67 unchanged. It works
+and validates; it was set aside only because Nessebar was already good.
+**Worth trying on the next video.** Two things learned building it:
+
+- The burst takes 1.6 s off the head of every clip it uses, so every later
+  slice of those clips shifts. It is not a free addition to an approved edit.
+- A clip with a `CLIP_SKIP_RANGES` exclusion may stop fitting its later slots
+  once the burst eats its head — Coast Above 3 had to be swapped out for
+  exactly this.
 
 ### The one rule that matters most
 
@@ -37,6 +57,17 @@ opening shot.
 With a lock present, **a request to swap or resize a shot is a direct edit to the
 lock file**, not a scoring change. Do not reach for `config.py` weights on a
 locked project.
+
+### What this footage needed that Plovdiv did not
+
+- **The tempo was wrong.** librosa reported 152.11 BPM for a 75.00 BPM track and
+  the least-squares fit made it look clean. The grid is now *searched* — scored
+  by how much onset energy lands on it — and the wrong grid loses by a factor of
+  280. Always check the printed grid score and the octave comparison.
+- **The track was shorter than the footage**, so it loops: hands off and
+  re-enters at phrase lines of matching energy, crossfading on separate lanes.
+- **Sustained speed must be a whole multiple.** 160% stutters; 100% and 200% are
+  exact. `fit_escalate` used to step 0.1 at a time and produced 160%.
 
 ### Open items
 
