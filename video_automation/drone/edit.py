@@ -27,6 +27,7 @@ from .config import (
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
     CLIP_HEAD_SKIP,
+    CLIP_REVERSE_OVERRIDE,
     CLIP_SKIP_RANGES,
     ESCALATE_AT_BARS,
     PIN_CLIPS,
@@ -165,6 +166,11 @@ def load_clips(db_path: Path) -> list[Clip]:
     ]
     if AUTO_REVERSE:
         _assign_reversals(clips)
+    # An explicit direction always wins over the automatic pairing.
+    for c in clips:
+        for name, want in CLIP_REVERSE_OVERRIDE.items():
+            if name.lower() in c.filename.lower():
+                c.reverse = bool(want)
     # Rank-normalise energy so matching is relative to this library, not to an
     # absolute scale that means nothing across shoots.
     order = np.argsort([c.motion_energy for c in clips])
@@ -256,14 +262,22 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
     # sized against this so it takes only genuinely spare footage — otherwise a
     # ramp early on eats the material a later slot in the approved order needs,
     # and that slot has to be dropped or re-clipped, which moves the timeline.
-    committed: dict[str, int] = {}
+    # Only slots AFTER the escalate count. Summing every slot charged the clip
+    # for footage its earlier slots had already consumed, so a clip used before
+    # the ramp was billed twice and the ramp was refused on a shortfall that did
+    # not exist. That stayed invisible until a shot earlier in the timeline was
+    # lengthened, which is exactly when it bites.
+    owed: dict[str, list[tuple[int, int]]] = {}
     for e in entries:
         bar_, bars_ = int(e["bar"]), int(e["bars"])
         if ALLOW_RAMPS and bar_ in ESCALATE_AT_BARS:
             continue
         tl = round(track.bar_time(bar_ + bars_) * fps) - round(track.bar_time(bar_) * fps)
-        name_ = e["clip"]
-        committed[name_] = committed.get(name_, 0) + int(round(tl * float(e.get("rate", 1.0))))
+        owed.setdefault(e["clip"], []).append(
+            (bar_, int(round(tl * float(e.get("rate", 1.0))))))
+
+    def owed_after(name: str, at_bar: int) -> int:
+        return sum(f for b, f in owed.get(name, []) if b > at_bar)
 
     cuts: list[Cut] = []
 
@@ -291,7 +305,7 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
             clean = clip.remaining(fps) - sum(
                 max(0, min(round(b * fps), clip.total_frames(fps)) - max(round(a * fps), clip.cursor))
                 for a, b in clip.skips)
-            budget = clean - committed.get(clip.filename, 0)
+            budget = clean - owed_after(clip.filename, bar)
             ideal = escalate_source_frames(tl_frames, fps)
             body_speed, tail_speed = fit_escalate(tl_frames, min(ideal, budget), fps)
             if tail_speed:
@@ -303,7 +317,7 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
                           f"{body_speed*100:.0f}% -> {tail_speed*100:.0f}% "
                           f"(ideal {ESCALATE_BODY_SPEED*100:.0f}% -> "
                           f"{ESCALATE_TAIL_SPEED*100:.0f}%): {clip.filename} must "
-                          f"keep {committed.get(clip.filename,0)/fps:.1f}s for its "
+                          f"keep {owed_after(clip.filename, bar)/fps:.1f}s for its "
                           f"later slots")
             else:
                 print(f"  note: no escalate at bar {bar} — {clip.filename} cannot "

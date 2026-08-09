@@ -105,6 +105,13 @@ PENALTY_SPEEDUP_WHEN_CALM = 0.55
 
 HEAD_TRIM = 0.3              # seconds skipped at the head of a select (settle-in)
 
+# Force a clip's play direction, overriding AUTO_REVERSE:
+# {filename substring: True/False}. The automatic rule only knows which way the
+# camera travelled, so it will happily reverse a shot containing traffic, water
+# or shadows and send them backwards. That is a judgement from watching, which
+# the index cannot make.
+CLIP_REVERSE_OVERRIDE: dict[str, bool] = {}
+
 # Extra seconds to ignore at the head of named clips, on top of HEAD_TRIM:
 # {filename substring: seconds}. For when the opening of a select is weaker than
 # the rest — overexposed, unsteady — which is a judgement the index cannot make.
@@ -230,6 +237,12 @@ PIN_SLOT_BARS: dict[int, int] = {}
 LOCATION_PIN = False
 LOCATION_PIN_START = 1.0       # seconds into the timeline
 LOCATION_PIN_SECONDS = 5.03    # full length of the red pin segment
+
+# Text beside the pin. Empty string = pin only. The Basic Title generator's uid
+# and its three `param key` paths are equally FCP-internal and were captured the
+# same way, from a real export — see assets/fcpxml/location-title-overlay.xml.
+# The title rides the pin's window, so it needs no timing of its own.
+LOCATION_TITLE_TEXT = ""
 
 # Fade the picture to black under the closing music fade. Length follows
 # MUSIC_FADE_SECONDS so the two land together.

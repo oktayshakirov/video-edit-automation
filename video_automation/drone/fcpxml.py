@@ -41,9 +41,12 @@ from urllib.parse import quote
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from xml.sax.saxutils import escape
+
 from .config import (
     EVENT_NAME,
     LOCATION_PIN,
+    LOCATION_TITLE_TEXT,
     LOCATION_PIN_SECONDS,
     LOCATION_PIN_START,
     ESCALATE_BODY_SPEED,
@@ -173,6 +176,7 @@ def _audio_duration(path: Path) -> float:
 ASSET_DIR = Path(__file__).resolve().parents[2] / "assets"
 PIN_FRAGMENT = ASSET_DIR / "fcpxml" / "location-pin-overlay.xml"
 PIN_SOURCE = ASSET_DIR / "location-pin-source.mp4"
+TITLE_FRAGMENT = ASSET_DIR / "fcpxml" / "location-title-overlay.xml"
 
 # In-point of the red pin inside the pack, from the captured export. By hue the
 # red pin measures ~345 deg and classifies as pink, so this cannot be found by
@@ -213,6 +217,34 @@ def _location_pin(offset_frames: int, dur_frames: int, fps: int,
 
     return {"effect": effect, "clip": body, "asset_id": asset_id,
             "format_id": format_id, "src": _file_url(PIN_SOURCE)}
+
+
+def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
+                    effect_id: str) -> dict | None:
+    """Splice the captured Basic Title, rewritten onto our effect id.
+
+    Same reasoning as the pin: the generator's uid and the three `param key`
+    paths are FCP-internal, so the fragment is reused as text and only the id,
+    the timing and the words are rewritten. `start="3600s"` is Final Cut's
+    convention for generators and is deliberately left alone — it is not an
+    in-point into any media, and "correcting" it to 0s is a plausible-looking
+    edit that would break the element.
+    """
+    if not text or not TITLE_FRAGMENT.is_file():
+        return None
+
+    raw = re.sub(r"<!--.*?-->", "", TITLE_FRAGMENT.read_text(encoding="utf-8"),
+                 flags=re.S)
+    body = raw[raw.index("<title"):raw.rindex("</title>") + len("</title>")]
+    effect = re.search(r"<effect\b[^>]*/>", raw).group(0)
+
+    body = body.replace("@@TEXT@@", escape(text))
+    body = body.replace('ref="r7"', f'ref="{effect_id}"', 1)
+    effect = re.sub(r'id="r7"', f'id="{effect_id}"', effect, count=1)
+
+    body = re.sub(r'offset="[^"]*"', f'offset="{_rational(offset_frames, fps)}"', body, count=1)
+    body = re.sub(r'duration="[^"]*"', f'duration="{_rational(dur_frames, fps)}"', body, count=1)
+    return {"effect": effect, "clip": body}
 
 
 def _music_clips(audio: dict, music_frames: int, video_end: int, base: int,
@@ -338,7 +370,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         mc["volume"] = [{"time": _rational(t, fps), "value": v}
                         for t, v in mc.get("volume", [])]
 
-    pin = None
+    pin = title = None
     if LOCATION_PIN:
         pin_off = int(round(LOCATION_PIN_START * fps))
         pin_dur = int(round(LOCATION_PIN_SECONDS * fps))
@@ -355,6 +387,11 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         if pin is None:
             print("  note: LOCATION_PIN is on but the overlay could not be "
                   "placed — check assets/ and the opening shot's length")
+        elif LOCATION_TITLE_TEXT:
+            # The title rides the pin's window so the two appear and leave
+            # together; it sits on lane 2, above the pin's lane 1.
+            title = _location_title(LOCATION_TITLE_TEXT, base + pin_off, pin_dur,
+                                    fps, effect_id=f"r{len(assets) + 5}")
 
     seq_frames = video_end
 
@@ -367,6 +404,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         audio=audio,
         music_clips=music_clips,
         pin=pin,
+        title=title,
         cuts=rendered_cuts,
         sequence_duration=_rational(seq_frames, fps),
         project_name=project_name,
