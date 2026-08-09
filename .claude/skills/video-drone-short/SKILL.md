@@ -112,7 +112,7 @@ render_narrated(
     mood="melancholic",
     font_path=FUTURA, font_index=0,
     font_size=44, stroke=4, y_frac=0.34,
-    gap=0.65, tail=2.2,     # gap is between sentences only
+    gap=0.65, tail=1.2,     # gap is between sentences only; tail stays 1-2s
 )
 ```
 
@@ -122,7 +122,7 @@ clip and returns `(out, total, cuts)`:
 ```python
 render_narrated_cuts(
     [(clip_a, 2.0, box_a), (clip_b, 8.0, box_b), (clip_c, 8.0, box_c)],
-    out, SENTENCES, work, y_frac=0.48, gap=[0.65, 1.9, 0.65], tail=2.2,
+    out, SENTENCES, work, y_frac=0.48, gap=[0.65, 1.9, 0.65], tail=1.2,
     font_path=FUTURA, font_index=0, font_size=44, stroke=4, fps=30,
     **profile_args("leo"))
 ```
@@ -193,7 +193,10 @@ redesigned — each was iterated against real reference videos.
 - **`y_frac` follows the frame, not a fixed number.** 0.50 on Hills Monument,
   where the horizon sits low; 0.34 on City 1, to clear the sun and skyline and
   put the type in open sky. Sample the crop and place the block in the emptiest
-  band above the bottom UI — dead centre is a default, not a rule
+  band above the bottom UI — dead centre is a default, not a rule.
+  **But the user's stated preference is centre**: 0.64 on Sunset Sea 2 was
+  rejected as "lower half", and 0.50 approved in its place. Treat the emptiest
+  band as the tie-breaker among centre-ish values, not a licence to drop low
 - **White ink, solid black border.** Not the halo: captions move, so the type
   crosses whatever the footage is doing under it. One ink colour sampled from
   one frame will be wrong for some of the captions — the stroke is the only
@@ -201,6 +204,14 @@ redesigned — each was iterated against real reference videos.
 - **`max_w` is wider than the silent card on purpose.** A spoken phrase wrapped
   onto two lines reads as two thoughts. At 920px every phrase up to about eight
   words sets on one line; if one wraps, shorten the phrase rather than the font
+- **`font_size` may be a callable** `(caption) -> int`, so the one word the quote
+  turns on can be set larger than the lines around it. Size is the only emphasis
+  left — the treatment is already white-on-black-stroke, so there is no weight or
+  colour to reach for. **Approved on Sunset Sea 2** as `COLD` at 88px against a
+  44px body, chosen over the same word at body size. Drop the comma from the
+  caption — a set-piece word does not want punctuation hanging off it — but keep
+  it in the spoken half so the engine still takes the breath. One per script, on
+  the same turn that would otherwise get its own small caption
 
 Both wrap with **no widows** — the wrap pulls a word back so the last line is
 never a single orphan; that is the usual tell that a card was generated.
@@ -479,6 +490,17 @@ The render maps the narration with `-shortest`, so a track shorter than the
 reported total silently truncates the video — this shipped once, reporting
 20.01s for a file that was 18.51s. Always ffprobe the output and report *that*.
 
+**Keep the tail to 1–2s.** A short loops, and every second after the last word
+is a second before it comes back around. `tail=1.2` is the working value; 2.2
+was tried and the user cut it for exactly this reason. This is not in tension
+with "do not shorten a pause to avoid silence" — that rule is about *dead air*,
+and a fast loop is a different reason with a different answer.
+
+**No fade to black.** Removed from `render_short`, `render_narrated` and
+`render_narrated_cuts`; the chain now ends `null[vout]`. A fade spends the last
+half-second telling the viewer it is over, which is the opposite of what a
+looping short wants — the loop point should land on picture.
+
 ## Audio strategy
 
 - **TikTok** — a trending sound is a real reach lever, and these renders are
@@ -508,8 +530,11 @@ reported total silently truncates the video — this shipped once, reporting
   half*.
 - Apply the YouTube length and angle rules to TikTok. They were measured on
   YouTube and three of them are false there.
-- Shorten a pause or a `tail` to avoid silence. Music is laid over the render
-  by hand, so that silence does not survive to the upload.
+- Shorten a pause to avoid silence. Music is laid over the render by hand, so
+  that silence does not survive to the upload. Trimming the `tail` for a faster
+  loop is a different call and is wanted — keep it to 1-2s.
+- Fade to black. Removed from the pipeline; a looping short should end on
+  picture.
 - Cut between clips before checking whether one clip already makes the move.
 - Commit rendered MP4s to the repo — they are outputs. `assets/` is for reusable
   overlays only.

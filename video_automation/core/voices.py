@@ -230,6 +230,17 @@ PROFILES: dict[str, VoiceProfile] = {
              "processed of the set and the closest to male ASMR.",
         source="D4_nicole_slow_p84_aspirate.wav", folder="Tinnitus Help Voice",
     ),
+    "luna-calm": VoiceProfile(
+        voice="af_nicole", speed=0.90, chain=SOFT,
+        projects=("tinnitus",), status="candidate", script="quote",
+        note="Female, unhurried. luna's voice off the ENERGETIC chain and onto "
+             "SOFT, which exists for exactly this — no pitch shift, presence "
+             "pulled down, air added, -16 LUFS. luna itself is 1.10 through a "
+             "chain built to punch on a phone speaker, which is the wrong "
+             "instrument for a sound-therapy piece the listener is meant to "
+             "breathe along with. Suffix, not a new name: one speaker.",
+        folder="Tinnitus Help Voice",
+    ),
 }
 
 APPROVED = {n: p for n, p in PROFILES.items() if p.status == "approved"}
