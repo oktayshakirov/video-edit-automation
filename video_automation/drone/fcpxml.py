@@ -48,6 +48,7 @@ from .config import (
     LOCATION_PIN,
     LOCATION_TITLE_TEXT,
     LOCATION_TITLE_STYLE,
+    SOUND_EFFECTS,
     LOCATION_PIN_SECONDS,
     LOCATION_PIN_START,
     ESCALATE_BODY_SPEED,
@@ -251,10 +252,18 @@ def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
             attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
             attrs.update({k: str(v) for k, v in LOCATION_TITLE_STYLE.items()})
             return "<text-style " + " ".join(
-                f'{k}="{escape(v, {chr(34): "&quot;"})}"' for k, v in attrs.items()) + "/>"
+                f'{k}="{escape(v, {chr(34): "&quot;"})}"'
+                for k, v in attrs.items()) + m.group(2) + ">"
         # Only the definition carries styling; the <text-style ref="ts1"> inside
         # <text> is a reference and holds the words, so it must not be touched.
-        body = re.sub(r"<text-style ((?:(?!ref=)[^>])*?)/>", restyle, body, count=1)
+        # The definition is no longer self-closing — it wraps the MotionSimpleValues
+        # block — so the tag form is preserved rather than assumed.
+        body = re.sub(r"<text-style ((?:(?!ref=)[^>])*?)(/?)>", restyle, body, count=1)
+        if "kerning" in LOCATION_TITLE_STYLE:
+            # Kerning lives twice: as an attribute and inside MotionSimpleValues.
+            # Changing only the attribute leaves Final Cut using the old spacing.
+            body = re.sub(r'(name="motionTextKerning"[^>]*value=")[^"]*"',
+                          rf'\g<1>{LOCATION_TITLE_STYLE["kerning"]}"', body)
 
     return {"effect": effect, "clip": body}
 
@@ -382,6 +391,37 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         mc["volume"] = [{"time": _rational(t, fps), "value": v}
                         for t, v in mc.get("volume", [])]
 
+    # Hand-placed effects, anchored to whichever spine clip is on screen when
+    # they start — the same shape Final Cut itself exports. Anchoring them all
+    # to the first clip instead would work only while that clip is long enough
+    # to span them.
+    sfx_assets: list[dict] = []
+    for i, fx in enumerate(SOUND_EFFECTS):
+        path = Path(fx["file"]).expanduser()
+        if not path.is_file():
+            print(f"  note: sound effect not found, skipping: {path}")
+            continue
+        aid = next((a["id"] for a in sfx_assets if a["path"] == str(path)), None)
+        if aid is None:
+            aid = f"r{len(assets) + 6 + len(sfx_assets)}"
+            sfx_assets.append({
+                "id": aid, "path": str(path), "name": path.stem,
+                "uid": "sfx-" + str(abs(hash(str(path))))[:12],
+                "duration": _rational(int(_audio_duration(path) * fps), fps),
+                "src": _file_url(path), "rate": _audio_rate(path),
+            })
+        at = int(round(float(fx["at"]) * fps))
+        host = max((j for j, c in enumerate(cuts) if c.timeline_start <= at),
+                   default=0)
+        hc, he = cuts[host], rendered_cuts[host]
+        hbase = 0 if he["timemap"] else hc.source_start
+        he.setdefault("sfx", []).append({
+            "ref": aid, "name": path.stem, "lane": -1,
+            "offset": _rational(hbase + at - hc.timeline_start, fps),
+            "start": _rational(int(round(float(fx.get("start", 0.0)) * fps)), fps),
+            "duration": _rational(int(round(float(fx["duration"]) * fps)), fps),
+        })
+
     pin = title = None
     if LOCATION_PIN:
         pin_off = int(round(LOCATION_PIN_START * fps))
@@ -415,6 +455,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         video_assets=list(assets.values()),
         audio=audio,
         music_clips=music_clips,
+        sfx_assets=sfx_assets,
         pin=pin,
         title=title,
         cuts=rendered_cuts,

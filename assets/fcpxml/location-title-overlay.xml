@@ -1,26 +1,42 @@
-<!-- Captured verbatim from a Final Cut FCPXML export (Nessebar, 2026-08-09).
-     The generator's uid and the three `param key` paths are FCP-internal and
-     cannot be authored by hand — the same class of value as the keyer in
-     location-pin-overlay.xml. Reuse this fragment as-is.
+<!-- Captured verbatim from a Final Cut FCPXML export, then RE-captured after a
+     hand fix (Nessebar, 2026-08-09). Reuse as-is.
 
-     Declare the <effect> in <resources>, then nest the <title> inside the
-     spine clip it should sit over (lane="2", above the pin's lane 1).
+     Two things in here were got wrong when this was authored from a
+     specification, and both rendered the type solid black:
 
-     `start="3600s"` is Final Cut's convention for generators and is not a
-     mistake; it is not an in-point into any media.
+       * strokeWidth must be NEGATIVE for an outside stroke. A positive value
+         strokes inward, which eats the glyph fill.
+       * the <param name="MotionSimpleValues"> block is required. It carries the
+         Motion-side face (fill) properties; without it the face is undefined
+         and the glyphs come out black whatever fontColor says.
+
+     So the attribute names are all DTD-declared and safe to author, but their
+     values and this nested param block are not derivable from the DTD. Treat
+     the whole element the same way as the keyer: capture, do not compose.
+
+     Final Cut also emits <adjust-colorConform> on everything it exports. That
+     element is FCPXML 1.11 and fails validation against the 1.10 DTD this
+     project writes, so it is stripped here rather than carried through.
+
+     `start="3600s"` is Final Cut's convention for generators, not an in-point.
      @@TEXT@@ is substituted with LOCATION_TITLE_TEXT.
-     Position is in points and pairs with the pin at scale 0.06. -->
+     Position pairs with the pin at scale 0.06. -->
 
 <effect id="r7" name="Basic Title" uid=".../Titles.localized/Bumper:Opener.localized/Basic Title.localized/Basic Title.moti"/>
 
-<title ref="r7" lane="2" offset="4800/3000s" name="@@TEXT@@ - Basic Title" start="3600s" duration="14700/3000s">
-    <param name="Position" key="9999/999166631/999166633/1/100/101" value="-674.99 444"/>
+<title ref="r7" lane="2" offset="3/2s" name="@@TEXT@@ - Basic Title" start="3600s" duration="151/30s">
+    <param name="Position" key="9999/999166631/999166633/1/100/101" value="-637.15 444"/>
     <param name="Flatten" key="9999/999166631/999166633/2/351" value="1"/>
     <param name="Alignment" key="9999/999166631/999166633/2/354/999169573/401" value="1 (Center)"/>
+    <param name="disableDRT" key="3733" value="1"/>
     <text>
         <text-style ref="ts1">@@TEXT@@</text-style>
     </text>
     <text-style-def id="ts1">
-        <text-style font="Helvetica Neue" fontSize="31" fontColor="0.0980388 0.0980417 0.0980401 1" bold="1" alignment="center"/>
+        <text-style font="Helvetica Neue" fontSize="31" fontColor="1 1 1 1" bold="1" strokeColor="0 0 0 1" strokeWidth="-3" kerning="5" alignment="center">
+            <param name="MotionSimpleValues" key="MotionTextStyle:SimpleValues">
+                <param name="motionTextKerning" key="kerning" value="5"/>
+            </param>
+        </text-style>
     </text-style-def>
 </title>

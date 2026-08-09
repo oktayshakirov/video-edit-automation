@@ -95,12 +95,22 @@ LOCATION_PIN = true
 LOCATION_PIN_START = 1.5      # into the 12.8s opening shot
 LOCATION_TITLE_TEXT = "NESSEBAR, BULGARIA"
 
-# Plain near-black type read as an afterthought over bright coastal footage.
-# White with a solid dark outline is the standard location-super treatment and
-# survives whatever is behind it; the widened kerning is what keeps it looking
-# set rather than typed. Same family as the stroked caption already approved for
-# the shorts. Deliberately restrained — no shadow, no colour, nothing that dates.
-LOCATION_TITLE_STYLE = { fontColor = "1 1 1 1", strokeColor = "0 0 0 0.9", strokeWidth = "3", kerning = "5", fontSize = "34" }
+# The style now lives in the captured fragment itself, re-captured from a Final
+# Cut export after the first attempt rendered solid black: strokeWidth has to be
+# NEGATIVE for an outside stroke, and the MotionSimpleValues block carrying the
+# face fill has to be present. Nothing to override here — leaving this empty is
+# what guarantees the file matches what was checked on screen.
+LOCATION_TITLE_STYLE = {}
+
+# --- sound effects --------------------------------------------------------
+# Hand-placed by ear in Final Cut and recorded here so a rebuild keeps them.
+# Media lives in the Final Cut library bundle, which is where FCP put it on
+# import; `at` is the timeline position, `start` the in-point into the source.
+SOUND_EFFECTS = [
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 76.95, start = 0.00, duration = 4.81 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 88.86, start = 4.81, duration = 7.65 },
+  { file = "~/Movies/Final Cut Pro.fcpbundle/Video Edit/Original Media/jonathanslattermusic-seagulls-in-coastal-village-486871.mp3", at = 147.36, start = 27.61, duration = 8.46 },
+]
 
 # A 2x slot eats twice its length in source. With 304s of footage under a 256s
 # timeline the budget is only 1.19x overall, so unrestricted speed-ups spend

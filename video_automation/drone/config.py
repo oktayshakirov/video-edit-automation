@@ -256,6 +256,16 @@ LOCATION_TITLE_TEXT = ""
 # verify without a round trip, so flip it there if the outline sits wrong.
 LOCATION_TITLE_STYLE: dict[str, str] = {}
 
+# Hand-placed sound effects, carried through every rebuild. Each entry is
+# {file, at, start, duration} in seconds — `at` is the timeline position,
+# `start` the in-point into the source.
+#
+# This exists because the build overwrites the FCPXML wholesale, so anything
+# added by hand in Final Cut is gone on the next run. An effect placed by ear is
+# worth keeping; recording it here is what makes the generated file the source
+# of truth instead of a thing you must not regenerate.
+SOUND_EFFECTS: list[dict] = []
+
 # Fade the picture to black under the closing music fade. Length follows
 # MUSIC_FADE_SECONDS so the two land together.
 FADE_TO_BLACK = True

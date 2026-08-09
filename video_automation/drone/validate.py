@@ -195,7 +195,10 @@ def check(path: Path) -> list[str]:
                     f"connected clip '{child.get('name')}' on clip {i+1}: starts "
                     f"{float(-pos):.3f}s before the timeline"
                 )
-            elif j == 0 and pos != 0:
+            elif i == 0 and child.get("audioRole") == "music" and j == 0 and pos != 0:
+                # Only the music's own entry point is pinned to timeline zero.
+                # Requiring it of every connected clip flagged correctly placed
+                # sound effects, which are supposed to start where they start.
                 problems.append(
                     f"connected clip '{child.get('name')}' on clip {i+1}: offset "
                     f"{child.get('offset')} != parent start {c.get('start')} — "
