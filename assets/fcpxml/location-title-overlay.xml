@@ -1,0 +1,26 @@
+<!-- Captured verbatim from a Final Cut FCPXML export (Nessebar, 2026-08-09).
+     The generator's uid and the three `param key` paths are FCP-internal and
+     cannot be authored by hand — the same class of value as the keyer in
+     location-pin-overlay.xml. Reuse this fragment as-is.
+
+     Declare the <effect> in <resources>, then nest the <title> inside the
+     spine clip it should sit over (lane="2", above the pin's lane 1).
+
+     `start="3600s"` is Final Cut's convention for generators and is not a
+     mistake; it is not an in-point into any media.
+     @@TEXT@@ is substituted with LOCATION_TITLE_TEXT.
+     Position is in points and pairs with the pin at scale 0.06. -->
+
+<effect id="r7" name="Basic Title" uid=".../Titles.localized/Bumper:Opener.localized/Basic Title.localized/Basic Title.moti"/>
+
+<title ref="r7" lane="2" offset="4800/3000s" name="@@TEXT@@ - Basic Title" start="3600s" duration="14700/3000s">
+    <param name="Position" key="9999/999166631/999166633/1/100/101" value="-674.99 444"/>
+    <param name="Flatten" key="9999/999166631/999166633/2/351" value="1"/>
+    <param name="Alignment" key="9999/999166631/999166633/2/354/999169573/401" value="1 (Center)"/>
+    <text>
+        <text-style ref="ts1">@@TEXT@@</text-style>
+    </text>
+    <text-style-def id="ts1">
+        <text-style font="Helvetica Neue" fontSize="31" fontColor="0.0980388 0.0980417 0.0980401 1" bold="1" alignment="center"/>
+    </text-style-def>
+</title>

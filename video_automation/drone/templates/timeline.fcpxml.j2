@@ -18,6 +18,9 @@
         </asset>
         {{ pin.effect | safe }}
 {% endif %}
+{% if title %}
+        {{ title.effect | safe }}
+{% endif %}
     </resources>
     <library>
         <event name="{{ event_name }}">
@@ -61,6 +64,9 @@
 {% endfor %}
 {% if pin %}
                             {{ pin.clip | safe }}
+{% endif %}
+{% if title %}
+                            {{ title.clip | safe }}
 {% endif %}
 {% endif %}
                         </asset-clip>

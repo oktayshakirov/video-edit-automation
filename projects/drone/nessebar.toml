@@ -61,9 +61,6 @@ W_BITE = 0.55
 
 # --- speed ramps ---------------------------------------------------------
 # Two escalates, by slot start bar.
-#   22 -> Coast 1 at 1:10.47. A vertical reveal of the horizon and the sunset,
-#         so it cannot be cut into short pieces — it now runs once, as a single
-#         2-bar shot consuming the whole clip, and launches out of the reveal.
 #   46 -> Coast Above 2 at 2:27.27, launching into the section line at bar 52.
 #         The long shot plays out in full and only the last second whips, which
 #         is the "speed up the end of the clip" effect rather than a fast shot.
@@ -73,7 +70,19 @@ W_BITE = 0.55
 # fund a 12.8s escalate without starving its other slot, so the build refused
 # it rather than fitting a launch that would not read. Bar 46 is the only slot
 # whose clip has the footage for the full 2000% ideal.
-ESCALATE_AT_BARS = [22, 46]
+ESCALATE_AT_BARS = [46]
+
+# Coast 1 plays straight: one 2-bar shot at 100%, no ramp. It is a vertical
+# reveal of the horizon and the sunset, and it reads better at real time than
+# with a launch on the end.
+CLIP_HEAD_SKIP = { "Coast 1" = 2.0 }
+
+# --- direction ------------------------------------------------------------
+# AUTO_REVERSE pairs clips that travel the same way and flips the alternate,
+# which it did to Coast Houses Above 2 — but that shot has traffic in it, so
+# reversing drives the cars backwards. The index cannot see that; only watching
+# it can.
+CLIP_REVERSE_OVERRIDE = { "Coast Houses Above 2" = false }
 
 # --- unusable source ------------------------------------------------------
 # Coast Above 3 rotates off-angle between 6.7s and 9.9s. Dropping the slot that
@@ -84,6 +93,7 @@ CLIP_SKIP_RANGES = { "Coast Above 3" = [[6.7, 9.9]] }
 # --- location pin ---------------------------------------------------------
 LOCATION_PIN = true
 LOCATION_PIN_START = 1.5      # into the 12.8s opening shot
+LOCATION_TITLE_TEXT = "NESSEBAR, BULGARIA"
 
 # A 2x slot eats twice its length in source. With 304s of footage under a 256s
 # timeline the budget is only 1.19x overall, so unrestricted speed-ups spend
