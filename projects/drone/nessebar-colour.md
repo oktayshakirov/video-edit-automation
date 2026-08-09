@@ -37,9 +37,37 @@ tends to overshoot.
 
 ## Apply — saturation
 
+### Coast 1 at 1:10 — measured against its actual neighbours
+
+This one was flagged by eye as "too overexposed and white". Measuring only the
+range the edit shows (source 2.30–8.70s) against the shots either side of it —
+Coast 4 at 1:04 and Coast Houses 3 at 1:16 — says the exposure is very nearly
+right and the problem is almost entirely colour:
+
+| | brightness | saturation | clipped |
+|---|---|---|---|
+| Coast 4 (before) | 0.419 | 0.560 | 2.1% |
+| **Coast 1** | **0.705** | **0.132** | **11.5%** |
+| Coast Houses 3 (after) | 0.783 | 0.434 | 37.3% |
+| neighbour mean | 0.601 | 0.497 | — |
+
+**Correction: saturation ×3.8** (0.13 → 0.50), **exposure −0.25 stops**, plus a
+mild highlight rolloff for the 11.5% that is clipped.
+
+Exposure is the small part — it sits between its two neighbours and the shot
+*after* it is brighter still. What reads as "white" is the saturation: at 0.132
+it holds barely a quarter of the colour of the shots on either side, so the
+frame goes pale rather than bright. Fix saturation first and judge the exposure
+afterwards; the −0.25 stops may turn out to be unnecessary.
+
+Worth noting Coast Houses 3 clips 37.3% of frame — far more than Coast 1 — and
+has never been flagged, which is the evidence that clipping is not what is being
+seen here.
+
+### The rest
+
 | clip | measured | correction | why |
 |---|---|---|---|
-| **Coast 1** | 0.14 sat | **saturation ×3.1** (0.14 → 0.43) | by far the largest single outlier in the batch — less than a third the saturation of anything else. Combined with 6.1% clipped highlights it reads as a washed-out, hazy frame rather than a stylistic choice |
 | **Coast 2** | 0.27 sat | **saturation ×1.6** | same family, milder |
 | **Coast 3** | 0.32 sat | **saturation ×1.35** | same family, milder |
 | **Windmill** | 0.30 sat | **saturation ×1.4** | the only orbit, so it is conspicuous whenever it appears |
@@ -69,9 +97,11 @@ clip at −0.29 stops, which is close enough to leave until the dark end is fixe
 
 ## Order of work
 
-1. **Coast Above 2** — worst haze, most used (4 cuts). Exposure, then dehaze.
-2. The other three exposure lifts of ~0.9 stops.
-3. **Coast 1** saturation. It is the single most conspicuous frame in the batch.
+1. **Coast 1** saturation ×3.8. Flagged by eye, measured, and the single most
+   conspicuous frame in the video. Judge its exposure only after.
+2. **Coast Above 2** — worst haze, and it now carries three shots including the
+   19.2s centrepiece at 2:27 and the closing 9.6s. Exposure, then dehaze.
+3. The other three exposure lifts of ~0.9 stops.
 4. Stop and look. Then decide on the two borderline exposures and any hue nudge.
 
 ## Making this automatable later

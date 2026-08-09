@@ -45,7 +45,7 @@ rate = 1.000
 bar = 18
 clip = "Coast Houses Above 2.mp4"
 bars = 2
-rate = 2.000
+rate = 1.000
 
 [[lock]]
 bar = 20
@@ -188,12 +188,6 @@ rate = 1.000
 [[lock]]
 bar = 72
 clip = "Coast Above 2.mp4"
-bars = 2
-rate = 1.000
-
-[[lock]]
-bar = 74
-clip = "Coast 2.mp4"
-bars = 1
+bars = 3
 rate = 1.000
 
