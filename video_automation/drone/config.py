@@ -244,6 +244,18 @@ LOCATION_PIN_SECONDS = 5.03    # full length of the red pin segment
 # The title rides the pin's window, so it needs no timing of its own.
 LOCATION_TITLE_TEXT = ""
 
+# Attributes merged over the captured <text-style>. Unlike the generator's uid,
+# every key here is a declared FCPXML attribute — the 1.10 DTD lists font,
+# fontSize, fontFace, fontColor, backgroundColor, bold, italic, strokeColor,
+# strokeWidth, baseline, shadowColor, shadowOffset, shadowBlurRadius, kerning,
+# alignment, lineSpacing, tabStops, baselineOffset, underline — so this is
+# ordinary authoring rather than the guess-a-uid trap.
+#
+# Colours are "r g b a", 0..1. strokeWidth is in points; Final Cut treats the
+# sign as inside/outside, and which way round is not something this code can
+# verify without a round trip, so flip it there if the outline sits wrong.
+LOCATION_TITLE_STYLE: dict[str, str] = {}
+
 # Fade the picture to black under the closing music fade. Length follows
 # MUSIC_FADE_SECONDS so the two land together.
 FADE_TO_BLACK = True

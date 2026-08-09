@@ -47,6 +47,7 @@ from .config import (
     EVENT_NAME,
     LOCATION_PIN,
     LOCATION_TITLE_TEXT,
+    LOCATION_TITLE_STYLE,
     LOCATION_PIN_SECONDS,
     LOCATION_PIN_START,
     ESCALATE_BODY_SPEED,
@@ -244,6 +245,17 @@ def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
 
     body = re.sub(r'offset="[^"]*"', f'offset="{_rational(offset_frames, fps)}"', body, count=1)
     body = re.sub(r'duration="[^"]*"', f'duration="{_rational(dur_frames, fps)}"', body, count=1)
+
+    if LOCATION_TITLE_STYLE:
+        def restyle(m):
+            attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+            attrs.update({k: str(v) for k, v in LOCATION_TITLE_STYLE.items()})
+            return "<text-style " + " ".join(
+                f'{k}="{escape(v, {chr(34): "&quot;"})}"' for k, v in attrs.items()) + "/>"
+        # Only the definition carries styling; the <text-style ref="ts1"> inside
+        # <text> is a reference and holds the words, so it must not be touched.
+        body = re.sub(r"<text-style ((?:(?!ref=)[^>])*?)/>", restyle, body, count=1)
+
     return {"effect": effect, "clip": body}
 
 
