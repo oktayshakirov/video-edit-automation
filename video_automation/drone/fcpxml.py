@@ -423,26 +423,37 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         })
 
     pin = title = None
+    pin_host = 0
     if LOCATION_PIN:
-        pin_off = int(round(LOCATION_PIN_START * fps))
+        at = int(round(LOCATION_PIN_START * fps))
         pin_dur = int(round(LOCATION_PIN_SECONDS * fps))
-        # The pin is a connected clip, so it has to live inside a spine clip
-        # that actually spans it; anchoring it past the first shot's outgoing
-        # cut would put it on a clip that is no longer on screen.
-        if pin_off + pin_dur > cuts[0].duration:
-            pin_dur = max(cuts[0].duration - pin_off, 0)
+        # A connected clip has to live inside a spine clip that spans it, so the
+        # pin is anchored to whichever shot is on screen when it starts — not to
+        # the first one. With a burst opening the first shot can be under two
+        # seconds, and assuming clip #1 silently truncated the overlay to fit.
+        pin_host = max((j for j, c in enumerate(cuts) if c.timeline_start <= at),
+                       default=0)
+        host, hentry = cuts[pin_host], rendered_cuts[pin_host]
+        hbase = 0 if hentry["timemap"] else host.source_start
+        pin_off = hbase + at - host.timeline_start
+        room = host.duration - (at - host.timeline_start)
+        if pin_dur > room:
+            print(f"  note: the shot under the pin is {host.duration/fps:.1f}s and "
+                  f"the pin needs {pin_dur/fps:.1f}s from {LOCATION_PIN_START:.1f}s "
+                  f"— trimming the overlay to {max(room, 0)/fps:.1f}s")
+            pin_dur = max(room, 0)
         if pin_dur > 0:
             pin = _location_pin(
-                base + pin_off, pin_dur, fps,
+                pin_off, pin_dur, fps,
                 asset_id=f"r{len(assets) + 2}", format_id=f"r{len(assets) + 3}",
                 effect_id=f"r{len(assets) + 4}")
         if pin is None:
             print("  note: LOCATION_PIN is on but the overlay could not be "
-                  "placed — check assets/ and the opening shot's length")
+                  "placed — check assets/ and the shot it lands on")
         elif LOCATION_TITLE_TEXT:
             # The title rides the pin's window so the two appear and leave
             # together; it sits on lane 2, above the pin's lane 1.
-            title = _location_title(LOCATION_TITLE_TEXT, base + pin_off, pin_dur,
+            title = _location_title(LOCATION_TITLE_TEXT, pin_off, pin_dur,
                                     fps, effect_id=f"r{len(assets) + 5}")
 
     seq_frames = video_end
@@ -458,6 +469,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         sfx_assets=sfx_assets,
         pin=pin,
         title=title,
+        pin_host=pin_host,
         cuts=rendered_cuts,
         sequence_duration=_rational(seq_frames, fps),
         project_name=project_name,
