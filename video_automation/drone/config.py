@@ -182,6 +182,22 @@ ESCALATE_TAIL_SECONDS = 1.0    # length of the launch, in timeline seconds
 ESCALATE_TAIL_SPEED = 20.0     # 2000% at the very last frame
 RAMP_POINTS = 9                # linear segments approximating the curve
 
+# Sustained playback speed must be a whole multiple of real time.
+#
+# At 100% every source frame maps to one timeline frame and at 200% every
+# second one does; both are exact. 160% needs 1.6 source frames per timeline
+# frame, so the engine repeats and drops frames on an uneven 5-frame cycle and
+# the shot visibly stutters. This is not a rendering setting that can be tuned
+# away — it is the frame arithmetic, and it was confirmed on Coast 1, which
+# read smooth at 100% and 200% and laggy at 160%.
+#
+# fit_escalate used to walk body speed down in 0.1 steps looking for the
+# fastest profile the footage could fund, which is exactly how 160% and 150%
+# got into the last cut. It now steps whole multiples only. A ramp's *tail*
+# still sweeps continuously, which is fine: judder needs a sustained speed to
+# be visible, and the tail is a one-second accelerating whip.
+INTEGER_SPEEDS_ONLY = True
+
 # Slot start bars that receive an escalate, set per project.
 #
 # Deliberately explicit rather than scored. When an escalate competed for slots
