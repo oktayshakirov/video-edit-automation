@@ -42,6 +42,10 @@ class Brand:
     mascot: Path | None = None    # a face that does not, and needs the wordmark
     mascot_crop: float = 1.0      # fraction of the asset's height to keep
     wordmark: str | None = None
+    mark_scale: float = 1.0       # against the frame's `logo_w`. A tall
+                                  # mascot-over-domain lockup needs to be
+                                  # narrower than a wide wordmark to take
+                                  # up the same amount of frame.
 
     def mark(self, width: int) -> Image.Image | None:
         """The watermark, at `width` px, or None if its asset is missing.
@@ -115,6 +119,7 @@ TINNITUS = Brand(
     mascot=Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png",
     mascot_crop=0.82,
     wordmark="TinnitusHelp.me",
+    mark_scale=0.62,
 )
 
 BRANDS = {b.name: b for b in (CRYPTO, TINNITUS)}

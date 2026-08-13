@@ -1,6 +1,6 @@
 ---
 name: video-tinnitus-long
-description: Make long-form 16:9 YouTube videos from tinnitushelp.me articles — 2-4 minute explainers with voiceover, drawn data beats, chapters, an SRT and a thumbnail. Use when the user runs /video-tinnitus-long, asks for a long or full-length tinnitus video, wants a post from tinnitushelp.me turned into a YouTube video, or wants to embed a video on a tinnitus post. For vertical Shorts or ASMR sound-therapy pieces use video-tinnitus-short instead.
+description: Make long-form 16:9 YouTube videos for tinnitushelp.me — either an article explainer from a post, or a sound-therapy session with a generated noise bed and a breathing ring. Use when the user runs /video-tinnitus-long, asks for a long or full-length tinnitus video, wants a post from tinnitushelp.me turned into a YouTube video, or wants a long sound therapy / masking / notched-audio video. For vertical Shorts use video-tinnitus-short instead.
 ---
 
 # Tinnitus Help — long form
@@ -12,76 +12,173 @@ Renders go to the Desktop.
 which documents ten released sound albums. **There is also an app**,
 `~/Coding/tinnitus-app`.
 
-**Read `docs/long-form-strategy.md` first**, then the crypto long-form skill —
-the engine, the beats and the rules paid for in blood are shared and are
-documented there rather than repeated here. This file is only what differs.
+## Ask which one first
 
-## Status
+**This skill makes two different videos and they share almost nothing but the
+brand.** Always establish which before doing anything else:
 
-**The engine is built and the format is not.** `video_automation/longform/`
-works and `TINNITUS` is a registered `Brand` whose mascot lockup renders. No
-tinnitus long-form video has been made yet, so nothing below about pacing or
-retention has been tested on this audience. The first cut should follow
-`projects/crypto-long/satoshi-proof.py` closely and diverge only where this
-section says to.
+| | **article** | **sound therapy** |
+|---|---|---|
+| what it is | a post explained | a session to leave running |
+| runtime | 2:30–4:00 | 10–60 minutes |
+| voice | **`mia`** | **`luna-calm`**, intro only |
+| module | `longform/build.py` | `longform/asmr.py` |
+| example | `projects/tinnitus-long/does-tinnitus-go-away.py` | see below |
 
-## What is different here
+If the user has not said, ask. Do not guess from the topic — "brown noise vs
+white noise" is a legitimate article *and* a legitimate session.
 
-**The picture library is thinner and smaller.** 108 images, median **750px**
-wide, 2–3 per post against crypto's 3–5. Two consequences:
+---
 
-- **Lean harder on drawn beats than the crypto videos do.** They are already the
-  majority of the runtime there; here they should be more.
-- **The picture column is doing real work.** A 750px source in the 660px column
-  is a downscale; the same image full-frame at 1920 is a 2.6x upscale the
-  ceiling will refuse. Prefer beats with `picture=` over full-frame photos.
+# Mode 1 — article videos
 
-**There is a procedural backdrop nobody else has.** `tinnitus/asmr.py`'s
-`nebula_canvas` generates infinite on-brand picture with no licence question, in
-the app's own palette. It is not wired into the long-form beats yet and it is
-the obvious first extension — it would remove the image shortage entirely.
+**Read `.claude/skills/video-crypto-long/SKILL.md` first.** It is the same
+engine and the same rules: the narrative arc, the three-phase opening, second
+person, no burned captions, push transitions, unnumbered question cards, the
+checklist's two timing modes, scene holds, screened stock, the thumbnail layout.
+None of that is repeated here. **This file is only what differs.**
 
-**Music should come from the brand's own albums.** The `zen/` section documents
-ten released sound albums. Using one as the bed is licensed by construction,
-on-brand, and doubles as a plug for the thing the channel is actually selling.
-Prefer that to the YouTube Audio Library here. It also sidesteps the
-repost-licensing edge the crypto skill has to carry.
+Built: `projects/tinnitus-long/does-tinnitus-go-away.py`.
 
-**Voice.** `luna-calm` (`af_nicole` 0.90, SOFT) is what the sound-therapy short
-is built on. Whether it is right for a three-minute explainer is untested —
-SOFT exists for ASMR and an explainer may want the ENERGETIC chain. Try
-`luna-calm` first, compare against `luna`, and settle it with `/youtube-audit`
-rather than by ear alone. **Neither is approved.**
+```bash
+PYTHONPATH=. .venv/bin/python projects/tinnitus-long/does-tinnitus-go-away.py
+```
 
-**Beat choice follows the content.** These posts are comparison-shaped and
-source-backed, which suits two beats especially:
+## What differs from crypto
 
-- **`compare`** — brown noise against white, silence against masking, one
-  therapy against another. The top-performing pages are largely comparisons.
-- **`quote`** — every post carries a `sources` frontmatter block with a title, a
-  publisher and a URL. Putting the publisher on screen is the cheapest
-  credibility signal available in a YMYL niche and the data is already written.
+**Voice is `mia`** — the same reader as the crypto long-form. The user's call.
+`luna-calm` is the sound-therapy voice and belongs to mode 2.
 
-Every post also carries an `faq` block, which is a `checklist` or a `compare`
-without anyone having to invent the content.
+**Music is `bright`**, not `pulse`. Warmer and less tense. This audience is
+frequently here *because* sound is a problem; the bed should not be one.
 
-## The conversion goal is different
+**The picture library is thin and small.** 105 images, only 27 reach 900px, and
+none exceed 1000px. At `max_upscale=1.90` a 900px source cannot fill 1920 — so
+**prefer beats with `picture=` over full-frame photos**, where the same source in
+the 660px column is a downscale. Fill the rest with screened stock; the article
+video uses six clips and eleven site images.
 
-**App install beats blog traffic**, and the tinnitus short skill already settles
-this. The watermark carries the domain, the site prompts for the install on
-arrival, so one legible URL does the work an end card was doing.
+**The watermark is a different shape and it moves the kickers.** thecrypto.wiki's
+mark is a wide 33px wordmark; this one is a mascot with the domain under it,
+159px tall at the same scale. Beat kickers derive their y from the mark's actual
+bottom (`_mark_bottom`) — at the old fixed y=214 the heading printed straight
+through the wordmark. `Brand.mark_scale` is 0.62 here for the same reason: a
+tall lockup at a wide wordmark's width dominates the frame.
 
-Put the app in `Meta.cta` and the article in `Meta.url` — the first two lines of
-the description are the only ones visible before the fold, and the article link
-lives there because it is what the video is *about*. The app goes below it.
+## The rule that outranks every production consideration
+
+**No medical claims. Ever.** This is YMYL health content and the site's own copy
+is careful; the video must be at least as careful.
+
+- Describe what the article says and no more. `does-tinnitus-go-away` says
+  temporary tinnitus often resolves, chronic tinnitus tied to hearing loss is
+  *unlikely to disappear on its own*, and there is **no treatment that reliably
+  removes it for everyone**. The script says exactly that.
+- Never promise relief, improvement, or a cure — not even softly, not even as
+  "this can help". Say what a thing *is* ("sound therapy makes it less
+  noticeable"), never what it will do for the viewer.
+- **Route to a professional**, and put the red flags on screen: lasting more
+  than a few weeks, getting louder, one ear only, pulsing with the heartbeat,
+  with dizziness or hearing loss. Those come from the article; do not invent
+  additions.
+- Put the disclaimer in `Meta.credits` so it lands in the description.
+
+**Phonemes to avoid outright**: `ENT`, `CBT`, `TMJ`, `presbycusis`, `Meniere's`.
+Every one is an initialism espeak mangles or a word it guesses at. Say "an ear
+specialist", "talking therapy", "jaw problems", "certain inner-ear conditions" —
+which is what they mean to this audience anyway. `tinnitus` itself is safe.
+
+---
+
+# Mode 2 — sound-therapy sessions
+
+`video_automation/longform/asmr.py`.
+
+```python
+from video_automation.core import soundbed
+from video_automation.core.brand import TINNITUS
+from video_automation.longform.asmr import render_asmr_long
+
+made = render_asmr_long(out, work, brand=TINNITUS, minutes=20,
+                        bed=soundbed.Bed("pink", breathe=0.10, breathe_period=10.0),
+                        intro=INTRO)          # spoken by luna-calm
+```
+
+## The bed is generated, not recorded
+
+`core/soundbed.py` synthesizes white, pink, brown and green noise, with an
+optional notch. **The album tracks the short was built on are gone from disk**
+(like the Plovdiv footage), so this was going to be rebuilt regardless — but
+generating it is better on the merits:
+
+- **It removes the limitation the short skill records as unfixable.** Those two
+  tracks put ~87% of their energy below 200 Hz and 0.1% above 4 kHz, so a high
+  whistling tinnitus was never well covered — "a property of the tracks, not the
+  method". Measured on the generated beds: pink runs 41/20/17/9/13% across
+  <200 / 200–1k / 1k–4k / 4k–8k / >8k. White puts 67% above 8 kHz. The ceiling
+  is gone.
+- **Notched therapy is now possible** — the variant the short skill wanted and
+  could not build. `Bed(notch_hz=6000)` cuts 35 dB at 6 kHz while leaving
+  2 kHz untouched, measured. That is a real notch, not a dip; it is cascaded
+  twice because one biquad is only ~20 dB deep.
+- Any length, no loop seam, ours to license on every platform.
+
+**Run `soundbed.band_energy()` on anything new before writing copy about what it
+masks.** That is how the original limitation was found, and it is the only thing
+standing between a description and an overclaim.
+
+## The picture is a seamless loop — and everything must divide it
+
+A 40-minute video is 72,000 frames of Python compositing. Instead one loop is
+rendered and ffmpeg repeats it, so **render cost is fixed at the loop length**:
+a 2-minute test and a 40-minute session both cost about 70 seconds.
+
+That only works because the loop is genuinely seamless, which constrains every
+moving element:
+
+- The nebula drifts around a **closed circle**, period equal to the loop. A
+  linear drift cannot return.
+- **The breathing cycle must divide the loop** — 60s at a 10s breath is six
+  whole cycles. `render_loop` raises rather than shipping the jump.
+- **So must the watermark float**, so its period is derived from the loop, not
+  inherited from the short's 5.5s.
+
+Verified on a real render: mean frame difference **across the splice 1.038**
+versus **1.348 for a normal mid-loop step** — the seam is less of a change than
+an ordinary frame. Re-measure if any of the three periods change.
+
+**The audio is never looped.** Noise is generated to the exact length, so the
+one thing a listener would notice repeating never does. Loop what nobody watches
+closely; generate what they are listening to.
+
+## The intro
+
+Thirty seconds of `luna-calm` at the front, then nothing. A forty-minute noise
+file with no voice is indistinguishable from every other one on the platform;
+the intro is where the video says what the sound is, who it is from, and **how
+to set the level**. The bed sidechains under it and returns to full afterwards.
+
+`luna-calm` and not `mia`: SOFT chain, unhurried, no pitch shift. An explainer
+wants the reader who explains; this wants the one the listener settles under.
+
+## Copy for a session
+
+**The angle is partial masking**, straight out of
+`brown-noise-vs-white-noise-for-tinnitus.mdx`: set the sound *just below* your
+tinnitus so you can still faintly hear it. It is useful, counterintuitive, and
+it is the reason to pick this video over any other noise video. Burying the
+sound completely is what most people do and what the post argues against.
+
+Same medical rule as mode 1, and it bites harder here because a session looks
+like a treatment. It is a sound to listen to. Say that.
+
+---
 
 ## Do not
 
-- **Make medical claims.** YMYL. Describe partial masking and paced breathing as
-  things people do, never as treatment, and never imply a cure. This is the one
-  rule here that outranks every production consideration.
-- Write copy that oversells what a masking track can do above 4 kHz — the
-  measurement behind that limit is in the short skill and it has not changed.
-- Present the format as proven. No tinnitus long-form video exists yet.
-- Promote a candidate voice to approved without being told to.
-- Mass-produce. Same cap as crypto: see the strategy doc.
+- **Make medical claims, in either mode.** The one rule above all others.
+- Write copy that oversells what a bed masks without running `band_energy`.
+- Promote a candidate voice to approved. `mia` and `luna-calm` are both
+  candidates.
+- Present the app's zen albums as available — the audio files are not on disk.
+- Mass-produce. Same cap as crypto: see `docs/long-form-strategy.md`.
