@@ -1,180 +1,155 @@
-# Handoff — state as of 2026-08-09
+# Handoff — state as of 2026-08-13
 
-Written to close out a long session. Everything below is committed and pushed;
-nothing is in-flight.
+Written to close out the session that built long form. Everything below is
+committed and pushed; nothing is in flight.
 
 **Repo:** `~/Coding/video-edit-automation` → https://github.com/oktayshakirov/video-edit-automation
-Renamed and restructured from `drone-edit-automation`: the package is
-`video_automation`, with `core/`, `drone/`, `crypto/` and `tinnitus/` inside it,
-and drone projects live in `projects/drone/`.
 
-**Footage:** `~/Desktop/Nessebar` (14 graded selects, 3840×2160p30, ~5.1 min)
-and `~/Desktop/Plovdiv` (15 selects — **the folder is gone from disk**, so
-Plovdiv can be inspected in git but not rebuilt).
+Five skills, symlinked into `~/.claude/skills/` so they work from any folder.
+**Read the relevant SKILL.md first** — it carries the rules that were paid for,
+and this file deliberately does not repeat them.
 
-Two skills, symlinked into `~/.claude/skills/`, so they work from any folder:
-
-- **`/video-drone-long`** — long-form YouTube. Writes an FCPXML timeline. Never renders.
-- **`/video-drone-short`** — TikTok / Shorts. Renders finished vertical MP4s.
-
-Read the relevant SKILL.md first; it carries the rules that were paid for.
-
----
-
-## Where the long-form pipeline stands
-
-**Nessebar is finished.** Ship `nessebar-v6` — 31 cuts, 7.74 s mean shot, 82%
-footage used, one escalate, three seagull SFX, 4:00.03, DTD-valid.
-
-**Use the v6 tag, not v5.** The picture is identical; v6 adds the asset uid
-fixes, and without them Final Cut refuses the whole document.
-
-Plovdiv shipped earlier as *Europe's Oldest City From Above*, tags `plovdiv-v3`
-through `plovdiv-v7`. Its footage folder no longer exists, so those tags are
-history rather than something to rebuild.
-
-### The intro-burst experiment — built, parked, not rejected
-
-`projects/drone/nessebar-burst.toml` opens on six 1.6 s shots in the first
-9.7 s, then settles into the approved order from 0:25.67 unchanged. It works
-and validates; it was set aside only because Nessebar was already good.
-**Worth trying on the next video.** Two things learned building it:
-
-- The burst takes 1.6 s off the head of every clip it uses, so every later
-  slice of those clips shifts. It is not a free addition to an approved edit.
-- A clip with a `CLIP_SKIP_RANGES` exclusion may stop fitting its later slots
-  once the burst eats its head — Coast Above 3 had to be swapped out for
-  exactly this.
-
-### The one rule that matters most
-
-**The timeline is locked** (`projects/plovdiv.lock.toml`). The scorer is greedy —
-any change to weights or section boundaries re-lays the grid and reshuffles every
-clip after it. This was learned the hard way: three separate attempts to "swap
-one clip" reshuffled the whole running order, one of them silently changing the
-opening shot.
-
-With a lock present, **a request to swap or resize a shot is a direct edit to the
-lock file**, not a scoring change. Do not reach for `config.py` weights on a
-locked project.
-
-### What this footage needed that Plovdiv did not
-
-- **The tempo was wrong.** librosa reported 152.11 BPM for a 75.00 BPM track and
-  the least-squares fit made it look clean. The grid is now *searched* — scored
-  by how much onset energy lands on it — and the wrong grid loses by a factor of
-  280. Always check the printed grid score and the octave comparison.
-- **The track was shorter than the footage**, so it loops: hands off and
-  re-enters at phrase lines of matching energy, crossfading on separate lanes.
-- **Sustained speed must be a whole multiple.** 160% stutters; 100% and 200% are
-  exact. `fit_escalate` used to step 0.1 at a time and produced 160%.
-
-### Open items
-
-- **3:22 cut lands 1.07 s early.** The accent sits mid-bar (bar 80.42) and the
-  engine only cuts on bar lines. Needs slot lengths expressed in beats. This is
-  the single most valuable remaining long-form change — it would also make
-  off-phrase section boundaries far less destructive.
-- **The 1:00 escalate is capped at 160%→403%** rather than the intended
-  200%→2000%, because City 11 owes 22.5 s to its later locked slots. Freeing it
-  means dropping one of those slots, which moves the timeline.
-- **Colour pass unapplied.** Measured values are in `projects/plovdiv-colour.md`
-  — City Above +0.61 stops, Hill Tower +0.56 stops and saturation ×0.52, plus
-  small warm nudges on the four cool clips. Must be done by hand: FCPXML 1.10 has
-  no colour element.
-- **Slice selection is sequential**, so the back half of long takes is only
-  reached through reuse. Spreading slices across each clip's full length is the
-  obvious next improvement.
+| skill | what it makes |
+|---|---|
+| `/video-drone-long` | 4K YouTube films. Writes an FCPXML timeline. Never renders. |
+| `/video-drone-short` | TikTok / Shorts from drone footage. |
+| `/video-crypto-short` | 9:16 shorts from thecrypto.wiki. |
+| `/video-tinnitus-short` | 9:16 shorts and ASMR for tinnitushelp.me. |
+| **`/video-crypto-long`** | **16:9 YouTube explainers from thecrypto.wiki.** |
+| **`/video-tinnitus-long`** | **16:9 explainers *and* sound-therapy sessions.** |
 
 ---
 
-## Where the short-form work stands
+## What was built
 
-**First narrated short approved** — City 1, "ordinary tuesday", 11.05s. Still
-unposted, so there is no platform data on the format yet. Parameters are in
-`CHANGELOG.md`; the reasoning is in the skill.
+A long-form 16:9 format shared by both sites, in `video_automation/longform/`.
+The strategy — why it exists, what the SEO claim is actually worth, and which
+post to do next — is `docs/long-form-strategy.md`. Read that before picking a
+topic; it caps the whole programme at 15–20 videos and says why.
 
-Built and committed:
+The engine became frame- and brand-agnostic to get here:
 
-- `vertical.py` — 9:16 crop placement (2D interest search plus per-clip zoom),
-  two text treatments (halo card, stroked caption)
-- `voiceover.py` — Kokoro / edge-tts / say backends, and two caption-sync modes
+- `core/frame.py` — `VERTICAL` / `LANDSCAPE`. Geometry, safe box, upscale
+  ceiling. **The shipped vertical shorts render byte-identical through all of
+  it**, verified against a pre-refactor baseline.
+- `core/brand.py` — palette and watermark per site.
+- `core/draw.py` — drawing primitives, lifted out of `crypto/shots.py`.
+- `core/music.py` — synthesized music beds. `pulse` is the crypto default.
+- `core/soundbed.py` — synthesized therapy noise, with notching.
+- `core/stock.py` — Pexels photos and video, on the `publish-content` key.
+- `longform/` — `plan`, `beats`, `clip`, `overlay`, `audio`, `meta`, `thumb`,
+  `build`, `asmr`.
 
-### Settled by testing
-
-- **Two text templates.** Silent quote card: SF Rounded Semibold 46px at 40%,
-  soft glyph halo, ink from background luminance. Narrated captions: Futura
-  Medium 44px, white with a solid black stroke, `y_frac` placed per frame.
-  Serif faces lose to the stroke — Baskerville and Didot both went muddy.
-- **Crop needs a 2D search** — scoring columns alone put ~60% of the frame on
-  empty sky. But **`pick_crop` still cannot be trusted unchecked**: it dropped
-  the monument on Hills Monument and the sun on City 1, both times preferring
-  busy rooftop texture. Render a still and look.
-- **Voice: a blend, `am_onyx` 0.60 + `am_puck` 0.40**, via Kokoro. `am_onyx` won
-  on character over five alternatives but is graded D on 10-100 minutes of data;
-  `am_puck` is C+ with hours, and the blend won over straight onyx and eight
-  other mixes. Voices are style tensors, so blending is a weighted sum — but
-  Kokoro cannot clone a new voice, as no training code has been released. The
-  melancholic filter chain is approved; the pitch-down and echo tail sell it.
-- **Speak whole sentences, align captions inside them.** Per-phrase synthesis
-  gives exact sync but robotic delivery, because the engine sees each fragment
-  without context. DTW alignment against throwaway solo renders recovers the
-  boundaries to ~0.19s, with no aligner model.
-- **A natural read is roughly half the length** of a chunked one — the same
-  script went 20.4s → 11.1s once the inter-phrase silence was gone.
-
-### Explicitly not settled
-
-- **The motivational treatment was rejected** — sample 1 was not what was wanted.
-  Needs another pass.
-- **Kokoro has no emotion parameter.** Mood is script construction plus pace plus
-  post-processing. Do not describe it as the model performing an emotion.
-- **Length.** The old 10–19 s retention curve is real but drawn from silent
-  scenery clips predating this format. Working rule is **under 30 seconds**,
-  report the runtime, and revisit once the new format has its own numbers.
-
-### Next step agreed
-
-Plan the short-form videos properly. The strategy document is
-`docs/short-form-strategy.md` — nine concepts mapped to specific clips, plus the
-channel analysis behind them. The headline finding: **angle beats scenery by
-24×** on this channel (a joke about German train delays did 2,075 views; "Golden
-Hour Drone Footage" did 85).
+Six drawn beats (`chapter`, `checklist`, `stat`, `compare`, `quote`, `bars`),
+video clips, an end-screen sting, a generated bed, SRT, chapters, a description
+sidecar and a thumbnail. Everything is generated or screened; nothing needs a
+licence chased.
 
 ---
 
-## Hard-won FCPXML knowledge — do not rediscover
+## The two videos, and what is left to do on them
 
-- **A clip with a `<timeMap>` must have `start="0s"`.** Its in-point lives in the
-  first `timept value`. Setting both makes Final Cut report *"Invalid edit with
-  no respective media"* and silently drop the clip. Cost two failed imports.
-- **`xmllint` against the bundled FCP DTD** catches element-order errors before
-  import. The DTD lives inside `Final Cut Pro.app`, whose path contains spaces,
-  so it is staged to a space-free temp path first — pointing xmllint at the
-  bundle directly fails with a misleading "Could not parse DTD".
-- **FCPXML has no colour or keying element.** The whole `adjust-*` set is crop,
-  transform, blend, stabilisation, volume. Anything else needs `<filter-video>`
-  plus an `<effect uid>` that is an FCP-internal identifier. **Never guess a
-  UID.** Capture it: have the user apply the effect to one clip, `File ▸ Export
-  XML`, and read the structure out. That is how the green-screen keyer in
-  `assets/fcpxml/location-pin-overlay.xml` was obtained.
-- **Never slower than 1.0×.** Slow motion reads as a mistake on this footage;
-  the validator fails the build if any timeMap segment drops below real time.
+Both are **uploaded, unlisted, with title/description/tags applied** via
+`/youtube-audit`. Neither is public.
 
-## Assets
+| | crypto | tinnitus |
+|---|---|---|
+| id | `Sbxrw7ZFI9o` | `RR_qU3FA0OY` |
+| title | The One Test That Settles Every Satoshi Nakamoto Claim | Does Tinnitus Go Away? Temporary vs Chronic Explained |
+| runtime | 2:47 | 2:40 |
+| tag | `satoshi-long-v1` | — |
 
-`assets/` holds the location pin used on every video, committed deliberately
-despite being third-party stock (the repo is public — flagged in
-`assets/README.md`). The red pin is source **9.833–14.867 s** of the pack; that
-value came from a real FCPXML export and is **not** guessable, since by hue the
-red pin measures ~345° and classifies as pink.
+**Three things must be done by hand in Studio**, because the audit tool's scopes
+are deliberately limited to title/description/tags and must not be widened:
+
+1. **Visibility → Public.**
+2. **Upload the thumbnail** — `~/Desktop/*-thumb.jpg` for each.
+3. **Upload the SRT** (Subtitles → Add → With timing). The user has already done
+   this for the tinnitus one.
+
+Note the CLI flags both as `short-length` — under three minutes. They are not
+Shorts (16:9 landscape), but it is a real variable and the strategy doc targets
+2:30–4:00 partly on that basis.
+
+---
+
+## Next: the Michael Saylor long form
+
+**This is the agreed next task.** `/video-crypto-long`, from
+`crypto-wiki/content/crypto-ogs/michael-saylor.mdx` (1,379 words).
+
+Everything needed is already on disk:
+
+- **The short exists and is public** — `fvqxbVLa6Mg`, "The Man Who Owns 4% of
+  All Bitcoin | Michael Saylor", 1:02, 31 views. Its script is
+  `projects/crypto/michael-saylor.py`.
+- **The portraits exist** — `assets/crypto/michael-saylor/`, four Wikimedia
+  Commons photographs at 2000–8000px, the only images in the format that never
+  upscale.
+
+Three things to get right, in order of how badly they bite:
+
+**The long version must not be the short again.** The short covers the treasury
+bet and what the company became. Three minutes has room for what it dropped —
+the financing mechanics (debt offerings and share sales funding coin purchases),
+the renaming to Strategy, and the honest bear case. Same rule the Satoshi
+long-form followed, and the reason it works.
+
+**Attribution is mandatory and it is in `assets/crypto/michael-saylor/CREDITS.md`.**
+Two of the four photographs are CC BY-SA, which makes the video a derivative
+work. The block goes in the description of anything published. `Meta.credits`
+exists for exactly this.
+
+**No financial advice, and this topic invites it.** A piece about a man who bet
+a company on one asset is one sentence away from sounding like a recommendation.
+Report what the company did and what it cost; route to the article. The Satoshi
+script's closing pattern — a question, not a verdict — is the safe shape.
+
+The demand ranking in the strategy doc has better-trafficked candidates
+(`how-to-build-a-mining-rig` at 1510 views, `understanding-crypto-exchanges` at
+1038). Saylor is the user's pick, not the data's; worth saying once and then
+building it.
+
+---
+
+## What is unverified, and should be said rather than assumed
+
+- **Nobody has heard the audio.** Every mix decision this session was made on
+  measurements — bed at −25 dB under speech at −18, voice ~9.5 dB over the bed,
+  hiss at 0.006% above 4 kHz. The numbers say the mix is right; they cannot say
+  it sounds good.
+- **No retention data exists for either channel.** Both are new and Shorts-only
+  so far. `/youtube-audit` suppresses baselines below five videos for exactly
+  this reason. Do not rank or declare winners.
+- **`max_upscale=1.90` and the landscape safe box are still `GUESS`** in
+  `core/frame.py`. They want checking full-screen against a real upload.
+- **`mia` and `luna-calm` are candidates, not approved voices.**
+- **The thumbnail scorer prints a warning on both current thumbnails** (+0.91
+  crypto, +0.01 tinnitus). Both were overridden deliberately — the crypto type
+  sits on soft dark foliage — but it is an override, not a pass.
+
+## Still unbuilt
+
+- **Phase 4: the site embeds.** MDX component plus `VideoObject` schema on both
+  repos, with a facade embed and a locally served WebP poster. Deliberately
+  parked until the videos have ~30 days of data — the embed is easier to justify
+  once you know whether anyone watches past 30 seconds.
+- **Upload.** `/youtube-audit` can edit metadata but must never gain upload or
+  delete scopes.
+- **Vertical layouts for the drawn beats.** Only `checklist` has one, so
+  long-form cannot yet spawn vertical extracts for TikTok and Reels. Sized as
+  comparable to Phase 2 if it is ever wanted; the reasoning is in the answer to
+  "should I cross-post this".
 
 ## Working agreements
 
 - **Change one thing per round.** A batch containing one bad change takes the
-  good ones down with it — this happened repeatedly.
-- **Diff before presenting.** If a change moved clip positions, say so. Never
-  present a reshuffled edit as though only the requested thing changed.
-- **Say when something is a guess.** `config.py` marks unvalidated values `GUESS`.
-- Commit and tag when the user says an edit is good; add a row to `CHANGELOG.md`
-  with the metrics from the build output.
+  good ones down with it.
+- **Look at the frames.** Every real fault this session — the ghosted
+  transitions, the graph-paper grid, the counting year, the video judder, the
+  thumbnail overlap — was invisible in the logs and obvious in a frame.
+- **Measure before writing copy about it.** `soundbed.band_energy`,
+  `stock.screen`, `thumb._layout` all exist because an eyeball got it wrong once.
+- **Say when something is a guess.** `GUESS` in `core/frame.py`, and this file.
+- Commit and tag when the user says a cut is good; add a `CHANGELOG.md` row with
+  the metrics from the build output.
