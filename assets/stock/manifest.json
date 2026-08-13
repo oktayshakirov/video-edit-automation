@@ -1,0 +1,221 @@
+{
+  "note": "Pexels licence: free for commercial use, no attribution required. The media itself is gitignored (see .gitignore) except the end-screen sting; re-fetch by id from the URLs below.",
+  "assets": [
+    {
+      "id": "10325707",
+      "kind": "photo",
+      "query": "abstract dark technology network",
+      "path": "photos/abstract-dark-technology-network/10325707.jpg",
+      "bytes": 26198302,
+      "source": "https://www.pexels.com/photo/10325707/"
+    },
+    {
+      "id": "17072947",
+      "kind": "photo",
+      "query": "abstract dark technology network",
+      "path": "photos/abstract-dark-technology-network/17072947.jpg",
+      "bytes": 2112688,
+      "source": "https://www.pexels.com/photo/17072947/"
+    },
+    {
+      "id": "15690300",
+      "kind": "video",
+      "query": "abstract dark waves motion",
+      "path": "videos/abstract-dark-waves-motion/15690300.mp4",
+      "bytes": 6835050,
+      "source": "https://www.pexels.com/video/15690300/"
+    },
+    {
+      "id": "27980029",
+      "kind": "video",
+      "query": "abstract dark waves motion",
+      "path": "videos/abstract-dark-waves-motion/27980029.mp4",
+      "bytes": 16240806,
+      "source": "https://www.pexels.com/video/27980029/"
+    },
+    {
+      "id": "34645116",
+      "kind": "video",
+      "query": "abstract dark waves motion",
+      "path": "videos/abstract-dark-waves-motion/34645116.mp4",
+      "bytes": 7071322,
+      "source": "https://www.pexels.com/video/34645116/"
+    },
+    {
+      "id": "8369979",
+      "kind": "video",
+      "query": "bitcoin blockchain abstract",
+      "path": "videos/bitcoin-blockchain-abstract/8369979.mp4",
+      "bytes": 4397929,
+      "source": "https://www.pexels.com/video/8369979/"
+    },
+    {
+      "id": "8370054",
+      "kind": "video",
+      "query": "bitcoin blockchain abstract",
+      "path": "videos/bitcoin-blockchain-abstract/8370054.mp4",
+      "bytes": 8908677,
+      "source": "https://www.pexels.com/video/8370054/"
+    },
+    {
+      "id": "6208729",
+      "kind": "video",
+      "query": "circuit board macro dark",
+      "path": "videos/circuit-board-macro-dark/6208729.mp4",
+      "bytes": 9366414,
+      "source": "https://www.pexels.com/video/6208729/"
+    },
+    {
+      "id": "6754824",
+      "kind": "video",
+      "query": "circuit board macro dark",
+      "path": "videos/circuit-board-macro-dark/6754824.mp4",
+      "bytes": 7397061,
+      "source": "https://www.pexels.com/video/6754824/"
+    },
+    {
+      "id": "6755170",
+      "kind": "video",
+      "query": "circuit board macro dark",
+      "path": "videos/circuit-board-macro-dark/6755170.mp4",
+      "bytes": 5771830,
+      "source": "https://www.pexels.com/video/6755170/"
+    },
+    {
+      "id": "14003933",
+      "kind": "video",
+      "query": "cryptography code screen",
+      "path": "videos/cryptography-code-screen/14003933.mp4",
+      "bytes": 6118369,
+      "source": "https://www.pexels.com/video/14003933/"
+    },
+    {
+      "id": "30163656",
+      "kind": "video",
+      "query": "cryptography code screen",
+      "path": "videos/cryptography-code-screen/30163656.mp4",
+      "bytes": 7893934,
+      "source": "https://www.pexels.com/video/30163656/"
+    },
+    {
+      "id": "29352532",
+      "kind": "video",
+      "query": "dark abstract digital particles",
+      "path": "videos/dark-abstract-digital-particles/29352532.mp4",
+      "bytes": 13608709,
+      "source": "https://www.pexels.com/video/29352532/"
+    },
+    {
+      "id": "35284293",
+      "kind": "video",
+      "query": "dark abstract digital particles",
+      "path": "videos/dark-abstract-digital-particles/35284293.mp4",
+      "bytes": 24611380,
+      "source": "https://www.pexels.com/video/35284293/"
+    },
+    {
+      "id": "36703282",
+      "kind": "video",
+      "query": "dark abstract digital particles",
+      "path": "videos/dark-abstract-digital-particles/36703282.mp4",
+      "bytes": 10181294,
+      "source": "https://www.pexels.com/video/36703282/"
+    },
+    {
+      "id": "19808379",
+      "kind": "video",
+      "query": "digital code stream dark",
+      "path": "videos/digital-code-stream-dark/19808379.mp4",
+      "bytes": 7525100,
+      "source": "https://www.pexels.com/video/19808379/"
+    },
+    {
+      "id": "32522782",
+      "kind": "video",
+      "query": "digital code stream dark",
+      "path": "videos/digital-code-stream-dark/32522782.mp4",
+      "bytes": 7258422,
+      "source": "https://www.pexels.com/video/32522782/"
+    },
+    {
+      "id": "34127877",
+      "kind": "video",
+      "query": "digital code stream dark",
+      "path": "videos/digital-code-stream-dark/34127877.mp4",
+      "bytes": 29435579,
+      "source": "https://www.pexels.com/video/34127877/"
+    },
+    {
+      "id": "31359793",
+      "kind": "video",
+      "query": "encryption data security abstract",
+      "path": "videos/encryption-data-security-abstract/31359793.mp4",
+      "bytes": 15399890,
+      "source": "https://www.pexels.com/video/31359793/"
+    },
+    {
+      "id": "31360005",
+      "kind": "video",
+      "query": "encryption data security abstract",
+      "path": "videos/encryption-data-security-abstract/31360005.mp4",
+      "bytes": 13363759,
+      "source": "https://www.pexels.com/video/31360005/"
+    },
+    {
+      "id": "33503696",
+      "kind": "video",
+      "query": "encryption data security abstract",
+      "path": "videos/encryption-data-security-abstract/33503696.mp4",
+      "bytes": 22269228,
+      "source": "https://www.pexels.com/video/33503696/"
+    },
+    {
+      "id": "1085656",
+      "kind": "video",
+      "query": "server racks blue light dark",
+      "path": "videos/server-racks-blue-light-dark/1085656.mp4",
+      "bytes": 15361903,
+      "source": "https://www.pexels.com/video/1085656/"
+    },
+    {
+      "id": "7140928",
+      "kind": "video",
+      "query": "server racks blue light dark",
+      "path": "videos/server-racks-blue-light-dark/7140928.mp4",
+      "bytes": 6448036,
+      "source": "https://www.pexels.com/video/7140928/"
+    },
+    {
+      "id": "7140931",
+      "kind": "video",
+      "query": "server racks blue light dark",
+      "path": "videos/server-racks-blue-light-dark/7140931.mp4",
+      "bytes": 3293811,
+      "source": "https://www.pexels.com/video/7140931/"
+    },
+    {
+      "id": "7140928",
+      "kind": "video",
+      "query": "server room data center",
+      "path": "videos/server-room-data-center/7140928.mp4",
+      "bytes": 6448036,
+      "source": "https://www.pexels.com/video/7140928/"
+    },
+    {
+      "id": "4928934",
+      "kind": "video",
+      "query": "subscribe",
+      "path": "videos/subscribe/4928934.mp4",
+      "bytes": 419905,
+      "source": "https://www.pexels.com/video/4928934/"
+    },
+    {
+      "id": "8212370",
+      "kind": "video",
+      "query": "typing keyboard night",
+      "path": "videos/typing-keyboard-night/8212370.mp4",
+      "bytes": 4247608,
+      "source": "https://www.pexels.com/video/8212370/"
+    }
+  ]
+}

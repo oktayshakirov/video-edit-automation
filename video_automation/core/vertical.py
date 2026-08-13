@@ -25,7 +25,14 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-OUT_W, OUT_H = 1080, 1920
+from .frame import VERTICAL, Frame
+
+# Kept as module constants, because most of what lives below is vertical by
+# definition — the 4K native crop, and the ffmpeg burn-in chains over in
+# `voiceover.py` — and threading a frame through those would be ceremony around
+# a value that cannot vary. One source of truth all the same: they *are* the
+# vertical frame's size, so there is nowhere for the two to drift apart.
+OUT_W, OUT_H = VERTICAL.size
 # SF Rounded is the closest system face to what the silent quote-card genre uses.
 FONT_ROUNDED = "/System/Library/Fonts/SFNSRounded.ttf"
 # Futura Medium — the caption face for narrated shorts, chosen on real frames
@@ -169,7 +176,8 @@ def _load_font(path: str, size: int, index: int = 0):
 def render_text_png(text: str, out: Path, size: int = 46,
                     bg_luma: float = 0.5, font_path: str = FONT_ROUNDED,
                     font_index: int = 0, y_frac: float = 0.40,
-                    stroke: int = 0, max_w: int = TEXT_MAX_W) -> Path:
+                    stroke: int = 0, max_w: int = TEXT_MAX_W,
+                    frame: Frame = VERTICAL) -> Path:
     """Quote card in the style the genre actually uses.
 
     Deliberately unlike a lower-third: small type, no scrim or box.
@@ -195,15 +203,15 @@ def render_text_png(text: str, out: Path, size: int = 46,
     lines = _wrap(probe, text, font, max_w)
     line_h = int(size * 1.34)
     block_h = line_h * len(lines)
-    top = int(OUT_H * y_frac) - block_h // 2
+    top = int(frame.h * y_frac) - block_h // 2
 
     if stroke:
-        img = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+        img = Image.new("RGBA", frame.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         y = top
         for ln in lines:
             w = d.textlength(ln, font=font)
-            d.text(((OUT_W - w) / 2, y), ln, font=font, fill=(255, 255, 255, 255),
+            d.text(((frame.w - w) / 2, y), ln, font=font, fill=(255, 255, 255, 255),
                    stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
             y += line_h
         img.save(out)
@@ -213,25 +221,25 @@ def render_text_png(text: str, out: Path, size: int = 46,
     ink = (18, 18, 18, 255) if dark_text else (255, 255, 255, 255)
     halo = (255, 255, 255, 128) if dark_text else (0, 0, 0, 150)
 
-    layer = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+    layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     y = top
     for ln in lines:
         w = d.textlength(ln, font=font)
-        d.text(((OUT_W - w) / 2, y), ln, font=font, fill=ink)
+        d.text(((frame.w - w) / 2, y), ln, font=font, fill=ink)
         y += line_h
 
     # Soft halo from the glyphs themselves — reads as depth, not as a box.
-    shadow = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+    shadow = Image.new("RGBA", frame.size, (0, 0, 0, 0))
     sd = ImageDraw.Draw(shadow)
     y = top
     for ln in lines:
         w = sd.textlength(ln, font=font)
-        sd.text(((OUT_W - w) / 2, y + 2), ln, font=font, fill=halo)
+        sd.text(((frame.w - w) / 2, y + 2), ln, font=font, fill=halo)
         y += line_h
     shadow = shadow.filter(ImageFilter.GaussianBlur(7))
 
-    img = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+    img = Image.new("RGBA", frame.size, (0, 0, 0, 0))
     img.alpha_composite(shadow)
     img.alpha_composite(layer)
     img.save(out)
@@ -270,7 +278,7 @@ EMOJI_STRIKE = 160
 
 def add_caption_emoji(png: Path, text: str, char: str, size: int,
                       y_frac: float, font_path: str, font_index: int,
-                      gap: int = 16) -> None:
+                      gap: int = 16, frame: Frame = VERTICAL) -> None:
     """Set an emoji after a caption, in place, keeping the pair centred.
 
     Done as a second pass over the finished PNG rather than inside
@@ -301,7 +309,7 @@ def add_caption_emoji(png: Path, text: str, char: str, size: int,
     shifted.paste(layer, (-dx, 0))
 
     line_h = int(size * 1.34)
-    top = int(OUT_H * y_frac) - line_h // 2
+    top = int(frame.h * y_frac) - line_h // 2
     shifted.alpha_composite(
-        emoji, (int((OUT_W - tw) / 2 - dx + tw + gap), top + (line_h - h) // 2))
+        emoji, (int((frame.w - tw) / 2 - dx + tw + gap), top + (line_h - h) // 2))
     shifted.save(png)

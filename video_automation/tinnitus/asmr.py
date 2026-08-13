@@ -40,6 +40,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from ..core.frame import VERTICAL
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, OUT_H, OUT_W,
                              add_caption_emoji)
 
@@ -196,7 +197,7 @@ MASCOT = Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png"
 # 1080x1920. All three stack buttons down the right edge and text along the
 # bottom; the top band carries tabs on TikTok and the Reels label on Instagram.
 # Anything persistent has to live inside this box.
-SAFE_TOP, SAFE_BOTTOM = 230, 1440
+SAFE_TOP, SAFE_BOTTOM = VERTICAL.safe_top, VERTICAL.safe_bottom
 
 
 def _mascot(height: int, opacity: int) -> Image.Image | None:
