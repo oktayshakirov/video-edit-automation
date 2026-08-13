@@ -36,6 +36,16 @@ licensed, already on brand, already attached to the post. **Do not reach for a
 stock API** — generic stock loops under an AI voice is exactly the pattern both
 platforms suppress, and the site's own library is better anyway.
 
+**The one exception is a short about a person.** The site's OG portraits are the
+smallest images it has and most are under the ~750px floor — Saylor's are 700x348
+and 500x472, so a piece about the man had no usable picture of him. Pull those
+from **Wikimedia Commons**, which is licensed, attributable, and where the
+photographs are 2000-8000px, i.e. the only images in the format that never
+upscale at all. `assets/crypto/<person>/` holds them with a `CREDITS.md`, and the
+CC BY-SA ones make the video a derivative work — **the attribution block goes in
+the description of anything published**. This is not a licence to reach for
+stock: it is a portrait of a named individual or it does not apply.
+
 **Structured data, which is where this scales:** every one of the 27 exchange
 files and 33 OG files carries `quickFacts` and `faqs` in frontmatter, and there
 are 26 exchange logos in `public/images/exchanges`. `ChecklistShot` already draws
@@ -74,11 +84,37 @@ past `MAX_UPSCALE = 1.45`.
 - **Dissolve between shots** (`XFADE = 0.45`), do not cut. The piece is one
   continuous argument; a hard cut every five seconds fights the voice.
 
-**`ChecklistShot` is the beat that earns the format.** A struck-through list that
-fills in on the voice, ending on the one item that is ticked. It shows the
-argument instead of illustrating it, which is the difference between this and
-stock-footage-with-narration.
+**`ChecklistShot` is the beat that earns the format.** A list that fills in on
+the voice and is then judged, ending on the one item that is ticked. It shows
+the argument instead of illustrating it, which is the difference between this
+and stock-footage-with-narration.
 
+- **A drawn beat carries no captions at all.** `build.py` suppresses them for
+  any shot with a `graphic`. The items *are* the type — larger, and in the
+  middle of the frame — so a caption underneath restated the exact line being
+  spoken at that moment: the same words twice, in two places, and neither one
+  where the eye should be. The voice still speaks them and the caption times
+  still drive `reveals`; only the burn goes. This is automatic, not something
+  the script has to remember.
+- **Two phases: options first, verdicts after.** The items appear unmarked as
+  they are spoken, so for a few seconds the list is a real open question; then,
+  in the pause after the last option, the marks land one at a time — cross,
+  cross, cross, tick. Marking each item as it arrived answered the question
+  before it had been asked and the beat had no payoff. The tick is held back to
+  **1.7 steps** after the last cross: a payoff needs the beat before it to be
+  longer than the beats between the things it settles.
+- **The pause is bought with a per-sentence `gap`.** `gap` accepts a list, one
+  per sentence; a checklist sentence takes ~2.0s against the usual 0.34 and the
+  verdicts land in that silence. Without it there is no room and `_mark_times`
+  compresses to nothing.
+- **Anchor mark times on the last option's caption `start`, never its `end`.** A
+  sentence's final caption is deliberately stretched to where the next sentence
+  begins, so its `end` *is* the end of the shot. The first build of this beat
+  anchored there, scheduled every mark past the last frame, and drew no verdicts
+  at all — a bug that is invisible unless you actually look at the frames.
+- **Marks and strikes draw on over ~0.16s**, and the marks are partial polylines
+  (`_partial`) rather than whole shapes appearing. At this size an instant
+  strike-through reads as a rendering glitch.
 - **Reveal on caption starts, not on even fractions of the shot.** `build.py`
   fills `reveals` from the sentence's own caption times. Even fractions look
   synced until you watch it, and then every item is a beat early or late. Write
@@ -92,7 +128,28 @@ stock-footage-with-narration.
   tried and was indistinguishable from black; `0.5` is the working value.
 - Marks are **drawn from line segments, not set as glyphs** — Futura has no ✓ or ✕
   and PIL renders both as tofu, which is invisible in review and obvious in the
-  frame.
+  frame. The happy accident is that a path can be drawn *partially*, which is
+  what makes the draw-on above possible at all.
+
+## Sound
+
+`core/sfx.py` **synthesizes** its effects rather than sourcing them. The drone
+project's SFX are hand-placed clips living inside a Final Cut bundle, which a
+headless render cannot depend on, and downloading a "free" UI click pulls in a
+licence question over 200ms of audio. Two numpy functions cost nothing, are ours
+to license, and are parameterised — `mark_cross` and `mark_tick` are the same
+instrument at different pitches, which is why they read as one system.
+
+- **The envelope is the whole character.** Instant attack, exponential decay,
+  a noise transient on the front. A decay short enough that it never competes
+  with a syllable is the difference between software and cartoon.
+- **`gain` is against the narration's own peak**, not full scale. A fixed
+  absolute level is inaudible under one voice profile and slapping over another;
+  `0.22` is the working value. The mix ceilings rather than clips, because a
+  mark landing on a stressed syllable will otherwise distort on exactly the beat
+  meant to be satisfying.
+- Cues come from the same `marks` list that drives the drawing, so picture and
+  sound cannot drift apart.
 
 **Watermark:** `public/images/logo.png`, upper-left at (58, 268), 300px wide,
 full opacity, levitating 8px on a 6.5s sine. The asset already contains the
@@ -105,9 +162,34 @@ rather than shipping outside it.
 **Captions go under the photograph, not over it.** Every source image is
 landscape, so even cropped it leaves a band of blurred backdrop below, and that
 band is where the type belongs — over the photo it covers the thing it is
-describing, and it wasted the empty space. `build.py` reads each shot's
-`photo_box(0.5)` and places that sentence's captions 96px beneath it, clamped to
-0.80. `y_frac=0.70` is only the fallback, for drawn beats.
+describing, and it wasted the empty space.
+
+**One caption line for the whole piece, not one per shot.** `caption_line()`
+takes the lowest line any shot needs — `photo_box(0.5)` plus 96px, clamped to
+0.80 — and every caption in the video sits there. Measuring per shot was shipped
+once and was wrong: captions are held until the next one starts and shots
+dissolve over `XFADE`, so the outgoing sentence's last caption is still on
+screen while the incoming photograph is already visible, and the type jumped
+mid-dissolve — on the shots whose photos sit lowest, jumping *into* the incoming
+picture. Solving the worst case solves all of them. The tightest shots get a
+little more air under the photo than they need, which nobody notices; the jump,
+everybody did. `y_frac=0.70` is only the floor.
+
+**Watch the shot that sets the line.** It is whichever photo runs lowest, and if
+its bottom lands within ~10px of 1536 the type has no air. Widen that shot's
+`aspect` rather than lowering the clamp — 0.80 comes from the safe box.
+
+**Captions are composited in Python, in `render_shots`, not burned by ffmpeg.**
+They used to be full-frame PNG overlays gated with `enable='between(t,..)'`,
+which is a hard on and a hard off — against a voice with a real sentence contour
+that snap is the one part of the piece that still reads as generated. Every
+frame is already drawn in Python, so `CaptionSprite` costs nothing and buys a
+per-frame entrance: fade up over 0.13s while rising 12px and settling from 94%
+**with a slight overshoot**. The overshoot is the trick — a linear scale-in
+reads as a zoom, one that passes its mark and comes back reads as being
+*placed*. Captions also cross-dissolve into each other, which is what stops a
+four-caption sentence looking like four separate cards. It also deletes a
+thirty-stream ffmpeg filter chain; the final pass is now just a mux.
 
 Futura Medium 46px, stroke 4, `max_w=CAPTION_MAX_W`.
 
@@ -147,17 +229,20 @@ Five profiles, all reproducing their audition WAVs sample-for-sample:
 |---|---|---|
 | `sam` | male, `am_puck` 1.10 | **used by the current cut.** C+ with hours of data, steadiest American male |
 | `theo` | male, `am_adam` 1.10 | the first cut. Lowest Kokoro grade on the list, shortlisted by ear anyway |
-| `mia` | female, `af_heart` 1.10 | graded A, the strongest English voice in Kokoro |
+| `mia` | female, `af_heart` 1.10 | **the Saylor cut.** Graded A, the strongest English voice in Kokoro |
 | `mia-calm` | female, `af_heart` 1.00 | the same speaker, unhurried |
 | `ivy` | female, `bf_emma` 1.10 | British — an audience choice as much as a voice one |
 
-**None is approved.** `theo` took the first cut, `sam` the second, and the user
-intends to work through the rest. Keep the script and shot list identical when
-swapping, so the comparison is clean. The `ENERGETIC` chain they all share has
-not been signed off either.
+**None is approved.** `theo` took the first cut, `sam` the second, `mia` the
+Saylor short, and the user intends to work through the rest. Keep the script and
+shot list identical when swapping, so the comparison is clean. The `ENERGETIC`
+chain they all share has not been signed off either.
 
 Pace, measured on the same script: both `theo` and `sam` at 1.10 land near 3.1
-words a second, so ~105 words comes out around 35s.
+words a second, so ~105 words comes out around 35s. `mia` at 1.10 sits close
+enough to reuse the estimate — 168 words of Saylor script came out at 58.0s,
+about 2.9 words a second with `gap=0.34`, so **~175 words is a one-minute
+short**.
 
 ## Decisions already taken
 
@@ -183,3 +268,5 @@ News becomes a variant once the pipeline is proven, not the proving ground.
 - Promote a candidate voice to approved without being told to.
 - Quote `views.json` as if it measured short-form performance. It is SEO demand.
 - Use an image under ~750px wide.
+- Ship a Commons-sourced portrait without its `CREDITS.md` block in the
+  description. Two of the four Saylor photographs are share-alike.
