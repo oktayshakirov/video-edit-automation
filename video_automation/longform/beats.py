@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import math
 import re
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -49,6 +50,21 @@ RISE = 14                       # px an item travels on its way in
 
 def _font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
+
+
+@lru_cache(maxsize=8)
+def _mark_bottom(name: str, width: int, top: int) -> int:
+    """Where the watermark ends, so a kicker can clear it.
+
+    **This cannot be a constant.** thecrypto.wiki's mark is a wide, short
+    wordmark; tinnitushelp.me's is a mascot with the domain under it and is
+    four times taller at the same width. A kicker at a fixed y=214 cleared
+    the first and landed inside the second — the wordmark and the beat's
+    heading printed over each other.
+    """
+    from ..core.brand import BRANDS
+    mark = BRANDS[name].mark(width)
+    return top + (mark.height if mark is not None else 0)
 
 
 class Beat:
@@ -74,6 +90,9 @@ class Beat:
         self.brand, self.frame = brand, frame
         self.reveals, self.marks = reveals, marks
         self.start, self.hold = start, hold
+        self.head_y = _mark_bottom(brand.name,
+                                   int(frame.logo_w * brand.mark_scale),
+                                   frame.logo_at[1]) + 46
 
         # Scale the column geometry if the frame is not the 1920 reference.
         k = frame.w / 1920
@@ -206,7 +225,7 @@ class Beat:
         d.rectangle([x0, y0, x0 + w, y0 + h], outline=self.brand.primary, width=3)
 
     def heading(self, out: Image.Image, text: str, f: float = 1.0,
-                y: int = 214) -> int:
+                y: int | None = None) -> int:
         """The beat's kicker, in the brand accent. Returns the y below it.
 
         **y=214, not 176.** The watermark sits upper-left at y=62 and a 34px
@@ -214,6 +233,7 @@ class Beat:
         the beat's own heading — the two stacked into one block. Clearing the
         mark properly costs nothing; the content below is centred anyway.
         """
+        y = self.head_y if y is None else y
         if not text:
             return y
         d = ImageDraw.Draw(out)

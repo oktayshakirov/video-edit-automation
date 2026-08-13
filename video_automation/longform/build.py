@@ -160,7 +160,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
         frame=frame, transition="push", xfade=0.34,
         factory=lambda s, fr: make_beat(s, brand, fr),
-        mark=brand.mark(frame.logo_w),
+        mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
         overlays=_endcard(endcard, endcard_lead, total, frame))
 
     # --- sound -----------------------------------------------------------
