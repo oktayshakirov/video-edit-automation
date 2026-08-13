@@ -476,9 +476,16 @@ reported a clean layout while the type sat across a woman's chest, because the
 box was honest about her face and wrong about her.
 
 So `_layout` scores candidates on a blurred edge-energy map: **quiet under the
-words, busy beside them** (`quiet - 0.6 * busy`), with a detected face anywhere
-in the type column treated as fatal. It searches zoom x pan x side and takes the
-best. A negative score means the composition works; positive prints a warning.
+words, busy beside them** (`quiet - 0.6 * busy`), with a detected face under the
+type treated as fatal. It searches zoom x pan x **side x vertical band** and
+takes the best. A negative score means the composition works; positive prints a
+warning.
+
+**The band matters as much as the side.** Placing the block dead centre and only
+choosing left or right ignores half the question — on a subject who fills the
+lower frame the space is up in a corner, not beside them. Bands are top, middle
+and bottom, scored over the region the type will actually occupy rather than the
+whole column.
 
 **Use the scorer to choose the source.** That is the real workflow now — run
 `_layout` over a batch of candidates and read the scores, rather than eyeballing

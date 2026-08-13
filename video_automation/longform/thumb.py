@@ -102,7 +102,7 @@ def face_boxes(bgr: np.ndarray) -> list[tuple[int, int, int, int]]:
 
 def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
             want_side: str | None = None
-            ) -> tuple[Image.Image, str, float, bool]:
+            ) -> tuple[Image.Image, str, str, float, bool]:
     """Place the picture so the type sits on the quietest part of it.
 
     Searches zoom x pan x side and scores each candidate by the mean content
@@ -115,6 +115,13 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
     energy = _energy(src)
     faces = face_boxes(src)
     col_w = int(W * col)
+
+    # The type block is roughly this tall, so score the band it will actually
+    # occupy rather than the whole column. Placing it dead centre and only
+    # choosing a *side* was the previous version, and it ignored half the
+    # question: on a subject who fills the lower frame, the space is up in the
+    # corner, not beside them.
+    BANDS = {"top": (0.04, 0.60), "middle": (0.20, 0.80), "bottom": (0.40, 0.96)}
 
     best = None
     for zoom in [1.0 + i * 0.08 for i in range(9)]:          # 1.00 .. 1.64
@@ -131,27 +138,27 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
             lo = 58 if side == "left" else W - 58 - col_w
             hi = lo + col_w + margin_px
             for x0 in np.linspace(0, max(nw - W, 0), 9).astype(int):
-                band = e_big[y0:y0 + H, x0 + max(lo - margin_px, 0):x0 + hi]
-                # The other half, which is where the subject has to be. Scoring
-                # only the type column drove the search toward near-empty frames
-                # — technically clean, and a thumbnail with nothing in it. The
-                # goal is contrast: quiet under the words, busy beside them.
+                # The subject side, full height — the contrast term.
                 if side == "left":
                     other = e_big[y0:y0 + H, x0 + hi:x0 + W]
                 else:
                     other = e_big[y0:y0 + H, x0:x0 + max(lo - margin_px, 1)]
-                quiet = float(band.mean()) if band.size else 1.0
                 busy = float(other.mean()) if other.size else 0.0
-                score = quiet - 0.6 * busy
-                for (fx, fy, fw, fh) in f_big:
-                    if (fx - x0 < hi and fx + fw - x0 > lo
-                            and fy - y0 < H and fy + fh - y0 > 0):
-                        score += 1.0          # a face in the column is fatal
-                cand = (score, zoom, sc, nw, nh, int(x0), y0, side)
-                if best is None or score < best[0]:
-                    best = cand
 
-    score, zoom, sc, nw, nh, x0, y0, side = best
+                for vband, (t0, t1) in BANDS.items():
+                    band = e_big[y0 + int(H * t0):y0 + int(H * t1),
+                                 x0 + max(lo - margin_px, 0):x0 + hi]
+                    quiet = float(band.mean()) if band.size else 1.0
+                    score = quiet - 0.6 * busy
+                    for (fx, fy, fw, fh) in f_big:
+                        if (fx - x0 < hi and fx + fw - x0 > lo
+                                and fy - y0 < H * t1 and fy + fh - y0 > H * t0):
+                            score += 1.0      # a face under the type is fatal
+                    cand = (score, zoom, sc, nw, nh, int(x0), y0, side, vband)
+                    if best is None or score < best[0]:
+                        best = cand
+
+    score, zoom, sc, nw, nh, x0, y0, side, vband = best
     big = cv2.resize(src, (nw, nh), interpolation=cv2.INTER_LANCZOS4)
     crop = big[y0:y0 + H, x0:x0 + W]
     img = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
@@ -159,7 +166,7 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
     # shading. Above it there is real detail under the words.
     # Negative means the subject side is meaningfully busier than the type
     # side, which is the composition this is after.
-    return img, side, score, score < 0.0
+    return img, side, vband, score, score < 0.0
 
 
 def _split(headline: str) -> list[tuple[str, bool]]:
@@ -191,7 +198,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     """
     box = None
     if image is not None and Path(image).exists():
-        base, found, score, clear = _layout(Path(image), want_side=side)
+        base, found, vband, score, clear = _layout(Path(image), want_side=side)
         side = side or found
         if not clear:
             # Say so rather than ship it. A subject that cannot be moved
@@ -207,7 +214,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
         base = ImageEnhance.Brightness(base).enhance(
             float(np.clip(74.0 / max(luma, 1.0), 0.62, 1.12)))
     else:
-        base, side = Image.new("RGB", (W, H), brand.bg), side or "left"
+        base, side, vband = Image.new("RGB", (W, H), brand.bg), side or "left", "middle"
 
     # A scrim on the type's side only, fading out before the subject.
     grad = Image.new("L", (W, 1))
@@ -259,7 +266,10 @@ def render_thumb(out: Path, brand: Brand, headline: str,
         if fallback is not None:
             size, font, space, lines, line_h, block = fallback
 
-    y = (H - block) // 2
+    # Place the block in the band the search picked, not always the middle.
+    y = {"top": margin,
+         "middle": (H - block) // 2,
+         "bottom": H - margin - block}[vband]
 
     # **The box is built from the cap band, not the line box.** Padding a line
     # height leaves the caps sitting high in the plate, because a font's line
