@@ -23,3 +23,18 @@ __pycache__/
 !assets/**/*.mp4
 !assets/**/*.mov
 !assets/fcpxml/*.xml
+
+# Stock is the exception to the exception. The rule above exists for the
+# location-pin overlay — one small file needed by every drone video. The Pexels
+# cache is a different animal: 281 MB after a single long-form video, growing
+# per video, in a public repo. `manifest.json` carries the Pexels id and URL of
+# everything pulled, which is what actually makes a build reproducible; the
+# bytes are re-fetchable from that. The trade is that a clip deleted by its
+# photographer is gone, and the fix then is to screen a replacement.
+assets/stock/**/*.mp4
+assets/stock/**/*.jpg
+!assets/stock/manifest.json
+# ...but the end-screen sting is a brand asset, not per-video stock: one
+# 0.4 MB clip reused by every video on both channels. Same argument the
+# location pin gets in assets/README.md.
+!assets/stock/videos/subscribe/*.mp4
