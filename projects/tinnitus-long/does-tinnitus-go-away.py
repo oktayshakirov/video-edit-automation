@@ -349,10 +349,10 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        # The thumbnail asks what the title does not. The title carries the
-        # search phrase ("Does Tinnitus Go Away?"); repeating it here would
-        # spend the image on a question already answered above it.
-        thumb_headline="Which kind do [you have?]",
+        # The user's pick over "Which kind do you have?". The type auto-sizes
+        # down until "GO AWAY?" fits on one line — see thumb.py; an accent that
+        # wraps draws two plates and loses the focal point.
+        thumb_headline="Does it ever [go away?]",
         thumb_image=IMG / "anxiety.jpg",
         thumb_accent="orange",
     )

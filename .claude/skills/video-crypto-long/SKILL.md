@@ -448,10 +448,11 @@ watermark** — the first two are searched and the third was removed.
   channel's own dark imagery and disappears in a grid.
 - One box per *run* of accent words, not per word. Per-word boxing leaves a seam
   of background between them and reads as a rendering fault.
-- **Box a phrase that lands on one line.** An accent that wraps draws two plates
-  on two lines and loses the single focal point that makes the device work.
-  Rewrite the headline until the accent sits whole — `"Which kind do [you
-  have?]"` over `"Does it ever [go away?]"`, which split across lines.
+- **The accent must land on one line**, and the size search enforces it: it
+  takes the largest size at which the whole accent run sits on a single line,
+  falling back to merely fitting if no size does. An accent that wraps draws two
+  plates on two lines and loses the single focal point the device exists for.
+  Nothing to tune per thumbnail.
 - **The box is sized from the cap band**, not the line box, so uppercase sits
   optically centred in it. A font's line box carries ascender and descender room
   that caps never use, and padding that left the words riding high in the plate.
