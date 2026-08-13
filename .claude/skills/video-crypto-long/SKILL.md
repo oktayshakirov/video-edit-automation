@@ -448,6 +448,20 @@ watermark** — the first two are searched and the third was removed.
   channel's own dark imagery and disappears in a grid.
 - One box per *run* of accent words, not per word. Per-word boxing leaves a seam
   of background between them and reads as a rendering fault.
+- **Box a phrase that lands on one line.** An accent that wraps draws two plates
+  on two lines and loses the single focal point that makes the device work.
+  Rewrite the headline until the accent sits whole — `"Which kind do [you
+  have?]"` over `"Does it ever [go away?]"`, which split across lines.
+- **The box is sized from the cap band**, not the line box, so uppercase sits
+  optically centred in it. A font's line box carries ascender and descender room
+  that caps never use, and padding that left the words riding high in the plate.
+- **No subline.** A second smaller line under the headline was tried and cut:
+  the headline is the whole hook, and a subtitle competes with the video title
+  sitting directly beneath the thumbnail anyway.
+- **Ask what the title does not.** The title carries the search phrase; the
+  thumbnail spending its words on the same question wastes half the click
+  decision. `Does Tinnitus Go Away?` as the title, `Which kind do you have?` on
+  the image.
 - **No watermark.** The channel name is already under the thumbnail everywhere
   it appears; a mark on the image is a tell of a template.
 

@@ -349,13 +349,11 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        # The site library had nothing with enough empty space beside the
-        # subject — every candidate scored "busy". `thumb._layout` scores that
-        # objectively, so the source was chosen by running the scorer over a
-        # batch of stock rather than by eye.
-        thumb_headline="Does it ever [go away?]",
-        thumb_subline="The honest answer",
-        thumb_image=STOCK / "photos/man-hands-over-ears-dark-background/3601097.jpg",
+        # The thumbnail asks what the title does not. The title carries the
+        # search phrase ("Does Tinnitus Go Away?"); repeating it here would
+        # spend the image on a question already answered above it.
+        thumb_headline="Which kind do [you have?]",
+        thumb_image=IMG / "anxiety.jpg",
         thumb_accent="orange",
     )
     for k, v in made.items():
