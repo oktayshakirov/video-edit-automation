@@ -96,9 +96,11 @@ words and a 4:00 video is ~700. At a 5.5s mean shot that is **27 to 44 shots**
 against 2–5 available photographs.
 
 **So 85–95% of the picture cannot come from the post's own images.** This is the
-whole design problem, and it means the long format is not "the short, but
-longer". `ChecklistShot` currently carries one beat in a ten-shot short; here the
-drawn beats have to carry roughly half the runtime.
+whole design problem, and it is a statement about *pictures*, not about scripts:
+a long version is free to reuse a short's angle and material — that angle is
+usually the best one the article has — but it cannot reuse its picture budget.
+`ChecklistShot` carries one beat in a ten-shot short; here the drawn beats have
+to carry roughly half the runtime.
 
 Two things make that tractable rather than grim:
 
@@ -210,8 +212,8 @@ depth on the first actual Audio Library track.
 
 Skills `/video-crypto-long` and `/video-tinnitus-long`, symlinked into
 `~/.claude/skills/`. First pilot built: `projects/crypto-long/satoshi-proof.py`,
-from the same post as the `crypto-satoshi-proof` short and deliberately not a
-longer cut of it — three minutes has room for the verification procedure and the
+from the same post as the `crypto-satoshi-proof` short, reusing its angle and
+going deeper — three minutes has room for the verification procedure and the
 2019 "valid signature, wrong address" case study, which the 35-second version had
 to drop.
 

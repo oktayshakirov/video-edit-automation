@@ -89,11 +89,12 @@ Everything needed is already on disk:
 
 Three things to get right, in order of how badly they bite:
 
-**The long version must not be the short again.** The short covers the treasury
-bet and what the company became. Three minutes has room for what it dropped —
-the financing mechanics (debt offerings and share sales funding coin purchases),
-the renaming to Strategy, and the honest bear case. Same rule the Satoshi
-long-form followed, and the reason it works.
+**Reuse the short's material freely.** Its angle is the strongest one the
+article has and there is no reason to invent a weaker one to be different — the
+treasury bet and what the company became belong in the long version too. What
+three minutes buys is *depth on the same story*: the financing mechanics (debt
+offerings and share sales funding coin purchases), the rename to Strategy, and
+the honest bear case, none of which fit in sixty seconds.
 
 **Attribution is mandatory and it is in `assets/crypto/michael-saylor/CREDITS.md`.**
 Two of the four photographs are CC BY-SA, which makes the video a derivative

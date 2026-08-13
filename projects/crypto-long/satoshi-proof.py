@@ -2,9 +2,11 @@
 
 Source: crypto-wiki/content/posts/what-it-actually-takes-to-prove-someone-is-
 satoshi-nakamoto.mdx (1,838 words). The 34.75s short `crypto-satoshi-proof` came
-from the same post; this is not a longer cut of it. Three minutes has room for
-the verification procedure and the 2019 case study — a claimant with a
-mathematically valid signature from the wrong address — which the short dropped.
+from the same post and shares its angle, which is the right way round: the short
+found the strongest framing the article has, so the long version keeps it and
+goes deeper. Three minutes adds the verification procedure and the 2019 case
+study — a claimant with a mathematically valid signature from the wrong address
+— neither of which fits in thirty-five seconds.
 
 **Structure, second pass.** The first cut was a sectioned presentation: seven
 numbered chapter cards over a script written as headings and bullet points. It
