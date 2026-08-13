@@ -703,7 +703,8 @@ def make_beat(shot, brand: Brand, frame: Frame):
         from .clip import VideoShot
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
-                         label=shot.payload or None)
+                         label=shot.payload or None,
+                         begin=shot.clip_at)
     if shot.graphic is None:
         return None
     try:

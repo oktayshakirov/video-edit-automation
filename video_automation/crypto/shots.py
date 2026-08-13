@@ -74,6 +74,7 @@ class Shot:
     picture: Path | None = None         # photo *beside* one, in the landscape
                                         # split layout — see longform/beats.py
     clip: Path | None = None            # a video file — see longform/clip.py
+    clip_at: float = 0.0                # seconds to skip into that clip
     reveals: list[float] | None = None  # absolute times, one per checklist item
     marks: list[float] | None = None    # when each item's verdict lands
     zoom: float = 1.12                  # Ken Burns travel over the whole shot
