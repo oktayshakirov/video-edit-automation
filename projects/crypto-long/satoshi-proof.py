@@ -371,8 +371,7 @@ def main() -> None:
         # Brackets mark the accent phrase, which gets the vibrant box. The
         # layout — which side the type sits on, and the zoom and pan that put
         # the subject opposite it — is searched, not specified. See thumb.py.
-        thumb_headline="Nobody has [passed it]",
-        thumb_subline="The Satoshi test",
+        thumb_headline="[Nobody] has passed it",
         thumb_image=POSTS / "satoshi-nakamoto.jpg",
         thumb_accent="red",
         endcard=ENDCARD, endcard_lead=7.0,

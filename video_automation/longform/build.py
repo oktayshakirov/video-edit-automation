@@ -45,7 +45,6 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 emoji: dict[str, str] | None = None,
                 thumb_image: Path | None = None,
                 thumb_headline: str | None = None,
-                thumb_kicker: str = "", thumb_subline: str = "",
                 thumb_accent: str = "red",
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 sound: bool = True, fps: int = 30,
@@ -195,7 +194,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     if thumb_headline:
         thumb = out.with_name(out.stem + "-thumb.jpg")
         render_thumb(thumb, brand, thumb_headline, image=thumb_image,
-                     subline=thumb_subline, accent=thumb_accent)
+                     accent=thumb_accent)
         made["thumb"] = thumb
 
     if meta is not None:

@@ -100,7 +100,8 @@ def face_boxes(bgr: np.ndarray) -> list[tuple[int, int, int, int]]:
     return out
 
 
-def _layout(image: Path, col: float = 0.54, margin_px: int = 26
+def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
+            want_side: str | None = None
             ) -> tuple[Image.Image, str, float, bool]:
     """Place the picture so the type sits on the quietest part of it.
 
@@ -126,7 +127,7 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26
                  for (x, y, fw, fh) in faces]
         y0 = int(np.clip(nh * 0.42 - H * 0.42, 0, nh - H))
 
-        for side in ("left", "right"):
+        for side in ((want_side,) if want_side else ("left", "right")):
             lo = 58 if side == "left" else W - 58 - col_w
             hi = lo + col_w + margin_px
             for x0 in np.linspace(0, max(nw - W, 0), 9).astype(int):
@@ -174,8 +175,8 @@ def _split(headline: str) -> list[tuple[str, bool]]:
 
 
 def render_thumb(out: Path, brand: Brand, headline: str,
-                 image: Path | None = None, subline: str = "",
-                 accent: str = "red", size: int = 118, sub_size: int = 46,
+                 image: Path | None = None, accent: str = "red",
+                 size: int = 118, side: str | None = None,
                  arrow_to: tuple[float, float] | None = None,
                  **_ignored) -> Path:
     """One thumbnail: photograph, scrim, headline with a boxed accent phrase.
@@ -190,7 +191,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     """
     box = None
     if image is not None and Path(image).exists():
-        base, side, score, clear = _layout(Path(image))
+        base, found, score, clear = _layout(Path(image), want_side=side)
+        side = side or found
         if not clear:
             # Say so rather than ship it. A subject that cannot be moved
             # clear of the type at any zoom means the source is framed too
@@ -205,7 +207,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
         base = ImageEnhance.Brightness(base).enhance(
             float(np.clip(74.0 / max(luma, 1.0), 0.62, 1.12)))
     else:
-        base, side = Image.new("RGB", (W, H), brand.bg), "left"
+        base, side = Image.new("RGB", (W, H), brand.bg), side or "left"
 
     # A scrim on the type's side only, fading out before the subject.
     grad = Image.new("L", (W, 1))
@@ -242,27 +244,30 @@ def render_thumb(out: Path, brand: Brand, headline: str,
             lines.append(cur)
         line_h = int(size * 1.10)
         block = len(lines) * line_h
-        if len(lines) <= 4 and block < H - 2 * margin - (86 if subline else 0):
+        if len(lines) <= 4 and block < H - 2 * margin:
             break
         size -= 8
 
-    sub_font = ImageFont.truetype(FONT_CAPTION, sub_size,
-                                  index=FONT_CAPTION_INDEX)
-    sub_lines = wrap(d, subline, sub_font, col_w) if subline else []
-    sub_h = int(sub_size * 1.26)
-    total = block + (len(sub_lines) * sub_h + 30 if sub_lines else 0)
-    y = (H - total) // 2
+    y = (H - block) // 2
 
-    pad_x, pad_y = 14, 8
+    # **The box is built from the cap band, not the line box.** Padding a line
+    # height leaves the caps sitting high in the plate, because a font's line
+    # box carries ascender and descender room that uppercase type never uses.
+    # Measure the cap height, centre it, and every box comes out the same size
+    # with the words optically in the middle of it.
+    asc, _desc = font.getmetrics()
+    cap_h = font.getbbox("H")[3] - font.getbbox("H")[1]
+    pad_x, pad_v = 16, int(size * 0.20)
+
     for line in lines:
-        # **One box per run of accent words, not one per word.** Boxing each
-        # word separately leaves a gap of background between them — "PASSED IT"
-        # came out as two plates with a seam down the middle, which reads as a
-        # rendering fault rather than a highlight. Measure the run, draw one
-        # rectangle, then set the words on top of it.
+        base_y = y + asc
+        # One box per *run* of accent words, not one per word. Boxing each word
+        # separately leaves a gap of background between them — "PASSED IT" came
+        # out as two plates with a seam down the middle, which reads as a
+        # rendering fault rather than a highlight.
         x = x_text
         runs, start, width = [], None, 0.0
-        for i, (word, hot, ww) in enumerate(line):
+        for word, hot, ww in line:
             if hot and start is None:
                 start, width = x, ww
             elif hot:
@@ -274,8 +279,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
         if start is not None:
             runs.append((start, width))
         for rx, rw in runs:
-            d.rectangle([rx - pad_x, y - pad_y + 6,
-                         rx + rw + pad_x, y + line_h - pad_y], fill=fill)
+            d.rectangle([rx - pad_x, base_y - cap_h - pad_v,
+                         rx + rw + pad_x, base_y + pad_v], fill=fill)
 
         x = x_text
         for word, hot, ww in line:
@@ -287,15 +292,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
             x += ww + space
         y += line_h
 
-    if sub_lines:
-        y += 30
-        for ln in sub_lines:
-            d.text((x_text, y), ln, font=sub_font, fill=(255, 255, 255),
-                   stroke_width=5, stroke_fill=(0, 0, 0))
-            y += sub_h
-
     if arrow_to is not None:
-        _arrow(d, (x_text + col_w * 0.5, y + 26),
+        _arrow(d, (x_text + col_w * 0.5, y + 20),
                (arrow_to[0] * W, arrow_to[1] * H), fill)
 
     out.parent.mkdir(parents=True, exist_ok=True)
