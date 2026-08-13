@@ -227,8 +227,12 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     fill, ink = ACCENTS.get(accent, ACCENTS["red"])
     words = _split(headline.upper())
 
-    # Lay the words out, shrinking until they fit the column *and* clear the
-    # subject. This is the check the old version left to the eye.
+    # Lay the words out, shrinking until they fit — and **until the accent run
+    # lands whole on one line**. An accent that wraps draws two plates on two
+    # lines and loses the single focal point the device exists for. Rather than
+    # make the author tune a size per thumbnail, try the largest size that keeps
+    # it intact and fall back to merely fitting if no size does.
+    fallback = None
     for _ in range(14):
         font = ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
         space = d.textlength(" ", font=font)
@@ -244,9 +248,16 @@ def render_thumb(out: Path, brand: Brand, headline: str,
             lines.append(cur)
         line_h = int(size * 1.10)
         block = len(lines) * line_h
-        if len(lines) <= 4 and block < H - 2 * margin:
+        fits = len(lines) <= 4 and block < H - 2 * margin
+        hot_lines = {i for i, ln in enumerate(lines) if any(h for _, h, _ in ln)}
+        if fits and fallback is None:
+            fallback = (size, font, space, lines, line_h, block)
+        if fits and len(hot_lines) <= 1:
             break
         size -= 8
+    else:
+        if fallback is not None:
+            size, font, space, lines, line_h, block = fallback
 
     y = (H - block) // 2
 
