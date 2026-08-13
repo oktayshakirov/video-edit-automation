@@ -349,10 +349,14 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        thumb_headline="Does It Ever Go Away?",
+        # The site library had nothing with enough empty space beside the
+        # subject — every candidate scored "busy". `thumb._layout` scores that
+        # objectively, so the source was chosen by running the scorer over a
+        # batch of stock rather than by eye.
+        thumb_headline="Does it ever [go away?]",
         thumb_subline="The honest answer",
-        thumb_image=IMG / "anxiety.jpg",
-        thumb_zoom=1.28, thumb_focus=(1.0, 0.35),
+        thumb_image=STOCK / "photos/man-hands-over-ears-dark-background/3601097.jpg",
+        thumb_accent="orange",
     )
     for k, v in made.items():
         print(f"{k}: {v}")
