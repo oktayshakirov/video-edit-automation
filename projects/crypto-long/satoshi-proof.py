@@ -368,18 +368,13 @@ def main() -> None:
         # rest reads as arbitrary; the full transcript ships as the SRT, which
         # YouTube indexes and viewers can switch on.
         callouts=None,
-        # Headline names the subject, subline is the reason to click. The
-        # picture is zoomed and pushed down-left so the Bitcoin clears the
-        # type — it is the one object that says what this video is about, and
-        # the previous layout's centre band landed straight on it.
-        thumb_headline="The Satoshi Test",
-        thumb_subline="Nobody has passed it",
+        # Brackets mark the accent phrase, which gets the vibrant box. The
+        # layout — which side the type sits on, and the zoom and pan that put
+        # the subject opposite it — is searched, not specified. See thumb.py.
+        thumb_headline="Nobody has [passed it]",
+        thumb_subline="The Satoshi test",
         thumb_image=POSTS / "satoshi-nakamoto.jpg",
-        thumb_zoom=1.30, thumb_focus=(0.0, 0.84),
-        # The sting rides over the last seven seconds — the outro shot is
-        # deliberately uncluttered so YouTube's own end-screen cards have
-        # somewhere to sit, and that gap was what the viewer actually saw
-        # while the ask was being spoken.
+        thumb_accent="red",
         endcard=ENDCARD, endcard_lead=7.0,
     )
     for k, v in made.items():

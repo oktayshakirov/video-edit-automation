@@ -437,22 +437,43 @@ isolated spike is a crop step, and real motion has neither.
 
 ## Thumbnail
 
-`render_thumb(headline=, subline=, image=, zoom=, focus=)`.
+`render_thumb(headline=, subline=, image=, accent=)`. **No zoom, no focus, no
+watermark** — the first two are searched and the third was removed.
 
-- **Headline names the subject, subline is the reason to click.** Three or four
-  words set as large as they go, then a smaller second line under a short rule.
-  At feed size the image is ~360px wide, so anything under ~90px of headline is
-  unreadable there.
-- **Type on one side, subject on the other.** A full-width band across the
-  middle is the easy layout and it covers the subject — on the Satoshi image it
-  landed exactly on the Bitcoin, the one object that tells a viewer what the
-  video is about. `zoom` and `focus` move the *picture* clear of the type rather
-  than shrinking the words: `focus` is 0..1 over the headroom the zoom created,
-  so `zoom=1.30, focus=(0.0, 0.84)` keeps the left edge and most of the bottom.
-- A horizontal gradient scrim, solid under the type and gone before the subject,
-  rather than a band.
-- **Say something the title does not.** Repeating the title wastes half the
-  click decision.
+- **Brackets mark the accent phrase**, which gets a solid vibrant box:
+  `"Nobody has [passed it]"`. Every reference thumbnail that works does this;
+  the box is what the eye lands on first, and a headline with no focal word is
+  a wall. `accent` is `red` / `yellow` / `orange` / `blue` / `cyan` —
+  deliberately **not** the brand palette, which is low-contrast against the
+  channel's own dark imagery and disappears in a grid.
+- One box per *run* of accent words, not per word. Per-word boxing leaves a seam
+  of background between them and reads as a rendering fault.
+- **No watermark.** The channel name is already under the thumbnail everywhere
+  it appears; a mark on the image is a tell of a template.
+
+### The layout is searched, and the search is the point
+
+The question is **not** "where is the person" — it is **"where is the picture
+empty enough to take type"**. Two attempts chased the subject and both failed
+the same way: a face cascade finds a head, and no multiple of a head describes
+the arms, hair and torso that actually collide with words. The second attempt
+reported a clean layout while the type sat across a woman's chest, because the
+box was honest about her face and wrong about her.
+
+So `_layout` scores candidates on a blurred edge-energy map: **quiet under the
+words, busy beside them** (`quiet - 0.6 * busy`), with a detected face anywhere
+in the type column treated as fatal. It searches zoom x pan x side and takes the
+best. A negative score means the composition works; positive prints a warning.
+
+**Use the scorer to choose the source.** That is the real workflow now — run
+`_layout` over a batch of candidates and read the scores, rather than eyeballing
+one. The tinnitus thumbnail's source was picked that way: every image in the
+site library scored "busy", so a batch of stock was fetched and scored and the
+best one taken. Scoring is far more reliable than looking at a full-size file,
+because the failure only shows at feed size.
+
+Brightness is normalised toward a target rather than dimmed by a fixed factor —
+a flat 0.80 crushed the dark portraits this selects for into near-black.
 
 ## Do not
 
