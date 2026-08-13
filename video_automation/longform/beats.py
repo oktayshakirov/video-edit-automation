@@ -531,11 +531,17 @@ class Compare(Beat):
                    stroke_fill=(0, 0, 0))
             y = top + 120
             for i, text in enumerate(items):
-                # Interleave the reveal order — left, right, left, right — so
-                # the two sides build against each other rather than one
-                # finishing before the other starts.
-                k = i * 2 + side
-                ev = self.due(k, n * 2, f)
+                # **Sequential, not interleaved: the whole left column, then
+                # the whole right one.** The first version alternated sides so
+                # they would "build against each other", which cannot ever match
+                # the voice — a script covers one column and then the other,
+                # because you cannot narrate two things at once. Interleaving
+                # meant a chronic item appeared while the narration was still on
+                # temporary, and a viewer reads that as the graphic being out of
+                # sync with the words. It is the reason this beat looked
+                # confusing rather than any layout problem.
+                k = i if side == 0 else len(self.li) + i
+                ev = self.due(k, len(self.li) + len(self.ri), f)
                 lines = wrapped[side][i]
                 if ev < 0:
                     y += len(lines) * item_h + pad
@@ -671,7 +677,7 @@ _COUNT = {
     "chapter": lambda p: 0,
     "checklist": lambda p: len(p[0]),
     "stat": lambda p: 1,
-    "compare": lambda p: max(len(p[1]), len(p[3])) * 2,
+    "compare": lambda p: len(p[1]) + len(p[3]),
     "quote": lambda p: 1,
     "bars": lambda p: len(p[0]),
 }

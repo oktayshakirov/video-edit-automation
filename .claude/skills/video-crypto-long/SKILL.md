@@ -158,6 +158,14 @@ things that are not beats; see `longform/clip.py` and `longform/overlay.py`.
   the full frame.**
 - **`compare` is the beat to reach for first** when the article has an "A vs B"
   in it. 16:9 is a bad shape for a list and a very good one for a comparison.
+  **It reveals the whole left column, then the whole right one** — the first
+  version alternated sides and that can never match the voice, because a script
+  covers one column and then the other. Interleaved, the second column started
+  filling while the narration was still on the first, which reads as the graphic
+  being out of sync. Write **one caption chunk per item, in column order, with
+  no lead-in sentence inside the beat's span** — a spare sentence in front eats
+  reveal 0 and shunts every item one line late. Three per column beats two: two
+  looks like a stub.
 - **`stat` is the best value per second in the format.** A figure spoken and not
   shown is a figure not remembered. Use it for the one number that matters, not
   every number in the paragraph.
@@ -231,6 +239,15 @@ scroll. 0.34s rather than 0.45 because a move that travels is legible in less
 time than a fade that has to reach 50% before it reads as anything.
 
 `Shot.transition` overrides per shot, `Shot.xfade = 0` still cuts.
+
+## A number needs its own meaning on screen
+
+`stat` shows one figure large. That works when the figure *is* the point ("0
+times passed", "1.1M coins") and fails when it is a count of things the viewer
+cannot see — a bare "5 / SIGNS TO ACT ON" tells nobody what the five are, and it
+sits in one corner with the rest of the frame empty. If the narration at that
+moment is naming items, use a `checklist` of those exact items instead. The rule
+is the general one: **show what is being said, not a summary of it.**
 
 ## Fill the right column, always
 

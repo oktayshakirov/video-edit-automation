@@ -44,6 +44,14 @@ Built: `projects/tinnitus-long/does-tinnitus-go-away.py`.
 PYTHONPATH=. .venv/bin/python projects/tinnitus-long/does-tinnitus-go-away.py
 ```
 
+## Open on a face, moving
+
+The first cut opened on a still of a worried woman and the note back was that it
+is not an engaging way in. A **clip** of someone visibly dealing with it reads
+instantly, needs no caption, and costs nothing — `headache-stress-tired-woman-dark`
+screened at L46/S22. For a health topic the opening frame should be a person, not
+a concept.
+
 ## What differs from crypto
 
 **Voice is `mia`** — the same reader as the crypto long-form. The user's call.
