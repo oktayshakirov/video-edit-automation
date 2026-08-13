@@ -46,6 +46,7 @@ from video_automation.longform import Meta, Section, render_long
 IMG = Path.home() / "Coding/tinnitus-blog/public/images"
 
 # Screened with `stock.screen`; trailing comment is luma/saturation.
+HEAD = STOCK / "videos/headache-stress-tired-woman-dark"
 WAVE = STOCK / "videos/sound-wave-visualization-dark"
 SLEEP = STOCK / "videos/sleeping-night-calm-dark"
 NEURONS = STOCK / "videos/brain-neurons-abstract-dark"
@@ -78,8 +79,11 @@ SECTIONS = [
              "that mean you should see somebody."),
         ],
         shots=[
-            Shot(image=IMG / "anxiety.jpg", zoom=1.09, pan=(0.02, -0.01),
-                 aspect=A, bias=0.4),
+            # A face, moving, in the first frame. A still of the same idea
+            # was there first and the user's note was that it is not an
+            # engaging way in — a person visibly dealing with it reads
+            # instantly and needs no caption.
+            Shot(clip=HEAD / "4587914.mp4"),        # L46 S22
             None,
             Shot(clip=WAVE / "34645273.mp4",         # L7 S2
                  payload=("", "DOES IT GO AWAY?")),
@@ -120,26 +124,33 @@ SECTIONS = [
     # --- the distinction ------------------------------------------------
     Section(
         title="There are two kinds",
-        spoken_title="So there are two kinds.",
+        spoken_title="So there are two kinds, and they behave differently.",
+        # **Exactly one caption chunk per column item, and no spare sentence in
+        # front.** `compare` reveals its left column then its right, and the
+        # reveals come from the caption starts of every sentence the shot spans.
+        # A standalone lead-in sentence here ("They behave completely
+        # differently") consumed reveal 0, which pushed the first *right* column
+        # item onto the last *left* column line — the graphic a beat ahead of
+        # the voice. Folded into the spoken title instead.
         sentences=[
-            ("They behave completely differently.",),
             ("Temporary tinnitus follows a loud noise.",
-             "A concert, power tools, a night out.",
-             "It usually fades in hours or days."),
-            ("Chronic tinnitus is the one",
-             "that lasts three to six months or longer,",
-             "and it usually has a lasting cause behind it."),
+             "It fades within hours or days.",
+             "And nothing lasting is driving it."),
+            ("Chronic tinnitus runs three to six months or longer.",
+             "Usually there is hearing loss behind it.",
+             "And it is managed rather than waited out."),
         ],
         shots=[
             Shot(graphic="compare",
                  payload=("Temporary",
                           ["Follows loud noise",
-                           "Fades in hours or days"],
+                           "Fades in hours or days",
+                           "Nothing lasting behind it"],
                           "Chronic",
                           ["Three to six months or more",
-                           "Usually a lasting cause"]),
+                           "Usually hearing loss",
+                           "Managed, not waited out"]),
                  backdrop=IMG / "megaphone-noise.jpg"),
-            None,
             None,
         ],
     ),
@@ -294,9 +305,13 @@ SECTIONS = [
         shots=[
             Shot(image=IMG / "evening-routine.jpg", zoom=1.10, pan=(0.02, 0.01),
                  aspect=A, bias=0.45),
-            Shot(graphic="stat",
-                 payload=("5", "SIGNS TO ACT ON", "Any one of them is enough."),
-                 backdrop=IMG / "silence.jpg"),
+            Shot(graphic="checklist",
+                 payload=([("Weeks, not days", True),
+                           ("Only one ear", True),
+                           ("Pulsing with your heartbeat", True)],
+                          "BOOK THE APPOINTMENT IF",
+                          True),                     # flow
+                 picture=IMG / "audiologist.jpg"),
             Shot(image=IMG / "happy.jpg", zoom=1.11, pan=(-0.02, -0.01),
                  aspect=A, bias=0.4),
             Shot(clip=SLEEP / "11956219.mp4"),       # L31 S6
