@@ -400,10 +400,40 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   almost no bearing on what comes back.
 - Pexels 403s urllib's default User-Agent on both the API and the CDN, silently.
   `stock.UA` exists for that.
-- Video shots go in `Shot(clip=...)` and are handled by `longform/clip.py`: a
-  clip longer than its slot is **trimmed** at natural speed, a shorter one is
-  stretched up to 1.33x, and it is never looped — a loop point in real footage
-  is instantly visible. Clips are dimmed and desaturated to sit with the stills.
+- Video shots go in `Shot(clip=..., clip_at=)` and are handled by
+  `longform/clip.py`: a clip longer than its slot is **trimmed** at natural
+  speed, a shorter one is stretched up to 1.33x, and it is never looped — a loop
+  point in real footage is instantly visible. Clips are dimmed and desaturated
+  to sit with the stills. `clip_at` skips into the source; stock rarely opens on
+  its own best moment.
+
+## Motion on a video shot — three things that all caused visible glitches
+
+Stock is **25fps against this 30fps timeline**, which is where all of this comes
+from. A viewer reported "a glitch in the first second" and it was three separate
+faults stacked:
+
+1. **The crop must be subpixel.** The rest of the repo has known this forever;
+   the video path was written with `int()` on the crop box and `//2` on the
+   origin, so the push moved in whole-pixel steps — and a whole-pixel translation
+   of an entire detailed frame is a large, visible jump (5x the normal
+   frame-to-frame delta). One float `warpAffine` does the crop and the scale
+   together.
+2. **Sample at fractional positions and blend.** Rounding to the nearest source
+   frame repeats every sixth one, and a repeat is a *dead* frame — motion stops
+   for one frame in six. With an integer crop those repeats were pixel-identical.
+   Blending the two neighbours keeps motion continuous; the weight never exceeds
+   0.5 at 25→30 so there is no ghosting.
+3. **`_prepare` could collapse the buffer to one pixel wide.** `int(sw * s)`
+   truncates, and when the source is exactly the frame's aspect it lands one
+   pixel *under* the target — `x0` goes to −1, the negative index wraps, and the
+   crop silently returns a 1px sliver. It bites at `zoom=1.06` and not at
+   `1.12`, so it sat latent behind a default. Ceil, and clamp.
+
+Measured on the opener: frozen frames went 26 → 0, and the min/median
+frame delta from 0.14 to 0.53. **If a clip ever looks like it stutters, measure
+the per-frame delta series first** — a periodic dip is an fps artifact, an
+isolated spike is a crop step, and real motion has neither.
 
 ## Thumbnail
 

@@ -83,7 +83,9 @@ SECTIONS = [
             # was there first and the user's note was that it is not an
             # engaging way in — a person visibly dealing with it reads
             # instantly and needs no caption.
-            Shot(clip=HEAD / "4587914.mp4"),        # L46 S22
+            # `clip_at=1.6` — the first second of this clip is an ambiguous
+            # half-smile and only reads as discomfort from about two seconds.
+            Shot(clip=HEAD / "4587914.mp4", clip_at=1.6),   # L46 S22
             None,
             Shot(clip=WAVE / "34645273.mp4",         # L7 S2
                  payload=("", "DOES IT GO AWAY?")),
