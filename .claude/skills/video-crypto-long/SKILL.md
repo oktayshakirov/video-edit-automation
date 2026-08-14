@@ -141,6 +141,31 @@ float**, so a mark that clears `safe_top` at rest can still raise.
 Beat kickers moved to y=214 for the same reason: at 176 a 34px kicker read as
 the second line of the logo lockup rather than as the beat's own heading.
 
+### A photo's border never crosses the watermark
+
+**There are two kinds of picture frame and only one of them has this problem.**
+A photograph that fills the frame bleeds off every edge and draws no hairline at
+the top, so the mark simply sits over the image — that is fine and is left
+alone. A photograph that *fits* carries a gold hairline along its top edge, and
+that line ran straight under the wordmark: two graphics crossing, which a viewer
+reads as a fault rather than as framing.
+
+`PhotoShot` dodges it automatically — nothing to set per shot.
+
+- **The push is a constant offset for the whole shot, not a per-frame clamp.**
+  `y` travels across a Ken Burns move, so clamping each frame would hold the
+  picture against the floor and then release it. The offset comes from the
+  extreme of the travel and the motion is preserved exactly.
+- **It fires only when the picture actually reaches the mark, in both axes.** A
+  shot already below the wordmark, or sitting to its right, is untouched — which
+  is also what keeps the shipped vertical shorts byte-identical, since 9:16 puts
+  the mark at y=268 and the photograph 200px below it.
+- **A photo too tall to fit under the mark is shrunk, not shoved.** Translating
+  a picture that already reaches within 60px of the bottom pushes its lower edge
+  off frame, so the bottom hairline vanishes mid-shot — one artifact traded for
+  another. It is scaled into the band that is actually available instead, which
+  costs a few percent on what is a downscale of the source anyway.
+
 ## The drawn beats carry the video
 
 The arithmetic is in the strategy doc and it is the whole design: ~30 shots
@@ -396,6 +421,19 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   dinosaur, a bitcoin sticker on a pine table and a rainbow of cables into a
   gold-on-near-black video. `MAX_LUMA=48`, `MAX_SAT=50`; the keepers measured
   L4/S5, L14/S6, L41/S20.
+- **Screen the site's own images too.** `stock.screen` works on any file, and
+  the library is much brighter than it looks in a browser: `investing.jpg`
+  measures L196, `stock-trader.jpg` L170, `corporate.jpg` L113. Six of those
+  went into the first Saylor cut and every one of them glared against the
+  gold-on-near-black frame. The `MAX_LUMA=48` box is for full-frame stock and
+  does not transfer — **the working ceiling for a site photograph is the
+  pilot's own brightest, about L82**, and roughly S60 on saturation.
+- **A picture can be off-message as well as off-palette, and that is worse.**
+  `ftx-collapse.jpg` under a line about leverage reads as exchange fraud, which
+  is a different failure from debt-funded volatility. `one-coin.jpg` is OneCoin
+  — Ruja Ignatova's fraud — and placing it beside a living person is an
+  accusation the script never makes. Read the filename's *subject*, not its
+  vibe, and think about what a viewer will infer from the pairing.
 - Build a preview sheet of first frames and *look* at it. The search query has
   almost no bearing on what comes back.
 - Pexels 403s urllib's default User-Agent on both the API and the CDN, silently.
@@ -406,6 +444,30 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   point in real footage is instantly visible. Clips are dimmed and desaturated
   to sit with the stills. `clip_at` skips into the source; stock rarely opens on
   its own best moment.
+
+## The Ken Burns on a photograph is one float affine
+
+`PhotoShot.draw` scales and translates the sharp layer with a single
+`warpAffine`. It used to be three separate integer steps — `int()` on the
+width, `int()` on the height, `round()` on the paste — so **the two axes
+crossed their rounding boundaries on different frames**. The picture grew a
+pixel taller on one frame and a pixel wider three frames later, which a viewer
+reads as the image lagging its own move. Measured, the frame-to-frame delta
+swung **3.4–4.5x between consecutive frames**; after the warp it is within
+1.15x with no frozen frames.
+
+This is the video path's lesson arriving at the stills, and it had been latent
+for as long as the photographs bled off the frame — an edge you cannot see
+cannot be seen to jump. Bringing both edges inside the frame for the watermark
+dodge is what exposed it. **The hairline is drawn with cv2's `shift` for the
+same reason**: a border snapped to whole pixels under a picture that is not
+puts the judder straight back.
+
+**This changed the vertical shorts too, and they are no longer byte-identical
+to the shipped renders.** That was a deliberate call — the old bytes contained
+the judder, and `crypto/shots.py` has claimed subpixel motion in its own
+docstring since it was written. If a short is ever re-rendered it will look
+slightly smoother and hash differently.
 
 ## Motion on a video shot — three things that all caused visible glitches
 
@@ -465,6 +527,13 @@ watermark** — the first two are searched and the third was removed.
   the image.
 - **No watermark.** The channel name is already under the thumbnail everywhere
   it appears; a mark on the image is a tell of a template.
+- **The scorer loses to the subject.** `render_long(thumb_side=)` overrides the
+  searched side, and on Saylor it was used: the two sources that scored clean
+  are him twenty years ago, and a thumbnail is a promise about who the video is
+  about. The +0.91 on the shipped one is a studio backdrop's lettering, which
+  the eye reads as a flat blue field. Look at the render before believing
+  either the score or the override — but note that **all three thumbnails so
+  far ship overridden**, which says as much about the scorer as the pictures.
 
 ### The layout is searched, and the search is the point
 

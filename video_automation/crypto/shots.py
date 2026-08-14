@@ -109,9 +109,14 @@ def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot
 class PhotoShot:
     """A prepared image shot. Layers are built once; frames are cheap crops."""
 
+    # How much clear air the photo's gold hairline leaves under the watermark
+    # when it has to dodge it. Small on purpose: this is a nudge, not a layout.
+    LOGO_CLEAR = 16
+
     def __init__(self, path: Path, zoom: float, pan: tuple[float, float],
                  aspect: float = 1.15, bias: float = 0.5,
-                 frame: Frame = VERTICAL):
+                 frame: Frame = VERTICAL,
+                 logo_box: tuple[int, int, int, int] | None = None):
         src = Image.open(path).convert("RGB")
         self.zoom, self.pan = zoom, pan
         self.frame = frame
@@ -159,8 +164,80 @@ class PhotoShot:
             (target_w, max(1, int(crop.height * target_w / crop.width))),
             Image.LANCZOS)
 
-    def photo_box(self, f: float = 0.5) -> tuple[float, float, float, float]:
-        """Where the sharp photograph sits at `f`. Captions key off this."""
+        self.dy = self._dodge(logo_box, frame)
+        # After the dodge, which may have resized it. `draw` warps this array
+        # directly rather than resizing a PIL image per frame.
+        self.sharp_px = np.ascontiguousarray(np.asarray(self.sharp))
+
+    def _dodge(self, logo_box, frame: Frame) -> float:
+        """How far to push the whole shot down to clear the watermark.
+
+        **A photograph that does not fill the frame carries a gold hairline
+        along its top edge, and that line ran straight under the wordmark** —
+        two graphics crossing, which reads as a mistake rather than as framing.
+        A photo big enough to bleed off the top has no line up there at all, so
+        it needs nothing: that is the "leave the full screen as it is" half of
+        the rule.
+
+        Two things this deliberately does *not* do:
+
+        * **It is a constant offset, not a per-frame clamp.** `y` travels across
+          the shot, so clamping each frame would hold the picture still against
+          the floor and then release it — a stutter in the middle of a Ken Burns
+          move. The offset is computed from the extreme of the travel and the
+          motion is preserved exactly.
+        * **It only fires when the photo actually reaches the mark**, in both
+          axes. A shot whose top edge is already below the wordmark, or whose
+          picture sits to the right of it, is left byte-for-byte alone — which
+          is what keeps the shipped vertical shorts reproducible, since a 9:16
+          frame puts its mark at y=268 and its photograph 200px below that.
+
+        **A photo too tall to fit under the mark is shrunk, not shoved.** A pure
+        translation, on a picture that already reached within 60px of the frame
+        edge, pushes its lower edge off screen — so the bottom hairline vanishes
+        part-way through the shot, which is a second artifact traded for the
+        first. Scaling into the band that is actually available keeps both edges
+        drawn for the whole shot, and it costs a few percent of size on what is
+        a downscale of the source either way.
+        """
+        if logo_box is None:
+            return 0.0
+        lx, ly, lw, lh = logo_box
+        floor = ly + lh + self.LOGO_CLEAR
+
+        def extremes():
+            # x, y and h all travel with `f`, and not necessarily together, so
+            # sample rather than assuming the extreme sits at an endpoint.
+            boxes = [self._place(i / 10) for i in range(11)]
+            return (min(y for _, y, _, _ in boxes),
+                    max(y + h for _, y, _, h in boxes),
+                    min(x for x, _, _, _ in boxes),
+                    max(x + w for x, _, w, _ in boxes),
+                    max(h for _, _, _, h in boxes))
+
+        top, bottom, left, right, tall = extremes()
+        if top <= 0 or top >= floor:        # bleeds off the top, or already clear
+            return 0.0
+        if right <= lx or left >= lx + lw:  # the mark is not over the picture
+            return 0.0
+
+        # Less the hairline's own width: a bottom edge landing exactly on
+        # `frame.h` fails the `edge < fr.h` test and the line is not drawn at
+        # all, which is the artifact this branch exists to prevent.
+        band = frame.h - floor - 3
+        if tall > band:
+            k = band / tall
+            self.sharp = self.sharp.resize(
+                (max(1, int(self.sharp.width * k)),
+                 max(1, int(self.sharp.height * k))), Image.LANCZOS)
+            top, bottom, left, right, tall = extremes()
+
+        # Never trade the bottom edge for the top one: if a shot still cannot
+        # fit, take the largest push that keeps the lower hairline on screen.
+        return max(0.0, min(floor - top, frame.h - bottom))
+
+    def _place(self, f: float) -> tuple[float, float, float, float]:
+        """The photograph's box at `f`, before the watermark dodge."""
         k = 1.0 + (self.zoom - 1.0) * f
         w = self.sharp.width / self.zoom * k
         h = self.sharp.height / self.zoom * k
@@ -168,35 +245,61 @@ class PhotoShot:
         y = (self.frame.h - h) / 2 + self.pan[1] * (f - 0.5) * self.frame.h
         return x, y, w, h
 
+    def photo_box(self, f: float = 0.5) -> tuple[float, float, float, float]:
+        """Where the sharp photograph sits at `f`. Captions key off this."""
+        x, y, w, h = self._place(f)
+        return x, y + self.dy, w, h
+
     def draw(self, f: float) -> Image.Image:
-        """`f` runs 0..1 across the shot."""
+        """`f` runs 0..1 across the shot.
+
+        **The sharp layer's scale and translation are one float affine.** They
+        used to be three separate integer steps — `int()` on the width, `int()`
+        on the height, `round()` on the paste — and the two axes therefore
+        crossed their rounding boundaries on *different frames*. The picture
+        grew a pixel taller on one frame and a pixel wider three frames later,
+        which is visible as a stutter and reads as the image lagging its own
+        move. It is the same fault the video path had, and it has the same fix:
+        `warpAffine` does the scale and the offset together, at subpixel
+        precision, so both edges move continuously and in step.
+
+        It was latent for as long as the photographs bled off the frame — an
+        edge you cannot see cannot be seen to jump. Bringing both edges inside
+        the frame, so the hairline clears the watermark, is what exposed it.
+        """
         # Backdrop drifts one way, sharp layer the other. Opposed moves at
         # different rates is what makes a still photograph read as a shot.
         fr = self.frame
         bx = (self.back.shape[1] - fr.w) * (0.5 + 0.42 * (f - 0.5))
         by = (self.back.shape[0] - fr.h) * (0.5 - 0.42 * (f - 0.5))
-        out = Image.fromarray(_subpixel(self.back, bx, by, fr.w, fr.h))
+        canvas = np.ascontiguousarray(_subpixel(self.back, bx, by, fr.w, fr.h))
 
-        # The sharp copy zooms slightly and slides along `pan`.
-        k = 1.0 + (self.zoom - 1.0) * f
-        w = int(self.sharp.width / self.zoom * k)
-        h = int(self.sharp.height / self.zoom * k)
-        img = self.sharp.resize((w, h), Image.LANCZOS)
-        x = (fr.w - w) / 2 + self.pan[0] * (f - 0.5) * fr.w
-        y = (fr.h - h) / 2 + self.pan[1] * (f - 0.5) * fr.h
-        out.paste(img, (int(round(x)), int(round(y))))
+        # The sharp copy zooms slightly and slides along `pan`, in floats.
+        x, y, w, h = self.photo_box(f)
+        s = w / self.sharp_px.shape[1]
+        m = np.float32([[s, 0.0, x], [0.0, s, y]])
+        # BORDER_TRANSPARENT leaves the backdrop untouched outside the photo,
+        # so this composites in one pass with no mask and no integer paste.
+        cv2.warpAffine(self.sharp_px, m, fr.size, dst=canvas,
+                       flags=cv2.INTER_LANCZOS4,
+                       borderMode=cv2.BORDER_TRANSPARENT)
 
         # A hairline in the site's gold along the photo's edges, which reads as
         # deliberate framing rather than as an image that failed to fill.
-        d = ImageDraw.Draw(out)
-        x0, x1 = int(round(x)), int(round(x)) + w
-        for edge in (int(round(y)), int(round(y)) + h):
+        # Drawn with `shift`, which is cv2's fixed-point subpixel form: a line
+        # snapped to whole pixels under a picture that is not would reintroduce
+        # exactly the judder the warp just removed.
+        SH, u = 4, 16.0
+        for edge in (y, y + h):
             if 0 < edge < fr.h:
                 # Only across the photograph, not the whole frame. Drawn full
                 # width it read as a band the picture was supposed to fill, which
                 # made a narrow source look like a rendering bug.
-                d.line([(x0, edge), (x1, edge)], fill=GOLD, width=3)
-        return out
+                cv2.line(canvas,
+                         (int(round(x * u)), int(round(edge * u))),
+                         (int(round((x + w) * u)), int(round(edge * u))),
+                         GOLD, 3, lineType=cv2.LINE_AA, shift=SH)
+        return Image.fromarray(canvas)
 
 
 
@@ -445,11 +548,20 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
     logo_at = frame.logo_at if logo_at is None else logo_at
     logo_w = frame.logo_w if logo_w is None else logo_w
 
+    if mark is None:
+        mark = logo_mark(logo_w)
+    # The box the watermark occupies, float included, so a photograph's hairline
+    # can dodge it. Resolved from the mark itself rather than assumed: the two
+    # sites' marks differ by a factor of four in height at the same width.
+    logo_box = (None if mark is None else
+                (logo_at[0], int(logo_at[1] - logo_float),
+                 mark.width, int(mark.height + 2 * logo_float)))
+
     prepared = []
     for s in shots:
         if s.image is not None:
             prepared.append(PhotoShot(s.image, s.zoom, s.pan, s.aspect, s.bias,
-                                      frame=frame))
+                                      frame=frame, logo_box=logo_box))
         elif factory is not None:
             prepared.append(factory(s, frame))
         else:
@@ -458,8 +570,6 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                                           start=s.start, hold=s.hold,
                                           frame=frame))
 
-    if mark is None:
-        mark = logo_mark(logo_w)
     if mark is not None:
         frame.check_top(logo_at[1] - logo_float, f"logo_at={logo_at}")
 
