@@ -73,6 +73,13 @@ bottom (`_mark_bottom`) — at the old fixed y=214 the heading printed straight
 through the wordmark. `Brand.mark_scale` is 0.62 here for the same reason: a
 tall lockup at a wide wordmark's width dominates the frame.
 
+The same height difference drives the **photo-border dodge** described in
+`/video-crypto-long`: a picture that fits the frame is pushed down (or slightly
+scaled) so its gold hairline never crosses the mark, while a full-frame picture
+is left alone. It reads the mark's real box rather than a constant, so this
+159px lockup pushes a photograph roughly four times as far as the wordmark
+does — which is exactly why it could not be a number in the source.
+
 ## The rule that outranks every production consideration
 
 **No medical claims. Ever.** This is YMYL health content and the site's own copy

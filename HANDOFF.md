@@ -1,7 +1,7 @@
-# Handoff — state as of 2026-08-13
+# Handoff — state as of 2026-08-14
 
-Written to close out the session that built long form. Everything below is
-committed and pushed; nothing is in flight.
+Written to close out the session that built the Saylor long form. Everything
+below is committed and pushed; nothing is in flight.
 
 **Repo:** `~/Coding/video-edit-automation` → https://github.com/oktayshakirov/video-edit-automation
 
@@ -50,7 +50,7 @@ licence chased.
 ## The two videos, and what is left to do on them
 
 Both are **uploaded, unlisted, with title/description/tags applied** via
-`/youtube-audit`. Neither is public.
+`/youtube-audit`. Neither is public. The Saylor long form (below) is the third.
 
 | | crypto | tinnitus |
 |---|---|---|
@@ -73,45 +73,58 @@ Shorts (16:9 landscape), but it is a real variable and the strategy doc targets
 
 ---
 
-## Next: the Michael Saylor long form
+## The Saylor long form — built, approved, uploaded
 
-**This is the agreed next task.** `/video-crypto-long`, from
-`crypto-wiki/content/crypto-ogs/michael-saylor.mdx` (1,379 words).
+`crypto-saylor-treasury-long`, 3:51, from `crypto-ogs/michael-saylor`. Script is
+`projects/crypto-long/saylor-treasury.py`; metrics are in `CHANGELOG.md`. The
+user approved it and uploaded it; title and description were applied with
+`/youtube-audit`. **The thumbnail and the SRT still have to go in by hand in
+Studio**, as with the other two.
 
-Everything needed is already on disk:
+It kept the short's angle deliberately and spent the extra three minutes on the
+financing mechanics, the rename, and the bear case. The Commons attribution
+block is in the description and there is an explicit no-advice line.
 
-- **The short exists and is public** — `fvqxbVLa6Mg`, "The Man Who Owns 4% of
-  All Bitcoin | Michael Saylor", 1:02, 31 views. Its script is
-  `projects/crypto/michael-saylor.py`.
-- **The portraits exist** — `assets/crypto/michael-saylor/`, four Wikimedia
-  Commons photographs at 2000–8000px, the only images in the format that never
-  upscale.
+**Three of the faults in it were bad pictures, and all three were invisible in
+the logs.** Six site images were far brighter than the palette takes,
+`ftx-collapse.jpg` under a line about leverage read as exchange fraud, and
+`one-coin.jpg` is OneCoin — Ruja Ignatova's fraud — which beside Saylor is an
+accusation the script never makes. **Screen the site's own images too**, not
+just stock: `stock.screen` works on any file, the pilot's brightest photograph
+measured L82, and anything much above that fights the gold-on-near-black frame.
 
-Three things to get right, in order of how badly they bite:
+## Two engine fixes came out of that cut
 
-**Reuse the short's material freely.** Its angle is the strongest one the
-article has and there is no reason to invent a weaker one to be different — the
-treasury bet and what the company became belong in the long version too. What
-three minutes buys is *depth on the same story*: the financing mechanics (debt
-offerings and share sales funding coin purchases), the rename to Strategy, and
-the honest bear case, none of which fit in sixty seconds.
+Both are in `crypto/shots.py`, both affect every video the repo makes, and both
+are documented in `/video-crypto-long`.
 
-**Attribution is mandatory and it is in `assets/crypto/michael-saylor/CREDITS.md`.**
-Two of the four photographs are CC BY-SA, which makes the video a derivative
-work. The block goes in the description of anything published. `Meta.credits`
-exists for exactly this.
+**A fitted photograph's gold hairline no longer crosses the watermark.**
+`PhotoShot` pushes the shot down — or scales it into the available band when it
+is too tall — by a constant offset computed from the extreme of the Ken Burns
+travel, so the motion is unchanged. A full-frame photograph draws no top
+hairline and is left alone. It reads the mark's real box, so the tinnitus
+lockup pushes roughly four times as far as the crypto wordmark.
 
-**No financial advice, and this topic invites it.** A piece about a man who bet
-a company on one asset is one sentence away from sounding like a recommendation.
-Report what the company did and what it cost; route to the article. The Satoshi
-script's closing pattern — a question, not a verdict — is the safe shape.
+**The Ken Burns on a still is one float affine.** It was three integer steps —
+`int()` on the width, `int()` on the height, `round()` on the paste — so the two
+axes crossed their rounding boundaries on different frames and the picture grew
+taller and wider a few frames apart. Measured, the frame-to-frame delta swung
+3.4–4.5x between consecutive frames; it is now within 1.15x with no frozen
+frames. The user saw it as flickering and lagging before any measurement did.
 
-The demand ranking in the strategy doc has better-trafficked candidates
-(`how-to-build-a-mining-rig` at 1510 views, `understanding-crypto-exchanges` at
-1038). Saylor is the user's pick, not the data's; worth saying once and then
-building it.
+**This retires an invariant.** The vertical shorts are **no longer
+byte-identical** to their shipped renders — the old bytes contained the judder,
+and `crypto/shots.py` had claimed subpixel motion in its own docstring since it
+was written. Re-rendering a short now gives a slightly smoother, different file.
+That was a deliberate call and it is the one thing in this session worth
+revisiting if it turns out to matter.
 
----
+## Next
+
+Nothing is agreed. The demand ranking in the strategy doc still points at
+`how-to-build-a-mining-rig` (1510 views) and `understanding-crypto-exchanges`
+(1038), and the programme is capped at 15–20 videos. Phase 4 — the site embeds —
+is still parked until there are ~30 days of data.
 
 ## What is unverified, and should be said rather than assumed
 
@@ -125,9 +138,12 @@ building it.
 - **`max_upscale=1.90` and the landscape safe box are still `GUESS`** in
   `core/frame.py`. They want checking full-screen against a real upload.
 - **`mia` and `luna-calm` are candidates, not approved voices.**
-- **The thumbnail scorer prints a warning on both current thumbnails** (+0.91
-  crypto, +0.01 tinnitus). Both were overridden deliberately — the crypto type
-  sits on soft dark foliage — but it is an override, not a pass.
+- **The thumbnail scorer is overridden on all three thumbnails** (+0.91 satoshi,
+  +0.01 tinnitus, +0.91 saylor). Each was a deliberate call; on Saylor the score
+  is the CPAC backdrop's lettering, which the eye reads as a flat blue field,
+  and the two sources that scored clean are Saylor twenty years ago. An
+  override is not a pass — but three in a row is worth reading as a signal
+  about the scorer, not only about the pictures.
 
 ## Still unbuilt
 
