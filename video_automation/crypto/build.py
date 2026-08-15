@@ -8,6 +8,7 @@ there is a shot list and it has to line up with the sentences.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -75,6 +76,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         emoji: dict[str, str] | None = None,
                         sound: bool = True,
                         fps: int = 30,
+                        keep_work: bool = False,
                         frame: Frame = VERTICAL) -> tuple[Path, float]:
     """One short, end to end.
 
@@ -172,6 +174,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
          "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
          "-shortest", "-movflags", "+faststart", str(out)],
         check=True, capture_output=True)
+
+    # Scratch. Intermediates only - narration and bed WAVs, the silent picture
+    # pass, per-shot PNGs. Deleted on success so a run leaves only what ships;
+    # a failed run keeps everything needed to debug it. Set keep_work=True while
+    # iterating on a cut.
+    if not keep_work:
+        shutil.rmtree(workdir, ignore_errors=True)
+
     return out, total
 
 

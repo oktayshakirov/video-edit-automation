@@ -13,6 +13,7 @@ minutes cannot coast on a good first line.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -54,6 +55,9 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_side: str | None = None,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 sound: bool = True, fps: int = 30,
+                # Intermediates are deleted on success. See the note at the end
+                # of this function; set True while iterating on a cut.
+                keep_work: bool = False,
                 frame: Frame = LANDSCAPE) -> dict:
     """Build the video and everything that ships with it.
 
@@ -207,6 +211,18 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         sidecar = out.with_suffix(".md")
         meta.write(sidecar, chapters, total, out, srt, made.get("thumb"))
         made["meta"] = sidecar
+
+    # --- scratch ----------------------------------------------------------
+    # The work directory is intermediates only: raw narration and bed WAVs, the
+    # silent picture pass, per-shot PNGs. It runs 130-330 MB per video and
+    # nothing in it is needed once the MP4, SRT, thumbnail and sidecar exist.
+    # Seven videos had left 937 MB of it sitting on the Desktop.
+    #
+    # Deleted only on success, and only below `out`'s parent, so a failed render
+    # keeps everything needed to debug it. Pass `keep_work=True` when you are
+    # iterating on a cut and want the intermediates back without a re-render.
+    if not keep_work:
+        shutil.rmtree(workdir, ignore_errors=True)
 
     return made
 

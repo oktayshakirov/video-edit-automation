@@ -36,9 +36,22 @@ made = render_long(SECTIONS, out, work, brand=CRYPTO, meta=META, voice="mia",
 Produces the MP4, an `.srt`, a 1280x720 thumbnail and a `.md` sidecar carrying
 the description, chapters and any chapter-rule violations.
 
-**Still unbuilt:** upload, the MDX embed component, and the `VideoObject`
-schema — Phase 4 in the strategy doc. Script generation from MDX is **not**
-planned and should not be: the script is the product.
+**Built on the site side:** `<PostVideo />` and `VideoObject` on both repos,
+driven by a `videos.json` registry - see `docs/site-video-integration.md`. A new
+video appears on its article by adding a registry entry; do **not** put video
+metadata in MDX frontmatter.
+
+`/videos` and `/videos/<slug>` carry the feed and the per-video transcript
+pages. Chapters go in the registry as `{start, title, text}` and drive both the
+transcript and the `Clip` key moments.
+
+**Still unbuilt:** upload. The registry is hand-edited on upload by design.
+Script generation from MDX is **not** planned and should not be: the script is
+the product.
+
+**Keep the `.srt` and the `.md` sidecar.** Both were cleaned off the Desktop
+before the site pages needed them, and the transcripts had to be rebuilt from
+`SECTIONS[].sentences` plus the chapter times in the YouTube description.
 
 ## The shape
 

@@ -32,6 +32,7 @@ treatment — and the copy never implies a cure.
 from __future__ import annotations
 
 import math
+import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -446,7 +447,8 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
                       emoji: dict[str, str] | None = None,
                       lead_in: float = 0.0, gap: float = 0.6,
                       font_size: int = 44, y_frac: float = 0.50,
-                      fps: int = 30, seed: int = 7) -> tuple[Path, float]:
+                      fps: int = 30, seed: int = 7,
+                      keep_work: bool = False) -> tuple[Path, float]:
     """Narration, breathing block, bed and picture into one vertical MP4.
 
     The two narration blocks are synthesised separately rather than as one call
@@ -549,4 +551,12 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
             "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
             "-shortest", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True, capture_output=True)
+
+    # Scratch. Intermediates only - narration and bed WAVs, the silent picture
+    # pass, per-shot PNGs. Deleted on success so a run leaves only what ships;
+    # a failed run keeps everything needed to debug it. Set keep_work=True while
+    # iterating on a cut.
+    if not keep_work:
+        shutil.rmtree(workdir, ignore_errors=True)
+
     return out, total
