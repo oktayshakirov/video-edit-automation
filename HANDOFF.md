@@ -147,10 +147,21 @@ is still parked until there are ~30 days of data.
 
 ## Still unbuilt
 
-- **Phase 4: the site embeds.** MDX component plus `VideoObject` schema on both
-  repos, with a facade embed and a locally served WebP poster. Deliberately
-  parked until the videos have ~30 days of data — the embed is easier to justify
-  once you know whether anyone watches past 30 seconds.
+- **Phase 4 step A is done.** `<PostVideo />` facade plus `VideoObject` shipped
+  on both site repos, driven by a `videos.json` registry rather than MDX
+  frontmatter. Details and the rest of the plan: `docs/site-video-integration.md`.
+- **Sound-therapy sessions are live on tinnitus.** `ZenSessions` on every /zen
+  album page plus a `/zen/videos` tab listing them all. Sessions are
+  many-to-one with an album - the registry expects several entries sharing one
+  `target`, each with a short `label`.
+- **The registry sync is deliberately not built.** At the current cadence,
+  hand-editing `videos.json` on upload beats maintaining a script; the design is
+  recorded in `docs/site-video-integration.md` if the cadence ever changes.
+- **Keep the SRT and the sidecar.** Both were cleaned off the Desktop before the
+  site pages needed them, and the transcripts had to be rebuilt from
+  `SECTIONS[].sentences` plus the chapter times in the YouTube description. That
+  worked, but only because the script is in the repo. Copy the `.srt` somewhere
+  durable on the next render.
 - **Upload.** `/youtube-audit` can edit metadata but must never gain upload or
   delete scopes.
 - **Vertical layouts for the drawn beats.** Only `checklist` has one, so
