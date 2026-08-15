@@ -322,6 +322,144 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     return out
 
 
+# --- session thumbnails --------------------------------------------------
+#
+# A different layout, because a sound-therapy session breaks every assumption
+# `render_thumb` is built on. There is no photograph, so there is no subject to
+# find and no empty half to pan the type into; a frame grab would be a dark
+# nebula with a thin circle on it, which at 360px wide is a black rectangle.
+#
+# What a session thumbnail has to sell is not an argument, it is a *spec*: how
+# long, what sound, what breath pattern. People search "10 minute breathing" and
+# scan a grid for the number, so **the duration is the accent** — it takes the
+# role the boxed phrase takes on an article thumbnail.
+#
+# It is also a series template on purpose. The same ring in the same place with
+# a different number reads as one shelf of videos rather than five unrelated
+# ones, and that is worth more than making each thumbnail individually clever.
+
+def render_session_thumb(out: Path, brand: Brand, minutes: int,
+                         headline: str, pattern: str | None = None,
+                         accent: str = "cyan", seed: int = 7,
+                         size: int = 104) -> Path:
+    """Thumbnail for a sound-therapy session: nebula, ring, duration, spec.
+
+    `headline` is two or three words, no brackets — the accent here is the
+    duration, so a second highlight would only compete with it. `pattern` is
+    the breath spec ("4 IN / 6 OUT"), drawn as a chip under the headline.
+
+    The nebula comes from the video's own generator at the same `seed`, so the
+    thumbnail is a picture of this video rather than of the format.
+    """
+    from ..tinnitus.asmr import _ring_sprite, nebula_canvas
+
+    # Generated a good deal larger and downsampled. The nebula's stars are
+    # single pixels; rendering at 1280 wide and saving as JPEG turns them into
+    # mush, where rendering at 2x and resizing keeps them as points.
+    base = Image.fromarray(nebula_canvas(W * 2, H * 2, seed)).resize(
+        (W, H), Image.LANCZOS).convert("RGB")
+    # Lift it. In the video the nebula is a backdrop nobody looks at directly;
+    # in a grid it is competing, and the same pixels read as an empty black box.
+    base = ImageEnhance.Brightness(base).enhance(1.22)
+
+    # Scrim under the headline column, same device as `render_thumb`. Lifting
+    # the nebula is what makes the thumbnail read at all, and it is also what
+    # puts a blown-out cloud behind the type — at seed 7 there is a near-white
+    # one in the top-left corner, exactly where the headline goes. The stroke
+    # alone survives it; the headline stops being *quiet*, which is the one
+    # quality this format is selling.
+    grad = Image.new("L", (W, 1))
+    px = grad.load()
+    for x in range(W):
+        px[x, 0] = int(224 * max(0.0, 1.0 - ((x / (W - 1)) / 0.60) ** 1.7))
+    base = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)),
+                           base, grad.resize((W, H)))
+
+    fill, ink = ACCENTS.get(accent, ACCENTS["cyan"])
+    d = ImageDraw.Draw(base)
+
+    # --- the ring, right of centre, holding the number -------------------
+    r = 232
+    cx, cy = int(W * 0.735), H // 2
+    k = int(r * 2 + 80)
+    ring = _ring_sprite(r).resize((k, k), Image.LANCZOS)
+    base = base.convert("RGBA")
+    base.alpha_composite(ring, (cx - k // 2, cy - k // 2))
+    d = ImageDraw.Draw(base)
+
+    # The number sits where the countdown sits in the video. That echo is the
+    # point: someone who has seen one of these knows what the circle does.
+    num_font = ImageFont.truetype(FONT_CAPTION, 250, index=FONT_CAPTION_INDEX)
+    unit_font = ImageFont.truetype(FONT_CAPTION, 60, index=FONT_CAPTION_INDEX)
+    _mid(d, str(minutes), cx, cy - 40, num_font, fill=fill, stroke=10)
+    _mid(d, "MINUTES", cx, cy + 128, unit_font, fill=(255, 255, 255), stroke=7)
+
+    # --- headline, left column ------------------------------------------
+    margin, col_w = 62, int(W * 0.44)
+    words = headline.upper().split()
+    for _ in range(12):
+        font = ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
+        space = d.textlength(" ", font=font)
+        lines, cur, cw = [], [], 0.0
+        for word in words:
+            ww = d.textlength(word, font=font)
+            if cur and cw + space + ww > col_w:
+                lines.append(cur)
+                cur, cw = [], 0.0
+            cur.append((word, ww))
+            cw += ww + (space if len(cur) > 1 else 0)
+        if cur:
+            lines.append(cur)
+        if len(lines) <= 3:
+            break
+        size -= 8
+
+    line_h = int(size * 1.10)
+    block = len(lines) * line_h + (int(size * 1.05) if pattern else 0)
+    y = (H - block) // 2
+    for line in lines:
+        x = margin
+        for word, ww in line:
+            d.text((x, y), word, font=font, fill=(255, 255, 255),
+                   stroke_width=8, stroke_fill=(0, 0, 0))
+            x += ww + space
+        y += line_h
+
+    # The breath spec as a plate. It is the one piece of information that
+    # separates this from a plain noise video, and it is short enough to box.
+    if pattern:
+        chip = ImageFont.truetype(FONT_CAPTION, int(size * 0.50),
+                                  index=FONT_CAPTION_INDEX)
+        text = pattern.upper()
+        tw = d.textlength(text, font=chip)
+        cap = chip.getbbox("H")[3] - chip.getbbox("H")[1]
+        asc, _ = chip.getmetrics()
+        pad_x, pad_v = 18, int(size * 0.13)
+        by = y + 14 + asc
+        d.rectangle([margin - pad_x, by - cap - pad_v,
+                     margin + tw + pad_x, by + pad_v], fill=fill)
+        d.text((margin, y + 14), text, font=chip, fill=ink)
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    base.convert("RGB").save(out, quality=92)
+    return out
+
+
+def _mid(d: ImageDraw.ImageDraw, text: str, cx: int, cy: int,
+         font: ImageFont.FreeTypeFont, fill: tuple[int, int, int],
+         stroke: int) -> None:
+    """Draw `text` centred on both axes at (cx, cy).
+
+    Stroked, unlike the ring type inside the video. The video's background is
+    one this module generated and the contrast is known; a thumbnail is shown
+    at 360px against a white page and a dark page and next to whatever else is
+    in the grid, so the type has to carry its own contrast.
+    """
+    x0, y0, x1, y1 = d.textbbox((0, 0), text, font=font)
+    d.text((cx - (x1 - x0) // 2 - x0, cy - (y1 - y0) // 2 - y0), text,
+           font=font, fill=fill, stroke_width=stroke, stroke_fill=(0, 0, 0))
+
+
 def _arrow(d: ImageDraw.ImageDraw, start: tuple[float, float],
            end: tuple[float, float], colour: tuple[int, int, int]) -> None:
     """A curved arrow, drawn as a quadratic bezier with a solid head.
