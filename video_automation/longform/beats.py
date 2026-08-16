@@ -96,7 +96,12 @@ class Beat:
 
         # Scale the column geometry if the frame is not the 1920 reference.
         k = frame.w / 1920
-        self.margin = int(self.MARGIN * k)
+        # **Portrait is not landscape scaled down.** `MARGIN * k` is 56px on a
+        # 1080-wide frame, which is tighter than anything else in the vertical
+        # format — `ChecklistShot` sets its items from x=200. A margin is about
+        # the edge of a phone screen, not about a fraction of the design width.
+        self.portrait = frame.h > frame.w
+        self.margin = 96 if self.portrait else int(self.MARGIN * k)
         self.col = (self.margin, int(self.COL_W * k))
         self.pic_box = (int(self.PIC_X * k), int(self.PIC_W * k),
                         int(self.PIC_H * frame.h / 1080))
@@ -704,12 +709,21 @@ class Grid(Beat):
         top0 = self.heading(out, self.title, f)
 
         usable = fr.w - 2 * self.margin
-        cols = 3 if n >= 5 else 2
+        # **Three across is a landscape number.** At 1080 wide it is a 293px
+        # card, which cannot hold a label and a note at readable size on a
+        # phone. Portrait goes one column up to four items and two beyond that,
+        # so the cards stay wide and the block grows downward — which is the
+        # axis a 9:16 frame actually has to spare.
+        if self.portrait:
+            cols = 1 if n <= 4 else 2
+        else:
+            cols = 3 if n >= 5 else 2
         rows = (n + cols - 1) // cols
         gap = 36
         cw = (usable - gap * (cols - 1)) // cols
 
-        label_font, note_font = _font(46), _font(31)
+        label_font, note_font = ((_font(54), _font(36)) if self.portrait
+                                else (_font(46), _font(31)))
         inner = cw - 2 * self.PAD
         # Measure every card first and take one height for all of them. Cards
         # of different heights on a grid read as a broken layout, not as
@@ -718,7 +732,8 @@ class Grid(Beat):
         wrapped = [(wrap(d, lab, label_font, inner),
                     wrap(d, note, note_font, inner) if note else [])
                    for lab, note in self.items]
-        ch = max(self.PAD * 2 + len(lw) * 58 + (14 + len(nw) * 40 if nw else 0)
+        lh, nh = (66, 46) if self.portrait else (58, 40)
+        ch = max(self.PAD * 2 + len(lw) * lh + (14 + len(nw) * nh if nw else 0)
                  for lw, nw in wrapped)
 
         block = rows * ch + gap * (rows - 1)
@@ -744,13 +759,13 @@ class Grid(Beat):
             for ln in lw:
                 d.text((x + self.PAD, ty), ln, font=label_font,
                        fill=self.brand.ink + (a,))
-                ty += 58
+                ty += lh
             if nw:
                 ty += 14
                 for ln in nw:
                     d.text((x + self.PAD, ty), ln, font=note_font,
                            fill=self.brand.primary + (int(a * 0.86),))
-                    ty += 40
+                    ty += nh
 
 
 class Steps(Beat):
@@ -775,6 +790,14 @@ class Steps(Beat):
     Four or five steps. Six sets the labels too narrow to wrap decently at
     1920; split into two beats before going wider.
 
+    **In portrait the track runs down, not across**, and that is the only
+    honest way to do it: five nodes across 1080 is a 216px slot, which cannot
+    hold a wrapped label at phone-readable size. Turning the track ninety
+    degrees costs nothing and gains everything — a 9:16 frame has height to
+    spare and no width at all, and a vertical sequence is if anything the more
+    natural reading order. Three or four steps in portrait; five fits but sets
+    the labels tight.
+
     payload: (steps, title) where steps is [text, ...]
     """
 
@@ -786,6 +809,66 @@ class Steps(Beat):
         self.steps, self.title = steps, title
 
     def content(self, out: Image.Image, f: float) -> None:
+        if self.portrait:
+            return self._vertical(out, f)
+        return self._horizontal(out, f)
+
+    def _vertical(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        fr = self.frame
+        n = len(self.steps)
+        top0 = self.heading(out, self.title, f)
+
+        rr = int(self.R * 1.25)
+        label_font, num_font = _font(52), _font(52)
+        lx = self.margin + rr * 2 + 40
+        lw = fr.w - lx - self.margin
+        wrapped = [wrap(d, t, label_font, lw) for t in self.steps]
+
+        # Rows are as tall as their own label needs, so a two-line step does
+        # not force every other node apart.
+        line_h, pad = 62, 54
+        heights = [max(rr * 2, len(w) * line_h) + pad for w in wrapped]
+        block = sum(heights) - pad
+        top = max(top0, (fr.h - block) // 2)
+
+        cx = self.margin + rr
+        centres = []
+        y = top
+        for h in heights:
+            centres.append(y + max(rr, (h - pad) // 2))
+            y += h
+
+        # The track first, drawn downward as the beat opens — the same trick
+        # the horizontal version and the comparison's divider use.
+        e = ease_out(min(1.0, (self.at(f) - self.start) / 0.55))
+        y0, y1 = centres[0], centres[-1]
+        d.line([(cx, y0), (cx, y0 + (y1 - y0) * e)],
+               fill=self.brand.primary + (110,), width=3)
+
+        for i, lines in enumerate(wrapped):
+            ev = self.due(i, n, f)
+            if ev < 0:
+                continue
+            cy = centres[i]
+            a = int(255 * min(1.0, ev))
+            d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr],
+                      fill=self.brand.bg + (255,),
+                      outline=self.brand.primary + (a,), width=4)
+            num = str(i + 1)
+            tb = d.textbbox((0, 0), num, font=num_font)
+            d.text((cx - (tb[2] - tb[0]) / 2 - tb[0],
+                    cy - (tb[3] - tb[1]) / 2 - tb[1]),
+                   num, font=num_font, fill=self.brand.primary + (a,))
+
+            ty = cy - (len(lines) * line_h) // 2 + int(round(RISE * (1.0 - ev)))
+            for ln in lines:
+                d.text((lx, ty), ln, font=label_font,
+                       fill=self.brand.ink + (a,),
+                       stroke_width=3, stroke_fill=(0, 0, 0, a))
+                ty += line_h
+
+    def _horizontal(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
         fr = self.frame
         n = len(self.steps)

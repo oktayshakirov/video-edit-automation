@@ -47,9 +47,17 @@ reference; these are the parts that are easy to get wrong:
   model; a tinnitus equivalent differs only in which `Brand` it passes.
 - **A clip in a short carries no label** — the burned caption already is the
   statement, and a label prints the same words twice.
-- **`grid` and `steps` do not transfer from long form.** At 1080 wide a
-  three-card row is a 293px card. The vertical format's only drawn beat is the
-  checklist, and its variety comes from clips.
+- **`grid` and `steps` have portrait layouts now** — one column of wide cards,
+  and a track that runs down rather than across. Use them so two drawn beats in
+  one short do not read as the same graphic twice; `steps` is right whenever the
+  content has an order.
+- **Cut between a drawn beat and a clip**, keep dissolving into a photograph. A
+  dissolve slides type across moving footage and reads as a fault.
+- **`flow` marks each checklist item as it is spoken**, for narration that
+  carries the verdict itself. It needs a much shorter gap than the two-phase
+  default.
+- **Put a beat's lead-in question in the sentence before it**, never inside the
+  beat's own span, or it eats the first reveal.
 
 **None of this applies to the sound-therapy format below**, and that is worth
 being explicit about rather than assuming: `nebula_canvas` is procedural,

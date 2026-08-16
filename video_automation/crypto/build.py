@@ -20,6 +20,8 @@ from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, plan_shots,
                     render_shots)
 
+FLOW_LAG = 0.30                 # a mark lands just after the word that earns it
+
 
 def sentence_spans(sentences: list, captions: list) -> list[tuple[float, float]]:
     """Map each sentence onto the span its captions occupy.
@@ -79,13 +81,18 @@ def _short_factory(shot: Shot, frame: Frame):
     they fell through to the checklist branch and a `Shot(clip=...)` in a short
     silently rendered as an empty checklist rather than raising.
 
-    `ChecklistShot` stays the default for a drawn beat rather than deferring to
-    `longform.beats`, and that is deliberate: the long-form beats lay a content
-    column beside a picture column at 1920, and the same geometry scaled to a
-    1080-wide frame puts a 660px picture column at 371px beside a 562px content
-    column. `ChecklistShot` is the vertical-native beat and there is no reason
-    to replace it. `grid` and `steps` do **not** transfer either — three cards
-    across 1080 is a 293px card, and five step nodes is a 216px slot.
+    `ChecklistShot` stays the beat for a judged list rather than deferring to
+    `longform.beats.Checklist`: the long-form beats lay a content column beside
+    a picture column at 1920, and that geometry scaled to a 1080-wide frame puts
+    a 660px picture column at 371px beside a 562px content column. It is the
+    vertical-native beat and there is no reason to replace it.
+
+    `grid` and `steps` **do** transfer, but only because they were given real
+    portrait layouts — one column of wide cards, and a track that runs down
+    instead of across. Scaling the landscape versions would have given a 293px
+    card and a 216px step slot, which is why this file previously recorded them
+    as untransferable. They are the answer to "every list looks the same" in
+    9:16 exactly as they were in 16:9.
     """
     if shot.clip is not None:
         from ..core.brand import CRYPTO
@@ -98,6 +105,18 @@ def _short_factory(shot: Shot, frame: Frame):
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=CRYPTO,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
                          label=None, begin=shot.clip_at)
+    if shot.graphic in ("grid", "steps"):
+        # **Both are portrait-aware, not scaled down.** `Grid` drops to one
+        # column up to four items and `Steps` turns its track ninety degrees;
+        # see `longform/beats.py`. Scaling the landscape layouts would give a
+        # 293px card and a 216px step slot, which is why they were declared
+        # untransferable before they were made to transfer.
+        from ..core.brand import CRYPTO
+        from ..longform.beats import BEATS
+        return BEATS[shot.graphic](*shot.payload, brand=CRYPTO, frame=frame,
+                                   backdrop=shot.backdrop,
+                                   reveals=shot.reveals, marks=shot.marks,
+                                   start=shot.start, hold=shot.hold)
     return ChecklistShot(*shot.payload, backdrop=shot.backdrop,
                          reveals=shot.reveals, marks=shot.marks,
                          start=shot.start, hold=shot.hold, frame=frame)
@@ -147,12 +166,39 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # early or late. One caption per item and this needs no tuning.
             if sh.reveals is None:
                 sh.reveals = (starts + [starts[-1]] * n)[:n]
-            # The verdicts come afterwards, in the pause, evenly spaced with the
-            # last one held back — the tick is the payoff and it wants the beat
-            # before it to be longer than the beats between the crosses.
-            if sh.marks is None:
-                sh.marks = _mark_times(starts[-1], sh.start + sh.hold, n)
+            # **Only a checklist has verdicts.** `grid` and `steps` draw no
+            # marks, and giving them a `marks` list does not just waste work —
+            # `_cues` reads the same list to place the cross and tick sounds, so
+            # a grid would have ticked audibly while nothing was drawn.
+            if sh.graphic == "checklist" and sh.marks is None:
+                # `flow` is the payload's optional third element. With it, each
+                # verdict lands just after the word that earns it, because the
+                # narration is already saying "not the graphics cards" — holding
+                # the cross back four seconds then puts the picture behind the
+                # voice. Without it the two-phase payoff applies: the options
+                # sit unmarked and the verdicts land together in the pause.
+                flow = len(sh.payload) > 2 and bool(sh.payload[2])
+                sh.marks = ([r + FLOW_LAG for r in sh.reveals] if flow else
+                            _mark_times(starts[-1], sh.start + sh.hold, n))
         first += len(sent)
+
+    # **Cut, do not dissolve, between a drawn beat and a video clip.** The
+    # shorts' "always dissolve" is a rule about photographs and it survives for
+    # them: the piece is one continuous argument and a hard cut every five
+    # seconds fights the voice. A clip is different in kind. It is full-bleed
+    # and already moving, so a half-second dissolve puts the beat's type over
+    # travelling footage, and a viewer reads type sliding across a moving
+    # picture as a rendering fault rather than as a transition — the same
+    # reason long form cuts between its own drawn beats. Applies in both
+    # directions and only where a clip is involved, so a beat still dissolves
+    # into a photograph exactly as it always has.
+    #
+    # This cannot change the shipped shorts: neither of them contains a clip,
+    # so the condition never fires and they stay byte-reproducible.
+    for a, b in zip(shots, shots[1:]):
+        if a.xfade is None and ((a.graphic and b.clip is not None)
+                                or (a.clip is not None and b.graphic)):
+            a.xfade = 0.0
 
     line = caption_line(shots, y_frac, frame=frame)
 
