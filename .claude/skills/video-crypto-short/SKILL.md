@@ -110,10 +110,28 @@ the failure.
 - Cached stock is gitignored and `assets/stock/manifest.json` is what makes a
   build reproducible. Anything pulled must land in it.
 
-**`grid` and `steps` do not transfer from long form.** Three cards across 1080 is
-a 293px card and five step nodes is a 216px slot. `ChecklistShot` is the
-vertical-native beat and stays the only drawn beat here; the variety this format
-needs comes from clips, not from more beat types.
+**`grid` and `steps` transfer, but only because they were given real portrait
+layouts.** Scaling the landscape versions gives a 293px card and a 216px step
+slot, which is why they were briefly recorded here as untransferable. What they
+have instead:
+
+- **`grid` drops to one column** up to four items, two beyond that, with larger
+  type. Wide cards down the frame, which is the axis 9:16 has to spare.
+- **`steps` turns its track ninety degrees.** Nodes down the left, labels to the
+  right. A vertical sequence is if anything the more natural reading order, and
+  a 9:16 frame has height to spare and no width at all.
+
+**Use them to stop every list looking the same.** A short with two drawn beats
+should not use `checklist` twice — the mining rig cut pairs the judged list with
+a `steps` track for the fix, and they read as two different graphics rather than
+as the same one repeated. `steps` is the right beat whenever the content has an
+order, which a how-to usually does.
+
+**Cut between a drawn beat and a clip; keep dissolving into a photograph.** A
+clip is full-bleed and already moving, so a half-second dissolve slides the
+beat's type across travelling footage and reads as a rendering fault. This is
+automatic in `render_crypto_short` in both directions and only where a clip is
+involved.
 
 **Never put a site infographic in a shot.** A 9:16 crop takes its title off the
 top and its last row off the bottom. `proof-of-work.jpg` is the most on-topic
@@ -162,6 +180,19 @@ and stock-footage-with-narration.
   before it had been asked and the beat had no payoff. The tick is held back to
   **1.7 steps** after the last cross: a payoff needs the beat before it to be
   longer than the beats between the things it settles.
+- **`flow` is the third payload element, and it exists for narration that says
+  the verdict itself.** `payload=(items, title, True)` marks each item 0.30s
+  after the word that names it, instead of holding every verdict for the pause.
+  Use it when the script reads "Not the graphics cards. Not the power supply."
+  — there, a cross held back four seconds puts the picture behind the voice.
+  Keep the two-phase default when the narration only *lists* and the marks are
+  the answer. A `flow` beat needs a much shorter gap (1.2s, not 2.1s): the
+  silence that used to buy room for the marks is now dead air.
+- **The question goes in the sentence before the beat, never inside it.** A
+  checklist times its reveals off the caption starts of its own sentence, so a
+  lead-in line inside that span eats reveal zero and shunts every item one line
+  late. Ask it at the end of the previous sentence and the list has something to
+  be an answer to — which is also just clearer, and was a review note.
 - **The pause is bought with a per-sentence `gap`.** `gap` accepts a list, one
   per sentence; a checklist sentence takes ~2.0s against the usual 0.34 and the
   verdicts land in that silence. Without it there is no room and `_mark_times`
@@ -261,9 +292,20 @@ decoration.
 a thirty-second explainer does not, and the pauses are what a viewer scrolls away
 during.
 
-**End on a question.** The last sentence asks the viewer something and the
-caption carries a 👇. Comments are the cheapest engagement signal to earn and the
-one a 35-second explainer can actually ask for without begging.
+**End on a question — unless the video is a how-to, and then end on the rule and
+a save.** The question exists to earn a comment, which is the cheapest signal a
+35-second explainer can ask for. But it has to be a question the viewer can
+actually answer from what they just watched: the mining rig short closed on
+"would you have caught that before switching it on?" and the user cut it as
+confusing, correctly — "that" had three possible referents by then, and it asked
+the viewer to audit a build they have not made.
+
+What replaced it: the rule restated as an echo of the opening line (`Cheap
+adapter, expensive mistake.`) and then `Save this before you build one.` with a
+🔖. **A save is a stronger signal than a comment on instructional content**, and
+unlike "what do you think?" it is something the viewer has a concrete reason to
+do. Match the ask to the video: a question for an argument, a save for a
+procedure.
 
 **The angle has to be in the first line.** The first cut is
 `crypto-satoshi-proof` — "every few years someone claims they're satoshi, and

@@ -69,13 +69,21 @@ SENTENCES = [
      "that burns houses down",
      "costs about two dollars."),
 
+    # **The question goes here, not inside the beat.** A checklist times its
+    # reveals off the caption starts of its own sentence, so a lead-in line
+    # inside that span eats reveal zero and shunts every item one line late.
+    # Asking it at the end of the sentence before costs nothing and gives the
+    # list something to be an answer to.
     ("Everyone worries about the graphics cards.",
-     "They cost the most,",
-     "so they get all the attention."),
+     "They cost the most.",
+     "So what actually starts the fire?"),
 
-    # The beat. Three items, and the one nobody suspects is the one ticked.
-    ("The graphics cards.",
-     "The power supply.",
+    # The beat, and **the narration now reads the items as they appear** —
+    # which is why it is `flow`. When the voice is already saying "not the
+    # graphics cards", holding the cross back for the pause puts the picture
+    # four seconds behind the word that earned it.
+    ("Not the graphics cards.",
+     "Not the power supply.",
      "A two-dollar adapter."),
 
     ("Every card sits on a riser,",
@@ -91,12 +99,24 @@ SENTENCES = [
      "not a card pulling",
      "seventy-five watts."),
 
-    ("Run a six-pin cable",
-     "from the power supply",
-     "to every riser. Directly."),
+    # A `steps` beat: this is a procedure, and order is the one thing neither
+    # a photograph nor a checklist can show.
+    ("A six-pin cable straight from the supply.",
+     "One for every riser.",
+     "Never through an adapter."),
 
-    ("Would you have caught that",
-     "before switching it on?"),
+    # **The close.** The old ending asked "would you have caught that before
+    # switching it on?", which the user found confusing — fairly: "that" has
+    # three possible referents by then, and the question asks the viewer to
+    # audit a build they have not made. This lands the rule instead, echoing
+    # the opening line's own arithmetic, and asks for the one engagement a
+    # how-to short can honestly earn. A save is also a stronger signal than a
+    # comment on this kind of video, and unlike "what do you think?" it is
+    # something the viewer actually has a reason to do.
+    ("Cheap adapter,",
+     "expensive mistake."),
+
+    ("Save this before you build one.",),
 ]
 
 SHOTS = [
@@ -109,13 +129,13 @@ SHOTS = [
     # card, which is the whole reason the stock rule had to change here.
     Shot(image=CARDS, zoom=1.12, pan=(-0.03, 0.02), aspect=1.15, bias=0.45),
 
-    # 3 — the drawn beat, over the green server room dimmed to 0.5. Still the
-    # argument, and still the only place the piece stops moving on purpose.
+    # 3 — the judged list, flowing with the voice.
     Shot(graphic="checklist",
          payload=([("The graphics cards", False),
                    ("The power supply", False),
                    ("A $2 riser adapter", True)],
-                  "WHAT ACTUALLY STARTS FIRES"),
+                  "WHAT ACTUALLY STARTS FIRES",
+                  True),                            # flow
          backdrop=POSTS / "data-center.jpg"),
 
     # 4 — a board macro under the line about risers and their power.
@@ -125,36 +145,42 @@ SHOTS = [
     # longest sentence in the piece, which is where a still sags worst.
     Shot(clip=CIRCUIT),
 
-    # 6 — a glowing core inside a dark lattice, for the watts. **Not
-    # `industrial.jpg`**, which was the first choice and is a daylight sky full
-    # of white cloud: it measured L149 and was the only bright rectangle in a
-    # gold-on-near-black piece, and cooling towers read as power *generation*
-    # rather than as what a single card draws. This one is L59 and its amber
-    # sits with the palette. `aspect=1.05` because the source is the flattest in
-    # the set at 800x448, and cropping it toward 1.15 would narrow it past the
-    # point `MAX_UPSCALE` can carry.
-    Shot(image=POSTS / "quantum-computing.png",
-         zoom=1.12, pan=(0.03, -0.01), aspect=1.05, bias=0.45),
-
-    # 7 — the article's own hero, on the line about doing the wiring properly.
-    # The site's picture carries the instruction; the stock carries the texture.
+    # 6 — the article's own hero, and the only picture in the library of
+    # anybody handling hardware. It earns its place on the line about what
+    # those connectors were actually built for.
     Shot(image=POSTS / "mining-rig.jpg",
          zoom=1.12, pan=(0.02, -0.02), aspect=1.15, bias=0.30),
+
+    # 7 — the fix, as a vertical `steps` track. A second drawn beat with a
+    # completely different silhouette from the checklist, which is the whole
+    # point: two lists in one short would read as the same graphic twice.
+    Shot(graphic="steps",
+         payload=(["Six-pin cable from the supply",
+                   "One for every riser",
+                   "Never through an adapter"],
+                  "DO IT THIS WAY"),
+         backdrop=POSTS / "digital-technology.jpg"),
 
     # 8 — back to the opening clip at a different moment, so the return reads
     # as a return and the piece ends moving rather than on a held still.
     Shot(clip=RIG, clip_at=8.0),
+
+    # 9 — the ask, held on the same footage running on.
+    Shot(clip=RIG, clip_at=11.0),
 ]
 
 
 EMOJI = {
     "It is a known fire hazard.": "🔥",
-    "before switching it on?": "👇",
+    "Save this before you build one.": "🔖",
 }
 
-# The checklist (index 2) buys its pause: three options sit unmarked, the voice
-# stops, and cross-cross-tick lands in the silence. Everything else stays tight.
-GAPS = [0.34, 0.34, 2.10, 0.34, 0.34, 0.34, 0.34, 0.34]
+# The checklist (index 2) no longer needs its long pause: `flow` lands each
+# verdict on the word that earns it, so the 2.10s that used to buy room for the
+# marks would now just be dead air. It keeps 1.20 so the finished list sits for
+# a moment before the cut. The `steps` beat (index 6) takes 0.90 for the same
+# reason — a beat whose sentence is short is gone in under two seconds.
+GAPS = [0.34, 0.34, 1.20, 0.34, 0.34, 0.34, 0.90, 0.34, 0.34]
 
 
 def main() -> None:

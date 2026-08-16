@@ -333,6 +333,7 @@ class ChecklistShot:
     POP = 0.14                  # an item's entrance
 
     def __init__(self, items: list[tuple[str, bool]], title: str = "",
+                 flow: bool = False,
                  backdrop: Path | None = None,
                  reveals: list[float] | None = None,
                  marks: list[float] | None = None,
@@ -342,6 +343,13 @@ class ChecklistShot:
                  frame: Frame = VERTICAL):
         self.items = items
         self.title = title
+        # `flow` changes nothing here — the drawing only ever reads `marks`.
+        # It is accepted so it can travel as the payload's third element, and
+        # `build.py` turns it into a `marks` list that lands each verdict just
+        # after the word that earns it instead of all of them in a later pause.
+        # Use it when the narration says the verdict itself ("Not the graphics
+        # cards"), and leave it off when the narration only asks.
+        self.flow = flow
         self.reveals = reveals
         self.marks = marks
         self.start, self.hold = start, hold
