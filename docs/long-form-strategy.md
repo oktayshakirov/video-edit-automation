@@ -78,9 +78,21 @@ Note both lists contain pages that are **already the answer to a YouTube query**
 which is the filter that matters more than the pageview number: a mining rig
 build, a pulsatile tinnitus explanation, a proof-of-stake definition.
 
-**Consider embedding one video across several posts.** Eight to ten strong videos
-each embedded on its target post plus three or four neighbours gives the same
-page coverage at a quarter of the production. Worth revisiting after the pilot.
+**One video goes on one post: its own. Decided 2026-08-16, against the earlier
+recommendation here.** The idea was that eight to ten videos, each spread to
+three or four neighbouring posts, buys the same page coverage at a quarter of
+the production. The user's call is that it does not, and the reasoning holds up:
+the coverage it buys is fake. A mining rig explainer under an article about
+proof-of-work is a video that does not answer the page's question, so it earns
+a worse click-through *and* a worse impression of the site than no video at all
+— and the page-coverage number it improves was never a real metric, because an
+embed is not a ranking factor (see the top of this document, which says so
+plainly two sections earlier). Spreading optimises the one thing we already
+established is worthless.
+
+The registry's `alsoOn` field stays in place and stays empty. It is one line in
+`lib/videos.js` and costs nothing; ripping it out would only make the decision
+harder to reverse if a video ever genuinely does answer two pages.
 
 ## The constraint that decides the format
 

@@ -366,10 +366,13 @@ or four sessions.
 
 ## Recommendations beyond the ask
 
-- **Do not embed on all 130 posts.** The strategy doc caps production at 15–20
-  videos precisely because YouTube suppresses templated volume. The site side
-  should reflect that cap: `alsoOn` a video to three or four neighbouring posts
-  is the documented way to get page coverage without more uploads.
+- **Do not embed on all 130 posts, and do not spread a video across neighbours
+  either.** The strategy doc caps production at 15–20 videos because YouTube
+  suppresses templated volume. This section used to recommend `alsoOn` as the
+  way to get page coverage without more uploads; **that was reversed on
+  2026-08-16** — a video under a page it does not answer is worse than no video,
+  and page coverage was never a ranking input to begin with. `alsoOn` remains
+  supported and stays empty. One video, one post: its own.
 - **Put the article link first in every YouTube description.** It is currently
   after the hook. `/youtube-audit`'s `set` command can rewrite the existing seven
   in one pass.
