@@ -23,6 +23,41 @@ The sound-therapy format is the one with a real reason to exist here: the audio
 Tone-matching ("which frequency matches yours?") is the obvious next variant and
 needs tone synthesis the repo still does not have.
 
+### If and when article shorts get built, inherit these
+
+**Recorded 2026-08-16, ahead of the code**, because the crypto short skill just
+paid for them and a fresh build here would otherwise repeat the same mistakes.
+The two formats are structurally identical, so `video-crypto-short` is the
+reference; these are the parts that are easy to get wrong:
+
+- **Stock clips are allowed and the piece should open on one.** The crypto skill
+  used to ban reaching for a stock API and that rule was reversed on review: a
+  short built only from the site's photographs was judged boring, because eight
+  Ken Burns pushes in a row is one move repeated eight times, and because a site
+  library frequently owns no picture of the actual subject. **Stock supports;
+  the site's images and the drawn beat lead.** Half the shots is comfortable,
+  all of them is the failure both platforms suppress.
+- **This bites harder here than on crypto.** tinnitushelp.me has 110 images
+  across 69 posts — 2–3 per post against crypto's 3–5 — and its median source is
+  **750px**, right on the floor the blurred-fill layout needs. The picture
+  problem the reversal solves is strictly worse on this site.
+- **Screen a clip across its length, not at one frame**, and remember hue is a
+  separate judgement from the luma/saturation box.
+- **`Shot(clip=...)` needs a factory.** `crypto/build.py:_short_factory` is the
+  model; a tinnitus equivalent differs only in which `Brand` it passes.
+- **A clip in a short carries no label** — the burned caption already is the
+  statement, and a label prints the same words twice.
+- **`grid` and `steps` do not transfer from long form.** At 1080 wide a
+  three-card row is a 293px card. The vertical format's only drawn beat is the
+  checklist, and its variety comes from clips.
+
+**None of this applies to the sound-therapy format below**, and that is worth
+being explicit about rather than assuming: `nebula_canvas` is procedural,
+infinite, on-brand and licence-free, so the ASMR shorts never had the picture
+problem the reversal exists to solve. **Do not add stock footage to an ASMR
+short.** Its picture is deliberately calm and unchanging because the audio is
+the product and a cutting picture track fights it.
+
 ## Building one
 
 ```python
