@@ -119,7 +119,19 @@ TINNITUS = Brand(
     mascot=Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png",
     mascot_crop=0.82,
     wordmark="TinnitusHelp.me",
-    mark_scale=0.62,
+    # **0.62 was still too big, and the cost was not the mark — it was the
+    # picture.** A photograph that fits the frame has to clear the lockup's
+    # whole height, so a 159px mark pushed the top hairline to y=272 in a 1080
+    # frame: a quarter of the video was empty, the photo was scaled down to fit
+    # what was left, and the user's note on the shipped gaming cut was exactly
+    # that. At 0.42 the lockup is 113x110 and the same shot starts at y=220 and
+    # renders larger, because the band it is scaled into is bigger.
+    #
+    # This is the price of a square mark next to thecrypto.wiki's 250x33
+    # wordmark, and scale is the only lever that does not redraw the lockup. If
+    # it ever needs to come down again, set the mascot beside the domain rather
+    # than above it — a wide mark costs the picture nothing.
+    mark_scale=0.42,
 )
 
 BRANDS = {b.name: b for b in (CRYPTO, TINNITUS)}

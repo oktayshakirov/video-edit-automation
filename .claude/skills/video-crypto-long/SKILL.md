@@ -180,6 +180,12 @@ reads as a fault rather than as framing.
 
 `PhotoShot` dodges it automatically — nothing to set per shot.
 
+`LOGO_CLEAR` came down from 16 to 10 while fixing the tinnitus mark, so a
+dodging photograph now sits 6px higher here as well. **Every pixel of it is
+charged twice** — once as dead space above the picture and again as size, since
+a photo too tall for the remaining band is scaled into it. Under a 33px wordmark
+that is invisible; under a square lockup it was the complaint that found it.
+
 - **The push is a constant offset for the whole shot, not a per-frame clamp.**
   `y` travels across a Ken Burns move, so clamping each frame would hold the
   picture against the floor and then release it. The offset comes from the
