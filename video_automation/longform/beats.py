@@ -662,6 +662,182 @@ class Bars(Beat):
                        stroke_fill=(0, 0, 0))
 
 
+class Grid(Beat):
+    """Items as cards across the whole frame, two or three to a row.
+
+    **This exists because every list looked the same.** `checklist` and
+    `compare` both set type in a left column with a ragged right edge, so a
+    four-item checklist and a three-a-side comparison read as the same graphic
+    at a glance — and across a channel that is the templated sameness the
+    strategy doc says gets suppressed. The fix is not a new typeface, it is a
+    different *silhouette*: cards on a grid spanning the full width have no
+    left column and no ragged edge, and the eye reads them as objects rather
+    than as lines of a list.
+
+    So this is the beat for a **set of things** — components, options, formats —
+    where a checklist's implied verdict column would be meaningless anyway.
+    Nothing here is ticked or struck; if items need verdicts, use `checklist`.
+
+    Each card takes an optional second line, which is where the wide layout
+    pays for itself: a checklist has room for a label and nothing else, and
+    "8 GB of memory" is a great deal more useful with "enough for any mining
+    OS" under it.
+
+    Three to a row from five items up, two below that — a lone card on a
+    three-wide final row reads as a mistake, and four in a 2x2 is a better
+    shape than 3+1.
+
+    payload: (items, title) where items is [(label, note), ...]
+    """
+
+    EMBLEM = False
+    PAD = 30
+
+    def __init__(self, items: list[tuple[str, str]], title: str = "", **kw):
+        super().__init__(**kw)
+        self.items, self.title = items, title
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        fr = self.frame
+        n = len(self.items)
+        top0 = self.heading(out, self.title, f)
+
+        usable = fr.w - 2 * self.margin
+        cols = 3 if n >= 5 else 2
+        rows = (n + cols - 1) // cols
+        gap = 36
+        cw = (usable - gap * (cols - 1)) // cols
+
+        label_font, note_font = _font(46), _font(31)
+        inner = cw - 2 * self.PAD
+        # Measure every card first and take one height for all of them. Cards
+        # of different heights on a grid read as a broken layout, not as
+        # variety, and wrapping is what decides height — the same lesson the
+        # other beats learned about centring.
+        wrapped = [(wrap(d, lab, label_font, inner),
+                    wrap(d, note, note_font, inner) if note else [])
+                   for lab, note in self.items]
+        ch = max(self.PAD * 2 + len(lw) * 58 + (14 + len(nw) * 40 if nw else 0)
+                 for lw, nw in wrapped)
+
+        block = rows * ch + gap * (rows - 1)
+        top = max(top0, (fr.h - block) // 2)
+
+        for i, (lw, nw) in enumerate(wrapped):
+            e = self.due(i, n, f)
+            if e < 0:
+                continue
+            r, c = divmod(i, cols)
+            x = self.margin + c * (cw + gap)
+            y = top + r * (ch + gap) + int(round(RISE * (1.0 - e)))
+            a = int(255 * min(1.0, e))
+
+            # A panel rather than an outline alone: on a photographic backdrop
+            # an unfilled box lets the blur through and the type loses its
+            # ground. 0.55 black is enough to seat it without reading as a
+            # second, darker frame.
+            d.rounded_rectangle([x, y, x + cw, y + ch], radius=14,
+                                fill=(0, 0, 0, int(140 * min(1.0, e))),
+                                outline=self.brand.primary + (a,), width=3)
+            ty = y + self.PAD
+            for ln in lw:
+                d.text((x + self.PAD, ty), ln, font=label_font,
+                       fill=self.brand.ink + (a,))
+                ty += 58
+            if nw:
+                ty += 14
+                for ln in nw:
+                    d.text((x + self.PAD, ty), ln, font=note_font,
+                           fill=self.brand.primary + (int(a * 0.86),))
+                    ty += 40
+
+
+class Steps(Beat):
+    """A numbered sequence along a track. For a procedure, not a set.
+
+    The one thing none of the other beats can show is **order**. A checklist of
+    "install the drivers, install the miner, join a pool" is a set of unrelated
+    facts; the same three on a track with arrows between them is a procedure,
+    and a how-to video is mostly procedures. This is the layout the strategy
+    doc listed as `timeline` and never built.
+
+    **Numbers are correct here and wrong on a chapter card**, which is worth
+    being explicit about because the chapter card's docstring bans them. A
+    numbered agenda tells the viewer they are being lectured. A numbered
+    *sequence* is the content — step three genuinely comes after step two, and
+    hiding that would be withholding the thing the beat is for.
+
+    The track draws left to right ahead of the nodes, so the shape of the
+    sequence is established before any of it has content — the same trick the
+    comparison's dividing rule uses, and for the same reason.
+
+    Four or five steps. Six sets the labels too narrow to wrap decently at
+    1920; split into two beats before going wider.
+
+    payload: (steps, title) where steps is [text, ...]
+    """
+
+    EMBLEM = False
+    R = 46                      # node radius
+
+    def __init__(self, steps: list[str], title: str = "", **kw):
+        super().__init__(**kw)
+        self.steps, self.title = steps, title
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        fr = self.frame
+        n = len(self.steps)
+        top0 = self.heading(out, self.title, f)
+
+        usable = fr.w - 2 * self.margin
+        slot = usable / n
+        label_font, num_font = _font(38), _font(42)
+        lw = int(slot - 46)
+        wrapped = [wrap(d, s, label_font, lw) for s in self.steps]
+
+        block = self.R * 2 + 40 + max(len(w) for w in wrapped) * 48
+        top = max(top0, (fr.h - block) // 2)
+        cy = top + self.R
+
+        # The track first, drawn across as the beat opens.
+        e = ease_out(min(1.0, (self.at(f) - self.start) / 0.55))
+        x0 = self.margin + slot / 2
+        x1 = self.margin + usable - slot / 2
+        d.line([(x0, cy), (x0 + (x1 - x0) * e, cy)],
+               fill=self.brand.primary + (110,), width=3)
+
+        for i, lines in enumerate(wrapped):
+            ev = self.due(i, n, f)
+            if ev < 0:
+                continue
+            cx = self.margin + slot * (i + 0.5)
+            a = int(255 * min(1.0, ev))
+            rr = self.R
+
+            # The node is filled with the page ground, not left transparent —
+            # the track runs behind it and a line crossing a numeral is the
+            # kind of two-graphics-at-once fault the transitions doc warns
+            # about.
+            d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr],
+                      fill=self.brand.bg + (255,),
+                      outline=self.brand.primary + (a,), width=4)
+            num = str(i + 1)
+            tb = d.textbbox((0, 0), num, font=num_font)
+            d.text((cx - (tb[2] - tb[0]) / 2 - tb[0],
+                    cy - (tb[3] - tb[1]) / 2 - tb[1]),
+                   num, font=num_font, fill=self.brand.primary + (a,))
+
+            ty = cy + rr + 40 + int(round(RISE * (1.0 - ev)))
+            for ln in lines:
+                tb = d.textbbox((0, 0), ln, font=label_font)
+                d.text((cx - (tb[2] - tb[0]) / 2 - tb[0], ty), ln,
+                       font=label_font, fill=self.brand.ink + (a,),
+                       stroke_width=3, stroke_fill=(0, 0, 0, a))
+                ty += 48
+
+
 BEATS = {
     "chapter": ChapterCard,
     "checklist": Checklist,
@@ -669,6 +845,8 @@ BEATS = {
     "compare": Compare,
     "quote": Quote,
     "bars": Bars,
+    "grid": Grid,
+    "steps": Steps,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -680,6 +858,8 @@ _COUNT = {
     "compare": lambda p: len(p[1]) + len(p[3]),
     "quote": lambda p: 1,
     "bars": lambda p: len(p[0]),
+    "grid": lambda p: len(p[0]),
+    "steps": lambda p: len(p[0]),
 }
 
 
