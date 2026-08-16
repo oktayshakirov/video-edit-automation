@@ -38,11 +38,45 @@ person, no burned captions, push transitions, unnumbered question cards, the
 checklist's two timing modes, scene holds, screened stock, the thumbnail layout.
 None of that is repeated here. **This file is only what differs.**
 
-Built: `projects/tinnitus-long/does-tinnitus-go-away.py`.
+Built: `projects/tinnitus-long/does-tinnitus-go-away.py` and
+`projects/tinnitus-long/gaming-and-tinnitus.py`.
 
 ```bash
 PYTHONPATH=. .venv/bin/python projects/tinnitus-long/does-tinnitus-go-away.py
+PYTHONPATH=. .venv/bin/python projects/tinnitus-long/gaming-and-tinnitus.py
 ```
+
+## Choose the beats before writing the script
+
+`does-tinnitus-go-away` shipped with four `checklist`s and they read as one
+graphic four times — the crypto skill's silhouette rule, arriving here exactly
+as it said it would. **List the beats first and check no two share an outline.**
+The gaming cut uses each shape once: `quote`, `grid`, `bars`, `stat`, `compare`,
+`steps`, one `checklist`.
+
+`bars` is the beat this site's posts keep earning. Half of them carry a table of
+figures against a limit — decibels against safe exposure time, one album's
+energy against another's — and a proportion is the one thing narration cannot
+say. Two notes from building one: the value text travels with the end of its
+bar, so a full-width top row pushes its own label off frame (scale the whole set
+by one factor and the proportions stay exact); and a `stat` for the same number
+is weaker, because a figure with no scale behind it is just a figure.
+
+## Screen the site's own pictures, every time
+
+The library is much brighter than it looks in a browser and it decides the shot
+list. Measured for the gaming cut: `gamer` L22, `live-music-show` L27,
+`neurons` L24 — and then `headphones-2` **L206**, `research` L195, `relaxing-
+woman` L173, `audiologist` L179. Only the first three could take the full frame;
+everything else belongs in a beat's picture column where it is downscaled and
+small.
+
+**A blurred `backdrop` does not rescue a bright picture, it spreads it.** Two
+beats in the first gaming cut used `research.jpg` and `megaphone-noise.jpg`
+behind them and both rendered as a grey wall behind the type — the brightest
+frames in a near-black video. Dropping the backdrop entirely is usually the
+right answer: a flat panel with the drifting grid is what those beats were
+designed for.
 
 ## Open on a face, moving
 
@@ -72,6 +106,27 @@ mark is a wide 33px wordmark; this one is a mascot with the domain under it,
 bottom (`_mark_bottom`) — at the old fixed y=214 the heading printed straight
 through the wordmark. `Brand.mark_scale` is 0.62 here for the same reason: a
 tall lockup at a wide wordmark's width dominates the frame.
+
+### The mark's height is charged to the picture, twice
+
+**`mark_scale` is 0.42, down from 0.62, and `PhotoShot.LOGO_CLEAR` is 10, down
+from 16.** The gaming cut shipped at the old numbers and the user's note was
+that the watermark was so big it pushed the photographs down and left an empty
+band across the top — which is exactly what the arithmetic does. A photo that
+*fits* the frame must clear the whole lockup, so at 159px tall the top hairline
+landed at y=272 in a 1080 frame, and then the picture was **scaled down** to fit
+the band that was left. Both costs come out of the same number. At 113x110 the
+same shot starts at y=220 and renders larger.
+
+Do not read this as "the mark can always shrink". It is legible at 0.42 and the
+domain has to stay readable — that is the whole reason the lockup carries it. If
+it needs to come down again, **set the mascot beside the domain instead of above
+it**: a wide mark costs the picture nothing, which is why thecrypto.wiki has
+never had this problem.
+
+`LOGO_CLEAR` is shared, so crypto long form gains 6px too. It cannot move the
+shipped vertical shorts — measured, their photographs sit ~550px down a 9:16
+frame and the dodge never fires.
 
 The same height difference drives the **photo-border dodge** described in
 `/video-crypto-long`: a picture that fits the frame is pushed down (or slightly

@@ -13,6 +13,7 @@ import subprocess
 from pathlib import Path
 
 from ..core import sfx
+from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
 from ..core.vertical import add_caption_emoji, render_text_png
 from ..core.voiceover import CAPTION_MAX_W, build_narration_aligned, profile_args
@@ -72,7 +73,7 @@ def caption_line(shots: list[Shot], y_frac: float,
     return min(max(lows), floor)
 
 
-def _short_factory(shot: Shot, frame: Frame):
+def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
     """Build a non-photograph shot for the vertical format.
 
     **This exists so a short can carry video, and it is the one change that
@@ -95,28 +96,42 @@ def _short_factory(shot: Shot, frame: Frame):
     9:16 exactly as they were in 16:9.
     """
     if shot.clip is not None:
-        from ..core.brand import CRYPTO
         from ..longform.clip import VideoShot
         # **`label=None`, always.** Long form puts a big centred statement on a
         # clip because it burns no captions (`callouts=None`); a short burns one
         # on every line, so a label would print the same words twice in two
         # places — which is the exact fault the drawn-beat branch below already
         # avoids by suppressing captions. The caption is the statement here.
-        return VideoShot(shot.clip, shot.hold, frame=frame, brand=CRYPTO,
+        return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
                          label=None, begin=shot.clip_at)
-    if shot.graphic in ("grid", "steps"):
-        # **Both are portrait-aware, not scaled down.** `Grid` drops to one
+    if shot.graphic in ("grid", "steps", "bars"):
+        # **These three are portrait-safe.** `Grid` drops to one
         # column up to four items and `Steps` turns its track ninety degrees;
         # see `longform/beats.py`. Scaling the landscape layouts would give a
         # 293px card and a 216px step slot, which is why they were declared
-        # untransferable before they were made to transfer.
-        from ..core.brand import CRYPTO
+        # untransferable before they were made to transfer. `Bars` needs no
+        # portrait variant: it was already full-width and centred vertically,
+        # and a bar is the one graphic that reads *better* in a narrow frame,
+        # because the same ratio is drawn over a shorter run.
         from ..longform.beats import BEATS
-        return BEATS[shot.graphic](*shot.payload, brand=CRYPTO, frame=frame,
+        return BEATS[shot.graphic](*shot.payload, brand=brand, frame=frame,
                                    backdrop=shot.backdrop,
                                    reveals=shot.reveals, marks=shot.marks,
                                    start=shot.start, hold=shot.hold)
+    if shot.graphic not in (None, "checklist"):
+        # **Anything else lands here silently and renders as a checklist.**
+        # That is how `bars` first shipped into a tinnitus short: `Grid` and
+        # `Steps` were routed by name and every other beat fell through to
+        # this line, where `ChecklistShot` unpacked its rows as `(text, ok)`
+        # pairs. It happened to raise on a three-tuple; a two-tuple payload
+        # would have drawn a wrong beat and said nothing. The landscape beats
+        # — `quote`, `stat`, `compare`, `chapter` — lay a content column
+        # beside a picture column at 1920 and have no portrait layout, so
+        # refusing them is the honest answer, not routing them.
+        raise ValueError(
+            f"{shot.graphic!r} has no portrait layout — the vertical beats are "
+            f"checklist, grid, steps and bars")
     return ChecklistShot(*shot.payload, backdrop=shot.backdrop,
                          reveals=shot.reveals, marks=shot.marks,
                          start=shot.start, hold=shot.hold, frame=frame)
@@ -130,7 +145,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         sound: bool = True,
                         fps: int = 30,
                         keep_work: bool = False,
-                        frame: Frame = VERTICAL) -> tuple[Path, float]:
+                        frame: Frame = VERTICAL,
+                        brand: Brand = CRYPTO,
+                        mark: "Image.Image | None" = None) -> tuple[Path, float]:
     """One short, end to end.
 
     `gap` is tighter than the drone quotes' 0.65. A quote wants air between
@@ -236,7 +253,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
-                           factory=_short_factory)
+                           factory=lambda sh, fr: _short_factory(sh, fr, brand),
+                           mark=mark)
 
     # A mark that lands silently is a graphic; one that lands with a sound is an
     # event. The cues come from the same list that drives the drawing, so they

@@ -16,19 +16,51 @@ section documenting the brand's own released sound albums.
 
 1. **ASMR / sound-therapy shorts** — **built**, in `video_automation/tinnitus/asmr.py`.
    The rest of this file is about that one.
-2. **Article shorts** — structurally identical to crypto's. **Not built.**
+2. **Article shorts** — **built**, in `video_automation/tinnitus/article.py`.
 
 The sound-therapy format is the one with a real reason to exist here: the audio
 *is* the product, so it is not a talking head competing with a million others.
 Tone-matching ("which frequency matches yours?") is the obvious next variant and
 needs tone synthesis the repo still does not have.
 
-### If and when article shorts get built, inherit these
+## Article shorts
 
-**Recorded 2026-08-16, ahead of the code**, because the crypto short skill just
-paid for them and a fresh build here would otherwise repeat the same mistakes.
-The two formats are structurally identical, so `video-crypto-short` is the
-reference; these are the parts that are easy to get wrong:
+```bash
+PYTHONPATH=. .venv/bin/python projects/tinnitus/gaming-and-tinnitus.py
+```
+
+`render_tinnitus_short` is `render_crypto_short` with two values passed in
+rather than hard-coded — the `Brand` its beats and clips are drawn with, and
+the watermark, which on this site is a lockup assembled at render time instead
+of a file on disk. **Both default to crypto, so the shipped crypto shorts stay
+byte-identical.** There is no second pipeline and there should not be one.
+
+**The mark is `Brand.mark()` at `mark_scale`, which is 0.42** — 134px wide in a
+9:16 frame, down from 186. It came down because a square lockup pushes a fitting
+photograph down the frame and then shrinks it; that bites in landscape and not
+here, since a 9:16 photograph sits ~490px down and never reaches the mark. The
+ASMR shorts are on their own lockup path (`asmr.brand_lockup`, 100px face) and
+are untouched by any of this.
+
+**Voice is `mia`**, the tinnitus long-form reader — a short and a long video on
+one channel reading in two different voices is two channels. `luna-calm` is the
+sound-therapy voice and belongs to `asmr.py`. Both are still candidates.
+
+**Do not use `checklist` here.** `ChecklistShot` is the vertical-native beat and
+it is the one drawn object still carrying thecrypto.wiki's gold as a module
+constant, so it renders off-brand and nothing raises. The portrait-safe beats
+that take a brand are **`grid`, `steps` and `bars`** — and anything else now
+raises rather than falling through. It used to fall through to `ChecklistShot`,
+which is how `bars` first "shipped": it happened to blow up unpacking a
+three-tuple as `(text, ok)`, and a two-element payload would have drawn the
+wrong beat silently.
+
+**`bars` needs a frame-dependent fraction.** The value text travels with the end
+of its own bar, so a long top bar pushes it off the right edge. The same data
+took 0.90 at 1920 and 0.60 at 1080. Scale the whole set by one factor and the
+proportions between rows — the only thing the beat claims — stay exact.
+
+### Inherited from the crypto short, and paid for there
 
 - **Stock clips are allowed and the piece should open on one.** The crypto skill
   used to ban reaching for a stock API and that rule was reversed on review: a
@@ -43,8 +75,6 @@ reference; these are the parts that are easy to get wrong:
   problem the reversal solves is strictly worse on this site.
 - **Screen a clip across its length, not at one frame**, and remember hue is a
   separate judgement from the luma/saturation box.
-- **`Shot(clip=...)` needs a factory.** `crypto/build.py:_short_factory` is the
-  model; a tinnitus equivalent differs only in which `Brand` it passes.
 - **A clip in a short carries no label** — the burned caption already is the
   statement, and a label prints the same words twice.
 - **`grid` and `steps` have portrait layouts now** — one column of wide cards,
@@ -266,7 +296,8 @@ viewer came for.
 - Make medical claims. YMYL niche — describe partial masking and paced breathing
   as things people do, never as treatment, and never imply a cure.
 - Promote a candidate voice to approved without being told to.
-- Present the article-short format as working. It is not built.
+- Use `checklist` in an article short — it is the one beat still hard-coded to
+  the crypto palette.
 - Default to driving traffic to the blog. **App install is the far better
   conversion from short-form**, and the only path here with a plausible route to
   revenue.

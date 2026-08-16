@@ -111,7 +111,12 @@ class PhotoShot:
 
     # How much clear air the photo's gold hairline leaves under the watermark
     # when it has to dodge it. Small on purpose: this is a nudge, not a layout.
-    LOGO_CLEAR = 16
+    #
+    # **Every pixel here is paid for twice** — once as dead space above the
+    # picture, and again as size, because a photo too tall for the remaining
+    # band is scaled into it. That is invisible under a 33px wordmark and very
+    # visible under a 110px lockup, which is why it came down from 16.
+    LOGO_CLEAR = 10
 
     def __init__(self, path: Path, zoom: float, pan: tuple[float, float],
                  aspect: float = 1.15, bias: float = 0.5,
