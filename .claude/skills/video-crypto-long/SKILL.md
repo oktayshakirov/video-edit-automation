@@ -85,8 +85,23 @@ why they are here:
   promise by 15s, a reason to commit by 30s. The steepest retention drop is
   between seconds 10 and 20 — nothing decorative goes there. YouTube's "Intro"
   metric is % still watching at 30s; above 50% is outperforming.
+- **Say the point, then show the graphic.** A beat that arrives before its own
+  thesis has to be decoded rather than read. The mining rig cut put "this is who
+  you are bidding against" *after* the comparison it introduced and the user
+  found it confusing — by then they had already read both columns and did not
+  need telling what they were. One line of setup, then the beat.
+- **Make the retention call out loud, early.** "Stay to the end and you will know
+  whether to build one." It is the oldest device on YouTube because it works: a
+  promise the viewer can *hear* being made is what buys the next three minutes,
+  and a specific one beats "stay tuned". Put it in the first fifteen seconds and
+  make sure the outro actually answers it — the mining rig script asks and
+  answers the same question, which is what makes the echo land.
 - **The closing line echoes the opening, reframed.**
 - **No jargon without an immediate plain-English decode.**
+- **A title shaped like a question gets a question mark**, on the card and in
+  `spoken_title`. "Where the money is actually made" has a question's word order
+  and a statement's full stop, so the synthesiser read it flat and the card
+  printed no mark. The rising intonation is free; punctuate for it.
 - **Hold scenes.** Put `None` in the shots list where the picture should ride
   through the next sentence. One shot per sentence is a new scene every four
   seconds — a metronome, not a rhythm.
@@ -185,10 +200,35 @@ The arithmetic is in the strategy doc and it is the whole design: ~30 shots
 against the 3–5 photographs a post actually has. Beats are not decoration here,
 they are the majority of the runtime.
 
-`chapter` · `checklist` · `stat` · `compare` · `quote` · `bars` — in
-`longform/beats.py`, all sharing a content column left and a picture column
-right. Video clips (`Shot(clip=...)`) and the end-screen sting are the two
-things that are not beats; see `longform/clip.py` and `longform/overlay.py`.
+`chapter` · `checklist` · `stat` · `compare` · `quote` · `bars` · `grid` ·
+`steps` — in `longform/beats.py`. The first six share a content column left and
+a picture column right; `grid` and `steps` span the full width. Video clips
+(`Shot(clip=...)`) and the end-screen sting are the two things that are not
+beats; see `longform/clip.py` and `longform/overlay.py`.
+
+- **Vary the layout across the channel, not just within a video.** The user's
+  note on the mining rig cut was that every list in every video looks the same,
+  and they were right: `checklist` and `compare` both set type in a left column
+  with a ragged right edge, so a four-item list and a three-a-side comparison
+  read as one graphic at a glance. Across fifteen videos that is the templated
+  sameness the strategy doc says gets a channel suppressed. **The fix is
+  silhouette, not decoration** — a different typeface or accent changes nothing;
+  a layout with no left column and no ragged edge changes everything. Before
+  building, list the beats you have chosen and check you are not using the same
+  two shapes four times. Vary the item counts too.
+- **`grid` is for a *set*; `checklist` is for a set with verdicts.** Cards across
+  the full width, three to a row from five items up, two below that. Nothing is
+  ticked or struck — if items need verdicts, that is a checklist. Each card takes
+  an optional second line, which is where the wide layout pays for itself: "8 GB
+  of memory" is far more useful with "enough for any mining OS" under it, and a
+  list row has no room for that.
+- **`steps` is for a procedure, and order is what it shows.** A numbered track,
+  four or five nodes. This is the `timeline` the strategy doc listed and never
+  built. "Install the drivers, install the miner, join a pool" as a checklist is
+  three unrelated facts; on a track it is a sequence, and a how-to video is
+  mostly sequences. **Numbers are right here and banned on a chapter card**, and
+  the two are not in tension: a numbered agenda tells the viewer they are being
+  lectured, a numbered sequence *is* the content.
 
 - **The split layout is why this is sharp.** A 900px source — the site median —
   in a 660px picture column is a *downscale*. Full-frame photos are the only
@@ -237,6 +277,14 @@ into narration. The shape that works: cold-open on the claim, a hard number
 early (`stat`, "0 out of four claims"), the title stamp on the promise, then a
 reason to keep watching that is specific ("you will be able to run it by the end
 of this video"). Nothing decorative goes in 0–20s; that is where the drop is.
+
+**Open on motion. Frame one is a clip, not a photograph.** All three pilots
+opened on a still held seven or eight seconds under a Ken Burns move, and the
+user's word for it was boring — correctly. A slow push on a photograph is the
+slowest thing this format has, and putting it exactly where the retention drop
+is steepest is the worst available use of it. A clip is already moving on frame
+one and costs nothing else. Keep the still for later, where a change of pace
+reads as a change of pace rather than as the video not having started.
 
 ## The end-screen sting
 
@@ -419,8 +467,13 @@ subtle by design and has not been judged by ear.
 
 ## Stock footage and photos — a supporting layer
 
-`core/stock.py`, on the same Pexels key `publish-content` uses. Cached and
-committed under `assets/stock/`.
+`core/stock.py`, on the same Pexels key `publish-content` uses. Cached under
+`assets/stock/` — the **bytes are gitignored and `manifest.json` is what makes a
+build reproducible**, so anything pulled must land in the manifest. It was found
+75 files short, including tinnitus assets from earlier sessions; an unmanifested
+file is unrecoverable the day its photographer deletes it. (`stock.manifest()`
+writes a different, thinner schema than the file on disk actually uses — extend
+the existing JSON, do not call it and clobber the richer one.)
 
 **This reverses the short skills' "never reach for a stock API" rule, and the
 reversal is arithmetic rather than taste.** A three-minute video needs ~30 shots
@@ -434,6 +487,24 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   dinosaur, a bitcoin sticker on a pine table and a rainbow of cables into a
   gold-on-near-black video. `MAX_LUMA=48`, `MAX_SAT=50`; the keepers measured
   L4/S5, L14/S6, L41/S20.
+- **Screen a clip across its length, not at one second.** `stock.screen(p, at=)`
+  takes a timestamp for exactly this. `crypto-mining-rig-hardware/854969.mp4`
+  measures **L27 on its opening frame and L88 by second six** — it is a push-in
+  onto a cream-coloured case, and a single-frame check would have shipped it.
+  Sample at 0.5, 3, 6 and 9 seconds and read the range. This is the end-screen
+  sting's "measure the bright bounding box across the whole clip" rule arriving
+  at ordinary footage, which is where it was always going to arrive.
+- **A photograph can pass the box and still be wrong on the opening frame.**
+  `data-center.jpg` measures L41/S40 and is a *green-lit* server room — green is
+  the one colour that cuts hardest against gold. It was fine ninety seconds in
+  and wrong at second three. The box is about brightness; hue against the brand
+  is a separate judgement the numbers do not make for you.
+- **Never put a site infographic in a full-frame shot.** A Ken Burns move on a
+  diagram crops its own title off the top and its last row off the bottom, which
+  is what shipped and what the user caught at 0:27. And at 660px in a beat's
+  picture column its labels are unreadable. So an infographic has **no
+  full-frame use in this format at all** — as a blurred `backdrop` it is only
+  texture, which is fine and is the one place it belongs.
 - **Screen the site's own images too.** `stock.screen` works on any file, and
   the library is much brighter than it looks in a browser: `investing.jpg`
   measures L196, `stock-trader.jpg` L170, `corporate.jpg` L113. Six of those
