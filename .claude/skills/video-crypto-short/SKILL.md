@@ -32,9 +32,8 @@ the product and 60 posts of automated scripts is the failure mode, not the goal.
 ## What the site gives you
 
 **Images:** `crypto-wiki/public/images/{posts,crypto-ogs,exchanges}`. Already
-licensed, already on brand, already attached to the post. **Do not reach for a
-stock API** — generic stock loops under an AI voice is exactly the pattern both
-platforms suppress, and the site's own library is better anyway.
+licensed, already on brand, already attached to the post. Start here — but do
+**not** finish here, and that is a reversal, see below.
 
 **The one exception is a short about a person.** The site's OG portraits are the
 smallest images it has and most are under the ~750px floor — Saylor's are 700x348
@@ -59,6 +58,66 @@ turns comparison shorts into a data problem rather than a design one.
 `how-to-build-a-mining-rig` 1510, `understanding-crypto-exchanges` 1038,
 `exchanges/cryptocom` 380, `crypto-ogs/satoshi-nakamoto` 372,
 `crypto-etfs-explained` 362, `what-is-proof-of-stake` 317, `exchanges/okx` 304.
+
+## Stock is allowed now, and motion is the point
+
+**This reverses "do not reach for a stock API", which this file used to state
+flatly.** The reversal was made on the mining rig short: it was built from eight
+site photographs exactly as the rule required, and the user's verdict was that
+it looked boring and not engaging. Both halves of that were true and neither was
+a scripting problem.
+
+- **Eight Ken Burns pushes in a row is one move repeated eight times.** A slow
+  push is a good way to make *a* still photograph feel alive and a bad way to
+  build a whole piece, because the variety a viewer perceives is variety of
+  *shot type*, not of subject. Two photographs of different things moving
+  identically read as the same shot twice.
+- **The library often has no picture of the subject.** thecrypto.wiki owns no
+  photograph of a graphics card, a riser or a power connector — so a short about
+  mining hardware was illustrated with a server room, a neon bitcoin and an
+  abstract orb. Generic pictures are what "boring" actually meant.
+
+So the long-form rule now applies here too: **stock supports; the site's images
+and the drawn beat lead.** The failure the old rule protected against is real
+and unchanged — wall-to-wall stock loops under an AI voice is the pattern both
+platforms suppress — but that is an argument about *proportion*, not about
+whether a clip may appear at all. Half the shots is comfortable. All of them is
+the failure.
+
+- **Open on motion. Frame one is a clip, not a still.** A Short is judged in its
+  first second, so this matters more here than in long form, not less.
+- **`Shot(clip=..., clip_at=...)` now works in a short.** `render_shots` has
+  taken a `factory` since long form needed one and the shorts simply never
+  passed one, so a clip in a short used to render as an empty checklist rather
+  than raise. `crypto/build.py:_short_factory` wires it up.
+- **A clip in a short carries no label.** Long form puts a big centred statement
+  on a clip because it burns no captions; a short burns one on every line, so a
+  label prints the same words twice. `_short_factory` forces `label=None` — the
+  same rule, and the same reason, as a drawn beat carrying no captions.
+- **A clip is full-bleed; a photograph is a framed card.** That contrast is
+  doing real work — it is what makes the alternation read as rhythm rather than
+  as inconsistency. Do not "fix" it by framing the clips.
+- **Screen every candidate, and screen a clip across its length.**
+  `stock.screen(path, at=)` takes a timestamp. `MAX_LUMA=48`, `MAX_SAT=50`.
+  `crypto-mining-rig-hardware/854969.mp4` measures L27 on frame one and **L88 by
+  second six**; a single-frame check ships it.
+- **Hue is a separate judgement the numbers do not make.** `data-center.jpg`
+  passes the box at L41 and is green-lit, which is the one colour that cuts
+  hardest against gold.
+- **A landscape clip is centre-cropped hard into 9:16** — you see roughly the
+  middle third. Pick clips whose subject is centred; a wide establishing shot
+  loses its subject entirely.
+- Cached stock is gitignored and `assets/stock/manifest.json` is what makes a
+  build reproducible. Anything pulled must land in it.
+
+**`grid` and `steps` do not transfer from long form.** Three cards across 1080 is
+a 293px card and five step nodes is a 216px slot. `ChecklistShot` is the
+vertical-native beat and stays the only drawn beat here; the variety this format
+needs comes from clips, not from more beat types.
+
+**Never put a site infographic in a shot.** A 9:16 crop takes its title off the
+top and its last row off the bottom. `proof-of-work.jpg` is the most on-topic
+file in the crypto library and is unusable for exactly this reason.
 
 ## The picture
 
@@ -263,10 +322,14 @@ News becomes a variant once the pipeline is proven, not the proving ground.
 
 - Mass-produce. Both platforms suppress the AI-script-plus-stock-footage pattern
   by policy; volume is the failure mode, not the goal.
+- **Build a piece that is mostly stock.** The rule above permits stock; it does
+  not permit a stock slideshow. If the site's images and the drawn beat are not
+  carrying the argument, the reversal has been misread.
+- Open on a still.
 - Give financial advice in a script, or imply one. Route to the site's exchange
   pages, which is where the affiliate revenue actually is.
 - Promote a candidate voice to approved without being told to.
 - Quote `views.json` as if it measured short-form performance. It is SEO demand.
-- Use an image under ~750px wide.
+- Use an image under ~750px wide, or an infographic at any size.
 - Ship a Commons-sourced portrait without its `CREDITS.md` block in the
   description. Two of the four Saylor photographs are share-alike.

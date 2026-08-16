@@ -17,7 +17,8 @@ from ..core.frame import VERTICAL, Frame
 from ..core.vertical import add_caption_emoji, render_text_png
 from ..core.voiceover import CAPTION_MAX_W, build_narration_aligned, profile_args
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
-from .shots import PhotoShot, Shot, caption_sprite, plan_shots, render_shots
+from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, plan_shots,
+                    render_shots)
 
 
 def sentence_spans(sentences: list, captions: list) -> list[tuple[float, float]]:
@@ -67,6 +68,39 @@ def caption_line(shots: list[Shot], y_frac: float,
                                sh.aspect, sh.bias, frame=frame).photo_box(0.5)
         lows.append((y + h + 96) / frame.h)
     return min(max(lows), floor)
+
+
+def _short_factory(shot: Shot, frame: Frame):
+    """Build a non-photograph shot for the vertical format.
+
+    **This exists so a short can carry video, and it is the one change that
+    answers "the site's images alone look boring".** `render_shots` has taken a
+    `factory` since long form needed one; the shorts simply never passed it, so
+    they fell through to the checklist branch and a `Shot(clip=...)` in a short
+    silently rendered as an empty checklist rather than raising.
+
+    `ChecklistShot` stays the default for a drawn beat rather than deferring to
+    `longform.beats`, and that is deliberate: the long-form beats lay a content
+    column beside a picture column at 1920, and the same geometry scaled to a
+    1080-wide frame puts a 660px picture column at 371px beside a 562px content
+    column. `ChecklistShot` is the vertical-native beat and there is no reason
+    to replace it. `grid` and `steps` do **not** transfer either — three cards
+    across 1080 is a 293px card, and five step nodes is a 216px slot.
+    """
+    if shot.clip is not None:
+        from ..core.brand import CRYPTO
+        from ..longform.clip import VideoShot
+        # **`label=None`, always.** Long form puts a big centred statement on a
+        # clip because it burns no captions (`callouts=None`); a short burns one
+        # on every line, so a label would print the same words twice in two
+        # places — which is the exact fault the drawn-beat branch below already
+        # avoids by suppressing captions. The caption is the statement here.
+        return VideoShot(shot.clip, shot.hold, frame=frame, brand=CRYPTO,
+                         zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
+                         label=None, begin=shot.clip_at)
+    return ChecklistShot(*shot.payload, backdrop=shot.backdrop,
+                         reveals=shot.reveals, marks=shot.marks,
+                         start=shot.start, hold=shot.hold, frame=frame)
 
 
 def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
@@ -155,7 +189,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                if s is not None]
 
     picture = render_shots(workdir / "picture.mp4", shots, total,
-                           fps=fps, captions=sprites, frame=frame)
+                           fps=fps, captions=sprites, frame=frame,
+                           factory=_short_factory)
 
     # A mark that lands silently is a graphic; one that lands with a sound is an
     # event. The cues come from the same list that drives the drawing, so they

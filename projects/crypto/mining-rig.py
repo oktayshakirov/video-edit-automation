@@ -18,13 +18,17 @@ advice, and it resolves inside one beat. The two videos now complement each
 other rather than repeating; a viewer who sees both gets the economics and the
 hazard, not the same script twice.
 
-**Site images only.** The long-form cut reached for screened stock stills
-because thirty shots against a library with no picture of mining hardware is not
-survivable. Eight shots is, and the stock rule stands here as written: the
-reversal in `video-crypto-long` is explicitly scoped to long form. It is worth
-recording that the pressure is the same in kind and only smaller in degree — the
-site owns no photograph of a riser, an adapter or a graphics card, so the two
-drawn beats and the hero carry the argument, which is what they are for.
+**Rebuilt on motion after review.** The first cut was eight site photographs
+and a checklist, and the user's verdict was that it looked boring and not
+engaging. It was: eight Ken Burns pushes in a row is one move repeated eight
+times, and the site owns no photograph of a riser, an adapter or a graphics
+card, so the pictures were also generic. Half the shots are stock clips now and
+the piece opens on one — motion on frame one, which is the long-form rule
+arriving in 9:16 where it matters more, not less, because a Short is judged in
+its first second.
+
+The site's own hero still carries the line about doing the wiring properly, and
+the checklist still carries the argument. **Stock supports; it does not lead.**
 
 **`proof-of-work.jpg` is not used**, though it is the most on-topic file in the
 library at 1000px. It is an infographic, and a 9:16 crop takes its title off the
@@ -42,10 +46,18 @@ Run from the repo root:
 
 from pathlib import Path
 
+from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
 
 POSTS = SITE_IMAGES / "posts"
+
+# Screened across their length, not at one second — the trailing comment is the
+# luma/saturation range over the whole clip. Cached from the long-form build.
+RIG = STOCK / "videos/computer-cooling-fan-dark/33356261.mp4"        # L35-51
+BOARD = STOCK / "videos/motherboard-computer-close-up-dark/6754818.mp4"  # L37-39
+CIRCUIT = STOCK / "videos/circuit-board-macro-dark/6755170.mp4"      # L39-59
+CARDS = STOCK / "photos/graphics-card-gpu-dark/8622912.jpg"          # L27 S4
 
 VOICE = "mia"                   # female, af_heart. Matches the long form from
                                 # the same post. Still a candidate, not approved.
@@ -88,16 +100,17 @@ SENTENCES = [
 ]
 
 SHOTS = [
-    # 1 — the article's own hero, and the only picture in the library of anybody
-    # actually handling hardware. It opens and closes the piece.
-    Shot(image=POSTS / "mining-rig.jpg",
-         zoom=1.10, pan=(0.02, -0.02), aspect=1.15, bias=0.30),
+    # 1 — **motion on frame one.** A Short is judged in its first second and the
+    # first cut spent that second on a slow push across a still. Orange-lit rig
+    # internals, already moving before the voice starts.
+    Shot(clip=RIG, clip_at=1.0),
 
-    # 2 — people dwarfed by racks, for the line about where the attention goes.
-    Shot(image=POSTS / "futuristic-data-center.jpg",
-         zoom=1.13, pan=(-0.03, 0.02), aspect=1.15, bias=0.45),
+    # 2 — two graphics cards on black. The site owns no picture of a graphics
+    # card, which is the whole reason the stock rule had to change here.
+    Shot(image=CARDS, zoom=1.12, pan=(-0.03, 0.02), aspect=1.15, bias=0.45),
 
-    # 3 — the drawn beat, over the green server room dimmed to 0.5.
+    # 3 — the drawn beat, over the green server room dimmed to 0.5. Still the
+    # argument, and still the only place the piece stops moving on purpose.
     Shot(graphic="checklist",
          payload=([("The graphics cards", False),
                    ("The power supply", False),
@@ -105,13 +118,12 @@ SHOTS = [
                   "WHAT ACTUALLY STARTS FIRES"),
          backdrop=POSTS / "data-center.jpg"),
 
-    Shot(image=POSTS / "digital-technology.jpg",
-         zoom=1.12, pan=(0.03, 0.02), aspect=1.15, bias=0.45),
+    # 4 — a board macro under the line about risers and their power.
+    Shot(clip=BOARD, clip_at=2.0),
 
-    # 5 — the orange neon carries heat under "known fire hazard" without the
-    # script having to show a fire, which would be both unavailable and lurid.
-    Shot(image=POSTS / "bitcoin-neon.jpg",
-         zoom=1.14, pan=(-0.02, -0.02), aspect=1.15, bias=0.50),
+    # 5 — circuit macro for the adapter and the hazard. Motion under the
+    # longest sentence in the piece, which is where a still sags worst.
+    Shot(clip=CIRCUIT),
 
     # 6 — a glowing core inside a dark lattice, for the watts. **Not
     # `industrial.jpg`**, which was the first choice and is a daylight sky full
@@ -124,14 +136,16 @@ SHOTS = [
     Shot(image=POSTS / "quantum-computing.png",
          zoom=1.12, pan=(0.03, -0.01), aspect=1.05, bias=0.45),
 
-    Shot(image=POSTS / "data-center.jpg",
-         zoom=1.13, pan=(-0.03, 0.01), aspect=1.15, bias=0.50),
-
-    # 8 — back to the hero for the question, cropped differently so the return
-    # reads as a return rather than as the same shot.
+    # 7 — the article's own hero, on the line about doing the wiring properly.
+    # The site's picture carries the instruction; the stock carries the texture.
     Shot(image=POSTS / "mining-rig.jpg",
-         zoom=1.14, pan=(-0.03, 0.01), aspect=1.15, bias=0.20),
+         zoom=1.12, pan=(0.02, -0.02), aspect=1.15, bias=0.30),
+
+    # 8 — back to the opening clip at a different moment, so the return reads
+    # as a return and the piece ends moving rather than on a held still.
+    Shot(clip=RIG, clip_at=8.0),
 ]
+
 
 EMOJI = {
     "It is a known fire hazard.": "🔥",
