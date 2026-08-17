@@ -28,6 +28,22 @@ MIN_CHAPTERS = 3
 MIN_CHAPTER_LEN = 10.0
 
 
+def plain_dashes(text: str) -> str:
+    """Em and en dashes down to a plain hyphen, for anything sent to YouTube.
+
+    **This is a house rule, not a typographic opinion**, and it was being paid
+    for by hand: four of the tinnitus channel's five uploads had their dashes
+    converted in the upload form, and the fifth shipped with the em dash still
+    in it because somebody blinked. A rule enforced by remembering is a rule
+    that holds until the first busy day.
+
+    It applies to the description and the tags — the fields this module writes
+    — and deliberately **not** to the SRT, where the dash is ordinary prose the
+    voice actually reads, nor to the sidecar's own headings.
+    """
+    return text.replace("—", "-").replace("–", "-")
+
+
 def timestamp(t: float, srt: bool = False) -> str:
     """`0:00` / `1:23:45` for a description, `00:00:01,500` for an SRT."""
     ms = int(round(t * 1000))
@@ -117,7 +133,7 @@ class Meta:
             parts.append("")
         if self.tags:
             parts.append(" ".join(f"#{t.replace(' ', '')}" for t in self.tags[:5]))
-        return "\n".join(parts).strip() + "\n"
+        return plain_dashes("\n".join(parts).strip()) + "\n"
 
     def write(self, out: Path, chapters: list[tuple[float, str]],
               total: float, video: Path, srt: Path,
