@@ -53,6 +53,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # so the override exists, and using it is a judgement recorded
                 # in the script rather than a silent default.
                 thumb_side: str | None = None,
+                thumb_crop_at: tuple[float, float] | None = None,
+                thumb_crop_zoom: float = 1.0,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 sound: bool = True, fps: int = 30,
                 # Intermediates are deleted on success. See the note at the end
@@ -168,6 +170,12 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
         frame=frame, transition="push", xfade=0.34,
         factory=lambda s, fr: make_beat(s, brand, fr),
+        # The beats have always taken the brand; the *photographs* did not, and
+        # their hairline was drawn in thecrypto.wiki's gold whichever site the
+        # video was for. No roaming watermark here: it exists to survive a
+        # reposted vertical crop and to defeat corner blindness in a feed, and
+        # a 16:9 video is watched in a player, not scrolled past.
+        brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
         overlays=_endcard(endcard, endcard_lead, total, frame))
 
@@ -204,7 +212,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     if thumb_headline:
         thumb = out.with_name(out.stem + "-thumb.jpg")
         render_thumb(thumb, brand, thumb_headline, image=thumb_image,
-                     accent=thumb_accent, side=thumb_side)
+                     accent=thumb_accent, side=thumb_side,
+                     crop_at=thumb_crop_at, crop_zoom=thumb_crop_zoom)
         made["thumb"] = thumb
 
     if meta is not None:

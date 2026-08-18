@@ -72,12 +72,18 @@ weight big channels use; Impact is heavier and was rejected as meme-coded) with
 a **blurred drop shadow on its own layer instead of a stroke**, and a tighter
 accent plate.
 
-**The source has to be composed vertically.** The long form's thumbnail
-photograph is a woman lying horizontally in a landscape frame, and cover-
-cropping that to 9:16 throws away the subject's long axis — no zoom or pan
-recovers it. Fetch with `orientation=portrait` rather than reusing the long
-cut's picture. Type sits in the upper half, because the Shorts player puts the
-title, channel and buttons across the bottom and a button rail up the right.
+**Fetch the source with `orientation=portrait`.** A landscape photo cover-
+cropped to 9:16 throws away the subject's long axis and no zoom or pan
+recovers it — the long form's thumbnail once did exactly that.
+
+**The long form now uses this same photo, and that is the rule going
+forward: one source for both aspects, always.** `render_thumb` takes
+`crop_at`/`crop_zoom` to place a manual landscape crop of a portrait source by
+hand, since `_layout`'s automatic scorer optimises for empty space rather than
+for the subject being visible and will happily crop the face out of frame. See
+the long-form skill's `crop_at` section. Type sits in the upper half here,
+because the Shorts player puts the title, channel and buttons across the
+bottom and a button rail up the right.
 
 **The article shorts still have no music bed** — long form gets one, this does
 not. Requested and not yet built; `render_tinnitus_short` would need the

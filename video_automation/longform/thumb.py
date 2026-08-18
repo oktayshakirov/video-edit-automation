@@ -194,6 +194,78 @@ def _split(headline: str) -> list[tuple[str, bool]]:
     return out
 
 
+def _wrap_balanced(words: list[tuple[str, bool]], d: ImageDraw.ImageDraw,
+                   font: ImageFont.FreeTypeFont, space: float, col_w: int
+                   ) -> list[list[tuple[str, bool, float]]]:
+    """Break `words` into lines minimizing raggedness, not first-fit greedy.
+
+    **Greedy left-to-right fill is what put "IN" alone on its own row.** It
+    places words until the next one would overflow the column, and stops —
+    it never looks ahead to see that the *next* two words would sit together
+    happily. On "Stop sleeping in silence" that produced four one-word lines,
+    because SLEEPING nearly fills the column on its own and greedy never
+    reconsiders once IN has already been placed alone.
+
+    This is the standard minimum-raggedness line break (the algorithm behind
+    CSS `text-wrap: balance`): a small DP over every possible split, scored by
+    how much slack each line leaves against `col_w`, so lines that are nearly
+    full are preferred over lines that leave a two-letter word rattling around
+    on its own. A split that overflows the column is not forbidden — a single
+    word wider than the column has nowhere else to go — but it is penalised
+    heavily enough that the DP only reaches for it when there is truly no
+    narrower arrangement.
+
+    Cost, not a rule about word length, is what avoids the orphan: pairing a
+    short connector onto the next line almost always leaves less slack than
+    stranding it alone, so it falls out of minimising raggedness rather than a
+    special case for "words under N letters".
+    """
+    n = len(words)
+    widths = [d.textlength(w, font=font) for w, _ in words]
+
+    def seg_width(i: int, j: int) -> float:
+        seg = widths[i:j]
+        return sum(seg) + space * (len(seg) - 1) if seg else 0.0
+
+    INF = float("inf")
+    cost = [0.0] + [INF] * n
+    back = [0] * (n + 1)
+    for j in range(1, n + 1):
+        for i in range(j):
+            w = seg_width(i, j)
+            if w <= col_w:
+                penalty = (col_w - w) ** 2
+            elif j - i == 1:
+                # A single word wider than the column has nowhere else to go
+                # — allow it, at a cost steep enough that the DP only reaches
+                # for it when nothing narrower exists.
+                penalty = (w - col_w) * 1e6 + 1e12
+            else:
+                # **A multi-word line is never allowed to overflow.** The
+                # first version penalised overflow by a near-constant 1e12
+                # regardless of how far over it ran, which made "SLEEPING IN
+                # SILENCE" on one line look almost as cheap as one genuinely
+                # unavoidable overflowing word — and DP picked it, rendering
+                # text past the right edge of the frame. Skipping the split
+                # entirely is what a greedy wrap got right by construction and
+                # this has to keep: a line's width is a hard limit, not
+                # something to trade off against raggedness.
+                continue
+            if cost[i] + penalty < cost[j]:
+                cost[j] = cost[i] + penalty
+                back[j] = i
+
+    idx, spans = n, []
+    while idx > 0:
+        i = back[idx]
+        spans.append((i, idx))
+        idx = i
+    spans.reverse()
+
+    return [[(w, hot, widths[k]) for k, (w, hot) in enumerate(words[i:j], start=i)]
+            for i, j in spans]
+
+
 def _headline(base: Image.Image, headline: str, size: int, col_w: int,
               x_text: int, fill, ink, max_lines: int = 4,
               max_block: float = 1e9, leading: float = 1.02,
@@ -221,20 +293,17 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     d = ImageDraw.Draw(base)
     words = _split(headline.upper())
 
-    fallback = None
+    def orphan(lines) -> bool:
+        # A lone word of three letters or fewer stranded on its own row - the
+        # exact "IN" on its own line" complaint. Bigger words are legitimate
+        # single-word lines; connectors this short read as a layout mistake.
+        return any(len(ln) == 1 and len(ln[0][0]) <= 3 for ln in lines)
+
+    fallback = fallback_ok = None
     for _ in range(16):
         font = ImageFont.truetype(FONT_DISPLAY, size)
         space = d.textlength(" ", font=font)
-        lines, cur, cw = [], [], 0.0
-        for word, hot in words:
-            ww = d.textlength(word, font=font)
-            if cur and cw + space + ww > col_w:
-                lines.append(cur)
-                cur, cw = [], 0.0
-            cur.append((word, hot, ww))
-            cw += ww + (space if len(cur) > 1 else 0)
-        if cur:
-            lines.append(cur)
+        lines = _wrap_balanced(words, d, font, space, col_w)
         line_h = int(size * leading)
         block = len(lines) * line_h
         fits = len(lines) <= max_lines and block < max_block
@@ -242,11 +311,25 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         if fits and fallback is None:
             fallback = (size, font, space, lines, line_h, block)
         if fits and len(hot_lines) <= 1:
-            break
+            if fallback_ok is None:
+                fallback_ok = (size, font, space, lines, line_h, block)
+            # **Do not stop at the first size that merely fits.** The largest
+            # size clears `max_lines` almost immediately - one word per line
+            # is always short enough - which is exactly the layout that
+            # stranded "IN" alone: nothing forced a look at a slightly smaller
+            # size where it pairs with the next word. Keep shrinking past a
+            # "fits" size while a short word is still stuck on its own row.
+            if not orphan(lines):
+                break
         size -= 8
     else:
-        if fallback is not None:
-            size, font, space, lines, line_h, block = fallback
+        # Ran out of sizes without an orphan-free fit. Prefer the smallest
+        # size that still satisfied the one-accent-line rule over the largest
+        # size that merely fit at all - a slightly smaller, well-paired
+        # headline beats a maximal one with a stray word on it.
+        chosen = fallback_ok or fallback
+        if chosen is not None:
+            size, font, space, lines, line_h, block = chosen
 
     Wf, Hf = base.size
     y = {"top": margin,
@@ -310,6 +393,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
                  image: Path | None = None, accent: str = "red",
                  size: int = 118, side: str | None = None,
                  arrow_to: tuple[float, float] | None = None,
+                 crop_at: tuple[float, float] | None = None,
+                 crop_zoom: float = 1.0, crop_band: str = "middle",
                  **_ignored) -> Path:
     """One thumbnail: photograph, scrim, headline with a boxed accent phrase.
 
@@ -318,11 +403,39 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     style arrow curves from the type toward it. Use it only when there is
     something specific to point at.
 
+    **`_layout`'s scorer optimises for empty space, not for the subject being
+    visible.** It found this while pairing a portrait source with the long
+    form's landscape thumbnail: the crop it chose was a towel and a shoulder,
+    because that band of the frame is quieter than the one with her face and
+    the phone's glow in it — exactly the failure the shorts skill already
+    named ("the scorer loses to the subject") arriving at this renderer too.
+    **`crop_at`, as `(ax, ay)` fractions of the leftover crop space, bypasses
+    the scorer entirely** and places the picture by hand, the same escape
+    hatch `render_short_thumb` already has via `ax`/`zoom`. `side` still
+    chooses which half carries the type; pass it explicitly since there is no
+    scorer run to infer one from.
+
     Extra keyword arguments are ignored, so the older `zoom`/`focus`/`kicker`
     call sites keep working while the layout is chosen automatically.
     """
     box = None
-    if image is not None and Path(image).exists():
+    if crop_at is not None and image is not None and Path(image).exists():
+        src = cv2.imread(str(Path(image)))
+        sh, sw = src.shape[:2]
+        s = max(W / sw, H / sh) * crop_zoom
+        nw, nh = int(np.ceil(sw * s)), int(np.ceil(sh * s))
+        big = cv2.resize(src, (nw, nh), interpolation=cv2.INTER_LANCZOS4)
+        ax, ay = crop_at
+        x0 = int(np.clip((nw - W) * ax, 0, max(nw - W, 0)))
+        y0 = int(np.clip((nh - H) * ay, 0, max(nh - H, 0)))
+        crop = big[y0:y0 + H, x0:x0 + W]
+        base = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+        side, vband = side or "left", crop_band
+        base = base.filter(ImageFilter.GaussianBlur(1.2))
+        luma = np.asarray(base.convert("L")).mean()
+        base = ImageEnhance.Brightness(base).enhance(
+            float(np.clip(74.0 / max(luma, 1.0), 0.62, 1.12)))
+    elif image is not None and Path(image).exists():
         base, found, vband, score, clear = _layout(Path(image), want_side=side)
         side = side or found
         if not clear:
