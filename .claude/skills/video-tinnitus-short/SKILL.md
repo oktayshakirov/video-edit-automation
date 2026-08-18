@@ -61,6 +61,28 @@ to extend it. There was room — the reframe alone does not fill a short, and th
 counterintuitive turn (chasing quiet backfires) is what keeps a viewer past the
 first line.
 
+**Shorts get a thumbnail now, and it does not use the landscape treatment.**
+`thumb.render_short_thumb`, 1080x1920. Two things were wrong with reusing
+`render_thumb`'s type: Futura Medium is a light, wide geometric that goes weak
+at feed size, and an 8px black stroke around every glyph is the clearest tell
+of an amateur thumbnail — "the font is not good and looks very generic", "our
+solid color borders make it look very unprofessional". So it sets **Arial
+Black** (the closest face on this machine to the Anton/Montserrat-ExtraBold
+weight big channels use; Impact is heavier and was rejected as meme-coded) with
+a **blurred drop shadow on its own layer instead of a stroke**, and a tighter
+accent plate.
+
+**The source has to be composed vertically.** The long form's thumbnail
+photograph is a woman lying horizontally in a landscape frame, and cover-
+cropping that to 9:16 throws away the subject's long axis — no zoom or pan
+recovers it. Fetch with `orientation=portrait` rather than reusing the long
+cut's picture. Type sits in the upper half, because the Shorts player puts the
+title, channel and buttons across the bottom and a button rail up the right.
+
+**The article shorts still have no music bed** — long form gets one, this does
+not. Requested and not yet built; `render_tinnitus_short` would need the
+`music`/`music_gain` pair `render_long` already takes.
+
 **Do not close on "save this".** Asking for a save is asking for the wrong
 action when the video is about something to do tonight — the user's call, and
 they are right that saving a video is not the behaviour the piece is arguing

@@ -492,3 +492,165 @@ def _arrow(d: ImageDraw.ImageDraw, start: tuple[float, float],
                (ax - vx * s - vy * s * 0.6, ay - vy * s + vx * s * 0.6),
                (ax - vx * s + vy * s * 0.6, ay - vy * s - vx * s * 0.6)],
               fill=colour)
+
+
+# --- vertical thumbnails, for Shorts -------------------------------------
+
+FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
+VW, VH = 1080, 1920
+
+
+def render_short_thumb(out: Path, brand: Brand, headline: str,
+                       image: Path | None = None, accent: str = "red",
+                       size: int = 168, at: float = 0.34, ax: float = 0.5,
+                       zoom: float = 1.0) -> Path:
+    """A 9:16 thumbnail for a Short.
+
+    **This does not share `render_thumb`'s type treatment, and that is the
+    point.** The landscape version sets Futura Medium with an 8px black stroke
+    on every letter. Reviewed against what large channels actually ship, two
+    things were wrong with it: Futura is a light, wide geometric face that goes
+    weak at feed size, and a hard stroke around every glyph is the single
+    clearest tell of an amateur thumbnail. The user's words were "the font is
+    not good and looks very generic" and "our solid color borders make it look
+    very unprofessional".
+
+    So:
+
+    * **A heavy grotesque, not a geometric.** `Arial Black` is the closest face
+      on this machine to the Anton/Montserrat-ExtraBold weight the reference
+      thumbnails use. Impact is heavier still and was rejected as meme-coded.
+    * **A soft drop shadow, not a stroke.** The shadow is rendered on its own
+      layer and blurred, so it separates the type from the picture without
+      drawing a hard outline around it. That is what the references do and it
+      is the whole difference in feel.
+    * **One accent run on a solid plate**, with tighter padding than the
+      landscape version — the reference plates hug their words.
+
+    Type sits in the upper half because the Shorts player puts the title,
+    channel and buttons across the bottom and a rail of buttons up the right.
+    """
+    fill, ink = ACCENTS.get(accent, ACCENTS["red"])
+
+    if image is not None and Path(image).exists():
+        src = Image.open(image).convert("RGB")
+        s = max(VW / src.width, VH / src.height) * zoom
+        src = src.resize((int(np.ceil(src.width * s)),
+                          int(np.ceil(src.height * s))), Image.LANCZOS)
+        # **`at` and `ax` place the crop; only one of them usually does
+        # anything.** Cover-cropping a landscape source to 9:16 is constrained
+        # by width, so there is no vertical slack left and `at` is inert — the
+        # subject is positioned with `ax` instead. `zoom` above 1.0 buys slack
+        # in both axes, which is what a wide source needs to put a face at
+        # thumbnail size.
+        x0 = int((src.width - VW) * ax)
+        y0 = int((src.height - VH) * at)
+        base = src.crop((x0, y0, x0 + VW, y0 + VH))
+        luma = np.asarray(base.convert("L")).mean()
+        base = ImageEnhance.Brightness(base).enhance(
+            float(np.clip(78.0 / max(luma, 1.0), 0.55, 1.15)))
+    else:
+        base = Image.new("RGB", (VW, VH), brand.bg)
+
+    # A scrim across the top half only, so the type has ground under it and the
+    # picture still reads underneath.
+    grad = Image.new("L", (1, VH))
+    px = grad.load()
+    for y in range(VH):
+        p = y / (VH - 1)
+        px[0, y] = int(215 * max(0.0, 1.0 - (p / 0.62) ** 1.6))
+    base = Image.composite(Image.new("RGB", (VW, VH), (0, 0, 0)),
+                           base, grad.resize((VW, VH)))
+
+    d = ImageDraw.Draw(base)
+    # Narrow margins on purpose. A Short is judged at ~200px wide in a feed, so
+    # the type has to run nearly edge to edge; the landscape thumbnail's 58px
+    # on a 1280 frame is a much larger share of the width than it looks.
+    margin = 52
+    col_w = VW - 2 * margin
+    words = _split(headline.upper())
+
+    # Shrink until it fits and the accent run stays on one line — same rule and
+    # same reason as the landscape version.
+    fallback = None
+    for _ in range(16):
+        font = ImageFont.truetype(FONT_DISPLAY, size)
+        space = d.textlength(" ", font=font)
+        lines, cur, cw = [], [], 0.0
+        for word, hot in words:
+            ww = d.textlength(word, font=font)
+            if cur and cw + space + ww > col_w:
+                lines.append(cur)
+                cur, cw = [], 0.0
+            cur.append((word, hot, ww))
+            cw += ww + (space if len(cur) > 1 else 0)
+        if cur:
+            lines.append(cur)
+        line_h = int(size * 1.02)        # tight: the references set close
+        block = len(lines) * line_h
+        fits = len(lines) <= 4 and block < VH * 0.5
+        hot_lines = {i for i, ln in enumerate(lines) if any(h for _, h, _ in ln)}
+        if fits and fallback is None:
+            fallback = (size, font, space, lines, line_h, block)
+        if fits and len(hot_lines) <= 1:
+            break
+        size -= 8
+    else:
+        if fallback is not None:
+            size, font, space, lines, line_h, block = fallback
+
+    y = int(VH * 0.13)
+    asc, _ = font.getmetrics()
+    cap_h = font.getbbox("H")[3] - font.getbbox("H")[1]
+    pad_x, pad_v = 18, int(size * 0.13)
+
+    # The shadow goes on its own layer so it can be blurred without touching
+    # the type. Drawn for every word including the accented ones — a plate on a
+    # photograph needs lifting off it too.
+    shadow = Image.new("L", (VW, VH), 0)
+    sd = ImageDraw.Draw(shadow)
+
+    plates, glyphs = [], []
+    yy = y
+    for line in lines:
+        base_y = yy + asc
+        x = margin
+        runs, start, width = [], None, 0.0
+        for word, hot, ww in line:
+            if hot and start is None:
+                start, width = x, ww
+            elif hot:
+                width = x + ww - start
+            elif start is not None:
+                runs.append((start, width))
+                start = None
+            x += ww + space
+        if start is not None:
+            runs.append((start, width))
+        for rx, rw in runs:
+            plates.append([rx - pad_x, base_y - cap_h - pad_v,
+                           rx + rw + pad_x, base_y + pad_v])
+        x = margin
+        for word, hot, ww in line:
+            glyphs.append((x, yy, word, hot))
+            x += ww + space
+        yy += line_h
+
+    for box in plates:
+        sd.rectangle([box[0] + 6, box[1] + 8, box[2] + 6, box[3] + 8], fill=190)
+    for gx, gy, word, hot in glyphs:
+        if not hot:
+            sd.text((gx + 6, gy + 8), word, font=font, fill=210)
+    shadow = shadow.filter(ImageFilter.GaussianBlur(14))
+    base = Image.composite(Image.new("RGB", (VW, VH), (0, 0, 0)), base, shadow)
+
+    d = ImageDraw.Draw(base)
+    for box in plates:
+        d.rectangle(box, fill=fill)
+    for gx, gy, word, hot in glyphs:
+        d.text((gx, gy), word, font=font,
+               fill=ink if hot else (255, 255, 255))
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    base.save(out, quality=92)
+    return out
