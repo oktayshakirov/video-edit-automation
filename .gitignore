@@ -44,3 +44,6 @@ assets/stock/**/*.jpg
 # reproducible from `core.backdrop`, but committing them means a checkout
 # renders identically without anyone having to know that.
 !assets/brand/**/*.mp4
+# ...and the music library, for the same reason. These are stored trimmed and
+# lossless on purpose — see core/music.py.
+!assets/brand/**/*.wav

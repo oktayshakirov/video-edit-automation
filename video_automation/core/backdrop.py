@@ -53,7 +53,7 @@ what makes them the footage worth reaching for here.
 from __future__ import annotations
 
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import cv2
@@ -201,6 +201,9 @@ class Backdrop:
     name: str
     frames: list
     fps: float
+    _tick: int = 0
+    _pool: list = field(default_factory=list)
+    _pool_shape: tuple | None = None
 
     @classmethod
     def load(cls, name: str) -> "Backdrop | None":
@@ -230,7 +233,50 @@ class Backdrop:
                          interpolation=cv2.INTER_CUBIC)
         y0 = (big.shape[0] - h) // 2
         x0 = (big.shape[1] - w) // 2
-        return big[y0:y0 + h, x0:x0 + w]
+        return self._dither(big[y0:y0 + h, x0:x0 + w])
+
+    def _dither(self, frame: np.ndarray) -> np.ndarray:
+        """Break 8-bit contouring with sub-level noise.
+
+        **A dark gradient does not have the bit depth to be smooth.** Measured
+        on the aurora: the whole 1920-pixel centre row spans levels 14 to 45 —
+        **31 distinct values across the frame**, so every one of those 31 steps
+        is a visible contour line. That is what "I can see the shapes in the
+        background" was; it is not a defect in the gradient, it is 8-bit.
+
+        Dither trades that contour for noise below the threshold of vision: the
+        eye integrates neighbouring pixels, so a stochastic mix of levels 20 and
+        21 reads as 20.5 where a hard boundary between fields of 20 and 21 reads
+        as an edge.
+
+        **It has to happen after the upscale.** Dithering the 512px source and
+        then resizing 3.75x runs the noise straight through a low-pass filter
+        and the contours come back — the interpolation averages exactly what the
+        dither was there to vary.
+
+        **And it has to change every frame.** A fixed noise field reads as dirt
+        on the lens; a moving one reads as grain, or as nothing at all. Frames
+        are drawn from a small rotating pool rather than generated per call,
+        because a fresh 1920x1080 random field per frame is ~2M values and this
+        runs on every frame of every video.
+        """
+        pool = self._noise(frame.shape[:2])
+        n = pool[self._tick % len(pool)]
+        self._tick += 1
+        return np.clip(frame.astype(np.int16) + n, 0, 255).astype(np.uint8)
+
+    def _noise(self, shape: tuple) -> list:
+        if self._pool_shape != shape:
+            rng = np.random.default_rng(7)
+            # +-1.5 levels, which is the smallest amplitude that reliably
+            # crosses a one-level boundary in both directions. Larger is
+            # visible as grain on a flat dark field and costs bitrate in the
+            # final encode for nothing.
+            self._pool = [np.rint(rng.uniform(-1.5, 1.5, shape)
+                                  ).astype(np.int16)[..., None]
+                          for _ in range(8)]
+            self._pool_shape = shape
+        return self._pool
 
 
 _CACHE: dict[str, Backdrop | None] = {}

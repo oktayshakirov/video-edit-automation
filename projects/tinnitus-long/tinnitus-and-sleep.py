@@ -77,6 +77,7 @@ Run from the repo root:
 
 from pathlib import Path
 
+from video_automation.core import music
 from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
@@ -96,18 +97,34 @@ SOUND = STOCK / "videos/sound-wave-visualization-dark"
 RAIN = STOCK / "videos/rain-on-window-at-night-dark"
 LAMP = STOCK / "videos/bedside-lamp-dark-bedroom-night"
 CLOCK = STOCK / "videos/alarm-clock-night-dark-bedroom"
+BEDW = STOCK / "videos/caucasian-woman-awake-in-bed-night-dark-bedroom"
+SITW = STOCK / "videos/blonde-woman-insomnia-bed-night-dark"
+TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
-# The one photograph in the cut, and the thumbnail's source. Screened L36 S46,
-# which is well inside the ~L82 ceiling a full-frame picture has to meet — the
-# site's own library had nothing close (see above), so this is stock.
-AWAKE_PHOTO = STOCK / "photos/man-cannot-sleep-bedroom-night-dark/6943421.jpg"
+# The one photograph in the cut. Screened L26 S35, inside the ~L82 ceiling a
+# full-frame picture has to meet — the site's own library had nothing close
+# (see above), so this is stock. The visible clock reading 4:56 does the
+# section's work without a caption.
+AWAKE_PHOTO = STOCK / "photos/woman-awake-in-bed-at-night-dark-room-insomnia/6943991.jpg"
 
-VOICE = "ivy"                   # bf_emma. **A real voice test, not a setting
-                                # test**: `mia-calm` is `mia` at a different
-                                # speed and would tell us nothing about the
-                                # reader. Still a candidate, not approved.
-MUSIC = "bright"
+# **The thumbnail is a different picture from the video's**, which is a change:
+# the user picked this one and at L194 it is far too bright to take a video
+# frame. `render_thumb` normalises brightness toward a target, so a bright
+# source is fine there and nowhere else.
+THUMB_PHOTO = STOCK / "photos/woman-sleeping-beside-smartphone/9787924.jpg"
+
+VOICE = "mia-calm"              # af_heart at 1.00. `ivy` was tried and cut —
+                                # the British read was not wanted, and the
+                                # profile is deleted rather than left lying
+                                # around. This is the channel's own reader at
+                                # an unhurried pace, which is the delivery a
+                                # bedtime script wanted anyway. Candidate.
+
+# Picked by ear by the user, over the generated `bright` preset. Stored trimmed
+# in `assets/brand/music/` because it is 7.7s and loops twenty-nine times
+# across this cut — see `core/music.py` for why the trim is not optional.
+MUSIC = music.track("night-drift")
 
 URL = "https://tinnitushelp.me/blog/tinnitus-and-sleep"
 A = 16 / 9
@@ -164,8 +181,7 @@ SECTIONS = [
              "a fridge humming in the next room."),
             ("None of that is loud.",
              "All of it is covering part of the sound.",
-             "Then you turn everything off",
-             "and go to bed."),
+             "Then you turn everything off."),
             ("A dark bedroom at eleven at night",
              "is the quietest place",
              "most people ever spend time in."),
@@ -205,7 +221,7 @@ SECTIONS = [
              "Completely different experience of it."),
         ],
         shots=[
-            Shot(clip=TIREDW / "4588228.mp4"),           # L30-32 S14
+            Shot(clip=TIREDP / "6415592.mp4"),           # L18-19 S6
             Shot(graphic="compare",
                  payload=("Your day",
                           ["Traffic, voices, the street",
@@ -215,7 +231,7 @@ SECTIONS = [
                           ["Almost no ambient sound",
                            "Nothing competing for attention",
                            "Tolerance at its lowest"])),
-            Shot(clip=AWAKE / "6944078.mp4", clip_at=6.0),
+            Shot(clip=BEDW / "30285719.mp4"),            # L24 S10
         ],
     ),
 
@@ -293,7 +309,10 @@ SECTIONS = [
                            ("Rain, fan or waves",
                             "Gentler if hiss irritates you")],
                           "STEADY SOUND, NO WORDS")),
-            Shot(clip=RAIN / "34977302.mp4"),            # L15 S17-18
+            # The line is "it goes in the room, on a speaker, not in your
+            # ears", so the room is the subject. The second rain clip sat here
+            # until `mia-calm` grew the slot past its 10s length.
+            Shot(clip=LAMP / "10387906.mp4", clip_at=8.0),   # L36-46 S23-29
             None,
         ],
     ),
@@ -355,14 +374,14 @@ SECTIONS = [
              "and reliably wrecks the following one."),
         ],
         shots=[
-            Shot(clip=LAMP / "6944067.mp4"),             # L39 S36-37
+            Shot(clip=SITW / "6951594.mp4"),             # L45-49 S16-21
             Shot(graphic="steps",
                  payload=(["Sound in the room, on a speaker",
                            "Set it just below the ringing",
                            "Up after 20 minutes awake",
                            "Fixed wake time, every day"],
                           "TONIGHT")),
-            Shot(clip=TIREDW / "4588228.mp4", clip_at=5.0),
+            Shot(clip=TIREDP / "6415592.mp4", clip_at=12.0),
             None,
         ],
     ),
@@ -377,10 +396,6 @@ SECTIONS = [
             ("If sleeplessness has become a nightly pattern,",
              "talking therapy for insomnia",
              "is the treatment with the strongest evidence behind it."),
-            ("It works on the thoughts",
-             "and the habits that keep the cycle running,",
-             "which is a different problem",
-             "from the sound itself."),
             ("And if the tinnitus is new,",
              "or getting louder,",
              "or only in one ear,",
@@ -398,7 +413,6 @@ SECTIONS = [
                           "Therapy changes the pattern.",
                           "two different problems"),
                  picture=IMG / "therapy.jpg"),
-            None,
             Shot(clip=TIREDW / "4588228.mp4", clip_at=9.0),
             Shot(graphic="stat",
                  payload=("4", "RED FLAGS",
@@ -430,7 +444,11 @@ SECTIONS = [
             Shot(clip=NIGHT / "11956328.mp4", clip_at=6.0),
             Shot(clip=WAVES / "27980029.mp4", clip_at=1.0),
         ],
-        gaps=[0.34, 0.34, 0.90, 3.20],
+        # 3.20 -> 2.30. The endcard sting runs its own 7s over the outro, so
+        # the tail does not also need three seconds of silence after the last
+        # line; `mia-calm` reads ~9% slower than the voice this was written
+        # against and that put the cut over four minutes.
+        gaps=[0.34, 0.34, 0.90, 2.30],
     ),
 ]
 
@@ -488,7 +506,7 @@ def main() -> None:
         # The title carries the search phrase, so the thumbnail asks what the
         # title does not.
         thumb_headline="Stop sleeping in [silence]",
-        thumb_image=AWAKE_PHOTO,
+        thumb_image=THUMB_PHOTO,
         thumb_accent="orange",
     )
     for k, v in made.items():

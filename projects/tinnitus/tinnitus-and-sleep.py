@@ -64,11 +64,13 @@ SOUND = STOCK / "videos/sound-wave-visualization-dark"
 RAIN = STOCK / "videos/rain-on-window-at-night-dark"
 LAMP = STOCK / "videos/bedside-lamp-dark-bedroom-night"
 TIREDM = STOCK / "videos/tired-man-rubbing-temples-dark"
+BEDW = STOCK / "videos/caucasian-woman-awake-in-bed-night-dark-bedroom"
+TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
 
-VOICE = "ivy"                   # bf_emma, the same reader as the long form
-                                # from this post — a short and a long video on
-                                # one channel in two voices is two channels.
-                                # Still a candidate, not approved.
+VOICE = "mia-calm"              # af_heart at 1.00, the same reader as the long
+                                # form from this post — a short and a long
+                                # video on one channel in two voices is two
+                                # channels. `ivy` was tried and cut. Candidate.
 
 SENTENCES = [
     ("Your tinnitus is not worse at night.",),
@@ -126,7 +128,7 @@ SENTENCES = [
 SHOTS = [
     # 1 — motion on frame one, and a face. A Short is judged in its first
     # second and this reads as "awake at 3am" in a fifth of one.
-    Shot(clip=AWAKE / "6944078.mp4"),                # L27-35 S24-33
+    Shot(clip=BEDW / "30285719.mp4"),                # L24 S10
 
     Shot(clip=LAMP / "10387906.mp4"),                # L36-46 S23-29
 
@@ -139,13 +141,17 @@ SHOTS = [
                     "Silence, and nothing but the ringing")],
                   "SAME EARS, DIFFERENT ROOM")),
 
-    Shot(clip=TIREDM / "4588472.mp4"),               # L37 S16
+    Shot(clip=TIREDP / "6415592.mp4"),               # L18-19 S6
 
     Shot(clip=AWAKE / "8376628.mp4", clip_at=2.0),   # L25-30 S13-17
 
     Shot(clip=RAIN / "4458918.mp4"),                 # L20-21 S16-23
 
-    Shot(clip=RAIN / "34977302.mp4"),                # L15 S17-18
+    # **Not 34977302.** It screens at L15 S17 and passes the box, and it is a
+    # green-lit apartment block — the one hue that cuts hardest against this
+    # palette. The box measures brightness; hue against the brand is a separate
+    # judgement it does not make for you.
+    Shot(clip=RAIN / "15161525.mp4"),                # L31 S13
 
     Shot(clip=NIGHT / "11956219.mp4"),               # L29-31 S6
 
