@@ -503,11 +503,18 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        # The title carries the search phrase, so the thumbnail asks what the
+        # **The same headline and the same treatment as the Short from this
+        # post.** They are published as a pair and should look like one; the
+        # type is drawn by `thumb._headline` for both aspects so they cannot
+        # drift. The title is the question ("Why Is It Worse at Night?") and
+        # the thumbnail is the answer, which is the rule about asking what the
         # title does not.
-        thumb_headline="Stop sleeping in [silence]",
+        thumb_headline="Your room [got quieter]",
         thumb_image=THUMB_PHOTO,
-        thumb_accent="orange",
+        thumb_accent="red",
+        # The scorer's pick puts the type under her, in the same column as the
+        # face. Right splits them across the diagonal and reads better small.
+        thumb_side="right",
     )
     for k, v in made.items():
         print(f"{k}: {v}")

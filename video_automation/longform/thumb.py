@@ -49,6 +49,19 @@ from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
 W, H = 1280, 720                # what YouTube wants; also under the 2MB limit
 
+# **One display face and one type treatment for both aspects.** The landscape
+# thumbnail used to set Futura Medium with an 8px black stroke on every glyph.
+# Reviewed against what large channels ship, both halves were wrong: Futura is
+# a light, wide geometric that goes weak at feed size, and a hard outline round
+# every letter is the clearest tell of an amateur thumbnail. Arial Black is the
+# closest face on this machine to the Anton/Montserrat-ExtraBold weight the
+# references use; Impact is heavier still and was rejected as meme-coded.
+#
+# `_headline` below is shared by `render_thumb` and `render_short_thumb` so a
+# long video and the Short cut from the same post cannot drift apart. They are
+# published as a pair and should look like one.
+FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
+
 # Vibrant accents, deliberately **not** the brand palette. thecrypto.wiki's gold
 # and tinnitushelp.me's peach are both low-contrast against their own dark
 # imagery — fine inside a video where they read as the house colour, wrong on a
@@ -181,6 +194,118 @@ def _split(headline: str) -> list[tuple[str, bool]]:
     return out
 
 
+def _headline(base: Image.Image, headline: str, size: int, col_w: int,
+              x_text: int, fill, ink, max_lines: int = 4,
+              max_block: float = 1e9, leading: float = 1.02,
+              band: str = "middle", margin: int = 58,
+              shadow: int = 14, drop: tuple = (6, 8)):
+    """Lay out and paint the headline. Shared by both aspects on purpose.
+
+    Returns the block height. `band` places it once the height is known, which
+    is why placement lives here rather than in the callers.
+
+    **Shrink until it fits and until the accent run lands whole on one line.**
+    An accent that wraps draws two plates on two lines and loses the single
+    focal point the device exists for. Try the largest size that keeps it
+    intact; fall back to merely fitting if no size does.
+
+    **The shadow is a blurred layer, not a stroke.** A stroke traces every
+    glyph at a constant width and reads as an outline; a blurred offset copy
+    reads as the type sitting above the picture. That difference is most of
+    what separates these from a template.
+
+    **Plates are sized from the cap band, not the line box.** A font's line box
+    carries ascender and descender room that uppercase never uses, and padding
+    it leaves the words riding high in the plate.
+    """
+    d = ImageDraw.Draw(base)
+    words = _split(headline.upper())
+
+    fallback = None
+    for _ in range(16):
+        font = ImageFont.truetype(FONT_DISPLAY, size)
+        space = d.textlength(" ", font=font)
+        lines, cur, cw = [], [], 0.0
+        for word, hot in words:
+            ww = d.textlength(word, font=font)
+            if cur and cw + space + ww > col_w:
+                lines.append(cur)
+                cur, cw = [], 0.0
+            cur.append((word, hot, ww))
+            cw += ww + (space if len(cur) > 1 else 0)
+        if cur:
+            lines.append(cur)
+        line_h = int(size * leading)
+        block = len(lines) * line_h
+        fits = len(lines) <= max_lines and block < max_block
+        hot_lines = {i for i, ln in enumerate(lines) if any(h for _, h, _ in ln)}
+        if fits and fallback is None:
+            fallback = (size, font, space, lines, line_h, block)
+        if fits and len(hot_lines) <= 1:
+            break
+        size -= 8
+    else:
+        if fallback is not None:
+            size, font, space, lines, line_h, block = fallback
+
+    Wf, Hf = base.size
+    y = {"top": margin,
+         "middle": (Hf - block) // 2,
+         "bottom": Hf - margin - block}[band]
+
+    asc, _ = font.getmetrics()
+    cap_h = font.getbbox("H")[3] - font.getbbox("H")[1]
+    pad_x, pad_v = 18, int(size * 0.13)
+
+    plates, glyphs = [], []
+    yy = y
+    for line in lines:
+        base_y = yy + asc
+        x = x_text
+        # One plate per *run* of accent words, not one per word. Boxing each
+        # word separately leaves a seam of background between them, which reads
+        # as a rendering fault rather than a highlight.
+        runs, start, width = [], None, 0.0
+        for word, hot, ww in line:
+            if hot and start is None:
+                start, width = x, ww
+            elif hot:
+                width = x + ww - start
+            elif start is not None:
+                runs.append((start, width))
+                start = None
+            x += ww + space
+        if start is not None:
+            runs.append((start, width))
+        for rx, rw in runs:
+            plates.append([rx - pad_x, base_y - cap_h - pad_v,
+                           rx + rw + pad_x, base_y + pad_v])
+        x = x_text
+        for word, hot, ww in line:
+            glyphs.append((x, yy, word, hot))
+            x += ww + space
+        yy += line_h
+
+    dx, dy = drop
+    lay = Image.new("L", base.size, 0)
+    ld = ImageDraw.Draw(lay)
+    for b in plates:
+        ld.rectangle([b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy], fill=190)
+    for gx, gy, word, hot in glyphs:
+        if not hot:
+            ld.text((gx + dx, gy + dy), word, font=font, fill=210)
+    lay = lay.filter(ImageFilter.GaussianBlur(shadow))
+    base.paste(Image.composite(Image.new("RGB", base.size, (0, 0, 0)),
+                               base, lay), (0, 0))
+
+    d = ImageDraw.Draw(base)
+    for b in plates:
+        d.rectangle(b, fill=fill)
+    for gx, gy, word, hot in glyphs:
+        d.text((gx, gy), word, font=font, fill=ink if hot else (255, 255, 255))
+    return block
+
+
 def render_thumb(out: Path, brand: Brand, headline: str,
                  image: Path | None = None, accent: str = "red",
                  size: int = 118, side: str | None = None,
@@ -226,92 +351,17 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     base = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)),
                            base, grad.resize((W, H)))
 
-    d = ImageDraw.Draw(base)
     margin = 58
     col_w = int(W * 0.54)
     x_text = margin if side == "left" else W - margin - col_w
-
     fill, ink = ACCENTS.get(accent, ACCENTS["red"])
-    words = _split(headline.upper())
 
-    # Lay the words out, shrinking until they fit — and **until the accent run
-    # lands whole on one line**. An accent that wraps draws two plates on two
-    # lines and loses the single focal point the device exists for. Rather than
-    # make the author tune a size per thumbnail, try the largest size that keeps
-    # it intact and fall back to merely fitting if no size does.
-    fallback = None
-    for _ in range(14):
-        font = ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
-        space = d.textlength(" ", font=font)
-        lines, cur, cw = [], [], 0.0
-        for word, hot in words:
-            ww = d.textlength(word, font=font)
-            if cur and cw + space + ww > col_w:
-                lines.append(cur)
-                cur, cw = [], 0.0
-            cur.append((word, hot, ww))
-            cw += ww + (space if len(cur) > 1 else 0)
-        if cur:
-            lines.append(cur)
-        line_h = int(size * 1.10)
-        block = len(lines) * line_h
-        fits = len(lines) <= 4 and block < H - 2 * margin
-        hot_lines = {i for i, ln in enumerate(lines) if any(h for _, h, _ in ln)}
-        if fits and fallback is None:
-            fallback = (size, font, space, lines, line_h, block)
-        if fits and len(hot_lines) <= 1:
-            break
-        size -= 8
-    else:
-        if fallback is not None:
-            size, font, space, lines, line_h, block = fallback
-
-    # Place the block in the band the search picked, not always the middle.
-    y = {"top": margin,
-         "middle": (H - block) // 2,
-         "bottom": H - margin - block}[vband]
-
-    # **The box is built from the cap band, not the line box.** Padding a line
-    # height leaves the caps sitting high in the plate, because a font's line
-    # box carries ascender and descender room that uppercase type never uses.
-    # Measure the cap height, centre it, and every box comes out the same size
-    # with the words optically in the middle of it.
-    asc, _desc = font.getmetrics()
-    cap_h = font.getbbox("H")[3] - font.getbbox("H")[1]
-    pad_x, pad_v = 16, int(size * 0.20)
-
-    for line in lines:
-        base_y = y + asc
-        # One box per *run* of accent words, not one per word. Boxing each word
-        # separately leaves a gap of background between them — "PASSED IT" came
-        # out as two plates with a seam down the middle, which reads as a
-        # rendering fault rather than a highlight.
-        x = x_text
-        runs, start, width = [], None, 0.0
-        for word, hot, ww in line:
-            if hot and start is None:
-                start, width = x, ww
-            elif hot:
-                width = x + ww - start
-            elif start is not None:
-                runs.append((start, width))
-                start = None
-            x += ww + space
-        if start is not None:
-            runs.append((start, width))
-        for rx, rw in runs:
-            d.rectangle([rx - pad_x, base_y - cap_h - pad_v,
-                         rx + rw + pad_x, base_y + pad_v], fill=fill)
-
-        x = x_text
-        for word, hot, ww in line:
-            if hot:
-                d.text((x, y), word, font=font, fill=ink)
-            else:
-                d.text((x, y), word, font=font, fill=(255, 255, 255),
-                       stroke_width=8, stroke_fill=(0, 0, 0))
-            x += ww + space
-        y += line_h
+    block = _headline(base, headline, size, col_w, x_text, fill, ink,
+                      max_lines=4, max_block=H - 2 * margin, leading=1.06,
+                      band=vband, margin=margin, shadow=11, drop=(5, 6))
+    y = {"top": margin, "middle": (H - block) // 2,
+         "bottom": H - margin - block}[vband] + block
+    d = ImageDraw.Draw(base)
 
     if arrow_to is not None:
         _arrow(d, (x_text + col_w * 0.5, y + 20),
@@ -496,7 +546,6 @@ def _arrow(d: ImageDraw.ImageDraw, start: tuple[float, float],
 
 # --- vertical thumbnails, for Shorts -------------------------------------
 
-FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
 VW, VH = 1080, 1920
 
 
@@ -562,94 +611,15 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     base = Image.composite(Image.new("RGB", (VW, VH), (0, 0, 0)),
                            base, grad.resize((VW, VH)))
 
-    d = ImageDraw.Draw(base)
-    # Narrow margins on purpose. A Short is judged at ~200px wide in a feed, so
-    # the type has to run nearly edge to edge; the landscape thumbnail's 58px
-    # on a 1280 frame is a much larger share of the width than it looks.
+    # Narrow margins on purpose. A Short is judged at roughly 200px wide in a
+    # feed, so the type has to run nearly edge to edge; the landscape
+    # thumbnail's 58px on a 1280 frame is a much larger share of the width than
+    # it looks. Type sits high because the Shorts player puts the title,
+    # channel and buttons across the bottom and a button rail up the right.
     margin = 52
-    col_w = VW - 2 * margin
-    words = _split(headline.upper())
-
-    # Shrink until it fits and the accent run stays on one line — same rule and
-    # same reason as the landscape version.
-    fallback = None
-    for _ in range(16):
-        font = ImageFont.truetype(FONT_DISPLAY, size)
-        space = d.textlength(" ", font=font)
-        lines, cur, cw = [], [], 0.0
-        for word, hot in words:
-            ww = d.textlength(word, font=font)
-            if cur and cw + space + ww > col_w:
-                lines.append(cur)
-                cur, cw = [], 0.0
-            cur.append((word, hot, ww))
-            cw += ww + (space if len(cur) > 1 else 0)
-        if cur:
-            lines.append(cur)
-        line_h = int(size * 1.02)        # tight: the references set close
-        block = len(lines) * line_h
-        fits = len(lines) <= 4 and block < VH * 0.5
-        hot_lines = {i for i, ln in enumerate(lines) if any(h for _, h, _ in ln)}
-        if fits and fallback is None:
-            fallback = (size, font, space, lines, line_h, block)
-        if fits and len(hot_lines) <= 1:
-            break
-        size -= 8
-    else:
-        if fallback is not None:
-            size, font, space, lines, line_h, block = fallback
-
-    y = int(VH * 0.13)
-    asc, _ = font.getmetrics()
-    cap_h = font.getbbox("H")[3] - font.getbbox("H")[1]
-    pad_x, pad_v = 18, int(size * 0.13)
-
-    # The shadow goes on its own layer so it can be blurred without touching
-    # the type. Drawn for every word including the accented ones — a plate on a
-    # photograph needs lifting off it too.
-    shadow = Image.new("L", (VW, VH), 0)
-    sd = ImageDraw.Draw(shadow)
-
-    plates, glyphs = [], []
-    yy = y
-    for line in lines:
-        base_y = yy + asc
-        x = margin
-        runs, start, width = [], None, 0.0
-        for word, hot, ww in line:
-            if hot and start is None:
-                start, width = x, ww
-            elif hot:
-                width = x + ww - start
-            elif start is not None:
-                runs.append((start, width))
-                start = None
-            x += ww + space
-        if start is not None:
-            runs.append((start, width))
-        for rx, rw in runs:
-            plates.append([rx - pad_x, base_y - cap_h - pad_v,
-                           rx + rw + pad_x, base_y + pad_v])
-        x = margin
-        for word, hot, ww in line:
-            glyphs.append((x, yy, word, hot))
-            x += ww + space
-        yy += line_h
-
-    for box in plates:
-        sd.rectangle([box[0] + 6, box[1] + 8, box[2] + 6, box[3] + 8], fill=190)
-    for gx, gy, word, hot in glyphs:
-        if not hot:
-            sd.text((gx + 6, gy + 8), word, font=font, fill=210)
-    shadow = shadow.filter(ImageFilter.GaussianBlur(14))
-    base = Image.composite(Image.new("RGB", (VW, VH), (0, 0, 0)), base, shadow)
-
-    d = ImageDraw.Draw(base)
-    for box in plates:
-        d.rectangle(box, fill=fill)
-    for gx, gy, word, hot in glyphs:
-        d.text((gx, gy), word, font=font,
-               fill=ink if hot else (255, 255, 255))
+    _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
+              max_lines=4, max_block=VH * 0.5, leading=1.02,
+              band="top", margin=int(VH * 0.13), shadow=14, drop=(6, 8))
 
     out.parent.mkdir(parents=True, exist_ok=True)
     base.save(out, quality=92)
