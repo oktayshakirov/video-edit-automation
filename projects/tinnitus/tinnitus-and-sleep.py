@@ -69,13 +69,15 @@ TIREDM = STOCK / "videos/tired-man-rubbing-temples-dark"
 BEDW = STOCK / "videos/caucasian-woman-awake-in-bed-night-dark-bedroom"
 TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
 
-# **A portrait source, and that is not a detail.** The long form's thumbnail
-# used to be a woman lying horizontally in a landscape frame; cover-cropped to
-# 9:16 the composition fell apart and no zoom recovered it, because the
-# subject's long axis was the one being thrown away. This file's own source
-# was chosen for exactly this shape and the long form now shares it, with its
-# own manual landscape crop — "always match them" is the user's rule.
-THUMB_PHOTO = STOCK / "photos/tired-woman-night-dark-bedroom-vertical/8036752.jpg"
+# **Same source the long form uses, and back to the user's original pick.**
+# It is landscape (6720x4480), which the earlier version of this file called
+# structurally unworkable for 9:16 — that turned out to be true for a
+# different landscape photo (a woman lying fully horizontal, so the crop had
+# to throw away her whole body) and not for this one, where she is shot from
+# directly overhead: her face sits high and off-centre rather than spanning
+# the frame, so a portrait crop only has to pick a horizontal slice, not
+# recover a lost axis. `ax=0.10` centres that slice on her face and the phone.
+THUMB_PHOTO = STOCK / "photos/woman-sleeping-beside-smartphone/9787924.jpg"
 
 VOICE = "mia-calm"              # af_heart at 1.00, the same reader as the long
                                 # form from this post — a short and a long
@@ -191,7 +193,8 @@ def main() -> None:
     # one. "Your room got quieter" was tried and the user kept this one.
     thumb = render_short_thumb(
         out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
-        "Stop sleeping in [silence]", image=THUMB_PHOTO, accent="red", at=0.55)
+        "Stop sleeping in [silence]", image=THUMB_PHOTO, accent="red",
+        ax=0.10, zoom=1.0)
     print(f"{path}  {total:.1f}s")
     print(f"{thumb}")
 
