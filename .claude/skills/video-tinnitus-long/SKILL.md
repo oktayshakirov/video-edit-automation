@@ -189,6 +189,28 @@ video rather than applied to that one.
   does not, which is a gap rather than a decision. `render_tinnitus_short`
   would need the `music`/`music_gain` pair `render_long` already takes.
 
+## The long and the Short from one post share a thumbnail
+
+Same headline, same type treatment, different aspect and crop. They are
+published as a pair and a viewer who sees both should recognise the second one.
+`thumb._headline` draws the type for **both** `render_thumb` (1280x720) and
+`render_short_thumb` (1080x1920), which is the mechanism that stops them
+drifting — do not fork it.
+
+The treatment, settled against reference thumbnails from large channels:
+
+- **Arial Black**, not Futura. A light wide geometric goes weak at feed size.
+  Impact is heavier still and reads as meme-coded.
+- **A blurred drop shadow on its own layer, never a stroke.** A stroke traces
+  every glyph at constant width and reads as an outline; that was the single
+  thing called out as making these "look very unprofessional".
+- **One accent run on a solid plate**, padded from the cap band.
+
+**The two aspects need different source photographs, and that is not optional.**
+A landscape picture of someone lying down cannot be cover-cropped to 9:16 — the
+subject's long axis is the one being thrown away, and no zoom or pan recovers
+it. Fetch the Short's picture with `orientation=portrait`.
+
 ## Titles: a question gets a question mark, every time
 
 The channel is consistent about this and it is worth keeping that way —
