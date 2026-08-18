@@ -51,8 +51,10 @@ Run from the repo root:
 
 from pathlib import Path
 
+from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
+from video_automation.longform.thumb import render_short_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 # Screened across their length by the long-form build from this post; the
@@ -66,6 +68,13 @@ LAMP = STOCK / "videos/bedside-lamp-dark-bedroom-night"
 TIREDM = STOCK / "videos/tired-man-rubbing-temples-dark"
 BEDW = STOCK / "videos/caucasian-woman-awake-in-bed-night-dark-bedroom"
 TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
+
+# **A portrait source, and that is not a detail.** The long form's thumbnail
+# photograph is a woman lying horizontally in a landscape frame; cover-cropped
+# to 9:16 the composition falls apart and no zoom recovers it, because the
+# subject's long axis is the one being thrown away. A Shorts thumbnail needs a
+# picture that was composed vertically in the first place.
+THUMB_PHOTO = STOCK / "photos/tired-woman-night-dark-bedroom-vertical/8036752.jpg"
 
 VOICE = "mia-calm"              # af_heart at 1.00, the same reader as the long
                                 # form from this post — a short and a long
@@ -177,7 +186,13 @@ def main() -> None:
     work = Path.home() / "Desktop/.tinnitus-sleep-short-work"
     path, total = render_tinnitus_short(SENTENCES, SHOTS, out, work,
                                         voice=VOICE)
+    # The thumbnail asks what the title does not: the title is the question
+    # ("Why Is Tinnitus Worse at Night?") and this is the answer.
+    thumb = render_short_thumb(
+        out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
+        "Your room [got quieter]", image=THUMB_PHOTO, accent="red", at=0.55)
     print(f"{path}  {total:.1f}s")
+    print(f"{thumb}")
 
 
 if __name__ == "__main__":

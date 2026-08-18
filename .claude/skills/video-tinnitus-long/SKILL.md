@@ -174,6 +174,30 @@ than `mia`, which pushed this cut from 3:47 to 4:09 and broke a slot whose clip
 was exactly 10s. Re-run the preflight after any voice change; do not assume the
 shot list survives it.
 
+## Open requests, not yet built
+
+Both came from review of the sleep cut and were explicitly deferred to the next
+video rather than applied to that one.
+
+- **An emoji beside each `grid` card.** Where a beat offers three options — the
+  "steady sound, no words" cards at 2:00 — a small emoji at the right of each
+  card would carry the option at a glance: rain for rain, a white circle for
+  white noise, a brown one for brown noise. `add_caption_emoji` already solves
+  the Apple Color Emoji bitmap-strike problem (32/64/96/160 load, arbitrary
+  sizes raise) and is the thing to reuse rather than reinvent.
+- **The article shorts have no music bed.** Long form gets one and the short
+  does not, which is a gap rather than a decision. `render_tinnitus_short`
+  would need the `music`/`music_gain` pair `render_long` already takes.
+
+## Titles: a question gets a question mark, every time
+
+The channel is consistent about this and it is worth keeping that way —
+`How Loud Is Too Loud?`, `Does Tinnitus Go Away?`. The trap is a title that is
+*phrased* as a statement but *reads* as a question: `Why It Is Worse at Night`
+was drafted that way and had to become `Why Is It Worse at Night?` before
+upload. If the second half of a colon title is an implied question, invert it
+into a real one and punctuate it. The rising intonation is free.
+
 ## A dark gradient does not have the bit depth to be smooth
 
 The aurora shipped once with visible contour rings and the note was "I can
