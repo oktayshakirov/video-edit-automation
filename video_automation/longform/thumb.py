@@ -665,7 +665,7 @@ VW, VH = 1080, 1920
 def render_short_thumb(out: Path, brand: Brand, headline: str,
                        image: Path | None = None, accent: str = "red",
                        size: int = 168, at: float = 0.34, ax: float = 0.5,
-                       zoom: float = 1.0) -> Path:
+                       zoom: float = 1.0, band: str = "top") -> Path:
     """A 9:16 thumbnail for a Short.
 
     **This does not share `render_thumb`'s type treatment, and that is the
@@ -689,8 +689,13 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     * **One accent run on a solid plate**, with tighter padding than the
       landscape version — the reference plates hug their words.
 
-    Type sits in the upper half because the Shorts player puts the title,
-    channel and buttons across the bottom and a rail of buttons up the right.
+    **`band` picks which half carries the type**, default `"top"` because the
+    Shorts player usually puts the title, channel and buttons across the
+    bottom and a rail of buttons up the right. That default is wrong the
+    moment the subject's face is in the top half of the crop and the bottom is
+    empty pillow or wall — text over a face reads as a mistake regardless of
+    how correct the platform-safe-area reasoning is. Set `band="bottom"` when
+    the picture itself has the empty half at the bottom; the scrim follows.
     """
     fill, ink = ACCENTS.get(accent, ACCENTS["red"])
 
@@ -714,12 +719,14 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     else:
         base = Image.new("RGB", (VW, VH), brand.bg)
 
-    # A scrim across the top half only, so the type has ground under it and the
-    # picture still reads underneath.
+    # A scrim on the type's half only, so the type has ground under it and the
+    # picture still reads underneath. Fades from whichever edge `band` puts
+    # the type against.
     grad = Image.new("L", (1, VH))
     px = grad.load()
     for y in range(VH):
         p = y / (VH - 1)
+        p = p if band == "top" else 1.0 - p
         px[0, y] = int(215 * max(0.0, 1.0 - (p / 0.62) ** 1.6))
     base = Image.composite(Image.new("RGB", (VW, VH), (0, 0, 0)),
                            base, grad.resize((VW, VH)))
@@ -727,12 +734,14 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     # Narrow margins on purpose. A Short is judged at roughly 200px wide in a
     # feed, so the type has to run nearly edge to edge; the landscape
     # thumbnail's 58px on a 1280 frame is a much larger share of the width than
-    # it looks. Type sits high because the Shorts player puts the title,
-    # channel and buttons across the bottom and a button rail up the right.
+    # it looks. The bottom margin is bigger than the top one — it has to clear
+    # the Shorts player's own title/channel bar, which the top edge never has
+    # to share with anything.
     margin = 52
+    edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16)
     _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
               max_lines=4, max_block=VH * 0.5, leading=1.02,
-              band="top", margin=int(VH * 0.13), shadow=14, drop=(6, 8))
+              band=band, margin=edge_margin, shadow=14, drop=(6, 8))
 
     out.parent.mkdir(parents=True, exist_ok=True)
     base.save(out, quality=92)

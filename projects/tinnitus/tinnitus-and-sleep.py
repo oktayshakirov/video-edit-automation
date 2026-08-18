@@ -191,10 +191,15 @@ def main() -> None:
                                         voice=VOICE)
     # **Same headline as the long form from this post**, so the pair reads as
     # one. "Your room got quieter" was tried and the user kept this one.
+    # **`band="bottom"`, not the default `"top"`.** In this crop her face
+    # sits in the top half and the pillow below it is empty — the default put
+    # "SLEEPING" directly over her forehead, which the user caught: "the text
+    # is over her face, should be on the bottom". The scrim follows the band,
+    # so the type still has ground under it against the pillow.
     thumb = render_short_thumb(
         out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
         "Stop sleeping in [silence]", image=THUMB_PHOTO, accent="red",
-        ax=0.10, zoom=1.0)
+        ax=0.10, zoom=1.0, band="bottom")
     print(f"{path}  {total:.1f}s")
     print(f"{thumb}")
 
