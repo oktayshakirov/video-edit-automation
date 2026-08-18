@@ -45,11 +45,53 @@ CC BY-SA ones make the video a derivative work — **the attribution block goes 
 the description of anything published**. This is not a licence to reach for
 stock: it is a portrait of a named individual or it does not apply.
 
-**Structured data, which is where this scales:** every one of the 27 exchange
-files and 33 OG files carries `quickFacts` and `faqs` in frontmatter, and there
-are 26 exchange logos in `public/images/exchanges`. `ChecklistShot` already draws
-from a list of `(label, bool)`; pointing it at `quickFacts` is the next step and
-turns comparison shorts into a data problem rather than a design one.
+**Structured data, and it is built:** `video_automation/crypto/facts.py` reads
+the frontmatter of all 27 exchange files and 32 OG files and hands
+`quickFacts` straight to the beats. This is the one place the setup scales
+without hitting the mass-production failure mode, because the *data* is the
+script — numbers the site already publishes, fact-checks and keeps updated —
+rather than a model's guess at one.
+
+```python
+from video_automation.crypto import facts as F
+
+picked = [F.load("exchanges", s) for s in ("coinbase", "binance", "kraken", "uniswap")]
+rows = F.compare(picked, "custody", F.contains("non-custodial"))
+# -> [("Coinbase", False), ("Binance", False), ("Kraken", False), ("Uniswap", True)]
+Shot(graphic="checklist", payload=(rows, "Who holds your keys?"))
+
+F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `grid`
+```
+
+- **Run `F.coverage(F.load_all("exchanges"))` before choosing what to compare
+  on.** Four keys are on all 27 — `founded`, `type`, `custody`, `availability`
+  — and only those support a comparison across the whole set. `headquarters`
+  covers 24, `token` 19, `founder` 15. The gaps are not random: `token` is
+  missing exactly from the exchanges that have no token, so a beat built on it
+  silently drops the interesting cases.
+- **`custody` is the first comparison worth making.** 21 of 27 are flatly
+  "Custodial", 3 are non-custodial, 3 are custodial with a self-custody wallet
+  alongside. That is a real answer to a real question, it is a judged list
+  rather than a table, and the judgement is the site's rather than this repo's.
+- **Pick the handful the script argues about, never the whole set.** `compare`
+  raises past six rows, because a checklist reveals one item per caption and
+  every row has to be spoken. 27 rows is not a graphic, it is a table. Pass
+  `strict=False` to survey while choosing an angle.
+- **It also raises on a row too wide for the line.** An over-long item draws
+  straight off the right edge — nothing clips it and nothing raised before, the
+  same bug class as marks scheduled past the last frame. `with_value=True` is
+  usually what triggers it; the values are prose.
+- **This is a payload generator, not a script generator.** The angle, the
+  verdict and the wording stay hand-written. The script is the product.
+- `Entry.image` resolves the frontmatter path into `public/images` and returns
+  None when the asset is missing, rather than handing a shot list a path that
+  fails at render time. The ~750px floor and the no-infographics rule apply to
+  anything it returns exactly as they do to a hand-picked file.
+- PyYAML is a dependency now. A hand parser was the first plan and is wrong
+  here — the site's own values carry quoted colons ("Nasdaq: COIN") and
+  semicolon-separated clauses, which is where naive splitting breaks. `head()`
+  takes the clause before the semicolon, which is what fits on a card; the
+  qualifier after it is the honest part and belongs in the narration.
 
 **Palette** is `config/theme.json`: gold `#e5c200` on `#171717` / `#2f2f2f`.
 
@@ -247,6 +289,16 @@ domain so nothing is added under it. Same safe box as the tinnitus shorts —
 `SAFE_TOP=230`, `SAFE_BOTTOM=1440`, clear of `x>860` — and `render_shots` raises
 rather than shipping outside it.
 
+**It can roam:** `render_crypto_short(..., roam=True)` cuts the mark between
+upper-left and lower-right every `logo_hold` seconds (13s by default). Off
+unless asked for, so the shipped cuts are unchanged. A mark that moves is much
+harder to crop out of a repost and defeats the corner blindness that makes a
+static watermark worthless. It **cuts, never slides** — a lockup travelling
+across frame is a second moving object competing with the picture — and keeps
+levitating at each anchor. Every anchor is validated against all four safe
+edges, not just the top. Full reasoning in `video-tinnitus-short`, where it was
+specced.
+
 ## Copy
 
 **Captions go under the photograph, not over it.** Every source image is
@@ -332,7 +384,6 @@ Five profiles, all reproducing their audition WAVs sample-for-sample:
 | `theo` | male, `am_adam` 1.10 | the first cut. Lowest Kokoro grade on the list, shortlisted by ear anyway |
 | `mia` | female, `af_heart` 1.10 | **the Saylor cut.** Graded A, the strongest English voice in Kokoro |
 | `mia-calm` | female, `af_heart` 1.00 | the same speaker, unhurried |
-| `ivy` | female, `bf_emma` 1.10 | British — an audience choice as much as a voice one |
 
 **None is approved.** `theo` took the first cut, `sam` the second, `mia` the
 Saylor short, and the user intends to work through the rest. Keep the script and

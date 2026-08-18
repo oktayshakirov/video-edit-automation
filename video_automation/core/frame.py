@@ -79,6 +79,32 @@ class Frame:
                 f"{what} at y={y:.0f} is above {self.name} safe_top="
                 f"{self.safe_top} — it would sit under the platform's UI")
 
+    def check_mark(self, x: float, y: float, w: float, h: float,
+                   what: str) -> None:
+        """All four edges, for a mark that is not in the upper-left corner.
+
+        `check_top` is enough for a lockup pinned to the top left, because that
+        is the only edge it can cross. A **roaming** watermark visits the lower
+        right, where the vertical box is at its tightest: the right rail of
+        buttons runs to `safe_right` and the caption block starts at
+        `safe_bottom`, so both of those are live constraints there and neither
+        was ever checked. Validate every anchor, not just the first — a mark
+        that spends a third of the video under TikTok's share button is
+        invisible in review, where each anchor is looked at as a still frame.
+        """
+        if y < self.safe_top:
+            self.check_top(y, what)
+        if x < 0:
+            raise ValueError(f"{what} starts at x={x:.0f}, off the left edge")
+        if x + w > self.safe_right:
+            raise ValueError(
+                f"{what} reaches x={x + w:.0f}, past {self.name} safe_right="
+                f"{self.safe_right} — it would sit under the platform's UI")
+        if y + h > self.safe_bottom:
+            raise ValueError(
+                f"{what} reaches y={y + h:.0f}, past {self.name} safe_bottom="
+                f"{self.safe_bottom} — it would sit under the caption block")
+
 
 # TikTok, Reels and Shorts, unioned. Measured against the real apps while
 # building the tinnitus and crypto shorts; these are settled.
@@ -122,7 +148,12 @@ LANDSCAPE = Frame(
     safe_bottom=950,              # GUESS — control bar + gradient
     safe_right=1920,              # no right rail in 16:9
     caption_floor=0.86,           # GUESS — clears safe_bottom by ~20px
-    logo_at=(64, 62), logo_w=250,   # up from y=150, which collided with both
+    # 250 -> 212, the user's call: 15% off the landscape mark. It is `logo_w`
+    # rather than `Brand.mark_scale` because that scale is shared with the
+    # vertical frame, where 0.42 was settled separately and the mark is not too
+    # big. Changing the frame changes only the long form, which is what was
+    # asked for.
+    logo_at=(64, 62), logo_w=212,   # up from y=150, which collided with both
                                     # the full-frame photos and the beat kickers
     max_upscale=1.90,             # GUESS — see the module docstring; compared on
                                   # real frames at 1.45 / 1.90 / 2.15

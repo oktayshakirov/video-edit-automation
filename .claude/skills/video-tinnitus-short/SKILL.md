@@ -44,10 +44,11 @@ are untouched by any of this.
 
 **The voice matches the long form from the same post, always** — a short and a
 long video on one channel reading in two different voices is two channels. That
-was `mia` for the gaming pair and is **`ivy`** (bf_emma) for the sleep pair,
-because the user asked to test a new reader. `mia-calm` would not have been a
-test: it is `mia` at a different speed. `luna-calm` is the sound-therapy voice
-and belongs to `asmr.py`. All are still candidates.
+was `mia` for the gaming pair and is **`mia-calm`** for the sleep pair. `ivy`
+(bf_emma) was tried and **deleted from the roster** — the British read was not
+wanted on this channel, and a rejected voice left in the list is one somebody
+picks again by accident. `luna-calm` is the sound-therapy voice and belongs to
+`asmr.py`. All are still candidates.
 
 **Drawn beats now sit on the brand background, not a drifting grid** — see the
 long-form skill for `core/backdrop.py`. Nothing to pass per shot; `Brand`

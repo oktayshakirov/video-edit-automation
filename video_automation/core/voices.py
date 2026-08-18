@@ -179,13 +179,6 @@ PROFILES: dict[str, VoiceProfile] = {
              "14.9s: a delivery choice more than a runtime one.",
         source="20_pace_1.00_af_heart.wav", folder="Crypto Wiki Voices",
     ),
-    "ivy": VoiceProfile(
-        voice="bf_emma", speed=1.10, chain=ENERGETIC,
-        projects=("crypto",), status="candidate", script="crypto",
-        note="Female, British, graded B-. An audience choice as much as a "
-             "voice one.",
-        source="04_bf_emma.wav", folder="Crypto Wiki Voices",
-    ),
     "sam": VoiceProfile(
         voice="am_puck", speed=1.10, chain=ENERGETIC,
         projects=("crypto",), status="candidate", script="crypto",

@@ -82,6 +82,20 @@ bar, so a full-width top row pushes its own label off frame (scale the whole set
 by one factor and the proportions stay exact); and a `stat` for the same number
 is weaker, because a figure with no scale behind it is just a figure.
 
+## Label a contact sheet, or you will pick the wrong clip
+
+A green-lit apartment block shipped into a short under the line "rain, a fan,
+or brown noise" because three rain clips were laid out in one sheet and read
+back against the wrong filenames. It screened **L15 S17** — comfortably inside
+the box — and green is the one hue that cuts hardest against both palettes.
+
+Two things follow. **The luma/saturation box measures brightness, not hue**, and
+a dark green passes it easily; hue against the brand is a separate judgement
+the numbers will not make for you. And **put the id in the frame** when
+building a sheet, or check each pick individually before writing it into a
+shot list. The cost of being wrong is a shot nobody notices until it is in a
+render.
+
 ## Screen the site's own pictures, every time
 
 The library is much brighter than it looks in a browser and it decides the shot
@@ -143,11 +157,62 @@ a normal frame.
 ## What differs from crypto
 
 **Voice is a candidate and it moves.** The first two cuts used `mia`;
-`tinnitus-and-sleep` uses **`ivy`** (bf_emma) because the user asked to test a
-new one. Note what that means: `mia-calm` is `mia` at a different speed and
-would have tested a *setting*, not a reader. `luna-calm` is the sound-therapy
-voice and belongs to mode 2. **A short and a long video from the same post must
-use the same voice** — two voices on one channel is two channels.
+`tinnitus-and-sleep` uses **`mia-calm`** — af_heart at 1.00, the channel's own
+reader unhurried, which is the delivery a bedtime script wanted anyway.
+
+**`ivy` (bf_emma) was tried here and deleted from the roster entirely.** The
+British read was not wanted on this channel, and a rejected voice left in the
+profile list is one somebody picks again by accident. If a voice is out, take
+it out of `core/voices.py` rather than noting it here.
+
+`luna-calm` is the sound-therapy voice and belongs to mode 2. **A short and a
+long video from the same post must use the same voice** — two voices on one
+channel is two channels.
+
+**Changing the voice changes every clip slot.** `mia-calm` reads ~9% slower
+than `mia`, which pushed this cut from 3:47 to 4:09 and broke a slot whose clip
+was exactly 10s. Re-run the preflight after any voice change; do not assume the
+shot list survives it.
+
+## A dark gradient does not have the bit depth to be smooth
+
+The aurora shipped once with visible contour rings and the note was "I can
+clearly see the changes in the background colors in the shapes". That is not a
+flaw in the gradient — measured, the whole 1920px centre row spans **levels 14
+to 45**, so the entire frame is drawn with 31 distinct 8-bit values and every
+one of those steps is an edge.
+
+`Backdrop._dither` trades the contour for noise below the threshold of vision.
+Two things about it that are not optional:
+
+- **It happens after the upscale.** Dithering the 512px source and then
+  resizing 3.75x runs the noise through a low-pass filter and the bands come
+  straight back — the interpolation averages exactly what the dither varied.
+- **It changes every frame.** A fixed field reads as dirt on the lens. Frames
+  come from a rotating pool of eight rather than fresh per call, because a new
+  1920x1080 random field per frame is 2M values on every frame of every video.
+
+Measured: longest run of identical values along a row went **158px to 7px**,
+mean run 23.1px to 1.5px, at 8.7 ms/frame. If a background ever bands again,
+measure run lengths — level *count* barely moves and will tell you nothing.
+
+## Music can be a real track, and it must be stored trimmed
+
+`assets/brand/music/`, via `music.track(name)`. `night-drift` is the user's
+pick over the generated `bright` preset.
+
+**`render_bed` loops a short track to fill the video, so silence on either end
+becomes a hole in the bed once per loop.** An mp3 decodes with encoder delay
+bolted to the front: this one arrived with **54.4 ms** of digital silence
+against an end running at full level — twenty-nine audible gaps across a four
+minute video. `render_bed` has a `start=` offset that hides it, but then the
+right offset is a number somebody has to remember per track.
+`music.prepare_track` trims both ends once and stores WAV, so the asset is
+correct by construction.
+
+Generated presets remain the default and the safer licence choice. **Check a
+new track's loop before using it** — trimming fixes silence, not a piece that
+was never written to loop.
 
 **Do not let stock footage become wallpaper.** The first sleep cut used the
 calm-water stock four times with nothing on it and the user called it out: the
