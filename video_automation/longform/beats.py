@@ -38,6 +38,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from ..core import backdrop
 from ..core.brand import Brand
 from ..core.draw import contain, cover, ease_out, mark, subpixel, wrap
 from ..core.frame import LANDSCAPE, Frame
@@ -158,15 +159,22 @@ class Beat:
     # --- painting -------------------------------------------------------
 
     def background(self, f: float) -> Image.Image:
-        """A drifting photograph, or a flat panel with a drifting grid.
+        """A drifting photograph, or the brand's own moving background.
 
-        **The grid is only drawn on the flat case, and that is a fix, not a
-        simplification.** Its tint is a near-black chosen against the shorts'
-        dark panel; over a bright blurred photograph the same lines are plainly
-        visible and the beat reads as graph paper. The grid exists to stop a
-        flat panel looking like the video has stopped — a photograph does not
-        have that problem, so over one the grid is solving nothing and costing
-        the look.
+        **The drifting grid this used to draw is gone.** It stepped a whole
+        pixel at a time (`int((f * 40) % 96)` on a layer moving 40 px/s), which
+        is the judder every other moving element in this repo was fixed for
+        years ago, and it was worst on exactly the long beats where the eye has
+        time to lock onto a ruled line. It was also the same graph paper behind
+        every beat of every video on both channels.
+
+        `core.backdrop` replaces it with a looping asset per brand — a
+        generated purple mesh gradient for tinnitushelp.me, black water for
+        thecrypto.wiki. See that module for why they are square and why they
+        are sampled by timeline seconds rather than by `f`.
+
+        The flat `brand.bg` panel remains the fallback, so a brand with no
+        background declared still renders.
         """
         fr = self.frame
         if self.back is not None:
@@ -176,14 +184,14 @@ class Beat:
             by = (self.back.shape[0] - fr.h) * (0.5 - 0.34 * (f - 0.5))
             return Image.fromarray(subpixel(self.back, bx, by, fr.w, fr.h))
 
-        out = Image.new("RGB", fr.size, self.brand.bg)
-        d = ImageDraw.Draw(out)
-        step, off = 96, int((f * 40) % 96)
-        for gx in range(-96 + off, fr.w + 96, step):
-            d.line([(gx, 0), (gx, fr.h)], fill=self.brand.grid, width=2)
-        for gy in range(-96 + off, fr.h + 96, step):
-            d.line([(0, gy), (fr.w, gy)], fill=self.brand.grid, width=2)
-        return out
+        bg = backdrop.get(self.brand.backdrop)
+        if bg is not None:
+            # **Timeline seconds, not `f`.** Sampling by beat progress would
+            # run the whole loop inside every beat, so the background would
+            # change speed at every cut.
+            return Image.fromarray(bg.at(self.at(f), fr.w, fr.h))
+
+        return Image.new("RGB", fr.size, self.brand.bg)
 
     def emblem(self, out: Image.Image, f: float) -> None:
         """Concentric arcs in the picture column, slowly counter-rotating.
