@@ -186,11 +186,11 @@ def main() -> None:
     work = Path.home() / "Desktop/.tinnitus-sleep-short-work"
     path, total = render_tinnitus_short(SENTENCES, SHOTS, out, work,
                                         voice=VOICE)
-    # The thumbnail asks what the title does not: the title is the question
-    # ("Why Is Tinnitus Worse at Night?") and this is the answer.
+    # **Same headline as the long form from this post**, so the pair reads as
+    # one. "Your room got quieter" was tried and the user kept this one.
     thumb = render_short_thumb(
         out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
-        "Your room [got quieter]", image=THUMB_PHOTO, accent="red", at=0.55)
+        "Stop sleeping in [silence]", image=THUMB_PHOTO, accent="red", at=0.55)
     print(f"{path}  {total:.1f}s")
     print(f"{thumb}")
 
