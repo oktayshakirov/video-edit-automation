@@ -608,6 +608,112 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     return out
 
 
+def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
+                               headline: str, pattern: str | None = None,
+                               accent: str = "cyan", seed: int = 7,
+                               size: int = 88) -> Path:
+    """A 9:16 companion to `render_session_thumb`, for a session's own Short.
+
+    Same materials, reflowed — the nebula at this seed, the ring-and-count
+    device, the headline-plus-pattern-chip block. Landscape has room to put
+    the headline in a left column beside the ring; there is no side to spare
+    at 9:16, so the headline stacks above the ring instead and centres rather
+    than ranging left, and the scrim follows that split top-to-bottom instead
+    of left-to-right.
+
+    Deliberately not routed through `_headline`/`FONT_DISPLAY` — that pairing
+    is the article-thumbnail treatment (Arial Black, drop shadow, an accent
+    phrase in brackets). A session thumbnail has never used it and this is a
+    vertical cut of the *session* style, not a new one: same Futura stroke,
+    same nebula, same ring, just reflowed.
+    """
+    from ..tinnitus.asmr import _ring_sprite, nebula_canvas
+
+    base = Image.fromarray(nebula_canvas(VW * 2, VH * 2, seed)).resize(
+        (VW, VH), Image.LANCZOS).convert("RGB")
+    base = ImageEnhance.Brightness(base).enhance(1.22)
+
+    # Scrim over the top band, where the headline sits now — the landscape
+    # version's left-to-right fade rotated to how 9:16 actually splits the
+    # two elements: headline above, ring below.
+    grad = Image.new("L", (1, VH))
+    px = grad.load()
+    for y in range(VH):
+        p = y / (VH - 1)
+        px[0, y] = int(224 * max(0.0, 1.0 - (p / 0.40) ** 1.7))
+    base = Image.composite(Image.new("RGB", (VW, VH), (0, 0, 0)),
+                           base, grad.resize((VW, VH)))
+
+    fill, ink = ACCENTS.get(accent, ACCENTS["cyan"])
+    base = base.convert("RGBA")
+
+    # --- the ring, centred, low enough to clear the headline block --------
+    r = 300
+    cx, cy = VW // 2, int(VH * 0.56)
+    k = int(r * 2 + 90)
+    ring = _ring_sprite(r).resize((k, k), Image.LANCZOS)
+    base.alpha_composite(ring, (cx - k // 2, cy - k // 2))
+    d = ImageDraw.Draw(base)
+
+    # The number echoes the countdown inside the video, same as landscape.
+    num_font = ImageFont.truetype(FONT_CAPTION, 260, index=FONT_CAPTION_INDEX)
+    unit_font = ImageFont.truetype(FONT_CAPTION, 62, index=FONT_CAPTION_INDEX)
+    _mid(d, str(minutes), cx, cy - 42, num_font, fill=fill, stroke=10)
+    _mid(d, "MINUTE" if minutes == 1 else "MINUTES", cx, cy + 134,
+         unit_font, fill=(255, 255, 255), stroke=7)
+
+    # --- headline, centred, top band ---------------------------------------
+    margin, col_w = 64, VW - 128
+    words = headline.upper().split()
+    space = 0.0
+    for _ in range(12):
+        font = ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
+        space = d.textlength(" ", font=font)
+        lines, cur, cw = [], [], 0.0
+        for word in words:
+            ww = d.textlength(word, font=font)
+            if cur and cw + space + ww > col_w:
+                lines.append(cur)
+                cur, cw = [], 0.0
+            cur.append((word, ww))
+            cw += ww + (space if len(cur) > 1 else 0)
+        if cur:
+            lines.append(cur)
+        if len(lines) <= 3:
+            break
+        size -= 6
+
+    line_h = int(size * 1.10)
+    y = int(VH * 0.07)
+    for line in lines:
+        lw = sum(ww for _, ww in line) + space * (len(line) - 1)
+        x = (VW - lw) / 2
+        for word, ww in line:
+            d.text((x, y), word, font=font, fill=(255, 255, 255),
+                   stroke_width=8, stroke_fill=(0, 0, 0))
+            x += ww + space
+        y += line_h
+
+    # The breath spec as a centred plate, same device as landscape.
+    if pattern:
+        chip = ImageFont.truetype(FONT_CAPTION, int(size * 0.52),
+                                  index=FONT_CAPTION_INDEX)
+        text = pattern.upper()
+        tw = d.textlength(text, font=chip)
+        cap = chip.getbbox("H")[3] - chip.getbbox("H")[1]
+        asc, _ = chip.getmetrics()
+        pad_x, pad_v = 18, int(size * 0.14)
+        by = y + 14 + asc
+        cxm = VW / 2
+        d.rectangle([cxm - tw / 2 - pad_x, by - cap - pad_v,
+                     cxm + tw / 2 + pad_x, by + pad_v], fill=fill)
+        d.text((cxm - tw / 2, y + 14), text, font=chip, fill=ink)
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    base.convert("RGB").save(out, quality=92)
+    return out
+
+
 def _mid(d: ImageDraw.ImageDraw, text: str, cx: int, cy: int,
          font: ImageFont.FreeTypeFont, fill: tuple[int, int, int],
          stroke: int) -> None:
