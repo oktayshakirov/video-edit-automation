@@ -114,6 +114,16 @@ AWAKE_PHOTO = STOCK / "photos/woman-awake-in-bed-at-night-dark-room-insomnia/694
 # phone. `side="left"` puts the type over the plain pillow and leaves the
 # phone visible on the picture side, which ties the type directly to what the
 # photo is actually of.
+#
+# **`crop_at=(0.0, 0.0)` is load-bearing, not cosmetic.** At zoom 1.0 the
+# scale that covers 1280x720 leaves only 133px of vertical slack (the source
+# is close to 16:9 already), and `_layout`'s automatic scorer spent nearly
+# all of it pushing the window down — optimising for the quietest patch of
+# pillow rather than for her being visible, so her face sat cropped right at
+# the top edge and the phone read as the only subject. `ay=0.0` pins the crop
+# to the top of the slack range instead, which shows her whole face and still
+# keeps the phone in frame — it sits at roughly the vertical middle of the
+# source, well inside the visible band either way.
 THUMB_PHOTO = STOCK / "photos/woman-sleeping-beside-smartphone/9787924.jpg"
 
 VOICE = "mia-calm"              # af_heart at 1.00. `ivy` was tried and cut —
@@ -515,6 +525,7 @@ def main() -> None:
         thumb_image=THUMB_PHOTO,
         thumb_accent="red",
         thumb_side="left",
+        thumb_crop_at=(0.0, 0.0),
     )
     for k, v in made.items():
         print(f"{k}: {v}")
