@@ -12,6 +12,26 @@ Renders go to the Desktop.
 which documents ten released sound albums. **There is also an app**,
 `~/Coding/tinnitus-app`.
 
+## The order of the whole job
+
+**Settled by the user; do not resequence it.** Each step waits on the one
+before, and three of them are theirs, not yours:
+
+1. **Build the videos, then stop.** Long and short. Hand them over and say
+   nothing about uploading.
+2. **They watch.** Either they ask for changes — go back to 1 — or they upload,
+   always **unlisted**.
+3. **Then audit and write the title and description onto the uploaded video**,
+   with `youtube-audit`'s `set --apply`. This is a write, so it needs their
+   explicit yes naming that video, after a dry run.
+4. **They make it public.**
+5. **Then share**, via the `publish-content` n8n workflow.
+6. **Then add it to the website**, in `videos.json`.
+
+The registry entry needs the **YouTube id**, which does not exist until step 2,
+which is the mechanical reason the site comes last and not a matter of taste.
+Upload is deliberately not automated.
+
 ## Ask which one first
 
 **This skill makes two different videos and they share almost nothing but the
@@ -86,10 +106,58 @@ instantly, needs no caption, and costs nothing — `headache-stress-tired-woman-
 screened at L46/S22. For a health topic the opening frame should be a person, not
 a concept.
 
+## The background behind a drawn beat is an asset, not a drawing
+
+`assets/brand/backgrounds/`, named by `Brand.backdrop`, loaded by
+`core/backdrop.py`. **tinnitushelp.me is `tinnitus-aurora`** — a generated
+purple mesh gradient — and thecrypto.wiki is `crypto-blackwater`.
+
+This replaced a ruled grid that drifted behind every beat on both channels. It
+went for two reasons and only one was cosmetic: it stepped a **whole pixel at a
+time** (`int((f * 40) % 96)` on a layer moving 40 px/s), which is the judder
+every other moving element here was fixed for years ago and which the user
+reported as "the background is laggy at 1:00 and 1:35"; and ruled lines behind
+type read as graph paper, identically, in every video on both channels.
+
+Three things about the asset design, all of which will bite if ignored:
+
+- **Backgrounds are square and small (512x512).** One file serves a 1920x1080
+  beat and a 1080x1920 one, scaled to fill and centre-cropped. Only viable
+  because they are deliberately soft and low-frequency. **Anything with legible
+  content in it does not belong here** — the type is the subject.
+- **Sampled by timeline seconds, not by the beat's `f`.** Sampling by beat
+  progress runs the whole loop inside every beat, so the background visibly
+  changes speed at every cut. `Backdrop.at(t, w, h)` wraps absolute time, so
+  motion is one constant rate across the video and carries through a cut.
+- **Match the luma range**: the aurora runs a mean of ~28, the water ~23. The
+  first aurora shipped at 42 and looked washed out the moment it was put beside
+  the crypto one — the comparison is what settled it, not the number.
+
+Generated backgrounds loop because every element travels a **closed circular
+path** whose period divides the loop. Footage cannot, so `pingpong()` does it
+the other way — forward then reversed — which is only invisible on subjects
+with no arrow of time. Water, smoke, cloth. Measured on the water: the seam is
+2.91 against a median ordinary step of 4.41, so the join is *less* change than
+a normal frame.
+
 ## What differs from crypto
 
-**Voice is `mia`** — the same reader as the crypto long-form. The user's call.
-`luna-calm` is the sound-therapy voice and belongs to mode 2.
+**Voice is a candidate and it moves.** The first two cuts used `mia`;
+`tinnitus-and-sleep` uses **`ivy`** (bf_emma) because the user asked to test a
+new one. Note what that means: `mia-calm` is `mia` at a different speed and
+would have tested a *setting*, not a reader. `luna-calm` is the sound-therapy
+voice and belongs to mode 2. **A short and a long video from the same post must
+use the same voice** — two voices on one channel is two channels.
+
+**Do not let stock footage become wallpaper.** The first sleep cut used the
+calm-water stock four times with nothing on it and the user called it out: the
+script is about bedrooms, so unlabelled water illustrates nothing. Two rules
+came out of it. **Footage should be the subject of the line it sits under** —
+rain on a window earned its place in the "what to play" section because rain is
+one of the sounds the post recommends. And **if a clip is only atmosphere, it
+needs a line on it**, which is the `Shot(clip=..., payload=("", "..."))`
+treatment the format already has. The user's phrasing: use it less often, and
+only with text over it.
 
 **Music is `bright`**, not `pulse`. Warmer and less tense. This audience is
 frequently here *because* sound is a problem; the bed should not be one.
@@ -128,9 +196,15 @@ never had this problem.
 shipped vertical shorts — measured, their photographs sit ~550px down a 9:16
 frame and the dodge never fires.
 
+**That hairline is this brand's peach now, not thecrypto.wiki's gold.**
+`PhotoShot` took its colour from a module constant, so every photograph in every
+tinnitus video — long and short — carried a gold edge, and nothing raised. It
+takes the `Brand` now, like the drawn beats always did. Anything rendered before
+this is off-brand at the photo edges.
+
 The same height difference drives the **photo-border dodge** described in
 `/video-crypto-long`: a picture that fits the frame is pushed down (or slightly
-scaled) so its gold hairline never crosses the mark, while a full-frame picture
+scaled) so its hairline never crosses the mark, while a full-frame picture
 is left alone. It reads the mark's real box rather than a constant, so this
 159px lockup pushes a photograph roughly four times as far as the wordmark
 does — which is exactly why it could not be a number in the source.

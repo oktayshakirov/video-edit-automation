@@ -388,9 +388,35 @@ cross-fades two sets of type through each other and reads as a rendering fault.
 `plan.lay_out` sets `xfade=0` automatically between beats and on both sides of a
 chapter card. Do not override it.
 
-**The drifting grid only draws on a flat panel.** Its tint is near-black, picked
-against a dark backdrop; over a bright blurred photograph it reads as graph
-paper. Over a photo the backdrop drifts instead.
+**The drifting grid is gone, on both channels.** It stepped a whole pixel at a
+time — `int((f * 40) % 96)` on a layer moving 40 px/s — which is the judder
+this repo fixed everywhere else years ago, and it was the same ruled lines
+behind every beat of every video on both sites.
+
+`core/backdrop.py` replaces it with a looping asset per brand, named by
+`Brand.backdrop` and living in `assets/brand/backgrounds/`. **thecrypto.wiki is
+`crypto-blackwater`** — black water, ping-ponged from the calm-water stock,
+dimmed and desaturated. The user's call, and it is the better ground: gold type
+on a near-black surface with slow specular movement reads as depth where ruled
+lines read as a template.
+
+Three constraints, all of which will bite if ignored:
+
+- **Backgrounds are square, 512x512.** One file serves 1920x1080 and 1080x1920,
+  scaled to fill and centre-cropped. Only viable because they are soft and
+  low-frequency; anything with legible content in it does not belong here.
+- **Sampled by timeline seconds, not the beat's `f`** — otherwise the whole
+  loop plays inside every beat and the background changes speed at each cut.
+- **`dim` must multiply.** ffmpeg's `eq=brightness` adds a constant, and
+  dimming already-dark footage that way returned pure black, measured at mean
+  luma 0.0. `pingpong()` uses `colorchannelmixer`.
+
+Ping-pong is what makes real footage loop without a blend, and it is **only**
+invisible on subjects with no arrow of time — water, smoke, cloth. Measured on
+the water: seam 2.91 against a median ordinary step of 4.41, so the join is
+less change than a normal frame.
+
+Over a photograph the backdrop still drifts instead; that path is unchanged.
 
 **Measure the block, then centre it.** Every beat was first laid out from
 fractions of frame height and every one left the bottom 40–50% of the frame

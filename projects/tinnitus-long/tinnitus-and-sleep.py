@@ -34,15 +34,27 @@ woman.jpg` and `sound-therapy-headphones.jpg` are both women wearing headphones
 in bed, which contradicts the very advice the section gives (speaker, not
 earbuds, for all-night use) — off-message is worse than off-palette.
 
-What survives is four images, **none of which can take a full frame**: the
-brightest usable is `therapy.jpg` at L143, well over the ~L82 ceiling for a
-full-frame site photograph. All four sit in beat picture columns where they are
-downscaled and small. So this cut is stock clips and drawn beats, and that is a
-property of the library rather than a choice.
+What survives is two images, **neither of which can take a full frame**:
+`therapy.jpg` at L143 and `audiologist.jpg` at L179, both well over the ~L82
+ceiling for a full-frame site photograph. Both sit in beat picture columns
+where they are downscaled and small.
 
-**The clips were already cached** — `insomnia-awake-night-bed` and
-`sleeping-night-calm-dark` were pulled for earlier tinnitus work and screened
-clean across their length. Trailing comments carry the luma/saturation range.
+So **the one photograph in this cut is stock** — `AWAKE_PHOTO`, a lit face in a
+dark bedroom at L36, which is inside the ceiling and can therefore take the
+full frame. It is also the thumbnail, which is the point: one picture doing
+both jobs.
+
+**Water appears once, and it carries a line.** The first cut used the
+calm-water stock four times with nothing on it, and unlabelled water under a
+script about bedrooms illustrates nothing — it is wallpaper, and it was called
+out on review. Rain on a window replaced three of those, and rain earns its
+place because it is one of the sounds the post actually recommends: the footage
+is now the subject rather than filler.
+
+**The background behind every drawn beat is `core.backdrop`**, not the ruled
+grid this format used to draw. That grid stepped a whole pixel at a time on a
+layer moving 40 px/s and it juddered worst on the long beats — which is what
+"the background is laggy at 1:00 and 1:35" was. See that module.
 
 **The medical line.** Everything factual is the article's own: the contrast
 mechanism, the three compounding factors, sound set *just below* the tinnitus,
@@ -63,7 +75,6 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-long/tinnitus-and-sleep.py
 """
 
-import subprocess
 from pathlib import Path
 
 from video_automation.core.brand import TINNITUS
@@ -82,11 +93,20 @@ TIREDW = STOCK / "videos/headache-stress-tired-woman-dark"
 WATER = STOCK / "videos/calm-water-ripple-dark"
 WAVES = STOCK / "videos/abstract-dark-waves-motion"
 SOUND = STOCK / "videos/sound-wave-visualization-dark"
+RAIN = STOCK / "videos/rain-on-window-at-night-dark"
+LAMP = STOCK / "videos/bedside-lamp-dark-bedroom-night"
+CLOCK = STOCK / "videos/alarm-clock-night-dark-bedroom"
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
-VOICE = "mia"                   # the article-video reader, shared with the
-                                # short from this post. `luna-calm` is the
-                                # sound-therapy voice and belongs to mode 2.
+# The one photograph in the cut, and the thumbnail's source. Screened L36 S46,
+# which is well inside the ~L82 ceiling a full-frame picture has to meet — the
+# site's own library had nothing close (see above), so this is stock.
+AWAKE_PHOTO = STOCK / "photos/man-cannot-sleep-bedroom-night-dark/6943421.jpg"
+
+VOICE = "ivy"                   # bf_emma. **A real voice test, not a setting
+                                # test**: `mia-calm` is `mia` at a different
+                                # speed and would tell us nothing about the
+                                # reader. Still a candidate, not approved.
 MUSIC = "bright"
 
 URL = "https://tinnitushelp.me/blog/tinnitus-and-sleep"
@@ -125,7 +145,7 @@ SECTIONS = [
             None,
             Shot(clip=AWAKE / "8376628.mp4", clip_at=2.0),   # L25-30 S13-17
             # The title stamp, on the turn rather than the opening frame.
-            Shot(clip=NIGHT / "11956328.mp4",            # L28 S4-5
+            Shot(clip=LAMP / "10387906.mp4",             # L36-46 S23-29
                  payload=("", "WHY IT IS WORSE AT NIGHT")),
             Shot(clip=NIGHT / "11956219.mp4"),           # L29-31 S6
         ],
@@ -264,7 +284,7 @@ SECTIONS = [
              "blocks the ambient sound you are adding on purpose."),
         ],
         shots=[
-            Shot(clip=WATER / "36117653.mp4"),           # L27-28 S3-4
+            Shot(clip=RAIN / "4458918.mp4"),             # L20-21 S16-23
             Shot(graphic="grid",
                  payload=([("White noise",
                             "Suits a high-pitched ring"),
@@ -273,7 +293,7 @@ SECTIONS = [
                            ("Rain, fan or waves",
                             "Gentler if hiss irritates you")],
                           "STEADY SOUND, NO WORDS")),
-            Shot(clip=WATER / "11028763.mp4"),           # L28-31 S6-7
+            Shot(clip=RAIN / "34977302.mp4"),            # L15 S17-18
             None,
         ],
     ),
@@ -303,11 +323,17 @@ SECTIONS = [
             Shot(clip=SOUND / "34645273.mp4", clip_at=4.0),
             None,
             Shot(clip=NIGHT / "11956219.mp4", clip_at=12.0),
-            Shot(clip=WAVES / "27980029.mp4"),           # L2-4 S2-6
+            # **The only water shot in the video, and it carries a line.**
+            # The first cut used this footage four times with nothing on it,
+            # and unlabelled water under a script about bedrooms is wallpaper
+            # — it illustrates nothing and the user called it out. One shot,
+            # on the section's punch line, is what the footage is good for.
+            Shot(clip=WATER / "11028763.mp4",            # L28-31 S6-7
+                 payload=("", "Just below. Not on top.")),
             Shot(graphic="stat",
                  payload=("20", "MINUTES",
                           "Still awake after that? Get out of bed.")),
-            Shot(clip=AWAKE / "8376628.mp4", clip_at=9.0),
+            Shot(clip=CLOCK / "35999376.mp4"),           # L34-35 S25-28
         ],
         # Buy the stat a beat — it is the line the section is built toward.
         gaps=[0.34, 0.60, 0.34, 0.90, 1.00, 0.34],
@@ -329,7 +355,7 @@ SECTIONS = [
              "and reliably wrecks the following one."),
         ],
         shots=[
-            Shot(clip=NIGHT / "11956328.mp4", clip_at=8.0),
+            Shot(clip=LAMP / "6944067.mp4"),             # L39 S36-37
             Shot(graphic="steps",
                  payload=(["Sound in the room, on a speaker",
                            "Set it just below the ringing",
@@ -365,7 +391,8 @@ SECTIONS = [
              "To get the cause named."),
         ],
         shots=[
-            Shot(clip=WATER / "36117653.mp4", clip_at=3.0),
+            Shot(image=AWAKE_PHOTO, zoom=1.10, pan=(0.02, -0.01),
+                 aspect=A, bias=0.45),
             Shot(graphic="quote",
                  payload=("Sound changes the room. "
                           "Therapy changes the pattern.",
@@ -399,7 +426,7 @@ SECTIONS = [
         ],
         shots=[
             Shot(clip=NIGHT / "11956219.mp4", clip_at=5.0),
-            Shot(clip=WATER / "11028763.mp4", clip_at=6.0),
+            Shot(clip=RAIN / "4458918.mp4", clip_at=4.0),
             Shot(clip=NIGHT / "11956328.mp4", clip_at=6.0),
             Shot(clip=WAVES / "27980029.mp4", clip_at=1.0),
         ],
@@ -437,36 +464,18 @@ META = Meta(
 )
 
 
-def thumb_source(work: Path) -> Path:
-    """The thumbnail's photograph, pulled out of a clip.
-
-    The library owns no usable still for this post — see the module docstring —
-    so the source is a frame of the opener's own footage. `render_thumb` opens
-    its `image` with PIL and cannot read an mp4, so it is extracted here rather
-    than kept on the Desktop, which keeps the build reproducible from the
-    manifested clip alone.
-
-    **The scorer picked a frame with no subject in it, twice.** `_layout`
-    searches zoom x pan for space quiet enough to take type, and on a wide
-    bedroom shot the quietest composition is the one that has cropped the
-    sleeper out — the first two renders were a duvet and a dark wall, reading
-    as bedding rather than as a person who cannot sleep. Both scored clear.
-    The skill's "the scorer loses to the subject" note is exactly this, and
-    the fix is not an override: **pick a source whose face is too large to
-    crop away.** This overhead is one, and the type still lands on black.
-
-    Rejected on the render rather than the score: the temple-rub studio shot
-    (best score of the set at -0.17) reads as a headache, not as a night; and
-    the two wide bedroom frames put the face too small to survive the feed.
-    """
-    work.mkdir(parents=True, exist_ok=True)
-    frame = work / "thumb-source.jpg"
-    if not frame.exists():
-        subprocess.run(
-            ["ffmpeg", "-v", "error", "-ss", "6",
-             "-i", str(AWAKE / "8376628.mp4"),
-             "-frames:v", "1", str(frame), "-y"], check=True)
-    return frame
+# The thumbnail's photograph is `AWAKE_PHOTO`, used full-frame in the video
+# too — the user asked for one picture doing both jobs.
+#
+# **The scorer picked a frame with no subject in it, twice, before this.**
+# `_layout` searches zoom x pan for space quiet enough to take type, and on a
+# wide bedroom shot the quietest composition is the one that has cropped the
+# sleeper out: the first two renders were a duvet and a dark wall, reading as
+# bedding rather than as a person who cannot sleep. Both scored clear. The
+# skill's "the scorer loses to the subject" note is exactly this, and the fix
+# is not an override — it is a source whose face is too large to crop away.
+# This one is a lit face filling a third of the frame with black beside it,
+# so every candidate layout keeps him and the type still lands on empty.
 
 
 def main() -> None:
@@ -479,7 +488,7 @@ def main() -> None:
         # The title carries the search phrase, so the thumbnail asks what the
         # title does not.
         thumb_headline="Stop sleeping in [silence]",
-        thumb_image=thumb_source(work),
+        thumb_image=AWAKE_PHOTO,
         thumb_accent="orange",
     )
     for k, v in made.items():
