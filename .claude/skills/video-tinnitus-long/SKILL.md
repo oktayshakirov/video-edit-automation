@@ -12,6 +12,12 @@ Renders go to the Desktop.
 which documents ten released sound albums. **There is also an app**,
 `~/Coding/tinnitus-app`.
 
+## Shorts do not get a site entry or a social share
+
+**Settled, and it overrides the general publish order below for the short
+specifically.** Only the long form goes into `videos.json` and through the
+Share Video workflow. A Short lives on YouTube alone.
+
 ## The order of the whole job
 
 **Settled by the user; do not resequence it.** Each step waits on the one
@@ -188,6 +194,48 @@ video rather than applied to that one.
 - **The article shorts have no music bed.** Long form gets one and the short
   does not, which is a gap rather than a decision. `render_tinnitus_short`
   would need the `music`/`music_gain` pair `render_long` already takes.
+
+## Line breaks are balanced, and no short word strands alone
+
+`thumb._wrap_balanced` replaced a first-fit greedy wrap with the standard
+minimum-raggedness line break (the algorithm behind CSS `text-wrap: balance`).
+Greedy fill stops at the first word that would overflow the column and never
+looks ahead — which is how "STOP SLEEPING IN SILENCE" rendered as four
+one-word lines even though "IN SILENCE" fits together with room to spare. The
+DP scores every legal split by how much slack it leaves against the column
+width, so a pairing that leaves less slack always wins over stranding a
+two-letter connector on its own row.
+
+**Two things had to be true for this to actually fix it, not just move the
+bug:**
+
+- **A multi-word line is never allowed to overflow the column**, full stop.
+  The first version penalised overflow by a near-constant score regardless of
+  degree, which made a wildly-overflowing three-word line look almost as cheap
+  as a genuinely unavoidable single wide word — and the DP picked it, running
+  text off the edge of the frame. Only a lone word with nowhere else to go may
+  overflow.
+- **The size search cannot stop at the first size that merely fits.** The
+  largest size clears `max_lines` almost immediately — one word per line is
+  always short — which is exactly the size that produced the orphan in the
+  first place. `_headline` now keeps shrinking past a fitting size while any
+  line is a stranded word of three letters or fewer, and only accepts a size
+  where that stops being true (falling back to the best "fits" size if no
+  smaller size ever clears it).
+
+## `crop_at` — a manual crop for when the scorer picks the wrong region
+
+`render_thumb(crop_at=(ax, ay), crop_zoom=)` bypasses `_layout`'s automatic
+subject search entirely. Needed the moment the long and the Short started
+sharing one source photo: `_layout` optimises for the quietest patch of frame
+for the type, not for whether the subject is actually visible, and on a
+portrait photo cover-cropped to landscape it chose a towel and a shoulder over
+the band with her face and the phone's glow in it. Same failure the shorts
+skill already named ("the scorer loses to the subject"), arriving at this
+renderer once it started taking pictures that were not composed for it.
+`(ax, ay)` are fractions of the leftover crop space after scaling to cover the
+frame — sweep a few values and look, the same way a face is found by eye
+everywhere else in this pipeline.
 
 ## The long and the Short from one post share a thumbnail
 

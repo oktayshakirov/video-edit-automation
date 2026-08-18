@@ -70,10 +70,11 @@ BEDW = STOCK / "videos/caucasian-woman-awake-in-bed-night-dark-bedroom"
 TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
 
 # **A portrait source, and that is not a detail.** The long form's thumbnail
-# photograph is a woman lying horizontally in a landscape frame; cover-cropped
-# to 9:16 the composition falls apart and no zoom recovers it, because the
-# subject's long axis is the one being thrown away. A Shorts thumbnail needs a
-# picture that was composed vertically in the first place.
+# used to be a woman lying horizontally in a landscape frame; cover-cropped to
+# 9:16 the composition fell apart and no zoom recovered it, because the
+# subject's long axis was the one being thrown away. This file's own source
+# was chosen for exactly this shape and the long form now shares it, with its
+# own manual landscape crop — "always match them" is the user's rule.
 THUMB_PHOTO = STOCK / "photos/tired-woman-night-dark-bedroom-vertical/8036752.jpg"
 
 VOICE = "mia-calm"              # af_heart at 1.00, the same reader as the long

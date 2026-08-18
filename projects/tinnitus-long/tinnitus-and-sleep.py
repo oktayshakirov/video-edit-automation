@@ -108,11 +108,13 @@ ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 # section's work without a caption.
 AWAKE_PHOTO = STOCK / "photos/woman-awake-in-bed-at-night-dark-room-insomnia/6943991.jpg"
 
-# **The thumbnail is a different picture from the video's**, which is a change:
-# the user picked this one and at L194 it is far too bright to take a video
-# frame. `render_thumb` normalises brightness toward a target, so a bright
-# source is fine there and nowhere else.
-THUMB_PHOTO = STOCK / "photos/woman-sleeping-beside-smartphone/9787924.jpg"
+# **Same source as the Short's thumbnail, on purpose.** The user's rule:
+# always match the pair. `_layout`'s scorer picked a bad landscape crop of
+# this photo — a towel and a shoulder, because that band is quieter than the
+# one with her face and the phone's glow — so the crop is placed by hand via
+# `crop_at`/`crop_zoom` rather than left to the scorer. See `render_thumb`'s
+# docstring.
+THUMB_PHOTO = STOCK / "photos/tired-woman-night-dark-bedroom-vertical/8036752.jpg"
 
 VOICE = "mia-calm"              # af_heart at 1.00. `ivy` was tried and cut —
                                 # the British read was not wanted, and the
@@ -512,9 +514,8 @@ def main() -> None:
         thumb_headline="Stop sleeping in [silence]",
         thumb_image=THUMB_PHOTO,
         thumb_accent="red",
-        # The scorer's pick puts the type under her, in the same column as the
-        # face. Right splits them across the diagonal and reads better small.
-        thumb_side="right",
+        thumb_side="left",
+        thumb_crop_at=(1.0, 0.52),
     )
     for k, v in made.items():
         print(f"{k}: {v}")
