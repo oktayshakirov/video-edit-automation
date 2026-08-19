@@ -107,10 +107,16 @@ SENTENCES = [
     # answer, which is why this is two-phase and takes the long gap below.
     # **"Binance" is spelled for espeak**: the real spelling phonemizes to
     # `baɪnˈæns`, bye-NANCE, which is what the user heard and called wrong.
+    # **The fourth name is PancakeSwap, not Hyperliquid.** The beat's own
+    # payload switched to PancakeSwap when the site gained a real page for it
+    # (`content/exchanges/pancakeswap.mdx`), but this line was left reading
+    # the old name — voice and visual disagreed on which tile was on screen,
+    # which the user caught. "PancakeSwap" phonemizes cleanly on its own
+    # (`pˈæŋkeɪk swˈɑːp`) and needs no respelling.
     (("Coinbase.", "Coinbase."),
      ("Binance.", "Bynanse."),
      ("Uniswap.", "Uniswap."),
-     ("Hyperliquid.", "Hyperliquid.")),
+     ("PancakeSwap.", "PancakeSwap.")),
 
     ("The first two hold your keys for you.",
      "The other two cannot.",
