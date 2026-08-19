@@ -14,6 +14,61 @@ Renders go to the Desktop; they are uploads, not repo artifacts.
 demand ranking that decides which post is next, and the measurements behind the
 numbers below. This file is how to build one.
 
+## The order of the whole job, after the build
+
+**Settled on the crypto-exchanges pair, 2026-08-19.** Unlike tinnitus, where a
+Short "lives on YouTube alone", **both formats go through every step here** -
+the user shared and registered the short too, and asked for the whole sequence
+to run without being re-asked each time a video is uploaded.
+
+1. **Build, hand over, say nothing about uploading.** Same as always.
+2. **They upload** - so far always **unlisted** - and tell you it is done.
+   That single sentence is the trigger for everything below; do not wait to be
+   asked again.
+3. **Find the videos.** `youtube-audit videos --channel crypto --json` and
+   match by `publishedAt` / placeholder title - a freshly uploaded video has
+   no real title yet, just whatever YouTube Studio defaulted it to.
+4. **Write title, description, tags with `youtube-audit set`.** Dry run first,
+   always - `set` without `--apply` shows the diff before anything is written.
+   Reuse the `Meta` the long form already generated (the `.md` sidecar in
+   `crypto-long/transcripts/`) rather than re-deriving it; write a short's
+   metadata fresh, following the pattern in shipped descriptions (hook,
+   one-paragraph context, "Read more on thecrypto.wiki", the financial-advice
+   disclaimer, hashtags). **No em dash anywhere in title, description or tag** -
+   the `youtube-audit` skill's own rule, and it now matches the "only a hyphen
+   on screen" rule this skill carries for the video itself.
+5. **Generate the poster and register both in `videos.json`.**
+   `video_automation.longform.thumb.render_video_poster(out, thumbnail)` turns
+   either format's thumbnail into the 1280x720 WebP the registry wants - a
+   straight format change for the long's already-landscape thumbnail, a
+   blurred-cover-crop letterbox for a Short's 1080x1920 one. The long gets
+   `target` pointed at its source post and `placement: "auto"`; **the short
+   still gets an entry** - `target: null`, `placement: "none"` - so it shows in
+   the `/videos` feed even though it embeds nowhere, matching
+   `satoshi-proof-short` and `saylor-treasury-short`, which already do this.
+   Commit + push the site repo, then poll the article URL and both poster URLs
+   (`curl -sL`, see the **Production URLs** table in the `publish-content`
+   skill) until they 200 - that is the deploy gate, and sharing before it
+   passes risks a broken card.
+6. **Share both with the Share Video workflow** (`publish-content` skill,
+   workflow `MZy8L37FaVL5zh64`, `{videoId, topic}`). Works on unlisted videos -
+   oembed does not require Public. Verify the run the way that skill says to:
+   Facebook node has an `id`, Telegram's `link_preview_options` is a bare
+   `{url: ...}` (a card), not `{is_disabled: true}` (a bare link).
+7. **Tell the user the videos are still unlisted.** Nothing in this pipeline
+   can flip privacy to Public - `youtube-audit`'s scopes are deliberately
+   capped at `list` + `update` on snippet fields, and privacy is a `status`
+   write that was never added. They do it themselves in Studio; say so plainly
+   rather than letting them assume publishing to the site made it public.
+
+**This whole sequence runs on one upload confirmation, without asking again
+per step** - that is what the user asked for. It does not extend to skipping
+the dry-run diff in step 4, or to the two things that stay one-time-only:
+posting to social media and pushing to the live site are each confirmed in the
+chat they happen in, every session, regardless of a standing instruction to
+automate the rest. Say so if asked why a "just do it automatically" request
+does not fully apply.
+
 ## Built
 
 ```bash
@@ -755,6 +810,26 @@ Measured on the opener: frozen frames went 26 → 0, and the min/median
 frame delta from 0.14 to 0.53. **If a clip ever looks like it stutters, measure
 the per-frame delta series first** — a periodic dip is an fps artifact, an
 isolated spike is a crop step, and real motion has neither.
+
+## The video-registry poster is a separate render from the thumbnail
+
+`render_video_poster(out, thumbnail_path)` in `longform/thumb.py`, called after
+upload, not during the build - it needs the *thumbnail*, not the source video,
+so it costs nothing extra. It always outputs 1280x720 WebP because that is the
+fixed slot the site's `PostVideo` card and the `/videos` grid both use,
+regardless of which format's thumbnail comes in:
+
+- **A long's 1280x720 thumbnail passes straight through** - just a format
+  change.
+- **A short's 1080x1920 thumbnail gets letterboxed**, not stretched: the source
+  is centred at its own aspect (405px wide inside the 1280px frame) and the
+  bars either side are filled with a blurred, darkened, zoomed copy of the same
+  image, matching the "blurred backdrop, sharp subject" move `PhotoShot`
+  already makes for an undersized site photograph. Naively stretching 9:16 into
+  16:9 would distort every face and every letter in the thumbnail; the two
+  shipped-by-hand posters this replaced (`saylor-treasury-short.webp`,
+  `satoshi-proof-short.webp`) already used this treatment, it just was not a
+  function before.
 
 ## Thumbnail
 

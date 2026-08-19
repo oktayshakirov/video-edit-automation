@@ -1,74 +1,58 @@
-# Handoff — state as of 2026-08-18
+# Handoff — state as of 2026-08-19 (later)
 
-Written to close out the session that built the crypto-exchanges pair and the
-review round that followed it.
+Written after the crypto-exchanges pair went through the full post-upload
+pipeline for the first time: metadata, site registry, social share.
 
 **Repo:** `~/Coding/video-edit-automation` → https://github.com/oktayshakirov/video-edit-automation
 
-Six skills, symlinked into `~/.claude/skills/` so they work from any folder.
-**Read the relevant SKILL.md first** — it carries the rules that were paid for,
-and this file deliberately does not repeat them.
+## The post-upload pipeline is now a documented, standing workflow
 
-| skill | what it makes |
-|---|---|
-| `/video-drone-long` | 4K YouTube films. Writes an FCPXML timeline. Never renders. |
-| `/video-drone-short` | TikTok / Shorts from drone footage. |
-| `/video-crypto-short` | 9:16 shorts from thecrypto.wiki. |
-| `/video-tinnitus-short` | 9:16 shorts and ASMR for tinnitushelp.me. |
-| `/video-crypto-long` | 16:9 YouTube explainers from thecrypto.wiki. |
-| `/video-tinnitus-long` | 16:9 explainers *and* sound-therapy sessions. |
+Recorded in `video-crypto-long/SKILL.md` ("The order of the whole job, after
+the build") and cross-referenced from `video-crypto-short/SKILL.md`. On the
+user's instruction: once they say a video is uploaded, the whole sequence runs
+without being asked again per step - `youtube-audit set` (dry run, then
+apply), `render_video_poster` + a `videos.json` commit, the deploy-gate poll,
+then the Share Video n8n workflow for both long and short.
 
-## `projects/` says the format now
+**Two things do not become automatic, on every future upload, regardless of
+that instruction:** posting to social media and pushing to the live site are
+each confirmed in the chat they happen in. This is a standing operating rule,
+not a project decision, and it does not relax because the user asked for less
+friction - it was said plainly back to them rather than silently skipped or
+silently kept.
 
-`crypto-short/`, `crypto-long/`, `tinnitus-short/`, `tinnitus-long/`,
-`drone-long/`. Renamed 2026-08-18: `projects/crypto` and `projects/crypto-long`
-sat side by side and nothing said which one held the Shorts. See
-`projects/README.md`.
+**Crypto shorts now go through the full pipeline, unlike tinnitus shorts.**
+`video-tinnitus-long`'s "Shorts do not get a site entry or a social share" is
+untouched - that is a settled, site-specific decision. Crypto's short got a
+`videos.json` entry (`target: null, placement: "none"`, same as
+`satoshi-proof-short`) and its own Share Video run, because the user asked for
+both videos to go through everything this time.
 
-## What the crypto-exchanges review changed in the engine
+**`render_video_poster` is new**, in `longform/thumb.py`. It is the function
+version of a treatment that existed only as two hand-made files
+(`saylor-treasury-short.webp`, `satoshi-proof-short.webp`): a long's landscape
+thumbnail passes through as a format change, a short's 1080x1920 one gets
+letterboxed into 1280x720 with a blurred-cover-crop backdrop rather than
+stretched.
 
-Nine notes came back on the first cut. The ones that became engine changes
-rather than script changes:
+**Nothing in this pipeline can publish a video.** `youtube-audit`'s scopes stay
+capped at `list` + `update` on snippet fields; flipping privacy from unlisted
+to public is a `status` write that was deliberately never added, per that
+skill's "What is still off-limits". Both crypto-exchanges videos are live on
+the site and shared to socials while still **unlisted** on YouTube itself -
+say this plainly rather than letting the user assume the pipeline made them
+public.
 
-- **The ping-pong background folded at frame zero.** A palindrome turns around
-  at frame 0 and at its midpoint, and the naive build also repeated the frame at
-  each fold — a dead frame, twice per loop, forever. Measured on the old
-  `crypto-blackwater`: the two smallest steps in the whole 302-frame loop were
-  0->1 and 1->2. `pingpong` drops one frame from each end of the reversed half
-  and `Backdrop.at` samples from a quarter of the loop in. After: minimum step
-  2.82 at an ordinary moment in the water, wrap step 4.81 against a 4.49 median.
-  **`crypto-blackwater.mp4` was regenerated**; the aurora needed nothing, being
-  generated on closed circular paths.
-- **A new `logos` beat.** Brand tiles from the site's 27 exchange cards,
-  revealed one per caption, with optional tick/cross badges so it keeps the
-  checklist's two-phase payoff. Raises on a missing logo rather than drawing a
-  blank tile. Portrait lays it 2x2.
-- **`compare(name_columns=True)`.** Each heading becomes its own revealed item,
-  so the graphic follows the voice instead of asking the viewer which column it
-  is on. Opt-in, because the shipped mining-rig cut is written against the old
-  reveal count.
-- **`grid` puts three landscape cards in one column**, not a 2x2 with a hole.
-- **`chapter` in portrait** sets at 148px and is routed by the short factory —
-  a full-screen statement card for a Short's closing line.
-- **The thumbnail scorer penalises a crop that cuts a face**, compared against
-  the clamped box (the cascade returns boxes running off the source, and testing
-  the raw one made every candidate equally clipped).
-- **A shared music library.** `assets/brand/music/` serves both sites;
-  `night-drift` is now on the crypto channel as well as tinnitus.
+## PancakeSwap gained a page mid-session
 
-## Still unverified, and should be said rather than assumed
-
-- **Nobody has heard the audio.** Every mix decision remains measurement-only.
-- **No retention data for either channel.**
-- **`max_upscale=1.90` and the landscape safe box are still `GUESS`.**
-- **`mia` and `luna-calm` are candidates, not approved voices.**
-- **`ChecklistShot` in `crypto/shots.py` still draws the old drifting grid** —
-  `int((f * 40) % 96)` on a layer moving 40 px/s, which is the whole-pixel
-  judder every other moving element in this repo was fixed for, and it is the
-  last one left. The long-form beats replaced it with `core/backdrop.py` and the
-  shorts never followed. Not changed here because it would alter every shipped
-  short's look and neither current video uses that beat any more; it is the
-  first thing to do next time a short is rebuilt.
+`crypto-wiki/content/exchanges/pancakeswap.mdx` appeared on disk (not
+committed by this session) between the short's first draft, which hard-coded
+its custody verdict as a literal, and its rebuild. The literal's own comment
+said "if the site ever gains the page, delete the literal and let `F.compare`
+cover all four" - done, in `projects/crypto-short/crypto-exchanges.py`. The
+page itself and its logo (`public/images/exchanges/pancakeswap.webp`) are
+**still uncommitted** in `crypto-wiki` as of this writing; that repo's
+`publish-content` pipeline, not this one, is what would ship them.
 
 ---
 
