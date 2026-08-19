@@ -27,7 +27,7 @@ cd ~/Coding/video-edit-automation
 .venv/bin/python -m video_automation drone index /path/to/footage      # slow once, then cached
 ```
 
-Create `projects/drone/<name>.toml` (copy `projects/drone/plovdiv.toml`, repoint `footage` and
+Create `projects/drone-long/<name>.toml` (copy `projects/drone-long/plovdiv.toml`, repoint `footage` and
 `music`). Then the loop:
 
 ```bash
@@ -46,7 +46,7 @@ by two beats every cut lands on the backbeat.
 ## Tuning
 
 Every knob is in `video_automation/drone/config.py`, grouped by phase, `GUESS`-marked
-where unvalidated. **Per-video changes go in `projects/drone/<name>.toml` under
+where unvalidated. **Per-video changes go in `projects/drone-long/<name>.toml` under
 `[overrides]`**, never in `config.py` — that is the shared baseline.
 
 | Symptom | Look at |
@@ -75,7 +75,7 @@ on Plovdiv and reshuffled it every time, once silently changing the opening shot
 
 ```bash
 .venv/bin/python -m video_automation drone build --project <name> \
-    --lock-out projects/drone/<name>.lock.toml
+    --lock-out projects/drone-long/<name>.lock.toml
 ```
 
 Add `lock = "<name>.lock.toml"` to the project file. `build` then replays the

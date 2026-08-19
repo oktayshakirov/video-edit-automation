@@ -90,7 +90,13 @@ video_automation/
     vertical.py     9:16 crop search, type rendering, vertical export
     media.py        ffprobe/ffmpeg wrappers, clip hashing, proxy build
     config.py       constants shared across projects (proxy, container types)
-  drone/            the only built project
+    brand.py        one Brand per site: palette, wordmark, background
+    frame.py        LANDSCAPE and VERTICAL, and the upscale ceilings
+    backdrop.py     the looping background behind every drawn beat
+    music.py        generated beds, plus the small library of real tracks
+    sfx.py          synthesized risers, impacts and mark sounds
+    stock.py        Pexels photos and clips, cached and screened
+  drone/            the Final Cut pipeline
     config.py       every drone tunable, GUESS-marked where unvalidated
     analysis.py     per-frame CV, motion fit, move classification
     music.py        beat grid, downbeat phase, energy envelope, sections
@@ -99,13 +105,20 @@ video_automation/
     validate.py     DTD + semantic checks before anything reaches Final Cut
     project.py      per-video TOML loading and config overrides
     cli.py          subcommands: index, report, build
-  crypto/           stub
-  tinnitus/         stub
-projects/drone/     one .toml per video — see projects/README.md
-.claude/skills/     four skills — symlink into ~/.claude/skills/
-assets/             reusable overlays + captured FCPXML fragments
+  crypto/           the vertical format: shots, the checklist beat, facts.py
+  tinnitus/         the vertical format for the second site, plus ASMR
+  longform/         the 16:9 format, shared by both sites: beats, plan, build
+projects/           one directory per site AND format — see projects/README.md
+  crypto-short/  crypto-long/  tinnitus-short/  tinnitus-long/  drone-long/
+.claude/skills/     six skills — symlink into ~/.claude/skills/
+assets/
+  brand/            wordmarks, looping backgrounds, the music library
+  stock/            Pexels cache; bytes gitignored, manifest.json is not
 CHANGELOG.md        approved stages and their metrics
 ```
+
+**The format is in the project directory's name.** `crypto/` and `crypto-long/`
+used to sit side by side and nothing said which held the Shorts.
 
 ## Voices
 

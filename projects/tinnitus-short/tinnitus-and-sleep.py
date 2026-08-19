@@ -46,7 +46,7 @@ the video is about.
 
 Run from the repo root:
 
-    PYTHONPATH=. .venv/bin/python projects/tinnitus/tinnitus-and-sleep.py
+    PYTHONPATH=. .venv/bin/python projects/tinnitus-short/tinnitus-and-sleep.py
 """
 
 from pathlib import Path

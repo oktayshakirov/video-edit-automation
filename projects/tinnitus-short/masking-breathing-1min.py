@@ -19,7 +19,7 @@ This is the session style, not the article-short style
 nebula and same ring", the session format's own equivalent of "same photo
 and same headline".
 
-    PYTHONPATH=. .venv/bin/python projects/tinnitus/masking-breathing-1min.py
+    PYTHONPATH=. .venv/bin/python projects/tinnitus-short/masking-breathing-1min.py
 """
 
 from pathlib import Path

@@ -1,43 +1,49 @@
-# Drone projects
+# Projects
 
-One TOML file per video. Each pins its footage folder, its track, and any tuning
-that differs from the shared defaults, so a video is reproducible from one file
-and `video_automation/drone/config.py` stays the common baseline rather than being rewritten
-per shoot.
+One directory per **site and format**. The format is in the directory name, and
+that is the whole point of the naming: `projects/crypto` and
+`projects/crypto-long` sat side by side for months and nothing said which one
+held the Shorts — you had to open a file and look at the frame size. Renamed
+2026-08-18 on the user's instruction.
+
+| directory | site | format | entry point |
+|---|---|---|---|
+| `crypto-short/` | thecrypto.wiki | vertical 1080x1920, 30-60 s | `render_crypto_short` |
+| `crypto-long/` | thecrypto.wiki | 16:9 1920x1080, 2:30-4:00 | `render_long` |
+| `tinnitus-short/` | tinnitushelp.me | vertical, article shorts and ASMR | `render_crypto_short` / `asmr` |
+| `tinnitus-long/` | tinnitushelp.me | 16:9, explainers and sound sessions | `render_long` |
+| `drone-long/` | drone channel | 16:9 Final Cut timeline, cut to music | `drone build --project` |
+
+Drone **shorts** have no project directory: that pipeline takes a clip and a
+line of text on the command line and keeps nothing per video. If it ever grows
+a recipe file it goes in `drone-short/`, not back into `drone-long/`.
+
+## One file per video, hand-written
+
+Every file here is a script: the narration, the shot list, and a docstring
+saying why this angle and not another one. **Script generation from the site's
+MDX is deliberately not built** and is recorded in both long-form skills as a
+thing not to build — the script is the product, and 130 generated ones is the
+mass-production failure mode the platforms suppress, arrived at by a different
+route.
+
+Run every one of them from the repo root:
 
 ```bash
-.venv/bin/python -m video_automation drone build --project plovdiv
-.venv/bin/python -m video_automation drone build --project plovdiv --dry-run     # edit list only, seconds
+PYTHONPATH=. .venv/bin/python projects/<dir>/<name>.py
 ```
 
-## Fields
+Renders go to the Desktop. They are uploads, not repo artifacts, and nothing
+here writes into the site repos.
 
-| key | required | meaning |
-|---|---|---|
-| `name` | no | project label; defaults to the filename |
-| `footage` | **yes** | folder of graded selects; `~` is expanded |
-| `music` | **yes** | the track |
-| `profile` | no | `youtube` (default) or `tiktok` |
-| `out` | no | where to write the FCPXML; defaults next to the footage |
-| `[overrides]` | no | any constant from `video_automation/drone/config.py` |
+## What is kept, and where
 
-Footage is never committed. Only the recipe is.
+`crypto-long/transcripts/` holds the `.srt` and the `.md` sidecar for each
+long-form cut. They are kept because they were lost once: both were cleaned off
+the Desktop before the site's `/videos/<slug>` transcript pages needed them, and
+the transcripts had to be rebuilt from `SECTIONS[].sentences` plus the chapter
+times in the YouTube description. That only worked because the script was in the
+repo. Copy them here on every render.
 
-## Overrides
-
-Keys must exist in `config.py` — a typo is an error, not a silent no-op, so a
-misspelled override can't leave the default in place while you hunt through the
-edit wondering why nothing changed.
-
-Overrides reach phases 2–4 (music, edit decisions, export). Indexing constants
-(proxy size, tracker settings, motion thresholds) are baked into the clip index
-when it is built, so changing those means re-running `index --reanalyze`.
-
-## Adding a video
-
-1. Copy an existing `.toml` and repoint `footage` and `music`.
-2. `.venv/bin/python -m video_automation drone index <footage>` — slow once, cached afterwards.
-3. `.venv/bin/python -m video_automation drone build --project <name> --dry-run` and read the edit list.
-4. Tune under `[overrides]`, repeat step 3.
-5. `.venv/bin/python -m video_automation drone build --project <name>`, import, review in Final Cut.
-6. When it's good, commit and tag — see the root README.
+Drone projects keep a `.toml` recipe and a `.lock.toml` of the approved edit;
+footage is never committed. See `drone-long/README.md`.
