@@ -42,6 +42,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from ..core.frame import VERTICAL
+from ..crypto.shots import roam_anchors
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, OUT_H, OUT_W,
                              add_caption_emoji)
 
@@ -269,12 +270,18 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
                   wordmark: str = "TinnitusHelp.me",
                   brand_at: tuple[int, int] = (58, 292),
                   brand_float: float = 9.0, brand_period: float = 5.5,
+                  brand_roam: bool = False, brand_hold: float = 13.0,
                   font_path: str = FONT_CAPTION,
                   font_index: int = FONT_CAPTION_INDEX) -> Path:
     """Drifting nebula with the breathing ring, straight into ffmpeg.
 
     Frames are piped as rawvideo rather than written out — a minute at 1080x1920
     is 1800 PNGs and none of them are wanted afterwards.
+
+    `brand_roam` moves the lockup between `brand_at` and a lower-right anchor,
+    cutting every `brand_hold` seconds — see `crypto.shots.roam_anchors` for
+    why, and for how the second anchor is placed. Off by default, so the
+    shipped sound-therapy shorts are unchanged.
     """
     pad_x, pad_y = 220, 320
     cw, ch = OUT_W + pad_x, OUT_H + pad_y
@@ -286,11 +293,23 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
 
     brand = brand_lockup(mascot_h, mascot_opacity, wordmark,
                          font_path, font_index)
-    if brand and brand_at[1] - brand_float < SAFE_TOP:
-        raise ValueError(
-            f"brand_at={brand_at} with float {brand_float} reaches "
-            f"y={brand_at[1] - brand_float:.0f}, inside the platform UI band "
-            f"(safe from {SAFE_TOP})")
+    anchors = [tuple(brand_at)]
+    if brand and brand_roam:
+        anchors = roam_anchors(brand, VERTICAL, brand_at, brand_float)
+    if brand and len(anchors) == 1:
+        if brand_at[1] - brand_float < SAFE_TOP:
+            raise ValueError(
+                f"brand_at={brand_at} with float {brand_float} reaches "
+                f"y={brand_at[1] - brand_float:.0f}, inside the platform UI band "
+                f"(safe from {SAFE_TOP})")
+    elif brand:
+        # **Every anchor, not just the first.** The lower-right one is bounded
+        # on two axes where the upper-left one is bounded on neither, so the
+        # single top check that has always guarded `brand_at` would pass a mark
+        # sitting squarely under the share button.
+        for a in anchors:
+            VERTICAL.check_mark(a[0], a[1] - brand_float, brand.width,
+                                brand.height + 2 * brand_float, f"anchor {a}")
 
     # A little longer than asked. The final mux runs `-shortest` against the
     # audio, so a picture that lands a few frames short silently clips the end
@@ -325,10 +344,6 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
         if label or brand is not None:
             frame = frame.convert("RGBA")
         if brand is not None:
-            # Levitation. A static watermark in a corner is dead weight the eye
-            # learns to skip in about two seconds; a slow bob on a period that
-            # shares no factor with the breathing cycle keeps it alive without
-            # ever syncing up and turning into a second thing to follow.
             # Levitation. A static watermark in a corner is dead weight the
             # eye learns to skip in about two seconds; a slow bob on a period
             # sharing no factor with the 10s breathing cycle keeps it alive
@@ -337,13 +352,22 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
             # Subpixel, for the same reason the background drift is: the bob
             # peaks around 10px/s, so rounding to whole pixels would make the
             # logo stutter against a background that no longer does.
-            by = brand_at[1] + brand_float * math.sin(2 * math.pi * t / brand_period)
+            #
+            # When it roams it **cuts** between anchors and keeps bobbing at
+            # each one. A lockup sliding across the frame would be a second
+            # travelling object competing with the ring, which is the one thing
+            # the viewer is here to follow — the strongest reason of all to cut
+            # in this format specifically. `brand_hold` shares no factor with
+            # the breathing cycle either, so the jump never lands on the same
+            # phase twice.
+            ax, ay = anchors[int(t // brand_hold) % len(anchors)]
+            by = ay + brand_float * math.sin(2 * math.pi * t / brand_period)
             iy = math.floor(by)
             frame.alpha_composite(
                 brand.transform(brand.size, Image.AFFINE,
                                 (1, 0, 0, 0, 1, iy - by),
                                 resample=Image.BILINEAR),
-                (brand_at[0], iy))
+                (ax, iy))
         if label:
             k = int(r * 2 + 80)
             frame.alpha_composite(sprite.resize((k, k), Image.LANCZOS),
@@ -448,6 +472,7 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
                       lead_in: float = 0.0, gap: float = 0.6,
                       font_size: int = 44, y_frac: float = 0.50,
                       fps: int = 30, seed: int = 7,
+                      roam: bool = False, logo_hold: float = 13.0,
                       keep_work: bool = False) -> tuple[Path, float]:
     """Narration, breathing block, bed and picture into one vertical MP4.
 
@@ -511,7 +536,8 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
     audio = mix_voice_over_bed(bed, narration, workdir / "mix.wav", total)
 
     picture = render_visual(workdir / "picture.mp4", total, phases,
-                            fps=fps, seed=seed)
+                            fps=fps, seed=seed,
+                            brand_roam=roam, brand_hold=logo_hold)
 
     pngs = []
     for i, (text, _, _) in enumerate(captions):
