@@ -30,13 +30,15 @@ promising a result.
 
 Run from the repo root:
 
-    PYTHONPATH=. .venv/bin/python projects/tinnitus/gaming-and-tinnitus.py
+    PYTHONPATH=. .venv/bin/python projects/tinnitus-short/gaming-and-tinnitus.py
 """
 
 from pathlib import Path
 
+from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
+from video_automation.longform.thumb import render_short_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 IMG = Path.home() / "Coding/tinnitus-blog/public/images"
@@ -132,7 +134,22 @@ def main() -> None:
     work = Path.home() / "Desktop/.tinnitus-gaming-short-work"
     path, total = render_tinnitus_short(SENTENCES, SHOTS, out, work,
                                         voice=VOICE)
+
+    # **Same source and same headline as the long form from this post** —
+    # `gaming-and-tinnitus.py` in `tinnitus-long/` uses this exact site photo
+    # and "Your headset is [too loud]". The pairing rule the sleep pair
+    # settled: always match a Short to its long form.
+    #
+    # `band="bottom"`, not the default `"top"`. At `ax=0.6` his face sits in
+    # the upper two-thirds of the crop and the type at the default top band
+    # landed across his nose and mouth — swept both bands and looked at the
+    # actual render rather than assuming from the crop's dark upper corner.
+    thumb = render_short_thumb(
+        out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
+        "Your headset is [too loud]", image=IMG / "gamer.jpg", accent="red",
+        ax=0.6, zoom=1.0, band="bottom")
     print(f"{path}  {total:.1f}s")
+    print(f"{thumb}")
 
 
 if __name__ == "__main__":

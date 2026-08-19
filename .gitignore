@@ -38,3 +38,12 @@ assets/stock/**/*.jpg
 # 0.4 MB clip reused by every video on both channels. Same argument the
 # location pin gets in assets/README.md.
 !assets/stock/videos/subscribe/*.mp4
+
+# Brand backgrounds are the same argument again: a handful of small looping
+# files used behind every drawn beat on both channels. The generated ones are
+# reproducible from `core.backdrop`, but committing them means a checkout
+# renders identically without anyone having to know that.
+!assets/brand/**/*.mp4
+# ...and the music library, for the same reason. These are stored trimmed and
+# lossless on purpose — see core/music.py.
+!assets/brand/**/*.wav

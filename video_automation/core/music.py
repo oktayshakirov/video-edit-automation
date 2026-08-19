@@ -130,6 +130,66 @@ PRESETS = {
 }
 
 
+# --------------------------------------------------------------------------
+# Real tracks, as a small committed library
+# --------------------------------------------------------------------------
+#
+# The generated presets above are still the default and still the safer choice
+# on licence grounds. This is the escape hatch for a track the user has picked
+# by ear, kept beside the backgrounds and for the same reasons: small, reusable,
+# needed on every machine, and re-deriving it by hand is the step that gets
+# lost.
+#
+# **Tracks are stored trimmed, and that is the whole point of storing them.**
+# An mp3 decodes with encoder delay — a few dozen milliseconds of digital
+# silence bolted to the front — and `render_bed` loops a short track to fill
+# the video. Measured on the first track added here: 54.4 ms of leading silence
+# against an end that runs at full level, so a naive loop drops a hole in the
+# bed every 7.7 seconds, twenty-nine times in a four minute video. `render_bed`
+# has a `start=` offset that would paper over it, but then the correct offset
+# is a number somebody has to remember per track. Trimming once, at import
+# time, makes the asset correct by construction.
+
+TRACKS = Path(__file__).resolve().parents[2] / "assets/brand/music"
+
+
+def prepare_track(src: Path, name: str, floor: float = 1e-4) -> Path:
+    """Trim digital silence off both ends and store as WAV under `name`.
+
+    WAV rather than mp3 so the stored asset decodes sample-exact — re-encoding
+    would reintroduce exactly the delay this removes.
+    """
+    import subprocess
+    import wave
+
+    TRACKS.mkdir(parents=True, exist_ok=True)
+    out = TRACKS / f"{name}.wav"
+    tmp = TRACKS / f".{name}-probe.wav"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(src),
+                    "-ar", str(SR), "-ac", "1", str(tmp)], check=True)
+    with wave.open(str(tmp)) as w:
+        a = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
+    nz = np.nonzero(np.abs(a.astype(float) / 32768) > floor)[0]
+    tmp.unlink()
+    if not len(nz):
+        raise ValueError(f"{src} is silent")
+    start, end = nz[0] / SR, (len(a) - nz[-1]) / SR
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{start:.6f}",
+                    "-i", str(src), "-af", f"atrim=end={(len(a)/SR)-start-end:.6f}",
+                    "-ar", "44100", "-ac", "2", str(out)], check=True)
+    return out
+
+
+def track(name: str) -> Path:
+    """A prepared track by name, for passing to `render_long(music=...)`."""
+    p = TRACKS / f"{name}.wav"
+    if not p.exists():
+        raise FileNotFoundError(
+            f"no music track {name!r} in {TRACKS} — add one with "
+            f"prepare_track(src, {name!r})")
+    return p
+
+
 def _semi(root: float, n: int) -> float:
     return root * (2.0 ** (n / 12.0))
 

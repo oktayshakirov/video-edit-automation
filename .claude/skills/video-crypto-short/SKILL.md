@@ -45,11 +45,53 @@ CC BY-SA ones make the video a derivative work — **the attribution block goes 
 the description of anything published**. This is not a licence to reach for
 stock: it is a portrait of a named individual or it does not apply.
 
-**Structured data, which is where this scales:** every one of the 27 exchange
-files and 33 OG files carries `quickFacts` and `faqs` in frontmatter, and there
-are 26 exchange logos in `public/images/exchanges`. `ChecklistShot` already draws
-from a list of `(label, bool)`; pointing it at `quickFacts` is the next step and
-turns comparison shorts into a data problem rather than a design one.
+**Structured data, and it is built:** `video_automation/crypto/facts.py` reads
+the frontmatter of all 27 exchange files and 32 OG files and hands
+`quickFacts` straight to the beats. This is the one place the setup scales
+without hitting the mass-production failure mode, because the *data* is the
+script — numbers the site already publishes, fact-checks and keeps updated —
+rather than a model's guess at one.
+
+```python
+from video_automation.crypto import facts as F
+
+picked = [F.load("exchanges", s) for s in ("coinbase", "binance", "kraken", "uniswap")]
+rows = F.compare(picked, "custody", F.contains("non-custodial"))
+# -> [("Coinbase", False), ("Binance", False), ("Kraken", False), ("Uniswap", True)]
+Shot(graphic="checklist", payload=(rows, "Who holds your keys?"))
+
+F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `grid`
+```
+
+- **Run `F.coverage(F.load_all("exchanges"))` before choosing what to compare
+  on.** Four keys are on all 27 — `founded`, `type`, `custody`, `availability`
+  — and only those support a comparison across the whole set. `headquarters`
+  covers 24, `token` 19, `founder` 15. The gaps are not random: `token` is
+  missing exactly from the exchanges that have no token, so a beat built on it
+  silently drops the interesting cases.
+- **`custody` is the first comparison worth making.** 21 of 27 are flatly
+  "Custodial", 3 are non-custodial, 3 are custodial with a self-custody wallet
+  alongside. That is a real answer to a real question, it is a judged list
+  rather than a table, and the judgement is the site's rather than this repo's.
+- **Pick the handful the script argues about, never the whole set.** `compare`
+  raises past six rows, because a checklist reveals one item per caption and
+  every row has to be spoken. 27 rows is not a graphic, it is a table. Pass
+  `strict=False` to survey while choosing an angle.
+- **It also raises on a row too wide for the line.** An over-long item draws
+  straight off the right edge — nothing clips it and nothing raised before, the
+  same bug class as marks scheduled past the last frame. `with_value=True` is
+  usually what triggers it; the values are prose.
+- **This is a payload generator, not a script generator.** The angle, the
+  verdict and the wording stay hand-written. The script is the product.
+- `Entry.image` resolves the frontmatter path into `public/images` and returns
+  None when the asset is missing, rather than handing a shot list a path that
+  fails at render time. The ~750px floor and the no-infographics rule apply to
+  anything it returns exactly as they do to a hand-picked file.
+- PyYAML is a dependency now. A hand parser was the first plan and is wrong
+  here — the site's own values carry quoted colons ("Nasdaq: COIN") and
+  semicolon-separated clauses, which is where naive splitting breaks. `head()`
+  takes the clause before the semicolon, which is what fits on a card; the
+  qualifier after it is the honest part and belongs in the narration.
 
 **Palette** is `config/theme.json`: gold `#e5c200` on `#171717` / `#2f2f2f`.
 
@@ -136,6 +178,58 @@ involved.
 **Never put a site infographic in a shot.** A 9:16 crop takes its title off the
 top and its last row off the bottom. `proof-of-work.jpg` is the most on-topic
 file in the crypto library and is unusable for exactly this reason.
+
+## Four beats transfer to 9:16 now, not two
+
+`checklist`, `grid`, `steps`, `bars` — and **`logos` and `chapter`**, added on
+the crypto-exchanges short. Everything else still raises, which is the honest
+answer: the landscape beats lay a content column beside a picture column at
+1920 and have no portrait layout.
+
+**`logos` is the beat for named platforms.** The site owns 27 exchange brand
+cards in `public/images/exchanges/`, and in portrait the beat lays them 2x2
+rather than stacking four (a stacked tile is 240px tall and its wordmark stops
+being readable at arm's length). A third element per item lands a tick or a
+cross into the tile's corner after the names are read, so it keeps the
+checklist's two-phase payoff while being a completely different silhouette.
+
+**A judged lineup needs balanced sides.** The first cut of this short listed
+Coinbase, Binance, Crypto.com and Uniswap and marked three crosses and one
+tick, and the user found it confusing — correctly: with a single tick at the
+end there is nothing to say the tick means *decentralized* rather than "the
+best one". Two and two, with the labels spelling out which is which, makes the
+split the subject. **Check the site actually owns the logo first** — the
+obvious fourth name was PancakeSwap and the site has no card for it, so the
+beat raises rather than drawing a blank tile; `hyperliquid` is the site's own
+second non-custodial exchange and carries real `quickFacts`.
+
+**`chapter` is a full-screen statement, and it is the strongest way a short can
+land its closing line.** It wraps to the frame and centres on both axes; in
+9:16 it sets at 148px rather than the landscape 108, because 108 across 1080 is
+body copy with two thirds of the frame empty around it. It burns no caption
+over itself — `build` already suppresses captions on any shot with a `graphic`
+— so pass the on-screen wording in the *caption* half of a `(caption, spoken)`
+pair and the spoken wording in the other, and the card can be in capitals while
+the voice reads a sentence.
+
+## Silence is punctuation here too
+
+`gap` takes a list, one per sentence, and **leaving every one at 0.34 is what
+"monotone" means**. 0.34 inside a thought, 0.55-0.90 at the end of one, 2.10 for
+a two-phase beat, and ~1.3 after a full-screen statement so it is allowed to
+sit. A forty-second short has less room than a long form and needs the pauses
+more, not less: the pauses are what stop three instructions in a row sounding
+like one sentence.
+
+## A tip needs a reason before it is a tip
+
+The first cut went straight from the custody beat into "turn on two-factor,
+start small, withdraw the rest" and the user's note was that it arrives with no
+introduction. A list of instructions with nothing saying *why* reads as generic
+advice, and generic advice is the thing an explainer is supposed to not be. One
+sentence fixes it, and it should tie back to the beat above rather than being a
+new topic: "You cannot change who holds the keys. You can change how much they
+are holding."
 
 ## The picture
 
@@ -247,6 +341,16 @@ domain so nothing is added under it. Same safe box as the tinnitus shorts —
 `SAFE_TOP=230`, `SAFE_BOTTOM=1440`, clear of `x>860` — and `render_shots` raises
 rather than shipping outside it.
 
+**It can roam:** `render_crypto_short(..., roam=True)` cuts the mark between
+upper-left and lower-right every `logo_hold` seconds (13s by default). Off
+unless asked for, so the shipped cuts are unchanged. A mark that moves is much
+harder to crop out of a repost and defeats the corner blindness that makes a
+static watermark worthless. It **cuts, never slides** — a lockup travelling
+across frame is a second moving object competing with the picture — and keeps
+levitating at each anchor. Every anchor is validated against all four safe
+edges, not just the top. Full reasoning in `video-tinnitus-short`, where it was
+specced.
+
 ## Copy
 
 **Captions go under the photograph, not over it.** Every source image is
@@ -313,9 +417,29 @@ there is one test that settles it" — built from
 `posts/what-it-actually-takes-to-prove-someone-is-satoshi-nakamoto.mdx`. It works
 because the answer is concrete, surprising, and needs no financial advice.
 
+**Check phonemes with espeak rather than guessing** — Kokoro phonemizes through
+espeak-ng, so `espeak-ng -v en-us -q --ipa "Binance"` is the whole check. It
+returns `baɪnˈæns` (bye-NANCE), which is wrong for the brand and shipped once;
+`Bynanse` returns `bˈaɪnæns`, which is right. Respell in the **spoken** half of
+a `(caption, spoken)` pair so the caption still reads correctly.
+
 **Check phonemes before rendering.** Years are fine (`2009` → "two thousand
 nine"), names are fine (`satoshi nakamoto`), but `ecdsa` comes out `ˈɛkdsə` —
 spell out or avoid any initialism.
+
+## Thumbnail: three checks, every time
+
+1. **Text must not cover the face.** `render_short_thumb` defaults to
+   `band="top"` because the Shorts player puts its chrome along the bottom, and
+   that default is wrong the moment the subject's head is in the top half of the
+   crop — which is most crops of a landscape source. Pass `band="bottom"` and
+   look at the render. The user has now caught this twice.
+2. **The subject fits.** No half faces at the frame edge.
+3. **The words are the script's words.** "Your crypto", not "your coins".
+
+**Match the Short's thumbnail to its long form's**, same source and same
+headline, even where the two videos deliberately cover different ground — the
+pairing and the angle are independent questions.
 
 ## Voice
 
@@ -332,7 +456,6 @@ Five profiles, all reproducing their audition WAVs sample-for-sample:
 | `theo` | male, `am_adam` 1.10 | the first cut. Lowest Kokoro grade on the list, shortlisted by ear anyway |
 | `mia` | female, `af_heart` 1.10 | **the Saylor cut.** Graded A, the strongest English voice in Kokoro |
 | `mia-calm` | female, `af_heart` 1.00 | the same speaker, unhurried |
-| `ivy` | female, `bf_emma` 1.10 | British — an audience choice as much as a voice one |
 
 **None is approved.** `theo` took the first cut, `sam` the second, `mia` the
 Saylor short, and the user intends to work through the rest. Keep the script and

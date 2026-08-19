@@ -33,6 +33,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from ..core.brand import CRYPTO, Brand
 from ..core.draw import cover as _cover
 from ..core.draw import ease_out as _ease_out
 from ..core.draw import mark as _mark
@@ -42,9 +43,16 @@ from ..core.frame import VERTICAL, Frame
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
 # thecrypto.wiki's palette, from the site's `config/theme.json`.
-GOLD = (229, 194, 0)            # #e5c200 — primary and border
-BODY = (23, 23, 23)             # #171717
-PANEL = (47, 47, 47)            # #2f2f2f
+#
+# **These are no longer what the drawing reads.** `PhotoShot` and
+# `ChecklistShot` both take a `Brand` now and default it to `CRYPTO`, whose
+# values are these exactly — so the shipped crypto shorts are unchanged, and
+# the same two objects render on brand for tinnitushelp.me instead of putting
+# this gold on somebody else's video. They are kept as names because the
+# palette is worth stating once in the file that is named after the site.
+GOLD = CRYPTO.primary           # #e5c200 — primary and border
+BODY = CRYPTO.bg                # #171717
+PANEL = CRYPTO.panel            # #2f2f2f
 
 SITE_IMAGES = Path.home() / "Coding/crypto-wiki/public/images"
 LOGO = SITE_IMAGES / "logo.png"
@@ -121,10 +129,16 @@ class PhotoShot:
     def __init__(self, path: Path, zoom: float, pan: tuple[float, float],
                  aspect: float = 1.15, bias: float = 0.5,
                  frame: Frame = VERTICAL,
-                 logo_box: tuple[int, int, int, int] | None = None):
+                 logo_box: tuple[int, int, int, int] | None = None,
+                 brand: Brand = CRYPTO):
         src = Image.open(path).convert("RGB")
         self.zoom, self.pan = zoom, pan
         self.frame = frame
+        # The hairline is the site's accent, so it is the brand's. It was
+        # thecrypto.wiki's gold as a module constant, which meant every
+        # photograph in a tinnitus article short carried a gold edge — a bug
+        # that raised nothing and is only visible in the frame.
+        self.brand = brand
         # Per-frame, not per-class: the ceiling is about how large the frame is
         # actually drawn on a phone, and 16:9 is drawn at roughly half the
         # linear size of 9:16. See `core/frame.py`.
@@ -289,7 +303,7 @@ class PhotoShot:
                        flags=cv2.INTER_LANCZOS4,
                        borderMode=cv2.BORDER_TRANSPARENT)
 
-        # A hairline in the site's gold along the photo's edges, which reads as
+        # A hairline in the site's own accent along the photo's edges, which reads as
         # deliberate framing rather than as an image that failed to fill.
         # Drawn with `shift`, which is cv2's fixed-point subpixel form: a line
         # snapped to whole pixels under a picture that is not would reintroduce
@@ -303,7 +317,7 @@ class PhotoShot:
                 cv2.line(canvas,
                          (int(round(x * u)), int(round(edge * u))),
                          (int(round((x + w) * u)), int(round(edge * u))),
-                         GOLD, 3, lineType=cv2.LINE_AA, shift=SH)
+                         self.brand.primary, 3, lineType=cv2.LINE_AA, shift=SH)
         return Image.fromarray(canvas)
 
 
@@ -332,6 +346,14 @@ class ChecklistShot:
     It draws over a photograph, dimmed and blurred, rather than over flat black.
     A flat panel for six seconds in the middle of a photo-driven piece reads as
     the video having stopped, and it left the frame mostly empty.
+
+    **Every colour comes from `brand`**, which defaults to `CRYPTO` and so
+    reproduces the shipped shorts exactly. It used to take thecrypto.wiki's
+    palette from module constants, which made this — the strongest beat in the
+    format, and the vertical-native one — unusable on tinnitushelp.me: it would
+    have rendered a gold title, gold ticks and a gold-tinted grid on a purple
+    brand, and nothing would have raised. `grid`, `steps` and `bars` already
+    took a brand; this is the last drawn object that did not.
     """
 
     DRAW = 0.16                 # how long a mark or a strike takes to draw on
@@ -345,7 +367,9 @@ class ChecklistShot:
                  start: float = 0.0, hold: float = 1.0,
                  font_path: str = FONT_CAPTION,
                  font_index: int = FONT_CAPTION_INDEX,
-                 frame: Frame = VERTICAL):
+                 frame: Frame = VERTICAL,
+                 brand: Brand = CRYPTO):
+        self.brand = brand
         self.items = items
         self.title = title
         # `flow` changes nothing here — the drawing only ever reads `marks`.
@@ -373,24 +397,26 @@ class ChecklistShot:
             self.back = (np.asarray(im) * 0.5).astype(np.uint8)
 
     def draw(self, f: float) -> Image.Image:
-        fr = self.frame
+        fr, br = self.frame, self.brand
         if self.back is not None:
             out = Image.fromarray(self.back.copy())
         else:
-            out = Image.new("RGB", fr.size, BODY)
+            out = Image.new("RGB", fr.size, br.bg)
         d = ImageDraw.Draw(out)
 
-        # A faint gold grid, drifting, so the beat still has motion in it.
+        # A faint grid in the brand's own tint, drifting, so the beat still has
+        # motion in it.
         step, off = 96, int((f * 40) % 96)
         for gx in range(-96 + off, fr.w + 96, step):
-            d.line([(gx, 0), (gx, fr.h)], fill=(40, 38, 26), width=2)
+            d.line([(gx, 0), (gx, fr.h)], fill=br.grid, width=2)
         for gy in range(-96 + off, fr.h + 96, step):
-            d.line([(0, gy), (fr.w, gy)], fill=(40, 38, 26), width=2)
+            d.line([(0, gy), (fr.w, gy)], fill=br.grid, width=2)
 
         n = len(self.items)
         top = fr.h // 2 - (n * 124) // 2
         if self.title:
-            d.text((110, top - 104), self.title, font=self.title_font, fill=GOLD)
+            d.text((110, top - 104), self.title, font=self.title_font,
+                   fill=br.primary)
 
         t = self.start + f * self.hold
         for i, (text, ok) in enumerate(self.items):
@@ -409,7 +435,7 @@ class ChecklistShot:
             # against the real frame and was not readable on a phone — the
             # strike-through already says "this one does not count", so the ink
             # does not have to say it a second time by being harder to read.
-            d.text((200, y_in), text, font=self.font, fill=(255, 255, 255),
+            d.text((200, y_in), text, font=self.font, fill=br.ink,
                    stroke_width=3, stroke_fill=(0, 0, 0))
 
             # Phase two. Until its verdict is due the item is just an option,
@@ -418,7 +444,7 @@ class ChecklistShot:
             if t < due_mark:
                 continue
             m = _ease_out(min(1.0, (t - due_mark) / self.DRAW))
-            colour = GOLD if ok else (196, 84, 84)
+            colour = br.primary if ok else br.negative
             _mark(d, 110, y + 16, 44, ok, colour, progress=m)
             if not ok:
                 bbox = d.textbbox((200, y), text, font=self.font)
@@ -428,7 +454,7 @@ class ChecklistShot:
                 s = _ease_out(min(1.0, (t - due_mark - 0.05) / self.DRAW))
                 if s > 0:
                     d.line([(200, mid), (200 + (bbox[2] - 200) * s, mid)],
-                           fill=(230, 96, 96), width=5)
+                           fill=br.strike, width=5)
         return out
 
 
@@ -452,6 +478,37 @@ def logo_mark(width: int = 300, opacity: int = 255) -> Image.Image | None:
     if opacity < 255:
         im.putalpha(im.split()[-1].point(lambda v: int(v * opacity / 255)))
     return im
+
+
+ROAM_MARGIN = 40                # clear air between the mark and the safe edges
+
+
+def roam_anchors(mark: Image.Image, frame: Frame = VERTICAL,
+                 logo_at: tuple[int, int] | None = None,
+                 logo_float: float = 8.0) -> list[tuple[int, int]]:
+    """Two positions for a roaming watermark: the usual one, and lower right.
+
+    **Why a mark should move at all.** Two reasons, and they are independent.
+    A mark that changes position is much harder to crop out of a reposted
+    video, which a fixed corner is not. And a static mark in a corner is dead
+    weight the eye learns to skip in about two seconds — moving it defeats the
+    banner blindness that makes a watermark worthless to the person it is
+    supposed to be advertising to.
+
+    **The lower-right anchor is the tight one.** In the vertical frame the
+    right rail of platform buttons runs to `safe_right` and the caption block
+    starts at `safe_bottom`, so this corner is bounded on both axes where the
+    upper-left one is bounded on neither. It is placed against those two edges
+    with `ROAM_MARGIN` of air, not against the frame's real corner — a mark in
+    the true corner is under the share button on all three platforms.
+
+    Both anchors are returned unvalidated; `render_shots` checks every one of
+    them against the safe box and raises rather than shipping a covered mark.
+    """
+    logo_at = frame.logo_at if logo_at is None else logo_at
+    low = (frame.safe_right - ROAM_MARGIN - mark.width,
+           int(frame.safe_bottom - ROAM_MARGIN - logo_float - mark.height))
+    return [tuple(logo_at), low]
 
 
 # --- captions ------------------------------------------------------------
@@ -536,6 +593,9 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                  frame: Frame = VERTICAL, transition: str = "dissolve",
                  xfade: float = XFADE,
                  factory=None, mark: "Image.Image | None" = None,
+                 brand: Brand = CRYPTO,
+                 logo_anchors: "list[tuple[int, int]] | None" = None,
+                 logo_hold: float = 13.0,
                  overlays=None) -> Path:
     """Render the picture track: every shot, crossfaded, captions, watermark.
 
@@ -551,7 +611,12 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
     crossfade, caption and watermark loop that all of them need.
 
     `mark` overrides the watermark image, for the sites whose mark is a lockup
-    built at render time rather than a file on disk.
+    built at render time rather than a file on disk. `brand` is what the
+    photographs' hairline and the fallback checklist are drawn in.
+
+    `logo_anchors` makes the mark **roam**: a list of positions it cuts between,
+    holding each for `logo_hold` seconds. See `roam_anchors`. Left as None the
+    mark stays at `logo_at` and every frame is what it always was.
 
     `transition` is the default shot-to-shot move. **"dissolve" here is not a
     preference, it is the shipped vertical behaviour** — the shorts are
@@ -566,25 +631,45 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
     # The box the watermark occupies, float included, so a photograph's hairline
     # can dodge it. Resolved from the mark itself rather than assumed: the two
     # sites' marks differ by a factor of four in height at the same width.
+    # Only the *first* anchor, deliberately, even when the mark roams. This box
+    # exists so a photograph's hairline can dodge the watermark, and the photo
+    # layout is built around the upper-left lockup — the band above the picture.
+    # Dodging a lower-right anchor as well would push the photograph out of both
+    # ends of the frame to avoid a mark that is only there for part of the shot.
     logo_box = (None if mark is None else
                 (logo_at[0], int(logo_at[1] - logo_float),
                  mark.width, int(mark.height + 2 * logo_float)))
+
+    # One anchor is the shipped behaviour and stays exactly that: with a single
+    # entry the index below is always 0 and `logo_hold` never fires.
+    anchors = [tuple(logo_at)] if not logo_anchors else [tuple(a) for a in
+                                                         logo_anchors]
 
     prepared = []
     for s in shots:
         if s.image is not None:
             prepared.append(PhotoShot(s.image, s.zoom, s.pan, s.aspect, s.bias,
-                                      frame=frame, logo_box=logo_box))
+                                      frame=frame, logo_box=logo_box,
+                                      brand=brand))
         elif factory is not None:
             prepared.append(factory(s, frame))
         else:
             prepared.append(ChecklistShot(*s.payload, backdrop=s.backdrop,
                                           reveals=s.reveals, marks=s.marks,
                                           start=s.start, hold=s.hold,
-                                          frame=frame))
+                                          frame=frame, brand=brand))
 
     if mark is not None:
-        frame.check_top(logo_at[1] - logo_float, f"logo_at={logo_at}")
+        if len(anchors) == 1:
+            frame.check_top(logo_at[1] - logo_float, f"logo_at={logo_at}")
+        else:
+            for a in anchors:
+                # The float-adjusted box, both ways: the mark travels up as far
+                # as it travels down, so the top of the bob is what the top edge
+                # has to clear and the bottom of it is what the caption block
+                # does.
+                frame.check_mark(a[0], a[1] - logo_float, mark.width,
+                                 mark.height + 2 * logo_float, f"anchor {a}")
 
     n = int(round(total * fps)) + fps // 2
     proc = subprocess.Popen(
@@ -642,12 +727,20 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
             sprite.draw(pic, t)
 
         if mark is not None:
-            by = logo_at[1] + logo_float * math.sin(2 * math.pi * t / logo_period)
+            # **Cut between anchors, never slide.** A lockup travelling across
+            # the frame is a second moving object competing with the picture,
+            # which is the one thing the viewer is supposed to be following;
+            # TikTok's own download watermark cuts for the same reason. The
+            # levitation keeps running at each anchor — it is what stops the
+            # mark reading as a sticker — and `logo_hold` shares no factor with
+            # `logo_period`, so the two never lock into one motion.
+            ax, ay = anchors[int(t // logo_hold) % len(anchors)]
+            by = ay + logo_float * math.sin(2 * math.pi * t / logo_period)
             iy = math.floor(by)
             pic.alpha_composite(
                 mark.transform(mark.size, Image.AFFINE,
                                (1, 0, 0, 0, 1, iy - by), resample=Image.BILINEAR),
-                (logo_at[0], iy))
+                (ax, iy))
         pic = pic.convert("RGB")
         # Overlays go on last, over the watermark: a subscribe sting is
         # the topmost thing in the frame by definition.

@@ -17,7 +17,7 @@ anything published. Everything else is the site's own library, as usual.
 
 Run from the repo root:
 
-    PYTHONPATH=. .venv/bin/python projects/crypto/michael-saylor.py
+    PYTHONPATH=. .venv/bin/python projects/crypto-short/michael-saylor.py
 """
 
 from pathlib import Path

@@ -41,14 +41,16 @@ risers directly from the supply, never through a drive-connector adapter.
 
 Run from the repo root:
 
-    PYTHONPATH=. .venv/bin/python projects/crypto/mining-rig.py
+    PYTHONPATH=. .venv/bin/python projects/crypto-short/mining-rig.py
 """
 
 from pathlib import Path
 
+from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
+from video_automation.longform.thumb import render_short_thumb
 
 POSTS = SITE_IMAGES / "posts"
 
@@ -188,7 +190,26 @@ def main() -> None:
     work = Path.home() / "Desktop/.crypto-mining-rig-short-work"
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
+
+    # **Same source and same headline as the long form from this post** —
+    # `crypto-long/mining-rig.py` uses this exact site photo and
+    # "Build your own [mining rig]". The pairing rule the tinnitus pairs
+    # settled: always match a Short to its long form's thumbnail, even where
+    # the two videos deliberately cover different angles (economics versus
+    # the fire hazard here) — the thumbnail pairing and the script's angle
+    # are independent questions.
+    #
+    # `_layout`'s scorer already flags this photo busy (+0.82) for the
+    # landscape thumbnail, so the vertical crop is placed by hand too.
+    # `band="bottom"`: at `ax=0.53` her face fills the whole upper frame and
+    # the default top band ran text across her forehead and glasses: swept
+    # both and looked before picking, same as the gaming and sleep pairs.
+    thumb = render_short_thumb(
+        out.with_name(out.stem + "-thumb.jpg"), CRYPTO,
+        "Build your own [mining rig]", image=POSTS / "mining-rig.jpg",
+        accent="yellow", ax=0.53, zoom=1.0, band="bottom")
     print(f"{out}  {total:.2f}s")
+    print(f"{thumb}")
 
 
 if __name__ == "__main__":
