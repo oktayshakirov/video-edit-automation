@@ -302,6 +302,11 @@ class ChapterCard(Beat):
     """
 
     SIZE = 108
+    # **Portrait is not the same number.** 108px across 1920 is a heading; the
+    # same 108px across 1080 is body copy with two thirds of the frame empty
+    # around it, which is what "write it with big letters on the whole screen"
+    # was reacting to. 148 fills a 9:16 frame the way 108 fills a 16:9 one.
+    SIZE_PORTRAIT = 148
 
     def __init__(self, title: str, **kw):
         super().__init__(**kw)
@@ -310,10 +315,11 @@ class ChapterCard(Beat):
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out)
         w = self.frame.w - 2 * self.margin
-        font = _font(self.SIZE)
+        size = self.SIZE_PORTRAIT if self.portrait else self.SIZE
+        font = _font(size)
         lines = wrap(d, self.title, font, w)
 
-        line_h = int(self.SIZE * 1.26)
+        line_h = int(size * 1.26)
         block = len(lines) * line_h
         e = ease_out(min(1.0, (self.at(f) - self.start) / 0.5))
         y = (self.frame.h - block) // 2 + int(round(26 * (1.0 - e)))
@@ -505,10 +511,23 @@ class Compare(Beat):
     """
 
     def __init__(self, left_title: str, left_items: list[str],
-                 right_title: str, right_items: list[str], **kw):
+                 right_title: str, right_items: list[str],
+                 name_columns: bool = False, **kw):
         super().__init__(**kw)
         self.lt, self.li = left_title, left_items
         self.rt, self.ri = right_title, right_items
+        # **`name_columns` makes each heading a revealed item of its own**, so
+        # the narration can say "Centralized." and have the word appear, then
+        # read that column, then say "Decentralized." and have the other
+        # appear. Both headings used to be painted at f=0, which left the
+        # viewer to work out which list the voice was on — the user's note was
+        # that a comparison must not ask them to interpret, and they are right:
+        # a two-column graphic where both labels are already up is a table you
+        # are expected to read, not a thing being explained to you.
+        #
+        # Opt-in, because it changes the reveal count and the shipped
+        # mining-rig cut is written against the old one.
+        self.name_columns = name_columns
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out)
@@ -535,13 +554,24 @@ class Compare(Beat):
         d.line([(mid, top), (mid, top + int(block * e))],
                fill=self.brand.primary, width=3)
 
-        n = max(len(self.li), len(self.ri))
+        # Reveal indices. With named columns the order is: left heading, the
+        # left items, right heading, the right items — which is exactly the
+        # order a script reads them in.
+        nl, nr = len(self.li), len(self.ri)
+        total = nl + nr + (2 if self.name_columns else 0)
         for side, (title, items) in enumerate(((self.lt, self.li),
                                                (self.rt, self.ri))):
             x = self.margin if side == 0 else mid + 40
-            d.text((x, top), title.upper(), font=title_font,
-                   fill=self.brand.primary, stroke_width=3,
-                   stroke_fill=(0, 0, 0))
+            if self.name_columns:
+                head_k = 0 if side == 0 else nl + 1
+                eh = self.due(head_k, total, f)
+            else:
+                eh = 1.0
+            if eh >= 0:
+                d.text((x, top + int(round(RISE * (1.0 - min(1.0, eh))))),
+                       title.upper(), font=title_font,
+                       fill=self.brand.primary, stroke_width=3,
+                       stroke_fill=(0, 0, 0))
             y = top + 120
             for i, text in enumerate(items):
                 # **Sequential, not interleaved: the whole left column, then
@@ -553,8 +583,11 @@ class Compare(Beat):
                 # temporary, and a viewer reads that as the graphic being out of
                 # sync with the words. It is the reason this beat looked
                 # confusing rather than any layout problem.
-                k = i if side == 0 else len(self.li) + i
-                ev = self.due(k, len(self.li) + len(self.ri), f)
+                if self.name_columns:
+                    k = 1 + i if side == 0 else nl + 2 + i
+                else:
+                    k = i if side == 0 else nl + i
+                ev = self.due(k, total, f)
                 lines = wrapped[side][i]
                 if ev < 0:
                     y += len(lines) * item_h + pad
@@ -722,10 +755,17 @@ class Grid(Beat):
         # phone. Portrait goes one column up to four items and two beyond that,
         # so the cards stay wide and the block grows downward — which is the
         # axis a 9:16 frame actually has to spare.
+        #
+        # **Three landscape cards go in one column, not 2+1.** A 2x2 grid with
+        # its last cell empty reads as a layout that failed to fill rather than
+        # as a set of three, and the user called it exactly that. One column of
+        # full-width cards has no hole in it, and at 16:9 a card 1800px wide
+        # with a label and a note is a better shape than a 880px one anyway.
+        # Four still take the 2x2, which is a complete rectangle.
         if self.portrait:
             cols = 1 if n <= 4 else 2
         else:
-            cols = 3 if n >= 5 else 2
+            cols = 3 if n >= 5 else (2 if n == 4 else 1)
         rows = (n + cols - 1) // cols
         gap = 36
         cw = (usable - gap * (cols - 1)) // cols
@@ -774,6 +814,161 @@ class Grid(Beat):
                     d.text((x + self.PAD, ty), ln, font=note_font,
                            fill=self.brand.primary + (int(a * 0.86),))
                     ty += nh
+
+
+class Logos(Beat):
+    """Brand tiles for named platforms, revealed one per caption.
+
+    **The narration names companies; the screen should show them.** A script
+    that says "Coinbase. Binance. Crypto.com." over a stock photograph of a
+    trading desk is asking the viewer to hold three names in their head with no
+    help, and the names are the content. The user's note on the first
+    crypto-exchanges cut was exactly this, and it is general: whenever a beat's
+    items are *brands*, the brand mark is the strongest possible item art.
+
+    **The site's exchange images are full-bleed brand cards, not transparent
+    icons**, and that is what makes this cheap. `public/images/exchanges/` has
+    27 of them at ~900x506 — a blue Coinbase card, a yellow Binance card, a
+    black Uniswap card. Drawn as rounded tiles they read as a lineup of
+    products, which is a silhouette no other beat in the vocabulary has: no
+    column of type, no ragged edge, no list.
+
+    They also solve the palette problem rather than causing it. A yellow
+    Binance card next to a gold heading would clash if the tile were the
+    subject, but at a third of the frame width on a black ground it reads as a
+    logo, which is a thing a viewer expects to be its own colour.
+
+    Landscape puts up to four across; portrait stacks them down the frame,
+    which is the axis 9:16 has to spare. An optional second element is a short
+    label under the tile — "Custodial", "Non-custodial" — for when the lineup
+    is making a point rather than just naming names.
+
+    **It can carry verdicts, and it should when the point is a verdict.** A
+    third element per item turns the tile into a two-phase beat exactly like
+    `checklist`: the tiles arrive as the voice names them, then in the pause a
+    tick or a cross draws into each corner. That is what keeps the lineup an
+    open question for a few seconds instead of a table — and losing that payoff
+    is the one thing that would have made this beat worse than the checklist it
+    replaces in the crypto-exchanges short.
+
+    payload: (items, title) where items is
+    [slug | (slug, label) | (slug, label, ok), ...] and `slug` is either an
+    exchange slug resolved under `images/exchanges/` or a path to any image.
+    """
+
+    EMBLEM = False
+    BADGE = 64                  # the tick/cross drawn into a tile's corner
+
+    # The site's own exchange art. Resolved by slug so a script says
+    # `"binance"` rather than carrying a path and an extension it has to keep
+    # correct — the extensions are a mix of png, jpg and webp.
+    DIR = Path.home() / "Coding/crypto-wiki/public/images/exchanges"
+
+    def __init__(self, items: list, title: str = "", **kw):
+        super().__init__(**kw)
+        self.title = title
+        norm = []
+        for i in items:
+            t = (i,) if isinstance(i, (str, Path)) else tuple(i)
+            norm.append((t + ("", None))[:3] if len(t) < 3 else t)
+        self.items = norm
+
+    @classmethod
+    def resolve(cls, slug: str | Path) -> Path | None:
+        """An exchange slug or a path, as a file that exists."""
+        p = Path(slug)
+        if p.suffix and p.exists():
+            return p
+        for ext in (".png", ".jpg", ".jpeg", ".webp"):
+            cand = cls.DIR / f"{p.stem}{ext}"
+            if cand.exists():
+                return cand
+        return None
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        fr = self.frame
+        n = len(self.items)
+        top0 = self.heading(out, self.title, f)
+
+        usable = fr.w - 2 * self.margin
+        # Portrait stacks, but four stacked tiles in 9:16 are 240px tall each
+        # and the wordmarks stop being readable at arm's length — a 2x2 keeps
+        # them at 430px wide, which is the same physical size as a two-across
+        # landscape tile.
+        cols = (1 if n <= 3 else 2) if self.portrait else min(n, 4)
+        rows = (n + cols - 1) // cols
+        gap = 40 if not self.portrait else 30
+        tw = (usable - gap * (cols - 1)) // cols
+        # The cards are all near 16:9 and cropping them would cut the wordmark,
+        # so the tile takes the card's own shape and the row takes its height.
+        th = int(tw * 9 / 16)
+        label_font = _font(46 if self.portrait else 38)
+        lab_h = 60 if any(lab for _, lab, _ in self.items) else 0
+        cell = th + lab_h
+
+        block = rows * cell + gap * (rows - 1)
+        # **Width sets the tile size until height cannot take it.** Three
+        # labelled tiles stacked in 9:16 come to 1737px against 1920 minus the
+        # watermark band, so the last one ran off the bottom — the failure is
+        # silent, because nothing in the pipeline knows the beat overflowed.
+        # Shrink to fit rather than clip.
+        room = fr.h - top0 - self.margin
+        if block > room:
+            k = room / block
+            tw, th = int(tw * k), int(th * k)
+            cell = th + lab_h
+            block = rows * cell + gap * (rows - 1)
+        top = max(top0, (fr.h - block) // 2)
+        # Centre a short final row rather than leaving it hanging left.
+        for i, (slug, label, ok) in enumerate(self.items):
+            e = self.due(i, n, f)
+            if e < 0:
+                continue
+            r, c = divmod(i, cols)
+            in_row = min(cols, n - r * cols)
+            row_w = in_row * tw + gap * (in_row - 1)
+            x = (fr.w - row_w) // 2 + c * (tw + gap)
+            y = top + r * (cell + gap) + int(round(RISE * (1.0 - e)))
+            a = min(1.0, e)
+
+            # **Raise rather than draw an empty box.** The site has 27
+            # exchange cards and no PancakeSwap, and the first build of this
+            # beat drew a silent empty tile for it — the failure mode this
+            # repo keeps rediscovering, where the log looks fine and the frame
+            # is wrong. A missing logo is a script error, not a render one.
+            src = self.resolve(slug)
+            if src is None:
+                raise FileNotFoundError(
+                    f"no exchange logo for {slug!r} in {self.DIR} — the site "
+                    f"has to own the brand card before a beat can show it")
+            tile = cover(Image.open(src).convert("RGB"), tw, th)
+            if a < 1.0:
+                tile = Image.blend(Image.new("RGB", tile.size,
+                                             self.brand.bg), tile, a)
+            out.paste(tile, (x, y))
+            d.rounded_rectangle([x, y, x + tw, y + th], radius=12,
+                                outline=self.brand.primary + (int(255 * a),),
+                                width=3)
+            if label:
+                d.text((x + tw // 2, y + th + 12), label.upper(),
+                       font=label_font, anchor="ma",
+                       fill=self.brand.ink + (int(230 * a),))
+
+            # Phase two: the verdict, drawn into the tile's top-right on a
+            # black disc so it reads against a card of any colour — Binance is
+            # yellow and Uniswap is black, and a gold tick has to survive both.
+            if ok is None:
+                continue
+            m = self.marked(i, f)
+            if m < 0:
+                continue
+            b = self.BADGE
+            cx, cy = x + tw - b // 2 - 14, y + b // 2 + 14
+            d.ellipse([cx - b // 2, cy - b // 2, cx + b // 2, cy + b // 2],
+                      fill=(0, 0, 0, 210))
+            colour = self.brand.primary if ok else self.brand.negative
+            mark(d, cx - b // 4, cy - b // 4, b // 2, ok, colour, progress=m)
 
 
 class Steps(Beat):
@@ -938,6 +1133,7 @@ BEATS = {
     "bars": Bars,
     "grid": Grid,
     "steps": Steps,
+    "logos": Logos,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -946,11 +1142,12 @@ _COUNT = {
     "chapter": lambda p: 0,
     "checklist": lambda p: len(p[0]),
     "stat": lambda p: 1,
-    "compare": lambda p: len(p[1]) + len(p[3]),
+    "compare": lambda p: len(p[1]) + len(p[3]) + (2 if len(p) > 4 and p[4] else 0),
     "quote": lambda p: 1,
     "bars": lambda p: len(p[0]),
     "grid": lambda p: len(p[0]),
     "steps": lambda p: len(p[0]),
+    "logos": lambda p: len(p[0]),
 }
 
 

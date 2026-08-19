@@ -18,8 +18,8 @@ from ..core.frame import VERTICAL, Frame
 from ..core.vertical import add_caption_emoji, render_text_png
 from ..core.voiceover import CAPTION_MAX_W, build_narration_aligned, profile_args
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
-from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, plan_shots,
-                    render_shots)
+from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, logo_mark,
+                    plan_shots, render_shots, roam_anchors)
 
 FLOW_LAG = 0.30                 # a mark lands just after the word that earns it
 
@@ -88,6 +88,12 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
     a 660px picture column at 371px beside a 562px content column. It is the
     vertical-native beat and there is no reason to replace it.
 
+    **It takes `brand` now, like everything else here.** It was the last drawn
+    object holding thecrypto.wiki's palette as module constants, which is why
+    `video-tinnitus-short` had to record "do not use `checklist` here" — the
+    strongest beat in the format, ruled out on the second site by a hard-coded
+    colour. That restriction is lifted.
+
     `grid` and `steps` **do** transfer, but only because they were given real
     portrait layouts — one column of wide cards, and a track that runs down
     instead of across. Scaling the landscape versions would have given a 293px
@@ -105,7 +111,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
                          label=None, begin=shot.clip_at)
-    if shot.graphic in ("grid", "steps", "bars"):
+    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter"):
         # **These three are portrait-safe.** `Grid` drops to one
         # column up to four items and `Steps` turns its track ninety degrees;
         # see `longform/beats.py`. Scaling the landscape layouts would give a
@@ -114,6 +120,17 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # portrait variant: it was already full-width and centred vertically,
         # and a bar is the one graphic that reads *better* in a narrow frame,
         # because the same ratio is drawn over a shorter run.
+        #
+        # **`logos` and `chapter` joined them, and both were asked for.**
+        # `Logos` lays a 2x2 of brand cards in portrait rather than a row of
+        # four (a stacked tile is 240px tall and its wordmark stops being
+        # readable), and it is the answer to "when you say the exchanges, show
+        # the exchanges" — the names *are* the content and the site owns 27
+        # brand cards. `Chapter` needed no portrait work at all: it wraps to
+        # the frame and centres on both axes, which in 9:16 is a full-screen
+        # statement — the strongest way a short can land its closing line, and
+        # it burns no caption over itself because `build` already suppresses
+        # captions on any shot with a `graphic`.
         from ..longform.beats import BEATS
         return BEATS[shot.graphic](*shot.payload, brand=brand, frame=frame,
                                    backdrop=shot.backdrop,
@@ -134,7 +151,8 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
             f"checklist, grid, steps and bars")
     return ChecklistShot(*shot.payload, backdrop=shot.backdrop,
                          reveals=shot.reveals, marks=shot.marks,
-                         start=shot.start, hold=shot.hold, frame=frame)
+                         start=shot.start, hold=shot.hold, frame=frame,
+                         brand=brand)
 
 
 def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
@@ -147,7 +165,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         keep_work: bool = False,
                         frame: Frame = VERTICAL,
                         brand: Brand = CRYPTO,
-                        mark: "Image.Image | None" = None) -> tuple[Path, float]:
+                        mark: "Image.Image | None" = None,
+                        roam: bool = False,
+                        logo_hold: float = 13.0) -> tuple[Path, float]:
     """One short, end to end.
 
     `gap` is tighter than the drone quotes' 0.65. A quote wants air between
@@ -251,10 +271,21 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 for p, c in zip(pngs, captions) if p is not None)
                if s is not None]
 
+    # `roam` moves the watermark between two anchors instead of pinning it to
+    # one — see `shots.roam_anchors` for why. The anchors need the mark itself
+    # to place the lower-right one, so a site whose mark is built at render time
+    # has to have passed it in; the default logo is resolved here for the rest.
+    anchors = None
+    if roam:
+        m = mark if mark is not None else logo_mark(frame.logo_w)
+        if m is not None:
+            anchors = roam_anchors(m, frame)
+
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
                            factory=lambda sh, fr: _short_factory(sh, fr, brand),
-                           mark=mark)
+                           mark=mark, brand=brand,
+                           logo_anchors=anchors, logo_hold=logo_hold)
 
     # A mark that lands silently is a graphic; one that lands with a sound is an
     # event. The cues come from the same list that drives the drawing, so they

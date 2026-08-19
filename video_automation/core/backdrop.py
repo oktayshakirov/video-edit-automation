@@ -163,8 +163,25 @@ def pingpong(src: Path, out: Path, start: float, seconds: float,
 
     `dim` and `saturation` exist because footage arrives graded for being the
     subject, and here it is the ground underneath type.
+
+    **Both fold frames are dropped, and that is not a detail.** A naive
+    forward-plus-reverse repeats the last frame (it ends the forward half and
+    opens the reversed one) and repeats the first (it opens the forward half
+    and ends the reversed one, which then wraps straight back onto it). A
+    repeated frame is a *dead* frame: motion stops for one frame at each fold,
+    twice per loop, forever. Measured on the first `crypto-blackwater`, the two
+    smallest steps in the whole 302-frame loop were the pair either side of
+    frame 0 — 2.66 and 2.73 against a median of 4.36 — which is the hesitation
+    that reads as the background starting rewound.
+
+    Trimming one frame off each end of the reversed half makes the palindrome
+    contain every source frame exactly once except the two extremes, so every
+    step including the wrap is an ordinary step.
     """
     out.parent.mkdir(parents=True, exist_ok=True)
+    # Frame count of the forward half, needed because `trim` cannot express
+    # "all but the last frame" without knowing how many there are.
+    n_fwd = int(round(seconds * FPS))
     # **`dim` multiplies, it does not offset.** ffmpeg's `eq=brightness` adds a
     # constant, so dimming already-dark footage by "0.72" subtracted 71 levels
     # and returned pure black — measured at mean luma 0.0. `colorchannelmixer`
@@ -175,7 +192,9 @@ def pingpong(src: Path, out: Path, start: float, seconds: float,
     subprocess.run(
         ["ffmpeg", "-v", "error", "-y", "-ss", str(start), "-t", str(seconds),
          "-i", str(src), "-an", "-filter_complex",
-         f"[0:v]{vf},split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1:a=0",
+         f"[0:v]{vf},fps={FPS},split[a][b];"
+         f"[b]reverse,trim=start_frame=1:end_frame={n_fwd - 1},"
+         f"setpts=PTS-STARTPTS[r];[a][r]concat=n=2:v=1:a=0",
          # Forced to the module's own fps: the source is 60p and a background
          # nobody looks at directly does not need 720 frames held in memory.
          "-r", str(FPS),
@@ -223,9 +242,25 @@ class Backdrop:
             return None
         return cls(name=name, frames=frames, fps=fps)
 
+    # **No video may open on a ping-pong fold.** A palindrome turns around at
+    # frame 0 and again at its midpoint, and a turnaround is the one moment the
+    # motion is not travelling — measured on `crypto-blackwater`, the two
+    # smallest frame-to-frame steps in the entire loop were 0->1 and 1->2, at
+    # 2.66 and 2.73 against a median of 4.36. Sampling from `t=0` therefore put
+    # that hesitation at second zero of every video, which reads exactly as the
+    # user described it: the background starts rewound and sorts itself out
+    # after a second.
+    #
+    # A quarter of the loop in is the furthest point from either fold, so the
+    # video opens mid-travel. This is a phase shift and nothing else — the loop
+    # still runs at one rate across the whole timeline, which is the property
+    # `at` exists to guarantee.
+    PHASE = 0.25
+
     def at(self, t: float, w: int, h: int) -> np.ndarray:
         """The frame for timeline second `t`, filled and cropped to `w`x`h`."""
-        i = int(t * self.fps) % len(self.frames)
+        n = len(self.frames)
+        i = int(t * self.fps + n * self.PHASE) % n
         src = self.frames[i]
         s = max(w / src.shape[1], h / src.shape[0])
         big = cv2.resize(src, (int(np.ceil(src.shape[1] * s)),
