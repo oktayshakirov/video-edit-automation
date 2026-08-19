@@ -141,6 +141,16 @@ wrong for a sentence.
 Writing them costs one line per section and it is the cheapest quality change
 available in this format.
 
+## Only a hyphen goes on screen
+
+**Never an em or en dash in a spoken line or a caption.** The user's rule, for
+every video on every channel: write `-`. At caption size a long rule is easy to
+read as a stray mark, and it is a typographic flourish in a place that wants
+plain type. It also survives being pasted into a YouTube description, a TikTok
+caption and the site's transcript unchanged, which "—" does not always.
+
+This applies to the script's own strings, not to prose in a docstring.
+
 ## Phrases that are banned, and why one of them got here
 
 **Never write "here is the question almost nobody asks about it".** It went into
@@ -805,6 +815,20 @@ The user's standing list, from reviewing the crypto-exchanges pair:
 detected box overlaps the type column wherever the type goes.
 `crop_at=(0.0, 0.0)` with `side="right"` keeps his whole head and puts the words
 on the dashboard's dark falloff. Record the reason in the script, as here.
+
+### `shift` moves the subject when the crop cannot
+
+A cover crop of a landscape source into 16:9 has **no horizontal slack** —
+`nw == W` — so `crop_at`'s `ax` is inert and the only lever on where the subject
+sits is zoom, which is what puts faces off the frame edge. `render_thumb(shift=)`
+translates the picture toward the far edge as a fraction of the width and fades
+what it uncovers to black over 260px.
+
+That is not a compromise, it is a better thumbnail: the subject is entirely
+clear on one side and the type gets a real black ground instead of a scrim laid
+over detail. Sweep two or three values and look — on the crypto-exchanges
+source, 0.10 still caught the first word on the hologram and 0.22 crowded the
+subject against the edge, so 0.16 shipped.
 
 ### The layout is searched, and the search is the point
 

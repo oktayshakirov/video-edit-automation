@@ -423,6 +423,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
                  arrow_to: tuple[float, float] | None = None,
                  crop_at: tuple[float, float] | None = None,
                  crop_zoom: float = 1.0, crop_band: str = "middle",
+                 shift: float = 0.0,
                  **_ignored) -> Path:
     """One thumbnail: photograph, scrim, headline with a boxed accent phrase.
 
@@ -481,6 +482,38 @@ def render_thumb(out: Path, brand: Brand, headline: str,
             float(np.clip(74.0 / max(luma, 1.0), 0.62, 1.12)))
     else:
         base, side, vband = Image.new("RGB", (W, H), brand.bg), side or "left", "middle"
+
+    # **Slide the picture off the type's side, and fade what it vacates.**
+    # A cover crop of a landscape source into 16:9 has no horizontal slack at
+    # all — `nw == W` — so `crop_at`'s `ax` is inert and there is no way to
+    # move a subject sideways out from under the words. On
+    # `futuristic-crypto-exchange.jpg` that left the man's shoulder and the
+    # dashboard running under "CRYPTO IS" with nothing to be done about it
+    # except zoom, which is what put half his face off frame in the first
+    # place.
+    #
+    # `shift` translates the picture toward the far edge as a fraction of the
+    # width and fills what it uncovers with black, blending over `FADE` px so
+    # the join is a falloff rather than a seam. That is the user's own
+    # suggestion and it is the right one: a thumbnail is allowed to be a
+    # picture on one side and a plate on the other, and the type gets a real
+    # black ground instead of a scrim over detail.
+    if shift:
+        px_shift = int(W * shift)
+        moved = Image.new("RGB", (W, H), (0, 0, 0))
+        moved.paste(base, (-px_shift if side == "right" else px_shift, 0))
+        FADE = 260
+        edge = (W - px_shift) if side == "right" else px_shift
+        veil = Image.new("L", (W, 1))
+        vp = veil.load()
+        for x in range(W):
+            if side == "right":
+                t = (x - (edge - FADE)) / FADE
+            else:
+                t = ((edge + FADE) - x) / FADE
+            vp[x, 0] = int(255 * float(np.clip(t, 0.0, 1.0)))
+        base = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)),
+                               moved, veil.resize((W, H)))
 
     # A scrim on the type's side only, fading out before the subject.
     grad = Image.new("L", (W, 1))

@@ -207,6 +207,19 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # marks, and giving them a `marks` list does not just waste work —
             # `_cues` reads the same list to place the cross and tick sounds, so
             # a grid would have ticked audibly while nothing was drawn.
+            # **`logos` carries verdicts too, and it was silently missing
+            # them.** The marks were only ever computed for `checklist`, so the
+            # tick and cross badges rendered correctly in an isolated draw and
+            # never once appeared in a built short — `marks` stayed None and
+            # `Beat.marked` returns -1 for every item. Exactly the failure
+            # class this file's own comment above warns about, arrived at from
+            # the other direction: a beat that *should* have marks and does
+            # not. Only when the items actually carry a verdict, because a
+            # logo lineup with no third element is a plain lineup.
+            if (sh.graphic == "logos" and sh.marks is None
+                    and any(len(it) > 2 and it[2] is not None
+                            for it in sh.payload[0])):
+                sh.marks = _mark_times(starts[-1], sh.start + sh.hold, n)
             if sh.graphic == "checklist" and sh.marks is None:
                 # `flow` is the payload's optional third element. With it, each
                 # verdict lands just after the word that earns it, because the
@@ -291,9 +304,13 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     # event. The cues come from the same list that drives the drawing, so they
     # cannot drift apart.
     if sound:
-        cues = [(t, "tick" if ok else "cross")
+        # The verdict is the item's **last** element whatever the beat: a
+        # checklist row is `(text, ok)` and a logo tile is `(slug, label, ok)`,
+        # and unpacking a fixed shape here would have raised on the second one.
+        cues = [(t, "tick" if item[-1] else "cross")
                 for sh in shots if sh.graphic and sh.marks
-                for t, (_, ok) in zip(sh.marks, sh.payload[0])]
+                for t, item in zip(sh.marks, sh.payload[0])
+                if item[-1] is not None]
         if cues:
             track = sfx.mix(track, workdir / "track-sfx.wav", cues)
 

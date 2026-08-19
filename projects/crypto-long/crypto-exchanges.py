@@ -553,6 +553,16 @@ def main() -> None:
         thumb_accent="red",
         thumb_side="right",
         thumb_crop_at=(0.0, 0.0),
+        # **And slid 16% left, with the vacated band faded to black.** A cover
+        # crop of a landscape source into 16:9 has no horizontal slack at all,
+        # so `crop_at`'s `ax` cannot move a subject sideways — the only lever
+        # was zoom, which is what put half his face off frame to begin with.
+        # `shift` translates the picture and fades what it uncovers, which is
+        # the user's own suggestion: the man is entirely clear on the left and
+        # the type gets a real black ground rather than a scrim over the
+        # dashboard. Swept 10 / 16 / 22 and looked; 22 crowds him against the
+        # edge and 10 still catches "YOUR" on the hologram.
+        thumb_shift=0.16,
         endcard=ENDCARD, endcard_lead=7.0,
     )
     for k, v in made.items():

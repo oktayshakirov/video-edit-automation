@@ -864,9 +864,20 @@ class Logos(Beat):
     # correct — the extensions are a mix of png, jpg and webp.
     DIR = Path.home() / "Coding/crypto-wiki/public/images/exchanges"
 
-    def __init__(self, items: list, title: str = "", **kw):
+    def __init__(self, items: list, title: str = "",
+                 groups: list[tuple[str, int]] | None = None, **kw):
         super().__init__(**kw)
         self.title = title
+        # `groups` is [(heading, count), ...] summing to len(items). It puts a
+        # centred heading above each run of tiles and forces a single column,
+        # which is what a lineup needs the moment the *split* is the point
+        # rather than the list: two crosses and two ticks in a 2x2 still leave
+        # the viewer inferring what the sides mean.
+        if groups and sum(c for _, c in groups) != len(items):
+            raise ValueError(
+                f"logos groups cover {sum(c for _, c in groups)} items but "
+                f"{len(items)} were given")
+        self.groups = groups
         norm = []
         for i in items:
             t = (i,) if isinstance(i, (str, Path)) else tuple(i)
@@ -892,84 +903,133 @@ class Logos(Beat):
         top0 = self.heading(out, self.title, f)
 
         usable = fr.w - 2 * self.margin
-        # Portrait stacks, but four stacked tiles in 9:16 are 240px tall each
-        # and the wordmarks stop being readable at arm's length — a 2x2 keeps
-        # them at 430px wide, which is the same physical size as a two-across
-        # landscape tile.
-        cols = (1 if n <= 3 else 2) if self.portrait else min(n, 4)
-        rows = (n + cols - 1) // cols
+        # Portrait stacks, but four *ungrouped* stacked tiles in 9:16 are 240px
+        # tall each and the wordmarks stop being readable at arm's length, so
+        # four go 2x2. **Grouped items always take one column**, whatever the
+        # count: the group heading is the thing doing the explaining and a
+        # heading over a 2x2 has to be read as covering both cells, which is
+        # the ambiguity the grouping exists to remove.
+        if self.groups:
+            cols = 1 if self.portrait else min(max(c for _, c in self.groups), 4)
+        else:
+            cols = (1 if n <= 3 else 2) if self.portrait else min(n, 4)
         gap = 40 if not self.portrait else 30
         tw = (usable - gap * (cols - 1)) // cols
         # The cards are all near 16:9 and cropping them would cut the wordmark,
         # so the tile takes the card's own shape and the row takes its height.
         th = int(tw * 9 / 16)
         label_font = _font(46 if self.portrait else 38)
+        head_font = _font(54 if self.portrait else 44)
         lab_h = 60 if any(lab for _, lab, _ in self.items) else 0
-        cell = th + lab_h
+        head_h = 78 if self.groups else 0
 
-        block = rows * cell + gap * (rows - 1)
+        # One flat plan of what goes down the frame, so the fit and the draw
+        # agree by construction: ("head", label, first_item_index) or
+        # ("row", [item indices]).
+        plan, i = [], 0
+        for label, count in (self.groups or [("", n)]):
+            if self.groups:
+                plan.append(("head", label, i))
+            for r in range(0, count, cols):
+                plan.append(("row", None, list(range(i + r,
+                                                     min(i + r + cols,
+                                                         i + count)))))
+            i += count
+
+        def measure(t_h):
+            cell = t_h + lab_h
+            total = 0
+            for k, (kind, _, _) in enumerate(plan):
+                total += head_h if kind == "head" else cell
+                if k:
+                    total += gap
+            return total, cell
+
+        block, cell = measure(th)
         # **Width sets the tile size until height cannot take it.** Three
         # labelled tiles stacked in 9:16 come to 1737px against 1920 minus the
         # watermark band, so the last one ran off the bottom — the failure is
         # silent, because nothing in the pipeline knows the beat overflowed.
-        # Shrink to fit rather than clip.
+        # Shrink to fit rather than clip. Group headings are fixed height and
+        # come out of the tiles' share, which is why this solves for `th`.
         room = fr.h - top0 - self.margin
         if block > room:
-            k = room / block
-            tw, th = int(tw * k), int(th * k)
-            cell = th + lab_h
-            block = rows * cell + gap * (rows - 1)
-        top = max(top0, (fr.h - block) // 2)
-        # Centre a short final row rather than leaving it hanging left.
-        for i, (slug, label, ok) in enumerate(self.items):
-            e = self.due(i, n, f)
-            if e < 0:
-                continue
-            r, c = divmod(i, cols)
-            in_row = min(cols, n - r * cols)
-            row_w = in_row * tw + gap * (in_row - 1)
-            x = (fr.w - row_w) // 2 + c * (tw + gap)
-            y = top + r * (cell + gap) + int(round(RISE * (1.0 - e)))
-            a = min(1.0, e)
+            fixed = sum(head_h for kind, _, _ in plan if kind == "head")
+            fixed += gap * (len(plan) - 1) + lab_h * sum(
+                1 for kind, _, _ in plan if kind == "row")
+            rows = sum(1 for kind, _, _ in plan if kind == "row")
+            th = max(60, int((room - fixed) / max(rows, 1)))
+            tw = int(th * 16 / 9)
+            block, cell = measure(th)
 
-            # **Raise rather than draw an empty box.** The site has 27
-            # exchange cards and no PancakeSwap, and the first build of this
-            # beat drew a silent empty tile for it — the failure mode this
-            # repo keeps rediscovering, where the log looks fine and the frame
-            # is wrong. A missing logo is a script error, not a render one.
-            src = self.resolve(slug)
-            if src is None:
-                raise FileNotFoundError(
-                    f"no exchange logo for {slug!r} in {self.DIR} — the site "
-                    f"has to own the brand card before a beat can show it")
-            tile = cover(Image.open(src).convert("RGB"), tw, th)
-            if a < 1.0:
-                tile = Image.blend(Image.new("RGB", tile.size,
-                                             self.brand.bg), tile, a)
-            out.paste(tile, (x, y))
-            d.rounded_rectangle([x, y, x + tw, y + th], radius=12,
-                                outline=self.brand.primary + (int(255 * a),),
-                                width=3)
-            if label:
-                d.text((x + tw // 2, y + th + 12), label.upper(),
-                       font=label_font, anchor="ma",
-                       fill=self.brand.ink + (int(230 * a),))
-
-            # Phase two: the verdict, drawn into the tile's top-right on a
-            # black disc so it reads against a card of any colour — Binance is
-            # yellow and Uniswap is black, and a gold tick has to survive both.
-            if ok is None:
+        y = max(top0, (fr.h - block) // 2)
+        for k, (kind, label, payload) in enumerate(plan):
+            if k:
+                y += gap
+            if kind == "head":
+                # The heading arrives with its own first tile rather than at
+                # f=0 — same reasoning as `compare(name_columns=True)`: a label
+                # standing over an empty space is a table waiting to be read.
+                e = self.due(payload, n, f)
+                if e >= 0:
+                    d.text((fr.w // 2, y + int(round(RISE * (1.0 - min(1.0, e))))),
+                           label.upper(), font=head_font, anchor="ma",
+                           fill=self.brand.primary + (int(255 * min(1.0, e)),))
+                y += head_h
                 continue
-            m = self.marked(i, f)
-            if m < 0:
-                continue
-            b = self.BADGE
-            cx, cy = x + tw - b // 2 - 14, y + b // 2 + 14
-            d.ellipse([cx - b // 2, cy - b // 2, cx + b // 2, cy + b // 2],
-                      fill=(0, 0, 0, 210))
-            colour = self.brand.primary if ok else self.brand.negative
-            mark(d, cx - b // 4, cy - b // 4, b // 2, ok, colour, progress=m)
 
+            row_w = len(payload) * tw + gap * (len(payload) - 1)
+            for c, i in enumerate(payload):
+                slug, lab, ok = self.items[i]
+                e = self.due(i, n, f)
+                if e < 0:
+                    continue
+                x = (fr.w - row_w) // 2 + c * (tw + gap)
+                ty = y + int(round(RISE * (1.0 - e)))
+                a = min(1.0, e)
+
+                # **Raise rather than draw an empty box.** The site has 27
+                # exchange cards and the first build of this beat drew a silent
+                # empty tile for a name it did not have — the failure mode this
+                # repo keeps rediscovering, where the log looks fine and the
+                # frame is wrong. A missing logo is a script error, not a
+                # render one.
+                src = self.resolve(slug)
+                if src is None:
+                    raise FileNotFoundError(
+                        f"no exchange logo for {slug!r} in {self.DIR} — the "
+                        f"site has to own the brand card before a beat can "
+                        f"show it")
+                tile = cover(Image.open(src).convert("RGB"), tw, th)
+                if a < 1.0:
+                    tile = Image.blend(Image.new("RGB", tile.size,
+                                                 self.brand.bg), tile, a)
+                out.paste(tile, (x, ty))
+                d.rounded_rectangle([x, ty, x + tw, ty + th], radius=12,
+                                    outline=self.brand.primary + (int(255 * a),),
+                                    width=3)
+                if lab:
+                    d.text((x + tw // 2, ty + th + 12), lab.upper(),
+                           font=label_font, anchor="ma",
+                           fill=self.brand.ink + (int(230 * a),))
+
+                # Phase two: the verdict, drawn into the tile's top-right on a
+                # black disc so it reads against a card of any colour — Binance
+                # is yellow and Uniswap is black, and a gold tick has to
+                # survive both.
+                if ok is None:
+                    continue
+                m = self.marked(i, f)
+                if m < 0:
+                    continue
+                b = self.BADGE
+                cx, cy = x + tw - b // 2 - 14, ty + b // 2 + 14
+                d.ellipse([cx - b // 2, cy - b // 2, cx + b // 2, cy + b // 2],
+                          fill=(0, 0, 0, 210))
+                colour = self.brand.primary if ok else self.brand.negative
+                mark(d, cx - b // 4, cy - b // 4, b // 2, ok, colour,
+                     progress=m)
+            y += cell
 
 class Steps(Beat):
     """A numbered sequence along a track. For a procedure, not a set.

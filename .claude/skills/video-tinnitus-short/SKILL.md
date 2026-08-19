@@ -400,6 +400,15 @@ The type is not over the face — in 9:16 there is no search at all, so pass
 `band="bottom"` whenever the head is in the top half of the crop. And the words
 are the script's own words.
 
+**Only a hyphen goes on screen.** Never an em or en dash in a spoken line or a
+caption, on any channel — at caption size a long rule reads as a stray mark, and
+it is a flourish in a place that wants plain type. Write `-`.
+
+**A statement card needs a line handing off to it.** A full-screen card that
+arrives with nothing in front of it reads as a title card dropped into the
+middle of the video; one sentence makes it the thing the piece was building
+toward.
+
 **Two beats joined the portrait set**: `logos` (brand tiles, 2x2, optional
 tick/cross badges) and `chapter` (a full-screen statement at 148px, which is the
 strongest way a short can land its closing line). `compare` takes
