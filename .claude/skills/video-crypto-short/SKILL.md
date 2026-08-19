@@ -10,16 +10,15 @@ Shared with the drone and tinnitus projects. Renders go to the Desktop.
 
 **Source content:** `~/Coding/crypto-wiki` — 60 posts, 27 exchanges, 33 crypto-ogs.
 
-## After upload: same pipeline as the long form
+## After upload: metadata only, same as tinnitus
 
-**Unlike tinnitus, a crypto Short does not stay YouTube-only.** It goes
-through metadata, the site registry and the Share Video workflow exactly like
-the long form - see "The order of the whole job" in `video-crypto-long`'s
-SKILL.md, which is the canonical copy since most pairs are built and shipped
-together. The one crypto-specific difference from a long: the short's
-`videos.json` entry keeps `target: null, placement: "none"` - it shows in the
-`/videos` feed and nowhere else, per `docs/site-video-integration.md`'s
-"shorts do not embed on articles" decision.
+**A crypto Short stays YouTube-only, exactly like a tinnitus one.** It gets a
+title, description and tags via `youtube-audit set` - see "The order of the
+whole job" in `video-crypto-long`'s SKILL.md, which is the canonical copy - and
+nothing else: no `videos.json` entry, no poster, no Share Video run. A version
+of this skill briefly said otherwise and it was wrong; both crypto and
+tinnitus shorts follow the same rule for the same reason, there was never a
+real per-site difference here.
 
 ## Built
 
