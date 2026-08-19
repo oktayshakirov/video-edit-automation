@@ -1,58 +1,42 @@
-# Handoff — state as of 2026-08-19 (later)
+# Handoff — state as of 2026-08-19 (corrected)
 
-Written after the crypto-exchanges pair went through the full post-upload
-pipeline for the first time: metadata, site registry, social share.
+Written immediately after the previous entry in this file turned out to
+describe a mistake as if it were a decision.
 
 **Repo:** `~/Coding/video-edit-automation` → https://github.com/oktayshakirov/video-edit-automation
 
-## The post-upload pipeline is now a documented, standing workflow
+## Two mistakes in the post-upload pipeline, both fixed the same day
 
-Recorded in `video-crypto-long/SKILL.md` ("The order of the whole job, after
-the build") and cross-referenced from `video-crypto-short/SKILL.md`. On the
-user's instruction: once they say a video is uploaded, the whole sequence runs
-without being asked again per step - `youtube-audit set` (dry run, then
-apply), `render_video_poster` + a `videos.json` commit, the deploy-gate poll,
-then the Share Video n8n workflow for both long and short.
+**The short got a site entry and a social share it should never have had.**
+The previous handoff entry claimed this was deliberate - "unlike tinnitus...
+crypto shorts go through the full pipeline" - and that was an unwarranted
+inference from an ambiguous instruction, not something the user actually
+asked for. Corrected: **only the long form gets a `videos.json` entry and a
+Share Video run. A Short is YouTube-only**, exactly matching
+`video-tinnitus-long`'s already-settled rule. There was never a real
+per-site difference here.
 
-**Two things do not become automatic, on every future upload, regardless of
-that instruction:** posting to social media and pushing to the live site are
-each confirmed in the chat they happen in. This is a standing operating rule,
-not a project decision, and it does not relax because the user asked for less
-friction - it was said plainly back to them rather than silently skipped or
-silently kept.
+What that cost: `crypto-exchanges-short`'s registry entry and poster are
+reverted out of `crypto-wiki`. The Facebook and Telegram posts **cannot be
+unsent** - the ids are recorded (Telegram message 141 in chat
+-1003019225999, Facebook post `140513256083904_122249053136045514`) in case
+the user wants them taken down, but nothing was deleted without asking.
 
-**Crypto shorts now go through the full pipeline, unlike tinnitus shorts.**
-`video-tinnitus-long`'s "Shorts do not get a site entry or a social share" is
-untouched - that is a settled, site-specific decision. Crypto's short got a
-`videos.json` entry (`target: null, placement: "none"`, same as
-`satoshi-proof-short`) and its own Share Video run, because the user asked for
-both videos to go through everything this time.
+**`render_video_poster` was solving a problem YouTube already solves.** It
+rendered a blurred-letterbox composite locally for a Short's 1080x1920
+thumbnail, reasoning that the registry's fixed 1280x720 slot needed it built
+by hand. It did not: YouTube composites *any* uploaded thumbnail into
+1280x720 itself and serves it from `i.ytimg.com/vi/<id>/maxresdefault.jpg` -
+measured against the pre-existing `saylor-treasury-short.webp`, that CDN
+image is pixel-identical to 1.1 mean difference (re-encoding noise only).
+Replaced with `fetch_video_poster(out, video_id)`, which downloads that URL
+and converts it to WebP. No image processing, no blur, no letterbox logic -
+and it only ever runs on the long now regardless.
 
-**`render_video_poster` is new**, in `longform/thumb.py`. It is the function
-version of a treatment that existed only as two hand-made files
-(`saylor-treasury-short.webp`, `satoshi-proof-short.webp`): a long's landscape
-thumbnail passes through as a format change, a short's 1080x1920 one gets
-letterboxed into 1280x720 with a blurred-cover-crop backdrop rather than
-stretched.
-
-**Nothing in this pipeline can publish a video.** `youtube-audit`'s scopes stay
-capped at `list` + `update` on snippet fields; flipping privacy from unlisted
-to public is a `status` write that was deliberately never added, per that
-skill's "What is still off-limits". Both crypto-exchanges videos are live on
-the site and shared to socials while still **unlisted** on YouTube itself -
-say this plainly rather than letting the user assume the pipeline made them
-public.
-
-## PancakeSwap gained a page mid-session
-
-`crypto-wiki/content/exchanges/pancakeswap.mdx` appeared on disk (not
-committed by this session) between the short's first draft, which hard-coded
-its custody verdict as a literal, and its rebuild. The literal's own comment
-said "if the site ever gains the page, delete the literal and let `F.compare`
-cover all four" - done, in `projects/crypto-short/crypto-exchanges.py`. The
-page itself and its logo (`public/images/exchanges/pancakeswap.webp`) are
-**still uncommitted** in `crypto-wiki` as of this writing; that repo's
-`publish-content` pipeline, not this one, is what would ship them.
+**Read both corrections in the skill files, not just here.**
+`video-crypto-long/SKILL.md`'s "The order of the whole job" and "The
+video-registry poster" sections are rewritten; `video-crypto-short/SKILL.md`
+now says plainly that a short gets metadata and nothing past it.
 
 ---
 
