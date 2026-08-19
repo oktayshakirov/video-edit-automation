@@ -26,7 +26,7 @@ needs tone synthesis the repo still does not have.
 ## Article shorts
 
 ```bash
-PYTHONPATH=. .venv/bin/python projects/tinnitus/gaming-and-tinnitus.py
+PYTHONPATH=. .venv/bin/python projects/tinnitus-short/gaming-and-tinnitus.py
 ```
 
 `render_tinnitus_short` is `render_crypto_short` with two values passed in
@@ -360,6 +360,51 @@ skill. `tinnitus` is fine (`tˈɪnɪɾəs`). Abbreviations are not.
 Unlike the drone shorts, **do not export silent for a trending sound.** The bed
 and the voice are the content; a trending sound would replace the thing the
 viewer came for.
+
+
+## Rules that arrived from the crypto side (2026-08-18)
+
+All four of these are engine-level or cross-channel; they were found on
+`crypto-exchanges` and they apply here unchanged.
+
+**Silence is punctuation, and it has to be written.** `gaps` on the `Section`
+(or the `gap` list in a short), one float per sentence. Leaving every sentence
+at the default 0.34 is what "monotone" means — pace is the only prosody a
+synthesiser has. 0.34 inside a thought, 0.45-0.60 at the end of one, 0.70-0.90
+before a line that has to land, 2.10-2.40 for a two-phase beat. **Longer than
+1.3 outside a beat is a hole, not a pause.**
+
+**Music: `assets/brand/music/` is one library for both sites.** The tracks are
+brand-neutral and the user's call is that a bed picked by ear beats a generated
+one that only measures correctly. `music.track("night-drift")` is on both
+channels now. Add another with `music.prepare_track`, which trims both ends —
+untrimmed encoder delay becomes a hole in the bed once per loop.
+
+**A ping-pong background must not fold at frame zero.** `pingpong` now drops one
+frame from each end of the reversed half and `Backdrop.at` samples from a
+quarter of the loop in, because a palindrome's turnaround is the one moment
+motion stops and every video was opening on one. Only the crypto water was
+affected — the aurora is generated on closed circular paths and has no fold —
+but re-measure any new footage background the same way: step series over the
+whole loop including the wrap, minimum must not land at a fold.
+
+**Check phonemes with espeak rather than guessing.** Kokoro phonemizes through
+espeak-ng, so `espeak-ng -v en-us -q --ipa "<word>"` is the whole check. It
+caught a brand name that shipped mispronounced. Put any respelling in the
+**spoken** half of a `(caption, spoken)` pair so the screen still reads
+correctly.
+
+**Thumbnails: three checks, every time.** The subject fits — no half faces at
+the frame edge, and `_layout` now penalises a crop that cuts a detected face.
+The type is not over the face — in 9:16 there is no search at all, so pass
+`band="bottom"` whenever the head is in the top half of the crop. And the words
+are the script's own words.
+
+**Two beats joined the portrait set**: `logos` (brand tiles, 2x2, optional
+tick/cross badges) and `chapter` (a full-screen statement at 148px, which is the
+strongest way a short can land its closing line). `compare` takes
+`name_columns=True` in landscape, which makes each heading its own revealed item
+so the graphic follows the voice instead of asking the viewer to interpret.
 
 ## Do not
 

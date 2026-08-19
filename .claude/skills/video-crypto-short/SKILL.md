@@ -179,6 +179,58 @@ involved.
 top and its last row off the bottom. `proof-of-work.jpg` is the most on-topic
 file in the crypto library and is unusable for exactly this reason.
 
+## Four beats transfer to 9:16 now, not two
+
+`checklist`, `grid`, `steps`, `bars` — and **`logos` and `chapter`**, added on
+the crypto-exchanges short. Everything else still raises, which is the honest
+answer: the landscape beats lay a content column beside a picture column at
+1920 and have no portrait layout.
+
+**`logos` is the beat for named platforms.** The site owns 27 exchange brand
+cards in `public/images/exchanges/`, and in portrait the beat lays them 2x2
+rather than stacking four (a stacked tile is 240px tall and its wordmark stops
+being readable at arm's length). A third element per item lands a tick or a
+cross into the tile's corner after the names are read, so it keeps the
+checklist's two-phase payoff while being a completely different silhouette.
+
+**A judged lineup needs balanced sides.** The first cut of this short listed
+Coinbase, Binance, Crypto.com and Uniswap and marked three crosses and one
+tick, and the user found it confusing — correctly: with a single tick at the
+end there is nothing to say the tick means *decentralized* rather than "the
+best one". Two and two, with the labels spelling out which is which, makes the
+split the subject. **Check the site actually owns the logo first** — the
+obvious fourth name was PancakeSwap and the site has no card for it, so the
+beat raises rather than drawing a blank tile; `hyperliquid` is the site's own
+second non-custodial exchange and carries real `quickFacts`.
+
+**`chapter` is a full-screen statement, and it is the strongest way a short can
+land its closing line.** It wraps to the frame and centres on both axes; in
+9:16 it sets at 148px rather than the landscape 108, because 108 across 1080 is
+body copy with two thirds of the frame empty around it. It burns no caption
+over itself — `build` already suppresses captions on any shot with a `graphic`
+— so pass the on-screen wording in the *caption* half of a `(caption, spoken)`
+pair and the spoken wording in the other, and the card can be in capitals while
+the voice reads a sentence.
+
+## Silence is punctuation here too
+
+`gap` takes a list, one per sentence, and **leaving every one at 0.34 is what
+"monotone" means**. 0.34 inside a thought, 0.55-0.90 at the end of one, 2.10 for
+a two-phase beat, and ~1.3 after a full-screen statement so it is allowed to
+sit. A forty-second short has less room than a long form and needs the pauses
+more, not less: the pauses are what stop three instructions in a row sounding
+like one sentence.
+
+## A tip needs a reason before it is a tip
+
+The first cut went straight from the custody beat into "turn on two-factor,
+start small, withdraw the rest" and the user's note was that it arrives with no
+introduction. A list of instructions with nothing saying *why* reads as generic
+advice, and generic advice is the thing an explainer is supposed to not be. One
+sentence fixes it, and it should tie back to the beat above rather than being a
+new topic: "You cannot change who holds the keys. You can change how much they
+are holding."
+
 ## The picture
 
 **Blurred-fill layout, because the site's images are small.** Most are 700-1200px
@@ -365,9 +417,29 @@ there is one test that settles it" — built from
 `posts/what-it-actually-takes-to-prove-someone-is-satoshi-nakamoto.mdx`. It works
 because the answer is concrete, surprising, and needs no financial advice.
 
+**Check phonemes with espeak rather than guessing** — Kokoro phonemizes through
+espeak-ng, so `espeak-ng -v en-us -q --ipa "Binance"` is the whole check. It
+returns `baɪnˈæns` (bye-NANCE), which is wrong for the brand and shipped once;
+`Bynanse` returns `bˈaɪnæns`, which is right. Respell in the **spoken** half of
+a `(caption, spoken)` pair so the caption still reads correctly.
+
 **Check phonemes before rendering.** Years are fine (`2009` → "two thousand
 nine"), names are fine (`satoshi nakamoto`), but `ecdsa` comes out `ˈɛkdsə` —
 spell out or avoid any initialism.
+
+## Thumbnail: three checks, every time
+
+1. **Text must not cover the face.** `render_short_thumb` defaults to
+   `band="top"` because the Shorts player puts its chrome along the bottom, and
+   that default is wrong the moment the subject's head is in the top half of the
+   crop — which is most crops of a landscape source. Pass `band="bottom"` and
+   look at the render. The user has now caught this twice.
+2. **The subject fits.** No half faces at the frame edge.
+3. **The words are the script's words.** "Your crypto", not "your coins".
+
+**Match the Short's thumbnail to its long form's**, same source and same
+headline, even where the two videos deliberately cover different ground — the
+pairing and the angle are independent questions.
 
 ## Voice
 

@@ -167,6 +167,34 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
                         if (fx - x0 < hi and fx + fw - x0 > lo
                                 and fy - y0 < H * t1 and fy + fh - y0 > H * t0):
                             score += 1.0      # a face under the type is fatal
+                        # **A face sliced by the crop edge is also fatal.** The
+                        # scorer's only question used to be "is the type on
+                        # quiet pixels", and the cheapest way to make a column
+                        # quiet is to zoom until the subject is mostly outside
+                        # the frame — so it did, and the crypto-exchanges
+                        # thumbnail shipped with half a man's head against the
+                        # left edge. A thumbnail is a promise about who the
+                        # video is about, and half a face is not one.
+                        #
+                        # **Compared against the clamped box, not the raw
+                        # one.** The cascade routinely returns a box running
+                        # off the source — on `futuristic-crypto-exchange.jpg`
+                        # it comes back at y=-53 — and testing the raw box made
+                        # every candidate clipped, so the penalty fired
+                        # uniformly and discriminated between nothing. What
+                        # matters is only what *this crop* cuts that the source
+                        # had.
+                        cx0, cy0 = max(fx, 0), max(fy, 0)
+                        cx1, cy1 = min(fx + fw, nw), min(fy + fh, nh)
+                        if cx1 > cx0 and cy1 > cy0 and (
+                                cx0 < x0 or cx1 > x0 + W
+                                or cy0 < y0 or cy1 > y0 + H):
+                            score += 1.0
+                    # All else equal, take less zoom. Every step up is a step
+                    # further into a 900px source that is already being
+                    # upscaled to 1280, and the scorer has no other reason to
+                    # prefer the tighter crop.
+                    score += 0.02 * (zoom - 1.0)
                     cand = (score, zoom, sc, nw, nh, int(x0), y0, side, vband)
                     if best is None or score < best[0]:
                         best = cand
