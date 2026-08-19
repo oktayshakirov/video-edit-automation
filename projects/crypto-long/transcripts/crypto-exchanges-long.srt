@@ -1,0 +1,555 @@
+1
+00:00:00,000 --> 00:00:01,455
+You bought your first crypto.
+
+2
+00:00:01,455 --> 00:00:03,442
+You can see the balance on the screen.
+
+3
+00:00:03,442 --> 00:00:04,687
+So here is the question
+
+4
+00:00:04,687 --> 00:00:06,655
+almost nobody asks about it.
+
+5
+00:00:06,655 --> 00:00:08,166
+Who is actually holding it?
+
+6
+00:00:08,166 --> 00:00:09,397
+Because on most platforms,
+
+7
+00:00:09,397 --> 00:00:11,116
+the answer is not you.
+
+8
+00:00:11,116 --> 00:00:12,239
+Stay to the end
+
+9
+00:00:12,239 --> 00:00:13,847
+and you will know which of the two kinds
+
+10
+00:00:13,847 --> 00:00:14,459
+you are using,
+
+11
+00:00:14,459 --> 00:00:15,747
+and the one thing to do
+
+12
+00:00:15,747 --> 00:00:17,673
+the moment a trade settles.
+
+13
+00:00:17,673 --> 00:00:18,733
+Start with the number
+
+14
+00:00:18,733 --> 00:00:20,536
+that surprises people most.
+
+15
+00:00:20,536 --> 00:00:21,425
+Zero.
+
+16
+00:00:21,425 --> 00:00:23,664
+That is how many private keys you hold
+
+17
+00:00:23,664 --> 00:00:24,563
+when your coins sit
+
+18
+00:00:24,563 --> 00:00:26,445
+on a centralized exchange.
+
+19
+00:00:26,445 --> 00:00:28,501
+The company holds every one of them.
+
+20
+00:00:28,501 --> 00:00:31,239
+So what is an exchange, actually?
+
+21
+00:00:31,239 --> 00:00:33,189
+An exchange is a marketplace.
+
+22
+00:00:33,189 --> 00:00:35,000
+Nothing more mysterious than that.
+
+23
+00:00:35,000 --> 00:00:36,969
+It matches somebody who wants to buy
+
+24
+00:00:36,969 --> 00:00:38,795
+with somebody who wants to sell,
+
+25
+00:00:38,795 --> 00:00:39,918
+and takes a small cut
+
+26
+00:00:39,918 --> 00:00:41,322
+for standing in the middle.
+
+27
+00:00:41,322 --> 00:00:43,243
+It is also where the price comes from,
+
+28
+00:00:43,243 --> 00:00:44,761
+and where liquidity lives.
+
+29
+00:00:44,761 --> 00:00:45,990
+Liquidity just means
+
+30
+00:00:45,990 --> 00:00:47,757
+there are enough buyers and sellers
+
+31
+00:00:47,757 --> 00:00:48,954
+that your order fills
+
+32
+00:00:48,954 --> 00:00:51,252
+at roughly the price you expected.
+
+33
+00:00:51,252 --> 00:00:52,615
+But how that middle is built
+
+34
+00:00:52,615 --> 00:00:54,412
+is where the two families split.
+
+35
+00:00:54,412 --> 00:00:55,829
+One of them is a company.
+
+36
+00:00:55,829 --> 00:00:57,575
+The other is a piece of code.
+
+37
+00:00:57,575 --> 00:00:58,792
+And that single difference
+
+38
+00:00:58,792 --> 00:01:00,806
+decides everything else about them.
+
+39
+00:01:00,806 --> 00:01:03,683
+A company, or a smart contract?
+
+40
+00:01:03,683 --> 00:01:05,994
+A centralized exchange is a business.
+
+41
+00:01:05,994 --> 00:01:08,795
+Coinbase. Binance. Crypto.com.
+
+42
+00:01:08,795 --> 00:01:10,157
+It runs an order book,
+
+43
+00:01:10,157 --> 00:01:11,371
+it checks who you are,
+
+44
+00:01:11,371 --> 00:01:12,318
+and it keeps your coins
+
+45
+00:01:12,318 --> 00:01:14,074
+in wallets that it controls.
+
+46
+00:01:14,074 --> 00:01:15,732
+A decentralized exchange
+
+47
+00:01:15,732 --> 00:01:17,455
+has no company in it at all.
+
+48
+00:01:17,455 --> 00:01:18,842
+You connect your own wallet,
+
+49
+00:01:18,842 --> 00:01:20,824
+a smart contract does the swap,
+
+50
+00:01:20,824 --> 00:01:22,876
+and your keys never leave your hands.
+
+51
+00:01:22,876 --> 00:01:25,430
+Most of them do not even run an order book.
+
+52
+00:01:25,430 --> 00:01:27,005
+You trade against a pool of coins
+
+53
+00:01:27,005 --> 00:01:28,384
+that other users put there,
+
+54
+00:01:28,384 --> 00:01:30,432
+and those users take the fees.
+
+55
+00:01:30,432 --> 00:01:31,559
+So look at what each one
+
+56
+00:01:31,559 --> 00:01:32,856
+actually hands you.
+
+57
+00:01:32,856 --> 00:01:34,841
+Deep liquidity and fast fills.
+
+58
+00:01:34,841 --> 00:01:36,577
+Cash in, and cash out.
+
+59
+00:01:36,577 --> 00:01:38,004
+The company holds your keys.
+
+60
+00:01:38,004 --> 00:01:39,026
+You keep your keys.
+
+61
+00:01:39,026 --> 00:01:40,421
+No identity check.
+
+62
+00:01:40,421 --> 00:01:42,437
+Thinner markets, and network fees.
+
+63
+00:01:42,437 --> 00:01:44,208
+Neither column is the winner.
+
+64
+00:01:44,208 --> 00:01:44,930
+They are answers
+
+65
+00:01:44,930 --> 00:01:46,562
+to two different questions.
+
+66
+00:01:46,562 --> 00:01:48,679
+What is a trading pair?
+
+67
+00:01:48,679 --> 00:01:50,514
+One thing confuses every beginner,
+
+68
+00:01:50,514 --> 00:01:52,678
+and it is written on every screen.
+
+69
+00:01:52,678 --> 00:01:55,267
+You will see it written as BTC / USD.
+
+70
+00:01:55,267 --> 00:01:57,161
+The first one is what you are buying.
+
+71
+00:01:57,161 --> 00:01:59,204
+The second is what you are paying with.
+
+72
+00:01:59,204 --> 00:02:00,893
+That is the whole idea.
+
+73
+00:02:00,893 --> 00:02:02,370
+A price only means something
+
+74
+00:02:02,370 --> 00:02:04,069
+measured against something else.
+
+75
+00:02:04,069 --> 00:02:05,807
+And they come in three kinds.
+
+76
+00:02:05,807 --> 00:02:07,395
+Crypto against real money.
+
+77
+00:02:07,395 --> 00:02:09,398
+Crypto against other crypto.
+
+78
+00:02:09,398 --> 00:02:11,517
+Crypto against a stablecoin.
+
+79
+00:02:11,517 --> 00:02:13,195
+Which pairs a platform offers
+
+80
+00:02:13,195 --> 00:02:15,001
+decides what you can buy directly,
+
+81
+00:02:15,001 --> 00:02:16,871
+and what costs you three trades
+
+82
+00:02:16,871 --> 00:02:18,357
+and three sets of fees.
+
+83
+00:02:18,357 --> 00:02:21,066
+Not your keys, not your coins
+
+84
+00:02:21,066 --> 00:02:23,269
+Now the part that catches people out.
+
+85
+00:02:23,269 --> 00:02:24,549
+The friendlier platform
+
+86
+00:02:24,549 --> 00:02:26,372
+is the one where you own nothing.
+
+87
+00:02:26,372 --> 00:02:28,816
+A centralized exchange feels safe.
+
+88
+00:02:28,816 --> 00:02:30,116
+There is a support line.
+
+89
+00:02:30,116 --> 00:02:31,479
+There is a password reset.
+
+90
+00:02:31,479 --> 00:02:33,443
+It looks like online banking.
+
+91
+00:02:33,443 --> 00:02:35,198
+But those are exactly the features
+
+92
+00:02:35,198 --> 00:02:36,660
+that require somebody else
+
+93
+00:02:36,660 --> 00:02:38,100
+to be holding the keys.
+
+94
+00:02:38,100 --> 00:02:39,297
+Your balance is a row
+
+95
+00:02:39,297 --> 00:02:41,122
+in that company's database.
+
+96
+00:02:41,122 --> 00:02:43,298
+The coins behind it sit in their wallets,
+
+97
+00:02:43,298 --> 00:02:45,357
+pooled with everybody else's.
+
+98
+00:02:45,357 --> 00:02:47,083
+There is an old line about this
+
+99
+00:02:47,083 --> 00:02:48,979
+and it has outlasted every exchange
+
+100
+00:02:48,979 --> 00:02:50,031
+that ignored it.
+
+101
+00:02:50,031 --> 00:02:54,040
+Not your keys, not your coins.
+
+102
+00:02:54,040 --> 00:02:55,419
+So do not treat an exchange
+
+103
+00:02:55,419 --> 00:02:56,633
+like a bank account.
+
+104
+00:02:56,633 --> 00:02:58,341
+It is a place you pass through.
+
+105
+00:02:58,341 --> 00:03:00,631
+So how do you choose one?
+
+106
+00:03:00,631 --> 00:03:01,946
+Before you trust any platform
+
+107
+00:03:01,946 --> 00:03:03,165
+with a single coin,
+
+108
+00:03:03,165 --> 00:03:04,931
+run the same five checks.
+
+109
+00:03:04,931 --> 00:03:07,345
+Two-factor authentication from an app.
+
+110
+00:03:07,345 --> 00:03:10,429
+Most coins held offline, in cold storage.
+
+111
+00:03:10,429 --> 00:03:12,369
+A licence in a country you have heard of.
+
+112
+00:03:12,369 --> 00:03:14,692
+Fees you can find without hunting.
+
+113
+00:03:14,692 --> 00:03:18,328
+A history you can look up.
+
+114
+00:03:18,328 --> 00:03:19,115
+Miss one of those
+
+115
+00:03:19,115 --> 00:03:21,047
+and you are not choosing an exchange.
+
+116
+00:03:21,047 --> 00:03:22,222
+You are hoping.
+
+117
+00:03:22,222 --> 00:03:23,289
+And once you are in,
+
+118
+00:03:23,289 --> 00:03:25,152
+four habits do most of the work.
+
+119
+00:03:25,152 --> 00:03:27,049
+Turn the two-factor on first.
+
+120
+00:03:27,049 --> 00:03:29,395
+Start with an amount you can afford to lose.
+
+121
+00:03:29,395 --> 00:03:32,038
+Learn limit orders before market orders.
+
+122
+00:03:32,038 --> 00:03:33,515
+Then move what you are not trading
+
+123
+00:03:33,515 --> 00:03:34,788
+off the platform.
+
+124
+00:03:34,788 --> 00:03:36,874
+A limit order waits for your price.
+
+125
+00:03:36,874 --> 00:03:39,178
+A market order takes whatever is there.
+
+126
+00:03:39,178 --> 00:03:40,743
+That difference costs beginners
+
+127
+00:03:40,743 --> 00:03:42,046
+more than the fees do.
+
+128
+00:03:42,046 --> 00:03:44,232
+So — back to the balance on your screen.
+
+129
+00:03:44,232 --> 00:03:45,316
+The question was never
+
+130
+00:03:45,316 --> 00:03:47,192
+which exchange is the best one.
+
+131
+00:03:47,192 --> 00:03:51,543
+It is: who is holding it right now?
+
+132
+00:03:51,543 --> 00:03:52,239
+Know that,
+
+133
+00:03:52,239 --> 00:03:53,056
+and you already know
+
+134
+00:03:53,056 --> 00:03:54,771
+whether it should still be sitting there.
+
+135
+00:03:54,771 --> 00:03:56,919
+The full comparison and the platform reviews
+
+136
+00:03:56,919 --> 00:03:58,227
+are linked below —
+
+137
+00:03:58,227 --> 00:04:00,662
+and nothing here is financial advice.
+
+138
+00:04:00,662 --> 00:04:01,772
+If that was useful,
+
+139
+00:04:01,772 --> 00:04:04,723
+subscribe for more videos like this one.
