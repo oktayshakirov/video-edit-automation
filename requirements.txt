@@ -10,6 +10,11 @@ kokoro-onnx                # Kokoro-82M, Apache 2.0, local and unlimited. The
 edge-tts                   # free Microsoft neural voices, no API key. Fallback
                            # for when a networked voice is wanted; not default
                            # because it is a network call and can be throttled.
+PyYAML==6.0.2              # crypto-wiki MDX frontmatter — `crypto/facts.py`.
+                           # A hand parser was the first plan and is wrong here:
+                           # the site's own values carry quoted colons
+                           # ("Nasdaq: COIN") and semicolon-separated clauses,
+                           # which is exactly where naive splitting breaks.
 Pillow==12.3.0             # text rendering for vertical exports (this ffmpeg
                            # has no libfreetype, so drawtext is unavailable;
                            # OpenCV only offers Hershey vector fonts)
