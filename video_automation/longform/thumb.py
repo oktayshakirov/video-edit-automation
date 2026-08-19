@@ -44,7 +44,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 from ..core.brand import Brand
-from ..core.draw import wrap
+from ..core.draw import cover, wrap
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
 W, H = 1280, 720                # what YouTube wants; also under the 2MB limit
@@ -827,6 +827,54 @@ def _arrow(d: ImageDraw.ImageDraw, start: tuple[float, float],
 # --- vertical thumbnails, for Shorts -------------------------------------
 
 VW, VH = 1080, 1920
+
+
+def render_video_poster(out: Path, source: Path, size: tuple[int, int] = (W, H)
+                        ) -> Path:
+    """The `videos.json` poster: a 1280x720 WebP for every upload, long or short.
+
+    **Landscape and vertical thumbnails need opposite treatment, and this
+    function is what makes that automatic rather than a thing to remember per
+    upload.** A long-form thumbnail is already 1280x720 - `render_thumb`'s own
+    output - so it only needs a format change. A Short's thumbnail is
+    1080x1920, and the feed card that shows it (`PostVideo`, and the /videos
+    grid) is a fixed 16:9 slot: naively stretching a 9:16 image into 16:9
+    distorts every face and every letter in it.
+
+    So a portrait source is centred at its own aspect ratio - scaled to the
+    slot's height, which is `405px` wide inside a `1280px` frame for the
+    standard 1080x1920 short - and the bars either side are filled with a
+    blurred, darkened, zoomed copy of the same image rather than flat colour.
+    That is the same "blurred backdrop, sharp subject" move `PhotoShot` makes
+    for an undersized site photograph, arriving at the poster for the same
+    underlying reason: **empty space reads as broken, texture reads as
+    intentional.** `saylor-treasury-short.webp` set the convention by hand;
+    this is that same result, reproducible.
+    """
+    W_, H_ = size
+    src = Image.open(source).convert("RGB")
+
+    if src.width >= src.height:
+        # Landscape: already the right shape, no letterboxing needed.
+        base = cover(src, W_, H_)
+    else:
+        # Portrait: the backdrop is a full-bleed cover crop, blurred and
+        # darkened so it reads as texture rather than as the subject doubled.
+        backdrop = cover(src, W_, H_).filter(ImageFilter.GaussianBlur(28))
+        backdrop = ImageEnhance.Brightness(backdrop).enhance(0.38)
+        base = backdrop.convert("RGB")
+
+        # The sharp centre strip: the source at its own aspect, scaled to the
+        # slot's full height. A hard edge against the blur reads as a frame,
+        # which is the point - it is the same gold-hairline logic as a
+        # `PhotoShot` card, just without the drawn line.
+        cw = max(1, int(round(H_ * src.width / src.height)))
+        strip = src.resize((cw, H_), Image.LANCZOS)
+        base.paste(strip, ((W_ - cw) // 2, 0))
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    base.save(out, format="WEBP", quality=88)
+    return out
 
 
 def render_short_thumb(out: Path, brand: Brand, headline: str,

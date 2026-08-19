@@ -75,20 +75,15 @@ VOICE = "mia"                   # female, af_heart. Matches the long form from
 # *decentralized* rather than "best one". A balanced pair of pairs makes the
 # split the subject.
 #
-# **PancakeSwap now, and it is the one item not driven by `facts.py`.** The
-# user added `exchanges/pancakeswap.webp` to the site, so the logo exists — but
-# there is no `content/exchanges/pancakeswap.mdx`, so there is no `quickFacts`
-# block to read and `F.load` raises. Its verdict is therefore written here, and
-# written as narrowly as the others: PancakeSwap is an automated market maker
-# where a swap happens between the user's own wallet and a liquidity pool, so
-# non-custodial is a statement about the mechanism rather than an opinion about
-# the platform. **If the site ever gains the page, delete the literal and let
-# `F.compare` cover all four** — every other row on screen is the site's own
-# maintained data and this one should be too.
+# **PancakeSwap, driven by `facts.py` like the other three.** The site gained
+# `content/exchanges/pancakeswap.mdx` between the first draft of this script and
+# the rebuild — its own `quickFacts.custody` reads "Non-custodial; users trade
+# directly from their own wallet" — so the row is the site's maintained data
+# again rather than a literal written here. All four rows now come from the
+# same source, which is the property this beat is supposed to have.
 PICKS = ("coinbase", "binance", "uniswap", "pancakeswap")
-CUSTODY = F.compare([F.load("exchanges", s) for s in PICKS[:3]],
+CUSTODY = F.compare([F.load("exchanges", s) for s in PICKS],
                     "custody", F.contains("non-custodial"))
-CUSTODY.append(("PancakeSwap", True))
 
 # One tuple per sentence; each string is one caption. The logos beat must have
 # exactly one caption per tile — that is what times its reveals.

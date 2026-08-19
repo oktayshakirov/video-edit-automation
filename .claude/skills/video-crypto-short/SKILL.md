@@ -10,6 +10,17 @@ Shared with the drone and tinnitus projects. Renders go to the Desktop.
 
 **Source content:** `~/Coding/crypto-wiki` — 60 posts, 27 exchanges, 33 crypto-ogs.
 
+## After upload: same pipeline as the long form
+
+**Unlike tinnitus, a crypto Short does not stay YouTube-only.** It goes
+through metadata, the site registry and the Share Video workflow exactly like
+the long form - see "The order of the whole job" in `video-crypto-long`'s
+SKILL.md, which is the canonical copy since most pairs are built and shipped
+together. The one crypto-specific difference from a long: the short's
+`videos.json` entry keeps `target: null, placement: "none"` - it shows in the
+`/videos` feed and nowhere else, per `docs/site-video-integration.md`'s
+"shorts do not embed on articles" decision.
+
 ## Built
 
 `video_automation/crypto/` — a photo-driven short assembled from the site's own
