@@ -64,10 +64,18 @@ From each site's own `views.json`, which measures **SEO demand, not video
 appeal**. Same caveat the crypto skill already carries: this says what people
 search for, not what they will watch.
 
+**Done so far, in ranking order:** `how-to-build-a-mining-rig` (1510),
+`understanding-crypto-exchanges` (1038) and, off-ranking,
+`crypto-ogs/michael-saylor` and the Satoshi proof post. Next by demand is
+`exchanges/cryptocom` (380) — note it is an *exchange* page rather than a post,
+so it is the first one that would be a review rather than an explainer, and
+that is a format question worth settling before building it. `crypto-ogs/satoshi-nakamoto` (372) is
+already covered by the proof video on a different page.
+
 | thecrypto.wiki | views | tinnitushelp.me | views |
 |---|---|---|---|
-| posts/how-to-build-a-mining-rig | 1510 | blog/celebrities-with-tinnitus | 482 |
-| posts/understanding-crypto-exchanges | 1038 | blog/the-gamers-guide-to-preventing-tinnitus | 351 |
+| posts/how-to-build-a-mining-rig | 1510 **done** | blog/celebrities-with-tinnitus | 482 |
+| posts/understanding-crypto-exchanges | 1038 **done** | blog/the-gamers-guide-to-preventing-tinnitus | 351 **done** |
 | exchanges/cryptocom | 380 | blog/tinnitus-in-history | 279 |
 | crypto-ogs/satoshi-nakamoto | 372 | blog/pulsatile-tinnitus-why-you-hear-your-heartbeat | 257 |
 | posts/crypto-etfs-explained | 362 | zen/morning-sounds | 256 |
