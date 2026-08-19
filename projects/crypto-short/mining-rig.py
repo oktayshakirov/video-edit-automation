@@ -41,7 +41,7 @@ risers directly from the supply, never through a drive-connector adapter.
 
 Run from the repo root:
 
-    PYTHONPATH=. .venv/bin/python projects/crypto/mining-rig.py
+    PYTHONPATH=. .venv/bin/python projects/crypto-short/mining-rig.py
 """
 
 from pathlib import Path

@@ -30,7 +30,7 @@ promising a result.
 
 Run from the repo root:
 
-    PYTHONPATH=. .venv/bin/python projects/tinnitus/gaming-and-tinnitus.py
+    PYTHONPATH=. .venv/bin/python projects/tinnitus-short/gaming-and-tinnitus.py
 """
 
 from pathlib import Path
