@@ -55,6 +55,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_side: str | None = None,
                 thumb_crop_at: tuple[float, float] | None = None,
                 thumb_crop_zoom: float = 1.0,
+                thumb_shift: float = 0.0,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 sound: bool = True, fps: int = 30,
                 # Intermediates are deleted on success. See the note at the end
@@ -101,6 +102,13 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         starts = [captions[first_cap[si] + k].start
                   for si in group for k in range(len(sentences[si]))]
         reveal_times(sh, starts, n)
+        # `logos` carries optional verdicts on the same two-phase clock. Only
+        # when the items actually have one — a plain lineup has no marks and
+        # must not get a mark *sound* either.
+        if (sh.marks is None and sh.graphic == "logos"
+                and any(len(it) > 2 and it[2] is not None
+                        for it in sh.payload[0])):
+            sh.marks = mark_times(starts[-1], sh.start + sh.hold, n)
         if sh.marks is None and sh.graphic == "checklist":
             # `flow` marks each item as it is spoken, because the narration is
             # already saying "not a court ruling" — the cross confirms the word
@@ -213,7 +221,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         thumb = out.with_name(out.stem + "-thumb.jpg")
         render_thumb(thumb, brand, thumb_headline, image=thumb_image,
                      accent=thumb_accent, side=thumb_side,
-                     crop_at=thumb_crop_at, crop_zoom=thumb_crop_zoom)
+                     crop_at=thumb_crop_at, crop_zoom=thumb_crop_zoom,
+                     shift=thumb_shift)
         made["thumb"] = thumb
 
     if meta is not None:
@@ -281,10 +290,15 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             end = sh.start + sh.hold
             if end < total - 0.4:
                 cues.append((end - 0.18, "whoosh"))
-        elif sh.graphic in ("checklist", "compare", "stat", "quote"):
+        elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos"):
             for t in (sh.reveals or [])[:8]:
                 cues.append((t, "reveal"))
-        if sh.graphic == "checklist" and sh.marks:
-            for t, (_, ok) in zip(sh.marks, sh.payload[0]):
-                cues.append((t, "tick" if ok else "cross"))
+        if sh.graphic in ("checklist", "logos") and sh.marks:
+            # The verdict is the item's **last** element whatever the beat: a
+            # checklist row is `(text, ok)` and a logo tile is
+            # `(slug, label, ok)`, so unpacking a fixed shape raises on one of
+            # them.
+            for t, item in zip(sh.marks, sh.payload[0]):
+                if item[-1] is not None:
+                    cues.append((t, "tick" if item[-1] else "cross"))
     return [(t, k) for t, k in cues if 0.0 <= t < total]

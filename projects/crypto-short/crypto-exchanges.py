@@ -75,15 +75,20 @@ VOICE = "mia"                   # female, af_heart. Matches the long form from
 # *decentralized* rather than "best one". A balanced pair of pairs makes the
 # split the subject.
 #
-# **Hyperliquid, not PancakeSwap.** The user asked for PancakeSwap and the
-# site does not have it — `public/images/exchanges/` holds 27 brand cards and
-# PancakeSwap is not among them, and the article links it externally rather
-# than owning a page for it. Hyperliquid is the site's own second
-# non-custodial exchange, with its own page, its own `quickFacts` and its own
-# card, so the beat stays driven by data the site maintains.
-PICKS = ("coinbase", "binance", "uniswap", "hyperliquid")
-CUSTODY = F.compare([F.load("exchanges", s) for s in PICKS],
+# **PancakeSwap now, and it is the one item not driven by `facts.py`.** The
+# user added `exchanges/pancakeswap.webp` to the site, so the logo exists — but
+# there is no `content/exchanges/pancakeswap.mdx`, so there is no `quickFacts`
+# block to read and `F.load` raises. Its verdict is therefore written here, and
+# written as narrowly as the others: PancakeSwap is an automated market maker
+# where a swap happens between the user's own wallet and a liquidity pool, so
+# non-custodial is a statement about the mechanism rather than an opinion about
+# the platform. **If the site ever gains the page, delete the literal and let
+# `F.compare` cover all four** — every other row on screen is the site's own
+# maintained data and this one should be too.
+PICKS = ("coinbase", "binance", "uniswap", "pancakeswap")
+CUSTODY = F.compare([F.load("exchanges", s) for s in PICKS[:3]],
                     "custody", F.contains("non-custodial"))
+CUSTODY.append(("PancakeSwap", True))
 
 # One tuple per sentence; each string is one caption. The logos beat must have
 # exactly one caption per tile — that is what times its reveals.
@@ -114,7 +119,7 @@ SENTENCES = [
 
     ("The first two hold your keys for you.",
      "The other two cannot.",
-     "That is centralized against decentralized."),
+     "That is the whole split."),
 
     # **The tip needs a reason before it is a tip.** The user's note was that
     # the three habits arrived with no introduction — a list of instructions
@@ -132,6 +137,12 @@ SENTENCES = [
      "Keep only what you are trading on there.",
      "Move the rest to a wallet you control."),
 
+    # **The card needs a line handing off to it.** A full-screen statement that
+    # arrives with nothing in front of it reads as a title card dropped into
+    # the middle of the video; one sentence turns it into the thing the video
+    # has been building toward. Same note the three habits got.
+    ("Always remember the golden rule.",),
+
     # **A full-screen statement, not a caption over footage.** The line is the
     # whole argument and the user asked for it big. A `chapter` beat in 9:16
     # wraps to three lines at 148px and burns no caption over itself, because
@@ -139,7 +150,11 @@ SENTENCES = [
     (("NOT YOUR KEYS, NOT YOUR COINS.",
       "Not your keys, not your coins."),),
 
-    ("So — who is holding yours?",),
+    # **A hyphen, never an em or en dash.** The user's rule, for every video:
+    # a dash set as "—" reads as a typographic flourish in a burned caption and
+    # at caption size the long rule is easy to mistake for a stray mark. Only
+    # "-" goes on screen.
+    ("So - who is holding yours?",),
 ]
 
 SHOTS = [
@@ -161,14 +176,15 @@ SHOTS = [
     Shot(image=POSTS / "security-combination-lock.jpg",
          zoom=1.10, pan=(-0.02, 0.01), aspect=1.15, bias=0.45),
 
-    # 5 — the beat: the site's own brand cards in a 2x2, with the custody
-    # verdict landing into each tile's corner in the pause afterwards.
+    # 5 — the beat: the site's own brand cards in one column, under a heading
+    # per group, with the custody verdict landing into each tile's corner in
+    # the pause afterwards. **The headings replace the per-tile labels** — with
+    # "CENTRALIZED" standing over the pair, "they hold" under each card is the
+    # same fact said twice, and the column has less room than the 2x2 did.
     Shot(graphic="logos",
-         payload=([(PICKS[0], "They hold", CUSTODY[0][1]),
-                   (PICKS[1], "They hold", CUSTODY[1][1]),
-                   (PICKS[2], "You hold", CUSTODY[2][1]),
-                   (PICKS[3], "You hold", CUSTODY[3][1])],
-                  "WHO HOLDS THE KEYS?"),
+         payload=([(slug, "", ok) for slug, (_, ok) in zip(PICKS, CUSTODY)],
+                  "WHO HOLDS THE KEYS?",
+                  [("Centralized", 2), ("Decentralized", 2)]),
          backdrop=POSTS / "laptop-trading.jpg"),
 
     Shot(clip=CANDLE, clip_at=1.0),
@@ -184,7 +200,12 @@ SHOTS = [
                   "DO THIS TODAY"),
          backdrop=POSTS / "global-map.jpg"),
 
-    # 9 — the line, full screen.
+    # 9 — the hand-off into the card, on the gold lock: the picture the beat
+    # about custody already used, so the echo is visual as well as verbal.
+    Shot(image=POSTS / "security-combination-lock.jpg",
+         zoom=1.12, pan=(0.02, -0.01), aspect=1.15, bias=0.45),
+
+    # 10 — the line, full screen.
     Shot(graphic="chapter", payload=("NOT YOUR KEYS, NOT YOUR COINS.",)),
 
     # 10 — the ask, on something uncluttered and moving again.
@@ -193,7 +214,7 @@ SHOTS = [
 
 
 EMOJI = {
-    "So — who is holding yours?": "\U0001F447",
+    "So - who is holding yours?": "\U0001F447",
 }
 
 # **Pauses are punctuation.** The first cut ran 0.34 everywhere except the two
@@ -204,7 +225,7 @@ EMOJI = {
 # `steps` (index 7) takes 0.90 — a beat whose sentence is short is otherwise
 # gone in under two seconds — and the statement card (index 8) takes 1.30,
 # because a line that fills the screen has to be allowed to sit there.
-GAPS = [0.60, 0.80, 0.55, 0.90, 2.10, 0.80, 0.70, 0.90, 1.30, 0.34]
+GAPS = [0.60, 0.80, 0.55, 0.90, 2.10, 0.80, 0.70, 0.90, 0.70, 1.30, 0.34]
 
 
 def main() -> None:

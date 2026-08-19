@@ -212,6 +212,44 @@ over itself — `build` already suppresses captions on any shot with a `graphic`
 pair and the spoken wording in the other, and the card can be in capitals while
 the voice reads a sentence.
 
+## Only a hyphen goes on screen
+
+**Never an em or en dash in a spoken line or a caption.** The user's rule, for
+every video on every channel: write `-`. At caption size a long rule is easy to
+read as a stray mark, and it is a typographic flourish in a place that wants
+plain type. It also survives being pasted into a YouTube description, a TikTok
+caption and the site's transcript unchanged, which "—" does not always.
+
+This applies to the script's own strings, not to prose in a docstring.
+
+## A statement card needs a line handing off to it
+
+A full-screen `chapter` card that arrives with nothing in front of it reads as a
+title card dropped into the middle of the video. One sentence turns it into the
+thing the piece has been building toward — "Always remember the golden rule."
+before "Not your keys, not your coins." This is the same note the instruction
+list got, and it generalises: **anything that changes the register of the video
+needs a sentence saying why it is happening.**
+
+## `logos` groups, when the split is the point
+
+`payload=(items, title, groups)` where `groups` is `[(heading, count), ...]`.
+It puts a centred heading over each run and forces a single column, and the
+heading arrives with its own first tile rather than at f=0 — same reasoning as
+`compare(name_columns=True)`. Two crosses and two ticks in a 2x2 still leave the
+viewer inferring what the sides mean; `CENTRALIZED` over the first pair and
+`DECENTRALIZED` over the second says it. **Drop the per-tile labels when you
+group** — with a heading standing over the pair, "they hold" under each card is
+the same fact twice, and the column has less room than the grid did.
+
+**Marks only exist for beats `build` knows carry verdicts.** `logos` was added
+with tick/cross badges and they rendered perfectly in an isolated draw and never
+once in a built short, because the mark times were computed for `checklist`
+alone and `marks` stayed None. If a new beat takes verdicts, wire it into both
+`crypto/build.py` and `longform/build.py`, and read the verdict as the item's
+**last** element — a checklist row is `(text, ok)` and a logo tile is
+`(slug, label, ok)`, so the cue builder's fixed unpack raises on one of them.
+
 ## Silence is punctuation here too
 
 `gap` takes a list, one per sentence, and **leaving every one at 0.34 is what
