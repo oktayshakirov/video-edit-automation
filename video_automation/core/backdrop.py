@@ -109,12 +109,14 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
     return np.clip(out, 0, 1)
 
 
-# The tinnitus background. Purples out of the app's own palette — `panel`
-# #5B3964 and the void it sits in — with one peach blob at low strength so the
-# brand's highlight appears somewhere in the field rather than only on the type.
-# Five blobs on coprime turn counts (1, 2, 3), so the composition genuinely
-# changes across the loop rather than sliding back and forth.
-TINNITUS_AURORA = dict(
+# **Retired, and kept only as a worked example of a generated spec.**
+# `tinnitus-aurora` shipped as the tinnitus background and the user's call was
+# that it is the purple they had already said they did not want. It is replaced
+# by `tinnitus-violet`, a ping-pong of a mesh-gradient clip they supplied, and
+# the asset is deleted rather than left in the folder for somebody to point a
+# brand at again. Nothing reads this dict; `generate()` still works and this is
+# the reference for its argument shape.
+_RETIRED_TINNITUS_AURORA = dict(
     base=(10, 6, 15),
     blobs=[
         # cx    cy   radius turns phase  colour           strength sigma

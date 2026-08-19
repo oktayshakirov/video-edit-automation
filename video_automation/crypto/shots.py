@@ -33,6 +33,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from ..core import backdrop
 from ..core.brand import CRYPTO, Brand
 from ..core.draw import cover as _cover
 from ..core.draw import ease_out as _ease_out
@@ -83,6 +84,11 @@ class Shot:
                                         # split layout — see longform/beats.py
     clip: Path | None = None            # a video file — see longform/clip.py
     clip_at: float = 0.0                # seconds to skip into that clip
+    note: tuple[str, str] | None = None  # a small figure card on a clip —
+                                        # ("92 dB", "music over a train").
+                                        # See `longform/clip.py`; this is the
+                                        # quiet sibling of `payload`'s big
+                                        # centred statement.
     reveals: list[float] | None = None  # absolute times, one per checklist item
     marks: list[float] | None = None    # when each item's verdict lands
     zoom: float = 1.12                  # Ken Burns travel over the whole shot
@@ -396,21 +402,35 @@ class ChecklistShot:
             # afford a backdrop with something visible in it.
             self.back = (np.asarray(im) * 0.5).astype(np.uint8)
 
+    def at(self, f: float) -> float:
+        """This beat's `f` as an absolute timeline second."""
+        return self.start + f * self.hold
+
     def draw(self, f: float) -> Image.Image:
         fr, br = self.frame, self.brand
+        bg = backdrop.get(br.backdrop)
         if self.back is not None:
             out = Image.fromarray(self.back.copy())
+        elif bg is not None:
+            # **The brand background, not a ruled grid.** This beat was the
+            # last drawn object still painting `int((f * 40) % 96)` lines - the
+            # whole-pixel drift that `core/backdrop.py` exists to have removed,
+            # and the graph paper that was behind every beat on both channels.
+            # It was missed when the rest moved because `render_shots` builds
+            # it directly rather than through `longform.beats`, so it never saw
+            # a `Brand.backdrop`; the visible symptom was a short whose
+            # `checklist` drew a navy grid and whose `bars` ten seconds later
+            # drew the brand's own loop.
+            #
+            # **Sampled by timeline seconds like everywhere else** - `at(f)`
+            # here, not `f` - so the loop runs at one rate across the video and
+            # carries through a cut instead of restarting inside every beat.
+            out = Image.fromarray(bg.at(self.at(f), fr.w, fr.h))
         else:
+            # The flat panel remains the fallback, so a brand that declares no
+            # background still renders.
             out = Image.new("RGB", fr.size, br.bg)
         d = ImageDraw.Draw(out)
-
-        # A faint grid in the brand's own tint, drifting, so the beat still has
-        # motion in it.
-        step, off = 96, int((f * 40) % 96)
-        for gx in range(-96 + off, fr.w + 96, step):
-            d.line([(gx, 0), (gx, fr.h)], fill=br.grid, width=2)
-        for gy in range(-96 + off, fr.h + 96, step):
-            d.line([(0, gy), (fr.w, gy)], fill=br.grid, width=2)
 
         n = len(self.items)
         top = fr.h // 2 - (n * 124) // 2

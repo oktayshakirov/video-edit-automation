@@ -110,7 +110,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # avoids by suppressing captions. The caption is the statement here.
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
-                         label=None, begin=shot.clip_at)
+                         label=None, note=shot.note, begin=shot.clip_at)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter"):
         # **These three are portrait-safe.** `Grid` drops to one
         # column up to four items and `Steps` turns its track ninety degrees;
@@ -161,6 +161,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         font_size: int = 46, y_frac: float = 0.70,
                         emoji: dict[str, str] | None = None,
                         sound: bool = True,
+                        music: "str | Path | None" = None,
+                        music_gain: float = 1.0,
                         fps: int = 30,
                         keep_work: bool = False,
                         frame: Frame = VERTICAL,
@@ -175,6 +177,19 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     are what a viewer scrolls away during. Pass a list to buy one beat more
     room than the others — a checklist needs the silence after its last option
     for the verdicts to land in.
+
+    **`music` is the same argument `render_long` takes** — a `core.music`
+    preset name, a path to a track, or None. Long form has had a bed since it
+    was built and the shorts never did, which was a gap rather than a decision:
+    both tinnitus short skills recorded it as "requested and not yet built".
+    The user's call is that every short gets one from here on.
+
+    It matters more here than in long form, not less. A short opens with no
+    lead-in silence and is judged in its first second; forty seconds of a
+    synthesised voice over silence sounds like a voice memo, and the bed is
+    most of what makes it sound produced. It also covers the written pauses —
+    which is the point of the sidechain rather than a static mix, since the
+    pauses are now deliberate and long.
     """
     workdir.mkdir(parents=True, exist_ok=True)
     track, captions, total = build_narration_aligned(
@@ -313,6 +328,21 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 if item[-1] is not None]
         if cues:
             track = sfx.mix(track, workdir / "track-sfx.wav", cues)
+
+    # **The bed, sidechained under the voice** — the same path `render_long`
+    # uses, so a long video and the Short from the same post sit on the same
+    # track at the same relative level rather than being mixed twice by hand.
+    if music:
+        from ..longform import audio as audio_mod
+        from ..core import music as music_mod
+        if isinstance(music, str) and music in music_mod.PRESETS:
+            src = music_mod.write(workdir / "bed-src.wav", total + 4, music)
+        else:
+            src = Path(music)
+        bed = audio_mod.render_bed(src, workdir / "bed.wav", total,
+                                   gain=music_gain)
+        track = audio_mod.mix_voice_over_bed(bed, track, workdir / "mix.wav",
+                                             total)
 
     subprocess.run(
         ["ffmpeg", "-v", "error", "-y", "-i", str(picture), "-i", str(track),

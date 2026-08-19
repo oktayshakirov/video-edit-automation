@@ -39,6 +39,10 @@ from PIL import Image, ImageDraw
 from ..core.brand import Brand
 from ..core.frame import LANDSCAPE, Frame
 
+# The thumbnail and chapter-card display face, so a figure drawn over footage
+# is set in the same voice as the headline type everywhere else.
+FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
+
 # The shortest a clip may be relative to its slot before filling it needs
 # visible slow motion. 0.75 allows a 1.33x stretch, which on the drifting
 # abstractions this pulls is invisible; below that it is a slideshow. There is
@@ -53,10 +57,12 @@ class VideoShot:
                  brand: Brand | None = None, zoom: float = 1.06,
                  dim: float = 0.86, saturation: float = 0.82,
                  label: tuple[str, str] | None = None,
+                 note: tuple[str, str] | None = None,
                  begin: float = 0.0,
                  fps: int = 30, speed_limit: bool = True):
         self.frame, self.brand, self.zoom = frame, brand, zoom
         self.label = label
+        self.note = note
         cap = cv2.VideoCapture(str(path))
         if not cap.isOpened():
             raise ValueError(f"cannot open clip {path}")
@@ -257,4 +263,91 @@ class VideoShot:
                        stroke_fill=(0, 0, 0))
                 y += line_h
             out = out.convert("RGB")
+
+        out = self._note(out, f)
         return out
+
+    def _note(self, out: "Image.Image", f: float) -> "Image.Image":
+        """A small figure card in the lower left — "92 dB / music on a train".
+
+        **A number that is only spoken is a number the viewer does not keep.**
+        The AirPods cut says eight decibel figures out loud and drew exactly
+        four of them, in one `bars` beat forty seconds away from where most of
+        them are said. The user's note was to put them on screen as notes,
+        clean and easy to understand, and this is that: the figure large in the
+        brand accent, one plain-English line under it saying what that level
+        actually sounds like, on a short rule.
+
+        **It is deliberately not `label`.** That treatment is 96px and centred
+        and it *is* the statement the shot exists for — two of those in one
+        section would fight. A note annotates: it sits out of the way in the
+        lower left, it is small, and the footage stays the picture. This is the
+        corner label the big statement replaced, brought back for the one job
+        it was always right for, which is a unit of measurement.
+
+        Lower left rather than lower third centre because burned captions are
+        centred at mid-frame in the shorts and the SRT sits at the bottom of a
+        YouTube player — a note in the middle would collide with both.
+        """
+        if not self.note or self.brand is None:
+            return out
+        from PIL import ImageFont
+
+        from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
+
+        figure, gloss = self.note
+        fr = self.frame
+        k = fr.w / 1920
+
+        # Settles in over the first third of a second and never leaves. A note
+        # that animated out would be a second thing moving in a frame whose
+        # whole job is to be footage.
+        e = min(1.0, (f * self.hold_s) / 0.34) if self.hold_s else 1.0
+        e = 1.0 - (1.0 - e) ** 2
+
+        fig_size = max(28, int(72 * k))
+        gloss_size = max(16, int(32 * k))
+        ff = ImageFont.truetype(FONT_DISPLAY, fig_size)
+        gf = ImageFont.truetype(FONT_CAPTION, gloss_size,
+                                index=FONT_CAPTION_INDEX)
+
+        x = int(96 * k)
+        # Off the floor by more than it looks: a 16:9 player puts its scrubber
+        # and an SRT line across the bottom, and 9:16 puts the caption block at
+        # SAFE_BOTTOM. Measured from the bottom so it holds in either frame.
+        base = fr.h - int(150 * k)
+
+        out = out.convert("RGBA")
+        d = ImageDraw.Draw(out)
+
+        fig_h = fig_size
+        gloss_h = gloss_size
+        block_h = fig_h + int(gloss_h * 1.5)
+        top = base - block_h + int(round(14 * (1.0 - e)))
+
+        # A scrim only under the block, and a soft one. Footage is dimmed
+        # already; a hard panel here would read as a lower-third graphic from a
+        # news broadcast, which is not this format.
+        pad = int(22 * k)
+        wfig = d.textlength(figure, font=ff)
+        wgl = d.textlength(gloss, font=gf) if gloss else 0
+        bw = int(max(wfig, wgl)) + 2 * pad + int(10 * k)
+        scrim = Image.new("RGBA", (bw, block_h + 2 * pad), (0, 0, 0, 118))
+        out.alpha_composite(scrim, (x - pad, top - pad))
+        d = ImageDraw.Draw(out)
+
+        # The rule is vertical here, not horizontal. A horizontal rule above
+        # the figure is the chapter card's move and this must not read as a
+        # chapter card; a vertical rule down the left edge reads as a margin
+        # note, which is exactly what it is.
+        rule_h = int(block_h * e)
+        if rule_h > 2:
+            rx = x - int(16 * k)
+            d.line([(rx, top), (rx, top + rule_h)],
+                   fill=self.brand.primary, width=max(2, int(5 * k)))
+
+        d.text((x, top), figure, font=ff, fill=self.brand.primary)
+        if gloss:
+            d.text((x, top + int(fig_h * 1.16)), gloss, font=gf,
+                   fill=(238, 238, 238))
+        return out.convert("RGB")

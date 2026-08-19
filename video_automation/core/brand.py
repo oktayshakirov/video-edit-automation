@@ -136,7 +136,7 @@ TINNITUS = Brand(
     grid=(48, 34, 56),
     # A generated purple mesh gradient, out of the app's own palette. Ours on
     # every platform, seamless by construction, and regenerable at any size.
-    backdrop="tinnitus-aurora",
+    backdrop="tinnitus-galaxy",
     mascot=Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png",
     mascot_crop=0.82,
     wordmark="TinnitusHelp.me",

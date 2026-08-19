@@ -174,6 +174,159 @@ why they are here:
   through the next sentence. One shot per sentence is a new scene every four
   seconds — a metronome, not a rhythm.
 
+## Narration craft: write it to be spoken, not to be read
+
+**This is the section to read before writing a single line of script.** It was
+written on the tinnitus channel, where a cut was reviewed as "sometimes very
+good, sometimes very bad" on exactly this axis and every instance was one of
+the five faults below. **None of it is site-specific** - it is about how a
+synthesiser reads a page, and the crypto scripts have the same faults. A
+synthesiser has no judgement: it reads what is on the page at the pace the
+`gaps` list tells it to. Everything that makes narration sound human has to be
+**written into the script as words and numbers**, because there is nowhere else
+for it to come from.
+
+### 1. A pause is a punctuation mark and it belongs where the meaning turns
+
+The old table gave values by *category*. Values are not the problem — placement
+is. These are the four places a gap is load-bearing, and all four are worth
+auditing in every opener:
+
+| where | gap | why |
+|---|---|---|
+| before a line that **contradicts** the one before it | **0.85-1.00** | "Not your keys, not your coins." / "But almost nobody checks." The reversal is the whole point and it needs the silence to reverse *into* |
+| after a **two- or three-word imperative** | **0.80-0.95** | "Do not." lands or it does not; a 0.34 runs the next sentence over the top of it |
+| before a line that **answers** a question just asked | **0.70-0.90** | the gap is what makes it an answer rather than a continuation |
+| between two **halves of one argument** ("not X - it is Y") | **0.55-0.70** on the first half | too short and it is one breathless sentence; too long and they stop being a pair |
+
+**Read the section aloud with a stopwatch before setting the numbers.** Where
+you naturally stop, write the gap. Where you naturally run on, write 0.34. This
+takes two minutes per section and it is the single highest-value thing in this
+file.
+
+**A default-0.34 script is a first draft, never a shippable one.** If a
+`Section` has no `gaps=` list, it is not finished.
+
+### 2. Chapter titles have to be written as openers, because they cannot be read as one
+
+Kokoro has no prosody control. There is no way to *direct* a lift into the
+voice, so **the opener quality has to be in the words**. Three levers, and use
+all three together:
+
+- **A discourse marker on the front of `spoken_title`.** "So", "Now", "But",
+  "And" - the words a person actually starts a new thought with. `spoken_title`
+  exists precisely so the card can read as a clean headline while the voice
+  says something conversational. `title="Nobody has passed it"` /
+  `spoken_title="So has anyone ever actually proved it?"`.
+- **A question mark, on anything shaped like a question.** Rising intonation is
+  free and it is the strongest opener signal the synthesiser has. This is now a
+  hard rule: **every chapter title that is a question gets a question mark, on
+  the card and in the spoken line.**
+
+  **The trap is the title phrased as a statement that a reader hears as a
+  question**, and it is easy to miss because it scans fine on the page. Two
+  shipped on the tinnitus channel before being caught on the title list: "Why
+  it feels worse with them in" and "When it is not a settings problem" - both
+  are answers to a question the card never asks. Inverted, they gain their
+  mark and their lift. "Where the money is actually made" on this channel is
+  the same fault. **Read the whole
+  title list on its own, out of the script, before rendering** - the fault is
+  invisible inside a section and obvious in a list of seven.
+- **Silence in front of it.** The card lands into whatever the previous
+  section's last sentence left behind, so give that sentence **0.80-0.90**. A
+  card arriving 0.34 after the previous thought is a new chapter nobody heard
+  start.
+
+`card_gap` (1.10 by default) is the silence *after* the spoken title. Leave it
+unless the card is the video's turning point, where 1.30 is right.
+
+### 3. Every beat needs a hinge sentence, and a `compare` needs two
+
+**This is the 1:10 fault and it is the most damaging one**, because it makes
+the graphic look broken rather than the writing look thin. The AirPods
+`compare` read:
+
+    "...It holds your keys."         <- last item of the left column
+    "Decentralized."                 <- first item of the right column
+
+The left column was praised and the right one was "quick, no break, just
+reading it". Nothing was wrong with the beat. The narration simply **stopped
+describing and started reciting**, because a bare column heading is a label,
+not a sentence, and a person changing subject says so out loud.
+
+**The rule: the chunk that opens the second column must be a hinge, not a
+heading.** `name_columns=True` puts each heading on screen as its own revealed
+item, which fixed *which* column the viewer is looking at; it did nothing for
+whether the voice sounds like it changed subject. Put the turn in words:
+
+    "Now compare that with a decentralized one."   not   "Decentralized."
+    "For comparison, the decentralized side."      not   "Decentralized."
+
+The same applies to the first column - "Take a centralized exchange." beats
+"Centralized." -
+and to every other multi-item beat. **A `steps` or `checklist` gets one hinge
+sentence in front of it** ("So here is the whole check, and it is four steps"),
+which already exists as the "say the point, then show the graphic" rule; the
+new part is that **the beat's own first chunk also has to sound spoken.**
+
+**The caption chunk count still has to match the reveal count**, so a hinge
+does not get its own extra chunk - it is written *into* the chunk that was
+already there. "Your earbuds." and "Now compare that with your earbuds." are
+both one chunk and both reveal item four.
+
+### 4. Say the whole name of a thing, every time
+
+Half a product name is a guess the viewer has to make while the next sentence
+is already playing. The AirPods cut said "cancelling" and "transparency" alone
+and both were flagged as confusing.
+
+On this channel that means the whole name of a product, a mechanism or a fee:
+
+| write | never |
+|---|---|
+| a **hardware** wallet, a **custodial** exchange | a wallet, an exchange |
+| the **network** fee, the **trading** fee | the fee |
+| a **centralized** exchange | an exchange, when the contrast is the point |
+| your **private** keys | your keys, on first mention |
+
+The cost is two syllables. The saving is a viewer who does not have to
+back-fill a noun. It found this on the tinnitus channel, where "cancelling"
+and "transparency" shipped without "noise" and "mode" and both were flagged as
+confusing; the failure mode is identical anywhere a product has a two-word
+name and the script keeps one of them.
+
+### 5. A number that is spoken must also be seen
+
+Not every figure earns a `stat` or a `bars` beat, and the ones that do not used
+to be said into the air and lost. `Shot(clip=..., note=("21M", "the whole supply, ever"))` draws a small figure
+card in the lower left - the figure in the brand accent at display weight, one
+plain-English line under it saying what the number actually *means*, on a short
+vertical rule.
+
+- **It is not `payload`.** `payload` is the 96px centred statement the shot
+  exists for; a note annotates while the footage stays the picture. One shot
+  should never carry both.
+- **The gloss is the point.** "21M" alone is a number; "21M / the whole supply,
+  ever" is the fact the number was standing in for.
+- **Lower left, not lower centre** - centre collides with burned captions in
+  9:16 and with the YouTube player's own SRT line in 16:9.
+
+## Keep this file current, every time
+
+**The user's standing instruction: update the skill on every video.** These
+files are the only thing that carries a lesson from one cut to the next - a fix
+that lives in one project file is a fix that gets re-learned the hard way three
+videos later. After every round of review notes:
+
+1. Write the rule into the relevant skill, with **the specific failure that
+   produced it**, not just the rule. "Say noise cancellation, not cancelling"
+   is forgettable; "the AirPods cut said 'cancelling' alone and it was flagged
+   as confusing" is not.
+2. Put engine-level findings in the engine's own docstring too, so somebody
+   reading the code sees them without the skill.
+3. If a rule turns out to be wrong later, **replace it and say what replaced
+   it** - a skill that only accretes becomes a file nobody reads.
+
 ## Silence is punctuation, and it has to be written
 
 `gaps` on the `Section`, one float per sentence. **Leaving every sentence at the
@@ -200,6 +353,11 @@ wrong for a sentence.
 
 Writing them costs one line per section and it is the cheapest quality change
 available in this format.
+
+**The table above gives values; the narration-craft section above gives
+placement, which is the half that was missing.** A script can have a `gaps`
+list on every section and still read as flat, because the numbers were spread
+evenly instead of put where the sense turns.
 
 ## Only a hyphen goes on screen
 
@@ -945,3 +1103,22 @@ a flat 0.80 crushed the dark portraits this selects for into near-black.
 - Present the landscape safe box or `max_upscale=1.90` as settled. Both are
   `GUESS` in `core/frame.py` until checked on a real upload at full-screen size.
 - Quote `views.json` as evidence about video. It is SEO demand.
+
+## Keep this file current, every time
+
+**The user's standing instruction: update the skill on every video.** These
+files are the only thing that carries a lesson from one cut to the next - a fix
+that lives in one project file is a fix that gets re-learned the hard way three
+videos later. After every round of review notes:
+
+1. Write the rule into the relevant skill, with **the specific failure that
+   produced it**, not just the rule. A rule with its failure attached is
+   remembered; a bare imperative is skimmed.
+2. Put engine-level findings in the engine's own docstring too, so somebody
+   reading the code sees them without the skill.
+3. If a rule turns out to be wrong later, **replace it and say what replaced
+   it** - a skill that only accretes becomes a file nobody reads.
+4. **Cross-post anything engine-level or craft-level to the other channel's
+   skills.** The two sites share one engine and one synthesiser; a lesson found
+   on one is almost always true on the other, and the narration-craft section
+   above is the worked example of that.
