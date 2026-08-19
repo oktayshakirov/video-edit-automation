@@ -118,6 +118,178 @@ frames in a near-black video. Dropping the backdrop entirely is usually the
 right answer: a flat panel with the drifting grid is what those beats were
 designed for.
 
+## Narration craft: write it to be spoken, not to be read
+
+**This is the section to read before writing a single line of script.** The
+AirPods cut was reviewed as "sometimes very good, sometimes very bad" on
+exactly this axis, and every instance was one of the five faults below. A
+synthesiser has no judgement: it reads what is on the page at the pace the
+`gaps` list tells it to. Everything that makes narration sound human has to be
+**written into the script as words and numbers**, because there is nowhere else
+for it to come from.
+
+### 1. A pause is a punctuation mark and it belongs where the meaning turns
+
+The old table gave values by *category*. Values are not the problem — placement
+is. These are the four places a gap is load-bearing, and all four were missing
+from the AirPods opener:
+
+| where | gap | why |
+|---|---|---|
+| before a line that **contradicts** the one before it | **0.85-1.00** | "So you forgot about it." / "Do not." The reversal is the whole point and it needs the silence to reverse *into* |
+| after a **two- or three-word imperative** | **0.80-0.95** | "Do not." lands or it does not; a 0.34 runs the next sentence over the top of it |
+| before a line that **answers** a question just asked | **0.70-0.90** | the gap is what makes it an answer rather than a continuation |
+| between two **halves of one argument** ("not X - it is Y") | **0.55-0.70** on the first half | too short and it is one breathless sentence; too long and they stop being a pair |
+
+**Read the section aloud with a stopwatch before setting the numbers.** Where
+you naturally stop, write the gap. Where you naturally run on, write 0.34. This
+takes two minutes per section and it is the single highest-value thing in this
+file.
+
+**A default-0.34 script is a first draft, never a shippable one.** If a
+`Section` has no `gaps=` list, it is not finished.
+
+### 2. Chapter titles have to be written as openers, because they cannot be read as one
+
+Kokoro has no prosody control. There is no way to *direct* a lift into the
+voice, so **the opener quality has to be in the words**. Three levers, and use
+all three together:
+
+- **A discourse marker on the front of `spoken_title`.** "So", "Now", "But",
+  "And" - the words a person actually starts a new thought with. `spoken_title`
+  exists precisely so the card can read as a clean headline while the voice
+  says something conversational. `title="It was never the earbud"` /
+  `spoken_title="So what actually does the damage?"`.
+- **A question mark, on anything shaped like a question.** Rising intonation is
+  free and it is the strongest opener signal the synthesiser has. This is now a
+  hard rule: **every chapter title that is a question gets a question mark, on
+  the card and in the spoken line.**
+
+  **The trap is the title phrased as a statement that a reader hears as a
+  question**, and it is easy to miss because it scans fine on the page. Two
+  shipped in the AirPods cut before being caught on the title list: "Why it
+  feels worse with them in" and "When it is not a settings problem" - both are
+  answers to a question the card never asks. Inverted: "Why does it feel worse
+  with them in?" and "When is it not a settings problem?". **Read the whole
+  title list on its own, out of the script, before rendering** - the fault is
+  invisible inside a section and obvious in a list of seven.
+- **Silence in front of it.** The card lands into whatever the previous
+  section's last sentence left behind, so give that sentence **0.80-0.90**. A
+  card arriving 0.34 after the previous thought is a new chapter nobody heard
+  start.
+
+`card_gap` (1.10 by default) is the silence *after* the spoken title. Leave it
+unless the card is the video's turning point, where 1.30 is right.
+
+### 3. Every beat needs a hinge sentence, and a `compare` needs two
+
+**This is the 1:10 fault and it is the most damaging one**, because it makes
+the graphic look broken rather than the writing look thin. The AirPods
+`compare` read:
+
+    "...Twice a year, if that."      <- last item of the left column
+    "Your earbuds."                  <- first item of the right column
+
+The left column was praised and the right one was "quick, no break, just
+reading it". Nothing was wrong with the beat. The narration simply **stopped
+describing and started reciting**, because a bare column heading is a label,
+not a sentence, and a person changing subject says so out loud.
+
+**The rule: the chunk that opens the second column must be a hinge, not a
+heading.** Put the turn in words:
+
+    "Now compare that with your earbuds."     not     "Your earbuds."
+    "For comparison, your earbuds."           not     "Your earbuds."
+
+The same applies to the first column - "Take a concert." beats "A concert." -
+and to every other multi-item beat. **A `steps` or `checklist` gets one hinge
+sentence in front of it** ("So here is the whole fix, and it is five settings"),
+which already exists as the "say the point, then show the graphic" rule; the
+new part is that **the beat's own first chunk also has to sound spoken.**
+
+**The caption chunk count still has to match the reveal count**, so a hinge
+does not get its own extra chunk - it is written *into* the chunk that was
+already there. "Your earbuds." and "Now compare that with your earbuds." are
+both one chunk and both reveal item four.
+
+### 4. Say the whole name of a thing, every time
+
+Half a product name is a guess the viewer has to make while the next sentence
+is already playing. The AirPods cut said "cancelling" and "transparency" alone
+and both were flagged as confusing.
+
+| write | never |
+|---|---|
+| noise cancellation, or noise cancelling **mode** | cancelling |
+| transparency **mode** | transparency |
+| headphone **safety**, in **settings** | headphone safety |
+| the **hearing test** in the Health app | the test |
+
+The cost is two syllables. The saving is a viewer who does not have to
+back-fill a noun.
+
+### 5. A number that is spoken must also be seen
+
+Not every figure earns a `stat` or a `bars` beat, and the ones that do not used
+to be said into the air and lost. `Shot(clip=..., note=("92 dB", "music on a
+train"))` draws a small figure card in the lower left - the figure in the brand
+accent at display weight, one plain-English line under it saying what that
+level actually *sounds* like, on a short vertical rule.
+
+- **It is not `payload`.** `payload` is the 96px centred statement the shot
+  exists for; a note annotates while the footage stays the picture. One shot
+  should never carry both.
+- **The gloss is the point.** "92 dB" alone is a number; "92 dB / music on a
+  train" is a thing the viewer has done this week.
+- **Lower left, not lower centre** - centre collides with burned captions in
+  9:16 and with the YouTube player's own SRT line in 16:9.
+
+## Keep this file current, every time
+
+**The user's standing instruction: update the skill on every video.** These
+files are the only thing that carries a lesson from one cut to the next - a fix
+that lives in one project file is a fix that gets re-learned the hard way three
+videos later. After every round of review notes:
+
+1. Write the rule into the relevant skill, with **the specific failure that
+   produced it**, not just the rule. "Say noise cancellation, not cancelling"
+   is forgettable; "the AirPods cut said 'cancelling' alone and it was flagged
+   as confusing" is not.
+2. Put engine-level findings in the engine's own docstring too, so somebody
+   reading the code sees them without the skill.
+3. If a rule turns out to be wrong later, **replace it and say what replaced
+   it** - a skill that only accretes becomes a file nobody reads.
+
+## No ear close-ups, in either format
+
+**Two were shipped in the AirPods cut and both were rejected on sight**, in the
+user's words as "a nasty close up of ear which dont look good". A macro of an
+ear canal at full frame is unpleasant to look at, and it is not even
+informative — the viewer knows what an ear is. `human-ear-close-up-dark` and
+`audiologist-hearing-test-ear` are both in the stock cache and neither should
+go in a cut; the clinic one is a backlit red ear against grass at L140-156, so
+it fails the brightness box as well.
+
+**A video about hearing does not have to show an ear.** The subject is a person
+listening — a commuter with headphones, someone putting an earbud in, a hand on
+a volume control. Those read faster and are pleasant to watch, which is the
+whole job of a shot nobody is reading.
+
+## Show the thing the line is about
+
+**A concert line gets a concert.** The AirPods cut ran an empty night street
+under "a concert is loud, and then you go home" and the user's note was to use
+something relevant. Stock searched for atmosphere ("city traffic night") comes
+back as atmosphere, and atmosphere under a specific noun is a shot that
+illustrates nothing — the same failure as the sleep cut's unlabelled water,
+arriving through a different door.
+
+Concert footage screens well for these palettes, which is not obvious: a gig is
+mostly dark with coloured stage light, so `concert-crowd-night-stage-lights`
+measured L20-32 and a crowd with raised hands L27-32. **Check the hue, not just
+the box** — two clips in the same batch were green-lit and green is the one
+colour that cuts hardest against both brands.
+
 ## Open on a face, moving
 
 The first cut opened on a still of a worried woman and the note back was that it
@@ -129,8 +301,42 @@ a concept.
 ## The background behind a drawn beat is an asset, not a drawing
 
 `assets/brand/backgrounds/`, named by `Brand.backdrop`, loaded by
-`core/backdrop.py`. **tinnitushelp.me is `tinnitus-aurora`** — a generated
-purple mesh gradient — and thecrypto.wiki is `crypto-blackwater`.
+`core/backdrop.py`. **tinnitushelp.me is `tinnitus-galaxy`** — a nebula
+starfield the user supplied, ping-ponged — and thecrypto.wiki is
+`crypto-blackwater`.
+
+**`tinnitus-aurora` is gone and must not come back.** It was a *generated*
+purple mesh gradient, and it shipped on the AirPods cut after the user had
+already ruled that particular purple out in an earlier session. The asset is
+**deleted from the folder**, not merely unreferenced — leaving it there is how
+a rejected background gets pointed at by name a second time. Its spec survives
+in `backdrop.py` as `_RETIRED_TINNITUS_AURORA`, renamed so it reads as an
+example of `generate()`'s argument shape rather than as a live preset.
+
+**Two supplied backgrounds have now been through here and the second one is
+the lesson.** `tinnitus-violet` was a bright mesh gradient (**L89 / S201**)
+that needed dimming to 0.55 before peach type held, and it still read as a flat
+magenta wall — it lasted exactly one review. `tinnitus-galaxy` arrives at
+**L27 / S242**, already inside the range the water (L23) and the old aurora
+(L19) occupy, and ships at `pingpong(..., dim=0.92, saturation=0.80)`.
+
+**So the useful test on a supplied clip is its luma before you touch it.** A
+source that needs heavy dimming to take type is usually the wrong image rather
+than an image needing grading — dimming a bright flat gradient gives you a
+darker flat gradient, and the flatness was the actual problem. A source already
+near L25 needs almost nothing and keeps its own depth.
+
+The galaxy is also the first background here that is on brand **by subject**
+and not only by palette: the app's own album is *Quiet Universe* and its
+artwork is space, the same argument `longform/asmr.py` makes for its procedural
+nebula.
+
+**It breaks the "soft, low-frequency only" rule and gets away with it**, which
+is worth knowing before somebody cites that rule to reject the next one. Stars
+are high-frequency detail, and at 512px upscaled 3.75x they arrive as soft
+points that read as texture. The test it passes is that its detail turns to
+mush attractively — not that detail is allowed. A background with *legible*
+content is still wrong.
 
 This replaced a ruled grid that drifted behind every beat on both channels. It
 went for two reasons and only one was cosmetic: it stepped a **whole pixel at a
@@ -149,9 +355,14 @@ Three things about the asset design, all of which will bite if ignored:
   progress runs the whole loop inside every beat, so the background visibly
   changes speed at every cut. `Backdrop.at(t, w, h)` wraps absolute time, so
   motion is one constant rate across the video and carries through a cut.
-- **Match the luma range**: the aurora runs a mean of ~28, the water ~23. The
-  first aurora shipped at 42 and looked washed out the moment it was put beside
-  the crypto one — the comparison is what settled it, not the number.
+- **Match the luma range**: the violet runs a mean of ~48, the water ~23. Much
+  brighter and peach type stops holding against it, which is not hypothetical —
+  it is what the violet source did at L89 before it was dimmed.
+- **Judge a new background by drawing a real beat on it.** The mean tells you
+  almost nothing about whether type reads. And **`backdrop.get()` caches by
+  name**, so rendering three candidate variants under one filename silently
+  compares the first against itself three times — give each variant its own
+  name or the comparison is worthless.
 
 Generated backgrounds loop because every element travels a **closed circular
 path** whose period divides the loop. Footage cannot, so `pingpong()` does it
@@ -165,6 +376,32 @@ a normal frame.
 **Voice is a candidate and it moves.** The first two cuts used `mia`;
 `tinnitus-and-sleep` uses **`mia-calm`** — af_heart at 1.00, the channel's own
 reader unhurried, which is the delivery a bedtime script wanted anyway.
+
+### The male voice for an article video comes from the crypto roster
+
+**`elias`, `felix`, `jonas` and `caspar` are all ASMR voices and none of them
+belongs on an explainer.** The AirPods cut shipped with `elias` on the reading
+that only `caspar` was the ASMR one, because that is the only profile whose
+note says so. That was wrong, and the construction says why: **every "male"
+profile on this channel is `af_nicole` pitched down through the SOFT chain** —
+the chain that exists for sound therapy, with the presence band pulled down and
+air added. They differ from each other only in how far the pitch moves and
+whether the slowdown is kept. Picking a different one does not get you out of
+the ASMR read, it gets you a differently-processed ASMR read.
+
+**Use `sam` (`am_puck`, ENERGETIC).** A real male voice rather than a processed
+female one, and the roster's own note is "graded C+ with hours of data, the
+steadiest American male". `theo` (`am_adam`) is the alternative, 9% faster and
+graded F on the model card but shortlisted by ear. The tinnitus male set stays
+in `core/voices.py` because mode 2 is where it belongs.
+
+**Changing between these families rewrites the script, not just the voice.**
+Measured on one paragraph: `elias` 1.97 words/sec, `sam` 3.31, `theo` 3.60,
+`mia` 3.06. So the tinnitus male profiles need ~400 words to fill four minutes
+and `sam` needs ~620 for the same runtime — the crypto skill's 440-700 budget
+holds for `sam` and `mia` and does *not* hold for the pitched-down set. A
+script written for one and read by the other misses the window by ninety
+seconds in whichever direction. Re-run the preflight after any voice change.
 
 **`ivy` (bf_emma) was tried here and deleted from the roster entirely.** The
 British read was not wanted on this channel, and a rejected voice left in the

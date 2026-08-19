@@ -53,6 +53,16 @@ def _font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
 
 
+# The thumbnail's display face, so a chapter card and the thumbnail of the same
+# video are set in one voice. Imported by path rather than from `thumb` to keep
+# the beats module free of a dependency on the thumbnail renderer.
+FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
+
+
+def _display(size: int) -> ImageFont.FreeTypeFont:
+    return ImageFont.truetype(FONT_DISPLAY, size)
+
+
 @lru_cache(maxsize=8)
 def _mark_bottom(name: str, width: int, top: int) -> int:
     """Where the watermark ends, so a kicker can clear it.
@@ -301,12 +311,23 @@ class ChapterCard(Beat):
     payload: (title,)
     """
 
-    SIZE = 108
-    # **Portrait is not the same number.** 108px across 1920 is a heading; the
-    # same 108px across 1080 is body copy with two thirds of the frame empty
-    # around it, which is what "write it with big letters on the whole screen"
-    # was reacting to. 148 fills a 9:16 frame the way 108 fills a 16:9 one.
-    SIZE_PORTRAIT = 148
+    # **Arial Black, the thumbnail's face, not the caption face.** The user's
+    # call: a chapter card is the one moment the video is showing a headline
+    # rather than speaking a sentence, and it should look like the headline on
+    # the thumbnail. Futura Medium is a light wide geometric that goes weak at
+    # display size, which is the identical reason it lost the thumbnail.
+    #
+    # It does **not** take the thumbnail's accent plate. A coloured box exists
+    # to win a fight for attention in a grid of competing thumbnails; there is
+    # nothing else in this frame to compete with, so the box would be shouting
+    # in an empty room.
+    #
+    # **The sizes came down when the face changed.** Arial Black is far wider
+    # per character than Futura Medium, so the old 108/148 wrapped titles that
+    # used to set on one line. These are the sizes at which the same titles
+    # occupy the same block.
+    SIZE = 88
+    SIZE_PORTRAIT = 118
 
     def __init__(self, title: str, **kw):
         super().__init__(**kw)
@@ -316,7 +337,7 @@ class ChapterCard(Beat):
         d = ImageDraw.Draw(out)
         w = self.frame.w - 2 * self.margin
         size = self.SIZE_PORTRAIT if self.portrait else self.SIZE
-        font = _font(size)
+        font = _display(size)
         lines = wrap(d, self.title, font, w)
 
         line_h = int(size * 1.26)
@@ -1232,6 +1253,7 @@ def make_beat(shot, brand: Brand, frame: Frame):
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
                          label=shot.payload or None,
+                         note=shot.note,
                          begin=shot.clip_at)
     if shot.graphic is None:
         return None

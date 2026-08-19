@@ -546,3 +546,61 @@ News becomes a variant once the pipeline is proven, not the proving ground.
 - Use an image under ~750px wide, or an infographic at any size.
 - Ship a Commons-sourced portrait without its `CREDITS.md` block in the
   description. Two of the four Saylor photographs are share-alike.
+
+## Narration craft — read `/video-crypto-long`'s section, it applies here
+
+That skill carries the full rules: pauses placed where the sense turns rather
+than spread evenly, chapter titles written as openers, a **hinge sentence** into
+the second column of a `compare` ("Now compare that with a decentralized one",
+never the bare heading), saying the whole name of a product every time, and
+drawing a figure that is spoken. They were written on the tinnitus channel and
+none of them is site-specific — it is about how a synthesiser reads a page.
+
+Two land harder in short form, because thirty-five seconds cannot recover:
+
+- **A beat's items must be written as one spoken sentence, not a list read
+  aloud.** "Not X. / Not Y. / Z." reads as a bullet list. *"It is not X. It is
+  not Y."* then, after a real pause, *"It is Z."* is the same chunk count, the
+  same reveals and the same sync — the difference is only whether a person
+  would say it that way.
+- **The last two sentences are the ones that get rushed.** Stacking an
+  instruction, a reassurance and a call to action into the final eight seconds
+  reads as messy. Give a short **one** closing instruction, say it once, and put
+  0.70-0.90 in front of it.
+
+## Keep this file current, every time
+
+**Standing instruction: update the skill on every video**, with the specific
+failure that produced each rule rather than the bare rule. Cross-post anything
+engine-level or craft-level to the tinnitus skills — one engine, one
+synthesiser, and a lesson found on one channel is almost always true on the
+other.
+
+## Shorts take a music bed
+
+`render_crypto_short(..., music=..., music_gain=...)` — the same arguments
+`render_long` has always taken, running the same `render_bed` +
+`mix_voice_over_bed` path. Shorts never had one, which was a gap rather than a
+decision, and the user's call is that every short gets one from here on.
+`music.track("night-drift")` serves both sites; the generated presets remain
+the licence-safe default.
+
+Gain slightly under long form's (0.85 is what tinnitus uses): a short is
+watched on a phone speaker with the voice carrying all the information. It
+matters more here than in long form — a short opens with no lead-in silence and
+is judged in its first second, and a synthesised voice over silence sounds like
+a voice memo.
+
+## The vertical `checklist` draws the brand background now
+
+`ChecklistShot` was the last drawn object still painting the ruled drifting
+grid — `int((f * 40) % 96)`, the whole-pixel step everything else in this repo
+was fixed for. It was missed when `core/backdrop.py` replaced the grid
+everywhere else, because `render_shots` builds it directly rather than through
+`longform.beats`, so it never saw a `Brand.backdrop`.
+
+The symptom that found it: a tinnitus short whose `checklist` drew a navy grid
+and whose `bars` ten seconds later drew the brand's own loop, in one 44-second
+video. **Shipped crypto shorts that use `checklist` will look different if
+re-rendered** — that was accepted deliberately, since the grid was already
+documented as removed from both channels.

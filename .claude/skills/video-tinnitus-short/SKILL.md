@@ -44,7 +44,18 @@ are untouched by any of this.
 
 **The voice matches the long form from the same post, always** — a short and a
 long video on one channel reading in two different voices is two channels. That
-was `mia` for the gaming pair and is **`mia-calm`** for the sleep pair. `ivy`
+was `mia` for the gaming pair, **`mia-calm`** for the sleep pair, and **`sam`**
+for the AirPods pair.
+
+**`elias`, `felix`, `jonas` and `caspar` are the sound-therapy voices and none
+of them belongs on an article short.** The AirPods pair first shipped on
+`elias` and the user's note was that all of them are ASMR voices — which is
+what they are by construction: every "male" profile here is `af_nicole` pitched
+down through the SOFT chain. For a male read on an article video take **`sam`**
+(`am_puck`) from the crypto roster, or `theo`. Measured pace, one paragraph:
+`elias` 1.97 words/sec, `sam` 3.31, `theo` 3.60, `mia` 3.06 — so swapping
+between the families changes how many words fit in forty-five seconds by about
+70%, and the script has to be rewritten, not just re-rendered. `ivy`
 (bf_emma) was tried and **deleted from the roster** — the British read was not
 wanted on this channel, and a rejected voice left in the list is one somebody
 picks again by accident. `luna-calm` is the sound-therapy voice and belongs to
@@ -72,6 +83,15 @@ weight big channels use; Impact is heavier and was rejected as meme-coded) with
 a **blurred drop shadow on its own layer instead of a stroke**, and a tighter
 accent plate.
 
+**The thumbnail must not answer the video's own question.** "Not the earbuds.
+The volume." shipped on the AirPods pair and the user's note was that it
+answers the title directly, so there is no point watching. The title carries
+the search phrase and asks; **the thumbnail points at the part of the answer
+the viewer does not have yet** — "The warning everyone ignores" — so reading it
+creates the question instead of closing it. This is the sharper form of the
+long skill's "ask what the title does not": not merely a different sentence, a
+sentence that cannot be acted on without the video.
+
 **Fetch the source with `orientation=portrait`.** A landscape photo cover-
 cropped to 9:16 throws away the subject's long axis and no zoom or pan
 recovers it — the long form's thumbnail once did exactly that.
@@ -85,9 +105,24 @@ the long-form skill's `crop_at` section. Type sits in the upper half here,
 because the Shorts player puts the title, channel and buttons across the
 bottom and a button rail up the right.
 
-**The article shorts still have no music bed** — long form gets one, this does
-not. Requested and not yet built; `render_tinnitus_short` would need the
-`music`/`music_gain` pair `render_long` already takes.
+**Article shorts take a music bed, and every one should have it.** Standing
+instruction from the user. `render_tinnitus_short` passes `music` and
+`music_gain` straight through to `render_crypto_short`, which now runs the same
+`render_bed` + `mix_voice_over_bed` path `render_long` always did — so a long
+video and the Short from the same post sit on the same track at the same
+relative level instead of being mixed twice by hand.
+
+```python
+render_tinnitus_short(..., music=music.track("night-drift"), music_gain=0.85)
+```
+
+Gain slightly under the long form's: a short is watched on a phone speaker with
+the voice carrying all of the information. **It matters more here than in long
+form, not less** — a short opens with no lead-in silence and is judged in its
+first second, and forty seconds of synthesised speech over nothing sounds like
+a voice memo. It also covers the written pauses, which is why the sidechain is
+the right shape rather than a static mix now that the pauses are deliberate and
+long.
 
 **Do not close on "save this".** Asking for a save is asking for the wrong
 action when the video is about something to do tonight — the user's call, and
@@ -106,6 +141,14 @@ It used to fall through to `ChecklistShot`, which is how `bars` first "shipped":
 it happened to blow up unpacking a three-tuple as `(text, ok)`, and a
 two-element payload would have drawn the wrong beat silently.
 
+**The beat draws the brand background now, not the ruled grid.**
+`ChecklistShot` was the last drawn object still painting
+`int((f * 40) % 96)` lines, because `render_shots` builds it directly rather
+than through `longform.beats` and it therefore never saw a `Brand.backdrop`.
+The symptom that found it was one 44-second short whose `checklist` drew a navy
+grid and whose `bars` ten seconds later drew the galaxy. Fixed; shipped crypto
+shorts using `checklist` will look different if re-rendered, which was accepted.
+
 **Watch the tick.** The brand's accent is `#ffdab9`, a pale peach, and against
 white item text it carries much less contrast than gold does on the crypto
 cut — the payoff mark reads weaker than the crosses that precede it. Look at
@@ -120,6 +163,26 @@ Anything rendered before this is off-brand at the photo edges.
 of its own bar, so a long top bar pushes it off the right edge. The same data
 took 0.90 at 1920 and 0.60 at 1080. Scale the whole set by one factor and the
 proportions between rows — the only thing the beat claims — stay exact.
+
+### Narration craft — read the long skill's section, it applies here
+
+**`/video-tinnitus-long` carries the full rules** (pauses as punctuation,
+chapter titles written as openers, hinge sentences into a beat, saying whole
+product names, drawing a figure that is spoken). All of it applies to a short,
+and two of them apply *harder* because forty seconds has no room to recover:
+
+- **A beat's items must be written as one spoken sentence, not as a list read
+  aloud.** The AirPods short's checklist chunks were "Not the earbuds." / "Not
+  the noise cancelling." / "The volume." and the note back was that it does not
+  flow. Written as speech it is *"It is not the earbuds. It is not the noise
+  cancellation."* then, after a real pause, *"It is the volume."* Same three
+  chunks, same three reveals, same sync - the difference is entirely in whether
+  a person would say it that way.
+- **The last two sentences of a short are the ones that get rushed.** The
+  AirPods ending was called "totally messy": four short sentences with 0.4-0.55
+  gaps stacked into eight seconds, so the instruction, the reassurance and the
+  call to action all arrived on top of each other. Give a short **one** closing
+  instruction, say it once, and put 0.70-0.90 in front of it.
 
 ### Inherited from the crypto short, and paid for there
 
@@ -136,6 +199,13 @@ proportions between rows — the only thing the beat claims — stay exact.
   problem the reversal solves is strictly worse on this site.
 - **Screen a clip across its length, not at one frame**, and remember hue is a
   separate judgement from the luma/saturation box.
+- **No ear close-ups.** Rejected on sight in the AirPods pair — "a nasty close
+  up of ear". `human-ear-close-up-dark` and `audiologist-hearing-test-ear` are
+  in the cache and neither belongs in a cut. Show a person listening instead.
+- **A folder name is the search query, not the contents.** Two clips filed
+  under `hand-adjusting-phone-volume-dark` are a photo editor and a messaging
+  keyboard, and either one under a line about a volume ceiling has the viewer
+  reading the wrong screen. Look at the frame before trusting the path.
 - **A clip in a short carries no label** — the burned caption already is the
   statement, and a label prints the same words twice.
 - **`grid` and `steps` have portrait layouts now** — one column of wide cards,
@@ -430,3 +500,10 @@ so the graphic follows the voice instead of asking the viewer to interpret.
   revenue.
 - Write copy that oversells the masking these two tracks can actually do above
   4 kHz.
+
+## Keep this file current, every time
+
+**Standing instruction: update the skill on every video**, with the specific
+failure that produced each rule rather than the bare rule. Cross-post anything
+engine-level or craft-level to the crypto skills — one engine, one synthesiser,
+and a lesson found on one channel is almost always true on the other.
