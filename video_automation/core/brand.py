@@ -37,7 +37,18 @@ class Brand:
     bg: RGB                       # flat background, when there is no photograph
     panel: RGB
     negative: RGB                 # crosses and struck items
-    grid: RGB                     # the drifting backdrop grid on a drawn beat
+    # The line drawn *through* a struck item, a shade up from `negative` so the
+    # strike stays visible where it crosses the cross's own colour. It is a
+    # field rather than `negative` lightened by a factor because the two sites'
+    # pairs do not share one: crypto's (196,84,84)→(230,96,96) is 1.17x on red
+    # and 1.14x on green, and tinnitus' red has to survive being on purple.
+    strike: RGB
+    grid: RGB                     # legacy: the drifting grid, no longer drawn
+    # The looping background behind a drawn beat, by name in
+    # `assets/brand/backgrounds/`. None falls back to a flat `bg` panel. This
+    # replaced a ruled grid that was identical on both channels and stepped a
+    # whole pixel at a time — see `core.backdrop`.
+    backdrop: str | None = None
     logo: Path | None = None      # a mark that already carries the domain
     mascot: Path | None = None    # a face that does not, and needs the wordmark
     mascot_crop: float = 1.0      # fraction of the asset's height to keep
@@ -103,7 +114,13 @@ CRYPTO = Brand(
     bg=(23, 23, 23),              # #171717
     panel=(47, 47, 47),           # #2f2f2f
     negative=(196, 84, 84),
+    strike=(230, 96, 96),
     grid=(40, 38, 26),
+    # **Black water, not the gold grid.** The user's call, and it is the better
+    # ground: gold type on a near-black surface with slow specular movement
+    # reads as depth, where ruled lines read as a template. Ping-ponged from
+    # the calm-water stock so the loop has no seam.
+    backdrop="crypto-blackwater",
     logo=Path.home() / "Coding/crypto-wiki/public/images/logo.png",
 )
 
@@ -115,7 +132,11 @@ TINNITUS = Brand(
     bg=(18, 10, 26),              # the void behind the nebula
     panel=(91, 57, 100),          # #5B3964, the app background
     negative=(232, 120, 120),     # a red that survives being on purple
+    strike=(246, 140, 140),
     grid=(48, 34, 56),
+    # A generated purple mesh gradient, out of the app's own palette. Ours on
+    # every platform, seamless by construction, and regenerable at any size.
+    backdrop="tinnitus-aurora",
     mascot=Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png",
     mascot_crop=0.82,
     wordmark="TinnitusHelp.me",

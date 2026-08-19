@@ -26,7 +26,7 @@ needs tone synthesis the repo still does not have.
 ## Article shorts
 
 ```bash
-PYTHONPATH=. .venv/bin/python projects/tinnitus/gaming-and-tinnitus.py
+PYTHONPATH=. .venv/bin/python projects/tinnitus-short/gaming-and-tinnitus.py
 ```
 
 `render_tinnitus_short` is `render_crypto_short` with two values passed in
@@ -42,18 +42,79 @@ here, since a 9:16 photograph sits ~490px down and never reaches the mark. The
 ASMR shorts are on their own lockup path (`asmr.brand_lockup`, 100px face) and
 are untouched by any of this.
 
-**Voice is `mia`**, the tinnitus long-form reader — a short and a long video on
-one channel reading in two different voices is two channels. `luna-calm` is the
-sound-therapy voice and belongs to `asmr.py`. Both are still candidates.
+**The voice matches the long form from the same post, always** — a short and a
+long video on one channel reading in two different voices is two channels. That
+was `mia` for the gaming pair and is **`mia-calm`** for the sleep pair. `ivy`
+(bf_emma) was tried and **deleted from the roster** — the British read was not
+wanted on this channel, and a rejected voice left in the list is one somebody
+picks again by accident. `luna-calm` is the sound-therapy voice and belongs to
+`asmr.py`. All are still candidates.
 
-**Do not use `checklist` here.** `ChecklistShot` is the vertical-native beat and
-it is the one drawn object still carrying thecrypto.wiki's gold as a module
-constant, so it renders off-brand and nothing raises. The portrait-safe beats
-that take a brand are **`grid`, `steps` and `bars`** — and anything else now
-raises rather than falling through. It used to fall through to `ChecklistShot`,
-which is how `bars` first "shipped": it happened to blow up unpacking a
-three-tuple as `(text, ok)`, and a two-element payload would have drawn the
-wrong beat silently.
+**Drawn beats now sit on the brand background, not a drifting grid** — see the
+long-form skill for `core/backdrop.py`. Nothing to pass per shot; `Brand`
+carries it. It matters here because the shorts share `longform/beats.py`, so
+the vertical beats changed too, and the square 512px asset is what makes one
+background serve both aspects.
+
+**Length: 40-50s, not 30.** The first sleep cut came in at 32s and the note was
+to extend it. There was room — the reframe alone does not fill a short, and the
+counterintuitive turn (chasing quiet backfires) is what keeps a viewer past the
+first line.
+
+**Shorts get a thumbnail now, and it does not use the landscape treatment.**
+`thumb.render_short_thumb`, 1080x1920. Two things were wrong with reusing
+`render_thumb`'s type: Futura Medium is a light, wide geometric that goes weak
+at feed size, and an 8px black stroke around every glyph is the clearest tell
+of an amateur thumbnail — "the font is not good and looks very generic", "our
+solid color borders make it look very unprofessional". So it sets **Arial
+Black** (the closest face on this machine to the Anton/Montserrat-ExtraBold
+weight big channels use; Impact is heavier and was rejected as meme-coded) with
+a **blurred drop shadow on its own layer instead of a stroke**, and a tighter
+accent plate.
+
+**Fetch the source with `orientation=portrait`.** A landscape photo cover-
+cropped to 9:16 throws away the subject's long axis and no zoom or pan
+recovers it — the long form's thumbnail once did exactly that.
+
+**The long form now uses this same photo, and that is the rule going
+forward: one source for both aspects, always.** `render_thumb` takes
+`crop_at`/`crop_zoom` to place a manual landscape crop of a portrait source by
+hand, since `_layout`'s automatic scorer optimises for empty space rather than
+for the subject being visible and will happily crop the face out of frame. See
+the long-form skill's `crop_at` section. Type sits in the upper half here,
+because the Shorts player puts the title, channel and buttons across the
+bottom and a button rail up the right.
+
+**The article shorts still have no music bed** — long form gets one, this does
+not. Requested and not yet built; `render_tinnitus_short` would need the
+`music`/`music_gain` pair `render_long` already takes.
+
+**Do not close on "save this".** Asking for a save is asking for the wrong
+action when the video is about something to do tonight — the user's call, and
+they are right that saving a video is not the behaviour the piece is arguing
+for. Close on the action itself: "Try it tonight."
+
+**`checklist` works here now, and it is the beat worth reaching for.** This file
+used to say "do not use it": `ChecklistShot` was the last drawn object holding
+thecrypto.wiki's gold as module constants, so the strongest and most
+vertical-native beat in the format was ruled out on this site by a hard-coded
+colour that would have rendered off-brand with nothing raising. It takes a
+`Brand` now, like `grid`, `steps` and `bars` always did, and
+`render_tinnitus_short` passes it. The portrait-safe set is **`checklist`,
+`grid`, `steps` and `bars`**; anything else raises rather than falling through.
+It used to fall through to `ChecklistShot`, which is how `bars` first "shipped":
+it happened to blow up unpacking a three-tuple as `(text, ok)`, and a
+two-element payload would have drawn the wrong beat silently.
+
+**Watch the tick.** The brand's accent is `#ffdab9`, a pale peach, and against
+white item text it carries much less contrast than gold does on the crypto
+cut — the payoff mark reads weaker than the crosses that precede it. Look at
+the frame before approving a checklist here. If it does not land, the fix is
+the brand's `primary`, not a special case inside the beat.
+
+**The photographs' hairline was gold too**, on every tinnitus short and every
+tinnitus long-form video, for the same reason. `PhotoShot` takes the brand now.
+Anything rendered before this is off-brand at the photo edges.
 
 **`bars` needs a frame-dependent fraction.** The value text travels with the end
 of its own bar, so a long top bar pushes it off the right edge. The same data
@@ -192,26 +253,35 @@ Verified at 11.07px peak-to-peak travel with zero identical consecutive frames.
 the lockup's *float-adjusted* top crosses `SAFE_TOP`, rather than letting it ship
 covered.
 
-**Next: make the watermark roam.** Requested after the first cut and not built
-yet. Hold it upper-left for a stretch, cut to bottom-right, cut back — the way
-TikTok's own download watermark moves. Two reasons it is worth doing: a mark that
-moves is much harder to crop out of a reposted video, and a mark that changes
-position resists the eye's habit of learning where to ignore.
+**The watermark can roam, and it is built.** Pass `roam=True` to
+`render_asmr_short` or `render_tinnitus_short` (and `render_crypto_short`); it
+holds the mark upper-left, cuts to lower-right, cuts back, the way TikTok's own
+download watermark moves. Off by default, so every shipped cut is unchanged.
+Two reasons to turn it on: a mark that moves is much harder to crop out of a
+reposted video, and a mark that changes position resists the eye's habit of
+learning where to ignore.
 
-Building it, the constraints already established here apply and one is new:
+- **`logo_hold` defaults to 13s**, inside the 10-15s range and sharing no factor
+  with the 10s breathing cycle or the 5.5s levitation period, so the jump never
+  lands on the same phase twice.
+- **It cuts between positions, it does not slide.** A lockup travelling across
+  frame would be a second moving object competing with the ring, which is the
+  one thing the viewer is supposed to follow.
+- **The levitation keeps running at each anchor** — it is what stops the mark
+  reading as a sticker.
+- `crypto.shots.roam_anchors` places the lower-right one. It is the tight
+  corner: the right rail runs to `safe_right=860` and the caption block starts
+  at `SAFE_BOTTOM=1440`, so it is set against those with 40px of air rather
+  than against the frame's real corner, which is under the share button on all
+  three platforms. **Every anchor is validated, not just the first** —
+  `Frame.check_mark` checks all four edges where `check_top` checked one.
+- Verified anchors: crypto logo `(58,268)`/`(520,1353)`, the tinnitus article
+  lockup `(58,268)`/`(686,1262)`, the ASMR lockup `(58,292)`/`(622,1242)`.
 
-- Both anchors must sit inside the safe box, which for the bottom-right corner is
-  the tight one — the right rail runs to about `x=860` and the caption block
-  starts around `SAFE_BOTTOM=1440`, so the lower anchor wants roughly
-  `(820 - lockup_width, 1300)` rather than a true corner. Validate both anchors
-  the way `brand_at` is validated now, not just the first.
-- **Cut between positions, do not slide.** A lockup travelling across frame is a
-  second moving object competing with the ring, which is the one thing the viewer
-  is supposed to follow. TikTok cuts for the same reason.
-- Keep the levitation running at each anchor; it is what stops the mark reading
-  as a sticker.
-- Hold each position long enough to be read — 10-15s is the range worth trying
-  first, and the hold should not divide evenly into the breathing cycle.
+**Still worth a look on the first real cut:** the lower-right anchor is only as
+far right as `safe_right` allows, which for the 300px crypto mark is x=520 —
+nearer the middle of the frame than a corner. It reads fine in a still. If it
+reads as floating in motion, the lever is a narrower mark, not a wider safe box.
 
 The domain carries the plug, not the face alone: the site prompts for the app
 install on arrival, so one legible URL does the job the end card was doing. The
@@ -291,13 +361,61 @@ Unlike the drone shorts, **do not export silent for a trending sound.** The bed
 and the voice are the content; a trending sound would replace the thing the
 viewer came for.
 
+
+## Rules that arrived from the crypto side (2026-08-18)
+
+All four of these are engine-level or cross-channel; they were found on
+`crypto-exchanges` and they apply here unchanged.
+
+**Silence is punctuation, and it has to be written.** `gaps` on the `Section`
+(or the `gap` list in a short), one float per sentence. Leaving every sentence
+at the default 0.34 is what "monotone" means — pace is the only prosody a
+synthesiser has. 0.34 inside a thought, 0.45-0.60 at the end of one, 0.70-0.90
+before a line that has to land, 2.10-2.40 for a two-phase beat. **Longer than
+1.3 outside a beat is a hole, not a pause.**
+
+**Music: `assets/brand/music/` is one library for both sites.** The tracks are
+brand-neutral and the user's call is that a bed picked by ear beats a generated
+one that only measures correctly. `music.track("night-drift")` is on both
+channels now. Add another with `music.prepare_track`, which trims both ends —
+untrimmed encoder delay becomes a hole in the bed once per loop.
+
+**A ping-pong background must not fold at frame zero.** `pingpong` now drops one
+frame from each end of the reversed half and `Backdrop.at` samples from a
+quarter of the loop in, because a palindrome's turnaround is the one moment
+motion stops and every video was opening on one. Only the crypto water was
+affected — the aurora is generated on closed circular paths and has no fold —
+but re-measure any new footage background the same way: step series over the
+whole loop including the wrap, minimum must not land at a fold.
+
+**Check phonemes with espeak rather than guessing.** Kokoro phonemizes through
+espeak-ng, so `espeak-ng -v en-us -q --ipa "<word>"` is the whole check. It
+caught a brand name that shipped mispronounced. Put any respelling in the
+**spoken** half of a `(caption, spoken)` pair so the screen still reads
+correctly.
+
+**Thumbnails: three checks, every time.** The subject fits — no half faces at
+the frame edge, and `_layout` now penalises a crop that cuts a detected face.
+The type is not over the face — in 9:16 there is no search at all, so pass
+`band="bottom"` whenever the head is in the top half of the crop. And the words
+are the script's own words.
+
+**Two beats joined the portrait set**: `logos` (brand tiles, 2x2, optional
+tick/cross badges) and `chapter` (a full-screen statement at 148px, which is the
+strongest way a short can land its closing line). `compare` takes
+`name_columns=True` in landscape, which makes each heading its own revealed item
+so the graphic follows the voice instead of asking the viewer to interpret.
+
 ## Do not
 
 - Make medical claims. YMYL niche — describe partial masking and paced breathing
   as things people do, never as treatment, and never imply a cure.
 - Promote a candidate voice to approved without being told to.
-- Use `checklist` in an article short — it is the one beat still hard-coded to
-  the crypto palette.
+- Add stock footage, a roaming watermark or any other cutting element to an
+  **ASMR** short's picture. `roam` is available there and is the one exception
+  worth considering, because it is a crop-resistance measure rather than a
+  visual one — but the picture is deliberately calm and every extra moving
+  thing fights the audio, which is the product.
 - Default to driving traffic to the blog. **App install is the far better
   conversion from short-form**, and the only path here with a plausible route to
   revenue.

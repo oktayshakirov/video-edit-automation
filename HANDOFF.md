@@ -1,11 +1,11 @@
-# Handoff — state as of 2026-08-14
+# Handoff — state as of 2026-08-18
 
-Written to close out the session that built the Saylor long form. Everything
-below is committed and pushed; nothing is in flight.
+Written to close out the session that built the crypto-exchanges pair and the
+review round that followed it.
 
 **Repo:** `~/Coding/video-edit-automation` → https://github.com/oktayshakirov/video-edit-automation
 
-Five skills, symlinked into `~/.claude/skills/` so they work from any folder.
+Six skills, symlinked into `~/.claude/skills/` so they work from any folder.
 **Read the relevant SKILL.md first** — it carries the rules that were paid for,
 and this file deliberately does not repeat them.
 
@@ -15,8 +15,60 @@ and this file deliberately does not repeat them.
 | `/video-drone-short` | TikTok / Shorts from drone footage. |
 | `/video-crypto-short` | 9:16 shorts from thecrypto.wiki. |
 | `/video-tinnitus-short` | 9:16 shorts and ASMR for tinnitushelp.me. |
-| **`/video-crypto-long`** | **16:9 YouTube explainers from thecrypto.wiki.** |
-| **`/video-tinnitus-long`** | **16:9 explainers *and* sound-therapy sessions.** |
+| `/video-crypto-long` | 16:9 YouTube explainers from thecrypto.wiki. |
+| `/video-tinnitus-long` | 16:9 explainers *and* sound-therapy sessions. |
+
+## `projects/` says the format now
+
+`crypto-short/`, `crypto-long/`, `tinnitus-short/`, `tinnitus-long/`,
+`drone-long/`. Renamed 2026-08-18: `projects/crypto` and `projects/crypto-long`
+sat side by side and nothing said which one held the Shorts. See
+`projects/README.md`.
+
+## What the crypto-exchanges review changed in the engine
+
+Nine notes came back on the first cut. The ones that became engine changes
+rather than script changes:
+
+- **The ping-pong background folded at frame zero.** A palindrome turns around
+  at frame 0 and at its midpoint, and the naive build also repeated the frame at
+  each fold — a dead frame, twice per loop, forever. Measured on the old
+  `crypto-blackwater`: the two smallest steps in the whole 302-frame loop were
+  0->1 and 1->2. `pingpong` drops one frame from each end of the reversed half
+  and `Backdrop.at` samples from a quarter of the loop in. After: minimum step
+  2.82 at an ordinary moment in the water, wrap step 4.81 against a 4.49 median.
+  **`crypto-blackwater.mp4` was regenerated**; the aurora needed nothing, being
+  generated on closed circular paths.
+- **A new `logos` beat.** Brand tiles from the site's 27 exchange cards,
+  revealed one per caption, with optional tick/cross badges so it keeps the
+  checklist's two-phase payoff. Raises on a missing logo rather than drawing a
+  blank tile. Portrait lays it 2x2.
+- **`compare(name_columns=True)`.** Each heading becomes its own revealed item,
+  so the graphic follows the voice instead of asking the viewer which column it
+  is on. Opt-in, because the shipped mining-rig cut is written against the old
+  reveal count.
+- **`grid` puts three landscape cards in one column**, not a 2x2 with a hole.
+- **`chapter` in portrait** sets at 148px and is routed by the short factory —
+  a full-screen statement card for a Short's closing line.
+- **The thumbnail scorer penalises a crop that cuts a face**, compared against
+  the clamped box (the cascade returns boxes running off the source, and testing
+  the raw one made every candidate equally clipped).
+- **A shared music library.** `assets/brand/music/` serves both sites;
+  `night-drift` is now on the crypto channel as well as tinnitus.
+
+## Still unverified, and should be said rather than assumed
+
+- **Nobody has heard the audio.** Every mix decision remains measurement-only.
+- **No retention data for either channel.**
+- **`max_upscale=1.90` and the landscape safe box are still `GUESS`.**
+- **`mia` and `luna-calm` are candidates, not approved voices.**
+- **`ChecklistShot` in `crypto/shots.py` still draws the old drifting grid** —
+  `int((f * 40) % 96)` on a layer moving 40 px/s, which is the whole-pixel
+  judder every other moving element in this repo was fixed for, and it is the
+  last one left. The long-form beats replaced it with `core/backdrop.py` and the
+  shorts never followed. Not changed here because it would alter every shipped
+  short's look and neither current video uses that beat any more; it is the
+  first thing to do next time a short is rebuilt.
 
 ---
 

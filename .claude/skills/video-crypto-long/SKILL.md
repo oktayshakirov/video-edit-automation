@@ -58,8 +58,16 @@ before the site pages needed them, and the transcripts had to be rebuilt from
 | | value | why |
 |---|---|---|
 | frame | 1920x1080 | `core.frame.LANDSCAPE` |
-| runtime | **2:30–4:00** | under 2:30 sits awkwardly between Shorts and long form; v1 shipped at 2:47 |
+| runtime | **2:30–4:00**, and see below | under 2:30 sits awkwardly between Shorts and long form; v1 shipped at 2:47 |
 | words | 440–700 | `mia` runs ~2.9 words/sec with `gap=0.34` |
+
+**The word count assumes `gap=0.34` everywhere, and you should not be writing
+that any more.** Written pauses cost real time: the crypto-exchanges cut went
+4:07 -> 4:23 on gaps alone, ~16s across 55 sentences, and the video is better
+for every one of them. Budget roughly **0.3s per sentence** on top of the words
+when estimating, or write the script at the low end of the range. Do not buy the
+runtime target back by removing pauses — a monotone 3:50 is worse than a
+well-punctuated 4:20, and the ceiling was never a hard platform limit.
 | shots | 27–44 | ~5.5s mean |
 | captions | **SRT only, none burned** | see below |
 | voice | `mia` (`af_heart`) | the user's pick for the first cut. **Candidate, not approved.** |
@@ -105,6 +113,46 @@ why they are here:
 - **Hold scenes.** Put `None` in the shots list where the picture should ride
   through the next sentence. One shot per sentence is a new scene every four
   seconds — a metronome, not a rhythm.
+
+## Silence is punctuation, and it has to be written
+
+`gaps` on the `Section`, one float per sentence. **Leaving every sentence at the
+default 0.34 is what "monotone" means** — that was the user's word for the first
+crypto-exchanges cut and it is the correct diagnosis: pace is the only prosody
+a synthesiser has, so a script that never varies the space between sentences is
+a script read at one pitch for four minutes.
+
+The convention, applied to every section of that cut:
+
+| gap | where |
+|---|---|
+| 0.34 | inside a thought — clauses of one idea, the items of a list |
+| 0.45-0.60 | end of a thought, before the next one starts |
+| 0.70-0.90 | before a line that has to land, and on a section's last sentence |
+| 1.10-1.30 | before a single-word answer, or after a full-screen statement |
+| 2.10-2.40 | a two-phase beat, so the verdicts have somewhere to land |
+
+**Longer than 1.3 outside a beat is a hole, not a pause.** The first build of
+this format learned that from the other direction — chapter cards sitting in
+2.4s of silence made every section boundary sound like a dropout, which is why
+the card titles are spoken. The same number that is right for a checklist is
+wrong for a sentence.
+
+Writing them costs one line per section and it is the cheapest quality change
+available in this format.
+
+## Phrases that are banned, and why one of them got here
+
+**Never write "here is the question almost nobody asks about it".** It went into
+three scripts before the user caught it. "About it" has nothing to attach to, so
+it is not English, and the whole clause is a windup that *announces* a question
+instead of asking one — which costs two seconds in the exact stretch where
+retention is decided. Ask the question: "But who is actually holding it?"
+
+The general rule behind it: **cut any clause whose only job is to introduce the
+next clause.** "Here is the thing", "what you need to understand is", "the
+question you should be asking" — all of them are the same tic, and second person
+present tense does the work without them.
 
 ## No burned captions
 
@@ -236,6 +284,27 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
   the two are not in tension: a numbered agenda tells the viewer they are being
   lectured, a numbered sequence *is* the content.
 
+- **`logos` is the beat for named brands, and it is not optional when the
+  script names them.** thecrypto.wiki owns 27 exchange cards in
+  `public/images/exchanges/` — full-bleed brand tiles, not transparent icons —
+  and a script that reads "Coinbase. Binance. Crypto.com." over a stock photo of
+  a trading desk is asking the viewer to hold three names in their head for no
+  reason. One caption per tile times the reveals. A third element per item adds
+  a tick or a cross into the tile's corner on a black disc, so the beat can be
+  two-phase exactly like a checklist — which is what keeps a lineup an open
+  question rather than a table. **It raises on a missing logo** rather than
+  drawing an empty tile: PancakeSwap is not in the library and the first build
+  drew a blank card and said nothing.
+- **`compare` takes `name_columns=True` and usually should.** With it, each
+  heading becomes its own revealed item, so the order on screen is the order in
+  the mouth: "Centralized", three items, "Decentralized", three items. Without
+  it both headings are painted at f=0 and the viewer has to work out which
+  column the voice is on — the user's note was that a comparison must never ask
+  them to interpret, and they are right. Write the heading as its own caption
+  chunk. It is opt-in only because the shipped mining-rig cut is written
+  against the old reveal count.
+- **Three `grid` cards go in one column, not a 2x2 with a hole in it.** Handled
+  automatically now; four still take the 2x2, which is a complete rectangle.
 - **The split layout is why this is sharp.** A 900px source — the site median —
   in a 660px picture column is a *downscale*. Full-frame photos are the only
   place the upscale ceiling bites. **Do not "fix" a beat by giving its picture
@@ -388,9 +457,51 @@ cross-fades two sets of type through each other and reads as a rendering fault.
 `plan.lay_out` sets `xfade=0` automatically between beats and on both sides of a
 chapter card. Do not override it.
 
-**The drifting grid only draws on a flat panel.** Its tint is near-black, picked
-against a dark backdrop; over a bright blurred photograph it reads as graph
-paper. Over a photo the backdrop drifts instead.
+**The drifting grid is gone, on both channels.** It stepped a whole pixel at a
+time — `int((f * 40) % 96)` on a layer moving 40 px/s — which is the judder
+this repo fixed everywhere else years ago, and it was the same ruled lines
+behind every beat of every video on both sites.
+
+`core/backdrop.py` replaces it with a looping asset per brand, named by
+`Brand.backdrop` and living in `assets/brand/backgrounds/`. **thecrypto.wiki is
+`crypto-blackwater`** — black water, ping-ponged from the calm-water stock,
+dimmed and desaturated. The user's call, and it is the better ground: gold type
+on a near-black surface with slow specular movement reads as depth where ruled
+lines read as a template.
+
+Three constraints, all of which will bite if ignored:
+
+- **Backgrounds are square, 512x512.** One file serves 1920x1080 and 1080x1920,
+  scaled to fill and centre-cropped. Only viable because they are soft and
+  low-frequency; anything with legible content in it does not belong here.
+- **Sampled by timeline seconds, not the beat's `f`** — otherwise the whole
+  loop plays inside every beat and the background changes speed at each cut.
+- **`dim` must multiply.** ffmpeg's `eq=brightness` adds a constant, and
+  dimming already-dark footage that way returned pure black, measured at mean
+  luma 0.0. `pingpong()` uses `colorchannelmixer`.
+
+Ping-pong is what makes real footage loop without a blend, and it is **only**
+invisible on subjects with no arrow of time — water, smoke, cloth. Measured on
+the water: seam 2.91 against a median ordinary step of 4.41, so the join is
+less change than a normal frame.
+
+Over a photograph the backdrop still drifts instead; that path is unchanged.
+
+**A ping-pong background must not fold at frame zero, and must not repeat a
+frame at either fold.** Both were true of the first `crypto-blackwater` and
+together they are what the user saw as "the animation starts rewound and sorts
+itself out in the first second". A palindrome turns around at frame 0 and again
+at its midpoint; a naive forward-plus-reverse also *repeats* the frame at each
+turn, and a repeated frame is a dead frame — motion stops. Measured on the old
+asset, the two smallest steps in the whole 302-frame loop were 0->1 and 1->2, at
+2.66 and 2.73 against a median of 4.36.
+
+`pingpong` now drops one frame from each end of the reversed half, and
+`Backdrop.at` samples from a quarter of the loop in, so no video ever opens on a
+fold. After: minimum step 2.82 at frame 109 — an ordinary quiet moment in the
+water — and the wrap step 4.81 against a 4.49 median. **Re-measure this way
+after adding any footage background**: `d[i] = mean|f[i+1]-f[i]|` over the whole
+loop including the wrap, and check the minimum is not at a fold.
 
 **Measure the block, then centre it.** Every beat was first laid out from
 fractions of frame height and every one left the bottom 40–50% of the frame
@@ -412,12 +523,44 @@ own sentence's audio, so it can never bleed across the silence a chapter card
 occupies — that is automatic now, but it is why the first pilot burned "There is
 no third answer." straight over chapter card 03.
 
+**Check phonemes with espeak, not by guessing.** Kokoro phonemizes through
+espeak-ng, so the answer is one command away and there is no reason to ship a
+mispronounced brand name:
+
+```bash
+espeak-ng -v en-us -q --ipa "Binance"
+```
+
+`Binance` comes back `baɪnˈæns` — bye-NANCE, stress on the second syllable —
+which is what shipped and what the user caught. `Bynanse` comes back
+`bˈaɪnæns`, which is the brand's own BY-nance. Put the respelling in the
+**spoken** half of a `(caption, spoken)` pair so the screen still reads
+correctly. Same trick for `USD` (`jˌuːˌɛsdˈiː`, the three letters, which is what
+to say when the pair on screen reads USD) and `Crypto.com` -> "Crypto dot com".
+
 **Check phonemes before rendering.** `ecdsa` comes out `ˈɛkdsə` and `secp256k1`
 is worse — `satoshi-proof.py` says "a cryptographic signature" throughout
 instead. Years are fine (`2009` → "two thousand nine"). Spell out or avoid any
 initialism.
 
-## Music — generated, not fetched
+## Music — a small shared library, or generated
+
+`assets/brand/music/` holds real tracks picked by ear, and **it serves both
+sites**: the tracks are brand-neutral and the user's call is one library, not
+one per channel. `music.track("night-drift")` is what the crypto-exchanges cut
+uses. Add another with `music.prepare_track(src, name)`, which trims both ends
+and stores WAV — **an mp3 decodes with encoder delay bolted to the front and
+`render_bed` loops the track, so untrimmed silence becomes a hole in the bed
+once per loop**, twenty-nine times in a four minute video.
+
+Check the source's licence before anything monetised, and check the loop by
+ear: trimming fixes silence, not a track that was never written to loop.
+
+The generated presets below remain the licence-safe default and the right
+choice when nobody has picked a track.
+
+## The generated beds
+
 
 `core/music.py` synthesizes the bed. **`pulse`** is the crypto default —
 112 BPM, plucked sixteenths, soft kick. Also `momentum` (100 BPM, calmer),
@@ -505,6 +648,22 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   the one colour that cuts hardest against gold. It was fine ninety seconds in
   and wrong at second three. The box is about brightness; hue against the brand
   is a separate judgement the numbers do not make for you.
+- **The luma box does not screen a screenshot, and a website screenshot is an
+  infographic.** A line about a product should show the product, and the site
+  owns two kinds of picture for that. `bitfinex-ui.png` measures L46 and
+  `gemini-exchange-trading.jpg` L67 — both comfortably inside the box — and on
+  the frame they are bright teal marketing pages with a promo bar and two
+  hundred words of unreadable small type. **A UI is dark chrome carrying small
+  bright text, so the mean reads dark while the eye reads bright**, and the
+  legible content is the same objection the no-infographics rule already makes
+  about diagrams. Both shipped into a cut and both had to come out.
+  There is also a second problem with a *branded* homepage: a company's own
+  page under a line about custody risk is closer to naming a platform than an
+  explainer wants to be.
+  What works instead is the **app**, unbranded: `portfolio.jpg` is a phone
+  showing a coin list and balances, which is what a viewer pictures when they
+  hear "your balance". Screen a screenshot by looking at it, not by measuring
+  it.
 - **Never put a site infographic in a full-frame shot.** A Ken Burns move on a
   diagram crops its own title off the top and its last row off the bottom, which
   is what shipped and what the user caught at 0:27. And at 660px in a beat's
@@ -624,6 +783,28 @@ watermark** — the first two are searched and the third was removed.
   the eye reads as a flat blue field. Look at the render before believing
   either the score or the override — but note that **all three thumbnails so
   far ship overridden**, which says as much about the scorer as the pictures.
+
+### Check three things on every thumbnail before shipping it
+
+The user's standing list, from reviewing the crypto-exchanges pair:
+
+1. **The subject fits.** Half a face against the frame edge is not a promise
+   about who the video is about. `_layout` now penalises a face the crop cuts —
+   compared against the *clamped* box, because the cascade routinely returns a
+   box running off the source and testing the raw one made every candidate
+   equally clipped, so the penalty discriminated between nothing.
+2. **The type is not over the face.** Landscape: the scorer already treats that
+   as fatal. Vertical: it does not search at all, so pass `band="bottom"`
+   whenever the subject's head is in the top half — which is most crops of a
+   landscape source.
+3. **The words are the video's own words.** "Your crypto", not "your coins", if
+   that is what the script says.
+
+**The scorer cannot always win, and hand-placing is not a failure.**
+`futuristic-crypto-exchange.jpg` scores +0.90 at every zoom because the man's
+detected box overlaps the type column wherever the type goes.
+`crop_at=(0.0, 0.0)` with `side="right"` keeps his whole head and puts the words
+on the dashboard's dark falloff. Record the reason in the script, as here.
 
 ### The layout is searched, and the search is the point
 
