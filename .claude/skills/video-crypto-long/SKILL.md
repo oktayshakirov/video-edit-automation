@@ -58,8 +58,16 @@ before the site pages needed them, and the transcripts had to be rebuilt from
 | | value | why |
 |---|---|---|
 | frame | 1920x1080 | `core.frame.LANDSCAPE` |
-| runtime | **2:30–4:00** | under 2:30 sits awkwardly between Shorts and long form; v1 shipped at 2:47 |
+| runtime | **2:30–4:00**, and see below | under 2:30 sits awkwardly between Shorts and long form; v1 shipped at 2:47 |
 | words | 440–700 | `mia` runs ~2.9 words/sec with `gap=0.34` |
+
+**The word count assumes `gap=0.34` everywhere, and you should not be writing
+that any more.** Written pauses cost real time: the crypto-exchanges cut went
+4:07 -> 4:23 on gaps alone, ~16s across 55 sentences, and the video is better
+for every one of them. Budget roughly **0.3s per sentence** on top of the words
+when estimating, or write the script at the low end of the range. Do not buy the
+runtime target back by removing pauses — a monotone 3:50 is worse than a
+well-punctuated 4:20, and the ceiling was never a hard platform limit.
 | shots | 27–44 | ~5.5s mean |
 | captions | **SRT only, none burned** | see below |
 | voice | `mia` (`af_heart`) | the user's pick for the first cut. **Candidate, not approved.** |
@@ -640,14 +648,22 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   the one colour that cuts hardest against gold. It was fine ninety seconds in
   and wrong at second three. The box is about brightness; hue against the brand
   is a separate judgement the numbers do not make for you.
-- **The site owns product screenshots, and a line about a product should show
-  one.** `posts/bitfinex-ui.png` is a real centralized-exchange interface at
-  1887px — the only picture in the whole library that needs no upscale at all —
-  and `gemini-exchange-trading.jpg` is a second. Most of the others are out on
-  brightness (`upbit-exchange-interface.webp` L230, `bitget-trading.jpg` L243),
-  so screen them like anything else, but check for one before reaching for an
-  abstract. A line about what an exchange *feels* like wants an exchange on
-  screen.
+- **The luma box does not screen a screenshot, and a website screenshot is an
+  infographic.** A line about a product should show the product, and the site
+  owns two kinds of picture for that. `bitfinex-ui.png` measures L46 and
+  `gemini-exchange-trading.jpg` L67 — both comfortably inside the box — and on
+  the frame they are bright teal marketing pages with a promo bar and two
+  hundred words of unreadable small type. **A UI is dark chrome carrying small
+  bright text, so the mean reads dark while the eye reads bright**, and the
+  legible content is the same objection the no-infographics rule already makes
+  about diagrams. Both shipped into a cut and both had to come out.
+  There is also a second problem with a *branded* homepage: a company's own
+  page under a line about custody risk is closer to naming a platform than an
+  explainer wants to be.
+  What works instead is the **app**, unbranded: `portfolio.jpg` is a phone
+  showing a coin list and balances, which is what a viewer pictures when they
+  hear "your balance". Screen a screenshot by looking at it, not by measuring
+  it.
 - **Never put a site infographic in a full-frame shot.** A Ken Burns move on a
   diagram crops its own title off the top and its last row off the bottom, which
   is what shipped and what the user caught at 0:27. And at 660px in a beat's
