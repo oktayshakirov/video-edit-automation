@@ -161,6 +161,20 @@ MIN_SLOT_BARS_BY_MOVE = {"orbit": 2, "lateral": 2}
 MAX_USES_DEFAULT = 8
 MAX_USES_BY_MOVE = {"orbit": 3}
 
+# Cap one named clip, by filename substring: {substring: max uses}. Set per
+# project, and it wins over both defaults above.
+#
+# Move type is the wrong handle for a shot that has to be shown whole. A
+# vertical reveal travelling from an overhead frame down into the sunset is one
+# gesture: split across two slots the gesture is gone, and the two halves read
+# as two mediocre shots. Capping every "vertical" clip to reserve one of them
+# starves the library, so the cap has to be able to name the clip.
+#
+# Unlike the caps above this one is absolute. When the library runs dry the
+# scorer lifts MAX_USES rather than replay footage, but lifting a cap that
+# exists to keep a clip intact would undo the only thing it was for.
+CLIP_MAX_USES: dict[str, int] = {}
+
 # Pressure toward using the whole library rather than the head of every clip.
 W_COVERAGE = 0.25             # favours clips with material left
 W_BITE = 0.30                 # favours consuming more of a clip per cut
@@ -224,6 +238,13 @@ PIN_CLIPS: dict[int, str] = {}
 # clip's length is still chosen by scoring, which can differ from the length the
 # clip it replaced happened to have — a 2-bar shot becomes a 1-bar one and the
 # replacement does not cover the same span.
+#
+# A length set here is taken literally: it need not appear in LEGAL_SLOT_BARS
+# and it is not capped by MAX_SHOT_SECONDS. Those two govern what the scorer may
+# invent, and a pin is not an invention. It is also the only way to fit a slot
+# to a clip rather than the reverse — a 17.5s reveal shown whole at 2x wants
+# 8.68s of timeline, which is three bars, and three bars is not a length the
+# scorer would ever choose on its own.
 PIN_SLOT_BARS: dict[int, int] = {}
 
 # --- location pin overlay --------------------------------------------------

@@ -28,6 +28,7 @@ from .config import (
     ALLOW_SPEEDUP,
     AUTO_REVERSE,
     CLIP_HEAD_SKIP,
+    CLIP_MAX_USES,
     CLIP_REVERSE_OVERRIDE,
     CLIP_SKIP_RANGES,
     ESCALATE_AT_BARS,
@@ -91,7 +92,27 @@ class Clip:
 
     @property
     def max_uses(self) -> int:
+        named = self._named_cap()
+        if named is not None:
+            return named
         return MAX_USES_BY_MOVE.get(self.move_type, MAX_USES_DEFAULT)
+
+    def _named_cap(self) -> int | None:
+        """This clip's CLIP_MAX_USES entry, matched on filename substring."""
+        low = self.filename.lower()
+        for frag, cap in CLIP_MAX_USES.items():
+            if frag.lower() in low:
+                return cap
+        return None
+
+    @property
+    def cap_is_absolute(self) -> bool:
+        """True when the cap exists to keep the clip intact, not to pace it.
+
+        The relax pass lifts use caps rather than let the timeline run short.
+        A named cap is not a pacing preference, so it survives that pass.
+        """
+        return self._named_cap() is not None
 
     def start_for(self, need: int, fps: int) -> int | None:
         """Where the next `need` frames can start, hopping excluded ranges.
@@ -503,6 +524,12 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             # and the use cap. Everything else about the slot is unchanged.
             pin = PIN_CLIPS.get(bar)
 
+            # A pin is also a reservation. Without this the scorer spends the
+            # clip on an earlier slot on merit and the pin then reports "no
+            # material left" — which is what happened to every clip capped at a
+            # single use, since one use is all there was to spend.
+            reserved = {frag.lower() for at, frag in PIN_CLIPS.items() if at > bar}
+
             def eligible(relax_uses: bool) -> list[Clip]:
                 out = []
                 for clip in clips:
@@ -512,10 +539,14 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                         if pin.lower() not in clip.filename.lower():
                             continue
                     else:
+                        low = clip.filename.lower()
+                        if any(frag in low for frag in reserved):
+                            continue
                         cooling = (slot_i - clip.last_used_slot) < REUSE_COOLDOWN_SLOTS
                         if cooling and clip.times_used > 0:
                             continue
-                        if clip.times_used >= clip.max_uses and not relax_uses:
+                        spent = clip.times_used >= clip.max_uses
+                        if spent and (not relax_uses or clip.cap_is_absolute):
                             continue
                     out.append(clip)
                 return out
@@ -528,11 +559,12 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             candidates = eligible(False) or eligible(True)
 
             for clip in candidates:
+                # A pinned length is taken literally — it is an instruction, so
+                # it is not filtered against the legal set or MAX_SHOT_SECONDS.
                 pinned_bars = PIN_SLOT_BARS.get(bar)
-                for bars in legal_bars:
+                bar_choices = (pinned_bars,) if pinned_bars is not None else legal_bars
+                for bars in bar_choices:
                     if bars > room:
-                        continue
-                    if pinned_bars is not None and bars != pinned_bars:
                         continue
                     # A pinned clip is allowed to take a shorter slot than its
                     # move type would normally justify — the instruction wins.
@@ -688,7 +720,19 @@ def _absorb_lead_in(cuts: list[Cut], fps: int) -> None:
     # Only extend if the clip genuinely has the frames; never slow it to fit.
     src = int(round(new_dur * c.rate))
     if avail < src:
-        return                                 # validator will flag the gap
+        # A sped-up opening shot pays for the lead-in twice over — at 2x, five
+        # extra timeline frames cost ten source frames — and a clip chosen to
+        # fill its slot exactly has no such margin. Fit the rate down to what
+        # the clip holds rather than leave the spine opening on a gap. The
+        # floor is real time; below that the shot would be slowed, which this
+        # engine never does.
+        fitted = avail / new_dur
+        if fitted < 1.0:
+            return                             # validator will flag the gap
+        print(f"  note: opening shot fitted to {fitted:.3f}x (from {c.rate:.3f}x) "
+              f"to absorb the {lead}-frame lead-in without a gap")
+        c.rate = fitted
+        src = avail
 
     c.timeline_start = 0
     c.duration = new_dur
