@@ -392,7 +392,7 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
             timeline_start=round(t0 * fps), duration=tl_frames,
             source_start=src_at, source_duration=src_frames,
             rate=rate, section_label=_label_at(track, bar),
-            reverse=clip.reverse, ramp=ramp,
+            reverse=bool(entry.get("reverse", clip.reverse)), ramp=ramp,
             body_speed=body_speed, tail_speed=tail_speed,
         ))
         clip.cursor = src_at + src_frames
@@ -409,7 +409,13 @@ def dump_lock(cuts: list[Cut]) -> str:
         "# approved running order survives changes made elsewhere.",
         "#",
         "# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one",
-        "# musical bar), `rate` sets a constant speed-up.",
+        "# musical bar), `rate` sets a constant speed-up, `reverse` sets the play",
+        "# direction for this slot alone.",
+        "#",
+        "# `reverse` is here because direction is a property of a shot, not of a",
+        "# clip. CLIP_REVERSE_OVERRIDE can only flip every use of a clip at once,",
+        "# which is right for a clip used once and wrong the moment one slot wants",
+        "# to run backwards and another forwards.",
         "# Regenerate from the current edit with `build --lock-out <file>`.",
         "",
     ]
@@ -420,6 +426,7 @@ def dump_lock(cuts: list[Cut]) -> str:
             f'clip = "{c.clip.filename}"',
             f"bars = {c.bars}",
             f"rate = {c.rate:.3f}",
+            f"reverse = {str(c.reverse).lower()}",
             "",
         ]
     return "\n".join(lines)
