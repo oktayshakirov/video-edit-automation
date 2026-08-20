@@ -51,11 +51,12 @@ sites here, only a wrong guess that there was.
    and the poster URL (`curl -sL`, see the **Production URLs** table in the
    `publish-content` skill) until they 200 - that is the deploy gate, and
    sharing before it passes risks a broken card.
-6. **Share the long only, with the Share Video workflow** (`publish-content`
-   skill, workflow `MZy8L37FaVL5zh64`, `{videoId, topic}`). Works on unlisted
-   videos - oembed does not require Public. Verify the run the way that skill
-   says to: Facebook node has an `id`, Telegram's `link_preview_options` is a
-   bare `{url: ...}` (a card), not `{is_disabled: true}` (a bare link).
+6. **Upload the video natively to Facebook**, with the Publish Facebook Video
+   workflow (`publish-content` skill). This replaced the old Share Video
+   workflow, which posted a YouTube link for Facebook and Telegram to unfurl
+   into a card - a link post sends the viewer away and earns an outbound link's
+   reach, which is exactly what native upload avoids. **Long form only**; it is
+   not a Reel and has no duration cap.
 7. **Tell the user the video is still unlisted.** Nothing in this pipeline can
    flip privacy to Public - `youtube-audit`'s scopes are deliberately capped
    at `list` + `update` on snippet fields, and privacy is a `status` write

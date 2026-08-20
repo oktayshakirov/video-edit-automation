@@ -43,8 +43,10 @@ instruction.
 2. **YouTube, via `youtube-audit`.** Dry run, then `--apply`.
 3. **Vertical only: start the tunnel**, publish the Reels, publish TikTok, stop
    the tunnel.
-4. **Long only: poster, `videos.json`, deploy gate, Share Video.** Unchanged from
-   what `video-crypto-long` already documents; that is still the canonical copy.
+4. **Long only: poster, `videos.json`, deploy gate, native Facebook upload.**
+   Unchanged from what `video-crypto-long` already documents; that is still the
+   canonical copy. The Facebook step is the Publish Facebook Video workflow -
+   the Share Video workflows it replaced were deleted on 2026-08-20.
 5. **Report what is still unlisted or private and what needs a manual tick.**
 
 ## YouTube
