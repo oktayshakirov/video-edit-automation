@@ -76,9 +76,16 @@ five long-form videos over the same period.
 ## Building one
 
 ```python
-from video_automation.core.vertical import pick_crop, render_text_png, render_short, sample_bg_luma
-from video_automation.core.voiceover import render_narrated, render_narrated_cuts, profile_args
+from video_automation.core.vertical import (pick_crop, pick_crop_tile, stack_tile_size,
+                                             render_text_png, render_short, sample_bg_luma)
+from video_automation.core.voiceover import (render_narrated, render_narrated_cuts,
+                                              render_narrated_stack, profile_args)
 ```
+
+**One clip or two is the user's call, not a default.** The user says how many
+videos go into a given short; do not silently pick the stacked layout because
+two clips happen to be sitting in the folder, and do not silently pick a single
+clip because it's simpler. Ask if it genuinely isn't stated.
 
 Silent quote card:
 
@@ -89,11 +96,9 @@ png  = render_text_png(text, tmp/"t.png", bg_luma=luma)
 render_short(src, out, start, 12.0, box, png)
 ```
 
-Narrated with synced captions:
+Narrated with synced captions, one clip:
 
 ```python
-FUTURA = "/System/Library/Fonts/Supplemental/Futura.ttc"
-
 # One inner list = one spoken sentence, chunked only for the captions.
 # (caption, spoken) where screen and engine differ — heteronyms, quote marks.
 SENTENCES = [
@@ -108,23 +113,21 @@ render_narrated(
     src, out, start=2.0, box=box,
     text=" ".join(c for s in SENTENCES for c, _ in s), workdir=work,
     sentences=SENTENCES,    # NOT phrases= — see Caption sync
-    voice=None,             # the approved am_onyx 60 / am_puck 40 blend
-    mood="melancholic",
-    font_path=FUTURA, font_index=0,
-    font_size=44, stroke=4, y_frac=0.34,
+    # font_path/font_index default to FONT_QUOTE (Iowan Old Style Italic) —
+    # see Text below. No need to pass them.
+    stroke=4, y_frac=0.34,
     gap=0.65, tail=1.2,     # gap is between sentences only; tail stays 1-2s
-)
+    **profile_args("leo"))
 ```
 
-Across several clips — `render_narrated_cuts` takes `(src, in-point, box)` per
-clip and returns `(out, total, cuts)`:
+Across several clips cut in sequence — `render_narrated_cuts` takes
+`(src, in-point, box)` per clip and returns `(out, total, cuts)`:
 
 ```python
 render_narrated_cuts(
     [(clip_a, 2.0, box_a), (clip_b, 8.0, box_b), (clip_c, 8.0, box_c)],
     out, SENTENCES, work, y_frac=0.48, gap=[0.65, 1.9, 0.65], tail=1.2,
-    font_path=FUTURA, font_index=0, font_size=44, stroke=4, fps=30,
-    **profile_args("leo"))
+    stroke=4, fps=30, **profile_args("leo"))
 ```
 
 `plan_cuts` snaps cut points to **caption boundaries**, never to even time —
@@ -135,6 +138,35 @@ share fps and dimensions, because `concat` demands it.
 
 **But reach for one clip first.** See *The reveal format* below — a clip that
 already moves usually beats cutting between clips that do not.
+
+**Two clips stacked into one frame** — approved on Sunset Sea Stack, the first
+short built from two unrelated clips rather than one clip or a sequence of
+cuts. Both tiles fill the whole width; the quote reads on the black band
+between them rather than over either picture:
+
+```python
+tile_w, tile_h = stack_tile_size()                 # band=140 by default
+box_top    = pick_crop_tile(proxy_top, tile_w, tile_h)
+box_bottom = pick_crop_tile(proxy_bottom, tile_w, tile_h)
+
+ORANGE = (255, 150, 60, 255)     # pulled off a sun track — pick from the actual footage
+
+out, total = render_narrated_stack(
+    (clip_top, 2.0, box_top), (clip_bottom, 1.0, box_bottom),
+    out, SENTENCES, work,
+    font_size=lambda c: 88 if c == "LUCKY" else 44,
+    ink=lambda c: ORANGE if c == "LUCKY" else None,
+    gap=[0.6, 0.6, 1.7, 0.6],
+    **profile_args("leo"))
+```
+
+`pick_crop_tile` runs the same 2D interest search as `pick_crop`, but at the
+tile's own aspect (wider, shorter than 9:16) rather than one derived from
+`zoom` — it keeps far more of the sensor width, so a `lateral` move can survive
+here where it would exit a 28% 9:16 window. `stack_tile_size(band)` is the one
+source of truth for the tile size, so the crop search and the render call can't
+disagree about the split — always get `tile_w, tile_h` from it rather than
+hand-computing `OUT_H // 2`.
 
 Write outputs to the Desktop unless told otherwise — they are for uploading, not
 for the repo.
@@ -165,6 +197,15 @@ At 1.45 the window is ~1490 lines upscaled to 1920, which stays sharp from 4K.
 For laterals, use the stacked layout (two or three horizontal crops filling the
 9:16 frame) rather than cropping — already proven at 1,528 views on this channel.
 
+**The stacked layout wants a band, not a seam.** Approved on Sunset Sea Stack,
+now a repo function — `render_narrated_stack` in `voiceover.py`, tiles from
+`pick_crop_tile` — see *Building one* above for the call. Default is two
+1080x890 tiles with a 140px black band between them, captions centred at
+`y_frac=0.50` so they sit *in* the band. The first cut butted the tiles
+together and put the type across the join, which worked but made the type
+fight two moving pictures at once. The band gives it ground of its own and
+reads as a deliberate frame rather than a crop artifact.
+
 **Never use "rotate your phone".** It spends the one second that decides
 retention on an instruction. Cropping and stacking both perform; friction does not.
 
@@ -183,13 +224,26 @@ redesigned — each was iterated against real reference videos.
   actual timecode, because a sunset clip is bright sky up top and near-black
   where type lands. White below 0.62, near-black above
 
-**Narrated captions** (`stroke=4`) — approved on the City 1 cut
+**Narrated captions** (`stroke=4`) — approved on the City 1 cut, font revised
+on Sunset Sea Stack
 
-- **Futura Medium 44px** (`Futura.ttc`, index 0), max 920px wide. Chosen against
-  Avenir Next, Baskerville SemiBold Italic and Didot Bold on a real frame:
-  **serifs and a stroke do not mix** — the stroke swallows the thin strokes and
-  both serif faces went muddy. Futura's geometric forms hold the border, and the
-  slightly vintage cast suits the nostalgic register
+- **Iowan Old Style Italic 44px** (`Iowan Old Style.ttc`, index 2) is the
+  default for every narrated quote now — `render_narrated`,
+  `render_narrated_cuts` and `render_narrated_stack` all default `font_path`
+  to `FONT_QUOTE`/`FONT_QUOTE_INDEX` from `video_automation.core.vertical`.
+  Chosen over Futura on the Sunset Sea Stack cut and kept as the standing
+  default by the user's own call, on one clip or stacked — this **supersedes**
+  the earlier "serifs and a stroke do not mix" finding below, which was true of
+  Futura-vs-serif on that specific City 1 frame but was never re-tested once a
+  flat band existed. Also tested against Gill Sans SemiBold, Seravek Medium,
+  Avenir Next Medium Italic and Charter Italic
+- **Futura Medium 44px** (`Futura.ttc`, index 0) is still there as
+  `FONT_CAPTION`/`FONT_CAPTION_INDEX`, and is the right call if a specific cut's
+  footage fights the serif — pass `font_path=FONT_CAPTION,
+  font_index=FONT_CAPTION_INDEX` to override. Chosen originally against Avenir
+  Next, Baskerville SemiBold Italic and Didot Bold: the stroke swallowed the
+  thin strokes on every serif face tried at the time, over moving footage with
+  no band behind the type
 - **`y_frac` follows the frame, not a fixed number.** 0.50 on Hills Monument,
   where the horizon sits low; 0.34 on City 1, to clear the sun and skyline and
   put the type in open sky. Sample the crop and place the block in the emptiest
@@ -204,6 +258,11 @@ redesigned — each was iterated against real reference videos.
 - **`max_w` is wider than the silent card on purpose.** A spoken phrase wrapped
   onto two lines reads as two thoughts. At 920px every phrase up to about eight
   words sets on one line; if one wraps, shorten the phrase rather than the font
+- **One word may be coloured, pulled out of the footage.** `render_text_png`
+  takes `ink=`; on the stroked template the black border carries legibility, so
+  the fill is free. Approved on Sunset Sea Stack as `LUCKY` in `(255, 150, 60)`,
+  the orange of the sun track. One word per script, the same word that gets the
+  larger size — two coloured words is a theme, not an accent
 - **`font_size` may be a callable** `(caption) -> int`, so the one word the quote
   turns on can be set larger than the lines around it. Size is the only emphasis
   left — the treatment is already white-on-black-stroke, so there is no weight or
@@ -339,6 +398,39 @@ and needs more work.
 same runtime — slow delivery eats the budget fast. Roughly 30 words lands near
 12 seconds at melancholic pace, useful as a sanity check when drafting.
 
+## Utterance-final words get dragged, and it sounds like a glitch
+
+Measured on the approved voice, the word "sky" in one line, only its position
+and punctuation changed:
+
+| position | duration |
+|---|---|
+| mid-sentence, no punctuation | **0.459s** |
+| before a comma | 1.067s |
+| ending its own sentence | 0.624s |
+
+The user heard the comma version as "skyy" and flagged it as a glitch in the
+voice. It is not a glitch — Kokoro applies phrase-final lengthening, and on an
+open diphthong like `skˈaɪ` it stretches into something that sounds broken.
+Long vowels are exactly what a melancholic script is full of, so this will
+recur.
+
+**The fix is the word's position, not the audio chain.** Kokoro is
+deterministic, so re-rendering the same text reproduces the same drag exactly.
+Move the word off the boundary: drop the comma, or add a word after it. A
+second instance in the same script measured 0.747s before an `and`; changing
+"look at the same sky" to "look **up** at the same sky" brought it to 0.520s.
+
+Check any long-vowel word landing before a comma or a full stop:
+
+```python
+words = text.split()
+ends = align_chunks(_synth_raw(text, voice, mood), words, voice, mood)
+```
+
+Anything over ~0.6s on a one-syllable word is the drag. Captions are free to
+keep the comma — this only ever concerns the spoken half.
+
 ## Punctuation in the spoken half
 
 Tested against measured audio, three finished renders compared by ear, and
@@ -403,9 +495,15 @@ exactly what that one clip already did continuously, and the cuts interrupted
 the move that made the point. **Look for a clip that already performs the turn
 before reaching for `render_narrated_cuts`.**
 
-**The kicker is an empty caption** — `("", "this is not about trees, by the
-way.")`. No PNG, no overlay. The last line of the quote holds through the
-pause, then the frame clears and only the voice delivers it.
+**Caption the kicker.** `("this is not about the sky, btw", "this is not about
+the sky, by the way.")` — screen keeps the abbreviation, the engine gets the
+words. The user asked for this on Sunset Sea Stack, and it reverses the earlier
+rule: the kicker used to be an empty caption (`("", "...")`), voice only, so the
+frame cleared and the line landed on the ear alone. It reads better on screen —
+a muted viewer gets the payoff too, and on a looping short the last frame is
+the one that has to sell the rewatch. The empty caption still exists in the
+engine and is still the right tool when a line genuinely wants the frame to go
+quiet; it is just no longer the default for the reveal.
 
 **The pause before the reveal needs its own gap.** `gap=[0.65, 1.9, 0.65]` —
 one value per sentence. A pause only reads as a beat if it is longer than the

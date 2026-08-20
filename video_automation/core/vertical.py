@@ -43,6 +43,16 @@ FONT_CAPTION = "/System/Library/Fonts/Supplemental/Futura.ttc"
 FONT_CAPTION_INDEX = 0
 FONT_CAPTION_SIZE = 44
 
+# Iowan Old Style Italic — the approved caption face for the drone channel's
+# narrated *quote* shorts specifically (`render_narrated`/`render_narrated_stack`
+# defaults), chosen over Futura on the Sunset Sea Stack cut and kept as the
+# default for both the single-clip and stacked layouts. Distinct from
+# FONT_CAPTION above, which crypto/tinnitus/longform still use — this
+# constant only changes the drone quote pipeline's default.
+FONT_QUOTE = "/System/Library/Fonts/Supplemental/Iowan Old Style.ttc"
+FONT_QUOTE_INDEX = 2   # Italic
+FONT_QUOTE_SIZE = 44
+
 # TikTok and Shorts put their UI on the bottom band and right edge. The genre
 # sits type near 40% height, well clear of both, and keeps the block narrow.
 TEXT_MAX_W = 780
@@ -75,23 +85,14 @@ def interest_map(proxy: Path) -> np.ndarray | None:
     return None if n == 0 else acc / n
 
 
-def pick_crop(proxy: Path, zoom: float = 1.0,
-              src_w: int = 3840, src_h: int = 2160) -> tuple[int, int, int, int]:
-    """Place a 9:16 window over the frame — horizontally *and* vertically.
+def _search_box(m: np.ndarray | None, crop_w: int, crop_h: int,
+                src_w: int, src_h: int) -> tuple[int, int, int, int]:
+    """Slide a `crop_w` x `crop_h` window over the interest map, 2D.
 
-    Choosing x alone is not enough. On a wide landscape shot the interest sits
-    in a horizontal band near the ground, so a full-height window spends more
-    than half the frame on sky. `zoom` tightens the window (1.0 = full sensor
-    height, higher = closer) and the vertical position is then searched too.
-
-    At zoom 1.4 the window is 1543px tall and upscaled to 1920 — from a 4K
-    source that stays sharp, and it fills the frame with subject instead of air.
+    Shared by `pick_crop` (9:16) and `pick_crop_tile` (arbitrary aspect,
+    the stacked layout's tiles) — the search itself doesn't care what
+    aspect ratio the window is, only its size.
     """
-    crop_h = int(round(min(src_h, src_h / zoom)))
-    crop_w = int(round(crop_h * OUT_W / OUT_H))
-    crop_w = min(crop_w, src_w)
-
-    m = interest_map(proxy)
     if m is None:
         return (src_w - crop_w) // 2, (src_h - crop_h) // 2, crop_w, crop_h
 
@@ -113,6 +114,51 @@ def pick_crop(proxy: Path, zoom: float = 1.0,
     y = int(round(bxy[1] * src_h / ph))
     return (max(0, min(x, src_w - crop_w)),
             max(0, min(y, src_h - crop_h)), crop_w, crop_h)
+
+
+def pick_crop(proxy: Path, zoom: float = 1.0,
+              src_w: int = 3840, src_h: int = 2160) -> tuple[int, int, int, int]:
+    """Place a 9:16 window over the frame — horizontally *and* vertically.
+
+    Choosing x alone is not enough. On a wide landscape shot the interest sits
+    in a horizontal band near the ground, so a full-height window spends more
+    than half the frame on sky. `zoom` tightens the window (1.0 = full sensor
+    height, higher = closer) and the vertical position is then searched too.
+
+    At zoom 1.4 the window is 1543px tall and upscaled to 1920 — from a 4K
+    source that stays sharp, and it fills the frame with subject instead of air.
+    """
+    crop_h = int(round(min(src_h, src_h / zoom)))
+    crop_w = min(int(round(crop_h * OUT_W / OUT_H)), src_w)
+    return _search_box(interest_map(proxy), crop_w, crop_h, src_w, src_h)
+
+
+def stack_tile_size(band: int = 140) -> tuple[int, int]:
+    """The size of one tile in the stacked two-clip layout.
+
+    `band` is the black strip between the tiles that the caption sits in —
+    approved at 140px on Sunset Sea Stack. Call this before `pick_crop_tile`
+    for each clip so both tiles and the caller's `render_narrated_stack` call
+    agree on the same split without repeating the arithmetic.
+    """
+    return OUT_W, (OUT_H - band) // 2
+
+
+def pick_crop_tile(proxy: Path, tile_w: int, tile_h: int,
+                   src_w: int = 3840, src_h: int = 2160) -> tuple[int, int, int, int]:
+    """Place a window of an arbitrary aspect ratio — for a stacked-layout tile.
+
+    Same search as `pick_crop`, but the window is sized to the tile's own
+    aspect rather than derived from `zoom` against 9:16. A stack tile is wider
+    and shorter than a 9:16 crop, so it keeps far more of the sensor width —
+    enough that a `lateral` move can survive here where it would exit a 28%
+    9:16 window.
+    """
+    crop_h = src_h
+    crop_w = min(int(round(crop_h * tile_w / tile_h)), src_w)
+    if crop_w == src_w:
+        crop_h = min(int(round(crop_w * tile_h / tile_w)), src_h)
+    return _search_box(interest_map(proxy), crop_w, crop_h, src_w, src_h)
 
 
 def sample_bg_luma(src: Path, box: tuple[int, int, int, int], t: float) -> float:
@@ -177,7 +223,8 @@ def render_text_png(text: str, out: Path, size: int = 46,
                     bg_luma: float = 0.5, font_path: str = FONT_ROUNDED,
                     font_index: int = 0, y_frac: float = 0.40,
                     stroke: int = 0, max_w: int = TEXT_MAX_W,
-                    frame: Frame = VERTICAL) -> Path:
+                    frame: Frame = VERTICAL,
+                    ink: tuple[int, int, int, int] | None = None) -> Path:
     """Quote card in the style the genre actually uses.
 
     Deliberately unlike a lower-third: small type, no scrim or box.
@@ -192,6 +239,12 @@ def render_text_png(text: str, out: Path, size: int = 46,
       the only one that survives type crossing a horizon, where a single ink
       colour is wrong for half the line. `bg_luma` is ignored, because the
       contrast no longer comes from the background.
+
+    `ink` overrides the fill colour. Only worth reaching for on the stroked
+    template, and only on the one word a quote turns on — the black border
+    carries the legibility, so the fill is free to pick a colour out of the
+    footage. Everything else stays white; two coloured words is a theme, not
+    an accent.
 
     `y_frac` is the centre of the text block as a fraction of frame height.
     `max_w` is the wrap width; captions run wider than the silent quote card,
@@ -211,14 +264,15 @@ def render_text_png(text: str, out: Path, size: int = 46,
         y = top
         for ln in lines:
             w = d.textlength(ln, font=font)
-            d.text(((frame.w - w) / 2, y), ln, font=font, fill=(255, 255, 255, 255),
+            d.text(((frame.w - w) / 2, y), ln, font=font,
+                   fill=ink or (255, 255, 255, 255),
                    stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
             y += line_h
         img.save(out)
         return out
 
     dark_text = bg_luma > 0.62
-    ink = (18, 18, 18, 255) if dark_text else (255, 255, 255, 255)
+    ink = ink or ((18, 18, 18, 255) if dark_text else (255, 255, 255, 255))
     halo = (255, 255, 255, 128) if dark_text else (0, 0, 0, 150)
 
     layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))

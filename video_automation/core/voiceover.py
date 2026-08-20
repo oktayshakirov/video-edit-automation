@@ -46,8 +46,10 @@ from pathlib import Path
 
 from . import voices
 from .vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
+                       FONT_QUOTE, FONT_QUOTE_INDEX, FONT_QUOTE_SIZE,
                        OUT_H, OUT_W,
-                       render_short, render_text_png, sample_bg_luma)
+                       render_short, render_text_png, sample_bg_luma,
+                       stack_tile_size)
 
 TTS_BACKEND = "kokoro"                      # "kokoro" | "edge" | "say"
 
@@ -496,12 +498,12 @@ def render_narrated(src: Path, out: Path, start: float,
                     box: tuple[int, int, int, int], text: str,
                     workdir: Path, voice: VoiceSpec = None,
                     rate: int = 165,
-                    font_size: "int | Callable[[str], int]" = FONT_CAPTION_SIZE,
+                    font_size: "int | Callable[[str], int]" = FONT_QUOTE_SIZE,
                     backend: str = TTS_BACKEND, mood: str = "reflective",
                     phrases: list[Phrase] | None = None,
                     sentences: list[list[Phrase]] | None = None,
-                    font_path: str = FONT_CAPTION,
-                    font_index: int = FONT_CAPTION_INDEX,
+                    font_path: str = FONT_QUOTE,
+                    font_index: int = FONT_QUOTE_INDEX,
                     y_frac: float = 0.34, stroke: int = 4,
                     max_w: int = CAPTION_MAX_W,
                     gap: "float | list[float]" = GAP, tail: float = TAIL) -> tuple[Path, float]:
@@ -520,9 +522,15 @@ def render_narrated(src: Path, out: Path, start: float,
     speaks each caption in isolation and reads robotic when the chunks are short.
 
     `font_size` may be a callable taking the caption text, so the one word a
-    quote turns on can be set larger than the lines around it. Size is the only
-    emphasis available here — the treatment is already white-on-black-stroke,
-    so there is no weight or colour left to reach for.
+    quote turns on can be set larger than the lines around it. `render_text_png`
+    also takes `ink=`, so that word can be pulled out of the footage in colour
+    on top of the size bump — pass a per-caption colour by wrapping the call,
+    same pattern as `font_size`.
+
+    Defaults to Iowan Old Style Italic — the approved quote face, chosen over
+    Futura on the Sunset Sea Stack cut and now the default for every narrated
+    quote, on one clip or stacked. Pass `font_path=FONT_CAPTION` to fall back
+    to Futura if a particular cut wants the plainer face.
     """
     if sentences is not None:
         track, captions, total = build_narration_aligned(
@@ -596,9 +604,9 @@ def plan_cuts(captions: list[Caption], total: float, n: int,
 def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int]]],
                          out: Path, sentences: list[list[Phrase]], workdir: Path,
                          voice: VoiceSpec = None, mood: str = "melancholic",
-                         font_size: "int | Callable[[str], int]" = FONT_CAPTION_SIZE,
-                         font_path: str = FONT_CAPTION,
-                         font_index: int = FONT_CAPTION_INDEX,
+                         font_size: "int | Callable[[str], int]" = FONT_QUOTE_SIZE,
+                         font_path: str = FONT_QUOTE,
+                         font_index: int = FONT_QUOTE_INDEX,
                          y_frac: float = 0.34, stroke: int = 4,
                          max_w: int = CAPTION_MAX_W, fps: int = 30,
                          gap: "float | list[float]" = GAP, tail: float = TAIL,
@@ -667,3 +675,80 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
             "-shortest", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True, capture_output=True)
     return out, total, cuts
+
+
+def render_narrated_stack(top: tuple[Path, float, tuple[int, int, int, int]],
+                          bottom: tuple[Path, float, tuple[int, int, int, int]],
+                          out: Path, sentences: list[list[Phrase]],
+                          workdir: Path, voice: VoiceSpec = None,
+                          mood: str = "melancholic", band: int = 140,
+                          font_size: "int | Callable[[str], int]" = FONT_QUOTE_SIZE,
+                          font_path: str = FONT_QUOTE,
+                          font_index: int = FONT_QUOTE_INDEX,
+                          y_frac: float = 0.50, stroke: int = 4,
+                          max_w: int = CAPTION_MAX_W,
+                          ink: "Callable[[str], tuple[int,int,int,int] | None] | None" = None,
+                          fps: int = 30,
+                          gap: "float | list[float]" = GAP, tail: float = TAIL,
+                          ) -> tuple[Path, float]:
+    """Two clips stacked into one frame, quote read on the band between them.
+
+    `top` and `bottom` are each `(src, source_in_point, box)` — get `box` from
+    `pick_crop_tile(proxy, *stack_tile_size(band))`, so the tile search and this
+    call agree on the same split. Both clips are cut to the narration's total
+    length, so they must each run at least that long from their in-point.
+
+    The `band` is a flat black strip between the tiles, not a seam — it gives
+    the caption ground of its own instead of straddling two moving pictures,
+    and it's why the default face here is a serif italic rather than
+    `render_narrated`'s Futura: a stroke barely has to work on flat black, so
+    the thin strokes of a serif survive it. `y_frac=0.50` centres the caption
+    in the band by construction.
+
+    `font_size` and `ink` may be callables taking the caption text, same
+    pattern as `render_narrated` — pass both together to give one word a
+    bigger size *and* a colour pulled from the footage, the way `LUCKY` shipped
+    on Sunset Sea Stack.
+    """
+    (src_a, start_a, box_a), (src_b, start_b, box_b) = top, bottom
+    tile_w, tile_h = stack_tile_size(band)
+
+    track, captions, total = build_narration_aligned(
+        sentences, workdir, voice, mood, gap, tail)
+
+    shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
+    pngs = []
+    for i, c in shown:
+        p = workdir / f"cap{i:02d}.png"
+        size = font_size(c.text) if callable(font_size) else font_size
+        word_ink = ink(c.text) if callable(ink) else ink
+        render_text_png(c.text, p, size=size, font_path=font_path,
+                        font_index=font_index, y_frac=y_frac, stroke=stroke,
+                        max_w=max_w, ink=word_ink)
+        pngs.append(p)
+
+    xa, ya, wa, ha = box_a
+    xb, yb, wb, hb = box_b
+    chain = [
+        f"[0:v]crop={wa}:{ha}:{xa}:{ya},scale={tile_w}:{tile_h}:flags=lanczos[top]",
+        f"[1:v]crop={wb}:{hb}:{xb}:{yb},scale={tile_w}:{tile_h}:flags=lanczos[bot]",
+        f"color=c=black:s={tile_w}x{band}:r={fps}:d={total:.3f}[band]",
+        "[top][band][bot]vstack=inputs=3[v0]",
+    ]
+    for n, (_, c) in enumerate(shown):
+        chain.append(f"[v{n}][{n+2}:v]overlay=0:0:"
+                     f"enable='between(t,{c.start:.3f},{c.end:.3f})'[v{n+1}]")
+    chain.append(f"[v{len(shown)}]null[vout]")   # no fade to black — see `render_short`
+
+    cmd = ["ffmpeg", "-v", "error", "-y",
+           "-ss", f"{start_a}", "-t", f"{total:.3f}", "-i", str(src_a),
+           "-ss", f"{start_b}", "-t", f"{total:.3f}", "-i", str(src_b)]
+    for p in pngs:
+        cmd += ["-i", str(p)]
+    cmd += ["-i", str(track), "-filter_complex", ";".join(chain),
+            "-map", "[vout]", "-map", f"{len(pngs)+2}:a",
+            "-c:v", "libx264", "-crf", "18", "-preset", "slow",
+            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+            "-shortest", "-movflags", "+faststart", str(out)]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return out, total
