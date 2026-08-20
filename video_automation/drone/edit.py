@@ -29,6 +29,8 @@ from .config import (
     AUTO_REVERSE,
     CLIP_HEAD_SKIP,
     CLIP_MAX_USES,
+    HEAD_CLIPS,
+    HEAD_UNTIL_BAR,
     CLIP_REVERSE_OVERRIDE,
     CLIP_SKIP_RANGES,
     ESCALATE_AT_BARS,
@@ -157,6 +159,7 @@ class Cut:
     tail_speed: float = 0.0  # actual peak speed of an escalate, once fitted
     start_beat: int = 0      # slot start on the beat grid (bar * BEATS_PER_BAR)
     beats: int = 0           # slot length in beats; sub-bar slots need this
+    raw_timemap: list | None = None   # captured verbatim from an FCP export
 
 
 def _group_of(filename: str) -> str:
@@ -238,6 +241,11 @@ def overlapping_slices(cuts: list[Cut]) -> list[str]:
     """
     by: dict[str, list[tuple[float, float, int]]] = {}
     for i, c in enumerate(cuts, 1):
+        # Head clips are exempt. They were cut by hand, and revisiting a moment
+        # deliberately — a whip that races back over the shot it just played —
+        # is a choice there, not the allocator losing track of its cursor.
+        if c.section_label == "head":
+            continue
         by.setdefault(c.clip.filename, []).append(
             (c.source_start, c.source_start + c.source_duration, i))
 
@@ -319,7 +327,8 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
         """Frames this clip still owes slots that start after `at_beat`."""
         return sum(f for b, f in owed.get(name, []) if b > at_beat)
 
-    cuts: list[Cut] = []
+    cuts: list[Cut] = head_cuts(clips, fps)
+    n_head = len(cuts)
 
     for entry in entries:
         b0, blen = _slot_beats(entry)
@@ -398,7 +407,10 @@ def build_locked(track: Track, clips: list[Clip], fps: int,
         clip.cursor = src_at + src_frames
         clip.times_used += 1
 
-    _absorb_lead_in(cuts, fps)
+    # With a hand-cut head the spine already starts at frame 0; there is no
+    # lead-in to absorb and the captured clips must not be re-timed.
+    if not n_head:
+        _absorb_lead_in(cuts, fps)
     return cuts
 
 
@@ -420,6 +432,11 @@ def dump_lock(cuts: list[Cut]) -> str:
         "",
     ]
     for c in cuts:
+        # The hand-cut head is defined by HEAD_CLIPS and prepended on every
+        # build. Writing it here too would emit it twice and, since those clips
+        # have no slot on the bar grid, at bar 0 with zero length.
+        if c.section_label == "head":
+            continue
         lines += [
             "[[lock]]",
             f"bar = {c.start_bar}",
@@ -489,6 +506,46 @@ def _hue_distance(a: float, b: float) -> float:
     return min(d, 360.0 - d)
 
 
+def head_cuts(clips: list[Clip], fps: int) -> list[Cut]:
+    """The hand-cut opening from HEAD_CLIPS, as real cuts on the front of the spine.
+
+    These are not scored, not snapped and not re-derived — they are replayed at
+    the frame values captured from Final Cut. What they do take part in is the
+    footage accounting: a head clip advances its cursor and its use count, so a
+    clip spent here cannot be spent again by the scorer, and a cap of one use
+    means one use in total rather than one use each side of the join.
+    """
+    out: list[Cut] = []
+    for entry in HEAD_CLIPS:
+        name = entry["clip"]
+        clip = next((c for c in clips if name.lower() in c.filename.lower()), None)
+        if clip is None:
+            print(f"  note: HEAD_CLIPS names '{name}', not found in the index")
+            continue
+        off = round(entry["offset"] * fps)
+        start = round(entry.get("start", 0.0) * fps)
+        dur = round(entry["duration"] * fps)
+        tm = entry.get("timemap")
+        # Source consumed is what the timemap actually reaches, not the slot
+        # length — a 4x whip eats four seconds per second on screen.
+        src = round(max(v for _, v, _ in tm) * fps) - start if tm else dur
+        out.append(Cut(
+            clip=clip, start_bar=0, bars=0, start_beat=0, beats=0,
+            timeline_start=off, duration=dur,
+            source_start=start, source_duration=max(src, 1),
+            rate=1.0, section_label="head", reverse=False, ramp=None,
+            # Frames, not seconds. Written as decimal seconds these round to a
+            # hair past the asset duration and the writer's own exact rationals
+            # then disagree with them — the clip validated as reaching 29.0667s
+            # of a 29.0667s media.
+            raw_timemap=[(round(t * fps), round(v * fps), i)
+                         for t, v, i in tm] if tm else None,
+        ))
+        clip.cursor = max(clip.cursor, start + max(src, 1))
+        clip.times_used += 1
+    return out
+
+
 def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
     # Rescale section energies across this track so the calmest section maps to
     # the calmest clips. Without this, a track that never drops below 0.5 would
@@ -504,8 +561,9 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
     # Structural boundaries an escalate is allowed to launch from.
     boundaries = {s.start_bar for s in track.sections} | {track.sections[-1].end_bar}
 
-    cuts: list[Cut] = []
-    bar = 0
+    cuts: list[Cut] = head_cuts(clips, fps)
+    n_head = len(cuts)
+    bar = HEAD_UNTIL_BAR
     slot_i = 0
     last_escalate = -999
     prev: Clip | None = None
@@ -703,7 +761,10 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             bar += bars
             slot_i += 1
 
-    _absorb_lead_in(cuts, fps)
+    # With a hand-cut head the spine already starts at frame 0; there is no
+    # lead-in to absorb and the captured clips must not be re-timed.
+    if not n_head:
+        _absorb_lead_in(cuts, fps)
     return cuts
 
 

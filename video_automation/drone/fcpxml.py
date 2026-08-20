@@ -96,8 +96,19 @@ def _time_map(c: Cut, fps: int) -> list[dict] | None:
     The curve is approximated with straight segments rather than relying on
     FCP's `interp` attribute, whose exact easing is not something this code can
     verify without a round trip through Final Cut. Enough points and the
-    difference is invisible.
+    difference is invisible — so everything generated here emits "linear".
+
+    A captured head clip is the exception: it arrives with FCP's own easing
+    already on it, and that IS a verified round trip, so its interp is passed
+    through as read.
     """
+    # A head clip carries the exact control points read out of Final Cut. They
+    # are reproduced, not recomputed: the whole point of capturing them is that
+    # this code cannot reconstruct FCP's easing from a speed number.
+    if c.raw_timemap is not None:
+        return [{"time": _rational(tf, fps), "value": _rational(vf, fps),
+                 "interp": interp} for tf, vf, interp in c.raw_timemap]
+
     if c.rate == 1.0 and not c.reverse and not c.ramp:
         return None
 
