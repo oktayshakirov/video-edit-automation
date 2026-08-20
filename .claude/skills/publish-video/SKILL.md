@@ -1,6 +1,6 @@
 ---
 name: publish-video
-description: Publish a finished render to YouTube, Instagram Reels, Facebook Reels and TikTok, then to the site. Use when the user says "upload" or "publish" after a video has been built by any of the video-crypto / video-tinnitus / video-drone skills, or asks to post an existing render to the platforms. Covers the whole sequence - YouTube upload with thumbnail and metadata, the Reel workflows in n8n, the TikTok private direct post, and the videos.json site entry plus social share for long form.
+description: Publish a finished render to YouTube, Instagram Reels, Facebook (Reels for shorts, native video for long form) and TikTok, then to the site. Use when the user says "upload" or "publish" after a video has been built by any of the video-crypto / video-tinnitus / video-drone skills, or asks to post an existing render to the platforms. Covers the whole sequence - YouTube upload with thumbnail and metadata, the Reel workflows in n8n, the TikTok draft, the native Facebook upload for long form, and the videos.json site entry.
 ---
 
 # Publish a video
@@ -16,21 +16,25 @@ identical for all three projects, and six copies of it would drift.
 
 | Project | YouTube | Instagram | Facebook | TikTok | Site entry |
 | --- | --- | --- | --- | --- | --- |
-| crypto long | yes | no | no | no | yes |
-| crypto short | yes | yes | yes | yes | no |
-| tinnitus long | yes | no | no | no | yes |
-| tinnitus short | yes | yes | yes | yes | no |
+| crypto long | yes | no | yes, native video | no | yes |
+| crypto short | yes | Reel | Reel | yes (draft) | no |
+| tinnitus long | yes | no | yes, native video | no | yes |
+| tinnitus short | yes | Reel | Reel | yes (draft) | no |
 | drone long | yes | no | no | no | no |
 | drone short | yes | no | no | yes (draft) | no |
 
-**Long form goes to YouTube and the site, nothing else.** Facebook Reels caps at
-90 seconds and Instagram Reels is a vertical format; a 2 to 4 minute 16:9
-explainer is not a Reel and must not be squeezed into one. This is the same rule
-`video-crypto-long` already carries as "only the long form gets a site entry and
-a social share" - it now has a second half.
+**The two Facebook columns are different products and are not interchangeable.**
+A short goes up as a **Reel** (vertical, 3 to 90 seconds, the Publish Reel
+workflow). A long goes up as a **native video** on the Page feed (16:9, no
+duration cap, the Publish Facebook Video workflow). A 2 to 4 minute explainer is
+not a Reel and must never be squeezed into one; a vertical short posted as a
+feed video wastes the format. Pick by the video, not by the site.
 
-**Drone posts to YouTube and TikTok only.** The user's decision, 2026-08-20. No
-Meta leg exists for it and no Instagram or Facebook page is wired up.
+**Instagram is shorts only.** It has no long-form equivalent here - a 16:9
+explainer has nowhere sensible to go on that account.
+
+**Drone posts to YouTube and TikTok only.** The user's decision, 2026-08-20. It
+has no Instagram or Facebook page wired up, and no site entry.
 
 ## The order of the whole job
 
@@ -41,12 +45,15 @@ instruction.
 1. **The long first, then the short.** The short's description links to the long,
    so the long needs an id before the short is uploaded.
 2. **YouTube, via `youtube-audit`.** Dry run, then `--apply`.
-3. **Vertical only: start the tunnel**, publish the Reels, publish TikTok, stop
-   the tunnel.
-4. **Long only: poster, `videos.json`, deploy gate, native Facebook upload.**
-   Unchanged from what `video-crypto-long` already documents; that is still the
-   canonical copy. The Facebook step is the Publish Facebook Video workflow -
-   the Share Video workflows it replaced were deleted on 2026-08-20.
+3. **Start the tunnel once and keep it up for both.** Both the short's Reels and
+   the long's native Facebook upload need a public URL, so serve the render
+   folder and open one tunnel rather than one per video. Stop it after step 4.
+4. **Short: Reels then TikTok. Long: native Facebook upload, then poster,
+   `videos.json` and the deploy gate.** The site half is unchanged from what
+   `video-crypto-long` documents; that is still the canonical copy. The Facebook
+   step is the Publish Facebook Video workflow - the Share Video workflows it
+   replaced were deleted on 2026-08-20. Pass the **full** YouTube description;
+   that workflow trims it to the first paragraph plus the article link itself.
 5. **Report what is still unlisted or private and what needs a manual tick.**
 
 ## YouTube
@@ -107,8 +114,10 @@ if it is not, ask the user to start it.
 
 | Site | Workflow | formData |
 | --- | --- | --- |
-| Crypto Wiki | `uIV6956N14pMGMZ5` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
-| Tinnitus Help | `1GTSF6izfwA1gpig` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
+| Crypto Wiki | Publish Reel `uIV6956N14pMGMZ5` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
+| Tinnitus Help | Publish Reel `1GTSF6izfwA1gpig` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
+| Crypto Wiki | Publish Facebook Video `zS3xX6tbXpXnF32N` | `{ videoUrl, title, description, thumbUrl }` |
+| Tinnitus Help | Publish Facebook Video `Lyhn5U7pYhrAs9x7` | `{ videoUrl, title, description, thumbUrl }` |
 
 Trigger and poll them the way the `publish-content` skill describes - the
 multipart requirement and the `field-N` indexing trap apply here too, and this
