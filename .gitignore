@@ -47,3 +47,6 @@ assets/stock/**/*.jpg
 # ...and the music library, for the same reason. These are stored trimmed and
 # lossless on purpose — see core/music.py.
 !assets/brand/**/*.wav
+
+# Local credentials. Never committed.
+.secrets/
