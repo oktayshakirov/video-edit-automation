@@ -27,30 +27,48 @@ lock = "cingene.lock.toml"
 # its own ending, so the video still finishes on the real outro.
 MUSIC_LOOP = true
 MUSIC_LOOP_HANDOFF_BAR = 40
-MUSIC_LOOP_RETURN_BAR = 8
+MUSIC_LOOP_RETURN_BAR = 12
 MUSIC_LOOP_CROSSFADE_BARS = 2      # 5.8s crossfade
 
-# --- requested running order ---------------------------------------------
-# Opening shot, second shot, and the two sunset reveals inside the first
-# minute, pinned by hand. Pins override scoring, the cooldown and the use cap.
-#   0  -> Forest Coast Reveal 1, the opener. 17.5s of source under an 11.6s
-#         slot, so it plays at real time — no speed-up needed.
-#   4  -> Sunset Sea 1, the favourite.
-#   12 -> Sunset Sea 2 at 0:34, four shots clear of Sunset Sea 1 so the two
-#         sunsets read as a transition into the sunset rather than a pair.
-#         Both land inside the first minute.
-#
-# The closer is not pinned here. Forcing a slot boundary at bar 108 for it made
-# the engine drop the final slot: 393s of footage under a 324s timeline leaves
-# no spare source, and a pin cannot invent any. The closing shot is set in the
-# lock file instead, where the running order is already fixed.
-PIN_CLIPS = { 0 = "Forest Coast Reveal 1", 4 = "Sunset Sea 1", 12 = "Sunset Sea 2" }
-PIN_SLOT_BARS = { 0 = 4, 4 = 4, 12 = 2 }
+# --- the four reveals, shown whole -----------------------------------------
+# Forest Coast Reveal 1 and 2, Sunset Sea 7 and Sunset Sea Boats 2 are all one
+# continuous vertical gesture — an overhead frame travelling down into the
+# sunset. Split across slots the gesture is gone and the halves read as two
+# ordinary shots, so each of these is capped at a single use and pinned to a
+# slot sized to the clip rather than to the bar grid.
+CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sunset Sea 7" = 1, "Sunset Sea Boats 2" = 1 }
 
-# The closer has to run backwards, so every use of the clip does — it is
-# already auto-reversed in most of its slots and mixing both directions of the
-# same shot reads as a mistake.
+# Pins override scoring, the cooldown and the use cap. Lengths here are literal
+# — three and six bars are not lengths the scorer may choose, but they are the
+# ones that fit these clips.
+#   0   -> Forest Coast Reveal 1 opens. 3 bars = 8.68s, and at 2x that is
+#          17.35s of source against a 17.5s clip: the whole reveal, once.
+#   3   -> Sunset Sea 1, the favourite, held 5 bars so the opening lands exactly
+#          on the bar 8 section line.
+#   12  -> Sunset Sea 2, four shots clear of Sunset Sea 1 and still inside the
+#          first minute, so the two sunsets read as a transition, not a pair.
+#   28  -> Sunset Sea 7 whole, 6 bars = 17.35s of a 17.7s clip, at real time so
+#          the descent reads. Bar 28 is a section line, which is where a shot
+#          this long belongs.
+#   56  -> Sunset Sea Boats 2 whole, 4 bars = 11.57s of a 13.5s clip.
+#   100 -> no clip, length only: it puts a slot boundary at bar 104 so the
+#          closer can have the last four bars.
+#   104 -> Forest Coast Reveal 2, reversed, at 2x: 23.14s of a 28.1s clip over
+#          the final 11.57s. Reversed it travels sunset to forest and ends on
+#          the forest, which is where the video started.
+PIN_CLIPS = { 0 = "Forest Coast Reveal 1", 3 = "Sunset Sea 1", 12 = "Sunset Sea 2", 28 = "Sunset Sea 7", 56 = "Sunset Sea Boats 2", 104 = "Forest Coast Reveal 2" }
+PIN_SLOT_BARS = { 0 = 3, 3 = 5, 12 = 2, 28 = 6, 56 = 4, 100 = 4, 104 = 4 }
+
+# The closer has to run backwards, and it is the only use of the clip now.
 CLIP_REVERSE_OVERRIDE = { "Forest Coast Reveal 2" = true }
+
+# The 0.3s settle-in trim plus the 0.1s tail margin costs 0.4s of every clip,
+# and three of the four reveals need essentially their whole length: Sunset Sea
+# 7 is 17.7s against a 17.35s slot, and Forest Coast Reveal 1 at 2x wants
+# 17.35s of a 17.5s clip. Both fail by fractions of a second with the trim on.
+# These are graded selects that already start where they are meant to, so the
+# settle-in has nothing to protect here. The tail margin stays.
+HEAD_TRIM = 0.0
 
 # --- footage budget ------------------------------------------------------
 # 393s of source under a 324s timeline is a 1.21x budget, so unrestricted 2x
@@ -58,14 +76,5 @@ CLIP_REVERSE_OVERRIDE = { "Forest Coast Reveal 2" = true }
 SPEEDUP_MIN_REMAINING = 25.0
 
 # Wider spacing on repeats now that the timeline is longer.
-REUSE_COOLDOWN_SLOTS = 6
-REUSE_RECENCY_WINDOW = 16
-
-# --- location pin ---------------------------------------------------------
-# Over the 11.7s opening shot. The style lives in the captured Final Cut
-# fragment; leaving LOCATION_TITLE_STYLE empty is what keeps it matching what
-# was checked on screen.
-LOCATION_PIN = true
-LOCATION_PIN_START = 1.5
-LOCATION_TITLE_TEXT = "CINGENE, BULGARIA"
-LOCATION_TITLE_STYLE = {}
+REUSE_COOLDOWN_SLOTS = 4
+REUSE_RECENCY_WINDOW = 12
