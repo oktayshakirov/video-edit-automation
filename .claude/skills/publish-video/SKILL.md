@@ -172,6 +172,12 @@ for it as a fix.
 - **TikTok accepts no caption and no cover on a draft.** Not a limitation of this
   code - the inbox endpoint takes only `source_info`. Generate the caption
   anyway and print it for the user to paste. Do not offer to set a thumbnail.
+- **No hashtags in that caption.** The user's decision, 2026-08-21. Print plain
+  sentences and stop there - they add the tags in the app, where TikTok's own
+  suggestions are live and a tag can be picked against what is actually
+  trending that day. A pasted `#drone #sunset` is a guess made hours earlier.
+  **TikTok only** - the YouTube description still carries its hashtags, and the
+  Instagram and Facebook captions are unchanged.
 - **Scopes are `user.info.basic,video.upload,video.publish`.** `video.upload` is
   the draft scope and is the one that matters. `video.publish` is kept only
   because `creator_info` needs it, and that is the only way to read the account
