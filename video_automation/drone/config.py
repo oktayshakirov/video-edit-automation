@@ -55,6 +55,37 @@ BPM_SEARCH_HI = 185.0
 # the phase rather than the snare (which sits on 2 and 4 and is louder broadband).
 DOWNBEAT_FMAX = 200.0
 
+# Shift the whole bar grid by this many seconds. Negative pulls every cut
+# earlier. Set per project, and only from listening.
+#
+# Downbeat phase is the weakest inference in this pipeline — it is reported with
+# a confidence, and on a track where that confidence is low the grid can sit a
+# few frames off the drop while still scoring well. That is small enough to look
+# like nothing on paper and to feel late in the room. This is the correction,
+# and it is closed-form on grid_phase, so no error accumulates down the
+# timeline: bar 400 moves by exactly the same amount as bar 1.
+GRID_PHASE_NUDGE = 0.0
+
+# A hand-cut opening, captured from a Final Cut export and replayed verbatim.
+#
+# The generator cuts on bar lines. A person cutting the same opening by ear does
+# not, and on the head of a video — where there is no previous shot to carry the
+# pulse — by ear is simply better. Once that opening exists in Final Cut it has
+# to survive every rebuild, because `build` overwrites the FCPXML wholesale and
+# there is nowhere else for the work to live.
+#
+# Each entry is one spine clip, in seconds: clip (filename substring), offset,
+# start, duration, and an optional timemap of [time, value, interp] triples
+# copied straight out of the export. The timemap is reproduced exactly rather
+# than derived from a rate, because FCP's own easing ("smooth2") is not
+# something this code can reconstruct from a speed number.
+#
+# HEAD_UNTIL_BAR is where the scorer picks up. The head must end exactly on that
+# bar line or the spine opens with a gap — which is what GRID_PHASE_NUDGE is
+# usually needed for, since a hand cut lands where the music actually is.
+HEAD_CLIPS: list[dict] = []
+HEAD_UNTIL_BAR = 0
+
 # Target number of bars per structural section. Segment count is derived from
 # track length so short tracks don't get chopped into meaningless pieces.
 BARS_PER_SECTION = 8

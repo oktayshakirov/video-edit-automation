@@ -165,7 +165,8 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
     if lock_out:
         lock_out.write_text(edit_mod.dump_lock(cuts), encoding="utf-8")
-        print(f"Wrote lock: {lock_out}  ({len(cuts)} slots)")
+        n = sum(1 for c in cuts if c.section_label != "head")
+        print(f"Wrote lock: {lock_out}  ({n} slots)")
         print()
 
     dupes = edit_mod.overlapping_slices(cuts)

@@ -132,7 +132,12 @@ def check(path: Path) -> list[str]:
                     f"— must be 0s, the in-point belongs in the first timept"
                 )
             times = [parse_time(p.get("time")) for p in pts]
-            if times[0] != 0 or times[-1] != dur:
+            # The curve must start at 0 and must reach at least the end of the
+            # clip. It may run PAST it: Final Cut writes exactly that when a
+            # retimed clip is trimmed — the curve describes the whole retime and
+            # `duration` takes the front of it. Demanding equality rejected a
+            # fragment FCP itself had authored.
+            if times[0] != 0 or times[-1] < dur:
                 problems.append(
                     f"clip {i+1} ({c.get('name')}): timeMap spans {float(times[0])}.."
                     f"{float(times[-1])}s but the clip is {float(dur)}s"

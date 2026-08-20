@@ -33,6 +33,7 @@ from .config import (
     BPM_SEARCH_HI,
     BPM_SEARCH_LO,
     DOWNBEAT_FMAX,
+    GRID_PHASE_NUDGE,
     HOP,
     PHRASE_BARS,
     SNAP_SECTIONS_TO_PHRASE,
@@ -285,6 +286,10 @@ def analyze_track(path: Path) -> Track:
     bars_back = int(grid_phase // bar_period)
     grid_phase -= bars_back * bar_period
     intro_bars = bars_back
+
+    # Hand correction, applied last so it is exactly what was dialled in by ear
+    # and not something the extrapolation above then re-rounds.
+    grid_phase += GRID_PHASE_NUDGE
 
     n_bars = int((duration - grid_phase) / bar_period)
 
