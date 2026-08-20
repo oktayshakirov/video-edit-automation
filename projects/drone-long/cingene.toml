@@ -20,17 +20,17 @@ lock = "cingene.lock.toml"
 # 393s, so it is looped once to give the library room.
 #
 # Pass 1 hands off at bar 40, the downbeat of the closing peak (energy 0.93),
-# and pass 2 re-enters at bar 24, the downbeat of the second peak (0.69) — both
-# section lines and both phrase lines, so the bar grid continues unbroken.
-# Pass 2 then climbs back through the build into the 0.93 peak and plays the
-# song out to its own ending, which gives the video a two-peak arc.
+# and pass 2 re-enters at bar 20, a phrase line inside the opening peak (0.86).
+# 100 bars, 4:49.
 #
-# 96 bars, 4:37. Returning at bar 12 instead runs 108 bars and matches energy
-# more closely at the seam, but that edit was 35s longer than it wanted to be:
-# clips were coming round often enough to read as repeats.
+# Returning at bar 24 instead ran 96 bars and was 12s shorter, but bar 24 opens
+# the 0.69 peak: the seam stepped 0.93 -> 0.69 and the join was audible as a
+# drop in the music. 0.93 -> 0.86 is the same energy match the earlier 108-bar
+# version had, which is the one that sounded right. Twelve seconds is the price
+# of the better seam.
 MUSIC_LOOP = true
 MUSIC_LOOP_HANDOFF_BAR = 40
-MUSIC_LOOP_RETURN_BAR = 24
+MUSIC_LOOP_RETURN_BAR = 20
 MUSIC_LOOP_CROSSFADE_BARS = 2      # 5.8s crossfade
 
 # --- the four reveals, shown whole -----------------------------------------
