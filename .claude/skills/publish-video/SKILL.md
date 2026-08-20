@@ -21,7 +21,7 @@ identical for all three projects, and six copies of it would drift.
 | tinnitus long | yes | no | no | no | yes |
 | tinnitus short | yes | yes | yes | yes | no |
 | drone long | yes | no | no | no | no |
-| drone short | yes | no | no | yes | no |
+| drone short | yes | no | no | yes (draft) | no |
 
 **Long form goes to YouTube and the site, nothing else.** Facebook Reels caps at
 90 seconds and Instagram Reels is a vertical format; a 2 to 4 minute 16:9
@@ -139,11 +139,13 @@ PYTHONPATH=. .venv/bin/python -m video_automation.publish post crypto out.mp4 \
 TikTok, finds it in the inbox, writes the caption, picks the cover and publishes.
 Never describe a TikTok upload as published.
 
-**Direct post does not work and is not a choice we made.** It was tried on
-2026-08-20 and TikTok returned
+**Direct post does not work on any of these accounts, and is not a choice we
+made.** It was tried on 2026-08-20 and TikTok returned
 `unaudited_client_can_only_post_to_private_accounts`: an unaudited client may
-direct-post only to an account whose *profile* is private, and all three of these
-are public brand accounts. The post's own privacy level is irrelevant -
+direct-post only to an account whose *profile* is private, i.e. the Private
+account toggle in Settings. All three of these are public - two Business
+accounts and one personal - so all three are refused. Business versus personal
+is a different setting and makes no difference here. The post's own privacy level is irrelevant -
 `creator_info` lists SELF_ONLY among `privacy_level_options` and `init` refuses
 regardless, so that response cannot be used to predict whether a post will be
 accepted. `post_video(direct=True)` still exists, and still fails; do not reach
@@ -164,19 +166,14 @@ for it as a fix.
   because `creator_info` needs it, and that is the only way to read the account
   nickname. A token minted before `video.upload` was added fails the inbox call
   with `scope_not_authorized` and needs a fresh authorisation, not a refresh.
-- **The drone account cannot receive a TikTok upload by either route, and why is
-  unknown.** Established 2026-08-20 with the identical 5s file: it delivered to
-  Crypto Wiki and Tinnitus Help within seconds, while `oktay.shakirov` accepted
-  the init, took every byte, issued a publish id, and stayed at
-  `PROCESSING_UPLOAD` indefinitely without ever appearing. Direct post is refused
-  there as well, correctly - it is a **public personal** account, and TikTok
-  allows unaudited direct post only to a profile with the Private account toggle
-  on. The only difference between it and the two that work is Business versus
-  personal, which is a correlation across three accounts and **not** a
-  established cause.
-  **So drone TikTok is a manual step**: hand the user the file and the caption
-  and let them post it in the app. Do not present a drone TikTok upload as done
-  without checking `status`, and do not re-run on a timeout.
+- **Delivery is slow and wildly uneven, and `status` lags behind reality.**
+  On 2026-08-20 the identical 5s file reached Crypto Wiki and Tinnitus Help in
+  seconds, while `oktay.shakirov` sat at `PROCESSING_UPLOAD` for over an hour
+  before the draft appeared - and the status endpoint only caught up afterwards.
+  A long `PROCESSING_UPLOAD` means nothing is wrong. All three accounts work,
+  including the public personal one. **Never re-run because a draft has not
+  shown up yet**: a second run uploads a second copy and there is no API to list
+  or delete inbox drafts. Tell the user it may take a while and stop there.
 - **"Private" means two different things here and the distinction matters.**
   TikTok's `unaudited_client_can_only_post_to_private_accounts` is about the
   profile-level Private account toggle, not about Business versus personal. A
