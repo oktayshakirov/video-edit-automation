@@ -15,8 +15,8 @@ which documents ten released sound albums. **There is also an app**,
 ## Shorts do not get a site entry or a social share
 
 **Settled, and it overrides the general publish order below for the short
-specifically.** Only the long form goes into `videos.json` and through the
-Share Video workflow. A Short lives on YouTube alone.
+specifically.** Only the long form goes into `videos.json` and up to Facebook as
+a native video. A Short lives on YouTube alone.
 
 ## The order of the whole job
 

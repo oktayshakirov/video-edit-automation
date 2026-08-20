@@ -15,7 +15,7 @@ Shared with the drone and tinnitus projects. Renders go to the Desktop.
 **A crypto Short stays YouTube-only, exactly like a tinnitus one.** It gets a
 title, description and tags via `youtube-audit set` - see "The order of the
 whole job" in `video-crypto-long`'s SKILL.md, which is the canonical copy - and
-nothing else: no `videos.json` entry, no poster, no Share Video run. A version
+nothing else: no `videos.json` entry, no poster, no Facebook upload. A version
 of this skill briefly said otherwise and it was wrong; both crypto and
 tinnitus shorts follow the same rule for the same reason, there was never a
 real per-site difference here.
