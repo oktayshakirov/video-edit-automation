@@ -1,0 +1,433 @@
+# Locked edit. Replayed verbatim by `build`, bypassing the scorer, so an
+# approved running order survives changes made elsewhere.
+#
+# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one
+# musical bar), `rate` sets a constant speed-up.
+# Regenerate from the current edit with `build --lock-out <file>`.
+
+[[lock]]
+bar = 0
+clip = "Forest Coast Reveal 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 4
+clip = "Sunset Sea 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 8
+clip = "Forest Coast 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 10
+clip = "Sunset Sea Boats 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 11
+clip = "Forest Coast Reveal 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 12
+clip = "Sunset Sea 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 14
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 15
+clip = "Sunset Sea 7.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 16
+clip = "Sunset Sea Houses.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 18
+clip = "Sunset Sea 5.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 19
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 20
+clip = "Sunset Sea 3.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 22
+clip = "Sunset Sea Boats 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 23
+clip = "Forest Coast Reveal 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 24
+clip = "Sunset Sea 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 26
+clip = "Forest Coast Reveal 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 27
+clip = "Sunset Sea Boats 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 28
+clip = "Forest Coast 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 32
+clip = "Sunset Sea 4.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 36
+clip = "Sunset Sea Houses.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 38
+clip = "Sunset Sea 7.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 39
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 40
+clip = "Sunset Sea 5.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 42
+clip = "Forest Coast Reveal 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 43
+clip = "Sunset Sea Boats 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 44
+clip = "Sunset Sea 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 46
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 47
+clip = "Sunset Sea 3.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 48
+clip = "Sunset Sea 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 50
+clip = "Sunset Sea 7.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 51
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 52
+clip = "Sunset Sea 6.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 54
+clip = "Sunset Sea Houses.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 55
+clip = "Sunset Sea Boats 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 56
+clip = "Forest Coast Reveal 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 58
+clip = "Sunset Sea 5.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 59
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 60
+clip = "Sunset Sea 7.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 62
+clip = "Sunset Sea Houses.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 63
+clip = "Sunset Sea 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 64
+clip = "Forest Coast 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 66
+clip = "Sunset Sea 6.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 67
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 68
+clip = "Sunset Sea Boats 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 70
+clip = "Forest Coast Reveal 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 71
+clip = "Sunset Sea Boats 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 72
+clip = "Sunset Sea 5.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 74
+clip = "Sunset Sea 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 75
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 76
+clip = "Sunset Sea Houses.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 78
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 79
+clip = "Sunset Sea 6.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+# Was Forest Coast Reveal 2. Swapped out to free source for the closer: the
+# clip is 28.1s and eight slots wanted more than that, which left the final
+# shot short and forced a sub-real-time timeMap. Sunset Sea Houses is the longest clip in the
+# library at 58.7s and the only one with source to spare here.
+bar = 80
+clip = "Sunset Sea Houses.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 82
+clip = "Sunset Sea 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 83
+clip = "Sunset Sea 5.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 84
+clip = "Sunset Sea Houses.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 86
+clip = "Sunset Sea Boats 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 87
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 88
+clip = "Sunset Sea 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 90
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 91
+clip = "Sunset Sea 6.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 92
+clip = "Sunset Sea 5.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 96
+clip = "Sunset Sea Houses.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 100
+clip = "Sunset Sea Boats 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 102
+clip = "Forest Coast Reveal 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 103
+clip = "Sunset Sea 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 104
+clip = "Sunset Sea 6.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 106
+clip = "Forest Coast 2.mp4"
+bars = 4
+rate = 1.000
+
+# The closer, set by hand: Forest Coast Reveal 2 running backwards, so the
+# reveal closes in on itself as the song ends. The project forces reverse on
+# every use of this clip.
+#
+# It runs at 2x, so the last two bars eat 11.6s of source and the reveal
+# whips shut as the song ends. This only became affordable after the bar 80
+# swap above: with eight slots on a 28.1s clip there was ~6s left here, the
+# build fitted the shortfall into the timeMap and produced a 0.28x segment,
+# which the validator rejects and which would have read as slow motion.
+[[lock]]
+bar = 110
+clip = "Forest Coast Reveal 2.mp4"
+bars = 2
+rate = 2.000

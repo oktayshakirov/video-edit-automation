@@ -1,0 +1,71 @@
+# Cingene, Bulgaria — a fishing village on the coast south of Burgas.
+# 14 graded selects, 393s of footage, 3840x2160. Paths are absolute because
+# footage lives outside the repo. Anything under [overrides] must name a real
+# constant in video_automation/drone/config.py or the build fails loudly.
+
+name = "Cingene"
+profile = "youtube"
+
+footage = "~/Desktop/Cingene"
+music = "~/Desktop/Cingene/Pold - SUMMER VIBE.mp3"
+
+# The approved running order, replayed verbatim. With a lock present the scorer
+# is bypassed entirely, so nothing under [overrides] can reshuffle the timeline.
+# Swap or resize a shot by editing the lock file, not by retuning weights.
+lock = "cingene.lock.toml"
+
+[overrides]
+# --- music loop ----------------------------------------------------------
+# The track is 232.1s / 80 bars at 82.99 BPM (bar = 2.892s), and the footage is
+# 393s. Straight through, the edit used only 70% of the library. Looped once it
+# runs 112 bars / 5:24 and has room for the whole folder.
+#
+# Pass 1 hands off at bar 40, the downbeat of the closing peak (energy 0.93),
+# and pass 2 re-enters at bar 8, the downbeat of the opening peak (0.86) — the
+# two closest-matched moments in the track, both section lines and both phrase
+# lines, so the bar grid continues unbroken. Pass 2 then plays the song out to
+# its own ending, so the video still finishes on the real outro.
+MUSIC_LOOP = true
+MUSIC_LOOP_HANDOFF_BAR = 40
+MUSIC_LOOP_RETURN_BAR = 8
+MUSIC_LOOP_CROSSFADE_BARS = 2      # 5.8s crossfade
+
+# --- requested running order ---------------------------------------------
+# Opening shot, second shot, and the two sunset reveals inside the first
+# minute, pinned by hand. Pins override scoring, the cooldown and the use cap.
+#   0  -> Forest Coast Reveal 1, the opener. 17.5s of source under an 11.6s
+#         slot, so it plays at real time — no speed-up needed.
+#   4  -> Sunset Sea 1, the favourite.
+#   12 -> Sunset Sea 2 at 0:34, four shots clear of Sunset Sea 1 so the two
+#         sunsets read as a transition into the sunset rather than a pair.
+#         Both land inside the first minute.
+#
+# The closer is not pinned here. Forcing a slot boundary at bar 108 for it made
+# the engine drop the final slot: 393s of footage under a 324s timeline leaves
+# no spare source, and a pin cannot invent any. The closing shot is set in the
+# lock file instead, where the running order is already fixed.
+PIN_CLIPS = { 0 = "Forest Coast Reveal 1", 4 = "Sunset Sea 1", 12 = "Sunset Sea 2" }
+PIN_SLOT_BARS = { 0 = 4, 4 = 4, 12 = 2 }
+
+# The closer has to run backwards, so every use of the clip does — it is
+# already auto-reversed in most of its slots and mixing both directions of the
+# same shot reads as a mistake.
+CLIP_REVERSE_OVERRIDE = { "Forest Coast Reveal 2" = true }
+
+# --- footage budget ------------------------------------------------------
+# 393s of source under a 324s timeline is a 1.21x budget, so unrestricted 2x
+# slots spend footage the edit does not have. Only the long takes may fund one.
+SPEEDUP_MIN_REMAINING = 25.0
+
+# Wider spacing on repeats now that the timeline is longer.
+REUSE_COOLDOWN_SLOTS = 6
+REUSE_RECENCY_WINDOW = 16
+
+# --- location pin ---------------------------------------------------------
+# Over the 11.7s opening shot. The style lives in the captured Final Cut
+# fragment; leaving LOCATION_TITLE_STYLE empty is what keeps it matching what
+# was checked on screen.
+LOCATION_PIN = true
+LOCATION_PIN_START = 1.5
+LOCATION_TITLE_TEXT = "CINGENE, BULGARIA"
+LOCATION_TITLE_STYLE = {}
