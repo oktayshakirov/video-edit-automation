@@ -19,18 +19,20 @@ lock = "cingene.lock.toml"
 # The track is 232.1s / 80 bars at 82.99 BPM (bar = 2.892s) and the footage is
 # 393s, so it is looped once to give the library room.
 #
-# Pass 1 hands off at bar 40, the downbeat of the closing peak (energy 0.93),
-# and pass 2 re-enters at bar 24, the downbeat of the second peak (0.69) — both
-# section lines and both phrase lines, so the bar grid continues unbroken.
-# Pass 2 then climbs back through the build into the 0.93 peak and plays the
-# song out to its own ending, which gives the video a two-peak arc.
+# Pass 1 hands off at bar 52 and pass 2 re-enters at bar 40 — both inside the
+# closing peak, both at energy 0.93, which is the only exact energy match
+# available at this length. Bar 40 is also a section line. 92 bars, 4:26.
 #
-# 96 bars, 4:37. Returning at bar 12 instead runs 108 bars and matches energy
-# more closely at the seam, but that edit was 35s longer than it wanted to be:
-# clips were coming round often enough to read as repeats.
+# Pass 1 therefore delivers the whole arc first (calm, peak, peak, build, into
+# the big peak), then steps back twelve bars inside that peak and plays out
+# through the build and the two calm sections to the song's own ending.
+#
+# Handing off at 40 and returning at 24 — what this ran before — is a 0.93 to
+# 0.69 step, and it was audible as the music dropping at the join. Returning at
+# 20 fixes that but costs 8 bars, which is the wrong direction here.
 MUSIC_LOOP = true
-MUSIC_LOOP_HANDOFF_BAR = 40
-MUSIC_LOOP_RETURN_BAR = 24
+MUSIC_LOOP_HANDOFF_BAR = 52
+MUSIC_LOOP_RETURN_BAR = 40
 MUSIC_LOOP_CROSSFADE_BARS = 2      # 5.8s crossfade
 
 # --- the hand-cut opening --------------------------------------------------
@@ -87,29 +89,23 @@ CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sun
 
 # Pins override scoring, the cooldown and the use cap, and they reserve the
 # clip against earlier slots. Lengths here are literal — six bars is not a
-# length the scorer may choose, but it is the one that fits a 17.7s reveal.
-# Bars 0-8 are the hand-cut head above, so the scorer starts at bar 8. Sunset
-# Sea 7 and Sunset Sea 1 are spent there and the pins for them are gone.
-#   12 -> Sunset Sea 2, four shots clear of Sunset Sea 1 and inside the first
-#         minute, so the two sunsets read as a transition, not a pair.
-#   36 -> Forest Coast Reveal 1, whole, as the escalate below.
-#   56 -> Sunset Sea Boats 2 whole, 4 bars = 11.57s of a 13.5s clip.
-#   88 -> no clip, length only: puts a slot boundary at bar 92 for the closer.
-#   92 -> Forest Coast Reveal 2, reversed at 2x: 23.14s of a 28.1s clip over
-#         the last four bars. Backwards it travels sunset to forest and ends on
-#         the forest, closing the film where Forest Coast Reveal 1 left it.
-PIN_CLIPS = { 12 = "Sunset Sea 2", 36 = "Forest Coast Reveal 1", 56 = "Sunset Sea Boats 2", 92 = "Forest Coast Reveal 2" }
-PIN_SLOT_BARS = { 12 = 2, 36 = 4, 56 = 4, 88 = 4, 92 = 4 }
+# length the scorer may choose, but it is the one that fits a 17.5s reveal at
+# real time. Bars 0-8 are the hand-cut head, so the scorer starts at bar 8.
+#   8  -> Sunset Sea Boats 2, whole, 4 bars = 11.57s of a 13.5s clip. It takes
+#         the slot Forest Coast 2 held, which puts a good shot inside the first
+#         minute and removes one appearance of a clip that needs grading.
+#   12 -> Sunset Sea 2, still inside the first minute, so the two sunsets read
+#         as a transition rather than a pair.
+#   32 -> Forest Coast Reveal 1, whole, 6 bars = 17.35s at 100%. No ramp: the
+#         launch read as an effect on a shot that did not want one. Bar 32 opens
+#         the build, which is where a long unhurried descent belongs.
+#   88 -> Forest Coast Reveal 2, reversed, the last four bars.
+PIN_CLIPS = { 8 = "Sunset Sea Boats 2", 12 = "Sunset Sea 2", 32 = "Forest Coast Reveal 1", 88 = "Forest Coast Reveal 2" }
+PIN_SLOT_BARS = { 8 = 4, 12 = 2, 32 = 6, 88 = 4 }
 
-# Forest Coast Reveal 1 plays forward at real time and then launches out of the
-# shot — the 2x version of it read as a mistake. Body at 100% for the first
-# ~9s, then a 2.6s ramp accelerating to 5.5x, which passes through 2x and 3x on
-# the way and hands off into the cut. `fit_escalate` will pull the peak down if
-# the clip cannot fund the full curve, and reports what it achieved.
-ESCALATE_AT_BARS = [36]
-ESCALATE_BODY_SPEED = 1.0
-ESCALATE_TAIL_SECONDS = 2.6
-ESCALATE_TAIL_SPEED = 5.5
+# Nothing escalates. Forest Coast Reveal 1 carried the only ramp and now plays
+# straight through at 100%.
+ESCALATE_AT_BARS = []
 
 # The closer has to run backwards, and it is the only use of the clip now.
 CLIP_REVERSE_OVERRIDE = { "Forest Coast Reveal 2" = true }
@@ -142,7 +138,7 @@ HEAD_TRIM = 0.0
 # 386s of source (after the hover trims) under a 278s timeline. Lower than the
 # 25s this project ran before: at 25s only the three longest takes could ever
 # reach 2x, which excluded exactly the slow hovers 2x is wanted for.
-SPEEDUP_MIN_REMAINING = 15.0
+SPEEDUP_MIN_REMAINING = 30.0
 
 # Wider spacing on repeats now that the timeline is longer.
 REUSE_COOLDOWN_SLOTS = 4

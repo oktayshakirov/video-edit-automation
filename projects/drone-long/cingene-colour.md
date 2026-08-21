@@ -8,56 +8,67 @@ names are FCP-internal identifiers, the same class of guess that caused two
 failed imports earlier in this project. So these are dial-in values, not
 generated XML.
 
-Targets are the library medians: **brightness 0.509**, **saturation 0.343**,
-**detail 100**. Deltas come from the measured index, not from eye.
+Everything below is **measured off the cached proxies in CIELAB**, twelve frames
+sampled across each clip — not read off the index summary and not judged by eye.
+`L` is lightness 0-100, `a*` is green(−)/red(+), `b*` is blue(−)/yellow(+).
 
-The exposure spread is **0.80 stops** (0.376 to 0.653) — narrower than Nessebar's
-1.26, and the reason the batch already mostly reads as one evening. The problems
-here are not exposure. They are **two clips whose hue sits outside the golden
-hour entirely**, and they matter more than any brightness step in the list.
+The twelve golden-hour clips form a tight cluster. Those are the target:
 
-## The two that do not belong
+| | L1 (black) | L5 | L50 (mid) | L95 | a* | b* | hue | chroma |
+|---|---|---|---|---|---|---|---|---|
+| **sunset cluster median** | 5.7 | 12.4 | 39.6 | 89.8 | +7.4 | +9.4 | 51.9° | 12.0 |
 
-Twelve of the fourteen clips sit in a warm cluster between −19 and +45 degrees,
-median **22.2 degrees**. Two do not.
+## The two before golden hour
 
-| clip | measured | correction | why |
-|---|---|---|---|
-| **Forest Coast 1** | hue 111.5 (**+89 from the cluster**), sat 0.185 (**−46%**), 6.9% blown, 0.630 bright | **warm the white balance hard** — temp up until the greens read amber, not lime. Then **saturation +45%**, **highlight recovery**, **exposure −0.31 stops** | The only clip shot before golden hour, and it is the widest outlier in the batch on hue, on saturation and on blown highlights simultaneously. Green foliage under neutral daylight next to an orange sea reads as a different location, not a different shot. Also the brightest but one, so it steps up as well as sideways. Now used 4x (was 7x) |
-| **Sunset Sea 7** | hue 164.6 (**+142 from the cluster**), sat 0.305 (−11%), 0.376 bright (**darkest**) | **exposure +0.44 stops**, then **warm the balance** toward the cluster. Judge the hue by eye rather than by the number | It is teal because it is looking at open water away from the sun, which is legitimate — this is not a grading error the way Forest Coast 1 is. But it **opens the film** and holds for 17.5s before anything cuts, so it sets the viewer's idea of what this evening looks like. Bring it far enough toward the cluster that the first cut is not a jump. Do not neutralise it completely; the cool water is the point of the shot |
+Both are forest shots taken before the light turned, and both miss the cluster
+in the same direction — too little red, too little yellow — but for different
+reasons and by very different amounts.
 
-Correct these two before touching anything below. If the film reads as one
-evening after them, the rest of this document is optional.
+### Forest Coast 1 — the outlier
 
-## Exposure — worth a look after the above
+Measured: L1 4.7, L50 **72.2**, L95 **99.6**, a* **−2.0**, b* +2.7, chroma 3.4.
 
-Everything here is inside a third of a stop of the median, which is at or below
-the threshold where a cut reads as a step. Listed for completeness.
-
-| clip | measured | correction |
+| do this | amount | why |
 |---|---|---|
-| **Sunset Sea 1** | 0.653 bright, 3.9% blown | **−0.36 stops**, slight highlight recovery |
-| **Sunset Sea Houses** | 0.591 bright, 3.1% blown | **−0.21 stops**, slight highlight recovery |
-| **Sunset Sea 3** | 0.584 bright | **−0.20 stops** |
-| **Forest Coast Reveal 2** | 0.409 bright | **+0.32 stops** — it is the closer, so it wants to sit with its neighbours |
+| **exposure** | **−0.87 stops** | L50 is 72.2 against a cluster median of 39.6. It is not slightly bright, it is nearly a stop hot, and that alone makes every cut into it read as a flash |
+| **highlight recovery** | as far as it goes | L95 99.6 and L99 100.0 — the top end is **clipped, not just bright**. Recovery will pull back what is left but some of this is gone and cannot be graded back |
+| **warm the balance** | **a* +9.4, b* +6.7** | a* is **negative** — the only clip in the batch on the green side of neutral. In FCP: colour temperature well up, then a small push toward magenta to kill the remaining green |
+| **saturation** | **chroma 3.4 → 12.0, roughly +250%** | it is almost monochrome next to the sunset material. This is the largest single delta in the batch |
+| **black point** | leave it | L1 4.7 against 5.7 is already right |
 
-Sunset Sea 1 and Sunset Sea Houses are the two most-used clips in the top half
-of the exposure range and both clip highlights above 3%. If you only do one
-exposure fix, do those two together.
+Hue lands at **126°** — green — against a 52° cluster. That is the number that
+makes it look like a different location rather than a different shot. Fix the
+exposure first: at −0.87 stops the colour work gets much easier to judge.
 
-## Saturation
+### Forest Coast 2 — lifted blacks, mild cast
 
-| clip | measured | correction |
+Measured: L1 **9.8**, L5 **15.3**, L50 45.9, L95 78.8, a* +1.4, b* +7.1, chroma 7.3.
+
+| do this | amount | why |
 |---|---|---|
-| **Forest Coast 1** | 0.185 (−46%) | **+45%** — covered above, listed again because it is the largest single delta in the batch |
-| **Sunset Sea 6** | 0.240 (−30%) | **+30%** |
-| **Sunset Sea Houses** | 0.248 (−28%) | **+28%** |
-| **Forest Coast Reveal 1** | 0.426 (+24%) | **−15%** — it is the ramped transition at 1:44 and the most saturated clip in the film; pulling it back keeps the launch from reading as a colour change too |
+| **black point down** | **−4.1 L** (L1 9.8 → 5.7) | this is the "correct black" fix. Nothing in the frame reaches true black — the shot sits on a raised floor and reads hazy and flat beside the sunset clips, which all bottom out near 5 |
+| **warm the balance** | **a* +6.0, b* +2.3** | hue 79° against 52°. Much milder than Forest Coast 1 and mostly a red deficit rather than a green cast |
+| **saturation** | **chroma 7.3 → 12.0, about +65%** | follows once the black point is set; pulling the floor down does part of this on its own |
+| **exposure** | **−0.21 stops** | inside a quarter stop of the median. Do it last, or not at all |
 
-## Detail
+Do the black point before the colour. Lifting the floor is what is flattening
+the chroma, so the saturation number above may look like too much until the
+blacks are down, and about right afterwards.
 
-**Forest Coast 2** (649) and **Sunset Sea 2** (1610) measure far above the
-median of 100, and **Forest Coast Reveal 2** (56) and **Sunset Sea 7** (66) far
-below. This is subject, not sharpening: the two high scorers have trees and
-buildings in frame, the two low ones are open water and sky. Nothing to correct.
-Leave detail alone on this batch.
+## Everything else
+
+The twelve sunset clips span L50 20.8 to 54.9 and a* +2.8 to +10.4. That spread
+is real evening light changing across the shoot, not a grading fault, and
+flattening it would cost the film its arc. Two worth a glance only if something
+looks off in context:
+
+- **Sunset Sea 7** — a* +2.8, b* +6.0, hue 65°, and **L50 20.8, the darkest in
+  the batch**. It opens the film and holds for 12.4s, so it sets the reference.
+  It is cool because it faces away from the sun, which is the shot. If the first
+  cut jumps, lift it a little rather than warming it.
+- **Sunset Sea 3** — L1 **15.7**, the most lifted floor of any clip. Same fix as
+  Forest Coast 2 if it reads hazy, but it is only on screen twice for 2.9s.
+
+Detail is not worth correcting on this batch: the high scorers have trees and
+buildings in frame, the low ones are open water and sky. That is subject, not
+sharpening.
