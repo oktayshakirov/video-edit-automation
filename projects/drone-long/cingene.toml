@@ -78,14 +78,18 @@ GRID_PHASE_NUDGE = -0.133333
 # ordinary shots, so each is capped at a single use and pinned to a slot sized
 # to the clip rather than to the bar grid.
 #
-# Forest Coast 1 is capped for a different reason: it is the only clip shot
-# before golden hour and it does not match. Hue 111.5 degrees against a 341-46
-# degree warm cluster, saturation 0.185 against a 0.353 median, 6.9% blown
-# highlights — the widest outlier in the batch on all three. Unscored it took
-# seven slots, more than any other clip, so the one shot needing hand grading
-# was also the one on screen most. Four is enough to keep the forest in the
-# film without the mismatch becoming its texture. See cingene-colour.md.
-CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sunset Sea 7" = 1, "Sunset Sea Boats 2" = 1, "Forest Coast 1" = 4 }
+# Forest Coast 1 is capped at zero — out of the film entirely. It is the only
+# clip that cannot be graded into the batch: measured in CIELAB it is a* -2.0,
+# the only clip on the green side of neutral, at hue 126 degrees against a 52
+# degree cluster, with L50 72.2 against a median of 39.6 and highlights clipped
+# at L99 100.0. The blown top end is gone and does not come back, so the shot
+# would stay wrong however far the rest is dialled in. See cingene-colour.md.
+#
+# It cost the library 39.7s and there is no slack left: capping Forest Coast 2
+# to 5 as well leaves the edit 29s short, and dropping MAX_USES_DEFAULT to 6
+# leaves it 35s short. Three clips now run at the 7-slot ceiling. That is the
+# price of removing a clip this size and it is paid knowingly.
+CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sunset Sea 7" = 1, "Sunset Sea Boats 2" = 1, "Forest Coast 1" = 0 }
 
 # Pins override scoring, the cooldown and the use cap, and they reserve the
 # clip against earlier slots. Lengths here are literal — six bars is not a
@@ -100,8 +104,8 @@ CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sun
 #         launch read as an effect on a shot that did not want one. Bar 32 opens
 #         the build, which is where a long unhurried descent belongs.
 #   88 -> Forest Coast Reveal 2, reversed, the last four bars.
-PIN_CLIPS = { 8 = "Sunset Sea Boats 2", 12 = "Sunset Sea 2", 32 = "Forest Coast Reveal 1", 88 = "Forest Coast Reveal 2" }
-PIN_SLOT_BARS = { 8 = 4, 12 = 2, 32 = 6, 88 = 4 }
+PIN_CLIPS = { 8 = "Sunset Sea Boats 2", 12 = "Sunset Sea 2", 14 = "Sunset Sea Houses", 20 = "Sunset Sea Boats 1", 32 = "Forest Coast Reveal 1", 88 = "Forest Coast Reveal 2" }
+PIN_SLOT_BARS = { 8 = 4, 12 = 2, 14 = 1, 20 = 2, 32 = 6, 88 = 4 }
 
 # Nothing escalates. Forest Coast Reveal 1 carried the only ramp and now plays
 # straight through at 100%.
