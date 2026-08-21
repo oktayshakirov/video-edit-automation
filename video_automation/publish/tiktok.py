@@ -62,6 +62,21 @@ USER_INFO_URL = "https://open.tiktokapis.com/v2/user/info/"
 CREATOR_INFO_URL = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
 INIT_URL = "https://open.tiktokapis.com/v2/post/publish/video/init/"
 INBOX_INIT_URL = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
+
+# TikTok's upload chunking rules. A chunk must be at least 5 MB and at most
+# 64 MB, so a whole file can only go up in one piece if it is under the ceiling.
+# Everything this repo had tested against was a 5-second clip, which is why a
+# hardcoded single chunk survived until the first real render: a 145 MB short
+# came back "The chunk size is invalid".
+#
+# The remainder does NOT become an extra chunk. total_chunk_count is
+# floor(size / chunk_size) and the final chunk carries whatever is left over,
+# so it can be up to just under 2x chunk_size. Sending an extra short chunk
+# instead is the other way to get "chunk size is invalid".
+CHUNK_MIN = 5 * 1024 * 1024
+CHUNK_MAX = 64 * 1024 * 1024
+CHUNK_TARGET = 16 * 1024 * 1024
+CHUNK_COUNT_MAX = 1000
 STATUS_URL = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
 
 # `video.upload` is the inbox/draft scope. `video.publish` is direct post, which
@@ -310,11 +325,12 @@ def post_video(
 
     # FILE_UPLOAD rather than PULL_FROM_URL in both cases: pulling requires a
     # verified domain or URL prefix on the app, uploading requires nothing.
+    chunk_size, chunk_count = _chunk_plan(size)
     source_info = {
         "source": "FILE_UPLOAD",
         "video_size": size,
-        "chunk_size": size,
-        "total_chunk_count": 1,
+        "chunk_size": chunk_size,
+        "total_chunk_count": chunk_count,
     }
     if direct:
         body = {
@@ -337,19 +353,51 @@ def post_video(
     if not upload_url or not publish_id:
         raise TikTokError(f"init returned no upload url: {init}")
 
-    body = video.read_bytes()
     content_type = mimetypes.guess_type(str(video))[0] or "video/mp4"
-    _request(
-        upload_url,
-        data=body,
-        headers={
-            "Content-Type": content_type,
-            "Content-Length": str(size),
-            "Content-Range": f"bytes 0-{size - 1}/{size}",
-        },
-        method="PUT",
-    )
+    with video.open("rb") as fh:
+        for i in range(chunk_count):
+            start = i * chunk_size
+            # Last chunk takes everything that is left, not just chunk_size.
+            end = size - 1 if i == chunk_count - 1 else start + chunk_size - 1
+            fh.seek(start)
+            data = fh.read(end - start + 1)
+            _request(
+                upload_url,
+                data=data,
+                headers={
+                    "Content-Type": content_type,
+                    "Content-Length": str(len(data)),
+                    "Content-Range": f"bytes {start}-{end}/{size}",
+                },
+                method="PUT",
+            )
     return Post(publish_id=publish_id, account=user.get("display_name", project))
+
+
+def _chunk_plan(size: int) -> tuple[int, int]:
+    """Chunk size and count for a file of `size` bytes, per TikTok's rules.
+
+    A file that fits inside one chunk goes up whole; that is what the API wants
+    and it avoids a pointless second request. Above the ceiling the file is cut
+    into equal chunks with the remainder folded into the last one.
+    """
+    if size <= CHUNK_MAX:
+        return size, 1
+    chunk = CHUNK_TARGET
+    # Very large files would otherwise exceed the 1000-chunk cap.
+    if size // chunk > CHUNK_COUNT_MAX:
+        chunk = -(-size // CHUNK_COUNT_MAX)
+    chunk = max(CHUNK_MIN, min(chunk, CHUNK_MAX))
+    count = size // chunk
+    if count > CHUNK_COUNT_MAX:
+        # 1000 chunks of 64 MB is 64 GB, far past TikTok's own file size limit,
+        # so this is a file that was never going to be accepted. Say so here
+        # rather than sending a request that cannot be valid.
+        raise TikTokError(
+            f"{size / 1024**3:.1f} GB is too large for TikTok: it needs "
+            f"{count} chunks and the API allows {CHUNK_COUNT_MAX}."
+        )
+    return chunk, count
 
 
 def status(project: str, publish_id: str) -> dict:
