@@ -2,340 +2,290 @@
 # approved running order survives changes made elsewhere.
 #
 # Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one
-# musical bar), `rate` sets a constant speed-up, `reverse` sets the play
-# direction for this slot alone.
-#
-# `reverse` is here because direction is a property of a shot, not of a
-# clip. CLIP_REVERSE_OVERRIDE can only flip every use of a clip at once,
-# which is right for a clip used once and wrong the moment one slot wants
-# to run backwards and another forwards.
+# musical bar), `rate` sets a constant speed-up.
 # Regenerate from the current edit with `build --lock-out <file>`.
 
 [[lock]]
-# The reversed pair, first half. Reveal 1 at 2x fills its three bars with the
-# whole 17.35s of the clip; at 1x it would show only the first 8.67s and the
-# reveal would never complete. Backwards it climbs coast to forest.
 bar = 8
-clip = "Forest Coast Reveal 1.mp4"
-bars = 3
-rate = 2.000
-reverse = true
-
-[[lock]]
-# Second half of the pair, and the only Forest Coast 2 slot that runs backwards
-# — which is exactly what per-slot `reverse` is for. Source 6.0-29.1s at 2x:
-# forwards that stretch travels trees to houses to sea, so reversed it runs sea
-# to houses to trees and continues the climb inland the reveal started.
-bar = 11
 clip = "Forest Coast 2.mp4"
-bars = 4
-rate = 2.000
-reverse = true
-
-[[lock]]
-bar = 15
-clip = "Sunset Sea 2.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 16
-clip = "Forest Coast 1.mp4"
 bars = 2
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 18
+bar = 10
 clip = "Sunset Sea 5.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 19
+bar = 11
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 12
+clip = "Sunset Sea 2.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 14
+clip = "Sunset Sea 3.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 15
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 16
+clip = "Sunset Sea Boats 1.mp4"
+bars = 2
+rate = 2.000
+
+[[lock]]
+bar = 18
 clip = "Sunset Sea Houses.mp4"
 bars = 1
 rate = 1.000
-reverse = false
+
+[[lock]]
+bar = 19
+clip = "Forest Coast 1.mp4"
+bars = 1
+rate = 1.000
 
 [[lock]]
 bar = 20
-clip = "Sunset Sea 3.mp4"
+clip = "Sunset Sea 4.mp4"
 bars = 2
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 22
 clip = "Forest Coast 2.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 23
-clip = "Sunset Sea Boats 1.mp4"
+clip = "Sunset Sea 5.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 24
-clip = "Forest Coast 1.mp4"
+clip = "Sunset Sea Houses.mp4"
 bars = 2
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 26
-clip = "Sunset Sea 4.mp4"
+clip = "Forest Coast 1.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 27
-clip = "Sunset Sea Houses.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 28
-clip = "Sunset Sea 5.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 30
-clip = "Forest Coast 1.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 31
-clip = "Sunset Sea 6.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 32
-clip = "Sunset Sea 2.mp4"
-bars = 4
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 36
-clip = "Sunset Sea Boats 1.mp4"
-bars = 4
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 40
-clip = "Forest Coast 2.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 42
 clip = "Sunset Sea 3.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 43
+bar = 28
+clip = "Sunset Sea 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 30
+clip = "Sunset Sea 1.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 31
 clip = "Forest Coast 1.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 44
-clip = "Sunset Sea Houses.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 46
-clip = "Sunset Sea 5.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 47
-clip = "Sunset Sea 2.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 48
+bar = 32
 clip = "Sunset Sea 6.mp4"
 bars = 4
 rate = 1.000
-reverse = false
+
+[[lock]]
+bar = 36
+clip = "Forest Coast Reveal 1.mp4"
+bars = 4
+rate = 1.000
+
+[[lock]]
+bar = 40
+clip = "Sunset Sea Houses.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 42
+clip = "Sunset Sea 5.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 43
+clip = "Forest Coast 2.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 44
+clip = "Sunset Sea Boats 1.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 46
+clip = "Sunset Sea Houses.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 47
+clip = "Sunset Sea 4.mp4"
+bars = 1
+rate = 1.000
+
+[[lock]]
+bar = 48
+clip = "Sunset Sea 2.mp4"
+bars = 4
+rate = 1.000
 
 [[lock]]
 bar = 52
-clip = "Forest Coast 1.mp4"
+clip = "Sunset Sea 1.mp4"
 bars = 4
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 56
 clip = "Sunset Sea Boats 2.mp4"
 bars = 4
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 60
-clip = "Sunset Sea 4.mp4"
+clip = "Forest Coast 2.mp4"
 bars = 2
-rate = 1.000
-reverse = false
+rate = 2.000
 
 [[lock]]
 bar = 62
-clip = "Sunset Sea Houses.mp4"
+clip = "Sunset Sea 6.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 63
-clip = "Sunset Sea Boats 1.mp4"
+clip = "Sunset Sea 2.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 64
-clip = "Sunset Sea 2.mp4"
+clip = "Sunset Sea 5.mp4"
 bars = 2
-rate = 1.000
-reverse = false
+rate = 2.000
 
 [[lock]]
 bar = 66
-clip = "Sunset Sea 5.mp4"
+clip = "Forest Coast 2.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 67
-clip = "Sunset Sea Houses.mp4"
+clip = "Sunset Sea 3.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 68
-clip = "Forest Coast 1.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 70
-clip = "Sunset Sea 2.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 71
-clip = "Sunset Sea 4.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 72
 clip = "Sunset Sea Houses.mp4"
 bars = 2
 rate = 2.000
-reverse = false
 
 [[lock]]
-bar = 74
-clip = "Sunset Sea 5.mp4"
+bar = 70
+clip = "Sunset Sea Boats 1.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 75
+bar = 71
 clip = "Sunset Sea 2.mp4"
 bars = 1
 rate = 1.000
-reverse = false
+
+[[lock]]
+bar = 72
+clip = "Sunset Sea 5.mp4"
+bars = 4
+rate = 1.000
 
 [[lock]]
 bar = 76
-clip = "Sunset Sea 6.mp4"
+clip = "Sunset Sea 1.mp4"
 bars = 2
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 78
-clip = "Sunset Sea Boats 1.mp4"
+clip = "Sunset Sea 6.mp4"
 bars = 2
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 80
 clip = "Sunset Sea Houses.mp4"
 bars = 4
 rate = 1.000
-reverse = false
 
 [[lock]]
 bar = 84
-clip = "Sunset Sea 5.mp4"
-bars = 4
+clip = "Sunset Sea Boats 1.mp4"
+bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 88
+bar = 85
+clip = "Forest Coast 2.mp4"
+bars = 2
+rate = 1.000
+
+[[lock]]
+bar = 87
 clip = "Sunset Sea 6.mp4"
 bars = 1
 rate = 1.000
-reverse = false
 
 [[lock]]
-bar = 89
-clip = "Sunset Sea 2.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 91
+bar = 88
 clip = "Sunset Sea Houses.mp4"
-bars = 1
+bars = 4
 rate = 1.000
-reverse = false
 
 [[lock]]
+# The closer: Forest Coast Reveal 2 reversed at 2x, 23.14s of a 28.1s clip over
+# the last four bars. Backwards it travels sunset to forest and ends on the
+# forest, closing the film where Forest Coast Reveal 1 left it.
 bar = 92
 clip = "Forest Coast Reveal 2.mp4"
-bars = 8
-rate = 1.000
-reverse = true
+bars = 4
+rate = 2.000

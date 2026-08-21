@@ -377,9 +377,16 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             "ref": assets[c.clip.hash]["id"],
             "name": Path(c.clip.filename).stem,
             "offset": _rational(c.timeline_start, fps),
-            # A clip with a timeMap must start at 0s; its in-point is the
+            # A generated clip with a timeMap starts at 0s; its in-point is the
             # timeMap's first value. Setting both is the "invalid edit" bug.
-            "start": "0s" if tm else _rational(c.source_start, fps),
+            #
+            # A captured head clip is the other legal arrangement, and Final Cut
+            # writes it itself: the timeMap starts at source 0 and describes the
+            # whole retime, and `start` is the in-point INTO THAT RETIMED clip.
+            # Forcing it to 0s here is what made the 4x whip replay the shot
+            # from the top instead of continuing through it.
+            "start": ("0s" if (tm and not c.raw_timemap)
+                      else _rational(c.source_start, fps)),
             "duration": _rational(c.duration, fps),
             "timemap": tm,
             "fade": None,
