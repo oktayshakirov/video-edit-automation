@@ -24,7 +24,13 @@ Both are forest shots taken before the light turned, and both miss the cluster
 in the same direction — too little red, too little yellow — but for different
 reasons and by very different amounts.
 
-### Forest Coast 1 — the outlier
+### Forest Coast 1 — cut from the film
+
+**This clip is no longer in the edit** (`CLIP_MAX_USES = 0`). Kept here as the
+record of why: it is the one clip in the batch that grading could not rescue,
+because its highlights are clipped rather than merely bright — L95 99.6, L99
+100.0 — and that detail is gone, not recoverable. Everything below is what a
+correction would have had to do.
 
 Measured: L1 4.7, L50 **72.2**, L95 **99.6**, a* **−2.0**, b* +2.7, chroma 3.4.
 
