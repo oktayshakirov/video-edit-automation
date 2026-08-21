@@ -126,10 +126,15 @@ def check(path: Path) -> list[str]:
                 problems.append(f"clip {i+1} ({c.get('name')}): timeMap needs at least 2 timepts")
             # A timeMap carries the in-point itself; `start` must be zero or FCP
             # rejects the edit with "Invalid edit with no respective media".
-            if start != 0:
+            # Exactly one of `start` and the first timept may carry the
+            # in-point. Both non-zero is the "Invalid edit with no respective
+            # media" bug; either one alone is legal, and Final Cut's own exports
+            # use the `start` form for a trimmed retime.
+            if start != 0 and parse_time(pts[0].get("value")) != 0:
                 problems.append(
-                    f"clip {i+1} ({c.get('name')}): has a timeMap but start={c.get('start')} "
-                    f"— must be 0s, the in-point belongs in the first timept"
+                    f"clip {i+1} ({c.get('name')}): has a timeMap starting at source "
+                    f"{c.get('start')} AND start={c.get('start')} — the in-point "
+                    f"belongs in one or the other, not both"
                 )
             times = [parse_time(p.get("time")) for p in pts]
             # The curve must start at 0 and must reach at least the end of the

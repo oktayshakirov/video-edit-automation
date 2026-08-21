@@ -526,9 +526,25 @@ def head_cuts(clips: list[Clip], fps: int) -> list[Cut]:
         start = round(entry.get("start", 0.0) * fps)
         dur = round(entry["duration"] * fps)
         tm = entry.get("timemap")
-        # Source consumed is what the timemap actually reaches, not the slot
-        # length — a 4x whip eats four seconds per second on screen.
-        src = round(max(v for _, v, _ in tm) * fps) - start if tm else dur
+        # Source consumed is what the timemap actually reaches over the span
+        # this clip plays, not the slot length — a 4x whip eats four seconds per
+        # second on screen. With a timemap, `start` is an offset into the
+        # RETIMED clip, so the source range is the curve evaluated across
+        # [start, start + duration]. Evaluated linearly between the captured
+        # control points: close enough for cursor accounting, and the curve
+        # itself is still reproduced exactly on output.
+        if tm:
+            def at(t_frames: int) -> int:
+                pts = [(round(a * fps), round(b * fps)) for a, b, _ in tm]
+                for (ta, va), (tb, vb) in zip(pts, pts[1:]):
+                    if t_frames <= tb:
+                        span = tb - ta or 1
+                        return round(va + (vb - va) * (t_frames - ta) / span)
+                return pts[-1][1]
+            src_from, src_to = at(start), at(start + dur)
+            src = max(src_to - src_from, 1)
+        else:
+            src_from, src = start, dur
         out.append(Cut(
             clip=clip, start_bar=0, bars=0, start_beat=0, beats=0,
             timeline_start=off, duration=dur,
@@ -541,7 +557,15 @@ def head_cuts(clips: list[Clip], fps: int) -> list[Cut]:
             raw_timemap=[(round(t * fps), round(v * fps), i)
                          for t, v, i in tm] if tm else None,
         ))
-        clip.cursor = max(clip.cursor, start + max(src, 1))
+        # `charge` states how far the cursor moves, overriding what this entry
+        # actually consumed. A hand-cut head may revisit footage on purpose —
+        # this one plays Sunset Sea 1, then whips back through the same seconds
+        # — and inferring the cursor from that pushes every later slot on the
+        # clip forward, which silently re-cuts the approved timeline below.
+        # Stating it keeps the head's overlaps the author's business.
+        charge = entry.get("charge")
+        clip.cursor = (max(clip.cursor, round(charge * fps)) if charge is not None
+                       else max(clip.cursor, src_from + src))
         clip.times_used += 1
     return out
 

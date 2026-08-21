@@ -20,42 +20,53 @@ lock = "cingene.lock.toml"
 # 393s, so it is looped once to give the library room.
 #
 # Pass 1 hands off at bar 40, the downbeat of the closing peak (energy 0.93),
-# and pass 2 re-enters at bar 20, a phrase line inside the opening peak (0.86).
-# 100 bars, 4:49.
+# and pass 2 re-enters at bar 24, the downbeat of the second peak (0.69) — both
+# section lines and both phrase lines, so the bar grid continues unbroken.
+# Pass 2 then climbs back through the build into the 0.93 peak and plays the
+# song out to its own ending, which gives the video a two-peak arc.
 #
-# Returning at bar 24 instead ran 96 bars and was 12s shorter, but bar 24 opens
-# the 0.69 peak: the seam stepped 0.93 -> 0.69 and the join was audible as a
-# drop in the music. 0.93 -> 0.86 is the same energy match the earlier 108-bar
-# version had, which is the one that sounded right. Twelve seconds is the price
-# of the better seam.
+# 96 bars, 4:37. Returning at bar 12 instead runs 108 bars and matches energy
+# more closely at the seam, but that edit was 35s longer than it wanted to be:
+# clips were coming round often enough to read as repeats.
 MUSIC_LOOP = true
 MUSIC_LOOP_HANDOFF_BAR = 40
-MUSIC_LOOP_RETURN_BAR = 20
+MUSIC_LOOP_RETURN_BAR = 24
 MUSIC_LOOP_CROSSFADE_BARS = 2      # 5.8s crossfade
 
 # --- the hand-cut opening --------------------------------------------------
 # Captured from a Final Cut export (Cingene.fcpxmld/Info.fcpxml) and replayed
-# verbatim. Three clips, cut by ear against the drop rather than to the bar
-# grid: Sunset Sea 7 for 12.433s, Sunset Sea 1 for 8.667s, then 2.1s of Sunset
-# Sea 1 again on a smoothed 4x whip that lands on the drop at 23.2s.
+# verbatim. Three spine clips, two shots: Sunset Sea 7 for 12.433s, then Sunset
+# Sea 1 held for 8.667s and continued for another 2.1s on a smoothed 4x whip
+# that lands on the drop at 23.200s.
 #
-# The timemap is copied out of the export rather than derived from a rate. Its
-# interp is "smooth2" — FCP's own easing, which this code cannot reconstruct
-# from a speed number, so it is reproduced as captured.
+# The third entry carries `start` AND a timemap, which is Final Cut's own way of
+# writing a trimmed retime: the curve describes the whole 4x pass over the clip,
+# and `start` is the in-point into that retimed result. It is 2.167s in, which
+# is why the whip continues through the shot instead of replaying it.
+#
+# interp is copied as captured. "smooth2" is FCP's easing and this code cannot
+# reconstruct it from a speed number, so it is passed through rather than
+# approximated.
 HEAD_CLIPS = [
   { clip = "Sunset Sea 7", offset = 0.0, start = 0.0, duration = 12.433333 },
-  { clip = "Sunset Sea 1", offset = 12.433333, start = 0.0, duration = 8.666667 },
-  { clip = "Sunset Sea 1", offset = 21.1, start = 2.166667, duration = 2.1, timemap = [[0.0, 0.0, "smooth2"], [7.266667, 29.066667, "smooth2"]] },
+  { clip = "Sunset Sea 1", offset = 12.433333, start = 0.0, duration = 8.666667, charge = 5.8 },
+  { clip = "Sunset Sea 1", offset = 21.1, start = 2.166667, duration = 2.1, timemap = [[0.0, 0.0, "smooth2"], [7.266667, 29.066667, "smooth2"]], charge = 5.8 },
 ]
 HEAD_UNTIL_BAR = 8
 
+# `charge` pins Sunset Sea 1's cursor at 5.8s after the head — where the two
+# bars it replaced would have left it. The head genuinely plays 17.1s of the
+# clip and whips back over seconds it already showed, which is the point of the
+# transition; charging that honestly would push its three later slots forward
+# and re-cut the approved timeline underneath a change that was only ever meant
+# to affect the opening.
+
 # The grid was four frames late. Bar 8 computed to 23.318s; the drop is at
-# 23.2s, which is where the opening above was cut by ear. Downbeat confidence on
-# this track is 0.39, the lowest of any track in this repo, and this is exactly
-# the failure that warns about: a grid that scores well and feels late.
-#
-# Every cut in the video moves earlier by the same 4 frames, which is also what
-# makes the hand-cut head join the generated spine with no gap.
+# 23.200s, where the opening above was cut by ear. Downbeat confidence on this
+# track is 0.39, the lowest in this repo, and this is exactly the failure it
+# warns about: a grid that scores well and feels late. Every cut moves earlier
+# by the same amount, which is also what joins the hand-cut head to the
+# generated spine with no gap.
 GRID_PHASE_NUDGE = -0.133333
 
 # --- the four reveals, shown whole -----------------------------------------
@@ -72,35 +83,33 @@ GRID_PHASE_NUDGE = -0.133333
 # seven slots, more than any other clip, so the one shot needing hand grading
 # was also the one on screen most. Four is enough to keep the forest in the
 # film without the mismatch becoming its texture. See cingene-colour.md.
-CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sunset Sea 7" = 1, "Sunset Sea Boats 2" = 1, "Forest Coast 1" = 6 }
+CLIP_MAX_USES = { "Forest Coast Reveal 1" = 1, "Forest Coast Reveal 2" = 1, "Sunset Sea 7" = 1, "Sunset Sea Boats 2" = 1, "Forest Coast 1" = 4 }
 
 # Pins override scoring, the cooldown and the use cap, and they reserve the
 # clip against earlier slots. Lengths here are literal — six bars is not a
 # length the scorer may choose, but it is the one that fits a 17.7s reveal.
-# Bars 0-8 are the hand-cut head above, so the scorer starts at bar 8.
-#   8  -> Forest Coast Reveal 1, reversed, 3 bars at 2x: the whole 17.5s clip.
-#         Forwards it descends from the forest to the coast; backwards it climbs
-#         from the coast back into the forest.
-#   11 -> Forest Coast 2, reversed, 5 bars at 2x, entering at 6.0s of source so
-#         it covers the 6-36s stretch that travels trees to houses to sea.
-#         Backwards that runs sea to houses to trees, so the pair reads as one
-#         continuous move inland across 20s, landing at 0:43.
-#   15 -> Sunset Sea 2, inside the first minute and clear of the pair.
+# Bars 0-8 are the hand-cut head above, so the scorer starts at bar 8. Sunset
+# Sea 7 and Sunset Sea 1 are spent there and the pins for them are gone.
+#   12 -> Sunset Sea 2, four shots clear of Sunset Sea 1 and inside the first
+#         minute, so the two sunsets read as a transition, not a pair.
+#   36 -> Forest Coast Reveal 1, whole, as the escalate below.
 #   56 -> Sunset Sea Boats 2 whole, 4 bars = 11.57s of a 13.5s clip.
-#   96 -> Forest Coast Reveal 2, holding the last four bars so the picture ends
-#         with the song. Forcing 4-bar slots at 88 and 92 to guarantee the
-#         boundary was worse than leaving them free: when no clip had 11.57s
-#         left, the forced slot could not be filled and the edit stopped there.
-#         The closing section prefers 4-bar slots anyway, so the boundary
-#         arrives on its own., reversed at 2x: 23.14s of a 28.1s clip over
+#   88 -> no clip, length only: puts a slot boundary at bar 92 for the closer.
+#   92 -> Forest Coast Reveal 2, reversed at 2x: 23.14s of a 28.1s clip over
 #         the last four bars. Backwards it travels sunset to forest and ends on
 #         the forest, closing the film where Forest Coast Reveal 1 left it.
-PIN_CLIPS = { 8 = "Forest Coast Reveal 1", 11 = "Forest Coast 2", 15 = "Sunset Sea 2", 56 = "Sunset Sea Boats 2", 92 = "Forest Coast Reveal 2" }
-PIN_SLOT_BARS = { 8 = 3, 11 = 4, 15 = 1, 56 = 4, 92 = 8 }
+PIN_CLIPS = { 12 = "Sunset Sea 2", 36 = "Forest Coast Reveal 1", 56 = "Sunset Sea Boats 2", 92 = "Forest Coast Reveal 2" }
+PIN_SLOT_BARS = { 12 = 2, 36 = 4, 56 = 4, 88 = 4, 92 = 4 }
 
-# Forest Coast Reveal 1 has moved to the reversed pair at bar 8, so the ramp it
-# used to carry at 1:44 has no clip. Nothing escalates for now.
-ESCALATE_AT_BARS = []
+# Forest Coast Reveal 1 plays forward at real time and then launches out of the
+# shot — the 2x version of it read as a mistake. Body at 100% for the first
+# ~9s, then a 2.6s ramp accelerating to 5.5x, which passes through 2x and 3x on
+# the way and hands off into the cut. `fit_escalate` will pull the peak down if
+# the clip cannot fund the full curve, and reports what it achieved.
+ESCALATE_AT_BARS = [36]
+ESCALATE_BODY_SPEED = 1.0
+ESCALATE_TAIL_SECONDS = 2.6
+ESCALATE_TAIL_SPEED = 5.5
 
 # The closer has to run backwards, and it is the only use of the clip now.
 CLIP_REVERSE_OVERRIDE = { "Forest Coast Reveal 2" = true }
@@ -113,20 +122,13 @@ CLIP_REVERSE_OVERRIDE = { "Forest Coast Reveal 2" = true }
 # to spend them on fewer slots, and 2x is opened up so a long hold can be shown
 # as movement rather than as a pause. The clips with something in them — houses,
 # boats, trees, the reveals — are left alone.
-# Forest Coast 2 enters at 6.0s so its pinned reversed slot covers the trees to
-# houses to sea stretch. The pin reserves the clip, so this slot is its first
-# use and the skip lands where it is meant to.
-CLIP_HEAD_SKIP = { "Forest Coast 2" = 6.0, "Sunset Sea 3" = 1.0, "Sunset Sea 4" = 1.5, "Sunset Sea 5" = 2.0, "Sunset Sea 6" = 1.5 }
-# Tail trims removed. They cost 6.5s across the four hovers, and with the
-# hand-cut head spending Sunset Sea 1 and Sunset Sea 7 outright, that 6.5s is
-# the difference between reaching the song's ending and stopping three bars
-# short. The head skips stay — a slow shot is worse at its start than its end.
-CLIP_SKIP_RANGES = {}
+CLIP_HEAD_SKIP = { "Sunset Sea 3" = 1.0, "Sunset Sea 4" = 1.5, "Sunset Sea 5" = 2.0, "Sunset Sea 6" = 1.5 }
+CLIP_SKIP_RANGES = { "Sunset Sea 3" = [[9.8, 10.8]], "Sunset Sea 4" = [[12.7, 14.2]], "Sunset Sea 5" = [[36.6, 38.6]], "Sunset Sea 6" = [[24.9, 26.4]] }
 
 # --- repetition ------------------------------------------------------------
 # Eight slots on one clip is what "it keeps showing the same thing" looks like,
 # whatever the source cursor says. Six is the ceiling now.
-MAX_USES_DEFAULT = 8
+MAX_USES_DEFAULT = 7
 
 # The 0.3s settle-in trim plus the 0.1s tail margin costs 0.4s of every clip,
 # and three of the four reveals need essentially their whole length: Sunset Sea
@@ -140,7 +142,7 @@ HEAD_TRIM = 0.0
 # 386s of source (after the hover trims) under a 278s timeline. Lower than the
 # 25s this project ran before: at 25s only the three longest takes could ever
 # reach 2x, which excluded exactly the slow hovers 2x is wanted for.
-SPEEDUP_MIN_REMAINING = 25.0
+SPEEDUP_MIN_REMAINING = 15.0
 
 # Wider spacing on repeats now that the timeline is longer.
 REUSE_COOLDOWN_SLOTS = 4
