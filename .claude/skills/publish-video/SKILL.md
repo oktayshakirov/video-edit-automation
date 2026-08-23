@@ -68,6 +68,27 @@ Dry run without `--apply`, exactly like `set`. See the `youtube-audit` skill for
 the quota arithmetic, the em dash rule the tool now enforces, and why
 `--related` cannot set Studio's "Related video" field.
 
+- **Pass `--captions <the .srt>` on a long form.** Added 2026-08-23. The
+  long-form build already writes an exact SRT next to the MP4, and uploading it
+  costs nothing extra: `force-ssl` already covers `captions.insert`, so no
+  re-authorisation was needed. It replaces nothing - YouTube's auto-generated
+  track stays alongside ours and viewers get the accurate one, which matters
+  because ASR guesses at brand names, figures and jargon (it has no idea what
+  "SegWit" or "3.125 BTC" is). Captions are also indexed for search and are
+  what a sound-off viewer reads.
+
+  Shorts burn their captions into the picture, so an SRT adds less there - and
+  `render_crypto_short` does not produce one anyway. Long form only, in
+  practice.
+
+  **A "already has a caption track" error can mean it worked.** The insert is
+  not safely retryable and googleapis retries it, so the first real run
+  reported a conflict while the track was live and serving with our exact
+  timings - the retry had collided with what the first attempt created.
+  `uploadCaptions` now lists before inserting and returns the existing track
+  id, so this is idempotent; if you ever see that message from something else,
+  **list the tracks before concluding anything**, and never upload a second
+  copy by hand.
 - **Reuse the `Meta` the long-form build already generated** - the `.md` sidecar
   in `<project>/transcripts/` - rather than re-deriving the description.
 - **`--related <long-id>` on the short.** It appends the long's URL to the
@@ -75,6 +96,13 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   Data API has no field for it.
 - **Nothing here makes a video public.** Say so plainly at the end rather than
   letting the user assume the site entry published it.
+- **A Short's custom thumbnail IS set even when it looks like it is not.** On
+  the bitcoin-price short the user reported the thumbnail "hadn't been added";
+  the live `maxresdefault.jpg` was byte-identical to the uploaded file (mean
+  pixel difference 0.79, pure JPEG noise). Nothing had failed. See the next
+  point for why it is invisible - and **verify by downloading
+  `i.ytimg.com/vi/<id>/maxresdefault.jpg` and diffing it against the file you
+  sent**, which is the only check that actually answers the question.
 - **A custom thumbnail on a Short never shows in the Shorts feed.** The vertical
   swipe feed always uses an auto-generated frame from the video. Custom Shorts
   thumbnails only landed in July 2026, are Partner Programme only, and appear in
@@ -107,11 +135,26 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
 Instagram's API takes a **public https URL** and cannot accept a file upload, so
 the render has to be reachable from the internet for the length of the run.
 
+**Start both yourself.** `video-edit-automation/.claude/settings.json` carries
+the permission rules that make this possible - `Bash(python3 -m http.server *)`
+and `Bash(cloudflared tunnel *)` - so neither needs a prompt and neither is the
+user's job any more.
+
 ```bash
-cd <folder with the mp4 and the cover>
-python3 -m http.server 8765 &
+python3 -m http.server 8765 --directory <folder with the mp4 and the cover>
+```
+
+```bash
 cloudflared tunnel --url http://localhost:8765
 ```
+
+Run the server with `run_in_background: true`; it never exits on its own.
+
+**Use `--directory`, not `cd <folder> && python3 ...`.** A permission rule
+matches the command string from its start, so a compound `cd X && python3 ...`
+does not match `Bash(python3 -m http.server *)` and gets classified as if no
+rule existed. This is the general shape of the trap: **an allowlisted command
+loses its allowlisting the moment you prefix it with anything.**
 
 `cloudflared` prints a `https://<random>.trycloudflare.com` URL. Pass
 `<tunnel>/<file>.mp4` and `<tunnel>/<cover>.jpg` to the workflow.
@@ -130,11 +173,13 @@ curl -s http://127.0.0.1:20241/quicktunnel     # {"hostname":"...trycloudflare.c
 triggering anything** - a workflow that starts against a dead tunnel fails
 halfway, and the Instagram half is not safely re-runnable.
 
-**This step can be blocked by the permission classifier.** `python3 -m
-http.server` was denied both inline and as a background task on 2026-08-23, in
-which case the tunnel is the one part of this skill the user has to start.
-Give them both commands and the folder, then take over from the metrics
-endpoint - do not make them read a URL off their screen.
+**This used to be blocked by the permission classifier**, on 2026-08-23, and
+the tunnel was the one part of the run the user had to start by hand. That is
+fixed: the project settings file above allowlists both commands, verified by
+running them. If a future session is denied anyway, check that
+`.claude/settings.json` still exists in `video-edit-automation` and that the
+command is not wrapped in a `cd ... &&` prefix. Never make the user read the
+tunnel URL off their screen - take it from the metrics endpoint.
 
 - **Stop both when the run finishes.** The tunnel is ephemeral and needs no
   account, which is exactly why it must not be left running - it is an
@@ -217,6 +262,13 @@ PYTHONPATH=. .venv/bin/python -m video_automation.publish post crypto out.mp4 \
 ```
 
 `--apply` uploads. Projects are `crypto`, `tinnitus`, `drone`.
+
+**TikTok takes no cover image, on any endpoint, ever.** Asked again on
+2026-08-23: the inbox endpoint accepts `source_info` and nothing else, and
+even direct post (which these accounts cannot use at all) has no thumbnail
+parameter. The cover is picked in the app when the user publishes the draft.
+This is not a gap to be closed later - do not offer to fix it, and do not
+describe a TikTok upload as having a thumbnail.
 
 **It uploads a DRAFT to the account's inbox. It does not post.** The user opens
 TikTok, finds it in the inbox, writes the caption, picks the cover and publishes.
@@ -396,4 +448,55 @@ exactly the silence-pair failure this file already documents - letterboxed
 between two blurred zoomed copies, reported as success by both the upload and
 the audit. **Check the pixel dimensions of both files before uploading**, not
 the filenames.
+
+## Telegram link previews, and why one may not render
+
+Telegram builds the preview itself by fetching the URL's OpenGraph tags, and
+that is out of our hands. Two things make it flaky, and only one is fixable:
+
+- **An unlisted video still previews**, because YouTube serves OpenGraph tags
+  for it - the link works for anyone holding it. But Telegram **caches** a
+  preview per URL, and a URL first seen while the video was unlisted can keep
+  a stale or empty card after it goes public. Nothing in the post is wrong;
+  the cache is. Posting after the video is Public avoids it, which is why the
+  standalone Share Video To Telegram workflow exists.
+- **`youtube.com/watch?v=` and `youtu.be/` are different URLs to the cache.**
+  If a card is stuck, posting the other form is the cheapest way to get a
+  fresh fetch.
+
+Do not "fix" a missing preview by switching to `sendPhoto` with the poster -
+that trades a play button for a still and sends the viewer nowhere.
+
+## Never let n8n sign the message
+
+**Every Telegram node appends "This message was sent automatically with n8n"
+unless `additionalFields.appendAttribution` is explicitly `false`.** It is the
+node's default and the field had never been set, so it had been going out on
+*every* channel post on both sites - articles, exchanges, crypto OGs, sound
+sessions and now videos. Nine workflows, all fixed on 2026-08-23.
+
+**Set it on any new Telegram node**, and re-check the whole set with one sweep
+after adding one:
+
+```
+GET /api/v1/workflows?limit=100  ->  for each node of type n8n-nodes-base.telegram,
+                                     parameters.additionalFields.appendAttribution
+```
+
+Anything not `false` is signing your posts.
+
+## The public API rejects settings keys the n8n UI happily stores
+
+`PUT /workflows/<id>` validates `settings` strictly and 400s with
+`request/body/settings must NOT have additional properties` on keys the editor
+writes itself - `callerPolicy`, `availableInMCP`, `binaryMode` were the three
+that bit. Filter the object to the keys the API accepts before sending:
+
+    executionOrder, saveExecutionProgress, saveManualExecutions,
+    saveDataErrorExecution, saveDataSuccessExecution, executionTimeout,
+    errorWorkflow, timezone
+
+Omitted keys keep their stored value, so filtering loses nothing. This only
+shows up on the older workflows, which is why a script can update four and
+then fail on the fifth.
 

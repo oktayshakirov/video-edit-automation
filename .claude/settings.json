@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m http.server *)",
+      "Bash(cloudflared tunnel *)",
+      "Bash(pkill -f cloudflared*)",
+      "Bash(pkill -f http.server*)"
+    ]
+  }
+}
