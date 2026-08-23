@@ -1,0 +1,503 @@
+1
+00:00:00,000 --> 00:00:02,299
+Bitcoin moved while you were asleep.
+
+2
+00:00:02,299 --> 00:00:02,990
+You wake up,
+
+3
+00:00:02,990 --> 00:00:04,217
+and the number on your screen
+
+4
+00:00:04,217 --> 00:00:05,720
+is a different number.
+
+5
+00:00:05,720 --> 00:00:07,455
+So who did that?
+
+6
+00:00:07,455 --> 00:00:09,071
+There is no central bank here.
+
+7
+00:00:09,071 --> 00:00:11,194
+No committee sets this price.
+
+8
+00:00:11,194 --> 00:00:13,686
+And yet something clearly moved it.
+
+9
+00:00:13,686 --> 00:00:14,708
+Stay to the end
+
+10
+00:00:14,708 --> 00:00:17,743
+and you will know which forces move Bitcoin in hours,
+
+11
+00:00:17,743 --> 00:00:19,149
+which move it in years,
+
+12
+00:00:19,149 --> 00:00:21,400
+and the one number to watch instead.
+
+13
+00:00:21,400 --> 00:00:23,896
+Twenty-one million coins.
+
+14
+00:00:23,896 --> 00:00:25,363
+That is all there will ever be.
+
+15
+00:00:25,363 --> 00:00:26,925
+It was written into the code
+
+16
+00:00:26,925 --> 00:00:28,767
+before most of them existed.
+
+17
+00:00:28,767 --> 00:00:30,077
+No committee can raise it.
+
+18
+00:00:30,077 --> 00:00:32,687
+No emergency can print more.
+
+19
+00:00:32,687 --> 00:00:35,739
+So where does a price come from?
+
+20
+00:00:35,739 --> 00:00:38,223
+A price is not a fact about an object.
+
+21
+00:00:38,223 --> 00:00:40,674
+It is an agreement between two people.
+
+22
+00:00:40,674 --> 00:00:42,413
+One person willing to sell.
+
+23
+00:00:42,413 --> 00:00:43,668
+One willing to buy.
+
+24
+00:00:43,668 --> 00:00:45,634
+Where they meet is the price.
+
+25
+00:00:45,634 --> 00:00:47,374
+So Bitcoin has two sides,
+
+26
+00:00:47,374 --> 00:00:49,620
+and only one is up for grabs.
+
+27
+00:00:49,620 --> 00:00:52,117
+The supply side was settled in the code.
+
+28
+00:00:52,117 --> 00:00:53,913
+New coins arrive on a schedule
+
+29
+00:00:53,913 --> 00:00:56,012
+that only ever slows down.
+
+30
+00:00:56,012 --> 00:00:57,315
+Fifty new coins a block.
+
+31
+00:00:57,315 --> 00:00:58,678
+Then twenty-five.
+
+32
+00:00:58,678 --> 00:00:59,731
+Then twelve and a half.
+
+33
+00:00:59,731 --> 00:01:01,243
+Then six and a quarter.
+
+34
+00:01:01,243 --> 00:01:03,510
+Now just over three.
+
+35
+00:01:03,510 --> 00:01:04,939
+Every four years it halves,
+
+36
+00:01:04,939 --> 00:01:06,887
+and nobody votes on it.
+
+37
+00:01:06,887 --> 00:01:08,721
+So every argument about the price
+
+38
+00:01:08,721 --> 00:01:11,054
+is an argument about demand.
+
+39
+00:01:11,054 --> 00:01:13,417
+Who moves it in hours?
+
+40
+00:01:13,417 --> 00:01:14,997
+Start with the whales.
+
+41
+00:01:14,997 --> 00:01:16,396
+A whale is one wallet
+
+42
+00:01:16,396 --> 00:01:18,909
+holding a thousand bitcoin or more.
+
+43
+00:01:18,909 --> 00:01:21,689
+Their power is not the size of the pile.
+
+44
+00:01:21,689 --> 00:01:24,579
+It is that almost none of it is for sale.
+
+45
+00:01:24,579 --> 00:01:28,077
+Most bitcoin sits in wallets that have not moved in years.
+
+46
+00:01:28,077 --> 00:01:29,557
+What is on an exchange today
+
+47
+00:01:29,557 --> 00:01:31,646
+is a sliver of the total.
+
+48
+00:01:31,646 --> 00:01:32,852
+So the order book is thin -
+
+49
+00:01:32,852 --> 00:01:33,804
+just a queue of offers
+
+50
+00:01:33,804 --> 00:01:35,890
+to buy and to sell.
+
+51
+00:01:35,890 --> 00:01:37,794
+A thin queue moves easily,
+
+52
+00:01:37,794 --> 00:01:38,639
+and they have names
+
+53
+00:01:38,639 --> 00:01:40,640
+for how that gets done.
+
+54
+00:01:40,640 --> 00:01:41,441
+A sell wall.
+
+55
+00:01:41,441 --> 00:01:42,204
+Spoofing.
+
+56
+00:01:42,204 --> 00:01:44,064
+A pump and a dump.
+
+57
+00:01:44,064 --> 00:01:46,192
+But none of that is choosing the price.
+
+58
+00:01:46,192 --> 00:01:49,183
+It is exploiting how few people are selling.
+
+59
+00:01:49,183 --> 00:01:51,485
+And who moves it in years?
+
+60
+00:01:51,485 --> 00:01:53,929
+Developers never touch the price.
+
+61
+00:01:53,929 --> 00:01:55,445
+They maintain the protocol -
+
+62
+00:01:55,445 --> 00:01:58,758
+the rules every computer on the network follows.
+
+63
+00:01:58,758 --> 00:02:00,661
+SegWit, in twenty seventeen,
+
+64
+00:02:00,661 --> 00:02:03,462
+changed how transactions pack into a block.
+
+65
+00:02:03,462 --> 00:02:05,498
+It did not move the price that week.
+
+66
+00:02:05,498 --> 00:02:06,769
+It decides whether the network
+
+67
+00:02:06,769 --> 00:02:09,374
+is worth anything in ten years.
+
+68
+00:02:09,374 --> 00:02:11,490
+Governments are the loud ones.
+
+69
+00:02:11,490 --> 00:02:14,329
+China banned trading and mining in twenty twenty-one,
+
+70
+00:02:14,329 --> 00:02:15,861
+and the market fell.
+
+71
+00:02:15,861 --> 00:02:17,138
+The United States approved
+
+72
+00:02:17,138 --> 00:02:19,527
+spot bitcoin exchange traded funds
+
+73
+00:02:19,527 --> 00:02:21,250
+in early twenty twenty-four,
+
+74
+00:02:21,250 --> 00:02:23,158
+and it ran to new highs.
+
+75
+00:02:23,158 --> 00:02:25,922
+So put the two speeds side by side.
+
+76
+00:02:25,922 --> 00:02:26,699
+In hours.
+
+77
+00:02:26,699 --> 00:02:27,849
+A whale's sell order.
+
+78
+00:02:27,849 --> 00:02:29,883
+A regulator's announcement.
+
+79
+00:02:29,883 --> 00:02:31,497
+A headline anyone can trade.
+
+80
+00:02:31,497 --> 00:02:33,701
+Now the ones that work in years.
+
+81
+00:02:33,701 --> 00:02:35,362
+A change to the protocol.
+
+82
+00:02:35,362 --> 00:02:36,885
+Legal clarity, or none.
+
+83
+00:02:36,885 --> 00:02:39,409
+Whether the thing still works.
+
+84
+00:02:39,409 --> 00:02:42,588
+Nobody is driving
+
+85
+00:02:42,588 --> 00:02:43,831
+Ask it properly.
+
+86
+00:02:43,831 --> 00:02:45,165
+Who sets the price of bitcoin
+
+87
+00:02:45,165 --> 00:02:47,136
+right now, this second?
+
+88
+00:02:47,136 --> 00:02:48,099
+The biggest whale?
+
+89
+00:02:48,099 --> 00:02:49,104
+The core developers?
+
+90
+00:02:49,104 --> 00:02:51,137
+A regulator in Washington?
+
+91
+00:02:51,137 --> 00:02:55,261
+Or the last person willing to sell?
+
+92
+00:02:55,261 --> 00:02:56,282
+The price is whatever
+
+93
+00:02:56,282 --> 00:02:58,106
+the next buyer and the next seller
+
+94
+00:02:58,106 --> 00:02:59,279
+agree on.
+
+95
+00:02:59,279 --> 00:03:01,903
+Which is why size is not control.
+
+96
+00:03:01,903 --> 00:03:04,389
+A whale holding a hundred thousand coins
+
+97
+00:03:04,389 --> 00:03:06,709
+cannot sell them at today's price.
+
+98
+00:03:06,709 --> 00:03:07,848
+The moment they start,
+
+99
+00:03:07,848 --> 00:03:10,215
+it stops being today's price.
+
+100
+00:03:10,215 --> 00:03:12,644
+There is a plainer way to say it.
+
+101
+00:03:12,644 --> 00:03:17,608
+The price is set by the last person willing to sell.
+
+102
+00:03:17,608 --> 00:03:19,515
+So who controls Bitcoin's price?
+
+103
+00:03:19,515 --> 00:03:20,476
+Nobody does.
+
+104
+00:03:20,476 --> 00:03:22,219
+Everybody does.
+
+105
+00:03:22,219 --> 00:03:24,796
+So what should you watch?
+
+106
+00:03:24,796 --> 00:03:27,255
+Which changes what is worth watching.
+
+107
+00:03:27,255 --> 00:03:28,788
+Not the whale wallets.
+
+108
+00:03:28,788 --> 00:03:30,708
+By the time a big transfer shows up,
+
+109
+00:03:30,708 --> 00:03:32,502
+the trade is already done.
+
+110
+00:03:32,502 --> 00:03:33,537
+Watch how much bitcoin
+
+111
+00:03:33,537 --> 00:03:35,919
+is sitting on exchanges instead.
+
+112
+00:03:35,919 --> 00:03:37,851
+Coins moving onto an exchange
+
+113
+00:03:37,851 --> 00:03:39,441
+are getting ready to sell.
+
+114
+00:03:39,441 --> 00:03:40,381
+Coins moving off
+
+115
+00:03:40,381 --> 00:03:42,054
+are going to sleep.
+
+116
+00:03:42,054 --> 00:03:43,201
+So - back to the morning
+
+117
+00:03:43,201 --> 00:03:45,296
+you woke up to a different number.
+
+118
+00:03:45,296 --> 00:03:47,224
+The question was never who moved it.
+
+119
+00:03:47,224 --> 00:03:50,084
+It is how few people were left to buy.
+
+120
+00:03:50,084 --> 00:03:50,738
+Know that,
+
+121
+00:03:50,738 --> 00:03:52,558
+and it stops looking like a decision,
+
+122
+00:03:52,558 --> 00:03:53,984
+and starts looking like a room
+
+123
+00:03:53,984 --> 00:03:56,367
+changing its mind at once.
+
+124
+00:03:56,367 --> 00:03:58,262
+The full breakdown is linked below,
+
+125
+00:03:58,262 --> 00:04:00,625
+and nothing here is financial advice.
+
+126
+00:04:00,625 --> 00:04:03,392
+If that was useful, subscribe.

@@ -677,6 +677,16 @@ class Bars(Beat):
     bar rather than watching a rectangle appear. The value sits at the end of
     its own bar and travels with it.
 
+    **The track is shortened by the widest value in the payload**, because a
+    bar at fraction 1.000 fills it and leaves its own label nowhere to go. The
+    first version clamped the label's start x to just inside the track - a
+    clamp on the anchor rather than on the extent - so a full-length row
+    printed "50 BTC" as "50 BT" off the edge of the frame, unclipped and
+    unraised. Setting that one label inside the bar was tried and is worse: the
+    value font is 46px against a 30px bar, and one row treated unlike the other
+    four reads as a fault. Reserving the column costs a few percent of every
+    bar, which is invisible because bars are read against each other.
+
     payload: (rows, title) where rows is [(label, fraction, value_text), ...]
     """
 
@@ -697,6 +707,20 @@ class Bars(Beat):
         # dimension it actually needs.
         w = self.frame.w - 2 * self.margin
         label_font, value_font = _font(42), _font(46)
+        # **Reserve the value column before laying out the track.** A bar at
+        # fraction 1.000 fills the track by definition, so its value has
+        # nowhere to go: the halving chart's top row printed "50 BTC" as
+        # "50 BT" against the frame edge, and nothing clipped it or raised.
+        # Putting that one label *inside* the bar was tried and is worse — the
+        # value font is 46px against a 30px bar, so a centred label is cut off
+        # top and bottom, and one row treated differently from the rest reads
+        # as a fault rather than as a rule. Shortening the track for every row
+        # keeps one treatment and costs a few percent of bar length, which is
+        # invisible because the bars are read against each other.
+        vw = max((d.textlength(v, font=value_font)
+                  for _, _, v in self.rows if v), default=0.0)
+        if vw:
+            w -= int(vw) + 44
         n = len(self.rows)
         pitch = 132
         top = max(top + 20, (self.frame.h - n * pitch) // 2)
@@ -720,8 +744,7 @@ class Bars(Beat):
                 d.rectangle([x, by, x + bw, by + bh],
                             fill=self.brand.primary + (235,))
             if value:
-                vx = min(x + bw + 22, x + w - 10)
-                shadow_text(d, (vx, by - 8), value, value_font,
+                shadow_text(d, (x + bw + 22, by - 8), value, value_font,
                             self.brand.primary)
 
 

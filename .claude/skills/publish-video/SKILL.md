@@ -190,11 +190,11 @@ believing a run is the one you started.
   re-run double-posts to Instagram. `Summary` reports `facebookCoverSet` so
   the outcome is visible without reading node output.
 
-  **Unverified until the next Reel publish.** It was added after the fact and
-  there is no safe way to test it without touching a live post. On the next
-  run, check `facebookCoverSet` in the Summary, and look at the Reel. If it is
-  false, the likely cause is `/thumbnails` wanting the file some other way -
-  the video is still published and only the cover is missing.
+  **Verified working, 2026-08-23**, on the bitcoin-price short: execution 504
+  returned `facebookCoverSet: true` on a real publish. The two nodes do what
+  they were written to do and need no further babysitting; keep reading
+  `facebookCoverSet` in the Summary anyway, since they are the one part of the
+  run that is allowed to fail quietly.
 - **`durationSeconds` is required** and is checked before anything uploads,
   because **Facebook Reels accepts 3 to 90 seconds only**. A short over 90s
   cannot go to Facebook at all; publish it to Instagram and TikTok and say so.
@@ -320,3 +320,80 @@ accounts, served off the tunnel. What that run established beyond the code:
 - Instagram: 25 posts per 24 hours, and the account must stay a Business or
   Creator account linked to the Page or publishing stops working entirely.
 - A YouTube upload costs 1600 of 10,000 daily quota units.
+
+## Telegram, on the long form only
+
+**Added 2026-08-23, on the user's instruction.** Both sites' Telegram channels
+now get a link post for every long-form video - `@thecryptowiki` and
+`@tinnitushelpme`, on the same credentials the article workflows use.
+
+**Long form only.** Shorts stay off Telegram: they already go to Instagram,
+Facebook Reels and TikTok, and a channel post for every short is noise. This
+matches the "only the long form gets a social share" line in
+`video-crypto-long`, which the Reel table does not contradict - a Reel is
+distribution, a channel post is an announcement.
+
+**It is a link post, not an upload.** `sendMessage` with title, hook and the
+YouTube URL; Telegram unfurls that into its own play card. A native
+`sendVideo` would keep the view inside Telegram and off YouTube, and the long
+form is 140 MB.
+
+Two places it lives, deliberately:
+
+| What | Crypto | Tinnitus |
+| --- | --- | --- |
+| Inline, in Publish Facebook Video | `zS3xX6tbXpXnF32N` | `Lyhn5U7pYhrAs9x7` |
+| Standalone Share Video To Telegram | `5x8Kaq91qqPl6pmp` | `2WlbdJ1qQ7HKU9m6` |
+
+The inline branch is what makes it "always run with the skill" - pass
+`youtubeUrl` as `field-4` to the Facebook workflow and it posts after the video
+is live. The **standalone** one exists because the inline branch cannot be
+retried: re-running Publish Facebook Video re-uploads the video to the Page.
+Its form fields are `title, hook, youtubeUrl` at
+`/form/share-video-telegram-{crypto,tinnitus}`.
+
+Use the standalone when the inline branch did not fire, or - the case worth
+planning for - when you deliberately hold the announcement until the user has
+flipped the video to Public in Studio. Omitting `youtubeUrl` on the Facebook
+run skips the branch cleanly, which is what the IF gate is for.
+
+- **`Telegram Post` carries `onError: continueRegularOutput`**, same argument
+  as `FB Set Reel Cover`: the Facebook video is already live by then, so a
+  Telegram failure must not produce a red execution that invites a re-run.
+- `Summary` reports `telegramSent` and `telegramMessageId`. **Read it** - the
+  branch failing silently is the whole failure mode here, see below.
+
+## Two n8n traps that both fail silently
+
+Both were hit building the Telegram branch, and neither produces an error.
+
+**An IF node after another node reads *that* node's output, not the form's.**
+`Share To Telegram?` was written with `leftValue: {{ $json.youtubeUrl }}` and
+sits after `Publish Video`, so `$json` was the Facebook API response and
+`youtubeUrl` was simply `undefined`. The condition took the false branch, the
+Facebook video published normally, `Summary` reported `telegramSent: false`,
+and **nothing anywhere reported an error**. Reference the node by name:
+`{{ $('Normalise Input').item.json.youtubeUrl }}`. The same trap applies to any
+node reaching back past its immediate predecessor.
+
+**A form workflow's `path` must equal its `webhookId`.** n8n registers the form
+route under `webhookId`; the `path` parameter alone is not enough. A workflow
+created via the API with a `path` that does not match activates cleanly -
+`POST /activate` returns `active: true` - and then serves **"Problem loading
+form"** on the URL you asked for. Every shipped workflow here has the two set
+to the same string, which is why the older ones carry a UUID-looking `path`
+like `b3f2a2c7-1a9a-4c1a-9a0b-fb-video-crypto`: it *is* the webhookId. When
+creating a form workflow, set both fields to the same value and probe
+`/form/<path>` for a 200 before trusting it.
+
+## The short's two thumbnails are named, and the names are load-bearing
+
+`<name>-thumb.jpg` is the **vertical** Reel cover and `<name>-thumb-yt.jpg` is
+the **1280x720** one for YouTube. `bitcoin-price-short.py` was written with the
+two the other way round and was caught before the upload, but only by checking:
+had it shipped, `-thumb.jpg` would have sent a 9:16 image to YouTube, which is
+exactly the silence-pair failure this file already documents - letterboxed
+between two blurred zoomed copies, reported as success by both the upload and
+the audit. **Check the pixel dimensions of both files before uploading**, not
+the filenames.
+

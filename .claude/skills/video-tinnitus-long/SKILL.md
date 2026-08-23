@@ -962,3 +962,73 @@ so the graphic follows the voice instead of asking the viewer to interpret.
   candidates.
 - Present the app's zen albums as available — the audio files are not on disk.
 - Mass-produce. Same cap as crypto: see `docs/long-form-strategy.md`.
+
+## `bars` reserves a column for its values, and that was a real bug
+
+**A bar at fraction 1.000 fills the track by definition, so its value label has
+nowhere to go.** The halving chart's top row is `("2009", 1.000, "50 BTC")` and
+it printed as **"50 BT" against the frame edge**: the old code clamped the
+label's *start* x to ten pixels inside the track, which is a clamp on the anchor
+rather than on the extent, so the rest of the string drew straight off the
+frame. Nothing clipped it and nothing raised - the same bug class as a
+`compare` row too wide for its line, and as marks scheduled past the last frame.
+
+Two fixes were tried and only the second is right:
+
+- **Moving that one label inside the bar does not work.** The value font is
+  46px against a 30px bar, so a label set inside is cut off top and bottom; and
+  one row treated differently from the other four reads as a fault rather than
+  as a rule.
+- **Shorten the track for every row instead.** `Bars.content` now measures the
+  widest value in the payload and takes `that + 44px` off the track width
+  before laying anything out, so every value sits outside its bar in one
+  consistent treatment. It costs a few percent of bar length, which is
+  invisible because bars are read against each other rather than against the
+  frame.
+
+Nothing to set per beat. **But if a beat ever draws type near an edge, check
+whether the code clamps the anchor or the extent** - clamping where a string
+starts says nothing about where it ends.
+
+
+## A thumbnail may open the loop; it may not point at the wrong answer
+
+**The off-message rule applies to the thumbnail, not just to the shots**, and
+it outranks the scorer. `hacker.jpg` is the most arresting picture in the
+crypto library - a hooded figure at a laptop, whole subject, real black beside
+it for the type - and `_layout` scored it -0.15 against the shipped
+`analysis.jpg`'s -0.07. It was still rejected: under the headline "Who controls
+Bitcoin's price?" a hooded figure answers **hackers**, and that is a thing the
+video explicitly denies.
+
+That is a different failure from "never put the answer on the thumbnail". This
+one puts *an* answer there and the answer is wrong, which is worse than
+answering correctly - it sets the viewer up to click for a video that does not
+exist and bounce.
+
+Two more from the same sweep, both scored and both rejected on subject:
+
+- `bitcoin-vs-fiat.jpg` is a man setting fire to a dollar bill. It promises a
+  currency-collapse video.
+- `gold.jpg` is the prettiest of the batch, scored best of all at -0.29, and
+  says nothing about price at all.
+
+So the order is: **score the batch, then read what each picture claims**, and
+let the claim veto the score. The shipped choice promises what the video is -
+a market being read.
+
+## Telegram gets the long form, and only the long form
+
+**Settled 2026-08-23, on both channels at once.** Every long-form video now
+gets a link post in the site's Telegram channel - `@tinnitushelpme` here,
+`@thecryptowiki` on the other - posted by the Publish Facebook Video workflow
+once the video is live, or by the standalone Share Video To Telegram workflow
+when it has to be retried or deliberately held until the video is public.
+
+Shorts do not get one. They already reach Instagram, Facebook Reels and
+TikTok, and a channel announcement per short is noise rather than reach - the
+same reasoning that keeps a Short off the site registry.
+
+`publish-video` carries the workflow ids, the form fields and the two silent
+n8n traps that branch hit while being built.
+

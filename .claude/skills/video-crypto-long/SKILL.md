@@ -57,13 +57,19 @@ sites here, only a wrong guess that there was.
    into a card - a link post sends the viewer away and earns an outbound link's
    reach, which is exactly what native upload avoids. **Long form only**; it is
    not a Reel and has no duration cap.
-7. **Tell the user the video is still unlisted.** Nothing in this pipeline can
+7. **Share it to Telegram.** Long form only, and it is a link post the channel
+   unfurls into a play card - see the Telegram section in `publish-content`'s
+   sibling, `publish-video`, which carries the workflow ids. Passing
+   `youtubeUrl` to the Publish Facebook Video workflow does it inline; the
+   standalone Share Video To Telegram workflow is the retry path, because
+   re-running the Facebook one re-uploads the video.
+8. **Tell the user the video is still unlisted.** Nothing in this pipeline can
    flip privacy to Public - `youtube-audit`'s scopes are deliberately capped
    at `list` + `update` on snippet fields, and privacy is a `status` write
    that was never added. They do it themselves in Studio; say so plainly
    rather than letting them assume publishing to the site made it public.
 
-**Steps 2, 5, 6 and 7 run on the long only.** Step 4 (metadata) is the only one
+**Steps 2, 5, 6, 7 and 8 run on the long only.** Step 4 (metadata) is the only one
 that touches both videos. Getting this wrong once already cost a registry entry
 that had to be reverted and a social post that cannot be un-sent - check which
 video an instruction is about before acting, not after.
@@ -120,7 +126,22 @@ before the site pages needed them, and the transcripts had to be rebuilt from
 |---|---|---|
 | frame | 1920x1080 | `core.frame.LANDSCAPE` |
 | runtime | **2:30–4:00**, and see below | under 2:30 sits awkwardly between Shorts and long form; v1 shipped at 2:47 |
-| words | 440–700 | `mia` runs ~2.9 words/sec with `gap=0.34` |
+| words | 440–700 | **`mia` runs 3.25 words/sec, measured — see below** |
+
+**Estimate the runtime from 3.25 words/sec, not 2.9, and this replaces the
+figure this file used to give.** The 2.9 was an early guess and it is wrong by
+enough to matter: the `who-controls-bitcoins-price` script was first drafted at
+940 words, which 2.9 predicts as a plausible 5:20 and which would in fact have
+run past six minutes. The number to trust is the one the shipped cuts measure -
+`crypto-exchanges-long` is **718 words plus 42.2s of written gaps, delivered at
+263.21s**, which is 3.25 words/sec with the chapter cards already inside it. So:
+
+    seconds = words / 3.25 + sum(gaps)
+
+Predicted 4:06 for the 656-word bitcoin-price script; it rendered at 4:06.
+**Check the arithmetic before rendering, not after** - a long-form render is
+twelve minutes and a script that is 40% too long is 40% too long in every one
+of them.
 
 **The word count assumes `gap=0.34` everywhere, and you should not be writing
 that any more.** Written pauses cost real time: the crypto-exchanges cut went
@@ -1235,3 +1256,58 @@ videos later. After every round of review notes:
    skills.** The two sites share one engine and one synthesiser; a lesson found
    on one is almost always true on the other, and the narration-craft section
    above is the worked example of that.
+
+## `bars` reserves a column for its values, and that was a real bug
+
+**A bar at fraction 1.000 fills the track by definition, so its value label has
+nowhere to go.** The halving chart's top row is `("2009", 1.000, "50 BTC")` and
+it printed as **"50 BT" against the frame edge**: the old code clamped the
+label's *start* x to ten pixels inside the track, which is a clamp on the anchor
+rather than on the extent, so the rest of the string drew straight off the
+frame. Nothing clipped it and nothing raised - the same bug class as a
+`compare` row too wide for its line, and as marks scheduled past the last frame.
+
+Two fixes were tried and only the second is right:
+
+- **Moving that one label inside the bar does not work.** The value font is
+  46px against a 30px bar, so a label set inside is cut off top and bottom; and
+  one row treated differently from the other four reads as a fault rather than
+  as a rule.
+- **Shorten the track for every row instead.** `Bars.content` now measures the
+  widest value in the payload and takes `that + 44px` off the track width
+  before laying anything out, so every value sits outside its bar in one
+  consistent treatment. It costs a few percent of bar length, which is
+  invisible because bars are read against each other rather than against the
+  frame.
+
+Nothing to set per beat. **But if a beat ever draws type near an edge, check
+whether the code clamps the anchor or the extent** - clamping where a string
+starts says nothing about where it ends.
+
+
+## A thumbnail may open the loop; it may not point at the wrong answer
+
+**The off-message rule applies to the thumbnail, not just to the shots**, and
+it outranks the scorer. `hacker.jpg` is the most arresting picture in the
+crypto library - a hooded figure at a laptop, whole subject, real black beside
+it for the type - and `_layout` scored it -0.15 against the shipped
+`analysis.jpg`'s -0.07. It was still rejected: under the headline "Who controls
+Bitcoin's price?" a hooded figure answers **hackers**, and that is a thing the
+video explicitly denies.
+
+That is a different failure from "never put the answer on the thumbnail". This
+one puts *an* answer there and the answer is wrong, which is worse than
+answering correctly - it sets the viewer up to click for a video that does not
+exist and bounce.
+
+Two more from the same sweep, both scored and both rejected on subject:
+
+- `bitcoin-vs-fiat.jpg` is a man setting fire to a dollar bill. It promises a
+  currency-collapse video.
+- `gold.jpg` is the prettiest of the batch, scored best of all at -0.29, and
+  says nothing about price at all.
+
+So the order is: **score the batch, then read what each picture claims**, and
+let the claim veto the score. The shipped choice promises what the video is -
+a market being read.
+
