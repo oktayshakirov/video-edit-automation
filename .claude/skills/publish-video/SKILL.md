@@ -100,6 +100,26 @@ cloudflared tunnel --url http://localhost:8765
 `cloudflared` prints a `https://<random>.trycloudflare.com` URL. Pass
 `<tunnel>/<file>.mp4` and `<tunnel>/<cover>.jpg` to the workflow.
 
+**Read the tunnel URL yourself; never ask the user to paste it.** A quick
+tunnel serves its own hostname on the metrics port, so the URL is one request
+away even when `cloudflared` was started in somebody else's terminal:
+
+```bash
+lsof -nP -iTCP -sTCP:LISTEN -a -p $(pgrep -f 'cloudflared tunnel') | tail -1
+curl -s http://127.0.0.1:20241/quicktunnel     # {"hostname":"...trycloudflare.com"}
+```
+
+20241 is the default metrics port; the `lsof` line finds it when it is not.
+**Then `curl` both URLs and check for `200` and the right byte count before
+triggering anything** - a workflow that starts against a dead tunnel fails
+halfway, and the Instagram half is not safely re-runnable.
+
+**This step can be blocked by the permission classifier.** `python3 -m
+http.server` was denied both inline and as a background task on 2026-08-23, in
+which case the tunnel is the one part of this skill the user has to start.
+Give them both commands and the folder, then take over from the metrics
+endpoint - do not make them read a URL off their screen.
+
 - **Stop both when the run finishes.** The tunnel is ephemeral and needs no
   account, which is exactly why it must not be left running - it is an
   unauthenticated public URL onto a local directory.
@@ -109,8 +129,9 @@ cloudflared tunnel --url http://localhost:8765
 
 ## Instagram and Facebook Reels
 
-One n8n form workflow per site. n8n must be running at `http://localhost:5678`;
-if it is not, ask the user to start it.
+One n8n form workflow per site. n8n must be running at `http://localhost:5678`.
+**If it is not, start it yourself** - just run `n8n` in the terminal. The
+user's instruction, 2026-08-23; do not stop and ask them to do it.
 
 | Site | Workflow | formData |
 | --- | --- | --- |
@@ -122,6 +143,21 @@ if it is not, ask the user to start it.
 Trigger and poll them the way the `publish-content` skill describes - the
 multipart requirement and the `field-N` indexing trap apply here too, and this
 workflow's Normalise Input node reads both forms for that reason.
+
+**`GET /api/v1/executions` hides running executions, and on this workflow that
+looks exactly like a failed trigger.** The form POST returns `{"status":200}`
+immediately and the run then takes three to five minutes, so a poll of
+`?limit=1` comes back with the *previous* execution - on 2026-08-23 that was
+the August smoke test, complete with its "Pipeline test - please ignore"
+caption and a full set of successful nodes. It reads as "my run never
+started", and the obvious next move is to fire it again, which double-posts to
+Instagram with no way to undo it.
+
+**So find the id with `?status=running` first, then poll
+`/executions/<id>` directly.** Never conclude a trigger failed from the
+default listing, and never re-fire on that basis. Confirm from the execution's
+own `Normalise Input` output that the caption and URLs are yours before
+believing a run is the one you started.
 
 - **`durationSeconds` is required** and is checked before anything uploads,
   because **Facebook Reels accepts 3 to 90 seconds only**. A short over 90s
