@@ -53,7 +53,7 @@ from video_automation.core import music
 from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
+from video_automation.longform.thumb import render_short_thumb, render_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 # Screened across their length by the long-form build from this post; the
@@ -219,8 +219,23 @@ def main() -> None:
         "Does silence make tinnitus [worse?]", image=THUMB_PHOTO,
         accent="red",
         ax=0.50, zoom=1.0, band="bottom")
+
+    # **A Short needs a 16:9 thumbnail as well, and YouTube gets that one.**
+    # The vertical file is the Reel cover on Instagram and Facebook. Handing
+    # it to YouTube instead is what shipped here first, and YouTube letterboxes
+    # a 9:16 upload into its 1280x720 slot with a blurred, zoomed copy of the
+    # same image either side - so the live thumbnail was a narrow strip of
+    # picture with "DOES ... NCE" bleeding across the bottom in huge soft
+    # letters, and the user had to replace it by hand. Same headline, same
+    # source, same treatment, correct shape.
+    yt = render_thumb(
+        out.with_name(out.stem + "-thumb-yt.jpg"), TINNITUS,
+        "Does silence make tinnitus [worse?]", image=THUMB_PHOTO,
+        accent="red", side="left", crop_at=(0.86, 0.0), crop_zoom=0.50)
+
     print(f"{path}  {total:.1f}s")
-    print(f"{thumb}")
+    print(f"{thumb}   <- Reel cover (Instagram, Facebook)")
+    print(f"{yt}   <- YouTube thumbnail")
 
 
 if __name__ == "__main__":

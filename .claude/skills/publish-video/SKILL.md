@@ -82,9 +82,25 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   where a thumbnail earns a click. So a Short's thumbnail looking "missing" in
   the feed is correct behaviour, not a failed `thumbnails.set`. Verify with
   `youtube-audit video <id>`: a `maxres` 1280x720 entry means it is set.
-- **Letterboxing a 9:16 frame into a 1280x720 thumbnail wastes most of the
-  frame.** A Short's thumbnail is still 16:9, so design it for that shape rather
-  than padding the vertical render - the padded version reads as empty.
+- **A Short needs TWO thumbnails and YouTube gets the 16:9 one.** This was
+  written as advice and then ignored on the silence pair, which uploaded the
+  1080x1920 Reel cover to YouTube. It is not merely wasteful - YouTube
+  letterboxes a 9:16 upload into its 1280x720 slot with a **blurred, zoomed
+  copy of the same image either side**, so the live thumbnail was a narrow
+  strip of picture with "DOES ... NCE" bleeding across the bottom in huge soft
+  letters. The user replaced it by hand. `thumbnails.set` returns success
+  either way, and `youtube-audit video <id>` reports a `maxres 1280x720`
+  entry, so **neither the upload nor the audit can tell you this went wrong -
+  only looking at the image can.**
+
+  The short project files now render both: `<name>-thumb.jpg` (vertical, the
+  Reel cover for Instagram and Facebook) and `<name>-thumb-yt.jpg` (1280x720,
+  for YouTube). **Pass `-thumb-yt.jpg` to `youtube-audit upload` and the
+  vertical one to the Reel workflow.** Same headline, same source, same
+  treatment - only the shape differs.
+
+  A shorts-only cut with no long form still needs both; render the landscape
+  one with `render_thumb`, reusing the vertical's headline and `crop_at`.
 
 ## The tunnel, for Instagram
 
@@ -159,6 +175,26 @@ default listing, and never re-fire on that basis. Confirm from the execution's
 own `Normalise Input` output that the caption and URLs are yours before
 believing a run is the one you started.
 
+- **The Facebook Reel's cover is set after publishing, by two nodes that must
+  never fail the run.** `coverUrl` reaches Instagram as `cover_url` on the
+  container and reached Facebook **not at all** - the Reels finish phase takes
+  `video_state` and `description` and has no cover parameter, so every Facebook
+  Reel published before 2026-08-23 went up with an auto-picked frame and the
+  user set the cover by hand. `FB Fetch Cover` pulls the image as binary and
+  `FB Set Reel Cover` POSTs it multipart to
+  `/{video_id}/thumbnails?is_preferred=true`.
+
+  **Both carry `onError: continueRegularOutput`, deliberately.** They run
+  *after* the Reel is live on both platforms, so a failure there must degrade
+  to "no cover" rather than to a red execution that invites a re-run - and a
+  re-run double-posts to Instagram. `Summary` reports `facebookCoverSet` so
+  the outcome is visible without reading node output.
+
+  **Unverified until the next Reel publish.** It was added after the fact and
+  there is no safe way to test it without touching a live post. On the next
+  run, check `facebookCoverSet` in the Summary, and look at the Reel. If it is
+  false, the likely cause is `/thumbnails` wanting the file some other way -
+  the video is still published and only the cover is missing.
 - **`durationSeconds` is required** and is checked before anything uploads,
   because **Facebook Reels accepts 3 to 90 seconds only**. A short over 90s
   cannot go to Facebook at all; publish it to Instagram and TikTok and say so.

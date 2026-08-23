@@ -711,6 +711,22 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
+## A short needs two thumbnails, and the vertical one is not for YouTube
+
+**Render both.** `render_short_thumb` gives the 1080x1920 cover that Instagram
+and Facebook Reels use; `render_thumb` gives the 1280x720 that **YouTube**
+uses. Same headline, same source photo, same treatment - only the shape
+differs, which is what keeps the pair recognisable.
+
+The silence short shipped the vertical file to YouTube and it was wrong in a
+way nothing reported: YouTube letterboxes a 9:16 upload into its 1280x720 slot
+with a **blurred, zoomed copy of the same image either side**, so the live
+thumbnail was a narrow strip of picture with "DOES ... NCE" bleeding across
+the bottom in huge soft letters. The user replaced it by hand.
+`thumbnails.set` returns success, and `youtube-audit video <id>` lists a
+`maxres 1280x720` entry, so **neither the upload nor the audit catches this -
+only looking at the image does.**
+
 ## Keep this file current, every time
 
 **Standing instruction: update the skill on every video**, with the specific
