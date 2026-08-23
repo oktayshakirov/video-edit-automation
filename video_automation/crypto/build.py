@@ -110,7 +110,8 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # avoids by suppressing captions. The caption is the statement here.
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
-                         label=None, note=shot.note, begin=shot.clip_at)
+                         label=None, note=shot.note, begin=shot.clip_at,
+                         ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter"):
         # **These three are portrait-safe.** `Grid` drops to one
         # column up to four items and `Steps` turns its track ninety degrees;

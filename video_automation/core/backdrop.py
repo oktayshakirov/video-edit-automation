@@ -116,6 +116,42 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
 # the asset is deleted rather than left in the folder for somebody to point a
 # brand at again. Nothing reads this dict; `generate()` still works and this is
 # the reference for its argument shape.
+# **`tinnitus-plum` is the live tinnitus background and it is generated, not
+# footage.** Three backgrounds have now been rejected on this brand and the
+# pattern in the rejections is the useful part:
+#
+#   * `tinnitus-aurora` - generated, and the wrong purple. Retired below.
+#   * `tinnitus-violet` - a supplied mesh-gradient clip at L89/S201 that
+#     needed dimming to 0.55 before peach type held, and still read as a flat
+#     magenta wall.
+#   * `tinnitus-galaxy` - a supplied nebula starfield at L27. It shipped, and
+#     the user's note on the first cut using it was simply that they were not
+#     happy with it. The stars were the problem the "soft, low-frequency only"
+#     rule had already predicted: high-frequency detail behind type competes
+#     with the type, and "its detail turns to mush attractively" turned out to
+#     be a defence of the asset rather than a test it passed.
+#
+# What was actually asked for, in the user's own words, is "a high quality dark
+# purple background which makes the text pop and looks clean". `PLUM` is that:
+# a near-black plum base with three very wide, very soft blooms and the same
+# vignette every generated spec uses, so the frame has depth without having
+# *content*. Measured L29.8 / S30.4, and judged the only way a background can
+# be judged - by drawing a real chapter card and a real `compare` on it.
+#
+# **Clean is not the same as flat**, which is the trap `tinnitus-violet` fell
+# into. The blooms are what stop this being a dark rectangle; they are just
+# too wide and too dim to be read as shapes.
+PLUM = dict(
+    base=(14, 8, 24),
+    blobs=[
+        # cx    cy   radius turns phase  colour           strength sigma
+        (0.34, 0.40, 0.16,  1,   0.00, (78, 44, 112),    0.30,  0.34),
+        (0.68, 0.62, 0.18,  1,   0.50, (52, 28, 86),     0.30,  0.36),
+        (0.52, 0.22, 0.13,  2,   0.25, (96, 58, 132),    0.14,  0.26),
+    ],
+)
+
+
 _RETIRED_TINNITUS_AURORA = dict(
     base=(10, 6, 15),
     blobs=[

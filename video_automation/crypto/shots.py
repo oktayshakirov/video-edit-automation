@@ -38,6 +38,7 @@ from ..core.brand import CRYPTO, Brand
 from ..core.draw import cover as _cover
 from ..core.draw import ease_out as _ease_out
 from ..core.draw import mark as _mark
+from ..core.draw import shadow_text
 from ..core.draw import partial as _partial
 from ..core.draw import subpixel as _subpixel
 from ..core.frame import VERTICAL, Frame
@@ -84,6 +85,13 @@ class Shot:
                                         # split layout — see longform/beats.py
     clip: Path | None = None            # a video file — see longform/clip.py
     clip_at: float = 0.0                # seconds to skip into that clip
+    clip_ax: float = 0.5                # where the cover-crop sits horizontally
+    clip_ay: float = 0.5                # ...and vertically. 0 = left/top, 1 =
+                                        # right/bottom, 0.5 = centred, which is
+                                        # what every clip did before this
+                                        # existed. See `longform/clip.py`; it
+                                        # matters almost only in 9:16, where a
+                                        # 16:9 source loses ~68% of its width.
     note: tuple[str, str] | None = None  # a small figure card on a clip —
                                         # ("92 dB", "music over a train").
                                         # See `longform/clip.py`; this is the
@@ -455,8 +463,7 @@ class ChecklistShot:
             # against the real frame and was not readable on a phone — the
             # strike-through already says "this one does not count", so the ink
             # does not have to say it a second time by being harder to read.
-            d.text((200, y_in), text, font=self.font, fill=br.ink,
-                   stroke_width=3, stroke_fill=(0, 0, 0))
+            shadow_text(d, (200, y_in), text, self.font, br.ink)
 
             # Phase two. Until its verdict is due the item is just an option,
             # with the gutter left empty so the reveal has somewhere to land.

@@ -58,9 +58,10 @@ class VideoShot:
                  dim: float = 0.86, saturation: float = 0.82,
                  label: tuple[str, str] | None = None,
                  note: tuple[str, str] | None = None,
-                 begin: float = 0.0,
+                 begin: float = 0.0, ax: float = 0.5, ay: float = 0.5,
                  fps: int = 30, speed_limit: bool = True):
         self.frame, self.brand, self.zoom = frame, brand, zoom
+        self.ax, self.ay = ax, ay
         self.label = label
         self.note = note
         cap = cv2.VideoCapture(str(path))
@@ -160,8 +161,21 @@ class VideoShot:
         nh = max(h, math.ceil(sh * s))
         bgr = cv2.resize(bgr, (nw, nh),
                          interpolation=cv2.INTER_AREA if s < 1 else cv2.INTER_LANCZOS4)
-        y0 = max(0, (nh - h) // 2)
-        x0 = max(0, (nw - w) // 2)
+        # **Where the cover-crop sits, not just how big it is.** This was a
+        # hard `// 2` on both axes and in 16:9 that is almost always right,
+        # because a landscape source into a landscape frame throws away very
+        # little. In **9:16 it throws away about 68% of the width**, and a
+        # centred crop then loses whatever the shot is actually of: the user's
+        # note on the silence short was that "if there is a person we dont see
+        # it, if there is object we dont see it". Two of its clips had their
+        # subject against the right edge of the source and the vertical cut
+        # kept the empty middle.
+        #
+        # `ax`/`ay` are fractions of the leftover slack, exactly like
+        # `thumb.render_thumb`'s `crop_at` - 0.5 is the old behaviour, so
+        # every clip that does not set one is byte-identical.
+        y0 = max(0, int(round((nh - h) * self.ay)))
+        x0 = max(0, int(round((nw - w) * self.ax)))
         bgr = bgr[y0:y0 + h, x0:x0 + w]
 
         rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32)
@@ -217,7 +231,7 @@ class VideoShot:
         if self.label and self.brand is not None:
             from PIL import ImageFont
 
-            from ..core.draw import wrap
+            from ..core.draw import shadow_text, wrap
             from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
             kicker, line = self.label
@@ -258,9 +272,8 @@ class VideoShot:
 
             for ln in lines:
                 tw = d.textlength(ln, font=font)
-                d.text(((fr.w - tw) / 2, y), ln, font=font,
-                       fill=(255, 255, 255), stroke_width=4,
-                       stroke_fill=(0, 0, 0))
+                shadow_text(d, ((fr.w - tw) / 2, y), ln, font,
+                            (255, 255, 255), blur=10, drop=(4, 6))
                 y += line_h
             out = out.convert("RGB")
 

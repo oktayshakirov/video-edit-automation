@@ -26,7 +26,7 @@ import math
 
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 
 def ease_out(p: float) -> float:
@@ -128,3 +128,53 @@ def wrap(d: ImageDraw.ImageDraw, text: str, font, max_w: float) -> list[str]:
         lines[-1] = f"{prev[-1]} {lines[-1]}"
         lines[-2] = " ".join(prev[:-1])
     return lines
+
+
+def shadow_text(d: ImageDraw.ImageDraw, xy: tuple[float, float], text: str,
+                font, fill, blur: float = 7.0,
+                drop: tuple[int, int] = (3, 4), opacity: int = 205,
+                alpha: int = 255) -> None:
+    """Draw `text` over a blurred drop shadow instead of a stroke.
+
+    **This replaced `stroke_width=` on every drawn beat and every statement
+    over footage**, on both channels. A stroke traces each glyph at constant
+    width, so at display size it reads as an *outline around* the type rather
+    than as type sitting on something - the user's note on the thumbnails was
+    that solid borders "look very unprofessional", and the identical treatment
+    inside the video drew the identical note on a chapter card. The thumbnail
+    renderer already solved this with a blurred layer (`thumb._headline`); this
+    is that solution available to the video.
+
+    The shadow goes on its own layer and is composited under the glyphs, which
+    is why it can be soft: a stroke has to be opaque to work at all, a shadow
+    only has to darken. `alpha` scales it with a beat that is fading in, so
+    type appearing under a ramp does not arrive with a full-strength shadow
+    already behind it.
+
+    **It takes the `ImageDraw`, not the image**, purely so the call sites it
+    replaced could stay one line each - it reads the image back off `d._image`,
+    which is where Pillow keeps it. Both target modes are handled and they are
+    not the same operation: on `RGB` the shadow composites black through the
+    mask, on `RGBA` it must *add alpha*, because several beats draw onto a
+    transparent overlay where a shadow with no alpha of its own would be
+    invisible.
+
+    Burned captions in `core/vertical.py` deliberately keep their stroke. They
+    sit over arbitrary moving footage at small size, where a hard edge is doing
+    real legibility work rather than decoration.
+    """
+    img = d._image
+    if alpha > 0:
+        dx, dy = drop
+        mask = Image.new("L", img.size, 0)
+        ImageDraw.Draw(mask).text((xy[0] + dx, xy[1] + dy), text, font=font,
+                                  fill=int(opacity * alpha / 255))
+        mask = mask.filter(ImageFilter.GaussianBlur(blur))
+        if img.mode == "RGBA":
+            shade = Image.new("RGBA", img.size, (0, 0, 0, 0))
+            shade.putalpha(mask)
+            img.alpha_composite(shade)
+        else:
+            img.paste(Image.composite(Image.new("RGB", img.size, (0, 0, 0)),
+                                      img, mask), (0, 0))
+    d.text(xy, text, font=font, fill=fill)

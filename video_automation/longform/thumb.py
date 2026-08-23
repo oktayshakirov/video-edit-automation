@@ -455,10 +455,46 @@ def render_thumb(out: Path, brand: Brand, headline: str,
         nw, nh = int(np.ceil(sw * s)), int(np.ceil(sh * s))
         big = cv2.resize(src, (nw, nh), interpolation=cv2.INTER_LANCZOS4)
         ax, ay = crop_at
-        x0 = int(np.clip((nw - W) * ax, 0, max(nw - W, 0)))
-        y0 = int(np.clip((nh - H) * ay, 0, max(nh - H, 0)))
-        crop = big[y0:y0 + H, x0:x0 + W]
-        base = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+        if nw >= W and nh >= H:
+            x0 = int(np.clip((nw - W) * ax, 0, max(nw - W, 0)))
+            y0 = int(np.clip((nh - H) * ay, 0, max(nh - H, 0)))
+            crop = big[y0:y0 + H, x0:x0 + W]
+            base = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+        else:
+            # **The panel fallback, for a portrait source whose subject cannot
+            # survive a 16:9 cover crop.** The rule now is that the landscape
+            # thumbnail shows the same whole face the vertical one does, and on
+            # a tall source that is arithmetically impossible while still
+            # covering the frame: on the silence pair the woman's head spans
+            # 1036px of the scaled source against a 720px window, so *every*
+            # `ay` cut her hair, her chin or both. `crop_zoom` below 1.0 now
+            # means "stop covering" - the picture is scaled to whatever size
+            # was asked for and set on a black canvas at `ax`/`ay`, with the
+            # same `FADE` falloff `shift` uses so the join is a gradient
+            # rather than an edge.
+            #
+            # That is not a compromise. A portrait subject as a panel beside a
+            # block of type is a composition rather than a crop, and the type
+            # gets real black under it instead of a scrim over detail.
+            base = Image.new("RGB", (W, H), (0, 0, 0))
+            panel = Image.fromarray(cv2.cvtColor(big, cv2.COLOR_BGR2RGB))
+            px = int(round((W - nw) * ax)) if nw < W else -int(
+                np.clip((nw - W) * ax, 0, nw - W))
+            py = int(round((H - nh) * ay)) if nh < H else -int(
+                np.clip((nh - H) * ay, 0, nh - H))
+            base.paste(panel, (px, py))
+            if nw < W:
+                edge = 260          # same falloff `shift` uses, see below
+                grad = Image.new("L", (W, 1), 255)
+                g = grad.load()
+                for x in range(W):
+                    d0 = min(abs(x - px), abs(x - (px + nw)))
+                    inside = px <= x <= px + nw
+                    g[x, 0] = 255 if (inside and d0 > edge) else int(
+                        255 * max(0.0, min(1.0, d0 / edge)) if inside else 0)
+                base = Image.composite(
+                    base, Image.new("RGB", (W, H), (0, 0, 0)),
+                    grad.resize((W, H)))
         side, vband = side or "left", crop_band
         base = base.filter(ImageFilter.GaussianBlur(1.2))
         luma = np.asarray(base.convert("L")).mean()
@@ -936,8 +972,15 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     # it looks. The bottom margin is bigger than the top one — it has to clear
     # the Shorts player's own title/channel bar, which the top edge never has
     # to share with anything.
+    #
+    # **The bottom band sits 20px higher than it used to** (0.16 -> 0.1808 of
+    # the height). At 0.16 the last line of type ran straight through the view
+    # count that YouTube draws over the bottom of a Short's grid tile, and the
+    # user was lifting the artwork by hand before every upload. The clearance
+    # is a platform overlay, not taste — do not tune it back down to balance
+    # the composition.
     margin = 52
-    edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16)
+    edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16) + 20
     _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
               max_lines=4, max_block=VH * 0.5, leading=1.02,
               band=band, margin=edge_margin, shadow=14, drop=(6, 8))

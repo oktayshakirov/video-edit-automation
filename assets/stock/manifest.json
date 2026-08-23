@@ -298,6 +298,42 @@
    "source": "https://www.pexels.com/video/5202005/"
   },
   {
+   "id": "12197697",
+   "kind": "photo",
+   "query": "man sitting alone dark room quiet portrait",
+   "path": "photos/man-sitting-alone-dark-room-quiet-portrait/12197697.jpg",
+   "bytes": 11362992,
+   "source": "https://www.pexels.com/photo/a-man-in-black-jacket-sitting-on-bed-12197697/",
+   "photographer": "\u0412\u0430\u0440\u0432\u0430\u0440\u0430 \u041a\u0443\u0440\u043e\u0447\u043a\u0438\u043d\u0430"
+  },
+  {
+   "id": "23021292",
+   "kind": "photo",
+   "query": "man sitting alone dark room quiet portrait",
+   "path": "photos/man-sitting-alone-dark-room-quiet-portrait/23021292.jpg",
+   "bytes": 3205334,
+   "source": "https://www.pexels.com/photo/man-sitting-on-sofa-at-night-23021292/",
+   "photographer": "Vladimir  Gladkov"
+  },
+  {
+   "id": "24238400",
+   "kind": "photo",
+   "query": "man sitting alone dark room quiet portrait",
+   "path": "photos/man-sitting-alone-dark-room-quiet-portrait/24238400.jpg",
+   "bytes": 1514993,
+   "source": "https://www.pexels.com/photo/photo-of-a-man-sitting-in-a-spotlight-in-a-dark-room-24238400/",
+   "photographer": "Mehmet Emin  ULUYOL"
+  },
+  {
+   "id": "6944014",
+   "kind": "photo",
+   "query": "man sitting alone dark room quiet portrait",
+   "path": "photos/man-sitting-alone-dark-room-quiet-portrait/6944014.jpg",
+   "bytes": 599569,
+   "source": "https://www.pexels.com/photo/man-sitting-in-a-dark-interior-6944014/",
+   "photographer": "cottonbro studio"
+  },
+  {
    "id": "15399395",
    "kind": "photo",
    "query": "man wireless earbuds portrait dark",
@@ -400,6 +436,42 @@
    "path": "photos/man-wireless-earbuds-vertical-portrait-portrait/8554993.jpg",
    "bytes": 93246,
    "source": "https://www.pexels.com/photo/8554993/"
+  },
+  {
+   "id": "14506024",
+   "kind": "photo",
+   "query": "neuron synapse brain abstract dark",
+   "path": "photos/neuron-synapse-brain-abstract-dark/14506024.jpg",
+   "bytes": 1495040,
+   "source": "https://www.pexels.com/photo/abstract-tangled-strings-14506024/",
+   "photographer": "Mahdi Bafande"
+  },
+  {
+   "id": "17483867",
+   "kind": "photo",
+   "query": "neuron synapse brain abstract dark",
+   "path": "photos/neuron-synapse-brain-abstract-dark/17483867.jpg",
+   "bytes": 1130992,
+   "source": "https://www.pexels.com/photo/an-artist-s-illustration-of-artificial-intelligence-ai-this-image-represents-how-machine-learning-is-inspired-by-neuroscience-and-the-human-brain-it-was-created-by-novoto-studio-as-par-17483867/",
+   "photographer": "Google DeepMind"
+  },
+  {
+   "id": "17483868",
+   "kind": "photo",
+   "query": "neuron synapse brain abstract dark",
+   "path": "photos/neuron-synapse-brain-abstract-dark/17483868.jpg",
+   "bytes": 1350455,
+   "source": "https://www.pexels.com/photo/an-artist-s-illustration-of-artificial-intelligence-ai-this-image-represents-how-machine-learning-is-inspired-by-neuroscience-and-the-human-brain-it-was-created-by-novoto-studio-as-par-17483868/",
+   "photographer": "Google DeepMind"
+  },
+  {
+   "id": "28905636",
+   "kind": "photo",
+   "query": "neuron synapse brain abstract dark",
+   "path": "photos/neuron-synapse-brain-abstract-dark/28905636.jpg",
+   "bytes": 1227055,
+   "source": "https://www.pexels.com/photo/abstract-light-patterns-on-dark-surface-28905636/",
+   "photographer": "Nikhil Manan"
   },
   {
    "id": "30300418",
@@ -706,6 +778,42 @@
    "source": "https://www.pexels.com/photo/8862297/"
   },
   {
+   "id": "27141312",
+   "kind": "photo",
+   "query": "sound wave abstract dark purple",
+   "path": "photos/sound-wave-abstract-dark-purple/27141312.jpg",
+   "bytes": 654577,
+   "source": "https://www.pexels.com/photo/touchscreen-of-sound-mixer-27141312/",
+   "photographer": "Egor Komarov"
+  },
+  {
+   "id": "30018097",
+   "kind": "photo",
+   "query": "sound wave abstract dark purple",
+   "path": "photos/sound-wave-abstract-dark-purple/30018097.jpg",
+   "bytes": 752431,
+   "source": "https://www.pexels.com/photo/vibrant-abstract-art-with-purple-accents-30018097/",
+   "photographer": "Steve A Johnson"
+  },
+  {
+   "id": "36481094",
+   "kind": "photo",
+   "query": "sound wave abstract dark purple",
+   "path": "photos/sound-wave-abstract-dark-purple/36481094.jpg",
+   "bytes": 1389888,
+   "source": "https://www.pexels.com/photo/silhouette-with-headphones-and-light-streaks-36481094/",
+   "photographer": "Beyzaa Yurtkuran"
+  },
+  {
+   "id": "6587323",
+   "kind": "photo",
+   "query": "sound wave abstract dark purple",
+   "path": "photos/sound-wave-abstract-dark-purple/6587323.jpg",
+   "bytes": 3606399,
+   "source": "https://www.pexels.com/photo/monochrome-shot-of-a-sound-proof-foam-6587323/",
+   "photographer": "Guillaume Meurice"
+  },
+  {
    "id": "6228263",
    "kind": "photo",
    "query": "tired woman night dark bedroom vertical",
@@ -850,6 +958,42 @@
    "source": "https://www.pexels.com/photo/8053701/"
   },
   {
+   "id": "34622361",
+   "kind": "photo",
+   "query": "woman alone quiet dark room portrait portrait",
+   "path": "photos/woman-alone-quiet-dark-room-portrait-portrait/34622361.jpg",
+   "bytes": 1240004,
+   "source": "https://www.pexels.com/photo/woman-gazing-through-window-at-night-34622361/",
+   "photographer": "Alexander Mass"
+  },
+  {
+   "id": "39051565",
+   "kind": "photo",
+   "query": "woman alone quiet dark room portrait portrait",
+   "path": "photos/woman-alone-quiet-dark-room-portrait-portrait/39051565.jpg",
+   "bytes": 6113485,
+   "source": "https://www.pexels.com/photo/moody-portrait-in-sunlit-room-with-shadows-39051565/",
+   "photographer": "The_Remnant potraiture"
+  },
+  {
+   "id": "6943499",
+   "kind": "photo",
+   "query": "woman alone quiet dark room portrait portrait",
+   "path": "photos/woman-alone-quiet-dark-room-portrait-portrait/6943499.jpg",
+   "bytes": 2654034,
+   "source": "https://www.pexels.com/photo/elderly-woman-sitting-at-the-table-6943499/",
+   "photographer": "cottonbro studio"
+  },
+  {
+   "id": "8862298",
+   "kind": "photo",
+   "query": "woman alone quiet dark room portrait portrait",
+   "path": "photos/woman-alone-quiet-dark-room-portrait-portrait/8862298.jpg",
+   "bytes": 1200049,
+   "source": "https://www.pexels.com/photo/woman-in-black-turtle-neck-shirt-8862298/",
+   "photographer": "cottonbro studio"
+  },
+  {
    "id": "6754022",
    "kind": "photo",
    "query": "woman awake in bed at night dark room insomnia",
@@ -920,6 +1064,42 @@
    "path": "photos/woman-lying-awake-in-bed-at-night-dark/8036688.jpg",
    "bytes": 3080061,
    "source": "https://www.pexels.com/photo/8036688/"
+  },
+  {
+   "id": "29965365",
+   "kind": "photo",
+   "query": "woman silence dark background portrait portrait",
+   "path": "photos/woman-silence-dark-background-portrait-portrait/29965365.jpg",
+   "bytes": 1558197,
+   "source": "https://www.pexels.com/photo/emotional-woman-holding-wilted-rose-in-darkness-29965365/",
+   "photographer": "\u0130brahim Halil \u00d6lmez"
+  },
+  {
+   "id": "35419697",
+   "kind": "photo",
+   "query": "woman silence dark background portrait portrait",
+   "path": "photos/woman-silence-dark-background-portrait-portrait/35419697.jpg",
+   "bytes": 1348621,
+   "source": "https://www.pexels.com/photo/mysterious-woman-gesturing-silence-at-night-35419697/",
+   "photographer": "Alexander Mass"
+  },
+  {
+   "id": "38857613",
+   "kind": "photo",
+   "query": "woman silence dark background portrait portrait",
+   "path": "photos/woman-silence-dark-background-portrait-portrait/38857613.jpg",
+   "bytes": 952626,
+   "source": "https://www.pexels.com/photo/moody-silhouette-portrait-of-a-woman-in-darkness-38857613/",
+   "photographer": "Krista Gl\u012bzdeniece"
+  },
+  {
+   "id": "7041828",
+   "kind": "photo",
+   "query": "woman silence dark background portrait portrait",
+   "path": "photos/woman-silence-dark-background-portrait-portrait/7041828.jpg",
+   "bytes": 1024119,
+   "source": "https://www.pexels.com/photo/portrait-of-a-beautiful-woman-looking-down-7041828/",
+   "photographer": "Ira"
   },
   {
    "id": "6754011",
@@ -1666,6 +1846,33 @@
    "source": "https://www.pexels.com/video/9130367/"
   },
   {
+   "id": "3069096",
+   "kind": "video",
+   "query": "electric fan spinning dark room",
+   "path": "videos/electric-fan-spinning-dark-room/3069096.mp4",
+   "bytes": 9628906,
+   "source": "https://www.pexels.com/video/lights-attached-to-a-spinning-tire-of-an-inverted-bicycle-3069096/",
+   "photographer": "Alice Appel"
+  },
+  {
+   "id": "8128278",
+   "kind": "video",
+   "query": "electric fan spinning dark room",
+   "path": "videos/electric-fan-spinning-dark-room/8128278.mp4",
+   "bytes": 5089944,
+   "source": "https://www.pexels.com/video/an-empty-gaming-chair-8128278/",
+   "photographer": "Alena Darmel"
+  },
+  {
+   "id": "853772",
+   "kind": "video",
+   "query": "electric fan spinning dark room",
+   "path": "videos/electric-fan-spinning-dark-room/853772.mp4",
+   "bytes": 5520567,
+   "source": "https://www.pexels.com/video/light-bulb-going-on-and-off-853772/",
+   "photographer": "Coverr"
+  },
+  {
    "id": "31701090",
    "kind": "video",
    "query": "electric meter energy dark",
@@ -1712,6 +1919,60 @@
    "path": "videos/electricity-power-lines-night/5766693.mp4",
    "bytes": 8615135,
    "source": "https://www.pexels.com/video/5766693/"
+  },
+  {
+   "id": "27977654",
+   "kind": "video",
+   "query": "empty dark living room night interior",
+   "path": "videos/empty-dark-living-room-night-interior/27977654.mp4",
+   "bytes": 14241123,
+   "source": "https://www.pexels.com/video/a-man-in-the-dark-with-a-flashlight-on-his-head-27977654/",
+   "photographer": "Florian Del\u00e9e"
+  },
+  {
+   "id": "7098126",
+   "kind": "video",
+   "query": "empty dark living room night interior",
+   "path": "videos/empty-dark-living-room-night-interior/7098126.mp4",
+   "bytes": 7430006,
+   "source": "https://www.pexels.com/video/man-inside-a-bedroom-7098126/",
+   "photographer": "cottonbro studio"
+  },
+  {
+   "id": "7292659",
+   "kind": "video",
+   "query": "empty dark living room night interior",
+   "path": "videos/empty-dark-living-room-night-interior/7292659.mp4",
+   "bytes": 6911420,
+   "source": "https://www.pexels.com/video/a-woman-standing-near-the-window-7292659/",
+   "photographer": "ArtHouse Studio"
+  },
+  {
+   "id": "12160811",
+   "kind": "video",
+   "query": "empty quiet room dark interior",
+   "path": "videos/empty-quiet-room-dark-interior/12160811.mp4",
+   "bytes": 2655491,
+   "source": "https://www.pexels.com/video/abandoned-room-in-chernobyl-12160811/",
+   "photographer": "utopia 36"
+  },
+  {
+   "id": "2845962",
+   "kind": "video",
+   "query": "empty quiet room dark interior",
+   "path": "videos/empty-quiet-room-dark-interior/2845962.mp4",
+   "bytes": 5032395,
+   "source": "https://www.pexels.com/video/a-clean-sparingly-furnished-room-with-a-cot-and-a-single-small-window-2845962/",
+   "photographer": "Andrey Kirievskiy"
+  },
+  {
+   "id": "34038923",
+   "kind": "video",
+   "query": "empty quiet room dark interior",
+   "path": "videos/empty-quiet-room-dark-interior/34038923.mp4",
+   "bytes": 9799787,
+   "source": "https://www.pexels.com/video/exploring-dimly-lit-abandoned-space-34038923/",
+   "photographer": "\u00d6zg\u00fcr S\u00fcrmeli"
   },
   {
    "id": "31359793",
@@ -2050,6 +2311,60 @@
    "source": "https://www.pexels.com/video/7948198/"
   },
   {
+   "id": "34535504",
+   "kind": "video",
+   "query": "man meditating dark room calm",
+   "path": "videos/man-meditating-dark-room-calm/34535504.mp4",
+   "bytes": 1845135,
+   "source": "https://www.pexels.com/video/silhouette-of-contemplative-man-by-window-34535504/",
+   "photographer": "Burak Bahad\u0131r  B\u00fcy\u00fckk\u0131l\u0131n\u00e7"
+  },
+  {
+   "id": "6447702",
+   "kind": "video",
+   "query": "man meditating dark room calm",
+   "path": "videos/man-meditating-dark-room-calm/6447702.mp4",
+   "bytes": 3748206,
+   "source": "https://www.pexels.com/video/a-man-meditating-while-eyes-are-closed-6447702/",
+   "photographer": "Ivan S"
+  },
+  {
+   "id": "6448051",
+   "kind": "video",
+   "query": "man meditating dark room calm",
+   "path": "videos/man-meditating-dark-room-calm/6448051.mp4",
+   "bytes": 3011231,
+   "source": "https://www.pexels.com/video/a-man-doing-yoga-6448051/",
+   "photographer": "Ivan S"
+  },
+  {
+   "id": "36244102",
+   "kind": "video",
+   "query": "man sitting alone dark apartment night",
+   "path": "videos/man-sitting-alone-dark-apartment-night/36244102.mp4",
+   "bytes": 1704781,
+   "source": "https://www.pexels.com/video/contemplative-man-overlooking-cityscape-at-night-36244102/",
+   "photographer": "Yura Forrat"
+  },
+  {
+   "id": "38136563",
+   "kind": "video",
+   "query": "man sitting alone dark apartment night",
+   "path": "videos/man-sitting-alone-dark-apartment-night/38136563.mp4",
+   "bytes": 1282839,
+   "source": "https://www.pexels.com/video/lonely-reflection-in-urban-night-scene-38136563/",
+   "photographer": "Yura Forrat"
+  },
+  {
+   "id": "7280519",
+   "kind": "video",
+   "query": "man sitting alone dark apartment night",
+   "path": "videos/man-sitting-alone-dark-apartment-night/7280519.mp4",
+   "bytes": 3441875,
+   "source": "https://www.pexels.com/video/a-problematic-man-looking-on-the-screen-of-a-cellphone-7280519/",
+   "photographer": "MART  PRODUCTION"
+  },
+  {
    "id": "6754818",
    "kind": "video",
    "query": "motherboard computer close up dark",
@@ -2154,6 +2469,33 @@
    "source": "https://www.pexels.com/video/9130357/"
   },
   {
+   "id": "7233527",
+   "kind": "video",
+   "query": "person sitting on sofa dark room night",
+   "path": "videos/person-sitting-on-sofa-dark-room-night/7233527.mp4",
+   "bytes": 4480103,
+   "source": "https://www.pexels.com/video/a-couple-watching-at-a-cinema-7233527/",
+   "photographer": "Pavel Danilyuk"
+  },
+  {
+   "id": "7669637",
+   "kind": "video",
+   "query": "person sitting on sofa dark room night",
+   "path": "videos/person-sitting-on-sofa-dark-room-night/7669637.mp4",
+   "bytes": 6054716,
+   "source": "https://www.pexels.com/video/man-wearing-cap-using-a-laptop-7669637/",
+   "photographer": "TREEDEO.ST"
+  },
+  {
+   "id": "7856538",
+   "kind": "video",
+   "query": "person sitting on sofa dark room night",
+   "path": "videos/person-sitting-on-sofa-dark-room-night/7856538.mp4",
+   "bytes": 2954377,
+   "source": "https://www.pexels.com/video/man-playing-video-game-and-eating-chips-7856538/",
+   "photographer": "Ron Lach"
+  },
+  {
    "id": "1085656",
    "kind": "video",
    "query": "power cables wires dark",
@@ -2176,6 +2518,33 @@
    "path": "videos/power-cables-wires-dark/35245608.mp4",
    "bytes": 9565372,
    "source": "https://www.pexels.com/video/35245608/"
+  },
+  {
+   "id": "10480415",
+   "kind": "video",
+   "query": "quiet library reading dark",
+   "path": "videos/quiet-library-reading-dark/10480415.mp4",
+   "bytes": 9320624,
+   "source": "https://www.pexels.com/video/old-map-and-book-on-table-with-candle-10480415/",
+   "photographer": "Attila Pergel"
+  },
+  {
+   "id": "34677861",
+   "kind": "video",
+   "query": "quiet library reading dark",
+   "path": "videos/quiet-library-reading-dark/34677861.mp4",
+   "bytes": 5347507,
+   "source": "https://www.pexels.com/video/dramatic-library-scene-with-thoughtful-interaction-34677861/",
+   "photographer": "Jabeer Alhassan"
+  },
+  {
+   "id": "6549982",
+   "kind": "video",
+   "query": "quiet library reading dark",
+   "path": "videos/quiet-library-reading-dark/6549982.mp4",
+   "bytes": 7357897,
+   "source": "https://www.pexels.com/video/man-in-a-library-at-night-6549982/",
+   "photographer": "Tima Miroshnichenko"
   },
   {
    "id": "15161525",
@@ -2594,6 +2963,33 @@
    "source": "https://www.pexels.com/video/19217899/"
   },
   {
+   "id": "7505432",
+   "kind": "video",
+   "query": "white noise machine bedroom night",
+   "path": "videos/white-noise-machine-bedroom-night/7505432.mp4",
+   "bytes": 4135624,
+   "source": "https://www.pexels.com/video/a-mother-and-daughter-reading-a-book-7505432/",
+   "photographer": "Artem Podrez"
+  },
+  {
+   "id": "7505575",
+   "kind": "video",
+   "query": "white noise machine bedroom night",
+   "path": "videos/white-noise-machine-bedroom-night/7505575.mp4",
+   "bytes": 5970502,
+   "source": "https://www.pexels.com/video/a-little-girl-sleeping-on-bed-7505575/",
+   "photographer": "Artem Podrez"
+  },
+  {
+   "id": "7505578",
+   "kind": "video",
+   "query": "white noise machine bedroom night",
+   "path": "videos/white-noise-machine-bedroom-night/7505578.mp4",
+   "bytes": 5166794,
+   "source": "https://www.pexels.com/video/a-mother-touching-her-daughter-s-head-7505578/",
+   "photographer": "Artem Podrez"
+  },
+  {
    "id": "4982729",
    "kind": "video",
    "query": "wireless earbuds close up dark",
@@ -2616,6 +3012,60 @@
    "path": "videos/wireless-earbuds-close-up-dark/5008497.mp4",
    "bytes": 6013075,
    "source": "https://www.pexels.com/video/5008497/"
+  },
+  {
+   "id": "18483730",
+   "kind": "video",
+   "query": "woman looking out window dark room night",
+   "path": "videos/woman-looking-out-window-dark-room-night/18483730.mp4",
+   "bytes": 4173196,
+   "source": "https://www.pexels.com/video/a-woman-in-a-black-dress-is-standing-in-a-dark-room-18483730/",
+   "photographer": "Khanh Hoang Minh 2"
+  },
+  {
+   "id": "19229592",
+   "kind": "video",
+   "query": "woman looking out window dark room night",
+   "path": "videos/woman-looking-out-window-dark-room-night/19229592.mp4",
+   "bytes": 777974,
+   "source": "https://www.pexels.com/video/a-person-is-sitting-in-an-airplane-at-night-19229592/",
+   "photographer": "Matheus Bertelli"
+  },
+  {
+   "id": "7292659",
+   "kind": "video",
+   "query": "woman looking out window dark room night",
+   "path": "videos/woman-looking-out-window-dark-room-night/7292659.mp4",
+   "bytes": 6911420,
+   "source": "https://www.pexels.com/video/a-woman-standing-near-the-window-7292659/",
+   "photographer": "ArtHouse Studio"
+  },
+  {
+   "id": "6073058",
+   "kind": "video",
+   "query": "woman sitting alone dark room thinking",
+   "path": "videos/woman-sitting-alone-dark-room-thinking/6073058.mp4",
+   "bytes": 4077570,
+   "source": "https://www.pexels.com/video/a-sad-woman-sitting-and-looking-at-the-mirror-while-cutting-her-own-hair-6073058/",
+   "photographer": "Tima Miroshnichenko"
+  },
+  {
+   "id": "7279750",
+   "kind": "video",
+   "query": "woman sitting alone dark room thinking",
+   "path": "videos/woman-sitting-alone-dark-room-thinking/7279750.mp4",
+   "bytes": 5310619,
+   "source": "https://www.pexels.com/video/a-woman-drinking-beer-while-leaning-on-the-door-7279750/",
+   "photographer": "MART  PRODUCTION"
+  },
+  {
+   "id": "7280174",
+   "kind": "video",
+   "query": "woman sitting alone dark room thinking",
+   "path": "videos/woman-sitting-alone-dark-room-thinking/7280174.mp4",
+   "bytes": 5843560,
+   "source": "https://www.pexels.com/video/emotional-woman-sitting-on-the-floor-7280174/",
+   "photographer": "MART  PRODUCTION"
   },
   {
    "id": "31421511",

@@ -40,7 +40,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from ..core import backdrop
 from ..core.brand import Brand
-from ..core.draw import contain, cover, ease_out, mark, subpixel, wrap
+from ..core.draw import (contain, cover, ease_out, mark, shadow_text,
+                         subpixel, wrap)
 from ..core.frame import LANDSCAPE, Frame
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
@@ -358,8 +359,8 @@ class ChapterCard(Beat):
 
         for ln in lines:
             tw = d.textlength(ln, font=font)
-            d.text(((self.frame.w - tw) / 2, y), ln, font=font,
-                   fill=self.brand.ink, stroke_width=4, stroke_fill=(0, 0, 0))
+            shadow_text(d, ((self.frame.w - tw) / 2, y), ln, font,
+                        self.brand.ink, blur=10, drop=(4, 6))
             y += line_h
 
 
@@ -416,8 +417,7 @@ class Checklist(Beat):
             # White ink for every item, struck or not. Grey-on-dark was shipped
             # once and was not readable on a phone — the strike already says
             # "this does not count".
-            d.text((x + gutter, y_in), text, font=font, fill=self.brand.ink,
-                   stroke_width=3, stroke_fill=(0, 0, 0))
+            shadow_text(d, (x + gutter, y_in), text, font, self.brand.ink)
 
             m = self.marked(i, f)
             if m < 0:
@@ -506,16 +506,15 @@ class Stat(Beat):
         # mark and comes back reads as being placed.
         scale = 0.92 + 0.08 * e + 0.03 * math.sin(math.pi * e)
         big = _font(max(12, int(200 * scale)))
-        d.text((x, y + int(round(RISE * 2 * (1.0 - e)))), self._value(f),
-               font=big, fill=self.brand.primary,
-               stroke_width=4, stroke_fill=(0, 0, 0))
+        shadow_text(d, (x, y + int(round(RISE * 2 * (1.0 - e)))),
+                    self._value(f), big, self.brand.primary,
+                    blur=12, drop=(5, 7))
 
         if self.note:
             note_font = _font(46)
             ny = y + int(200 * 1.25)
             for ln in wrap(d, self.note, note_font, w):
-                d.text((x, ny), ln, font=note_font, fill=self.brand.ink,
-                       stroke_width=3, stroke_fill=(0, 0, 0))
+                shadow_text(d, (x, ny), ln, note_font, self.brand.ink)
                 ny += int(46 * 1.34)
 
 
@@ -589,10 +588,9 @@ class Compare(Beat):
             else:
                 eh = 1.0
             if eh >= 0:
-                d.text((x, top + int(round(RISE * (1.0 - min(1.0, eh))))),
-                       title.upper(), font=title_font,
-                       fill=self.brand.primary, stroke_width=3,
-                       stroke_fill=(0, 0, 0))
+                shadow_text(d, (x, top + int(round(RISE
+                                                    * (1.0 - min(1.0, eh))))),
+                            title.upper(), title_font, self.brand.primary)
             y = top + 120
             for i, text in enumerate(items):
                 # **Sequential, not interleaved: the whole left column, then
@@ -615,8 +613,8 @@ class Compare(Beat):
                     continue
                 y_in = y + int(round(RISE * (1.0 - ev)))
                 for ln in lines:
-                    d.text((x, y_in), ln, font=item_font, fill=self.brand.ink,
-                           stroke_width=3, stroke_fill=(0, 0, 0))
+                    shadow_text(d, (x, y_in), ln, item_font,
+                                self.brand.ink)
                     y_in += item_h
                 y += len(lines) * item_h + pad
 
@@ -657,8 +655,8 @@ class Quote(Beat):
         d.line([(x - 34, y), (x - 34, y + int(block * min(1.0, e * 1.2)))],
                fill=self.brand.primary, width=6)
         for ln in lines:
-            d.text((x, y), ln, font=font, fill=self.brand.ink,
-                   stroke_width=3, stroke_fill=(0, 0, 0))
+            shadow_text(d, (x, y), ln, font, self.brand.ink,
+                        blur=9, drop=(4, 5))
             y += int(62 * 1.34)
 
         if self.attribution:
@@ -711,8 +709,7 @@ class Bars(Beat):
             g = ease_out(min(1.0, (self.at(f) - self.reveals[i]) / self.GROW)
                          if self.reveals and i < len(self.reveals) else 1.0)
 
-            d.text((x, y), label, font=label_font, fill=self.brand.ink,
-                   stroke_width=3, stroke_fill=(0, 0, 0))
+            shadow_text(d, (x, y), label, label_font, self.brand.ink)
 
             by = y + 58
             bh = 30
@@ -724,9 +721,8 @@ class Bars(Beat):
                             fill=self.brand.primary + (235,))
             if value:
                 vx = min(x + bw + 22, x + w - 10)
-                d.text((vx, by - 8), value, font=value_font,
-                       fill=self.brand.primary, stroke_width=3,
-                       stroke_fill=(0, 0, 0))
+                shadow_text(d, (vx, by - 8), value, value_font,
+                            self.brand.primary)
 
 
 class Grid(Beat):
@@ -1147,9 +1143,8 @@ class Steps(Beat):
 
             ty = cy - (len(lines) * line_h) // 2 + int(round(RISE * (1.0 - ev)))
             for ln in lines:
-                d.text((lx, ty), ln, font=label_font,
-                       fill=self.brand.ink + (a,),
-                       stroke_width=3, stroke_fill=(0, 0, 0, a))
+                shadow_text(d, (lx, ty), ln, label_font,
+                            self.brand.ink + (a,), alpha=a)
                 ty += line_h
 
     def _horizontal(self, out: Image.Image, f: float) -> None:
@@ -1199,9 +1194,8 @@ class Steps(Beat):
             ty = cy + rr + 40 + int(round(RISE * (1.0 - ev)))
             for ln in lines:
                 tb = d.textbbox((0, 0), ln, font=label_font)
-                d.text((cx - (tb[2] - tb[0]) / 2 - tb[0], ty), ln,
-                       font=label_font, fill=self.brand.ink + (a,),
-                       stroke_width=3, stroke_fill=(0, 0, 0, a))
+                shadow_text(d, (cx - (tb[2] - tb[0]) / 2 - tb[0], ty),
+                            ln, label_font, self.brand.ink + (a,), alpha=a)
                 ty += 48
 
 
@@ -1254,7 +1248,8 @@ def make_beat(shot, brand: Brand, frame: Frame):
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
                          label=shot.payload or None,
                          note=shot.note,
-                         begin=shot.clip_at)
+                         begin=shot.clip_at,
+                         ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic is None:
         return None
     try:

@@ -568,6 +568,149 @@ Two land harder in short form, because thirty-five seconds cannot recover:
   reads as messy. Give a short **one** closing instruction, say it once, and put
   0.70-0.90 in front of it.
 
+## Type sits on a blurred shadow, never inside a stroke
+
+**`core.draw.shadow_text` replaced `stroke_width=` on every drawn beat and
+every statement over footage, on both channels.** The user's note on a
+chapter card was that "the solid border makes it look ugly, use a similar one
+like the thumbnails" - and the thumbnails had already been through this
+exact argument, where an 8px stroke around every glyph was called out as the
+clearest tell of an amateur graphic. A stroke traces each glyph at constant
+width, so it reads as an *outline around* the type; a blurred layer under the
+type reads as the type sitting on something. The thumbnail renderer had solved
+it and the video had not, purely because nobody had carried the fix across.
+
+Two things to know before touching it:
+
+- **It takes the `ImageDraw`, not the image**, reading the image back off
+  `d._image`, so the call sites it replaced stayed one line each.
+- **`RGB` and `RGBA` are not the same operation.** On `RGB` the shadow
+  composites black through the mask. On `RGBA` it has to *add alpha*, because
+  `grid` and `steps` draw onto a transparent overlay where a shadow with no
+  alpha of its own is simply invisible. Both paths are in the helper; a
+  fading beat passes its own `alpha` so the shadow ramps with the type.
+
+**Burned captions in `core/vertical.py` keep their stroke, deliberately.**
+They sit over arbitrary moving footage at small size, where a hard edge is
+doing real legibility work rather than decoration.
+
+## A photograph bleeds off every edge, or it is not a full-frame shot
+
+The silence cut put the site's `neurons.jpg` (900x599) in a full-frame slot.
+Under `max_upscale=1.90` a 900px source cannot reach 1920, so it rendered
+**fitted** - a letterboxed panel with a hairline and black bands above and
+below - and the user's note at 0:54 was to remove that treatment completely
+and show the picture full screen the way the one at 3:27 is.
+
+So the rule is now absolute: **a photograph in a full-frame shot must be large
+enough to bleed off all four edges.** Do the arithmetic before writing the shot
+(source width x 1.90 must clear the frame width), and when the site's own
+library cannot make it - which on both sites is most of the library - either
+put the picture in a beat's picture column, where the same file is a
+*downscale* at 660px, or use a stock source big enough. The picture column is
+what that layout exists for; the fitted panel was never a design, only what
+the renderer does when it runs out of pixels.
+
+## Screen a clip by watching it, not by looking at one frame of it
+
+`woman-sitting-alone-dark-room-thinking/6073058` screened at L13-14 / S8 and
+appeared on a labelled contact sheet as a woman alone under a single bulb in
+an empty room - the exact subject of the script. It shipped into two cuts.
+Played, she is **shaving her head**, which is a specific and arresting act
+under a line about quiet rooms, and the user caught it in the first five
+seconds of both videos.
+
+The luma/saturation box measures brightness. A contact sheet at one timestamp
+measures one four-hundredth of a clip. **Neither can see what is happening in
+the shot**, and "what is happening" is the only thing that decides whether the
+footage illustrates the line. Sample a few seconds of anything before it goes
+in a shot list - this is the same failure as the green apartment block and the
+unlabelled water, arriving through the one door those rules left open.
+
+## Do not open two shots in a row on the same clip
+
+The silence short's opening question and the line after it were both on
+`tired-woman-hands-on-face/4867379`, because the question was added in front
+of an existing opener and the obvious thing to do with a new first shot is
+give it the picture that was already there. Six seconds on one face, and the
+second shot landed mid-yawn. A Short's first two shots are the two the viewer
+actually decides on: **give the question the face and the line after it the
+room.** The same clip may come back later at a different `clip_at`; it may not
+run twice consecutively.
+
+## Every short opens by asking its own title question
+
+**The user's standing instruction, from the silence pair.** A short that opens
+on the first line of its argument reads as random and confusing, and the
+reason is structural rather than stylistic: a Short arrives with **no title
+card, no thumbnail on screen and no chapter list**. Long form gets a title
+stamp around eight seconds in and a description under it; a Short viewer has
+literally nothing but the first sentence.
+
+So the first line is the question the video answers, said plainly - "Does
+silence make tinnitus worse?" - over the opening face, not over a card. It
+costs about two seconds and it turns the next forty into an answer somebody is
+waiting for. Budget for it: the format's 40-50s window did not move.
+
+## A vertical cut must be cropped onto its subject
+
+**`Shot(clip_ax=, clip_ay=)`**, fractions of the leftover cover-crop slack
+exactly like `render_thumb`'s `crop_at`. 0.5 is centred and is what every clip
+did before this existed, so nothing that does not set one changed.
+
+It exists because a **16:9 source into a 9:16 frame keeps about 32% of the
+width**, and `VideoShot._prepare` took that slice from the middle with a hard
+`// 2`. The user's note on the silence short was the whole problem in one
+line: "if there is a person we dont see it, if there is object we dont see
+it". Its closing shot was a man standing at 0.80 of the source frame, so the
+video ended on a brick wall and a plant with his shoulder clipped at the edge.
+
+**The workflow is one contact sheet.** Pull a frame from every clip in the
+cut, draw the centred crop band on it (31.6% of the width at the default
+zoom) and decile ticks along the bottom, and read the subject's position off
+the ticks. Then `ax = (cx * 3617 - 572) / 2474` for a 1920-wide source at the
+default 1.06 zoom, or just sweep two values and look. It is inert in 16:9,
+where a landscape source throws away almost nothing - **this is a shorts
+problem, and every short should be checked for it.**
+
+## The landscape thumbnail shows the same whole face the vertical one does
+
+**The user's standing rule, and it is now a check on every pair.** The
+silence cut's long thumbnail was called "zoomed in too much on the woman" -
+and it was not a bad `ay`, it was arithmetic. Her head spans 1036px of the
+scaled source against a **720px window**, so no crop of that source could
+contain it: the whole family of cover crops was wrong, not the one that
+shipped.
+
+**`crop_zoom` below 1.0 now means "stop covering the frame".** The picture is
+scaled to the size asked for and set on black at `crop_at`, with the same
+260px falloff `shift` uses, so a tall source becomes a **panel beside the
+type** instead of a crop through the subject. On the silence pair that is
+`crop_at=(0.86, 0.0), crop_zoom=0.50`. It is a better thumbnail than the crop
+was, not a fallback: the subject is whole, and the type sits on real black
+rather than on a scrim laid over detail.
+
+So: **render the vertical thumbnail first, then match the landscape one to
+it.** If the face does not fit at cover scale, panel it.
+
+## Put the title's own question on the thumbnail
+
+**This replaces "ask what the title does not", which went too far.** That rule
+was written against a thumbnail that *answered* its own title ("Not the
+earbuds. The volume."), leaving no reason to watch - and that part still
+holds. But the silence pair shipped with "Silence is not neutral" to satisfy
+it, and the user's verdict was that it is "kinda boring", while "does silence
+make tinnitus worse" makes the viewer curious.
+
+They are right, and the distinction is clean: **asking the question is not
+answering it.** A question on the thumbnail opens the loop the title opened
+and closes nothing, so it costs no click. Use the video's own title, or a
+tighter version of it, and put the accent plate on the word that carries the
+tension - `"Does silence make tinnitus [worse?]"`. Keep the question mark
+inside the brackets; outside the plate it hangs off the end looking detached.
+
+What survives of the old rule: **never put the answer on the thumbnail.**
+
 ## Keep this file current, every time
 
 **Standing instruction: update the skill on every video**, with the specific

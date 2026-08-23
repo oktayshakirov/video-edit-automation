@@ -244,6 +244,165 @@ level actually *sounds* like, on a short vertical rule.
 - **Lower left, not lower centre** - centre collides with burned captions in
   9:16 and with the YouTube player's own SRT line in 16:9.
 
+## Two things that put the silence cut 25% over its ceiling
+
+Both found on `can-silence-make-tinnitus-worse`, which preflighted at **5:10
+against a 4:00 ceiling** on its first complete draft. Neither was fixed by
+shaving gaps, and trying that first wasted a pass.
+
+**A chapter's `spoken_title` is already the beat's hinge - do not write a
+lead-in sentence as well.** The `grid` section opened with
+`spoken_title="And there are three of these stacking up together."` and then a
+first sentence reading "Three different problems, with three different fixes."
+That is the same sentence twice, 3.5s apart, and the second one exists only
+because "say the point, then show the graphic" was applied without noticing
+the card had already said it. Deleting it improved the writing and bought back
+more time than every gap in the section put together. **Check every beat whose
+section is carded**: if the spoken title hands off to the graphic, the beat's
+own first chunk is the next thing that should be heard.
+
+**Cast clips by duration before writing them into the shot list.** Eight of
+thirty-four slots failed preflight on the first pass, all the same way: a 6.0s
+traffic clip under a 9.4s sentence, an 8.4s clip under a 10.4s one. The slot
+length is not knowable until the narration is measured, but the **clip
+lengths are knowable immediately** - `ffprobe` the whole folder once and keep
+the long ones (20s+) for the paragraphs and the short ones for the one-line
+sentences. A clip that is short can still be used twice at different
+`clip_at`; a clip that is short in the wrong slot is a re-render.
+
+## A `compare` heading has about 18 characters, and nothing warns you
+
+"A room with quiet sound in it" clipped mid-word at the right edge of the
+frame in the silence cut's first render, visible at 2:22 and invisible
+everywhere else - the beat draws, the preflight passes, and the only way to
+find it is to look at the frame. A heading is set at display weight inside
+half the frame's width, so **roughly 18 characters is the ceiling**; the left
+column can carry more only because it has the same budget and shorter words.
+Shorten the label and leave the spoken hinge alone - "A room with sound" on
+screen while the voice still says "a room with a low sound in it" is exactly
+what the `(caption, spoken)` split exists for.
+
+## The short's thumbnail clears the view count by 20px
+
+`render_short_thumb`'s `band="bottom"` margin is `int(VH * 0.16) + 20`. At the
+bare 0.16 the last line of type ran straight through the play count YouTube
+draws across the bottom of a Short's grid tile, and the user was opening the
+artwork and lifting it by hand before every upload. **It is composed against a
+platform overlay that is not in the file**, so a bottom-banded thumbnail that
+looks marginally high in isolation is correct. `band="top"` is unchanged.
+
+## Type sits on a blurred shadow, never inside a stroke
+
+**`core.draw.shadow_text` replaced `stroke_width=` on every drawn beat and
+every statement over footage, on both channels.** The user's note on a
+chapter card was that "the solid border makes it look ugly, use a similar one
+like the thumbnails" - and the thumbnails had already been through this
+exact argument, where an 8px stroke around every glyph was called out as the
+clearest tell of an amateur graphic. A stroke traces each glyph at constant
+width, so it reads as an *outline around* the type; a blurred layer under the
+type reads as the type sitting on something. The thumbnail renderer had solved
+it and the video had not, purely because nobody had carried the fix across.
+
+Two things to know before touching it:
+
+- **It takes the `ImageDraw`, not the image**, reading the image back off
+  `d._image`, so the call sites it replaced stayed one line each.
+- **`RGB` and `RGBA` are not the same operation.** On `RGB` the shadow
+  composites black through the mask. On `RGBA` it has to *add alpha*, because
+  `grid` and `steps` draw onto a transparent overlay where a shadow with no
+  alpha of its own is simply invisible. Both paths are in the helper; a
+  fading beat passes its own `alpha` so the shadow ramps with the type.
+
+**Burned captions in `core/vertical.py` keep their stroke, deliberately.**
+They sit over arbitrary moving footage at small size, where a hard edge is
+doing real legibility work rather than decoration.
+
+## A photograph bleeds off every edge, or it is not a full-frame shot
+
+The silence cut put the site's `neurons.jpg` (900x599) in a full-frame slot.
+Under `max_upscale=1.90` a 900px source cannot reach 1920, so it rendered
+**fitted** - a letterboxed panel with a hairline and black bands above and
+below - and the user's note at 0:54 was to remove that treatment completely
+and show the picture full screen the way the one at 3:27 is.
+
+So the rule is now absolute: **a photograph in a full-frame shot must be large
+enough to bleed off all four edges.** Do the arithmetic before writing the shot
+(source width x 1.90 must clear the frame width), and when the site's own
+library cannot make it - which on both sites is most of the library - either
+put the picture in a beat's picture column, where the same file is a
+*downscale* at 660px, or use a stock source big enough. The picture column is
+what that layout exists for; the fitted panel was never a design, only what
+the renderer does when it runs out of pixels.
+
+## Screen a clip by watching it, not by looking at one frame of it
+
+`woman-sitting-alone-dark-room-thinking/6073058` screened at L13-14 / S8 and
+appeared on a labelled contact sheet as a woman alone under a single bulb in
+an empty room - the exact subject of the script. It shipped into two cuts.
+Played, she is **shaving her head**, which is a specific and arresting act
+under a line about quiet rooms, and the user caught it in the first five
+seconds of both videos.
+
+The luma/saturation box measures brightness. A contact sheet at one timestamp
+measures one four-hundredth of a clip. **Neither can see what is happening in
+the shot**, and "what is happening" is the only thing that decides whether the
+footage illustrates the line. Sample a few seconds of anything before it goes
+in a shot list - this is the same failure as the green apartment block and the
+unlabelled water, arriving through the one door those rules left open.
+
+## Do not write a two-word imperative for a synthesiser to read
+
+"Do not." was written as its own sentence with a 0.90 after it, straight out
+of this file's own advice about imperatives landing in silence. On the page it
+is the strongest line in the section; read by Kokoro it is **two syllables and
+then nothing**, and the user's note was that it loses the human sound of the
+voiceover. A person saying "Do not." carries it with emphasis and a falling
+pitch, and there is no emphasis to give.
+
+**Write the full sentence and let the gap do the work.** "Do not make that
+mistake." is the same beat, still lands on its own, and gives the synthesiser
+enough to read as speech. The gap table is unchanged - what changed is that a
+fragment cannot cash the pause the table buys it. This does not retire the
+imperative rule; it bounds it: **an imperative needs a subject and a verb.**
+
+## The landscape thumbnail shows the same whole face the vertical one does
+
+**The user's standing rule, and it is now a check on every pair.** The
+silence cut's long thumbnail was called "zoomed in too much on the woman" -
+and it was not a bad `ay`, it was arithmetic. Her head spans 1036px of the
+scaled source against a **720px window**, so no crop of that source could
+contain it: the whole family of cover crops was wrong, not the one that
+shipped.
+
+**`crop_zoom` below 1.0 now means "stop covering the frame".** The picture is
+scaled to the size asked for and set on black at `crop_at`, with the same
+260px falloff `shift` uses, so a tall source becomes a **panel beside the
+type** instead of a crop through the subject. On the silence pair that is
+`crop_at=(0.86, 0.0), crop_zoom=0.50`. It is a better thumbnail than the crop
+was, not a fallback: the subject is whole, and the type sits on real black
+rather than on a scrim laid over detail.
+
+So: **render the vertical thumbnail first, then match the landscape one to
+it.** If the face does not fit at cover scale, panel it.
+
+## Put the title's own question on the thumbnail
+
+**This replaces "ask what the title does not", which went too far.** That rule
+was written against a thumbnail that *answered* its own title ("Not the
+earbuds. The volume."), leaving no reason to watch - and that part still
+holds. But the silence pair shipped with "Silence is not neutral" to satisfy
+it, and the user's verdict was that it is "kinda boring", while "does silence
+make tinnitus worse" makes the viewer curious.
+
+They are right, and the distinction is clean: **asking the question is not
+answering it.** A question on the thumbnail opens the loop the title opened
+and closes nothing, so it costs no click. Use the video's own title, or a
+tighter version of it, and put the accent plate on the word that carries the
+tension - `"Does silence make tinnitus [worse?]"`. Keep the question mark
+inside the brackets; outside the plate it hangs off the end looking detached.
+
+What survives of the old rule: **never put the answer on the thumbnail.**
+
 ## Keep this file current, every time
 
 **The user's standing instruction: update the skill on every video.** These
@@ -304,6 +463,33 @@ a concept.
 `core/backdrop.py`. **tinnitushelp.me is `tinnitus-galaxy`** — a nebula
 starfield the user supplied, ping-ponged — and thecrypto.wiki is
 `crypto-blackwater`.
+
+**`tinnitus-galaxy` is gone too, and the brand is now `tinnitus-plum`.** The
+galaxy shipped on the silence cut and the user's note was simply that they
+were not happy with it; what they asked for instead is "a high quality dark
+purple background which makes the text pop and looks clean". `tinnitus-plum`
+is generated - a near-black plum base, three very wide very soft blooms, the
+standard vignette - at **L29.8 / S30.4**, and it is the one that got approved
+after all four candidates were judged the only valid way, by drawing a real
+chapter card and a real `compare` on each.
+
+**The starfield failed the rule this file already carried, and the file had
+talked itself out of it.** "Soft, low-frequency only" was the rule; the galaxy
+section argued the stars got away with breaking it because at 512px upscaled
+3.75x their detail "turns to mush attractively". That was a defence of the
+asset, not a test it passed - high-frequency detail behind type competes with
+the type, and three rejections on this brand now all point the same way.
+**Do not put content behind the words.** The other half of it is that
+**clean is not flat**: `tinnitus-violet` was rejected for flatness, so the
+blooms in `PLUM` are what stop it being a dark rectangle - they are simply too
+wide and too dim to read as shapes.
+
+**Three purples have now been rejected here** (`aurora` generated and the
+wrong shade, `violet` a bright supplied gradient, `galaxy` a supplied
+starfield) and all three assets are **deleted from the folder**, not merely
+unreferenced - leaving one there is how a rejected background gets pointed at
+by name a second time. `crypto-blackwater` is untouched; this change is
+tinnitus-only.
 
 **`tinnitus-aurora` is gone and must not come back.** It was a *generated*
 purple mesh gradient, and it shipped on the AirPods cut after the user had
