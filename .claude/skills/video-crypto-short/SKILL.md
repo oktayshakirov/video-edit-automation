@@ -825,26 +825,38 @@ So the order is: **score the batch, then read what each picture claims**, and
 let the claim veto the score. The shipped choice promises what the video is -
 a market being read.
 
-## A Short's YouTube thumbnail is the vertical one
+## A Short's cover is a manual step, and YouTube gets the 16:9 file
 
-**Corrected 2026-08-23, replacing the rule that said YouTube gets the 16:9
-file.** Upload `<name>-thumb.jpg` (1080x1920) to YouTube for a Short. The four
-earlier Crypto Wiki shorts all carry the vertical image and their covers work;
-the one uploaded with a clean 1280x720 showed a video frame in Studio instead,
-even though every thumbnail URL carried the 16:9 file correctly.
+**Settled 2026-08-24 after the rule flipped twice. Do not move it again
+without new evidence.** Measured on the bitcoin-price short:
 
-The cost is real and was what caused the original mistaken rule: a 9:16 upload
-is letterboxed into YouTube's 1280x720 slot with a blurred zoomed copy either
-side, so it looks poor anywhere 16:9 is used. Take that trade - a Short is
-watched in the Shorts feed, and the cover is what governs the Shorts tab,
-search and playlists.
+| Cover image | How it was set | What Studio shows |
+| --- | --- | --- |
+| 1280x720 | API, at upload | a video frame |
+| 1080x1920 | API, after upload | **blank** |
+| 1080x1920 | API, at upload | **blank** |
+| either | by hand in Studio | **the cover** |
 
-Keep rendering both files. `render_thumb`'s 1280x720 output is what a long form
-uses and keeps the pair recognisable.
+`thumbnails.set` cannot give a Short a working cover at all, whatever shape or
+timing you feed it. **Upload `<name>-thumb-yt.jpg` (1280x720)** - not because
+it works, but because it degrades to a video frame instead of a blank box -
+and **hand the user the vertical file to set in Studio themselves.**
 
-**Swap one after the fact with**
-`youtube-audit set <id> --channel crypto --thumbnail <vertical.jpg> --apply`.
+Keep rendering both. `render_short_thumb`'s 1080x1920 is what the Reel
+workflows use and what the user drops into Studio; `render_thumb`'s 1280x720
+goes to YouTube and keeps the pair recognisable.
 
-Note the opening seconds still matter for their own reason: YouTube picks a
-frame wherever a cover does not apply, and the feed is judged in one second
-regardless.
+**The trap that cost three rounds:** every row above returns success, and every
+row serves the uploaded image at `i.ytimg.com/vi/<id>/*`. Diffing the live
+thumbnail against the file proves the *upload* worked and says nothing about
+the cover. Only Studio can answer that, which makes **the user the instrument
+here** - ask them to look rather than inferring it from the API.
+
+Two explanations that were wrong, recorded so they are not re-derived: that
+the earlier shorts' working covers proved the API should send 9:16 (they had
+been set by hand - *an artifact's appearance says nothing about how it got
+there*), and that a Partner Programme limit was responsible (covers work on
+this 3-subscriber channel when set manually).
+
+The opening seconds still matter for their own reason: YouTube picks a frame
+wherever a cover does not apply, and the feed is judged in one second anyway.

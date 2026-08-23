@@ -55,6 +55,10 @@ instruction.
    replaced were deleted on 2026-08-20. Pass the **full** YouTube description;
    that workflow trims it to the first paragraph plus the article link itself.
 5. **Report what is still unlisted or private and what needs a manual tick.**
+   The standing list: privacy in Studio, Studio's "Related video" field on a
+   Short, the TikTok draft's caption and cover, and - for a Short - **the
+   cover image itself**, which the Data API cannot set. Give the path to the
+   vertical file rather than just naming the step.
 
 ## YouTube
 
@@ -96,39 +100,42 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   Data API has no field for it.
 - **Nothing here makes a video public.** Say so plainly at the end rather than
   letting the user assume the site entry published it.
-- **A Short gets the VERTICAL thumbnail. This reverses what this file used to
-  say, and the reversal is evidence, not preference.** The old rule - "a Short
-  needs two thumbnails and YouTube gets the 16:9 one" - was written from the
-  silence pair, where a 9:16 upload produced an ugly `maxresdefault`:
-  letterboxed, with a blurred zoomed copy of the image either side. That
-  observation is correct and still is. The conclusion drawn from it was wrong.
+- **A Short's cover cannot be set through the Data API. It is a manual step in
+  Studio, and this is settled - the rule flipped twice before landing here, so
+  do not move it again without new evidence.** The full matrix, all measured on
+  the bitcoin-price short:
 
-  What settled it: **the four earlier Crypto Wiki shorts all carry the
-  letterboxed 9:16 thumbnail, and those are the ones whose covers actually
-  work.** The bitcoin-price short was uploaded with a clean 16:9 image and
-  Studio showed a frame from the video instead. All five thumbnail URLs
-  carried our 16:9 file - it was set, and ignored. Re-uploading the 1080x1920
-  version made it match the working shorts.
+  | Cover image | How it was set | What Studio shows |
+  | --- | --- | --- |
+  | 1280x720 | API, at upload | a video frame |
+  | 1080x1920 | API, after upload | **blank** |
+  | 1080x1920 | API, at upload | **blank** |
+  | either | by hand in Studio | **the cover** |
 
-  So: **`--thumbnail <name>-thumb.jpg` (vertical) for a Short**, and the
-  1280x720 for a long form. It is a trade, not a free win - a Short's
-  `maxresdefault` will look letterboxed anywhere 16:9 is used (search results,
-  playlists, embeds) - and it is the right side of the trade, because a Short
-  is watched in the Shorts feed and that is the surface the cover controls.
+  `thumbnails.set` reports success in every one of those rows, and every
+  thumbnail URL serves the uploaded image in every one of them, so **neither
+  the API response nor `youtube-audit video <id>` nor diffing
+  `maxresdefault.jpg` can tell you which row you are in.** Only Studio can.
+  That is why this took three attempts to pin down.
 
-  **`youtube-audit set <id> --thumbnail <path>` replaces one without
-  re-uploading the video**, added 2026-08-23 for exactly this.
+  So: **upload `<name>-thumb-yt.jpg` (1280x720) for a Short**, exactly as for a
+  long form. A 9:16 upload is strictly worse - it renders blank rather than
+  falling back to a frame, and it letterboxes every 16:9 surface (search,
+  playlists, embeds) with blurred side-fill.
 
-  Do not repeat the earlier misdiagnosis: this is not a Partner Programme
-  limit. Custom Shorts covers work on this 3-subscriber channel - the four
-  older shorts prove it.
-- **A custom thumbnail on a Short never shows in the Shorts feed.** The vertical
-  swipe feed always uses an auto-generated frame from the video. Custom Shorts
-  thumbnails only landed in July 2026, are Partner Programme only, and appear in
-  search, the channel Shorts tab, subscriptions and playlists - the surfaces
-  where a thumbnail earns a click. So a Short's thumbnail looking "missing" in
-  the feed is correct behaviour, not a failed `thumbnails.set`. Verify with
-  `youtube-audit video <id>`: a `maxres` 1280x720 entry means it is set.
+  **Then tell the user to set the cover by hand in Studio, and give them the
+  path to the vertical file.** It belongs in the closing list beside the
+  "Related video" tick and the TikTok draft - things the API cannot do.
+
+  **Two wrong explanations, recorded so they are not re-derived.** First: the
+  four earlier Crypto Wiki shorts carry vertical covers that display
+  correctly, which was read as proof the API should send 9:16. It was not -
+  the user had set those by hand. *An artifact's appearance says nothing about
+  how it got there.* Second: a Partner Programme limit was blamed; also wrong,
+  since covers work on this 3-subscriber channel when set manually.
+- **The swipe feed is YouTube's own choice regardless.** Even a correctly set
+  cover governs the Shorts tab, search and playlists rather than the vertical
+  feed, which picks its own frame.
 - **A Short needs TWO thumbnails and YouTube gets the 16:9 one.** This was
   written as advice and then ignored on the silence pair, which uploaded the
   1080x1920 Reel cover to YouTube. It is not merely wasteful - YouTube
@@ -140,13 +147,12 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   entry, so **neither the upload nor the audit can tell you this went wrong -
   only looking at the image can.**
 
-  The short project files render both: `<name>-thumb.jpg` (vertical) and
-  `<name>-thumb-yt.jpg` (1280x720). **Superseded 2026-08-23: pass the VERTICAL
-  `-thumb.jpg` to `youtube-audit upload` for a Short, not `-thumb-yt.jpg`** -
-  see the reversal above. The letterboxing described here is real and is the
-  price of a cover that works; the 1280x720 file is still rendered because it
-  keeps the pair matched and is what a long form uses. The Reel workflow takes
-  the vertical one either way.
+  The short project files render both: `<name>-thumb.jpg` (vertical, for the
+  Reel workflows and for the user's manual Studio step) and
+  `<name>-thumb-yt.jpg` (1280x720, for `youtube-audit upload`). That split
+  stands - and note the letterboxing described above is the *only* thing a
+  9:16 YouTube upload buys you, since it does not produce a working cover
+  either. See the Studio matrix above.
 
   A shorts-only cut with no long form still needs both; render the landscape
   one with `render_thumb`, reusing the vertical's headline and `crop_at`.
