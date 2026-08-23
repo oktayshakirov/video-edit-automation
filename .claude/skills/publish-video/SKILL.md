@@ -96,29 +96,32 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   Data API has no field for it.
 - **Nothing here makes a video public.** Say so plainly at the end rather than
   letting the user assume the site entry published it.
-- **A Short's custom thumbnail IS set, and Studio still shows a video frame.**
-  Checked twice on the bitcoin-price short, the second time against every
-  resolution YouTube serves: `maxresdefault` (1280x720) and `mqdefault`
-  (320x180) are byte-identical to the uploaded file, and `hqdefault`,
-  `sddefault` and `default` are the same image letterboxed into 4:3 - which is
-  why a naive pixel diff calls them different. **All five carry our image.**
-  Creator Studio nonetheless displays a frame from the video, and so does the
-  Shorts feed.
+- **A Short gets the VERTICAL thumbnail. This reverses what this file used to
+  say, and the reversal is evidence, not preference.** The old rule - "a Short
+  needs two thumbnails and YouTube gets the 16:9 one" - was written from the
+  silence pair, where a 9:16 upload produced an ugly `maxresdefault`:
+  letterboxed, with a blurred zoomed copy of the image either side. That
+  observation is correct and still is. The conclusion drawn from it was wrong.
 
-  That is YouTube's behaviour, not a failed upload: **custom Shorts thumbnails
-  are Partner Programme only** (July 2026), and the Crypto Wiki channel has 3
-  subscribers against a 500-subscriber threshold. Nothing in this pipeline can
-  change it, and re-uploading the thumbnail will not either.
+  What settled it: **the four earlier Crypto Wiki shorts all carry the
+  letterboxed 9:16 thumbnail, and those are the ones whose covers actually
+  work.** The bitcoin-price short was uploaded with a clean 16:9 image and
+  Studio showed a frame from the video instead. All five thumbnail URLs
+  carried our 16:9 file - it was set, and ignored. Re-uploading the 1080x1920
+  version made it match the working shorts.
 
-  **The practical consequence is a production note, not a fix:** since YouTube
-  picks a frame from the video, the video's own frames are the Short's real
-  thumbnail. Do not spend effort on a Short's custom thumbnail beyond keeping
-  it matched to the long form - spend it on the opening seconds, which is what
-  a viewer actually sees.
+  So: **`--thumbnail <name>-thumb.jpg` (vertical) for a Short**, and the
+  1280x720 for a long form. It is a trade, not a free win - a Short's
+  `maxresdefault` will look letterboxed anywhere 16:9 is used (search results,
+  playlists, embeds) - and it is the right side of the trade, because a Short
+  is watched in the Shorts feed and that is the surface the cover controls.
 
-  To check this rather than argue about it: download
-  `i.ytimg.com/vi/<id>/maxresdefault.jpg` and diff it against the file you
-  sent. That answers "was it set". It does not answer "will it be shown".
+  **`youtube-audit set <id> --thumbnail <path>` replaces one without
+  re-uploading the video**, added 2026-08-23 for exactly this.
+
+  Do not repeat the earlier misdiagnosis: this is not a Partner Programme
+  limit. Custom Shorts covers work on this 3-subscriber channel - the four
+  older shorts prove it.
 - **A custom thumbnail on a Short never shows in the Shorts feed.** The vertical
   swipe feed always uses an auto-generated frame from the video. Custom Shorts
   thumbnails only landed in July 2026, are Partner Programme only, and appear in
@@ -137,11 +140,13 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   entry, so **neither the upload nor the audit can tell you this went wrong -
   only looking at the image can.**
 
-  The short project files now render both: `<name>-thumb.jpg` (vertical, the
-  Reel cover for Instagram and Facebook) and `<name>-thumb-yt.jpg` (1280x720,
-  for YouTube). **Pass `-thumb-yt.jpg` to `youtube-audit upload` and the
-  vertical one to the Reel workflow.** Same headline, same source, same
-  treatment - only the shape differs.
+  The short project files render both: `<name>-thumb.jpg` (vertical) and
+  `<name>-thumb-yt.jpg` (1280x720). **Superseded 2026-08-23: pass the VERTICAL
+  `-thumb.jpg` to `youtube-audit upload` for a Short, not `-thumb-yt.jpg`** -
+  see the reversal above. The letterboxing described here is real and is the
+  price of a cover that works; the 1280x720 file is still rendered because it
+  keeps the pair matched and is what a long form uses. The Reel workflow takes
+  the vertical one either way.
 
   A shorts-only cut with no long form still needs both; render the landscape
   one with `render_thumb`, reusing the vertical's headline and `crop_at`.
@@ -465,23 +470,38 @@ between two blurred zoomed copies, reported as success by both the upload and
 the audit. **Check the pixel dimensions of both files before uploading**, not
 the filenames.
 
-## Telegram link previews, and why one may not render
+## The Telegram post is a photo, because the link preview never rendered
 
-Telegram builds the preview itself by fetching the URL's OpenGraph tags, and
-that is out of our hands. Two things make it flaky, and only one is fixable:
+**Settled 2026-08-23 after three attempts, and it replaces the advice this
+file gave a paragraph earlier the same day.** The original design was a
+`sendMessage` link post left for Telegram to unfurl into a play card. It did
+not unfurl - not while the video was unlisted, not after it was public, and
+not on the `youtu.be` form either. Telegram builds that card by fetching the
+URL's OpenGraph tags on its own schedule and caches per URL, and none of that
+is under our control. What shipped instead was three lines of text and a bare
+link: the weakest post in the channel.
 
-- **An unlisted video still previews**, because YouTube serves OpenGraph tags
-  for it - the link works for anyone holding it. But Telegram **caches** a
-  preview per URL, and a URL first seen while the video was unlisted can keep
-  a stale or empty card after it goes public. Nothing in the post is wrong;
-  the cache is. Posting after the video is Public avoids it, which is why the
-  standalone Share Video To Telegram workflow exists.
-- **`youtube.com/watch?v=` and `youtu.be/` are different URLs to the cache.**
-  If a card is stuck, posting the other form is the cheapest way to get a
-  fresh fetch.
+I had written "do not fix this with `sendPhoto`, it trades a play button for a
+still". That was wrong on the evidence - **there was no play button to trade**,
+because the card never appeared. A photo post always renders, we control the
+image, and the caption carries the ask.
 
-Do not "fix" a missing preview by switching to `sendPhoto` with the poster -
-that trades a play button for a still and sends the viewer nowhere.
+So every Telegram node now sends:
+
+- **`sendPhoto`**, with `file` set to
+  `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` - YouTube's copy of the
+  thumbnail we uploaded with the video. Public, permanent, no tunnel and no
+  binary handling. `Normalise Input` pulls the id out of `youtubeUrl` with
+  `/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/` so either URL form works.
+- **A caption that asks**: title, the hook, and `▶️ Watch the full video: <url>`.
+  Captions cap at 1024 characters, which the hook is nowhere near.
+
+**The n8n parameter is named `file`, not `photo`.** The node does
+`body.photo = getNodeParameter('file')`, so setting `photo` leaves the file
+empty and Telegram replies **"Bad Request: there is no photo in the request"** -
+which reads like a bad image URL and is not. Check the node's own definition
+in `n8n-nodes-base/dist/nodes/Telegram/Telegram.node.js` before trusting a
+parameter name; several of them do not match the Bot API's.
 
 ## Never let n8n sign the message
 

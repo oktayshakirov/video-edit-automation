@@ -825,23 +825,26 @@ So the order is: **score the batch, then read what each picture claims**, and
 let the claim veto the score. The shipped choice promises what the video is -
 a market being read.
 
-## A Short's real thumbnail is a frame of the video
+## A Short's YouTube thumbnail is the vertical one
 
-**Verified on the bitcoin-price short, 2026-08-23.** The custom thumbnail
-uploads correctly - all five of YouTube's thumbnail URLs carry it, checked by
-pixel diff - and Creator Studio and the Shorts feed still show **a frame from
-the video**. Custom Shorts thumbnails are Partner Programme only (July 2026)
-and this channel has 3 subscribers, so nothing here can change that.
+**Corrected 2026-08-23, replacing the rule that said YouTube gets the 16:9
+file.** Upload `<name>-thumb.jpg` (1080x1920) to YouTube for a Short. The four
+earlier Crypto Wiki shorts all carry the vertical image and their covers work;
+the one uploaded with a clean 1280x720 showed a video frame in Studio instead,
+even though every thumbnail URL carried the 16:9 file correctly.
 
-So the thumbnail work on a Short buys almost nothing today, and the practical
-rule is the inverse of the long form's: **the opening seconds are the
-thumbnail.** YouTube picks a frame, usually an early one, so a Short that
-opens on a dark abstract or a half-finished caption is choosing a bad
-thumbnail by accident. Keep opening on motion with a legible subject - the
-rule this file already has for retention turns out to be the thumbnail rule
-too.
+The cost is real and was what caused the original mistaken rule: a 9:16 upload
+is letterboxed into YouTube's 1280x720 slot with a blurred zoomed copy either
+side, so it looks poor anywhere 16:9 is used. Take that trade - a Short is
+watched in the Shorts feed, and the cover is what governs the Shorts tab,
+search and playlists.
 
-Keep rendering both files anyway. It costs one line, it keeps the pair
-matched, and it is already correct for the day the channel reaches the
-threshold.
+Keep rendering both files. `render_thumb`'s 1280x720 output is what a long form
+uses and keeps the pair recognisable.
 
+**Swap one after the fact with**
+`youtube-audit set <id> --channel crypto --thumbnail <vertical.jpg> --apply`.
+
+Note the opening seconds still matter for their own reason: YouTube picks a
+frame wherever a cover does not apply, and the feed is judged in one second
+regardless.
