@@ -49,7 +49,7 @@ instruction.
    the long's native Facebook upload need a public URL, so serve the render
    folder and open one tunnel rather than one per video. Stop it after step 4.
 4. **Short: Reels then TikTok. Long: native Facebook upload, then poster,
-   `videos.json` and the deploy gate.** The site half is unchanged from what
+   `videos.json`, the deploy gate and `npm run sync-content`.** The site half is unchanged from what
    `video-crypto-long` documents; that is still the canonical copy. The Facebook
    step is the Publish Facebook Video workflow - the Share Video workflows it
    replaced were deleted on 2026-08-20. Pass the **full** YouTube description;
@@ -96,13 +96,29 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   Data API has no field for it.
 - **Nothing here makes a video public.** Say so plainly at the end rather than
   letting the user assume the site entry published it.
-- **A Short's custom thumbnail IS set even when it looks like it is not.** On
-  the bitcoin-price short the user reported the thumbnail "hadn't been added";
-  the live `maxresdefault.jpg` was byte-identical to the uploaded file (mean
-  pixel difference 0.79, pure JPEG noise). Nothing had failed. See the next
-  point for why it is invisible - and **verify by downloading
-  `i.ytimg.com/vi/<id>/maxresdefault.jpg` and diffing it against the file you
-  sent**, which is the only check that actually answers the question.
+- **A Short's custom thumbnail IS set, and Studio still shows a video frame.**
+  Checked twice on the bitcoin-price short, the second time against every
+  resolution YouTube serves: `maxresdefault` (1280x720) and `mqdefault`
+  (320x180) are byte-identical to the uploaded file, and `hqdefault`,
+  `sddefault` and `default` are the same image letterboxed into 4:3 - which is
+  why a naive pixel diff calls them different. **All five carry our image.**
+  Creator Studio nonetheless displays a frame from the video, and so does the
+  Shorts feed.
+
+  That is YouTube's behaviour, not a failed upload: **custom Shorts thumbnails
+  are Partner Programme only** (July 2026), and the Crypto Wiki channel has 3
+  subscribers against a 500-subscriber threshold. Nothing in this pipeline can
+  change it, and re-uploading the thumbnail will not either.
+
+  **The practical consequence is a production note, not a fix:** since YouTube
+  picks a frame from the video, the video's own frames are the Short's real
+  thumbnail. Do not spend effort on a Short's custom thumbnail beyond keeping
+  it matched to the long form - spend it on the opening seconds, which is what
+  a viewer actually sees.
+
+  To check this rather than argue about it: download
+  `i.ytimg.com/vi/<id>/maxresdefault.jpg` and diff it against the file you
+  sent. That answers "was it set". It does not answer "will it be shown".
 - **A custom thumbnail on a Short never shows in the Shorts feed.** The vertical
   swipe feed always uses an auto-generated frame from the video. Custom Shorts
   thumbnails only landed in July 2026, are Partner Programme only, and appear in
@@ -499,4 +515,36 @@ that bit. Filter the object to the keys the API accepts before sending:
 Omitted keys keep their stored value, so filtering loses nothing. This only
 shows up on the older workflows, which is why a script can update four and
 then fail on the fifth.
+
+## The site entry is not what notifies the apps
+
+**`npm run sync-content`, in the site repo, after the deploy gate.** Writing
+`videos.json` and pushing puts the video on the site; it tells the mobile apps
+nothing. The push comes from a Firestore document being *created* in the
+`videos` collection, and that script is what creates it.
+
+Missing this is invisible: the video appears on `/videos`, the article carries
+its embed, `content-index.json` lists it, and nothing anywhere reports that the
+app never heard about it. That is how it went unnoticed on 2026-08-23.
+
+**The command was also broken, and had been all along.** `npm run sync-content`
+is a bare `node scripts/syncContent.js`, so it never got the `.env` loading
+Next does for `dev` and `build`; it threw `Missing Firebase credentials` and
+exited before writing anything. Fixed by loading `@next/env` at the top of the
+script. If a future run reports missing credentials, suspect env loading rather
+than the credentials themselves.
+
+- **Run it after the deploy gate.** The script deliberately holds back a new
+  item whose URL is not live yet instead of writing it silently, because
+  `notify` is only set on creation - a silent write would suppress that
+  video's notification forever.
+- **Re-running is safe.** An existing slug is updated, and an update never
+  fires `onDocumentCreated`, so retitling cannot re-notify.
+- **Only long form reaches it.** `lib/contentIndex.js` filters
+  `kind === "long"`, because only long form has a `/videos/<slug>` page for a
+  notification to open. A Short having no registry entry is consistent with
+  that, not a gap.
+- **It is a fast path, not the only one.** Each app also polls
+  `content-index.json` on a schedule, so a missed run delays the push rather
+  than losing it. Run it anyway - seconds instead of hours.
 

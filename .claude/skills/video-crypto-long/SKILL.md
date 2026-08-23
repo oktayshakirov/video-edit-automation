@@ -51,6 +51,24 @@ sites here, only a wrong guess that there was.
    and the poster URL (`curl -sL`, see the **Production URLs** table in the
    `publish-content` skill) until they 200 - that is the deploy gate, and
    sharing before it passes risks a broken card.
+
+   **Then run `npm run sync-content` in the site repo, after the gate passes.**
+   This is what writes the video into Firestore, and creating that document is
+   what fires the mobile app's push notification - the registry entry and the
+   deploy do not. It was missing from this list until 2026-08-23, when a video
+   went live on `/videos` with no notification and no Firestore row. The
+   pipeline had always supported videos end to end (`lib/contentIndex.js`
+   reads `json/videos.json`, the app's `sendNewVideoNotification` triggers on
+   `videos/{videoId}`) and the only broken link was that nobody ran the sync -
+   and that the command itself threw on missing credentials, because it never
+   loaded `.env`. Both fixed.
+
+   **Order matters.** The script holds back a new item whose URL is not live
+   yet rather than writing it silently, because `notify` is only ever set on
+   creation and a silent write would suppress that video's notification
+   permanently. Run it after the deploy gate, never before. Re-running is
+   safe: an existing slug is updated, and an update never fires
+   `onDocumentCreated`.
 6. **Upload the video natively to Facebook**, with the Publish Facebook Video
    workflow (`publish-content` skill). This replaced the old Share Video
    workflow, which posted a YouTube link for Facebook and Telegram to unfurl

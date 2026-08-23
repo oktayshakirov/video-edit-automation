@@ -825,3 +825,23 @@ So the order is: **score the batch, then read what each picture claims**, and
 let the claim veto the score. The shipped choice promises what the video is -
 a market being read.
 
+## A Short's real thumbnail is a frame of the video
+
+**Verified on the bitcoin-price short, 2026-08-23.** The custom thumbnail
+uploads correctly - all five of YouTube's thumbnail URLs carry it, checked by
+pixel diff - and Creator Studio and the Shorts feed still show **a frame from
+the video**. Custom Shorts thumbnails are Partner Programme only (July 2026)
+and this channel has 3 subscribers, so nothing here can change that.
+
+So the thumbnail work on a Short buys almost nothing today, and the practical
+rule is the inverse of the long form's: **the opening seconds are the
+thumbnail.** YouTube picks a frame, usually an early one, so a Short that
+opens on a dark abstract or a half-finished caption is choosing a bad
+thumbnail by accident. Keep opening on motion with a legible subject - the
+rule this file already has for retention turns out to be the thumbnail rule
+too.
+
+Keep rendering both files anyway. It costs one line, it keeps the pair
+matched, and it is already correct for the day the channel reaches the
+threshold.
+
