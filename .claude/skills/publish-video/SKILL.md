@@ -215,6 +215,18 @@ One n8n form workflow per site. n8n must be running at `http://localhost:5678`.
 **If it is not, start it yourself** - just run `n8n` in the terminal. The
 user's instruction, 2026-08-23; do not stop and ask them to do it.
 
+**The workflows are version-controlled**, one JSON per workflow at the root of
+each automation repo: `publish_facebook_video.json`, `publish_reel.json` and
+`share_video_telegram.json` in both `crypto-wiki-automation` and
+`tinnitus-help-automation`. Re-export after changing one in n8n, stripping
+`createdAt`/`updatedAt`/`versionId`/`triggerCount` so the diff carries meaning.
+Credentials are referenced by id and name only, so an export holds no secrets.
+
+Two caveats on the older tracked exports: `share_post.json` and `share_og.json`
+carry workflow ids that no longer exist live, and `share_video.json` describes
+a workflow deleted on 2026-08-20. Do not trust a tracked export's id without
+checking it against `GET /workflows`.
+
 | Site | Workflow | formData |
 | --- | --- | --- |
 | Crypto Wiki | Publish Reel `uIV6956N14pMGMZ5` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
