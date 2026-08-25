@@ -608,7 +608,9 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
                          font_path: str = FONT_QUOTE,
                          font_index: int = FONT_QUOTE_INDEX,
                          y_frac: float = 0.34, stroke: int = 4,
-                         max_w: int = CAPTION_MAX_W, fps: int = 30,
+                         max_w: int = CAPTION_MAX_W,
+                         ink: "Callable[[str], tuple[int,int,int,int] | None] | None" = None,
+                         fps: int = 30,
                          gap: "float | list[float]" = GAP, tail: float = TAIL,
                          ) -> tuple[Path, float, list[float]]:
     """Narrated short cut across several clips instead of holding on one.
@@ -641,7 +643,8 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
         size = font_size(c.text) if callable(font_size) else font_size
         render_text_png(c.text, p, size=size, bg_luma=luma,
                         font_path=font_path, font_index=font_index,
-                        y_frac=y_frac, stroke=stroke, max_w=max_w)
+                        y_frac=y_frac, stroke=stroke, max_w=max_w,
+                        ink=ink(c.text) if ink else None)
         pngs.append(p)
 
     cmd = ["ffmpeg", "-v", "error", "-y"]

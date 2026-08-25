@@ -98,6 +98,28 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
 - **`--related <long-id>` on the short.** It appends the long's URL to the
   description. Tell the user to tick Studio's Related video field by hand; the
   Data API has no field for it.
+- **Verify the description-file actually contains a working link before
+  `--apply`.** An audit on 2026-08-23 found nine already-live crypto and
+  tinnitus Shorts whose descriptions said "Read more on thecrypto.wiki" or
+  "More at tinnitushelp.me" with no URL attached - a dead end for every viewer
+  who wanted to click through. Read the `.md` sidecar before uploading and
+  confirm it carries the real article URL, the same one the long's
+  `Full article:` line uses; a tinnitus sound-therapy short with no source
+  article links to `https://tinnitushelp.me/zen` instead (the sessions hub -
+  Spotify, Apple Music, YouTube Music, Amazon Music, Deezer), never an
+  invented blog slug.
+- **Put `#shorts` at the end of a Short's title.** Settled as the metadata
+  baseline in the `youtube-audit` skill on 2026-08-23 after the one Short that
+  already had it was also the channel's best performer to date - one data
+  point, adopted because it costs nothing, not because it was measured. Build
+  it into the title at upload time rather than leaving it for a later audit
+  pass.
+- **If a video ever comes up mislabelled with the wrong `defaultLanguage`**
+  (a fully English crypto Short once went live as `de`, before the channel's
+  own default language was set to English on 2026-08-23), fix it with
+  `youtube-audit set <id> --channel <ch> --language en --apply` (added the
+  same day). Studio's "Video language" control does not reach this field - it
+  only writes `defaultAudioLanguage` - so that field is API-only to fix.
 - **Nothing here makes a video public.** Say so plainly at the end rather than
   letting the user assume the site entry published it.
 - **A Short's cover cannot be set through the Data API. It is a manual step in
