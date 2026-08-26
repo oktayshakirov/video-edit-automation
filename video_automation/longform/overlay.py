@@ -26,7 +26,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from ..core.frame import LANDSCAPE, Frame
 
@@ -128,3 +128,61 @@ class ClipOverlay:
         blended = 255.0 - (255.0 - region) * (255.0 - over) / 255.0
         base[y:y + h, x:x + w] = blended
         return Image.fromarray(np.clip(base, 0, 255).astype(np.uint8))
+
+
+class ImageOverlay:
+    """A still image laid **over** the picture for a window, as a panel.
+
+    Built for the proof-of-stake short, where the user's note was that the
+    opening shot has empty space above the footage and the site's own
+    architecture diagram should sit in it. Everything else in this format
+    either *is* the shot or replaces it; this is the one way to have a diagram
+    and moving footage at the same time, which is what a vertical frame has the
+    room for and a landscape one does not.
+
+    **Composited opaque, not screen-blended**, which is the opposite of
+    `ClipOverlay`'s choice and for a good reason. A screen blend leaves pure
+    black transparent, which is perfect for a glowing button on black — but a
+    diagram's background is a dark *grey*, not black, so screen-blending one
+    lifts the footage underneath it by that grey everywhere the diagram sits
+    and prints a visible washed rectangle. An opaque panel with the brand's
+    own hairline reads as a deliberate inset instead.
+
+    `at` is the top-left in pixels; `None` centres horizontally and sits the
+    panel in the upper third, which is where a 9:16 frame has room. `scale` is
+    a fraction of frame width.
+    """
+
+    def __init__(self, path: Path, start: float, end: float,
+                 frame: Frame = LANDSCAPE, scale: float = 0.92,
+                 at: tuple[int, int] | None = None, fade: float = 0.35,
+                 rule: bool = True):
+        self.start, self.end, self.fade = start, end, fade
+        self.frame = frame
+
+        im = Image.open(path).convert("RGB")
+        w = int(frame.w * scale)
+        h = max(1, int(round(im.height * w / im.width)))
+        self.im = im.resize((w, h), Image.LANCZOS)
+        if rule:
+            d = ImageDraw.Draw(self.im)
+            d.rectangle([0, 0, w - 1, h - 1], outline=(229, 194, 0), width=3)
+        if at is None:
+            at = ((frame.w - w) // 2, int(frame.h * 0.16))
+        self.at = at
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        # Ramp in and out so the panel arrives rather than snapping.
+        a = min(1.0, (t - self.start) / self.fade) if self.fade else 1.0
+        a = min(a, max(0.0, (self.end - t) / self.fade) if self.fade else 1.0)
+        if a <= 0:
+            return pic
+        if a >= 1.0:
+            pic.paste(self.im, self.at)
+            return pic
+        base = pic.crop((self.at[0], self.at[1],
+                         self.at[0] + self.im.width, self.at[1] + self.im.height))
+        pic.paste(Image.blend(base, self.im, a), self.at)
+        return pic

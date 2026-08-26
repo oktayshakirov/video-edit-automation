@@ -12,6 +12,31 @@ Renders go to the Desktop; they are uploads, not repo artifacts.
 section documenting the brand's own released sound albums.
 **There is also an app** — `~/Coding/tinnitus-app`.
 
+## When the cut is approved, hand off to `/publish-video`
+
+**This skill builds. It does not publish, and it deliberately no longer
+describes how.** Everything about getting a finished render out - which file
+goes to which platform, the metadata pass, thumbnails and covers, the site
+registry entry and poster, the social posts and the order they run in - lives
+in **`/publish-video`**, which is the single source of truth for all six video
+skills.
+
+That section used to be duplicated here. Two copies of one sequence drift, and
+these did: they disagreed about which steps run on a Short, and the
+disagreement cost a registry entry that had to be reverted and a social post
+that could not be un-sent. So it is removed rather than summarised - a summary
+is just a third copy waiting to go stale.
+
+The flow ends here:
+
+1. Build the cut and hand over the files.
+2. The user reviews it and confirms it is good.
+3. **Run `/publish-video`** and follow what it says.
+
+Do not describe upload steps, do not pre-empt them, and do not re-derive them
+from memory. Read the skill.
+
+
 ## Two formats, and they are not the same job
 
 1. **ASMR / sound-therapy shorts** — **built**, in `video_automation/tinnitus/asmr.py`.
@@ -657,21 +682,64 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
-## A short needs two thumbnails, and the vertical one is not for YouTube
+## Fit the subject and fill the gap. Never zoom to make it fill the frame.
 
-**Render both.** `render_short_thumb` gives the 1080x1920 cover that Instagram
-and Facebook Reels use; `render_thumb` gives the 1280x720 that **YouTube**
-uses. Same headline, same source photo, same treatment - only the shape
-differs, which is what keeps the pair recognisable.
+**The proof-of-stake thumbnail shipped with one graphics card zoomed into and
+the second cut in half, and the user's words were "too zoomed in and the
+quality is terrible".** The source was 6750x4500, so nothing was upscaled - the
+softness was the *crop*, not the resolution. A hard zoom into a wide subject
+throws away the composition and leaves the eye nothing whole to land on, and at
+feed size that reads as a low-quality image even when every pixel is sharp.
 
-The silence short shipped the vertical file to YouTube and it was wrong in a
-way nothing reported: YouTube letterboxes a 9:16 upload into its 1280x720 slot
-with a **blurred, zoomed copy of the same image either side**, so the live
-thumbnail was a narrow strip of picture with "DOES ... NCE" bleeding across
-the bottom in huge soft letters. The user replaced it by hand.
-`thumbnails.set` returns success, and `youtube-audit video <id>` lists a
-`maxres 1280x720` entry, so **neither the upload nor the audit catches this -
-only looking at the image does.**
+**A subject that cannot survive a cover crop must be fitted, with the leftover
+space filled deliberately.** Two mechanisms, and both already existed:
+
+- **`render_thumb(crop_zoom=<1.0)`** is the engine's own "stop covering the
+  frame" mode: the picture is scaled to the size asked for and set on black
+  with a 260px falloff, so the subject stays whole and the type gets real black
+  instead of a scrim over detail. **Sweep it and look** - on the graphics cards
+  0.55 left them small, 0.85 began clipping them at the bottom edge, and 0.78
+  was the largest value that kept both cards entire. Pass `side` alongside
+  `crop_at`, because a manual crop bypasses the scorer and there is no layout
+  pass left to infer a side from.
+- **`tools/make_slide.py`** for the 9:16 case, because
+  `render_short_thumb` has **no** fit mode - its `zoom` multiplies the *cover*
+  scale, so anything below 1.0 leaves the picture smaller than the frame rather
+  than fitted. Compose the subject onto a 1080x1920 canvas once and let the
+  thumbnail cover that exactly.
+
+The general rule, which is the same one the diagram slide arrived at from the
+other direction: **when a renderer has a cover mode and a fit mode with a
+threshold between them, do not tune an input to sit near the threshold.** Move
+it clearly to one side - by fitting explicitly, or by making the source
+frame-sized so cover and fit become the same operation.
+
+**A fitted panel needs the canvas to match the picture's own edge.** The first
+vertical slide used the brand background and shipped with a visible lighter
+rectangle around the photograph: the card shot's own surround measures
+`(11, 12, 14)` and `CRYPTO.bg` is `(23, 23, 23)`. Two flat darks twelve levels
+apart read as one shape with a seam through it. `make_slide(..., bg="auto")`
+samples the source's border and uses that, which makes the join invisible
+without needing the picture to fill the frame. Use `bg="brand"` for a *graphic*
+that should sit on the channel's ground - a diagram - and `bg="auto"` for a
+photograph.
+
+**Check it on the rendered file at feed size, not on the source.** A crop that
+looks fine full-screen is judged as a 210px-wide card in a grid.
+
+## A short needs two thumbnails, and both are build outputs
+
+**Render both.** `render_short_thumb` gives the 1080x1920 cover and
+`render_thumb` gives the 1280x720 one. Same headline, same source photo, same
+treatment - only the shape differs, which is what keeps the pair recognisable
+in a feed.
+
+Both are checked here the same way any thumbnail is: the subject fits, the type
+is not over a face, and the words are the script's own words.
+
+Which file goes to which platform, and how a Short's cover actually gets set,
+is `/publish-video`'s business - see the hand-off section near the top.
+
 
 ## Captions are per-word now, and a music bed is not optional
 
@@ -879,3 +947,45 @@ So the order is: **score the batch, then read what each picture claims**, and
 let the claim veto the score. The shipped choice promises what the video is -
 a market being read.
 
+
+## Sentences are synthesised in runs, not one at a time (engine-level)
+
+**Found on the crypto channel, true everywhere: one engine, one synthesiser.**
+`build_narration_aligned` used to synthesise one sentence at a time and
+concatenate with `anullsrc` silence, which meant every sentence was a cold
+start and every pause was digital zero. Measured on five consecutive lines:
+isolated, they opened at 258/271/229/227/246 Hz — a fresh sentence-initial
+pitch reset each time, which is what "reading a list" sounds like. As one
+utterance they sat at 199 Hz falling to 193, a calm register with real
+paragraph declination, and ran 1.8s longer because the model inserted its own
+breaths.
+
+Sentences now go to the model in **runs**. A run breaks where the script asks
+for a real pause (`RUN_BREAK_GAP`, 1.0s) — a written beat's silence is the
+point and joining across it would smooth it away. Inside a run the model's own
+breaths are kept, and `_pad_pause` tops them up to the scripted `gap` by
+inserting into the quietest point of the existing pause so the decay before and
+the onset after survive. Internal absolute-silence gaps went 7 → 3 on the test
+passage.
+
+Nothing in a project script changes: `gap` still takes one float per sentence
+and means the same thing. **But re-rendering a shipped video will change its
+audio**, which was accepted deliberately.
+
+## A one-word sentence has nothing to fall from (craft-level)
+
+A one-word line was flagged as sounding like a question. Measured, its pitch
+peaked mid-word and ended level rather than resolving down — and a contour that
+does not resolve is heard as unfinished, so it is heard as a question. Same
+failure as the "Do not." fragment already recorded: **a fragment cannot cash
+the pause the gap table buys it.** Keep a one-word sentence only where the line
+before hands it real momentum, and never as the first line of a run.
+
+## Check every proper noun with espeak, not just the risky-looking ones
+
+`Ethereum` shipped mispronounced. It phonemizes to `ˌiːθɚɹˈiːəm` —
+"ee-thuh-REE-um", stress on the wrong syllable — where `Etheerium` returns the
+correct `iːθˈɪɹiəm`. The phoneme rule was being applied only to words that
+*looked* risky: initialisms, tickers, invented brand names. **A proper noun
+that looks like an ordinary English word is exactly where this hides.** Respell
+in the spoken half of a `(caption, spoken)` pair.

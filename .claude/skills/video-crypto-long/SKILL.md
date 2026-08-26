@@ -14,90 +14,30 @@ Renders go to the Desktop; they are uploads, not repo artifacts.
 demand ranking that decides which post is next, and the measurements behind the
 numbers below. This file is how to build one.
 
-## The order of the whole job, after the build
+## When the cut is approved, hand off to `/publish-video`
 
-**Settled on the crypto-exchanges pair, 2026-08-19, then corrected the same
-day.** The first pass wrongly ran every step on the short as well as the long
-and had to be undone - a registry entry and a Facebook/Telegram post that
-should never have gone out. **Only the long form gets a site entry and a
-social share. A Short is YouTube-only, full stop** - this matches
-`video-tinnitus-long`'s already-settled "Shorts do not get a site entry or a
-social share" exactly; there was never a real difference between the two
-sites here, only a wrong guess that there was.
+**This skill builds. It does not publish, and it deliberately no longer
+describes how.** Everything about getting a finished render out - which file
+goes to which platform, the metadata pass, thumbnails and covers, the site
+registry entry and poster, the social posts and the order they run in - lives
+in **`/publish-video`**, which is the single source of truth for all six video
+skills.
 
-1. **Build, hand over, say nothing about uploading.** Same as always.
-2. **They upload** - so far always **unlisted** - and tell you it is done.
-   That single sentence is the trigger for everything below on the **long**
-   only; do not wait to be asked again, and do not touch the short beyond
-   step 4.
-3. **Find the videos.** `youtube-audit videos --channel crypto --json` and
-   match by `publishedAt` / placeholder title - a freshly uploaded video has
-   no real title yet, just whatever YouTube Studio defaulted it to.
-4. **Write title, description, tags with `youtube-audit set`, on both.**
-   Metadata is the one step every upload gets regardless of format. Dry run
-   first, always. Reuse the `Meta` the long form already generated (the `.md`
-   sidecar in `crypto-long/transcripts/`) rather than re-deriving it; write a
-   short's metadata fresh, following the pattern in shipped descriptions
-   (hook, one-paragraph context, "Read more on thecrypto.wiki", the
-   financial-advice disclaimer, hashtags). **No em dash anywhere in title,
-   description or tag** - the `youtube-audit` skill's own rule, and it now
-   matches the "only a hyphen on screen" rule this skill carries for the video
-   itself.
-5. **Poster and registry, long only.** `fetch_video_poster(out, video_id)` in
-   `longform/thumb.py` pulls YouTube's own `maxresdefault.jpg` - see "The
-   video-registry poster" below for why that is right and a local render is
-   not. One `videos.json` entry, `target` pointed at the source post,
-   `placement: "auto"`. Commit + push the site repo, then poll the article URL
-   and the poster URL (`curl -sL`, see the **Production URLs** table in the
-   `publish-content` skill) until they 200 - that is the deploy gate, and
-   sharing before it passes risks a broken card.
+That section used to be duplicated here. Two copies of one sequence drift, and
+these did: they disagreed about which steps run on a Short, and the
+disagreement cost a registry entry that had to be reverted and a social post
+that could not be un-sent. So it is removed rather than summarised - a summary
+is just a third copy waiting to go stale.
 
-   **Then run `npm run sync-content` in the site repo, after the gate passes.**
-   This is what writes the video into Firestore, and creating that document is
-   what fires the mobile app's push notification - the registry entry and the
-   deploy do not. It was missing from this list until 2026-08-23, when a video
-   went live on `/videos` with no notification and no Firestore row. The
-   pipeline had always supported videos end to end (`lib/contentIndex.js`
-   reads `json/videos.json`, the app's `sendNewVideoNotification` triggers on
-   `videos/{videoId}`) and the only broken link was that nobody ran the sync -
-   and that the command itself threw on missing credentials, because it never
-   loaded `.env`. Both fixed.
+The flow ends here:
 
-   **Order matters.** The script holds back a new item whose URL is not live
-   yet rather than writing it silently, because `notify` is only ever set on
-   creation and a silent write would suppress that video's notification
-   permanently. Run it after the deploy gate, never before. Re-running is
-   safe: an existing slug is updated, and an update never fires
-   `onDocumentCreated`.
-6. **Upload the video natively to Facebook**, with the Publish Facebook Video
-   workflow (`publish-content` skill). This replaced the old Share Video
-   workflow, which posted a YouTube link for Facebook and Telegram to unfurl
-   into a card - a link post sends the viewer away and earns an outbound link's
-   reach, which is exactly what native upload avoids. **Long form only**; it is
-   not a Reel and has no duration cap.
-7. **Share it to Telegram.** Long form only, and it is a link post the channel
-   unfurls into a play card - see the Telegram section in `publish-content`'s
-   sibling, `publish-video`, which carries the workflow ids. Passing
-   `youtubeUrl` to the Publish Facebook Video workflow does it inline; the
-   standalone Share Video To Telegram workflow is the retry path, because
-   re-running the Facebook one re-uploads the video.
-8. **Tell the user the video is still unlisted.** Nothing in this pipeline can
-   flip privacy to Public - `youtube-audit`'s scopes are deliberately capped
-   at `list` + `update` on snippet fields, and privacy is a `status` write
-   that was never added. They do it themselves in Studio; say so plainly
-   rather than letting them assume publishing to the site made it public.
+1. Build the cut and hand over the files.
+2. The user reviews it and confirms it is good.
+3. **Run `/publish-video`** and follow what it says.
 
-**Steps 2, 5, 6, 7 and 8 run on the long only.** Step 4 (metadata) is the only one
-that touches both videos. Getting this wrong once already cost a registry entry
-that had to be reverted and a social post that cannot be un-sent - check which
-video an instruction is about before acting, not after.
+Do not describe upload steps, do not pre-empt them, and do not re-derive them
+from memory. Read the skill.
 
-**The whole long-only sequence runs on one upload confirmation, without asking
-again per step** - that is what the user asked for. It does not extend to
-skipping the dry-run diff in step 4, or to the two things that stay
-one-time-only: posting to social media and pushing to the live site are each
-confirmed in the chat they happen in, every session, regardless of a standing
-instruction to automate the rest.
 
 ## Built
 
@@ -122,13 +62,14 @@ Produces the MP4, an `.srt`, a 1280x720 thumbnail and a `.md` sidecar carrying
 the description, chapters and any chapter-rule violations.
 
 **Built on the site side:** `<PostVideo />` and `VideoObject` on both repos,
-driven by a `videos.json` registry - see `docs/site-video-integration.md`. A new
-video appears on its article by adding a registry entry; do **not** put video
-metadata in MDX frontmatter.
-
+driven by a `videos.json` registry - see `docs/site-video-integration.md`.
 `/videos` and `/videos/<slug>` carry the feed and the per-video transcript
-pages. Chapters go in the registry as `{start, title, text}` and drive both the
-transcript and the `Clip` key moments.
+pages, and chapters drive both the transcript and the `Clip` key moments.
+
+That is context for what the build produces, **not** an instruction: writing
+the registry entry is `/publish-video`'s job, not this skill's. What matters
+here is that the chapter list and the `.md` sidecar are build outputs the
+publish step will need, so they have to be correct before the hand-off.
 
 **Still unbuilt:** upload. The registry is hand-edited on upload by design.
 Script generation from MDX is **not** planned and should not be: the script is
@@ -1239,18 +1180,50 @@ frame delta from 0.14 to 0.53. **If a clip ever looks like it stutters, measure
 the per-frame delta series first** — a periodic dip is an fps artifact, an
 isolated spike is a crop step, and real motion has neither.
 
-## The video-registry poster is fetched, never rendered
+## Fit the subject and fill the gap. Never zoom to make it fill the frame.
 
-`fetch_video_poster(out, video_id)` in `longform/thumb.py`, called after the
-long is live. **Do not build a local render pipeline for this** - a version of
-this skill briefly did, reasoning that a Short's 1080x1920 thumbnail would need
-letterboxing into the registry's 1280x720 slot, and it was wasted effort:
-YouTube already does exactly that compositing itself and serves the result at
-`i.ytimg.com/vi/<id>/maxresdefault.jpg`, whatever aspect ratio the uploaded
-thumbnail was. Measured against `saylor-treasury-short.webp`, a poster made by
-hand years before this function existed: mean pixel difference 1.1, which is
-pure JPEG-to-WebP re-encoding noise, not a different image. Fetch it, convert
-to WebP, done - and this only ever runs on the long, per the order above.
+**The proof-of-stake thumbnail shipped with one graphics card zoomed into and
+the second cut in half, and the user's words were "too zoomed in and the
+quality is terrible".** The source was 6750x4500, so nothing was upscaled - the
+softness was the *crop*, not the resolution. A hard zoom into a wide subject
+throws away the composition and leaves the eye nothing whole to land on, and at
+feed size that reads as a low-quality image even when every pixel is sharp.
+
+**A subject that cannot survive a cover crop must be fitted, with the leftover
+space filled deliberately.** Two mechanisms, and both already existed:
+
+- **`render_thumb(crop_zoom=<1.0)`** is the engine's own "stop covering the
+  frame" mode: the picture is scaled to the size asked for and set on black
+  with a 260px falloff, so the subject stays whole and the type gets real black
+  instead of a scrim over detail. **Sweep it and look** - on the graphics cards
+  0.55 left them small, 0.85 began clipping them at the bottom edge, and 0.78
+  was the largest value that kept both cards entire. Pass `side` alongside
+  `crop_at`, because a manual crop bypasses the scorer and there is no layout
+  pass left to infer a side from.
+- **`tools/make_slide.py`** for the 9:16 case, because
+  `render_short_thumb` has **no** fit mode - its `zoom` multiplies the *cover*
+  scale, so anything below 1.0 leaves the picture smaller than the frame rather
+  than fitted. Compose the subject onto a 1080x1920 canvas once and let the
+  thumbnail cover that exactly.
+
+The general rule, which is the same one the diagram slide arrived at from the
+other direction: **when a renderer has a cover mode and a fit mode with a
+threshold between them, do not tune an input to sit near the threshold.** Move
+it clearly to one side - by fitting explicitly, or by making the source
+frame-sized so cover and fit become the same operation.
+
+**A fitted panel needs the canvas to match the picture's own edge.** The first
+vertical slide used the brand background and shipped with a visible lighter
+rectangle around the photograph: the card shot's own surround measures
+`(11, 12, 14)` and `CRYPTO.bg` is `(23, 23, 23)`. Two flat darks twelve levels
+apart read as one shape with a seam through it. `make_slide(..., bg="auto")`
+samples the source's border and uses that, which makes the join invisible
+without needing the picture to fill the frame. Use `bg="brand"` for a *graphic*
+that should sit on the channel's ground - a diagram - and `bg="auto"` for a
+photograph.
+
+**Check it on the rendered file at feed size, not on the source.** A crop that
+looks fine full-screen is judged as a 210px-wide card in a grid.
 
 ## Thumbnail
 
@@ -1442,3 +1415,294 @@ So the order is: **score the batch, then read what each picture claims**, and
 let the claim veto the score. The shipped choice promises what the video is -
 a market being read.
 
+
+## An asset used in another video is not available to this one
+
+**The user's rejection of the proof-of-stake cut, and it is a channel-level
+rule, not a note about one video.** That cut was built entirely from assets
+already shipped elsewhere — reasoning, wrongly, that "screen the cache first"
+meant "prefer the cache". An inventory across all six crypto projects found
+the channel recycling a pool of about fifteen files:
+
+| asset | videos |
+|---|---|
+| `security-combination-lock.jpg` | **9** |
+| `digital-technology.jpg` | 8 |
+| `analysis.jpg`, `laptop-trading.jpg`, `futuristic-crypto-exchange.jpg` | 7 each |
+| `server-room-data-center`, `digital-code-stream-dark`, `abstract-dark-waves-motion` | 7 each |
+
+That is precisely the templated sameness `docs/long-form-strategy.md` says
+gets a channel suppressed, and it arrived through the back door of a rule
+written for a different purpose. **The cache exists so a rejected clip is not
+re-fetched and so a build is reproducible — not as the shot list's shopping
+list.**
+
+So, before writing a shot list: **inventory what the other videos already
+use, and treat those files as unavailable.** One command does it — grep
+`STOCK / "videos/...` and `POSTS / "...` out of every project file and count.
+A handful of genuinely brand-level assets are exempt (the `subscribe` sting,
+the backdrop, the music track); everything else is per-video.
+
+**Corollary, measured: the site's own image library is exhausted for
+thecrypto.wiki.** Of 147 post images, only fifteen unused ones pass the dark
+box at all, and every one is disqualified on grounds already in this file —
+brand logos (`kucoin-logo`, `binance-banner`, `ethereum-2`), platform
+screenshots (`bitfinex-ui`, `gemini-exchange-trading`), the labelled
+`proof-of-stake.jpg` infographic, and the two off-message files
+(`ftx-collapse`, `one-coin`). **The strategy doc's "site images lead,
+stock supports" has quietly stopped being achievable here**, and pretending
+otherwise is what produced nine uses of one photograph. Budget for a real
+stock fetch on every video, and say so rather than reaching for the cache.
+
+**Fetching fresh is also how the palette finally got fixed.** Searching for
+the channel's own colour — `abstract gold particles`, `geometric network grid
+gold`, `dominoes falling dark` — returned gold-on-black footage that matches
+the brand, where the recycled pool was blue server rooms dimmed toward it.
+Search the palette, not just the subject.
+
+## Two more ways the luma box lies
+
+Both found fetching for proof-of-stake, both would have shipped on the numbers:
+
+- **A nearly empty frame passes by being empty, not by being dark.**
+  `hands-locking-padlock-dark/10241357` measured L0-1 and is a tiny padlock
+  drifting in a vast black frame. Nothing is wrong with its brightness; there
+  is simply almost no picture in it, and in 9:16 the subject leaves the crop
+  entirely. **Check that a clip has a subject at all, not just that its mean
+  is low.**
+- **A folder name is a search query, and it stays wrong at any brightness.**
+  `safe-deposit-box-vault-dark-interior/6406107` is a **van interior**.
+  `gold-bars-dark-background/3752109` is **bottle caps**.
+  `molecular-structure-rotating-dark-abstract/35967934` is a **DNA double
+  helix** and reads as biology under a crypto script. This file already says
+  it; it keeps being true, and the fix is always the contact sheet.
+
+## Sentences are synthesised in runs, not one at a time
+
+**The user's note was that the presentation "doesn't sound human" and that the
+breaks are unnatural, and the largest cause was architectural rather than the
+model.** `build_narration_aligned` used to call the synthesiser once per
+sentence and concatenate the results with `anullsrc` silence. Two consequences,
+both measured on the proof-of-stake script:
+
+- **Every sentence was a cold start.** Five consecutive lines synthesised alone
+  opened at 258, 271, 229, 227 and 246 Hz — every one a fresh sentence-initial
+  reset, high in the speaker's range. The same five as one utterance sat at
+  199 Hz falling to 193: a calm register with real paragraph declination. A
+  script of cold starts is what "reading a list" sounds like.
+- **Every pause was digital zero.** Each sentence was also hard-trimmed at both
+  ends by `librosa.effects.trim`, so the audio floor dropped to absolute
+  silence roughly sixty times in a 3:30 video, with no breath and no decay.
+
+Sentences now go to the model in **runs**, and a run breaks where the *script*
+asks for a real pause (`RUN_BREAK_GAP`, 1.0s) — a checklist's verdict silence
+or a statement card is a written beat and the silence is the point, so joining
+across it would smooth away what the gap was buying. Inside a run the model's
+own breaths are kept and `_pad_pause` tops them up to the scripted `gap` by
+inserting into the **quietest point** of the existing pause, so the decay
+before and the onset after survive. Measured on the same seven lines: internal
+absolute-silence gaps went 7 → 3.
+
+**What this does not fix.** Kokoro is an 82M model with no prosody control and
+no emotion parameter. The register and the joins are much better; the ceiling
+is unchanged. Anything beyond it is an engine change, and the options
+researched — ElevenLabs (word-level timestamps, `<break>` tags, an IPA
+pronunciation dictionary; needs a paid tier for monetised video), Chatterbox
+(MIT, but CPU-only on Apple Silicon) and Orpheus (Apache, needs a GGUF/LM
+Studio path) — are a decision the user takes by ear, not a default to change.
+`synth_phrase` remains the only place an engine is named, so the swap stays
+cheap whenever they want it.
+
+## A one-word sentence has nothing to fall from
+
+**"Money." was flagged as sounding like a question rather than a statement.**
+Measured on the shipped audio, the pitch runs 211 → 255 → **274** → 200 → 206
+Hz: it peaks mid-word and ends roughly *level*. A contour that does not resolve
+downward is heard as unfinished, which is heard as a question.
+
+This is the same failure this file already records for "Do not." — a fragment
+cannot cash the pause the gap table buys it — arriving on a one-word *answer*
+rather than a one-word imperative. Run-based synthesis helps, because the line
+now falls out of the sentence before it instead of starting cold. But the rule
+generalises: **a one-word sentence is a rhetorical device on the page and a
+liability in the mouth.** Keep it only where the preceding line hands it real
+momentum, and never as the first line of a run.
+
+## Ethereum, and checking a brand name you think you know
+
+`Ethereum` phonemizes to `ˌiːθɚɹˈiːəm` — "ee-thuh-REE-um", stress on the wrong
+syllable and a schwa where the vowel wants to be `ɪɹ`. It shipped, and the user
+caught it.
+
+    espeak-ng -v en-us -q --ipa "Ethereum"    # ˌiːθɚɹˈiːəm   wrong
+    espeak-ng -v en-us -q --ipa "Etheerium"   # iːθˈɪɹiəm     right
+
+The respell goes in the **spoken** half of a `(caption, spoken)` pair, exactly
+as `Binance`/`Bynanse` already does. The wider lesson is that this file's
+phoneme rule was being applied only to words that *looked* risky — initialisms,
+tickers, invented brand names. **`Ethereum` looks like an ordinary English
+word and is not one.** Check every proper noun in the script, not the ones that
+feel like they need it.
+
+## Run `tools/audit_assets.py` before every render
+
+**Two builds died on clip arithmetic, and both were answerable without
+synthesising a word.** `server-racks-blue-light-dark` (9.2s, called six times
+with `clip_at` up to 12.0) and then `dominoes-falling-dark` (10.0s at
+`clip_at=7.5` for a 3.8s shot). `VideoShot` correctly refuses rather than
+freezing or looping — but it refuses **twelve minutes into the render**, after
+the whole narration has been synthesised.
+
+```bash
+.venv/bin/python tools/audit_assets.py proof-of-stake   # one video
+.venv/bin/python tools/audit_assets.py                  # whole channel
+```
+
+It checks three things statically: **<=2 uses per clip**, **>=8s of headroom
+after `clip_at`**, and **repeats at least five slots apart** — plus, with no
+argument, prints every asset shared by more than one video. It caught four real
+faults in this pair the first time it was run, including two that would each
+have cost a render.
+
+**A 10-second clip is a one-use clip in this format**, which is the arithmetic
+that keeps getting missed. Shots run to ~4s, the stretch limit is 1.33x, so a
+usable position needs ~8s left after `clip_at`: a 10s source has exactly one
+(two would be `0.5` and `2.0`, which look identical anyway). **Filter a stock
+fetch for `duration >= 14` before screening anything** if the shot list needs
+clips more than once — the first proof-of-stake fetch returned eight clips that
+could not fill 21 slots under the reuse rule no matter how they were arranged,
+which cost a second fetch and a second contact sheet.
+
+A long/short pair built from the same post is **one** video for the reuse rule
+and is expected to share its roster; the tool treats it that way.
+
+## Screen an emoji against the card, not against your editor
+
+**The plug glyph (U+1F50C) shipped into the proof-of-stake short and all but
+vanished.** It renders as a dark grey object, and on a near-black card at the
+size a `grid` icon gets, there was nothing to see. This is the same failure the
+tinnitus skill already records for the stethoscope (🩺, near-black) and the
+microbe (🦠, bright green) — it just arrived on a different glyph, because the
+check being made was "is this the right *idea*" rather than "is this legible on
+this ground".
+
+So the rule for both channels' dark palettes: **an icon must be bright and
+saturated, or it is not an icon.** Yellows, golds and oranges sit with the
+brand and read instantly; greys, browns and dark blues disappear. On the
+proof-of-stake pair the survivors were 🔒 🎲 📦 🗳️ 💰 on the `steps` track —
+two of them gold, all five legible before their labels — and the fix in the
+short was 🔌 → 😴, which is brighter *and* says "offline" more directly.
+
+Check it on a rendered frame, never on the character in a code editor, where
+everything sits on white.
+
+## An abstract is a backdrop. It cannot carry a shot.
+
+**The correction to the "fetch fresh, search the palette" rule above, and it is
+the more important half.** Told to stop recycling assets and to search the
+channel's own colour, the next cut came back almost entirely gold-on-black
+*abstraction* — gold dust, drifting smoke, particle spheres, geometric solids,
+light trails — and the user's note was that these "feel more like a background
+than main footage" and lose attention across a long video. That is exactly
+right, and it is the same failure as wall-to-wall stock, wearing a better
+palette.
+
+**On-palette is a constraint, not a subject.** An abstract passes every check
+this file has — it is dark, it is on-brand, it is unused elsewhere, it has no
+off-message reading — and still says nothing, because there is nothing in it to
+look at. The screening pipeline cannot catch this: brightness, saturation,
+duration and reuse are all fine.
+
+So: **budget abstraction like seasoning.** One or two slots in a three-minute
+video — the outro, where an uncluttered frame is wanted, and perhaps one change
+of register. Everything else wants a subject a viewer can name: a person at a
+screen, hardware, an object, a place. On the re-cut those were
+`man-working-computer-dark-office-night`, `programmer-coding-screen-dark-night`
+(hands on a keyboard, code on the monitor), `graphics-card-gpu-dark-background`
+and a mining farm — all still inside the luma box, none of them wallpaper.
+
+**Write the shot list's subjects out as a list before building** and count how
+many name a thing. If more than a couple read as "texture", the video is
+wallpaper with a voice over it.
+
+## Say the noun the narration says
+
+Three faults on the same cut, all the same shape — the picture showed a
+neighbour of the word instead of the word:
+
+- **"Money." over Ethereum coins.** The line is deliberately generic — proof of
+  stake spends *money* — and the screen showed the one specific cryptocurrency
+  the sentence has not got to yet. Banknotes are the picture of that word.
+  Fiat is hard to screen (paper is pale; the darkest usable candidate measured
+  L67 against a L48 stock ceiling) but a slightly bright *correct* picture
+  beats a perfectly graded wrong one.
+- **"Proof of work spends electricity" over gold dust.** The thing that spends
+  it is a graphics card, and the channel had never once shown one.
+- **"The miners did not need saving" over drifting smoke.** The miners were
+  available as a photograph the whole time.
+
+The rule this file already had — *say the whole name of a thing* — was about
+the script. This is its other half: **the picture has to name the same noun the
+voice does.** Read the shot list against the sentence list once, out loud, and
+check every pair.
+
+## An infographic is banned from a Ken Burns shot, not from the video
+
+**The ban above is about the move, not the picture, and the proof-of-stake cut
+is where that distinction finally mattered.** `posts/proof-of-stake.jpg` is the
+site's own architecture diagram — new transaction, mempool, validators stake,
+random selection, propose, attest, reward — and the user asked for it to carry
+the section that describes exactly that. The existing rule reads as a flat "no
+infographics", which would have refused a picture that is better than anything
+stock could supply.
+
+What the rule actually protects against is a **zoom and pan cropping the
+diagram's own title off the top and its last row off the bottom**. Remove the
+move and the objection goes with it:
+
+```python
+Shot(image=DIAGRAM, zoom=1.0, pan=(0.0, 0.0), aspect=1.5, bias=0.5)
+```
+
+`aspect` set to the source's own ratio means no crop; `zoom=1.0` with no pan
+means no travel; and a 1000x667 file cannot cover 1920x1080 under
+`max_upscale`, so it renders **fitted** — the whole diagram on black, hairline
+and all, like a slide. Fitted is a fault for a photograph and the correct
+treatment for a diagram, which is the part this file had conflated.
+
+**In 9:16 use `ImageOverlay` instead** and keep the footage moving underneath —
+see the short's skill.
+
+## A diagram goes on a pre-composed slide, not into a `Shot`
+
+**Refinement of the rule above, found by shipping it wrong once.** Removing the
+Ken Burns move is necessary and *not sufficient*. `Shot(image=DIAGRAM,
+zoom=1.0, pan=(0,0), aspect=<source ratio>)` still rendered with the diagram's
+title clipped off the top.
+
+The cause is the cover/fit boundary. `PhotoShot` scales to **cover** the frame
+and only falls back to a fitted panel when the source cannot reach that size
+under `max_upscale`. The site diagram is 1000x667: covering 1920 needs 1.92x
+against a 1.90 ceiling — close enough that it filled the width and then cropped
+~90px off the top and bottom to make the height fit. A slightly smaller source
+would have rendered fitted; a slightly larger one would have covered cleanly.
+This one landed exactly in the gap, which is the worst place to be.
+
+**So do not try to land in the gap. Take the frame out of the equation:**
+
+```bash
+.venv/bin/python tools/make_slide.py <diagram> assets/brand/slides/<name>.jpg --brand crypto
+```
+
+`tools/make_slide.py` centres the diagram on a 1920x1080 brand-coloured canvas
+with a 6% margin and the brand hairline. The asset then bleeds off all four
+edges *by construction*, so no crop is possible at any `max_upscale`, and the
+diagram gets room to breathe rather than being read at the frame edge.
+
+The general lesson, worth more than the diagram: **when a renderer has two
+behaviours and a threshold between them, do not tune an input to sit near the
+threshold.** Move the input clearly to one side — here by making the source
+frame-sized, so "cover" and "fit" are the same operation.
+
+In 9:16 none of this applies: use `ImageOverlay` and keep the footage moving
+underneath. See the short's skill.

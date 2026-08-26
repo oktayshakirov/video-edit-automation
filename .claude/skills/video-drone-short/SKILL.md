@@ -15,6 +15,31 @@ everything voice- and render-related in `video_automation/core/`.
 Footage must already be indexed: `.venv/bin/python -m video_automation drone index <folder>`
 (shared with `video-drone-long`; the proxies and clip index are the same).
 
+## When the cut is approved, hand off to `/publish-video`
+
+**This skill builds. It does not publish, and it deliberately no longer
+describes how.** Everything about getting a finished render out - which file
+goes to which platform, the metadata pass, thumbnails and covers, the site
+registry entry and poster, the social posts and the order they run in - lives
+in **`/publish-video`**, which is the single source of truth for all six video
+skills.
+
+That section used to be duplicated here. Two copies of one sequence drift, and
+these did: they disagreed about which steps run on a Short, and the
+disagreement cost a registry entry that had to be reverted and a social post
+that could not be un-sent. So it is removed rather than summarised - a summary
+is just a third copy waiting to go stale.
+
+The flow ends here:
+
+1. Build the cut and hand over the files.
+2. The user reviews it and confirms it is good.
+3. **Run `/publish-video`** and follow what it says.
+
+Do not describe upload steps, do not pre-empt them, and do not re-derive them
+from memory. Read the skill.
+
+
 ## TikTok and YouTube are not one audience
 
 **Everything in the next section is YouTube data.** It was written before the

@@ -11,6 +11,31 @@ Turns graded drone selects plus a music track into a Final Cut Pro XML timeline.
 **Repo:** `~/Coding/video-edit-automation` — run everything from there. Footage
 lives outside it.
 
+## When the cut is approved, hand off to `/publish-video`
+
+**This skill builds. It does not publish, and it deliberately no longer
+describes how.** Everything about getting a finished render out - which file
+goes to which platform, the metadata pass, thumbnails and covers, the site
+registry entry and poster, the social posts and the order they run in - lives
+in **`/publish-video`**, which is the single source of truth for all six video
+skills.
+
+That section used to be duplicated here. Two copies of one sequence drift, and
+these did: they disagreed about which steps run on a Short, and the
+disagreement cost a registry entry that had to be reverted and a social post
+that could not be un-sent. So it is removed rather than summarised - a summary
+is just a third copy waiting to go stale.
+
+The flow ends here:
+
+1. Build the cut and hand over the files.
+2. The user reviews it and confirms it is good.
+3. **Run `/publish-video`** and follow what it says.
+
+Do not describe upload steps, do not pre-empt them, and do not re-derive them
+from memory. Read the skill.
+
+
 ## Scope
 
 Long-form YouTube only — a Final Cut timeline, cut to music, finished by hand.

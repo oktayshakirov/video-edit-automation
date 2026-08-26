@@ -10,15 +10,30 @@ Shared with the drone and tinnitus projects. Renders go to the Desktop.
 
 **Source content:** `~/Coding/crypto-wiki` — 60 posts, 27 exchanges, 33 crypto-ogs.
 
-## After upload: metadata only, same as tinnitus
+## When the cut is approved, hand off to `/publish-video`
 
-**A crypto Short stays YouTube-only, exactly like a tinnitus one.** It gets a
-title, description and tags via `youtube-audit set` - see "The order of the
-whole job" in `video-crypto-long`'s SKILL.md, which is the canonical copy - and
-nothing else: no `videos.json` entry, no poster, no Facebook upload. A version
-of this skill briefly said otherwise and it was wrong; both crypto and
-tinnitus shorts follow the same rule for the same reason, there was never a
-real per-site difference here.
+**This skill builds. It does not publish, and it deliberately no longer
+describes how.** Everything about getting a finished render out - which file
+goes to which platform, the metadata pass, thumbnails and covers, the site
+registry entry and poster, the social posts and the order they run in - lives
+in **`/publish-video`**, which is the single source of truth for all six video
+skills.
+
+That section used to be duplicated here. Two copies of one sequence drift, and
+these did: they disagreed about which steps run on a Short, and the
+disagreement cost a registry entry that had to be reverted and a social post
+that could not be un-sent. So it is removed rather than summarised - a summary
+is just a third copy waiting to go stale.
+
+The flow ends here:
+
+1. Build the cut and hand over the files.
+2. The user reviews it and confirms it is good.
+3. **Run `/publish-video`** and follow what it says.
+
+Do not describe upload steps, do not pre-empt them, and do not re-derive them
+from memory. Read the skill.
+
 
 ## Built
 
@@ -718,21 +733,64 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
-## A short needs two thumbnails, and the vertical one is not for YouTube
+## Fit the subject and fill the gap. Never zoom to make it fill the frame.
 
-**Render both.** `render_short_thumb` gives the 1080x1920 cover that Instagram
-and Facebook Reels use; `render_thumb` gives the 1280x720 that **YouTube**
-uses. Same headline, same source photo, same treatment - only the shape
-differs, which is what keeps the pair recognisable.
+**The proof-of-stake thumbnail shipped with one graphics card zoomed into and
+the second cut in half, and the user's words were "too zoomed in and the
+quality is terrible".** The source was 6750x4500, so nothing was upscaled - the
+softness was the *crop*, not the resolution. A hard zoom into a wide subject
+throws away the composition and leaves the eye nothing whole to land on, and at
+feed size that reads as a low-quality image even when every pixel is sharp.
 
-The silence short shipped the vertical file to YouTube and it was wrong in a
-way nothing reported: YouTube letterboxes a 9:16 upload into its 1280x720 slot
-with a **blurred, zoomed copy of the same image either side**, so the live
-thumbnail was a narrow strip of picture with "DOES ... NCE" bleeding across
-the bottom in huge soft letters. The user replaced it by hand.
-`thumbnails.set` returns success, and `youtube-audit video <id>` lists a
-`maxres 1280x720` entry, so **neither the upload nor the audit catches this -
-only looking at the image does.**
+**A subject that cannot survive a cover crop must be fitted, with the leftover
+space filled deliberately.** Two mechanisms, and both already existed:
+
+- **`render_thumb(crop_zoom=<1.0)`** is the engine's own "stop covering the
+  frame" mode: the picture is scaled to the size asked for and set on black
+  with a 260px falloff, so the subject stays whole and the type gets real black
+  instead of a scrim over detail. **Sweep it and look** - on the graphics cards
+  0.55 left them small, 0.85 began clipping them at the bottom edge, and 0.78
+  was the largest value that kept both cards entire. Pass `side` alongside
+  `crop_at`, because a manual crop bypasses the scorer and there is no layout
+  pass left to infer a side from.
+- **`tools/make_slide.py`** for the 9:16 case, because
+  `render_short_thumb` has **no** fit mode - its `zoom` multiplies the *cover*
+  scale, so anything below 1.0 leaves the picture smaller than the frame rather
+  than fitted. Compose the subject onto a 1080x1920 canvas once and let the
+  thumbnail cover that exactly.
+
+The general rule, which is the same one the diagram slide arrived at from the
+other direction: **when a renderer has a cover mode and a fit mode with a
+threshold between them, do not tune an input to sit near the threshold.** Move
+it clearly to one side - by fitting explicitly, or by making the source
+frame-sized so cover and fit become the same operation.
+
+**A fitted panel needs the canvas to match the picture's own edge.** The first
+vertical slide used the brand background and shipped with a visible lighter
+rectangle around the photograph: the card shot's own surround measures
+`(11, 12, 14)` and `CRYPTO.bg` is `(23, 23, 23)`. Two flat darks twelve levels
+apart read as one shape with a seam through it. `make_slide(..., bg="auto")`
+samples the source's border and uses that, which makes the join invisible
+without needing the picture to fill the frame. Use `bg="brand"` for a *graphic*
+that should sit on the channel's ground - a diagram - and `bg="auto"` for a
+photograph.
+
+**Check it on the rendered file at feed size, not on the source.** A crop that
+looks fine full-screen is judged as a 210px-wide card in a grid.
+
+## A short needs two thumbnails, and both are build outputs
+
+**Render both.** `render_short_thumb` gives the 1080x1920 cover and
+`render_thumb` gives the 1280x720 one. Same headline, same source photo, same
+treatment - only the shape differs, which is what keeps the pair recognisable
+in a feed.
+
+Both are checked here the same way any thumbnail is: the subject fits, the type
+is not over a face, and the words are the script's own words.
+
+Which file goes to which platform, and how a Short's cover actually gets set,
+is `/publish-video`'s business - see the hand-off section near the top.
+
 
 ## Per-word karaoke captions are built, and available here
 
@@ -885,38 +943,140 @@ So the order is: **score the batch, then read what each picture claims**, and
 let the claim veto the score. The shipped choice promises what the video is -
 a market being read.
 
-## A Short's cover is a manual step, and YouTube gets the 16:9 file
+## Sentences are synthesised in runs, not one at a time (engine-level)
 
-**Settled 2026-08-24 after the rule flipped twice. Do not move it again
-without new evidence.** Measured on the bitcoin-price short:
+**Found on the crypto channel, true everywhere: one engine, one synthesiser.**
+`build_narration_aligned` used to synthesise one sentence at a time and
+concatenate with `anullsrc` silence, which meant every sentence was a cold
+start and every pause was digital zero. Measured on five consecutive lines:
+isolated, they opened at 258/271/229/227/246 Hz — a fresh sentence-initial
+pitch reset each time, which is what "reading a list" sounds like. As one
+utterance they sat at 199 Hz falling to 193, a calm register with real
+paragraph declination, and ran 1.8s longer because the model inserted its own
+breaths.
 
-| Cover image | How it was set | What Studio shows |
-| --- | --- | --- |
-| 1280x720 | API, at upload | a video frame |
-| 1080x1920 | API, after upload | **blank** |
-| 1080x1920 | API, at upload | **blank** |
-| either | by hand in Studio | **the cover** |
+Sentences now go to the model in **runs**. A run breaks where the script asks
+for a real pause (`RUN_BREAK_GAP`, 1.0s) — a written beat's silence is the
+point and joining across it would smooth it away. Inside a run the model's own
+breaths are kept, and `_pad_pause` tops them up to the scripted `gap` by
+inserting into the quietest point of the existing pause so the decay before and
+the onset after survive. Internal absolute-silence gaps went 7 → 3 on the test
+passage.
 
-`thumbnails.set` cannot give a Short a working cover at all, whatever shape or
-timing you feed it. **Upload `<name>-thumb-yt.jpg` (1280x720)** - not because
-it works, but because it degrades to a video frame instead of a blank box -
-and **hand the user the vertical file to set in Studio themselves.**
+Nothing in a project script changes: `gap` still takes one float per sentence
+and means the same thing. **But re-rendering a shipped video will change its
+audio**, which was accepted deliberately.
 
-Keep rendering both. `render_short_thumb`'s 1080x1920 is what the Reel
-workflows use and what the user drops into Studio; `render_thumb`'s 1280x720
-goes to YouTube and keeps the pair recognisable.
+## A one-word sentence has nothing to fall from (craft-level)
 
-**The trap that cost three rounds:** every row above returns success, and every
-row serves the uploaded image at `i.ytimg.com/vi/<id>/*`. Diffing the live
-thumbnail against the file proves the *upload* worked and says nothing about
-the cover. Only Studio can answer that, which makes **the user the instrument
-here** - ask them to look rather than inferring it from the API.
+A one-word line was flagged as sounding like a question. Measured, its pitch
+peaked mid-word and ended level rather than resolving down — and a contour that
+does not resolve is heard as unfinished, so it is heard as a question. Same
+failure as the "Do not." fragment already recorded: **a fragment cannot cash
+the pause the gap table buys it.** Keep a one-word sentence only where the line
+before hands it real momentum, and never as the first line of a run.
 
-Two explanations that were wrong, recorded so they are not re-derived: that
-the earlier shorts' working covers proved the API should send 9:16 (they had
-been set by hand - *an artifact's appearance says nothing about how it got
-there*), and that a Partner Programme limit was responsible (covers work on
-this 3-subscriber channel when set manually).
+## Check every proper noun with espeak, not just the risky-looking ones
 
-The opening seconds still matter for their own reason: YouTube picks a frame
-wherever a cover does not apply, and the feed is judged in one second anyway.
+`Ethereum` shipped mispronounced. It phonemizes to `ˌiːθɚɹˈiːəm` —
+"ee-thuh-REE-um", stress on the wrong syllable — where `Etheerium` returns the
+correct `iːθˈɪɹiəm`. The phoneme rule was being applied only to words that
+*looked* risky: initialisms, tickers, invented brand names. **A proper noun
+that looks like an ordinary English word is exactly where this hides.** Respell
+in the spoken half of a `(caption, spoken)` pair.
+
+## An asset used in another video is not available to this one
+
+**Channel-level, found on the crypto long form and true for shorts too.** An
+inventory across all six crypto projects found a pool of ~15 files carrying
+everything: `security-combination-lock.jpg` in **nine** videos,
+`digital-technology.jpg` in eight, `analysis.jpg` / `laptop-trading.jpg` /
+`futuristic-crypto-exchange.jpg` in seven each, and the
+`server-room-data-center`, `digital-code-stream-dark` and
+`abstract-dark-waves-motion` clips in seven each. That is the templated
+sameness both platforms suppress, and it came from misreading "screen the
+cache first" as "prefer the cache".
+
+**The cache exists so a rejected clip is not re-fetched and so a build is
+reproducible. It is not the shot list's shopping list.** Inventory what the
+other videos use before writing one, and treat those files as unavailable.
+The `subscribe` sting, the backdrop and the music track are the brand-level
+exceptions; everything else is per-video.
+
+**And the site's own library is exhausted for thecrypto.wiki** — of 147 post
+images only fifteen unused ones pass the dark box, and all fifteen are logos,
+platform screenshots, the labelled infographic, or the two off-message files
+this skill already rejects. Budget a real stock fetch on every short. Search
+the channel's *palette* as well as the subject: `abstract gold particles`,
+`geometric network grid gold` and `dominoes falling dark` returned
+gold-on-black footage that matches the brand, where the recycled pool was blue
+server rooms dimmed toward it.
+
+## `ImageOverlay` — a still over the footage, for the space 9:16 has spare
+
+**Built for the proof-of-stake short.** The note was that the opening shot has
+empty space above the footage and the site's own architecture diagram should
+sit in it — "just overlay it". Nothing in this format could do that: a shot is
+either a photograph *or* a clip *or* a drawn beat, and the only thing that had
+ever composited over a finished frame was the subscribe sting.
+
+`longform.overlay.ImageOverlay` is that sting's sibling, and
+`render_crypto_short(..., overlays=[...])` now passes them through. Same
+protocol — anything with `.draw(pic, t)`.
+
+```python
+from video_automation.core.frame import VERTICAL
+w = int(VERTICAL.w * 0.86)
+overlays = [ImageOverlay(DIAGRAM, 3.0, 7.8, frame=VERTICAL, scale=0.86,
+                         at=((VERTICAL.w - w) // 2, 380))]
+```
+
+Three things it settled:
+
+- **Opaque, not screen-blended**, which is the opposite of `ClipOverlay` and
+  deliberately so. A screen blend leaves *pure black* transparent, which is
+  perfect for a glowing button — but a diagram's ground is a dark **grey**, so
+  screen-blending one lifts the footage under it everywhere and prints a
+  washed rectangle. An opaque panel with the brand hairline reads as an inset.
+- **Place it by hand in 9:16.** The class default sits a panel at 0.16 of frame
+  height, which collides with the watermark at y=268. y=380 clears the mark,
+  sits above the photo band, and leaves the caption line at ~0.80 alone.
+- **The window is in absolute seconds**, so it is set before the narration is
+  measured. Give it a generous span around the shot it belongs to and check the
+  render, rather than trying to predict the boundary to a tenth.
+
+This is the 9:16 answer to the long form's "an infographic is banned from a Ken
+Burns shot, not from the video". Landscape shows the diagram as a fitted slide;
+vertical lays it over moving footage and keeps both.
+
+## An abstract is a backdrop. It cannot carry a shot.
+
+Cross-posted from the long form, where the full write-up lives. Told to fetch
+fresh assets and search the channel's palette, a cut came back almost entirely
+gold-on-black *abstraction* — dust, smoke, particles, geometry — and it reads
+as wallpaper with a voice over it. **On-palette is a constraint, not a
+subject**, and no screening check catches this because brightness, saturation,
+duration and reuse are all fine.
+
+It bites harder in a short: there are only a dozen slots and the viewer decides
+in one second. Budget **one** abstract, the outro, where an uncluttered frame
+is wanted for the ask. Every other slot wants a thing a viewer can name.
+
+## Hold a word by writing a pause, not by respelling the vowel
+
+The outro's "So - would you rather..." was asked to sound like a drawn-out
+"soo would you rather", for a more human close. **Respelling does not work:**
+espeak reads `Soo` as `sˈuː` ("sue") and `Sooo` as `sˈuːoʊ`, both the wrong
+vowel, and Kokoro has no per-phoneme duration control.
+
+What does work is punctuation, measured in the engine rather than guessed:
+
+| written | pause after "So" |
+|---|---|
+| `So -` | **none** — it runs straight through |
+| `So,` | ~150ms |
+| `So...` | ~170ms, vowel intact |
+
+So the hold is a *pause*, not a longer vowel. The ellipsis goes in the **spoken**
+half of a `(caption, spoken)` pair so the caption keeps its hyphen, per this
+file's own "only a hyphen goes on screen" rule.

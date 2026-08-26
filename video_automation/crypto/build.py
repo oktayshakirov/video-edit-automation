@@ -172,6 +172,12 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         mark: "Image.Image | None" = None,
                         roam: bool = False,
                         karaoke: bool = True,
+                        # Stills laid over the picture for a window — see
+                        # `longform.overlay.ImageOverlay`. A vertical frame has
+                        # room above the footage that a landscape one does not,
+                        # and a diagram in it is the one way to show an
+                        # architecture without giving up the motion underneath.
+                        overlays: "list | None" = None,
                         logo_hold: float = 13.0) -> tuple[Path, float]:
     """One short, end to end.
 
@@ -320,7 +326,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                            fps=fps, captions=sprites, frame=frame,
                            factory=lambda sh, fr: _short_factory(sh, fr, brand),
                            mark=mark, brand=brand,
-                           logo_anchors=anchors, logo_hold=logo_hold)
+                           logo_anchors=anchors, logo_hold=logo_hold,
+                           overlays=overlays)
 
     # A mark that lands silently is a graphic; one that lands with a sound is an
     # event. The cues come from the same list that drives the drawing, so they

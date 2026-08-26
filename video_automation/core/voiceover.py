@@ -144,6 +144,46 @@ TRIM_DB = 35                # Kokoro's padding sits well below this
 MIN_CHUNK = 0.20            # floor on a caption's span, so a bad warp cannot
                             # collapse one to zero frames
 
+# --- context-aware synthesis ---------------------------------------------
+#
+# **A sentence synthesised alone is a cold start, and a script of them reads
+# as a list.** Every sentence used to go through `_synth_raw` on its own, so
+# the model never knew a sentence preceded it: measured on five consecutive
+# lines of the proof-of-stake script, the isolated onsets landed at 258, 271,
+# 229, 227 and 246 Hz — every one a fresh sentence-initial reset, high in the
+# speaker's range. The same five as one utterance sat at 199 Hz falling to
+# 193, i.e. a calm register with real paragraph declination, and ran 1.8s
+# longer because the model put its own breaths between them.
+#
+# So sentences are now synthesised in **runs**: consecutive lines spoken as
+# one utterance, with the model's own inter-sentence pauses kept and topped
+# up to the scripted `gap` where the script asks for more.
+#
+# A run ends where the script asks for a real pause — `RUN_BREAK_GAP` and
+# over is a deliberate beat (a checklist's verdict silence, a statement card)
+# and those should be a genuine break in the audio, not something the model
+# smooths over. Under it, the gap is punctuation inside a thought and belongs
+# in the same breath.
+RUN_BREAK_GAP = 1.00        # a scripted gap this long or longer ends the run
+RUN_MAX_S = 22.0            # and a run never grows past this, so one bad DTW
+                            # cannot smear a whole section's captions
+PAUSE_FLOOR = 0.02          # RMS below this counts as pause when measuring one
+PAUSE_WIN = 0.18            # search this far either side of a boundary for the
+                            # pause to insert into
+MIN_PAUSE = 0.12            # a quiet stretch shorter than this is a stop
+                            # consonant's closure, not a pause between two
+                            # sentences. See `_pad_pause` — padding a /k/ or
+                            # /t/ closure splits the word audibly, which
+                            # shipped once as "bro - ke".
+                            #
+                            # **The number is measured, not guessed.** Over the
+                            # proof-of-stake opening there are 44 quiet
+                            # stretches inside speech and 4 real pauses, and
+                            # the two populations do not overlap: the longest
+                            # closure is 110ms, the shortest inter-sentence
+                            # pause 280ms. 0.12 sits in that gap with margin at
+                            # both ends. Re-measure before moving it.
+
 
 _KOKORO = None
 
@@ -405,13 +445,120 @@ def build_narration(text: str, workdir: Path, voice: VoiceSpec = None,
     return track, captions, t + tail
 
 
+def _run_groups(gaps: list[float], est: list[float]) -> list[list[int]]:
+    """Group sentence indices into runs spoken as one utterance.
+
+    A run breaks where the *script* asks for a real pause, which is the only
+    honest place to break it: `RUN_BREAK_GAP` and over is a written beat and
+    the silence is the point, so joining across it would smooth away the thing
+    the gap was buying. Everything under that is punctuation inside a thought.
+
+    `est` is a rough per-sentence duration, used only to keep a run under
+    `RUN_MAX_S` — a long run is not wrong, but one bad warp inside it would
+    smear more captions than it is worth risking.
+    """
+    runs: list[list[int]] = []
+    cur: list[int] = []
+    total = 0.0
+    for i, g in enumerate(gaps):
+        cur.append(i)
+        total += est[i]
+        last = i == len(gaps) - 1
+        if last or g >= RUN_BREAK_GAP or total + est[i + 1] > RUN_MAX_S:
+            runs.append(cur)
+            cur, total = [], 0.0
+    if cur:
+        runs.append(cur)
+    return runs
+
+
+def _pad_pause(audio, at: float, want: float):
+    """Top the pause at `at` up to `want` seconds, inserting into its quietest point.
+
+    The model already left a pause between two sentences of a run, with the
+    first one's decay on one side and the next one's breath and onset on the
+    other. Both of those are exactly what a hard-cut concatenation destroys,
+    so the extra silence goes into the **middle** of what is already quiet
+    rather than replacing the pause wholesale.
+
+    Returns `(audio, inserted_seconds)`. Never shortens: cutting the model's
+    own breath back to a scripted number reintroduces the abrupt edge this
+    whole path exists to remove, and the skill's own note is that a
+    well-punctuated video running long beats a monotone one on time.
+    """
+    import numpy as np
+
+    win = int(PAUSE_WIN * KOKORO_SR)
+    c = int(at * KOKORO_SR)
+    lo, hi = max(0, c - win), min(len(audio), c + win)
+    if hi <= lo:
+        return audio, 0.0
+
+    step = int(0.010 * KOKORO_SR) or 1
+
+    def rms(a: int, b: int) -> float:
+        seg = audio[max(0, a):max(0, b)]
+        return float(np.sqrt(np.mean(seg ** 2))) if len(seg) else 1.0
+
+    # **Take the longest quiet *run*, never the quietest single frame.** The
+    # first version took the minimum-energy 10ms in the window and it shipped a
+    # audible fault: "Nothing broke." came out "bro - ke". A stop consonant has
+    # a genuinely silent closure before its release burst — the /k/ in "broke",
+    # the /t/ in "Overnight" — and at 20-60ms that closure is often quieter
+    # than the real inter-sentence pause, so the search picked it and the pad
+    # went **inside the word**. Requiring a contiguous run of at least
+    # MIN_PAUSE rules every plosive closure out by duration alone.
+    runs: list[tuple[int, int]] = []
+    start = None
+    for p in range(lo, hi - step, step):
+        if rms(p, p + step) < PAUSE_FLOOR:
+            if start is None:
+                start = p
+        elif start is not None:
+            runs.append((start, p))
+            start = None
+    if start is not None:
+        runs.append((start, hi))
+
+    runs = [(a, b) for a, b in runs if (b - a) / KOKORO_SR >= MIN_PAUSE]
+    if not runs:
+        # No real pause here — the boundary estimate is inside speech, and
+        # padding it would be the very fault above. Leave it alone.
+        return audio, 0.0
+    a, b = max(runs, key=lambda ab: ab[1] - ab[0])
+
+    # The run is clipped by the search window, so grow it outward before
+    # measuring: a pause wider than 2*PAUSE_WIN would otherwise read as short
+    # and get padded again on top of itself.
+    while a - step > 0 and rms(a - step, a) < PAUSE_FLOOR:
+        a -= step
+    while b + step < len(audio) and rms(b, b + step) < PAUSE_FLOOR:
+        b += step
+
+    have = (b - a) / KOKORO_SR
+    extra = want - have
+    if extra <= 0.01:
+        return audio, 0.0
+    split = (a + b) // 2
+    pad = np.zeros(int(extra * KOKORO_SR), dtype=audio.dtype)
+    return np.concatenate([audio[:split], pad, audio[split:]]), extra
+
+
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                             voice: VoiceSpec = None,
                             mood: str = "melancholic",
                             gap: "float | list[float]" = 0.55,
                             tail: float = TAIL,
                             ) -> tuple[Path, list[Caption], float]:
-    """Speak each sentence whole; recover caption boundaries inside it.
+    """Speak whole runs of sentences; recover caption boundaries inside them.
+
+    **Sentences are no longer synthesised one at a time.** They were, and it
+    was the single biggest reason the read sounded generated: a sentence
+    spoken alone is a cold start, so every line got a fresh sentence-initial
+    pitch reset and the piece read as a list. See the RUN_BREAK_GAP note at
+    the top of this module for the measurement. Consecutive sentences now go
+    to the model as one utterance, the model's own breaths between them are
+    kept, and `_pad_pause` tops those up to the scripted `gap`.
 
     `sentences` is a list of sentences, each a list of caption chunks. A chunk
     may be a `(caption, spoken)` pair. The spoken halves are joined into one
@@ -443,13 +590,55 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     pieces: list[Path] = []
     t = 0.0
 
-    for si, chunks in enumerate(sentences):
-        pairs = [(c, c) if isinstance(c, str) else c for c in chunks]
-        spoken = " ".join(s for _, s in pairs)
+    # Sentences are spoken in runs rather than one at a time — see the note on
+    # RUN_BREAK_GAP above. `est` only bounds a run's length, so a crude
+    # words-per-second figure is enough.
+    all_pairs = [[(c, c) if isinstance(c, str) else c for c in chunks]
+                 for chunks in sentences]
+    est = [len(" ".join(s for _, s in p).split()) / 3.0 + 0.4 for p in all_pairs]
+    runs = _run_groups(gaps, est)
+
+    # One silence per *run*, not per sentence: a gap inside a run is already in
+    # the audio as the model's own pause, topped up by `_pad_pause`.
+    run_gaps: list[float] = []
+
+    for ri, run in enumerate(runs):
+        pairs_in = [all_pairs[si] for si in run]
+        # Joined with a space; the sentences keep their own full stops, which
+        # is what tells the model where one ends and the next begins.
+        spoken = " ".join(s for pairs in pairs_in for _, s in pairs)
 
         audio = _synth_raw(spoken, voice, mood)
-        raw = workdir / f"sent{si:02d}.raw.wav"
-        wav = workdir / f"sent{si:02d}.wav"
+
+        # Every chunk of the run, aligned in one pass against the run audio.
+        # Same machinery as before, just at run scope rather than sentence.
+        flat = [s for pairs in pairs_in for _, s in pairs]
+        ends = align_chunks(audio, flat, voice, mood)
+
+        # Top up each *internal* sentence boundary to its scripted gap. Walking
+        # backwards keeps the earlier boundaries' indices valid as the array
+        # grows underneath them.
+        counts = [len(p) for p in pairs_in]
+        bounds = []            # (index into `ends` of a sentence's last chunk)
+        k = -1
+        for n in counts:
+            k += n
+            bounds.append(k)
+        # How much silence was opened *after* each chunk, so the next caption
+        # can start on the far side of it rather than at its beginning.
+        pad_after: dict[int, float] = {}
+        for j in range(len(run) - 2, -1, -1):
+            want = gaps[run[j]]
+            audio, added = _pad_pause(audio, ends[bounds[j]], want)
+            if added:
+                for m in range(bounds[j] + 1, len(ends)):
+                    ends[m] += added
+                # The boundary itself keeps its time — the speech really did
+                # stop there — and the pause opens after it.
+                pad_after[bounds[j]] = pad_after.get(bounds[j], 0.0) + added
+
+        raw = workdir / f"run{ri:02d}.raw.wav"
+        wav = workdir / f"run{ri:02d}.wav"
         sf.write(str(raw), audio, KOKORO_SR)
 
         post = ["-ar", "48000", "-ac", "2"]
@@ -469,19 +658,32 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
             check=True, capture_output=True, text=True).stdout.strip())
         scale = played / (len(audio) / KOKORO_SR)
 
-        ends = align_chunks(audio, [s for _, s in pairs], voice, mood)
         prev = 0.0
-        for (caption, _), end in zip(pairs, ends):
-            captions.append(Caption(caption, t + prev * scale, t + end * scale))
-            prev = end
+        ci = 0
+        for pairs in pairs_in:
+            for caption, _ in pairs:
+                end = ends[ci]
+                # **Start after any pause inserted behind us, not inside it.**
+                # `prev` is the previous chunk's end, which is where the voice
+                # stopped; the padded silence sits between that and this
+                # chunk's first word. Starting at `prev` put the next
+                # sentence's caption on screen during the pause — measured at
+                # ~0.4s early on a 0.55s gap, and it would scale with the gap.
+                start = prev + pad_after.get(ci - 1, 0.0)
+                captions.append(Caption(caption, t + start * scale,
+                                        t + end * scale))
+                prev = end
+                ci += 1
 
         pieces.append(wav)
-        t += played + gaps[si]
+        # Only the gap that *ends* the run is real silence; the rest are inside.
+        run_gaps.append(gaps[run[-1]])
+        t += played + run_gaps[-1]
 
     listing = workdir / "concat.txt"
     tail_wav = workdir / "tail.wav"
-    silences = [workdir / f"gap{i:02d}.wav" for i in range(len(gaps))]
-    for path, dur in list(zip(silences, gaps)) + [(tail_wav, tail)]:
+    silences = [workdir / f"gap{i:02d}.wav" for i in range(len(run_gaps))]
+    for path, dur in list(zip(silences, run_gaps)) + [(tail_wav, tail)]:
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
                         f"anullsrc=r=48000:cl=stereo:d={dur}", str(path)],
                        check=True, capture_output=True)
