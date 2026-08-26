@@ -104,8 +104,17 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
 
     # A vignette, so the corners stay dark and the type in the middle of the
     # frame always has the quietest ground under it.
+    #
+    # **0.35 / 1.6, not the original 0.55 / 2.4.** The steeper pair saturates
+    # its `clip` at r ~= 0.645 from centre, so everything outside that radius
+    # sits at one flat multiplier while everything inside is still changing —
+    # a plateau butting up against a gradient reads as an edge, and it is
+    # what made PLUM's blobs look like discrete "clouds" rather than one
+    # continuous field (the user's "we can see where each color starts and
+    # ends" on the myths cut). The gentler pair still darkens the corners, it
+    # just never stops changing before the frame edge.
     r2 = (x - 0.5) ** 2 + (y - 0.5) ** 2
-    out *= (1.0 - 0.55 * np.clip(r2 * 2.4, 0, 1))[..., None]
+    out *= (1.0 - 0.35 * np.clip(r2 * 1.6, 0, 1))[..., None]
     return np.clip(out, 0, 1)
 
 
@@ -133,21 +142,30 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
 #
 # What was actually asked for, in the user's own words, is "a high quality dark
 # purple background which makes the text pop and looks clean". `PLUM` is that:
-# a near-black plum base with three very wide, very soft blooms and the same
-# vignette every generated spec uses, so the frame has depth without having
-# *content*. Measured L29.8 / S30.4, and judged the only way a background can
-# be judged - by drawing a real chapter card and a real `compare` on it.
+# a near-black plum base with soft blooms and the same vignette every generated
+# spec uses, so the frame has depth without having *content*. Judged the only
+# way a background can be judged - by drawing a real chapter card and a real
+# `compare` on it.
 #
 # **Clean is not the same as flat**, which is the trap `tinnitus-violet` fell
-# into. The blooms are what stop this being a dark rectangle; they are just
-# too wide and too dim to be read as shapes.
+# into. The blooms are what stop this being a dark rectangle.
+#
+# **v2: two blobs at `sigma` 0.62/0.70, not three at 0.26-0.36.** The first
+# version's blobs were individually wide but still small enough relative to
+# the frame that each one read as a distinct "cloud" with a visible edge where
+# it faded into the next — precisely the fault the user flagged on the myths
+# cut ("we can see where each color starts and ends"), and worst in a
+# `compare` or `chapter` beat's empty half, where nothing else on screen
+# competes for the eye's attention. `sigma` past about 0.6 puts a blob's
+# falloff mostly outside the visible frame in every direction, so two of them
+# overlap into one continuous field with no seam anywhere a camera — or a
+# contact sheet — can find one. Paired with the gentler vignette above.
 PLUM = dict(
     base=(14, 8, 24),
     blobs=[
         # cx    cy   radius turns phase  colour           strength sigma
-        (0.34, 0.40, 0.16,  1,   0.00, (78, 44, 112),    0.30,  0.34),
-        (0.68, 0.62, 0.18,  1,   0.50, (52, 28, 86),     0.30,  0.36),
-        (0.52, 0.22, 0.13,  2,   0.25, (96, 58, 132),    0.14,  0.26),
+        (0.40, 0.45, 0.10,  1,   0.00, (70, 40, 100),    0.34,  0.62),
+        (0.62, 0.55, 0.12,  1,   0.50, (50, 26, 82),     0.30,  0.70),
     ],
 )
 

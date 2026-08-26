@@ -543,6 +543,39 @@ which reads like a bad image URL and is not. Check the node's own definition
 in `n8n-nodes-base/dist/nodes/Telegram/Telegram.node.js` before trusting a
 parameter name; several of them do not match the Bot API's.
 
+## The inline Telegram branch on Tinnitus Help's Facebook workflow is still broken
+
+**Found 2026-08-26, publishing `tinnitus-myths-vs-reality`.** The Facebook
+workflow's `Summary` reported `telegramSent: false`. The `Telegram Post`
+node's own output was `{"error": "Bad Request: there is no photo in the
+request"}` - the exact symptom this file already documents under "The
+Telegram post is a photo" - but the parameter name was correct
+(`file`, not `photo`). The real cause was the *other* documented trap: **`Share
+To Telegram?`'s IF condition correctly reads
+`$('Normalise Input').item.json.youtubeUrl`, but `Telegram Post`'s own `file`
+and `caption` fields still read plain `$json.posterUrl` / `$json.title` /
+etc.** - which past the IF node resolves against `Publish Video`'s output
+(`{id: "..."}`), not the form's data. The fix recorded as applied on
+2026-08-23 only reached the IF node, never the Telegram node downstream of it,
+on the Tinnitus Help workflow (`Lyhn5U7pYhrAs9x7`) at least - **check the
+crypto workflow (`zS3xX6tbXpXnF32N`) for the same gap before trusting it.**
+
+**Worked around, not fixed, this run:** an attempt to `PUT` the corrected
+node (`$('Normalise Input').item.json.X` in place of `$json.X`) was blocked
+by the session's own permission classifier as a workflow modification. Used
+the **standalone Share Video To Telegram workflow instead** - it has no IF
+node between `Normalise Input` and `Telegram Post`, so `$json.posterUrl`
+there is already correct, and the send succeeded (message id confirmed in
+`Summary`). This is exactly the retry path this file already names for "the
+inline branch did not fire" - it is now also the path for **the inline
+branch fired and hit this bug**.
+
+**Do not assume the 2026-08-23 fix landed everywhere it was described.** Pull
+the live node's `parameters.file` and `parameters.additionalFields.caption`
+before trusting `telegramSent` on any future run; if either still reads
+`$json.X` rather than `$('Normalise Input').item.json.X`, the inline branch
+will keep failing silently in exactly this shape.
+
 ## Never let n8n sign the message
 
 **Every Telegram node appends "This message was sent automatically with n8n"

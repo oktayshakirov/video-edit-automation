@@ -403,6 +403,422 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
+## Name the subject in the first sentence, not on the first chapter card
+
+**The myths cut opened on "You have probably heard at least one of these"
+and did not say the word *tinnitus* until the card at 0:14.** The user's note
+was to make it clearer what we are talking about, "specially in the beginning
+of the videos", and they are right in the most expensive possible way: 74% of
+viewers decide whether to keep watching inside the first 15 seconds, and more
+than half of all drop-off happens in the first 60. Fourteen seconds of a
+video that has not named its subject is the whole decision window spent on
+nothing.
+
+This is not the same rule as the three-phase opening already in
+`/video-crypto-long`, and it is not covered by it. That rule is about
+*pattern interrupt, promise, commit*; a script can do all three while still
+being about an unnamed "it". **The subject noun goes in sentence one.**
+"Almost everything you have been told about tinnitus is only half right"
+does the pattern interrupt and the naming in one line.
+
+**The same fault hides in chapter titles, and it is easier to miss there.**
+"Myth: only loud noise causes it" - what is *it*? Every card in that cut had
+the same hole, and read as a list they were a video about an unnamed
+condition. Fixed by making each one a question that names its own subject:
+"Is loud noise the only cause?", "Does tinnitus always go away on its own?".
+That also satisfies the question-mark rule for free, because a title forced
+to name its subject usually turns into a question on its own.
+
+Two more things worth keeping from the retention research, both of which the
+existing rules only half-cover:
+
+- **Hook sentences run under ten words.** Not a stylistic preference - it is
+  the same finding as "short, short, one longer that builds", stated as a
+  hard ceiling for the opening span specifically.
+- **Write the hook last.** When the body is finished you know exactly what
+  the video delivers, so the promise can be specific rather than a tease.
+  This is worth following literally: the myths cut's second-pass hook ("one
+  of those is partly true, the other two are just wrong") is a promise that
+  could only be written after the five myth sections existed, and it is a
+  far better opener than the first pass's generic three-claim list.
+
+Sources: [vidIQ](https://vidiq.com/blog/post/write-youtube-video-script/),
+[Storyflow](https://storyflow.so/blog/youtube-video-script-template-7-part-framework-retention-2025),
+[Sumera](https://sumera.io/blog/youtube-hook-formulas-script-examples).
+
+## Icons on `grid` and `steps`, and the emoji is the icon
+
+**Built, and it closes the skill's own oldest open request.** A `grid` card
+takes an emoji as a third element - `("Sound therapy", "makes it less
+noticeable", "🌊")` - and a `steps` item takes one as a pair -
+`("Hearing aids", "🦻")`. The user's note on the myths cut was to put "small
+image boxes or icons, vectors" under the listed items; an emoji is the only
+icon set on this machine that is already licensed, already colour, and
+already solved for the Apple Color Emoji bitmap-strike problem.
+
+- **`core.vertical.emoji_image(char, height)`** is the shared helper, and it
+  **caches by `(char, height)`** — a beat draws the same five glyphs on every
+  one of its ~480 frames, so rendering a 160px glyph and LANCZOS-scaling it
+  per frame is pure waste. Never mutate what it returns; fade a copy.
+- **`out` is RGB, so an emoji goes on with `paste(im, xy, im)`, not
+  `alpha_composite`.** The background pass returns RGB and
+  `alpha_composite` raises on it. The drawn beats' `ImageDraw.Draw(out,
+  "RGBA")` is an RGBA *draw context* over an RGB image, which is easy to
+  misread as the image being RGBA.
+- **On `steps` the icon replaces the numeral inside the node**, rather than
+  sitting beside the label. A number and an icon competing in one layout is
+  two systems, and the track itself already carries the order — which is what
+  it was always for.
+- **On `grid` the icon eats into the wrap width before anything is
+  measured.** Laying the glyph in afterwards puts it over the last word of a
+  label that wrapped to the full card.
+
+**Two glyphs to avoid on this brand.** 🦠 is bright green, which the file
+already records as the one hue that cuts hardest against both palettes; 🩺
+renders near-black and disappears against a dark card. 🌡️ and 🫀 were the
+replacements.
+
+## Forcing `render_thumb(side=)` fights the auto-scorer, it does not steer it
+
+`render_thumb` without `crop_at` runs its own layout pass — it does not just
+slice the raw photograph in half and put type on the empty side. It
+re-crops and repositions the subject as part of scoring where the type can
+go. Passing `side="left"`/`"right"` on that same call does not tell it which
+half the subject is on; it forces which half gets the type *inside whatever
+crop the scorer already chose* — and if you guess wrong about which side that
+crop left empty, the result is type printed straight across the face, not
+type on the wrong-but-safe half.
+
+This bit the myths thumbnail directly: a photo with the subject in the raw
+image's left third rendered perfectly with no `side` argument at all (the
+scorer put him on the left and the type on the right, correctly). Passing
+`side="right"` on the same call — reasoning from the raw photo's geometry,
+"he's on the left, so put type on the right" — produced type overlapping his
+face, because the auto-scored crop was not a literal left-right split of the
+source. **The fix is to not pass `side` unless a manual `crop_at` is also
+given.** `side` is an escape hatch for when you are placing the picture by
+hand (`crop_at` bypasses the scorer entirely, see the docstring), not a
+shortcut for telling the automatic layout something it already knows.
+
+## A thumbnail's `render_thumb` will happily upscale a 600x400 site image 5x
+
+`tinnitus-myths-vs-reality`'s first thumbnail render used the article's own
+hero, `tinnitus-myths-reality.jpg` — 600x400, like almost every image in this
+site's library. `render_thumb` has no size floor: it scaled the source to
+cover 1280x720 (a 3.2x upscale minimum, more once the scorer picked its crop)
+and the auto-scorer chose a patch that was a stranger's laptop and a pencil —
+blurry, off-subject, and nothing raised. The failure is silent in exactly the
+way the "photograph must bleed off every edge" rule already named for
+full-frame video shots; it had just never been checked for thumbnails.
+
+**The fix was a stock photo, not a smaller crop.** `assets/stock/photos/`
+already had one from an earlier fetch —
+`woman-stressed-dark-background-copy-space/8011883.jpg`, 6475x4317, L15/S3 —
+with the subject sitting in the right third and a wall of black to her left.
+That composition needs no `crop_at` at all for the 16:9 long thumbnail, and
+for the short's 9:16 one it only needed `ax=0.90` to keep her in frame: a
+landscape source with real copy space on one side can serve *both* aspects
+by cropping alone, which is a cheaper fix than fetching a second, portrait
+orientation photo when one is already sitting in the cache. Check an
+image's actual pixel size before handing it to either thumbnail renderer —
+`Image.open(path).size` — the same way a clip's duration gets checked before
+it goes in a shot list.
+
+## `Section.number` puts a big numeral on a chapter card — for a counted series only
+
+**`ChapterCard`'s own docstring bans a numeral before every title, and that
+rule is unchanged.** A numbered agenda tells the viewer they are being
+lectured. `number` is the one deliberate exception: a script that is
+genuinely enumerating something and *says the number out loud* ("myth one",
+"myth two") gets it on screen too, because the viewer is already tracking the
+count — the user's note on the myths cut was exactly this, that the count
+should show when the narration says it.
+
+Pass `Section(number=1)` only on sections where `spoken_title` (or the
+narration right after the card) actually says that number. A numeral with no
+matching word is right back to being a slide deck; that is the whole
+distinction between this and the agenda pattern the beat refuses to draw by
+default. It draws above the card's rule, sized off the title (`NUM_SCALE`,
+`NUM_GAP` on `ChapterCard`), and the whole group re-centres around one
+vertical middle rather than pushing the title down.
+
+## A clip is over-used long before it is used twice
+
+**Every note the user gave on the myths cut's footage was one of three
+faults, and they compound.** The rules now:
+
+- **No clip plays more than twice, and never twice inside a minute.** That
+  cut ran `stressed-man.../6415592` three times and two more clips twice, and
+  the note was that it "looks very repetitive". A second use is fine as a
+  deliberate echo — the myths re-cut re-opens on its own opening face at the
+  close — and a third is not.
+- **No clip holds longer than about eight seconds.** Two slots ran 14.7s and
+  10.4s and the user flagged the first one by timestamp. **The fix is usually
+  not a longer clip, it is splitting the sentence**: both offenders were a
+  single `Section` sentence with four or five caption chunks, which is one
+  span and therefore one picture. Splitting "See a doctor if it is new, will
+  not settle, sits in one ear only, or comes with hearing loss" into two
+  sentences turned one 14.7s hold into two shots without touching a word.
+- **Cast a clip against the line it sits under, then check the list for
+  clips that are only atmosphere.** The skill already says a concert line
+  gets a concert; the corollary is that a slot with no obvious subject is
+  where a wrong clip hides.
+
+**Adjacent Pexels ids are the same shoot, and nothing in the pipeline knows
+that.** Searching for a replacement for `6415592` returned `6415611`,
+`6415649` and `6415877` — all screened at L13-18, all perfect on the numbers,
+and all *the same bearded man in the same black studio*. Using one would have
+made the repetition worse while looking like a fix. **Treat a candidate whose
+id is within a few hundred of a clip already in the cut as the same clip
+until a contact sheet proves otherwise.**
+
+## Screening for brightness is not screening for who is in the shot
+
+**The hook's two replacement faces repeated the exact fault they replaced.**
+The first cut's opener was called out and swapped for two new clips; both
+landed as Black actors, and with `TEMPLES` — also Black — as the very next
+shot, the hook opened on three Black faces in a row. Nobody chose that
+deliberately either time. It is a structural side effect of screening stock
+purely on `luma`: a pale face against a dark backdrop is *brighter* by
+definition than a dark face against the same backdrop, so the `MAX_LUMA`
+ceiling this whole pipeline screens on rejects lighter-skinned candidates
+more often. Every query tried afterwards — "caucasian woman", "man portrait
+dark moody european", explicit ethnicity terms in the search string — kept
+returning the same small set of darker-skinned actors, because the Pexels
+tags on a clip are not reliable and the luma filter is doing the real
+selecting underneath the query.
+
+**So casting is a thing to look at on the finished contact sheet, not just
+infer from a search query.** After screening a batch for brightness, look at
+who is actually in it before writing the shot list, and count how many
+people of the same appearance land in a row — the same discipline this file
+already applies to subject matter and to over-used clips, extended to who is
+on screen rather than what they are doing.
+
+**Two closeup faces back to back is the practical ceiling; three reads as a
+wall of faces regardless of who they are.** The fix here was not "swap two
+more faces for two different ones" — it was also removing the third shot
+entirely and giving it to an abstract instead, so the hook is two people and
+then a change of register, not three portraits in the same "studio, dark
+background" setup.
+
+**A shoot rejected for being over-used stops being over-used once nothing
+from it ships.** `man-serious-portrait-dark-studio-black-background/6415611`
+and its siblings were flagged on an earlier cut as "the same man as the
+clip already over-used." By the time this fault was found, that whole shoot
+had been removed from the video — so a single clip from it was a legitimate,
+first-time use, not a repeat of anything. Re-check whether an old rejection
+still applies before re-applying it; a stale "cannot use this" is as much a
+bug as a stale "safe to reuse."
+
+## A clip already in the cache has *not* been screened. Sheet everything.
+
+**This is the rule the myths re-cut broke while writing the rule above it.**
+The second pass carefully contact-sheeted every *newly fetched* clip and then
+reused a dozen cached ones on the strength of their folder names — and four
+of those were wrong in ways no measurement could see:
+
+| clip | folder name says | what it actually is |
+|---|---|---|
+| `man-sitting-alone.../7280519` | man alone, dark apartment | head in hands with **a row of beer bottles** on the floor — reads as drinking |
+| `tired-woman-hands-on-face/7676117` | tired woman, studio | woman in a **surgical mask and black leather gloves** |
+| `tired-woman-hands-on-face/7676122` | tired woman, studio | hair completely covering her face — horror-adjacent |
+| `quiet-library-reading-dark/10480415` | quiet library | a **red-lit antique treasure map** and a magnifying glass |
+
+The beer-bottle one shipped into a rendered Short under "it does not just
+fade, it can last for years" and was only caught by looking at the finished
+frames. **A folder name is the search query somebody typed, not a description
+of the footage** — Pexels returned it, the luma box passed it, and nothing
+between those two facts looked at the picture.
+
+So: **build one labelled contact sheet of every clip in the shot list, cached
+or fetched, before the first render.** Three timestamps across each clip, id
+burned into the frame. It costs about a minute for a whole cut and it is the
+only step that catches subject faults, which are the only faults the user
+ever notices.
+
+## The stock shelf for anything medical is lit bright, and the dark ones are worse
+
+Screened for the myths cut: every `doctor-consultation`, `hearing-clinic`,
+`therapy-session` and `stethoscope` result came back **L82 to L195** against
+a ceiling of 48. Medical stock is shot on white. There is no grading fix —
+`VideoShot`'s dim only reaches so far, and a dimmed white clinic is a grey
+clinic.
+
+**The one dark result was worse than the bright ones.**
+`doctor-night-shift-dark-hospital-corridor` screened at L36-40, comfortably
+inside the box, and is **a bald child in a hospital gown being pushed in a
+wheelchair** — it reads as a children's cancer ward, under a script about
+ringing ears. `man-talking-to-camera-dark-room-interview/7230790` screened at
+L27-30 and has a handgun on the table. Both would have shipped on the
+numbers.
+
+So for the "see a professional" beat, stop looking for a clinic. What works
+is **the act rather than the place**: a hand on a phone, somebody at a window,
+a person sitting with it — with the red flags carried as a `payload`
+statement card over the shot, which is also how the medical rule's "put the
+red flags on screen" gets satisfied without spending a sixth beat shape.
+
+## Per-word captions on shorts, and why the sprite had to change
+
+**`karaoke=True` is the default on `render_tinnitus_short` now.** The user
+asked for the treatment every short-form platform uses: the whole phrase
+stays up and the word being spoken is picked out in colour at a slight
+scale. `core.vertical.render_caption_karaoke` draws one frame per word and
+`crypto/build._karaoke_sprites` emits one sprite per word.
+
+Four things that are load-bearing:
+
+- **The layout is measured once at the base size and never re-flowed.** The
+  active word is drawn larger *about its own centre, inside the advance the
+  base font reserved for it*, so no other word moves. Re-measuring the line
+  with one word enlarged makes the sentence twitch sideways on every
+  syllable, which is much worse than no highlight.
+- **`grow` is 1.08, not 1.14.** The enlarged word overhangs its box by half
+  the difference each side, and at 1.14 a long word visibly touched its
+  neighbours — the inter-word gap is one space at caption size. The colour is
+  doing most of the work.
+- **`CaptionSprite` needed per-sprite `fade_in`/`fade_out`.** Every sprite
+  used to run the same 0.13s scale-and-fade entrance, which for a per-word
+  caption re-fires on every syllable and cross-dissolves the phrase against a
+  near-identical copy of itself — a soft flicker that reads as a broken
+  render. Only the first word frame of a caption animates in and only the
+  last animates out; the ones between hard-cut.
+- **Word timings are apportioned, not aligned.** `_word_spans` splits a
+  caption's span by `len(word) + 1`. The chunk boundaries either side are
+  real DTW timestamps and a chunk is three to six words, so the drift is
+  under a syllable; aligning per word would mean synthesising every word of
+  the script alone as a timing reference.
+
+**And it shipped with a real lag anyway, on the first cut to use it — see
+"The karaoke lag" below.** The fix landed after this section was first
+written; read that one too before touching `_karaoke_sprites` again.
+
+Captions carrying an emoji keep the single-PNG treatment: `add_caption_emoji`
+re-centres the whole line around the glyph, which the per-word layout does
+not model.
+
+## The karaoke lag, and why it was invisible in testing
+
+**The first myths short shipped with every word lighting up late**, and the
+user could see it as a real lag rather than a rounding error. The bug was in
+the one place a still-frame check of `render_caption_karaoke` could never
+have caught it: `_karaoke_sprites` computed "where the voice stops inside
+this caption" by looking for the next caption's `start` — but
+`build_narration_aligned` had *already* stretched `Caption.end` to equal that
+same value, via the hold-until-next rule two dozen lines earlier in the same
+function. So the "fix" was a no-op: `speech` always equalled the already-
+stretched `end`, and every word's span was apportioned across the caption's
+full *displayed* window, silence included. Short sentence, long trailing gap
+— worst lag. Long sentence, short gap — barely visible, which is exactly the
+shape of case a spot-check on one line would miss.
+
+**The fix is a field, not a recomputation.** `Caption` now carries
+`speech_end`, defaulted to `end` in `__post_init__` and therefore captured at
+construction time — *before* the later loop mutates `.end`. Nothing else has
+to change: the hold-until-next loop only ever touches `.end`, so
+`speech_end` is the true boundary for the whole life of the object.
+`_karaoke_sprites` reads `c.speech_end` directly now, with no search over
+neighbouring captions.
+
+**The general lesson: a "stretched for display, but I need the original"
+value has to be captured at the moment it is still original, not
+reconstructed from the stretched value later.** Searching forward through
+`captions[i+1:]` for the next caption's start looked like it was recovering
+the pre-stretch boundary; it was recovering the *post*-stretch one, because
+that is what `.start` on the following object always was regardless of when
+you look.
+
+## Shorts get the music bed too
+
+`render_crypto_short` has taken `music`/`music_gain` for a while and the
+article shorts were simply not passing them — recorded in both short skills
+as "requested and not yet built" long after it was built. **Every short gets
+`music.track("night-drift")` at `music_gain=0.85`.**
+
+**The generated presets are retired on this channel.** `bright`, `pulse` and
+`tension` are not to be used again — the user's call. `night-drift` is the
+prepared track, it is shared with thecrypto.wiki, and it is stored trimmed so
+its loop has no hole in it.
+
+## A short's `Shot` list has no `None` holds — that is longform-only
+
+The long-form `lay_out` treats `None` in the shots list as "keep the previous
+shot running", which is how a section holds one picture across several
+sentences. The short's own `plan_shots` (`crypto/shots.py`) has no such
+branch — it zips shots against sentence spans one-to-one and a `None` raises
+`AttributeError: 'NoneType' object has no attribute 'start'`. Copying a
+longform section's shot list into a short and swapping in `None` for a hold
+is the mistake this caught: **every sentence in a short needs its own `Shot`
+instance**, even if it is the same clip file at a different `clip_at` — that
+reads as a continuation on screen without being one in the code.
+
+## A site image's filename is a promise its photograph does not keep
+
+**`young-tinnitus.jpg` is a bright classroom with a child in a VR headset.**
+It went into the myths cut's closing `checklist` as the picture column on the
+strength of its name — the beat busts "only elderly people get it", so a file
+called *young-tinnitus* is the obvious pick. The actual photograph says
+nothing about age, ears or hearing, and at L172 it was the brightest thing in
+the frame.
+
+Same class of error as trusting a stock folder name, and this library is full
+of it: `silence.jpg` is a teal studio "shh" shot, `tinnitus-myths-reality.jpg`
+is a desk with a laptop and a textbook. **Open the file before writing it into
+a beat.** The replacement here — `kid-and-dad-with-headphones.jpg`, L71, a
+child and a parent both wearing headphones — is the picture the line was
+actually about, and it is a hundred luma darker.
+
+## Grid icons are 64px in landscape, not 46
+
+A two-column `grid` card at 1920 is about 880px wide, and a 46px glyph in the
+corner of it read as a smudge. The whole point of the icon is to be legible
+*before* the label is. Portrait stays at 54, where the card is narrower and
+the glyph is already proportionally larger.
+
+## A background's blobs need `sigma` past ~0.6, or they read as separate clouds
+
+**`tinnitus-plum` shipped once at `sigma` 0.26-0.36 per blob and the user's
+note was "we can see where each color starts and ends".** That is not 8-bit
+banding — the dithering already fixes that — it is the blobs themselves:
+individually wide, but still small enough relative to the frame that each one
+has a visible edge where it fades into the next, worst in a beat with an
+empty half (`compare`, `chapter`) where nothing else on screen competes for
+the eye.
+
+**The fix is fewer, much wider blobs — `sigma` 0.62 and 0.70, not three
+around 0.3.** Past about 0.6 a blob's falloff sits mostly outside the visible
+frame in every direction, so two of them overlap into one continuous field
+with no seam a contact sheet can find. Verified by drawing a real `compare`
+on the new generation and a real chapter card, the same way the original
+PLUM was judged.
+
+**The vignette was part of the same fault, not a separate one.** The old
+`(1 - 0.55 * clip(r2 * 2.4, 0, 1))` term saturates its `clip` at r ~= 0.645
+from centre — so outside that radius the multiplier is one flat number while
+inside it the field is still changing, and a plateau butting up against a
+gradient reads as an edge of its own. `0.35 * clip(r2 * 1.6, 0, 1)` still
+darkens the corners; it just never stops changing before the frame edge.
+
+Both constants live in `core/backdrop.py`'s `aurora()` and `PLUM`. `aurora()`
+is the only spec generator on either brand, so tuning it once fixes every
+generated background this repo has — there is no per-preset version to
+forget.
+
+## Music: the generated presets are retired
+
+**`bright`, `pulse` and `tension` are not to be used on this channel again.**
+The myths cut shipped with `bright` and the user's note was that it is "the
+one which we decided to not use anymore, delete it and never use it again".
+Every video, long and short, uses `music.track("night-drift")` — the prepared
+track that lives in `assets/brand/music/` and is shared with thecrypto.wiki.
+
+The presets stay in `core/music.py` because they are the safer licence story
+for anything new and `render_long` still accepts a preset name; they are just
+not the pick here. If a second real track is ever added, add it with
+`music.prepare_track`, which trims both ends — untrimmed encoder delay
+becomes an audible hole in the bed once per loop.
+
 ## Keep this file current, every time
 
 **The user's standing instruction: update the skill on every video.** These
@@ -603,20 +1019,16 @@ than `mia`, which pushed this cut from 3:47 to 4:09 and broke a slot whose clip
 was exactly 10s. Re-run the preflight after any voice change; do not assume the
 shot list survives it.
 
-## Open requests, not yet built
+## Open requests — both now built
 
-Both came from review of the sleep cut and were explicitly deferred to the next
-video rather than applied to that one.
+Both came from review of the sleep cut, were deferred, and were finally built
+on the myths re-cut. Kept here as a pointer to where they landed.
 
-- **An emoji beside each `grid` card.** Where a beat offers three options — the
-  "steady sound, no words" cards at 2:00 — a small emoji at the right of each
-  card would carry the option at a glance: rain for rain, a white circle for
-  white noise, a brown one for brown noise. `add_caption_emoji` already solves
-  the Apple Color Emoji bitmap-strike problem (32/64/96/160 load, arbitrary
-  sizes raise) and is the thing to reuse rather than reinvent.
-- **The article shorts have no music bed.** Long form gets one and the short
-  does not, which is a gap rather than a decision. `render_tinnitus_short`
-  would need the `music`/`music_gain` pair `render_long` already takes.
+- **~~An emoji beside each `grid` card.~~** Built, and extended to `steps`.
+  See "Icons on `grid` and `steps`" above.
+- **~~The article shorts have no music bed.~~** Built —
+  `render_crypto_short` had taken `music`/`music_gain` all along and the
+  project files simply never passed them. See "Shorts get the music bed too".
 
 ## Line breaks are balanced, and no short word strands alone
 

@@ -673,6 +673,151 @@ the bottom in huge soft letters. The user replaced it by hand.
 `maxres 1280x720` entry, so **neither the upload nor the audit catches this -
 only looking at the image does.**
 
+## Captions are per-word now, and a music bed is not optional
+
+**Both were the user's call on the myths pair, and both are defaults.**
+
+`render_tinnitus_short(karaoke=True)` — the default — lights the word being
+spoken in the brand accent at a slight scale while the rest of the phrase
+stays white. It is what every short-form platform's own auto-captions do and
+what the user asked for: "a lot of tiktok videos do this". The full mechanism
+and the four things that are load-bearing about it live in
+`/video-tinnitus-long`; the two that will bite you here are that the layout
+is measured once at the base size so nothing reflows, and that
+`CaptionSprite` now takes per-sprite `fade_in`/`fade_out` because the shared
+0.13s entrance re-firing on every syllable made the phrase flicker.
+
+**The first myths short shipped with a real, visible lag on every word.**
+The cause and the fix (`Caption.speech_end`, captured before the
+hold-until-next stretch) are recorded in `/video-tinnitus-long` under "The
+karaoke lag" — read it before touching `_karaoke_sprites`. The short version:
+`speech_end` exists precisely because `.end` gets rewritten for display
+before the karaoke code ever sees the caption, so recovering the original
+boundary any other way just finds the rewritten one again. **Confirmed fixed
+on the fifth myths cut** — checked against the actual audio (a
+`silencedetect` pass on the mixdown) rather than just eyeballing frames, and
+the cross-mark landing on the checklist beat lined up with the natural pause
+after the spoken reaction line, not before it.
+
+**The colour and scale, concretely, since this is the one place on the
+channel that draws them:** the active word is `brand.primary` — this
+channel's peach, not a separate karaoke colour — at full opacity, and
+`grow=1.08` on `render_caption_karaoke` (the default). Every other word stays
+white. `1.08` is deliberately small: the enlarged word is centred *inside the
+advance the base font reserved for it*, so at `1.14` — tried first — a long
+word visibly touched its neighbours, because the inter-word gap at caption
+size is a single space. The colour change carries most of the "this word is
+live" signal; the scale is there only to keep the highlight from reading as
+flat.
+
+**Every short gets `music.track("night-drift")` at `music_gain=0.85`.**
+`render_crypto_short` had taken `music`/`music_gain` for a long time and the
+article shorts simply never passed them, while both short skills went on
+recording it as "requested and not yet built". **The generated presets
+(`bright`, `pulse`, `tension`) are retired on this channel and are not to be
+used again.**
+
+## A `backdrop=` on a vertical beat is dimmed to 0.5, and that is not enough
+
+**`ChecklistShot` multiplies its backdrop by 0.5**, so a site photo at L172
+(`young-tinnitus.jpg`, and most of this library) still arrives at **L86**
+behind peach type — a pale, blurry wall filling a 9:16 frame, brighter than
+anything else in the cut. It shipped into the myths short's first pass and
+was obvious the moment the frames were looked at.
+
+This is the long skill's "a blurred backdrop does not rescue a bright
+picture, it spreads it" rule, in the one place that rule was not yet written
+down. **On this site, default to no backdrop at all** — the drawn beats are
+designed against `tinnitus-plum`, and a flat brand panel is what makes the
+type pop. A backdrop is only worth it for a source already near L25, which on
+this library means a stock clip's frame rather than a site photo.
+
+Note the asymmetry with long form: there the same file goes in `picture=`,
+the beat's own column, where it is a *downscale* at 660px and reads as a
+deliberate inset. `backdrop=` and `picture=` are not interchangeable.
+
+## Check the 9:16 crop of every clip, not just its brightness
+
+Two shots in the myths short's first pass were cropped onto the wrong thing —
+the closing portrait landed on the subject's hair because the clip's first
+seconds have her head down, and the meditation clip showed an empty brick
+wall because the man stands at ~0.8 of a landscape frame. Both are the rule
+this file already carries ("a vertical cut must be cropped onto its
+subject"), and both were missed because the *clip* had been approved on a
+landscape contact sheet.
+
+**A landscape source loses about 68% of its width in 9:16, so approving a
+clip is not approving a shot.** `clip_ax` places the crop and `clip_at`
+picks the moment; both have to be set per slot, and the only way to check is
+to pull frames from the rendered file.
+
+Everything `/video-tinnitus-long` now records about clip casting is true in
+9:16 and some of it is worse: **no clip more than twice, never twice inside a
+minute, nothing held past about eight seconds, and adjacent Pexels ids are
+the same shoot.** The myths short's first cut opened on the same over-used
+studio clip the long form opened on and then used it again two shots later —
+so the note the user gave on the long form landed on both files at once.
+
+**When the pair is built from one post, deliberately share the opening
+face.** The myths short opens on the same low-key portrait the long form
+opens on, which is the same argument the shared thumbnail already makes: a
+viewer who sees both should recognise the second one.
+
+## Screening for brightness is not screening for who is in the shot
+
+Full detail lives in `/video-tinnitus-long` under "Screening for brightness
+is not screening for who is in the shot" — read it there. The short version:
+this channel's brightness ceiling structurally favours darker-skinned
+candidates (a pale face against a dark backdrop reads brighter than a dark
+one against the same backdrop), so a run of casting picks made purely from
+what screens dark can drift the same way without anyone choosing it. Look at
+who is actually in a finished contact sheet before writing the shot list,
+same as checking subject relevance or over-use.
+
+## `checklist`'s `flow` is a presentation choice — both modes are live on this channel
+
+**Neither mode is the default to reach for. Ask one question first: does the
+narration itself say the verdict on each item as it is spoken, or does it
+only reveal the verdict afterward, as one reaction?**
+
+- **The narration says it item by item → `flow=True`.** The silence short's
+  checklist narrates "So earplugs make it stand out more. A soundproofed room
+  does the same..." — each line *is* the verdict, spoken as its own claim, so
+  marking it false the instant it is said matches what the voice just told
+  you. Holding the cross back four seconds would put the picture behind
+  words already spoken.
+- **The narration states the claims flat, then reacts once → `flow=False`
+  (the default, `flow` simply omitted).** The myths short's checklist reads
+  three claims with no verdict attached to any one of them ("Only loud noise
+  causes it. It always goes away on its own..."), so `flow=True` there marked
+  each false before the narration had said anything was wrong — the crosses
+  answered the question before the voice asked it. Two-phase leaves every
+  item unmarked while all three are read, then lands the verdicts together in
+  the pause after the last one, which is where a single reaction line
+  ("Turns out, none of that is true") gets written in — see below.
+
+**Decide this per section, not per channel.** Both shipped on this channel
+correctly; the fault was never in the beat, it was in applying `flow=True`
+as a habit rather than checking which shape that section's script actually
+has.
+
+**A reaction line can be written into the same sentence, timed for free.**
+"Turns out, none of that is true" was added as a fourth caption chunk on the
+same three-claim sentence, after the three real items. `item_count` reads
+`len(items)` from the payload (3), so the fourth chunk claims no reveal slot
+— it is just more words the voice says inside the shot's own hold, landing
+in the pause where two-phase mode already draws its crosses. No new shot,
+no marks= override, no timing math: the existing two-phase mechanism and an
+extra chunk did the whole thing.
+
+**A hinge into a plain-narration list belongs in the same sentence as the
+list, not a separate one.** "So here are some real reasons" was prepended as
+the first chunk of the sentence that names the causes, rather than shipped as
+its own sentence with its own gap — cheaper, and it reads as one breath
+rather than a title card announcing a list. This is the long-form hinge rule
+("the beat's own first chunk also has to sound spoken") applied to a beat-free
+line: any list a script hands the viewer cold benefits from the same fix.
+
 ## Keep this file current, every time
 
 **Standing instruction: update the skill on every video**, with the specific

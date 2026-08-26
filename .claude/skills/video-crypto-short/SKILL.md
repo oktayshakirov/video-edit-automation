@@ -734,6 +734,66 @@ the bottom in huge soft letters. The user replaced it by hand.
 `maxres 1280x720` entry, so **neither the upload nor the audit catches this -
 only looking at the image does.**
 
+## Per-word karaoke captions are built, and available here
+
+**`render_crypto_short(karaoke=True)`** lights the word being spoken in the
+brand accent at a slight scale while the rest of the phrase stays white — the
+treatment every short-form platform's own auto-captions use. It was asked for
+on the tinnitus channel first ("a lot of tiktok videos do this"), shipped
+there as the default, and **is now the default here too** (flipped
+2026-08-27, on the user's instruction after the drone stack-vs-cuts A/B —
+same instinct: give the viewer more to track on screen). Pass `karaoke=False`
+to opt out on a specific short.
+
+Four things that are load-bearing, all found building it:
+
+- **The layout is measured once at the base size and never re-flowed.** The
+  active word is drawn larger *about its own centre, inside the advance the
+  base font reserved for it*, so no other word moves. Re-measuring the line
+  with one word enlarged makes the sentence twitch sideways on every
+  syllable.
+- **`grow` is 1.08.** The enlarged word overhangs its box by half the
+  difference each side and at 1.14 a long word visibly touched its
+  neighbours. The colour does most of the work.
+- **`CaptionSprite` gained per-sprite `fade_in`/`fade_out` for this.** The
+  shared 0.13s entrance re-firing on every syllable cross-dissolves the
+  phrase against a near-identical copy of itself — a flicker that reads as a
+  broken render. Only a caption's first word frame animates in and only its
+  last animates out.
+- **Word timings are apportioned by `len(word) + 1`, not aligned.**
+- **Use `Caption.speech_end`, never `Caption.end`, as the stop point.** The
+  first cut to ship this tried to recover "where the voice stops" by
+  scanning forward for the next caption's `start` — but `.end` had already
+  been stretched to exactly that value by the hold-until-next rule, so the
+  scan was circular and every word lit late, worst on a short sentence with
+  a long trailing gap. `speech_end` is set once in `Caption.__post_init__`,
+  before the stretch loop runs, and is the only reliable way to get the
+  pre-stretch boundary back.
+
+Captions carrying an emoji keep the single-PNG treatment, because
+`add_caption_emoji` re-centres the whole line around the glyph.
+
+**Confirmed fixed on the tinnitus channel's fifth myths cut** — checked
+against the actual audio (a `silencedetect` pass on the mixdown), not just
+frames: the highlight's timing lined up with the words, not a rounded
+approximation of them.
+
+## `checklist`'s `flow` is a choice per section, not a default
+
+Ask one question before setting it: does the narration say the verdict on
+each item as it is spoken, or does it state the claims flat and react once,
+afterward? `flow=True` fits the first shape — the tinnitus silence short
+narrates each option's own verdict as a sentence ("So earplugs make it stand
+out more"), so marking it false the instant it is said matches the words.
+`flow=False` (the default) fits the second: the tinnitus myths short states
+three claims with no per-item verdict, so `flow=True` there marked each one
+false before the narration had said anything was wrong. Two-phase leaves
+every item unmarked through all three claims, then lands the verdicts
+together in the pause after the last one — which is also where a single
+spoken reaction line belongs, written as an extra caption chunk on the same
+sentence rather than a new shot. Full write-up, with both real examples, in
+`/video-tinnitus-short`.
+
 ## Keep this file current, every time
 
 **Standing instruction: update the skill on every video**, with the specific

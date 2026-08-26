@@ -15,7 +15,8 @@ from pathlib import Path
 from ..core import sfx
 from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
-from ..core.vertical import add_caption_emoji, render_text_png
+from ..core.vertical import (add_caption_emoji, render_caption_karaoke,
+                             render_text_png)
 from ..core.voiceover import CAPTION_MAX_W, build_narration_aligned, profile_args
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, logo_mark,
@@ -170,6 +171,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         brand: Brand = CRYPTO,
                         mark: "Image.Image | None" = None,
                         roam: bool = False,
+                        karaoke: bool = True,
                         logo_hold: float = 13.0) -> tuple[Path, float]:
     """One short, end to end.
 
@@ -295,10 +297,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                                   frame=frame)
             pngs.append(p)
 
-    sprites = [s for s in
-               (caption_sprite(p, c.start, c.end)
-                for p, c in zip(pngs, captions) if p is not None)
-               if s is not None]
+    if karaoke:
+        sprites = _karaoke_sprites(pngs, captions, workdir, font_size, line,
+                                   frame, brand, emoji)
+    else:
+        sprites = [s for s in
+                   (caption_sprite(p, c.start, c.end)
+                    for p, c in zip(pngs, captions) if p is not None)
+                   if s is not None]
 
     # `roam` moves the watermark between two anchors instead of pinning it to
     # one — see `shots.roam_anchors` for why. The anchors need the mark itself
@@ -366,6 +372,102 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 SPEAK_LAST = 0.95       # room left for the final option to actually be read
 MARK_TAIL = 0.30        # the tick is on screen this long before the dissolve
 MARK_STEP = 0.30        # between verdicts, when there is room for it
+
+
+def _word_spans(text: str, start: float, end: float,
+                speech: float) -> list[tuple[float, float]]:
+    """One time slice per word of `text`, inside its caption's span.
+
+    **The words are not separately aligned, and they do not need to be.** The
+    chunk boundaries out of `align_chunks` are real DTW-derived timestamps, and
+    a caption chunk is three to six words long — so a proportional split inside
+    a span that is already correct at both ends never drifts more than a
+    syllable, which at 30fps is invisible. Aligning per word would mean
+    synthesising every word of the script alone as a timing reference, roughly
+    a tenfold increase in synthesis for an accuracy nobody can see.
+
+    Duration is apportioned by `len(word) + 1` — character count is a decent
+    proxy for how long a word takes to say, and the `+1` charges every word for
+    the gap that follows it, which stops a run of two-letter words racing.
+
+    `speech` is where the voice actually stops. A caption is held until the
+    next one starts, so its `end` includes the inter-sentence silence — riding
+    the highlight through that silence would leave the last word lit while
+    nothing is being said, and worse, would slow the highlight to a crawl right
+    where the sentence lands.
+    """
+    words = text.split()
+    if not words:
+        return []
+    stop = max(min(speech, end), start + 0.05)
+    weights = [len(w) + 1 for w in words]
+    total = sum(weights)
+    spans, t = [], start
+    for i, wgt in enumerate(weights):
+        nxt = start + (stop - start) * sum(weights[:i + 1]) / total
+        spans.append((t, nxt if i < len(words) - 1 else end))
+        t = nxt
+    return spans
+
+
+def _karaoke_sprites(pngs, captions, workdir: Path, font_size: int,
+                     line: float, frame: Frame, brand: Brand,
+                     emoji: "dict[str, str] | None"):
+    """Per-word caption sprites: the phrase held, the spoken word lit.
+
+    Emits one sprite per *word* rather than per caption, each rendered from
+    the same measured layout so nothing moves between them — see
+    `render_caption_karaoke`. A caption that draws nothing (a drawn beat, or
+    an empty caption) still contributes nothing here.
+
+    The plain PNG rendered upstream is reused as the sprite for anything with
+    no words to light, and thrown away otherwise; rendering it first keeps the
+    "is there a caption at all" decision in one place.
+    """
+    from .shots import CAP_IN, CAP_OUT, caption_sprite
+
+    sprites = []
+    for i, (p, c) in enumerate(zip(pngs, captions)):
+        if p is None:
+            continue
+        # **`c.speech_end`, never `c.end`.** `Caption.end` is stretched to the
+        # *next* caption's start by the hold-until-next rule, so on anything
+        # but the last chunk of a run-on sentence `end` already equals the
+        # next caption's start — which made the old computation here a no-op
+        # that always fell back to the stretched value. Apportioning word
+        # spans across a window that includes the following silence pushes
+        # every highlight late, worse the shorter the sentence and the longer
+        # its trailing gap — measured as a visible lag on this channel's
+        # captions. `speech_end` is set once, before the stretch, and is
+        # never touched again.
+        speech = c.speech_end
+        words = c.text.split()
+        # An emoji caption keeps the single-PNG treatment: `add_caption_emoji`
+        # re-centres the whole line around the glyph, which the per-word
+        # layout here does not model, and a mismatch would shunt the type
+        # sideways the moment the highlight moved.
+        if len(words) < 2 or (emoji and c.text in emoji):
+            s = caption_sprite(p, c.start, c.end)
+            if s is not None:
+                sprites.append(s)
+            continue
+        spans = _word_spans(c.text, c.start, c.end, speech)
+        for k, (a, b) in enumerate(spans):
+            wp = workdir / f"kar{i:03d}_{k:02d}.png"
+            render_caption_karaoke(
+                c.text, wp, active=k, size=font_size,
+                font_path=FONT_CAPTION, font_index=FONT_CAPTION_INDEX,
+                y_frac=line, stroke=4, max_w=CAPTION_MAX_W, frame=frame,
+                accent=brand.primary + (255,))
+            # Only the caption's own first and last frames animate; the word
+            # frames between them hard-cut, or the phrase pulses per syllable.
+            s = caption_sprite(wp, a, b,
+                               fade_in=CAP_IN if k == 0 else 0.0,
+                               fade_out=(CAP_OUT if k == len(spans) - 1
+                                         else 0.0))
+            if s is not None:
+                sprites.append(s)
+    return sprites
 
 
 def _mark_times(last_start: float, end: float, n: int) -> list[float]:

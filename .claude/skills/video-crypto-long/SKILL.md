@@ -463,6 +463,119 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
+## Arrived from the tinnitus side (2026-08-25), all engine-level
+
+Found reviewing the tinnitus myths pair. None of it is site-specific.
+
+**`Section(number=N)` puts a big numeral above a chapter card's rule.**
+Deliberately not the numbered-agenda pattern `ChapterCard` already refuses by
+default (that numbers chapters the viewer never asked to count); it is for a
+script that is genuinely enumerating something and *says the number out loud*
+at that exact point — pass it only when the narration itself says the
+number, or it is right back to being a slide deck. thecrypto.wiki has not
+needed it yet, but any "N reasons/mistakes/steps" video would.
+
+**`aurora()`'s blob `sigma` needs to clear about 0.6 of the frame, or two
+blobs read as separate clouds with a visible seam.** This only bites a
+generated background (`tinnitus-plum`); `crypto-blackwater` is footage via
+`pingpong()` and is unaffected. Worth knowing if a generated background is
+ever added here — the fix (fewer, wider blobs; a gentler vignette that never
+saturates before the frame edge) lives in `core/backdrop.py` and is shared by
+any spec passed through `aurora()`.
+
+**Name the subject in the first sentence, not on the first chapter card.**
+That cut did not say the word *tinnitus* until 0:14, and its chapter titles
+("Myth: only loud noise causes it") never said what *it* was. 74% of viewers
+decide inside 15 seconds. This is *not* covered by the three-phase opening
+already in this file — a script can hit pattern-interrupt, promise and commit
+while still being about an unnamed "it". **Read the title list on its own and
+check every card names its own subject**; a title forced to name its subject
+usually turns into a question, which earns its question mark for free. Two
+corollaries from the same research: hook sentences run **under ten words**,
+and **write the hook last**, when you know what the body actually delivers.
+
+**`grid` and `steps` take an emoji per item.** `("Sound therapy", "makes it
+less noticeable", "🌊")` on a grid card, `("Hearing aids", "🦻")` on a steps
+item; on `steps` it replaces the numeral inside the node.
+`core.vertical.emoji_image(char, height)` is the shared, cached helper. Two
+traps: `out` is RGB, so a glyph goes on with `paste(im, xy, im)` and not
+`alpha_composite` (the beats' `ImageDraw.Draw(out, "RGBA")` is an RGBA *draw
+context* over an RGB image); and on `grid` the icon has to shrink the wrap
+width *before* anything is measured, or it lands on top of a label that
+wrapped to the full card.
+
+**`CaptionSprite` now takes per-sprite `fade_in`/`fade_out`.** Defaults are
+unchanged, so nothing shipped moves. It exists for per-word karaoke captions,
+where the shared 0.13s entrance would re-fire on every syllable and
+cross-dissolve the phrase against a near-identical copy of itself.
+
+**Per-word karaoke shipped with a real lag on its first cut, and the fix is a
+new `Caption` field, not a smarter search.** `_karaoke_sprites` tried to find
+"where the voice actually stops" by scanning forward for the next caption's
+`start` — but `build_narration_aligned` had already stretched *this*
+caption's own `.end` to equal that same value (the hold-until-next rule), so
+the scan just found the number that was already there. Every word's on-screen
+window ended up apportioned across the caption's full *displayed* span,
+silence included, worst on a short sentence with a long trailing gap.
+`Caption` now carries `speech_end`, set once in `__post_init__` — before the
+later stretch loop ever touches `.end` — and `_karaoke_sprites` reads that
+directly. The general shape of the bug: a value that is going to be
+overwritten for display has to be captured before the overwrite, not
+reverse-engineered from state after it.
+
+**A clip in the cache has not been screened.** A folder name is the search
+query somebody typed, not a description of the footage. Four cached tinnitus
+clips passed the luma box and were, respectively, a man with a row of beer
+bottles, a woman in a surgical mask and leather gloves, a woman whose hair
+covered her face entirely, and a red-lit treasure map filed under
+"quiet-library-reading-dark". One reached a rendered video. **Contact-sheet
+every clip in the shot list — cached or fetched — before the first render.**
+
+**Adjacent Pexels ids are the same shoot.** Searching for a replacement for
+an over-used clip returned three ids within 300 of it, all screening
+perfectly on luma, all the same man in the same studio. Treat a candidate
+whose id is close to one already in the cut as the same clip until a contact
+sheet says otherwise.
+
+**Clip hygiene, stated as numbers:** no clip more than twice, never twice
+inside a minute, nothing held past about eight seconds. **A long hold is
+usually a script problem, not a footage problem** — a `Section` sentence with
+five caption chunks is one span and therefore one picture, so splitting the
+sentence fixes it without touching a word.
+
+**Screening for brightness is not screening for who is in the shot, and this
+one bit twice on the same video.** The tinnitus hook's first over-used-face
+fix was itself two new faces of the same demographic, immediately followed
+by a third clip of someone from that same demographic — three in a row,
+none of it deliberate. It is a structural side effect of screening stock by
+`luma`: a paler face against a dark backdrop is brighter by definition than
+a darker one against the same backdrop, so a brightness ceiling like this
+pipeline's rejects lighter-skinned candidates more often regardless of the
+search terms used (explicit ethnicity terms in the query did not change the
+result — the Pexels tags are not reliable, the luma filter is doing the
+real selecting). **Look at who is actually in a finished contact sheet
+before writing the shot list**, the same discipline this file already
+applies to subject matter and to repeated clips. Two closeup people back to
+back is the practical ceiling regardless of who they are; three reads as a
+wall of faces.
+
+**A rejection stops applying once the thing it was rejecting is gone.** A
+shoot flagged as "over-used" earlier had, by a later cut, been removed from
+the video entirely — so a single clip from it was a first-time use, not a
+repeat. Re-check whether an old note still holds before re-applying it.
+
+**Forcing `render_thumb(side=)` fights the auto-scorer instead of steering
+it.** Without `crop_at`, `render_thumb` runs its own layout pass that
+re-crops and repositions the subject as part of deciding where type can go —
+it is not a literal left-right slice of the source photo. `side` only picks
+which half gets type *inside whatever crop the scorer already chose*, so
+reasoning from the raw photo's geometry ("he's on the left of the original,
+so put type on the right") can guess wrong about which half the scorer left
+empty. It did here: the same photo rendered perfectly with no `side` passed
+at all, and printed the headline across a face the moment `side="right"` was
+added on top. Don't pass `side` unless a manual `crop_at` is also given —
+otherwise let the scorer decide both the crop and the text side together.
+
 ## Keep this file current, every time
 
 **The user's standing instruction: update the skill on every video.** These

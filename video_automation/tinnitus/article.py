@@ -48,15 +48,22 @@ def render_tinnitus_short(sentences: list, shots: list[Shot], out: Path,
                           workdir: Path, voice: str = "mia",
                           brand: Brand = TINNITUS,
                           frame: Frame = VERTICAL,
+                          karaoke: bool = True,
                           **kw) -> tuple[Path, float]:
     """One tinnitus article short, end to end.
 
     Every other keyword — `gap`, `tail`, `font_size`, `y_frac`, `emoji`,
-    `sound`, `fps`, `keep_work` — goes straight through to
+    `music`, `karaoke`, `sound`, `fps`, `keep_work` — goes straight through to
     `render_crypto_short` and means exactly what it means there.
+
+    **`karaoke=True` is the default on this channel now.** The per-word
+    highlight is what short-form platforms' own auto-captions do, and the
+    user's note was that a static caption chunk gives the eye nothing to
+    follow. It costs one PNG per word rather than one per chunk, which is a
+    few seconds of render on a forty-second piece.
     """
     return render_crypto_short(
         sentences, shots, out, workdir, voice=voice, frame=frame,
         brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        **kw)
+        karaoke=karaoke, **kw)

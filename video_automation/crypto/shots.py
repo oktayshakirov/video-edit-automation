@@ -562,18 +562,31 @@ class CaptionSprite:
 
     It also cross-dissolves into the next caption instead of cutting, which is
     what stops a four-caption sentence looking like four separate cards.
+
+    **`fade_in`/`fade_out` are per sprite because karaoke captions need them
+    off.** A per-word highlight emits one sprite per word of the same phrase,
+    so the entrance would re-fire on every syllable and the phrase would pulse
+    and cross-dissolve against a near-identical copy of itself — a soft
+    flicker that reads as a broken render. The word frames in the middle of a
+    caption set both to zero and hard-cut; only the first frame of a caption
+    keeps the entrance and only the last keeps the exit, so the caption as a
+    whole still arrives and leaves exactly as it always did.
     """
     img: Image.Image            # cropped to the ink
     at: tuple[int, int]         # where that crop sat in the full frame
     start: float
     end: float
+    fade_in: float = CAP_IN
+    fade_out: float = CAP_OUT
 
     def draw(self, frame: Image.Image, t: float) -> None:
         if not (self.start - 0.001 <= t < self.end):
             return
-        p = _ease_out((t - self.start) / CAP_IN)
+        p = _ease_out((t - self.start) / self.fade_in) if self.fade_in else 1.0
         left = self.end - t
-        alpha = min(p, 1.0 if left > CAP_OUT else max(0.0, left / CAP_OUT))
+        alpha = (min(p, 1.0 if left > self.fade_out
+                     else max(0.0, left / self.fade_out))
+                 if self.fade_out else min(p, 1.0))
         if alpha <= 0.004:
             return
 
@@ -596,7 +609,9 @@ class CaptionSprite:
         frame.alpha_composite(im, (x, y))
 
 
-def caption_sprite(png: Path, start: float, end: float) -> CaptionSprite | None:
+def caption_sprite(png: Path, start: float, end: float,
+                   fade_in: float = CAP_IN,
+                   fade_out: float = CAP_OUT) -> CaptionSprite | None:
     """Crop a rendered caption PNG down to its ink."""
     im = Image.open(png).convert("RGBA")
     box = im.getbbox()
@@ -607,7 +622,8 @@ def caption_sprite(png: Path, start: float, end: float) -> CaptionSprite | None:
     pad = 3
     box = (max(0, box[0] - pad), max(0, box[1] - pad),
            min(im.width, box[2] + pad), min(im.height, box[3] + pad))
-    return CaptionSprite(im.crop(box), (box[0], box[1]), start, end)
+    return CaptionSprite(im.crop(box), (box[0], box[1]), start, end,
+                         fade_in, fade_out)
 
 
 # --- assembly ------------------------------------------------------------

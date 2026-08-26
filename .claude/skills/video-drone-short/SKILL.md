@@ -82,10 +82,8 @@ from video_automation.core.voiceover import (render_narrated, render_narrated_cu
                                               render_narrated_stack, profile_args)
 ```
 
-**One clip or two is the user's call, not a default.** The user says how many
-videos go into a given short; do not silently pick the stacked layout because
-two clips happen to be sitting in the folder, and do not silently pick a single
-clip because it's simpler. Ask if it genuinely isn't stated.
+**Given two clips for a narrated quote, stack them by default** — see
+*One clip vs. two stacked* below. Cut sequentially only when the user says so.
 
 Silent quote card:
 
@@ -611,6 +609,12 @@ looping short wants — the loop point should land on picture.
   narration only. This is why long gaps and a long `tail` are not a problem —
   under music they read as room for the quote to breathe rather than as dead
   air, so do not shorten a pause to avoid silence that will not exist.
+
+## One clip vs. two stacked
+
+**Stacked is the default for a narrated quote with two clips.** Use
+`render_narrated_stack`. Only cut sequentially (`render_narrated_cuts`)
+when the user explicitly asks for one clip after another.
 
 ## Do not
 

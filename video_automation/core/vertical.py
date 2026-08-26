@@ -323,11 +323,110 @@ def render_short(src: Path, out: Path, start: float, duration: float,
     return out
 
 
+def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
+                           font_path: str = FONT_ROUNDED, font_index: int = 0,
+                           y_frac: float = 0.70, stroke: int = 4,
+                           max_w: int = TEXT_MAX_W, frame: Frame = VERTICAL,
+                           accent: tuple[int, int, int, int] = (255, 255, 255, 255),
+                           grow: float = 1.08) -> Path:
+    """One caption frame with word `active` lifted in colour and scale.
+
+    The device every short-form platform's own captions use: the whole phrase
+    stays on screen and the word being spoken right now is picked out. It is
+    the cheapest thing that keeps an eye on the type instead of on the scroll
+    gesture, which is the entire job of a burned caption.
+
+    **The layout is measured at the base size and never re-flowed.** The
+    active word is drawn larger about its own centre, inside the box the base
+    font reserved for it, so no other word moves. Re-wrapping per frame — or
+    even just re-measuring the line with one word enlarged — makes the
+    sentence twitch sideways on every syllable, which is far worse than no
+    highlight at all. That is the whole reason this cannot be done by calling
+    `render_text_png` with a bigger font for one word.
+
+    `active` is an index into `text.split()`. Out of range draws the phrase
+    plain, which is what the trailing silence after the last word wants.
+
+    **`grow` is 1.08 and it wants to stay small.** The enlarged word is
+    centred inside the advance the base font reserved, so it overhangs its box
+    by half the difference on each side — at 1.14 a long word like "always"
+    visibly touched its neighbours, since the inter-word space is a single
+    space at caption size. The colour is doing most of the work anyway; the
+    scale is there to stop the highlight reading as flat.
+    """
+    font = _load_font(font_path, size, font_index)
+    big = _load_font(font_path, max(size + 1, int(round(size * grow))),
+                     font_index)
+
+    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+    lines = _wrap(probe, text, font, max_w)
+    line_h = int(size * 1.34)
+    top = int(frame.h * y_frac) - line_h * len(lines) // 2
+
+    img = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+
+    # Walk the words in the same order `_wrap` laid them out, so the index the
+    # caller counted on `text.split()` lands on the right glyph run.
+    wi, y = 0, top
+    space = d.textlength(" ", font=font)
+    for ln in lines:
+        words = ln.split()
+        widths = [d.textlength(w, font=font) for w in words]
+        x = (frame.w - (sum(widths) + space * (len(words) - 1))) / 2
+        for w, adv in zip(words, widths):
+            hot = wi == active
+            f_use = big if hot else font
+            fill = accent if hot else (255, 255, 255, 255)
+            # Centre the (possibly larger) glyph run on the box the base font
+            # reserved, so the advance the next word starts from is unchanged.
+            dx = (adv - d.textlength(w, font=f_use)) / 2
+            dy = (size - f_use.size) / 2
+            d.text((x + dx, y + dy), w, font=f_use, fill=fill,
+                   stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
+            x += adv + space
+            wi += 1
+        y += line_h
+
+    img.save(out)
+    return out
+
+
 EMOJI_FONT = "/System/Library/Fonts/Apple Color Emoji.ttc"
 # Apple Color Emoji is a bitmap font and only loads at the sizes it has strikes
 # for — 44 and 137 both raise "invalid pixel size". Render at 160 and scale
 # down, which is the only size-independent way to use it.
 EMOJI_STRIKE = 160
+
+_EMOJI_CACHE: dict = {}
+
+
+def emoji_image(char: str, height: int) -> "Image.Image":
+    """One emoji as an RGBA image `height` px tall, cropped to its ink.
+
+    The same bitmap-strike dance `add_caption_emoji` does — render at
+    `EMOJI_STRIKE` and scale — factored out so a drawn beat can put an icon
+    beside an item without going through a finished PNG. Cached by
+    `(char, height)`: a `steps` beat draws the same five icons on every one of
+    ~480 frames, and re-rendering a 160px glyph and LANCZOS-scaling it each
+    time is pure waste.
+    """
+    key = (char, height)
+    hit = _EMOJI_CACHE.get(key)
+    if hit is not None:
+        return hit
+    font = ImageFont.truetype(EMOJI_FONT, EMOJI_STRIKE)
+    big = Image.new("RGBA", (EMOJI_STRIKE * 2, EMOJI_STRIKE * 2), (0, 0, 0, 0))
+    ImageDraw.Draw(big).text((EMOJI_STRIKE // 4, EMOJI_STRIKE // 4), char,
+                             font=font, embedded_color=True)
+    box = big.getbbox()
+    if box is None:
+        raise ValueError(f"emoji {char!r} rendered empty — not in the font")
+    big = big.crop(box)
+    w = max(1, int(big.width * height / big.height))
+    img = big.resize((w, height), Image.LANCZOS)
+    _EMOJI_CACHE[key] = img
+    return img
 
 
 def add_caption_emoji(png: Path, text: str, char: str, size: int,

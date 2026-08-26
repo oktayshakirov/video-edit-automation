@@ -291,13 +291,21 @@ class Beat:
 class ChapterCard(Beat):
     """The turn between sections: one line, centred, spoken as it appears.
 
-    **No number, and that is the point.** The first build set a `02` in 150px
-    gold above every title, which turned the video into a slide deck — a
-    numbered agenda is the visual language of a presentation, and it tells the
-    viewer they are being lectured rather than told something. It also exposed
-    an off-by-one nobody would otherwise have seen: numbering ran from the
-    section index, and since the opening section carries no card, the first one
-    on screen read "02".
+    **No number by default, and that is still the point.** The first build set
+    a `02` in 150px gold above every title, which turned the video into a
+    slide deck — a numbered agenda is the visual language of a presentation,
+    and it tells the viewer they are being lectured rather than told
+    something. It also exposed an off-by-one nobody would otherwise have
+    seen: numbering ran from the section index, and since the opening section
+    carries no card, the first one on screen read "02".
+
+    **`number` is the one deliberate exception**, for a script that is
+    genuinely counting something the narration also counts out loud ("myth
+    one", "myth two"). That is not an agenda — an agenda numbers *chapters*,
+    which the viewer did not ask for and does not care about; this numbers
+    the *thing the video is about*, which the viewer is actively tracking.
+    Pass it only when the narration itself says the number; a numeral with no
+    matching word is right back to being a slide deck.
 
     **Usually a question, not always.** A question is the strongest form here
     because it makes the next twenty seconds an answer the viewer is waiting
@@ -309,7 +317,7 @@ class ChapterCard(Beat):
     frame, and left-aligned type in an empty 16:9 frame reads as a slide with a
     missing bullet list.
 
-    payload: (title,)
+    payload: (title,) or (title, number)
     """
 
     # **Arial Black, the thumbnail's face, not the caption face.** The user's
@@ -329,10 +337,12 @@ class ChapterCard(Beat):
     # occupy the same block.
     SIZE = 88
     SIZE_PORTRAIT = 118
+    NUM_SCALE = 1.7          # the numeral, relative to the title size
+    NUM_GAP = 34             # clear space between the numeral and the rule
 
-    def __init__(self, title: str, **kw):
+    def __init__(self, title: str, number: int | None = None, **kw):
         super().__init__(**kw)
-        self.title = title
+        self.title, self.number = title, number
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out)
@@ -343,8 +353,21 @@ class ChapterCard(Beat):
 
         line_h = int(size * 1.26)
         block = len(lines) * line_h
+
+        # The numeral sits above the rule, so it is charged to the same
+        # vertical centring as the title block — otherwise adding it pushes
+        # the whole card down rather than growing it around one centre.
+        num_font, num_h, num_str = None, 0, ""
+        if self.number is not None:
+            num_size = int(size * self.NUM_SCALE)
+            num_font = _display(num_size)
+            num_str = str(self.number)
+            num_h = int(num_size * 1.15)
+        extra = (num_h + self.NUM_GAP) if self.number is not None else 0
+
         e = ease_out(min(1.0, (self.at(f) - self.start) / 0.5))
-        y = (self.frame.h - block) // 2 + int(round(26 * (1.0 - e)))
+        y = ((self.frame.h - block - extra) // 2 + extra
+             + int(round(26 * (1.0 - e))))
 
         # A short rule above the line, opening outward from the centre as the
         # card settles. It gives the eye something to follow through a beat that
@@ -356,6 +379,12 @@ class ChapterCard(Beat):
             cx = self.frame.w // 2
             d.line([(cx - rule_w, rule_y), (cx + rule_w, rule_y)],
                    fill=self.brand.primary, width=4)
+
+        if self.number is not None:
+            ny = rule_y - self.NUM_GAP - num_h + int(round(26 * (1.0 - e)))
+            tw = d.textlength(num_str, font=num_font)
+            shadow_text(d, ((self.frame.w - tw) / 2, ny), num_str, num_font,
+                        self.brand.primary, blur=10, drop=(4, 6))
 
         for ln in lines:
             tw = d.textlength(ln, font=font)
@@ -773,15 +802,25 @@ class Grid(Beat):
     three-wide final row reads as a mistake, and four in a 2x2 is a better
     shape than 3+1.
 
-    payload: (items, title) where items is [(label, note), ...]
+    **A card may carry an icon** as a third element, `(label, note, emoji)`.
+    This is the skill's long-standing open request ("an emoji beside each
+    grid card... rain for rain, a white circle for white noise") and it is
+    what makes a set of options readable at a glance instead of read as four
+    lines of type. The glyph sits at the card's right edge, vertically
+    centred, so the label and note keep their full column and the icon reads
+    as the card's marker rather than as a bullet.
+
+    payload: (items, title) where items is [(label, note) | (label, note, emoji), ...]
     """
 
     EMBLEM = False
     PAD = 30
 
-    def __init__(self, items: list[tuple[str, str]], title: str = "", **kw):
+    def __init__(self, items: list[tuple], title: str = "", **kw):
         super().__init__(**kw)
-        self.items, self.title = items, title
+        self.items = [tuple(it) + (None,) if len(it) < 3 else tuple(it)
+                      for it in items]
+        self.title = title
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
@@ -812,14 +851,24 @@ class Grid(Beat):
 
         label_font, note_font = ((_font(54), _font(36)) if self.portrait
                                 else (_font(46), _font(31)))
-        inner = cw - 2 * self.PAD
+        # An icon eats into the text column, so the wrap width has to know
+        # about it before anything is measured — otherwise a label wraps to
+        # the full card width and then gets a glyph laid over its last word.
+        # **64 in landscape, not 46.** A two-column card at 1920 is ~880px
+        # wide, and a 46px glyph in the corner of it read as a smudge rather
+        # than as an icon — the point of the icon is to be legible before the
+        # label is, which it was not.
+        icon_h = (54 if self.portrait else 64) if any(
+            e for _, _, e in self.items) else 0
+        icon_col = int(icon_h * 1.55) if icon_h else 0
+        inner = cw - 2 * self.PAD - icon_col
         # Measure every card first and take one height for all of them. Cards
         # of different heights on a grid read as a broken layout, not as
         # variety, and wrapping is what decides height — the same lesson the
         # other beats learned about centring.
         wrapped = [(wrap(d, lab, label_font, inner),
                     wrap(d, note, note_font, inner) if note else [])
-                   for lab, note in self.items]
+                   for lab, note, _ in self.items]
         lh, nh = (66, 46) if self.portrait else (58, 40)
         ch = max(self.PAD * 2 + len(lw) * lh + (14 + len(nw) * nh if nw else 0)
                  for lw, nw in wrapped)
@@ -854,6 +903,18 @@ class Grid(Beat):
                     d.text((x + self.PAD, ty), ln, font=note_font,
                            fill=self.brand.primary + (int(a * 0.86),))
                     ty += nh
+
+            icon = self.items[i][2]
+            if icon and icon_h:
+                from ..core.vertical import emoji_image
+                im = emoji_image(icon, icon_h)
+                if a < 255:
+                    im = im.copy()
+                    im.putalpha(im.getchannel("A").point(
+                        lambda v: v * a // 255))
+                # `out` is RGB; hand the glyph's alpha in as the paste mask.
+                out.paste(im, (x + cw - self.PAD - im.width,
+                               y + (ch - im.height) // 2), im)
 
 
 class Logos(Beat):
@@ -1101,15 +1162,58 @@ class Steps(Beat):
     natural reading order. Three or four steps in portrait; five fits but sets
     the labels tight.
 
-    payload: (steps, title) where steps is [text, ...]
+    **An item may carry an icon**, written as `(text, emoji)` instead of a
+    bare string. The user's note on the myths cut was that a bare numbered
+    track is "a list of words" and wanted something under each item; an emoji
+    is the cheapest icon that is already licensed, already colour, and already
+    solved — `core.vertical.emoji_image` does the Apple Color Emoji
+    bitmap-strike dance and caches, which matters because a beat draws the
+    same five glyphs on every one of its ~480 frames.
+
+    The icon replaces the numeral inside the node rather than sitting beside
+    the label. Two reasons: a number and an icon both competing inside one
+    layout is two systems, and the node is the only element on the track with
+    a fixed box to put a square glyph in. **Order is still legible** — the
+    track itself is the sequence, which is what it was always for.
+
+    payload: (steps, title) where steps is [text | (text, emoji), ...]
     """
 
     EMBLEM = False
     R = 46                      # node radius
 
-    def __init__(self, steps: list[str], title: str = "", **kw):
+    def __init__(self, steps: list, title: str = "", **kw):
         super().__init__(**kw)
-        self.steps, self.title = steps, title
+        # Normalise to (text, icon-or-None) so both layouts read one shape.
+        self.steps = [(s, None) if isinstance(s, str) else (s[0], s[1])
+                      for s in steps]
+        self.title = title
+
+    def _node(self, out: Image.Image, d: ImageDraw.ImageDraw, cx: int, cy: int,
+              rr: int, i: int, alpha: int, num_font) -> None:
+        """The numbered — or iconned — disc on the track."""
+        d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr],
+                  fill=self.brand.bg + (255,),
+                  outline=self.brand.primary + (alpha,), width=4)
+        icon = self.steps[i][1]
+        if icon:
+            from ..core.vertical import emoji_image
+            im = emoji_image(icon, int(rr * 1.15))
+            if alpha < 255:
+                # Never mutate the cached glyph — fade a copy's alpha instead.
+                im = im.copy()
+                im.putalpha(im.getchannel("A").point(
+                    lambda v: v * alpha // 255))
+            # `out` is RGB (the background pass returns RGB), so the emoji's
+            # own alpha has to be handed in as the paste mask rather than
+            # composited — `alpha_composite` requires an RGBA target.
+            out.paste(im, (cx - im.width // 2, cy - im.height // 2), im)
+            return
+        num = str(i + 1)
+        tb = d.textbbox((0, 0), num, font=num_font)
+        d.text((cx - (tb[2] - tb[0]) / 2 - tb[0],
+                cy - (tb[3] - tb[1]) / 2 - tb[1]),
+               num, font=num_font, fill=self.brand.primary + (alpha,))
 
     def content(self, out: Image.Image, f: float) -> None:
         if self.portrait:
@@ -1126,7 +1230,7 @@ class Steps(Beat):
         label_font, num_font = _font(52), _font(52)
         lx = self.margin + rr * 2 + 40
         lw = fr.w - lx - self.margin
-        wrapped = [wrap(d, t, label_font, lw) for t in self.steps]
+        wrapped = [wrap(d, t, label_font, lw) for t, _ in self.steps]
 
         # Rows are as tall as their own label needs, so a two-line step does
         # not force every other node apart.
@@ -1155,14 +1259,7 @@ class Steps(Beat):
                 continue
             cy = centres[i]
             a = int(255 * min(1.0, ev))
-            d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr],
-                      fill=self.brand.bg + (255,),
-                      outline=self.brand.primary + (a,), width=4)
-            num = str(i + 1)
-            tb = d.textbbox((0, 0), num, font=num_font)
-            d.text((cx - (tb[2] - tb[0]) / 2 - tb[0],
-                    cy - (tb[3] - tb[1]) / 2 - tb[1]),
-                   num, font=num_font, fill=self.brand.primary + (a,))
+            self._node(out, d, cx, cy, rr, i, a, num_font)
 
             ty = cy - (len(lines) * line_h) // 2 + int(round(RISE * (1.0 - ev)))
             for ln in lines:
@@ -1180,7 +1277,7 @@ class Steps(Beat):
         slot = usable / n
         label_font, num_font = _font(38), _font(42)
         lw = int(slot - 46)
-        wrapped = [wrap(d, s, label_font, lw) for s in self.steps]
+        wrapped = [wrap(d, s, label_font, lw) for s, _ in self.steps]
 
         block = self.R * 2 + 40 + max(len(w) for w in wrapped) * 48
         top = max(top0, (fr.h - block) // 2)
@@ -1205,14 +1302,7 @@ class Steps(Beat):
             # the track runs behind it and a line crossing a numeral is the
             # kind of two-graphics-at-once fault the transitions doc warns
             # about.
-            d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr],
-                      fill=self.brand.bg + (255,),
-                      outline=self.brand.primary + (a,), width=4)
-            num = str(i + 1)
-            tb = d.textbbox((0, 0), num, font=num_font)
-            d.text((cx - (tb[2] - tb[0]) / 2 - tb[0],
-                    cy - (tb[3] - tb[1]) / 2 - tb[1]),
-                   num, font=num_font, fill=self.brand.primary + (a,))
+            self._node(out, d, int(cx), int(cy), rr, i, a, num_font)
 
             ty = cy + rr + 40 + int(round(RISE * (1.0 - ev)))
             for ln in lines:

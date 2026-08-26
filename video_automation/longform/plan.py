@@ -38,6 +38,15 @@ class Section:
     `spoken_title` overrides what the voice says when the on-screen title would
     read badly aloud. Same escape hatch the narration builder's `(caption,
     spoken)` pairs give every other line.
+
+    `number` draws a big numeral above the card's rule — for a video that is
+    explicitly counting things ("myth one", "myth two"), a bare question
+    reads as one more chapter, and the user's note was to put the count on
+    screen where the narration says it. This is deliberately not the same as
+    a numbered agenda: `ChapterCard`'s own docstring bans a small numeral
+    *before* every title because it turns the video into a lecture; `number`
+    is large, only appears when a script is actually enumerating a series,
+    and is left off entirely the rest of the time.
     """
     title: str
     sentences: list
@@ -45,6 +54,7 @@ class Section:
     kicker: str = ""
     card: bool = True
     spoken_title: str | None = None
+    number: int | None = None
     gaps: list[float] | None = None     # per-sentence override
     gap: float = GAP
     card_gap: float = CARD_GAP
@@ -74,7 +84,8 @@ class Section:
             spoken = self.spoken_title or self.title
             # The caption is the title as written; the spoken half may differ.
             sents.insert(0, ((self.title, spoken),))
-            shots.insert(0, Shot(graphic="chapter", payload=(self.title,)))
+            shots.insert(0, Shot(graphic="chapter",
+                                 payload=(self.title, self.number)))
             gaps.insert(0, self.card_gap)
         return sents, shots, gaps
 

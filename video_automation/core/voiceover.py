@@ -163,6 +163,19 @@ class Caption:
     text: str
     start: float
     end: float
+    # Where the voice actually stops, before `end` gets stretched to the next
+    # caption's start (the hold-until-next rule a few lines below). Defaults
+    # to `end` for any caller that never sets it, which is every use except
+    # per-word karaoke — that is the one consumer that needs the real speech
+    # boundary rather than the display boundary, because timing words across
+    # the *displayed* span means the last word or two of a short sentence
+    # lights up during the sentence's own trailing silence rather than while
+    # it is being spoken.
+    speech_end: float = 0.0
+
+    def __post_init__(self):
+        if not self.speech_end:
+            self.speech_end = self.end
 
 
 # A caption line, or a (caption, spoken) pair when the engine needs a different
