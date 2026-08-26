@@ -727,19 +727,22 @@ photograph.
 **Check it on the rendered file at feed size, not on the source.** A crop that
 looks fine full-screen is judged as a 210px-wide card in a grid.
 
-## A short needs two thumbnails, and both are build outputs
+## A short's thumbnail is vertical, one file
 
-**Render both.** `render_short_thumb` gives the 1080x1920 cover and
-`render_thumb` gives the 1280x720 one. Same headline, same source photo, same
-treatment - only the shape differs, which is what keeps the pair recognisable
-in a feed.
+**Settled 2026-08-26, correcting this file's own former rule.** A Short is a
+vertical video, and its thumbnail is `render_short_thumb`'s 1080x1920 cover -
+one file, matching the video's own shape.
 
-Both are checked here the same way any thumbnail is: the subject fits, the type
-is not over a face, and the words are the script's own words.
+A second 1280x720 render was generated alongside it for a while, on the
+reasoning that YouTube Studio has no working way to set a 9:16 image as a
+Short's cover. That reasoning was correct as a fact about YouTube, but wrong as
+a reason to make it a **build** output: it is a platform quirk to solve at
+publish time, in Studio, by hand or however `/publish-video` solves it - not a
+second file this skill hands over unasked. Producing it by default meant every
+short generated a thumbnail the user had not asked for and did not want.
 
-Which file goes to which platform, and how a Short's cover actually gets set,
-is `/publish-video`'s business - see the hand-off section near the top.
-
+Check it the same way any thumbnail is checked: the subject fits, the type is
+not over a face, and the words are the script's own words.
 
 ## Captions are per-word now, and a music bed is not optional
 

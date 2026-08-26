@@ -71,7 +71,7 @@ from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
 from video_automation.longform.overlay import ImageOverlay
-from video_automation.longform.thumb import render_short_thumb, render_thumb
+from video_automation.longform.thumb import render_short_thumb
 
 # **Fresh, and shared only with this post's long form.** See that file's
 # docstring for the inventory that forced this: the channel had been recycling
@@ -97,15 +97,15 @@ TRAILS = PH / "abstract-gold-light-trails-black/19253590.jpg"  # L20.2 S24.2
 STRIPES = PH / "abstract-dark-gold-geometric/18415806.jpg"     # L17.5 S15.1
 POLY = PH / "abstract-dark-gold-geometric/30869731.jpg"        # L30.6 S4.5
 GPUCARDS = PH / "graphics-card-gpu-dark-background/8622912.jpg"   # L27.4 S4.3
-# **The 9:16 cover of that source is one card, cropped.** `render_short_thumb`
-# has no fit mode - its `zoom` multiplies the *cover* scale, so anything under
-# 1.0 leaves the picture smaller than the frame rather than fitted. So the
-# subject is composed onto a 1080x1920 canvas once, by `tools/make_slide.py`,
-# and the thumbnail then covers it exactly. Same move as the long form's
-# diagram slide, and for the same reason: do not tune an input to sit near a
-# renderer's cover/fit threshold, put it clearly on one side.
-GPUCARDS_V = STOCK.parent / "brand/slides/gpu-cards-vertical.jpg"  # 1080x1920
 GPUCOPPER = PH / "graphics-card-gpu-dark-background/34552790.jpg" # L31.6 S23.9
+# **Thumbnail only - see the long form's docstring for the two-attempt story.**
+# `GPUCARDS` needed `make_slide.py` and a pre-composed vertical canvas because
+# it has black margins on every side and no crop of it fills a 9:16 frame.
+# `GPUFANS` is a close-up that already bleeds edge to edge in any aspect ratio,
+# so it needs neither a slide nor a forced crop - a plain cover crop fills both
+# the 1080x1920 and the 1280x720 thumbnail at full sharpness. The user supplied
+# this exact photo.
+GPUFANS = PH / "gaming-graphics-card-fans-red-lighting/34552811.jpg"  # L47.5 S43.9
 CASH = PH / "banknotes-low-key-photography/10149288.jpg"          # L67.1 S28.4
 CHIPS = PH / "motherboard-chip-macro-dark/36169770.jpg"           # L36.0 S14.3
 
@@ -289,18 +289,12 @@ def main() -> None:
                                      music=MUSIC, music_gain=0.85,
                                      overlays=overlays)
 
-    # Same source and same headline as the long form from this post - the
-    # pairing rule. `-thumb.jpg` is the vertical Reel cover; `-thumb-yt.jpg`
-    # is the 1280x720 YouTube one, which is the only one that actually shows
-    # as a Short's cover when set through the API.
+    # **One thumbnail: vertical, because a Short is a vertical video.** Same
+    # source and headline as the long form.
     head = "What replaced the [miners?]"
     vert = render_short_thumb(
         out.with_name(out.stem + "-thumb.jpg"), CRYPTO, head,
-        image=GPUCARDS_V, accent="cyan", band="top")
-    wide = render_thumb(
-        out.with_name(out.stem + "-thumb-yt.jpg"), CRYPTO, head,
-        image=GPUCARDS, accent="cyan",
-        crop_at=(1.0, 0.5), crop_zoom=0.78, side="left")
+        image=GPUFANS, accent="cyan", band="top")
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
     print(f"{wide}")

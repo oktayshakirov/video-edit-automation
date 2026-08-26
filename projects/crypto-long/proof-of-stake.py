@@ -187,6 +187,14 @@ POLY = PH / "abstract-dark-gold-geometric/30869731.jpg"             # L30.6 S4.5
 CITYGRID = PH / "night-city-power-grid-lights-aerial/33803466.jpg"  # L31.5 S30.5
 GPUCARDS = PH / "graphics-card-gpu-dark-background/8622912.jpg"     # L27.4 S4.3  two RTX cards on black
 GPUCOPPER = PH / "graphics-card-gpu-dark-background/34552790.jpg"   # L31.6 S23.9 copper-finned GPU
+# **Thumbnail only.** `GPUCARDS` is a wide product shot with black margins on
+# every side, so no crop of it fills a frame - the fit-mode panel that solved
+# is real, but it cost sharpness and left the type on a smaller picture than
+# the frame could otherwise carry. This is the opposite kind of source: a
+# close-up that already bleeds edge to edge in both 16:9 and 9:16, so a plain
+# cover crop fills the whole thumbnail with no panel, no fallback, and no
+# quality cost. The user supplied the exact photo.
+GPUFANS = PH / "gaming-graphics-card-fans-red-lighting/34552811.jpg"  # L47.5 S43.9
 CHIPS = PH / "motherboard-chip-macro-dark/36169770.jpg"             # L36.0 S14.3
 # Fiat, for the line that says "Money." - see the note in section two.
 CASH = PH / "banknotes-low-key-photography/10149288.jpg"            # L67.1 S28.4
@@ -532,33 +540,24 @@ def main() -> None:
         # The title's own question, tightened, accent on the word carrying the
         # tension.
         #
-        # **The abstract solid was rejected on the user's note that it is
-        # ugly, and the replacement is the video's own subject.** "What
-        # replaced the miners?" over two graphics cards on black shows *the
-        # thing that got replaced*, which opens the loop without answering it -
-        # the answer is a staked deposit, and no card is on screen. It also
-        # fixes the earlier problem that every candidate was either generic
-        # (a pile of coins) or off-message (Bitcoin coins, when Bitcoin is the
-        # chain that still has miners).
+        # **Two attempts at this thumbnail before it was right.** The first
+        # cut let the scorer cover-crop `GPUCARDS` and it zoomed into one card
+        # and cut the other in half. The fix at the time was `crop_zoom<1.0`
+        # (the fit-mode panel on black) - correct in principle, but the user's
+        # verdict on the result was still "bad quality", and they were right
+        # for a reason the fit-mode fix could not reach: a wide product shot
+        # with black margins fitted into a frame is a *smaller picture inside
+        # a larger one*, so however sharp the source, the panel reads soft
+        # next to type set at full frame size.
         #
-        # L27/S4, whole subject, real black down one side for the type. No
-        # `thumb_side`: the scorer picks crop and side together.
-        # **Fitted, not cover-cropped.** The first cut let the scorer choose,
-        # and it zoomed into one card and cut the other in half — the subject
-        # was neither whole nor legible. `crop_zoom` below 1.0 is the engine's
-        # own "stop covering the frame" mode: the picture is scaled to the size
-        # asked for and set on black with a 260px falloff, so the whole pair of
-        # cards survives and the type sits on real black rather than on a scrim
-        # over detail. Swept 0.55/0.70/0.78/0.85 and looked: 0.85 starts
-        # clipping the cards at the bottom edge, 0.55 leaves them small, 0.78
-        # is the largest that keeps both whole.
-        #
-        # `side` is passed because `crop_at` bypasses the scorer, so there is
-        # no layout pass left to infer a side from.
+        # **`GPUFANS` solves it by being the right shape of source rather than
+        # by being cropped cleverly.** It is a close-up that already bleeds
+        # edge to edge, so a plain cover crop - no `crop_at`, no `crop_zoom`,
+        # letting `_layout` choose - fills the whole frame at full sharpness in
+        # both 16:9 and 9:16. Scored clean at -0.02, side left, band top.
         thumb_headline="What replaced the [miners?]",
-        thumb_image=GPUCARDS,
+        thumb_image=GPUFANS,
         thumb_accent="cyan",
-        thumb_crop_at=(1.0, 0.5), thumb_crop_zoom=0.78, thumb_side="left",
         endcard=ENDCARD, endcard_lead=7.0,
     )
     for k, v in made.items():
