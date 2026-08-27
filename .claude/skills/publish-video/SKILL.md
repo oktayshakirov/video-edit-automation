@@ -20,7 +20,7 @@ you are on, when you get to it, rather than all of them up front.
 
 | Doc | When |
 | --- | --- |
-| `docs/publish/youtube.md` | Every run - and read the Short-cover decision before uploading a Short |
+| `docs/publish/youtube.md` | Every run |
 | `docs/publish/instagram-facebook.md` | The tunnel, Reels, the native Page video |
 | `docs/publish/tiktok.md` | Any Short |
 | `docs/publish/telegram.md` | Long form only |
@@ -97,8 +97,9 @@ a platform from the run.
 5. **Report what is still unlisted or private and what needs a manual tick.**
    The standing list: privacy in Studio, Studio's "Related video" field on a
    Short, the TikTok draft's caption and cover, and - for a Short - **the
-   cover image itself**, which the Data API cannot set. Give the path to the
-   vertical file rather than just naming the step.
+   cover image itself**, which is a manual Studio step by design and not an
+   API failure. Give the path to the vertical file rather than just naming
+   the step.
 
 ## Gates
 

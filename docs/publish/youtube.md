@@ -84,36 +84,36 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   `maxresdefault.jpg` can tell you which row you are in.** Only Studio can.
   That is why this took three attempts to pin down.
 
-  What follows from that matrix is the open decision below.
+  What follows from that matrix is the settled rule below.
 
 - **The swipe feed is YouTube's own choice regardless.** Even a correctly set
   cover governs the Shorts tab, search and playlists rather than the vertical
   feed, which picks its own frame.
-- **A Short's YouTube cover is an open decision, and the build no longer
-  settles it.** This is the one place where the build side and this side
-  disagree, so read it before uploading a Short.
+- **A Short gets no thumbnail from the API. Settled 2026-08-27.** Upload the
+  video with no `--thumbnail`, and put the vertical file's path in the closing
+  manual list for the user to set in Studio by hand.
 
-  What was measured here: uploading the 1080x1920 Reel cover to YouTube is
-  actively bad. YouTube letterboxes a 9:16 upload into its 1280x720 slot with a
-  **blurred, zoomed copy of the same image either side** - the silence pair went
-  live as a narrow strip with "DOES ... NCE" bleeding across the bottom in huge
-  soft letters, and the user replaced it by hand. `thumbnails.set` returns
-  success either way and `youtube-audit video <id>` reports a `maxres 1280x720`
-  entry, so **neither the upload nor the audit can tell you this went wrong -
-  only looking at the image can.**
+  **The matrix above is the whole reason.** By hand is the *only* route that
+  makes a Short's cover actually display - a 1280x720 sent through the API
+  leaves Studio showing a video frame, and a 1080x1920 leaves it blank. So the
+  API upload was never buying a working cover; it was only choosing which
+  fallback appeared on 16:9 surfaces. Not worth a build output.
 
-  What changed since: on **2026-08-26 the build stopped producing
-  `<name>-thumb-yt.jpg`**, on the reasoning that a 9:16 cover is a platform
-  quirk to solve at publish time rather than a second file every short hands
-  over unasked. See `docs/video/thumbnails.md`. Three older scripts still emit
-  it; nothing written since does.
+  This replaces the older instruction to upload `<name>-thumb-yt.jpg`, which had
+  gone stale: **the build stopped producing that file on 2026-08-26**, on the
+  reasoning that a 9:16 cover is a platform quirk to solve at publish time
+  rather than a second file every short hands over unasked. See
+  `docs/video/thumbnails.md`. Three older scripts still emit it and it is simply
+  unused now.
 
-  So the instruction this doc used to give - upload the 1280x720 - now names a
-  file that usually does not exist. **Until that is resolved: upload no
-  thumbnail for a Short, and put the vertical file's path in the closing manual
-  list for the user to set in Studio by hand.** Per the matrix above, by hand is
-  the only route that makes the cover actually display, so nothing is lost that
-  the API could have delivered.
+  **Never send the 1080x1920 to the API as a substitute.** YouTube letterboxes a
+  9:16 upload into its 1280x720 slot with a blurred, zoomed copy of the same
+  image either side - the silence pair went live as a narrow strip with
+  "DOES ... NCE" bleeding across the bottom in huge soft letters, and the user
+  replaced it by hand. `thumbnails.set` returns success and
+  `youtube-audit video <id>` reports a `maxres 1280x720` entry either way, so
+  **neither the upload nor the audit can tell you this went wrong - only looking
+  at the image can.**
 
   **Two wrong explanations, recorded so they are not re-derived.** First: the
   four earlier Crypto Wiki shorts carry vertical covers that display correctly,
