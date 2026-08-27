@@ -239,9 +239,7 @@ cut — the payoff mark reads weaker than the crosses that precede it. Look at
 the frame before approving a checklist here. If it does not land, the fix is
 the brand's `primary`, not a special case inside the beat.
 
-**The photographs' hairline was gold too**, on every tinnitus short and every
-tinnitus long-form video, for the same reason. `PhotoShot` takes the brand now.
-Anything rendered before this is off-brand at the photo edges.
+**The photographs' hairline was gold too** - see *The brand mark, and what its height costs the picture* below.
 
 **`bars` needs a frame-dependent fraction.** The value text travels with the end
 of its own bar, so a long top bar pushes it off the right edge. The same data
@@ -661,27 +659,78 @@ Unlike the drone shorts, **do not export silent for a trending sound.** The bed
 and the voice are the content; a trending sound would replace the thing the
 viewer came for.
 
-## Do not - long form
+## The brand mark, and what its height costs the picture
 
-- **Make medical claims, in either mode.** The one rule above all others.
+**The picture library is thin and small.** 105 images, only 27 reach 900px, and
+none exceed 1000px. At `max_upscale=1.90` a 900px source cannot fill 1920 — so
+**prefer beats with `picture=` over full-frame photos**, where the same source in
+the 660px column is a downscale. Fill the rest with screened stock; the article
+video uses six clips and eleven site images.
+
+**The watermark is a different shape and it moves the kickers.** thecrypto.wiki's
+mark is a wide 33px wordmark; this one is a mascot with the domain under it,
+159px tall at the same scale. Beat kickers derive their y from the mark's actual
+bottom (`_mark_bottom`) — at the old fixed y=214 the heading printed straight
+through the wordmark. `Brand.mark_scale` is 0.62 here for the same reason: a
+tall lockup at a wide wordmark's width dominates the frame.
+
+### The mark's height is charged to the picture, twice
+
+**`mark_scale` is 0.42, down from 0.62, and `PhotoShot.LOGO_CLEAR` is 10, down
+from 16.** The gaming cut shipped at the old numbers and the user's note was
+that the watermark was so big it pushed the photographs down and left an empty
+band across the top — which is exactly what the arithmetic does. A photo that
+*fits* the frame must clear the whole lockup, so at 159px tall the top hairline
+landed at y=272 in a 1080 frame, and then the picture was **scaled down** to fit
+the band that was left. Both costs come out of the same number. At 113x110 the
+same shot starts at y=220 and renders larger.
+
+Do not read this as "the mark can always shrink". It is legible at 0.42 and the
+domain has to stay readable — that is the whole reason the lockup carries it. If
+it needs to come down again, **set the mascot beside the domain instead of above
+it**: a wide mark costs the picture nothing, which is why thecrypto.wiki has
+never had this problem.
+
+`LOGO_CLEAR` is shared, so crypto long form gains 6px too. It cannot move the
+shipped vertical shorts — measured, their photographs sit ~550px down a 9:16
+frame and the dodge never fires.
+
+**That hairline is this brand's peach now, not thecrypto.wiki's gold.**
+`PhotoShot` took its colour from a module constant, so every photograph in every
+tinnitus video — long and short — carried a gold edge, and nothing raised. It
+takes the `Brand` now, like the drawn beats always did. Anything rendered before
+this is off-brand at the photo edges.
+
+The same height difference drives the **photo-border dodge** described in
+`longform.md`: a picture that fits the frame is pushed down (or slightly
+scaled) so its hairline never crosses the mark, while a full-frame picture
+is left alone. It reads the mark's real box rather than a constant, so this
+159px lockup pushes a photograph roughly four times as far as the wordmark
+does — which is exactly why it could not be a number in the source.
+
+## Do not
+
+**Either format:**
+
+- **Make medical claims.** The one rule above all others - describe partial
+  masking and paced breathing as things people do, never as treatment, and never
+  imply a cure.
 - Write copy that oversells what a bed masks without running `band_energy`.
 - Promote a candidate voice to approved. `mia` and `luna-calm` are both
   candidates.
-- Present the app's zen albums as available — the audio files are not on disk.
 - Mass-produce. Same cap as crypto: see `docs/long-form-strategy.md`.
 
-## Do not - the Short
+**Long form only:**
 
-- Make medical claims. YMYL niche — describe partial masking and paced breathing
-  as things people do, never as treatment, and never imply a cure.
-- Promote a candidate voice to approved without being told to.
+- Present the app's zen albums as available - the audio files are not on disk.
+
+**The Short only:**
+
 - Add stock footage, a roaming watermark or any other cutting element to an
   **ASMR** short's picture. `roam` is available there and is the one exception
   worth considering, because it is a crop-resistance measure rather than a
-  visual one — but the picture is deliberately calm and every extra moving
+  visual one - but the picture is deliberately calm and every extra moving
   thing fights the audio, which is the product.
 - Default to driving traffic to the blog. **App install is the far better
   conversion from short-form**, and the only path here with a plausible route to
   revenue.
-- Write copy that oversells the masking these two tracks can actually do above
-  4 kHz.

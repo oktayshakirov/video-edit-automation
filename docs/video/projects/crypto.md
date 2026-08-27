@@ -254,30 +254,30 @@ It bites harder in a short: there are only a dozen slots and the viewer decides
 in one second. Budget **one** abstract, the outro, where an uncluttered frame
 is wanted for the ask. Every other slot wants a thing a viewer can name.
 
-## Do not - long form
+## Do not
 
-- Mass-produce. The strategy doc caps this at 15–20 videos across both sites for
-  a reason: 130 templated explainers is the pattern YouTube suppresses, and
-  three minutes cannot coast on a good first line the way 35 seconds can.
-- Give financial advice, or imply one. Route to the article.
-- Generate scripts from MDX automatically.
+**Either format:**
+
+- Mass-produce. Volume is the failure mode, not the goal - both platforms
+  suppress the AI-script-plus-stock-footage pattern by policy, and the cap is in
+  `docs/long-form-strategy.md`.
+- Give financial advice, or imply one. Route to the article, or to the site's
+  exchange pages, which is where the affiliate revenue actually is.
 - Promote a candidate voice to approved without being told to.
+- Quote `views.json` as evidence about video performance. It is SEO demand.
+- Generate scripts from MDX automatically.
+
+**Long form only:**
+
 - Present the landscape safe box or `max_upscale=1.90` as settled. Both are
   `GUESS` in `core/frame.py` until checked on a real upload at full-screen size.
-- Quote `views.json` as evidence about video. It is SEO demand.
 
-## Do not - the Short
+**The Short only:**
 
-- Mass-produce. Both platforms suppress the AI-script-plus-stock-footage pattern
-  by policy; volume is the failure mode, not the goal.
-- **Build a piece that is mostly stock.** The rule above permits stock; it does
-  not permit a stock slideshow. If the site's images and the drawn beat are not
-  carrying the argument, the reversal has been misread.
+- **Build a piece that is mostly stock.** Stock is permitted; a stock slideshow
+  is not. If the site's images and the drawn beat are not carrying the argument,
+  the reversal has been misread.
 - Open on a still.
-- Give financial advice in a script, or imply one. Route to the site's exchange
-  pages, which is where the affiliate revenue actually is.
-- Promote a candidate voice to approved without being told to.
-- Quote `views.json` as if it measured short-form performance. It is SEO demand.
 - Use an image under ~750px wide, or an infographic at any size.
 - Ship a Commons-sourced portrait without its `CREDITS.md` block in the
   description. Two of the four Saylor photographs are share-alike.

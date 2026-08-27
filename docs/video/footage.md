@@ -525,13 +525,3 @@ inside a minute, nothing held past about eight seconds. **A long hold is
 usually a script problem, not a footage problem** — a `Section` sentence with
 five caption chunks is one span and therefore one picture, so splitting the
 sentence fixes it without touching a word.
-
-## A ping-pong background must not fold at frame zero
-
-**A ping-pong background must not fold at frame zero.** `pingpong` now drops one
-frame from each end of the reversed half and `Backdrop.at` samples from a
-quarter of the loop in, because a palindrome's turnaround is the one moment
-motion stops and every video was opening on one. Only the crypto water was
-affected — the aurora is generated on closed circular paths and has no fold —
-but re-measure any new footage background the same way: step series over the
-whole loop including the wrap, minimum must not land at a fold.

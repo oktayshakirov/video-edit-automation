@@ -57,6 +57,9 @@ water — and the wrap step 4.81 against a 4.49 median. **Re-measure this way
 after adding any footage background**: `d[i] = mean|f[i+1]-f[i]|` over the whole
 loop including the wrap, and check the minimum is not at a fold.
 
+Only footage backgrounds are affected. A generated one - the tinnitus aurora -
+travels closed circular paths and has no fold at all.
+
 **Measure the block, then centre it.** Every beat was first laid out from
 fractions of frame height and every one left the bottom 40–50% of the frame
 empty. Wrapping decides height, so measure before placing.

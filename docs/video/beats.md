@@ -387,12 +387,8 @@ points that read as texture. The test it passes is that its detail turns to
 mush attractively — not that detail is allowed. A background with *legible*
 content is still wrong.
 
-This replaced a ruled grid that drifted behind every beat on both channels. It
-went for two reasons and only one was cosmetic: it stepped a **whole pixel at a
-time** (`int((f * 40) % 96)` on a layer moving 40 px/s), which is the judder
-every other moving element here was fixed for years ago and which the user
-reported as "the background is laggy at 1:00 and 1:35"; and ruled lines behind
-type read as graph paper, identically, in every video on both channels.
+This replaced a ruled grid that drifted behind every beat on both channels -
+why it went, and the judder that gave it away, is in `troubleshooting.md`.
 
 Three things about the asset design, all of which will bite if ignored:
 

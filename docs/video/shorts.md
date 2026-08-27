@@ -280,132 +280,62 @@ face.** The myths short opens on the same low-key portrait the long form
 opens on, which is the same argument the shared thumbnail already makes: a
 viewer who sees both should recognise the second one.
 
-## Per-word karaoke captions are built, and available here
+## Per-word karaoke captions, on by default
 
-**`render_crypto_short(karaoke=True)`** lights the word being spoken in the
-brand accent at a slight scale while the rest of the phrase stays white — the
-treatment every short-form platform's own auto-captions use. It was asked for
-on the tinnitus channel first ("a lot of tiktok videos do this"), shipped
-there as the default, and **is now the default here too** (flipped
-2026-08-27, on the user's instruction after the drone stack-vs-cuts A/B —
-same instinct: give the viewer more to track on screen). Pass `karaoke=False`
-to opt out on a specific short.
+**`karaoke=True` is the default on both `render_crypto_short` and
+`render_tinnitus_short`.** The word being spoken is lit in `brand.primary` at a
+slight scale while the rest of the phrase stays white - what every short-form
+platform's own auto-captions do, and what the user asked for ("a lot of tiktok
+videos do this"). Asked for on the tinnitus channel first and shipped there as
+the default; flipped on for crypto 2026-08-27 after the drone stack-vs-cuts A/B,
+same instinct - give the viewer more to track on screen. Pass `karaoke=False` to
+opt out on a specific short.
 
-Four things that are load-bearing, all found building it:
-
-- **The layout is measured once at the base size and never re-flowed.** The
-  active word is drawn larger *about its own centre, inside the advance the
-  base font reserved for it*, so no other word moves. Re-measuring the line
-  with one word enlarged makes the sentence twitch sideways on every
-  syllable.
-- **`grow` is 1.08.** The enlarged word overhangs its box by half the
-  difference each side and at 1.14 a long word visibly touched its
-  neighbours. The colour does most of the work.
-- **`CaptionSprite` gained per-sprite `fade_in`/`fade_out` for this.** The
-  shared 0.13s entrance re-firing on every syllable cross-dissolves the
-  phrase against a near-identical copy of itself — a flicker that reads as a
-  broken render. Only a caption's first word frame animates in and only its
-  last animates out.
-- **Word timings are apportioned by `len(word) + 1`, not aligned.**
-- **Use `Caption.speech_end`, never `Caption.end`, as the stop point.** The
-  first cut to ship this tried to recover "where the voice stops" by
-  scanning forward for the next caption's `start` — but `.end` had already
-  been stretched to exactly that value by the hold-until-next rule, so the
-  scan was circular and every word lit late, worst on a short sentence with
-  a long trailing gap. `speech_end` is set once in `Caption.__post_init__`,
-  before the stretch loop runs, and is the only reliable way to get the
-  pre-stretch boundary back.
-
-Captions carrying an emoji keep the single-PNG treatment, because
-`add_caption_emoji` re-centres the whole line around the glyph.
-
-**Confirmed fixed on the tinnitus channel's fifth myths cut** — checked
-against the actual audio (a `silencedetect` pass on the mixdown), not just
-frames: the highlight's timing lined up with the words, not a rounded
-approximation of them.
-
-## Per-word captions on shorts, and why the sprite had to change
-
-**`karaoke=True` is the default on `render_tinnitus_short` now.** The user
-asked for the treatment every short-form platform uses: the whole phrase
-stays up and the word being spoken is picked out in colour at a slight
-scale. `core.vertical.render_caption_karaoke` draws one frame per word and
+`core.vertical.render_caption_karaoke` draws one frame per word and
 `crypto/build._karaoke_sprites` emits one sprite per word.
 
-Four things that are load-bearing:
+**Five things are load-bearing, all found by building it:**
 
 - **The layout is measured once at the base size and never re-flowed.** The
-  active word is drawn larger *about its own centre, inside the advance the
-  base font reserved for it*, so no other word moves. Re-measuring the line
-  with one word enlarged makes the sentence twitch sideways on every
-  syllable, which is much worse than no highlight.
-- **`grow` is 1.08, not 1.14.** The enlarged word overhangs its box by half
-  the difference each side, and at 1.14 a long word visibly touched its
-  neighbours — the inter-word gap is one space at caption size. The colour is
-  doing most of the work.
-- **`CaptionSprite` needed per-sprite `fade_in`/`fade_out`.** Every sprite
-  used to run the same 0.13s scale-and-fade entrance, which for a per-word
-  caption re-fires on every syllable and cross-dissolves the phrase against a
-  near-identical copy of itself — a soft flicker that reads as a broken
-  render. Only the first word frame of a caption animates in and only the
-  last animates out; the ones between hard-cut.
+  active word is drawn larger *about its own centre, inside the advance the base
+  font reserved for it*, so no other word moves. Re-measuring the line with one
+  word enlarged makes the sentence twitch sideways on every syllable, which is
+  much worse than no highlight at all.
+- **`grow` is 1.08, not 1.14.** The enlarged word overhangs its box by half the
+  difference each side, and at 1.14 - tried first - a long word visibly touched
+  its neighbours, because the inter-word gap at caption size is a single space.
+  The colour carries most of the "this word is live" signal; the scale only
+  keeps the highlight from reading as flat.
+- **`CaptionSprite` needed per-sprite `fade_in`/`fade_out`.** Every sprite used
+  to run the same 0.13s scale-and-fade entrance, which on a per-word caption
+  re-fires every syllable and cross-dissolves the phrase against a
+  near-identical copy of itself - a soft flicker that reads as a broken render.
+  Only a caption's first word frame animates in and only its last animates out;
+  the ones between hard-cut.
 - **Word timings are apportioned, not aligned.** `_word_spans` splits a
-  caption's span by `len(word) + 1`. The chunk boundaries either side are
-  real DTW timestamps and a chunk is three to six words, so the drift is
-  under a syllable; aligning per word would mean synthesising every word of
-  the script alone as a timing reference.
+  caption's span by `len(word) + 1`. The chunk boundaries either side are real
+  DTW timestamps and a chunk is three to six words, so drift stays under a
+  syllable. Aligning per word would mean synthesising every word of the script
+  alone as a timing reference.
+- **Use `Caption.speech_end`, never `Caption.end`, as the stop point.** This is
+  the one that shipped broken - see below.
 
-**And it shipped with a real lag anyway, on the first cut to use it — see
-"The karaoke lag" below.** The fix landed after this section was first
-written; read that one too before touching `_karaoke_sprites` again.
+**It shipped with a real, visible lag on every word.** The first cut tried to
+recover "where the voice stops" by scanning forward for the next caption's
+`start` - but `.end` had already been stretched to exactly that value by the
+hold-until-next rule, so the scan was circular and every word lit late, worst on
+a short sentence with a long trailing gap. `speech_end` is set once in
+`Caption.__post_init__`, before the stretch loop runs, and is the only way to
+get the pre-stretch boundary back. **Read this before touching
+`_karaoke_sprites` again.**
 
-Captions carrying an emoji keep the single-PNG treatment: `add_caption_emoji`
-re-centres the whole line around the glyph, which the per-word layout does
-not model.
+**Confirmed fixed on the tinnitus channel's fifth myths cut** - checked against
+the actual audio with a `silencedetect` pass on the mixdown rather than by
+eyeballing frames.
 
-## Captions are per-word now, and a music bed is not optional
-
-**Both were the user's call on the myths pair, and both are defaults.**
-
-`render_tinnitus_short(karaoke=True)` — the default — lights the word being
-spoken in the brand accent at a slight scale while the rest of the phrase
-stays white. It is what every short-form platform's own auto-captions do and
-what the user asked for: "a lot of tiktok videos do this". The full mechanism
-and the four things that are load-bearing about it live in
-`longform.md`; the two that will bite you here are that the layout
-is measured once at the base size so nothing reflows, and that
-`CaptionSprite` now takes per-sprite `fade_in`/`fade_out` because the shared
-0.13s entrance re-firing on every syllable made the phrase flicker.
-
-**The first myths short shipped with a real, visible lag on every word.**
-The cause and the fix (`Caption.speech_end`, captured before the
-hold-until-next stretch) are recorded in `longform.md` under "The
-karaoke lag" — read it before touching `_karaoke_sprites`. The short version:
-`speech_end` exists precisely because `.end` gets rewritten for display
-before the karaoke code ever sees the caption, so recovering the original
-boundary any other way just finds the rewritten one again. **Confirmed fixed
-on the fifth myths cut** — checked against the actual audio (a
-`silencedetect` pass on the mixdown) rather than just eyeballing frames, and
-the cross-mark landing on the checklist beat lined up with the natural pause
-after the spoken reaction line, not before it.
-
-**The colour and scale, concretely, since this is the one place on the
-channel that draws them:** the active word is `brand.primary` — this
-channel's peach, not a separate karaoke colour — at full opacity, and
-`grow=1.08` on `render_caption_karaoke` (the default). Every other word stays
-white. `1.08` is deliberately small: the enlarged word is centred *inside the
-advance the base font reserved for it*, so at `1.14` — tried first — a long
-word visibly touched its neighbours, because the inter-word gap at caption
-size is a single space. The colour change carries most of the "this word is
-live" signal; the scale is there only to keep the highlight from reading as
-flat.
-
-**Every short gets `music.track("night-drift")` at `music_gain=0.85`.**
-`render_crypto_short` had taken `music`/`music_gain` for a long time and the
-article shorts simply never passed them, while both short skills went on
-recording it as "requested and not yet built". **The generated presets
-(`bright`, `pulse`, `tension`) are retired on this channel and are not to be
-used again.**
+Captions carrying an emoji keep the single-PNG treatment, because
+`add_caption_emoji` re-centres the whole line around the glyph, which the
+per-word layout does not model.
 
 ## A short's `Shot` list has no `None` holds — that is longform-only
 

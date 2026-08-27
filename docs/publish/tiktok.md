@@ -87,3 +87,16 @@ for it as a fix.
   they share one. A missing `www.` or a trailing slash fails the same way, and
   note `oktayshakirov.com` is registered without `www.` while the other two have
   it.
+
+## Two rules that predate the draft workflow, and still hold
+
+**Add native captions in the app, even when the text is burned in.** TikTok
+reads on-screen text for topic classification and burned-in pixels feed it
+nothing. The burned text is for cross-posting; the native caption is for reach.
+It belongs in the closing manual list beside the cover and the caption.
+
+**Never cross-post a file carrying another platform's watermark.** Export per
+platform. A TikTok-watermarked render on Instagram or YouTube is downranked by
+both, and the drafts we hand over are clean - the watermark only appears on a
+file saved back out of the TikTok app, so never round-trip one.
+

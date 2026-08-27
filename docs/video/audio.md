@@ -99,53 +99,6 @@ only with text over it.
 **Music is `bright`**, not `pulse`. Warmer and less tense. This audience is
 frequently here *because* sound is a problem; the bed should not be one.
 
-**The picture library is thin and small.** 105 images, only 27 reach 900px, and
-none exceed 1000px. At `max_upscale=1.90` a 900px source cannot fill 1920 — so
-**prefer beats with `picture=` over full-frame photos**, where the same source in
-the 660px column is a downscale. Fill the rest with screened stock; the article
-video uses six clips and eleven site images.
-
-**The watermark is a different shape and it moves the kickers.** thecrypto.wiki's
-mark is a wide 33px wordmark; this one is a mascot with the domain under it,
-159px tall at the same scale. Beat kickers derive their y from the mark's actual
-bottom (`_mark_bottom`) — at the old fixed y=214 the heading printed straight
-through the wordmark. `Brand.mark_scale` is 0.62 here for the same reason: a
-tall lockup at a wide wordmark's width dominates the frame.
-
-### The mark's height is charged to the picture, twice
-
-**`mark_scale` is 0.42, down from 0.62, and `PhotoShot.LOGO_CLEAR` is 10, down
-from 16.** The gaming cut shipped at the old numbers and the user's note was
-that the watermark was so big it pushed the photographs down and left an empty
-band across the top — which is exactly what the arithmetic does. A photo that
-*fits* the frame must clear the whole lockup, so at 159px tall the top hairline
-landed at y=272 in a 1080 frame, and then the picture was **scaled down** to fit
-the band that was left. Both costs come out of the same number. At 113x110 the
-same shot starts at y=220 and renders larger.
-
-Do not read this as "the mark can always shrink". It is legible at 0.42 and the
-domain has to stay readable — that is the whole reason the lockup carries it. If
-it needs to come down again, **set the mascot beside the domain instead of above
-it**: a wide mark costs the picture nothing, which is why thecrypto.wiki has
-never had this problem.
-
-`LOGO_CLEAR` is shared, so crypto long form gains 6px too. It cannot move the
-shipped vertical shorts — measured, their photographs sit ~550px down a 9:16
-frame and the dodge never fires.
-
-**That hairline is this brand's peach now, not thecrypto.wiki's gold.**
-`PhotoShot` took its colour from a module constant, so every photograph in every
-tinnitus video — long and short — carried a gold edge, and nothing raised. It
-takes the `Brand` now, like the drawn beats always did. Anything rendered before
-this is off-brand at the photo edges.
-
-The same height difference drives the **photo-border dodge** described in
-`longform.md`: a picture that fits the frame is pushed down (or slightly
-scaled) so its hairline never crosses the mark, while a full-frame picture
-is left alone. It reads the mark's real box rather than a constant, so this
-159px lockup pushes a photograph roughly four times as far as the wordmark
-does — which is exactly why it could not be a number in the source.
-
 ## Sound effects
 
 All synthesized, all in `core/sfx.py`, all cued from the shot list by
@@ -201,29 +154,17 @@ levitating at each anchor. Every anchor is validated against all four safe
 edges, not just the top. Full reasoning in `shorts.md`, where it was
 specced.
 
-## Shorts take a music bed
+## Shorts take a music bed, and it is not optional
 
-`render_crypto_short(..., music=..., music_gain=...)` — the same arguments
-`render_long` has always taken, running the same `render_bed` +
-`mix_voice_over_bed` path. Shorts never had one, which was a gap rather than a
-decision, and the user's call is that every short gets one from here on.
-`music.track("night-drift")` serves both sites; the generated presets remain
-the licence-safe default.
+**Every short gets `music.track("night-drift")` at `music_gain=0.85`.**
+`render_crypto_short` had taken `music`/`music_gain` for a long time and the
+article shorts simply never passed them, while both short skills went on
+recording it as "requested and not yet built" long after it was built.
 
-Gain slightly under long form's (0.85 is what tinnitus uses): a short is
-watched on a phone speaker with the voice carrying all the information. It
-matters more here than in long form — a short opens with no lead-in silence and
-is judged in its first second, and a synthesised voice over silence sounds like
-a voice memo.
+Gain sits slightly under the long form's: a short is watched on a phone speaker
+with the voice carrying all of the information. It matters more here than in
+long form - a short opens with no lead-in silence and is judged in its first
+second, and a synthesised voice over silence sounds like a voice memo.
 
-## Shorts get the music bed too
-
-`render_crypto_short` has taken `music`/`music_gain` for a while and the
-article shorts were simply not passing them — recorded in both short skills
-as "requested and not yet built" long after it was built. **Every short gets
-`music.track("night-drift")` at `music_gain=0.85`.**
-
-**The generated presets are retired on this channel.** `bright`, `pulse` and
-`tension` are not to be used again — the user's call. `night-drift` is the
-prepared track, it is shared with thecrypto.wiki, and it is stored trimmed so
-its loop has no hole in it.
+The generated presets are retired here too; see *Music: the generated presets
+are retired* above.
