@@ -20,6 +20,7 @@ only what this build touches:
 | Step | Read |
 | --- | --- |
 | Before writing a word | `docs/video/narration.md`, `docs/video/projects/crypto.md` |
+| How the synthesiser behaves | `docs/video/voice.md` |
 | The long form | `docs/video/longform.md` |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |

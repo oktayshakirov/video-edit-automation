@@ -9,7 +9,8 @@ and one publishes them, `/publish-video`. The skills are thin: they hold the
 | Doc | What it owns |
 | --- | --- |
 | `workflow.md` | The run itself: suggest, pick, script, render, review, hand off |
-| `narration.md` | Writing a script to be spoken - silence, phrasing, banned phrases, pronunciation |
+| `narration.md` | Writing a script to be spoken - silence, phrasing, banned phrases |
+| `voice.md` | Synthesis: Kokoro backends, profiles, pronunciation, caption sync |
 | `longform.md` | The 16:9 explainer: shape, chapters, timing, opener, outro |
 | `shorts.md` | The 9:16 cut: crop, captions, the four beats that transfer |
 | `beats.md` | The drawn graphics - `bars`, `grid`, `steps`, `checklist`, `compare`, `logos` |
@@ -20,7 +21,8 @@ and one publishes them, `/publish-video`. The skills are thin: they hold the
 | `troubleshooting.md` | Engine faults that already cost a re-cut once |
 | `projects/crypto.md` | thecrypto.wiki: voice, copy, what the site gives you |
 | `projects/tinnitus.md` | tinnitushelp.me: article explainers *and* sound-therapy sessions |
-| `projects/drone.md` | Drone: the Final Cut long form and the vertical cut |
+| `projects/drone-long.md` | Drone: the Final Cut FCPXML edit |
+| `projects/drone-short.md` | Drone: the vertical cut |
 
 Read `workflow.md` first, then the docs for the format you are building. Do not
 read all of them - most of a build touches four or five.

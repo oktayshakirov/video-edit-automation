@@ -1,7 +1,8 @@
 # Narration craft
 
 How a script is written to be *spoken*. Applies to every project and both
-formats; the per-project safety limits sit in `projects/*.md`.
+formats. How the synthesiser then behaves is `voice.md`; the per-project safety
+limits are in `projects/*.md`.
 
 ## Narration craft: write it to be spoken, not to be read
 
@@ -237,21 +238,6 @@ Sources: [vidIQ](https://vidiq.com/blog/post/write-youtube-video-script/),
 [Storyflow](https://storyflow.so/blog/youtube-video-script-template-7-part-framework-retention-2025),
 [Sumera](https://sumera.io/blog/youtube-hook-formulas-script-examples).
 
-## Do not write a two-word imperative for a synthesiser to read
-
-"Do not." was written as its own sentence with a 0.90 after it, straight out
-of this doc's own advice about imperatives landing in silence. On the page it
-is the strongest line in the section; read by Kokoro it is **two syllables and
-then nothing**, and the user's note was that it loses the human sound of the
-voiceover. A person saying "Do not." carries it with emphasis and a falling
-pitch, and there is no emphasis to give.
-
-**Write the full sentence and let the gap do the work.** "Do not make that
-mistake." is the same beat, still lands on its own, and gives the synthesiser
-enough to read as speech. The gap table is unchanged - what changed is that a
-fragment cannot cash the pause the table buys it. This does not retire the
-imperative rule; it bounds it: **an imperative needs a subject and a verb.**
-
 ## A tip needs a reason before it is a tip
 
 The first cut went straight from the custody beat into "turn on two-factor,
@@ -261,101 +247,6 @@ advice, and generic advice is the thing an explainer is supposed to not be. One
 sentence fixes it, and it should tie back to the beat above rather than being a
 new topic: "You cannot change who holds the keys. You can change how much they
 are holding."
-
-## Hold a word by writing a pause, not by respelling the vowel
-
-The outro's "So - would you rather..." was asked to sound like a drawn-out
-"soo would you rather", for a more human close. **Respelling does not work:**
-espeak reads `Soo` as `sˈuː` ("sue") and `Sooo` as `sˈuːoʊ`, both the wrong
-vowel, and Kokoro has no per-phoneme duration control.
-
-What does work is punctuation, measured in the engine rather than guessed:
-
-| written | pause after "So" |
-|---|---|
-| `So -` | **none** — it runs straight through |
-| `So,` | ~150ms |
-| `So...` | ~170ms, vowel intact |
-
-So the hold is a *pause*, not a longer vowel. The ellipsis goes in the **spoken**
-half of a `(caption, spoken)` pair so the caption keeps its hyphen, per this
-file's own "only a hyphen goes on screen" rule.
-
-## Sentences are synthesised in runs, not one at a time
-
-**The user's note was that the presentation "doesn't sound human" and that the
-breaks are unnatural, and the largest cause was architectural rather than the
-model.** `build_narration_aligned` used to call the synthesiser once per
-sentence and concatenate the results with `anullsrc` silence. Two consequences,
-both measured on the proof-of-stake script:
-
-- **Every sentence was a cold start.** Five consecutive lines synthesised alone
-  opened at 258, 271, 229, 227 and 246 Hz — every one a fresh sentence-initial
-  reset, high in the speaker's range. The same five as one utterance sat at
-  199 Hz falling to 193: a calm register with real paragraph declination. A
-  script of cold starts is what "reading a list" sounds like.
-- **Every pause was digital zero.** Each sentence was also hard-trimmed at both
-  ends by `librosa.effects.trim`, so the audio floor dropped to absolute
-  silence roughly sixty times in a 3:30 video, with no breath and no decay.
-
-Sentences now go to the model in **runs**, and a run breaks where the *script*
-asks for a real pause (`RUN_BREAK_GAP`, 1.0s) — a checklist's verdict silence
-or a statement card is a written beat and the silence is the point, so joining
-across it would smooth away what the gap was buying. Inside a run the model's
-own breaths are kept and `_pad_pause` tops them up to the scripted `gap` by
-inserting into the **quietest point** of the existing pause, so the decay
-before and the onset after survive. Measured on the same seven lines: internal
-absolute-silence gaps went 7 → 3.
-
-**What this does not fix.** Kokoro is an 82M model with no prosody control and
-no emotion parameter. The register and the joins are much better; the ceiling
-is unchanged. Anything beyond it is an engine change, and the options
-researched — ElevenLabs (word-level timestamps, `<break>` tags, an IPA
-pronunciation dictionary; needs a paid tier for monetised video), Chatterbox
-(MIT, but CPU-only on Apple Silicon) and Orpheus (Apache, needs a GGUF/LM
-Studio path) — are a decision the user takes by ear, not a default to change.
-`synth_phrase` remains the only place an engine is named, so the swap stays
-cheap whenever they want it.
-
-## A one-word sentence has nothing to fall from
-
-**"Money." was flagged as sounding like a question rather than a statement.**
-Measured on the shipped audio, the pitch runs 211 → 255 → **274** → 200 → 206
-Hz: it peaks mid-word and ends roughly *level*. A contour that does not resolve
-downward is heard as unfinished, which is heard as a question.
-
-This is the same failure this doc already records for "Do not." — a fragment
-cannot cash the pause the gap table buys it — arriving on a one-word *answer*
-rather than a one-word imperative. Run-based synthesis helps, because the line
-now falls out of the sentence before it instead of starting cold. But the rule
-generalises: **a one-word sentence is a rhetorical device on the page and a
-liability in the mouth.** Keep it only where the preceding line hands it real
-momentum, and never as the first line of a run.
-
-## Check every proper noun with espeak, not just the risky-looking ones
-
-`Ethereum` shipped mispronounced. It phonemizes to `ˌiːθɚɹˈiːəm` —
-"ee-thuh-REE-um", stress on the wrong syllable — where `Etheerium` returns the
-correct `iːθˈɪɹiəm`. The phoneme rule was being applied only to words that
-*looked* risky: initialisms, tickers, invented brand names. **A proper noun
-that looks like an ordinary English word is exactly where this hides.** Respell
-in the spoken half of a `(caption, spoken)` pair.
-
-## Ethereum, and checking a brand name you think you know
-
-`Ethereum` phonemizes to `ˌiːθɚɹˈiːəm` — "ee-thuh-REE-um", stress on the wrong
-syllable and a schwa where the vowel wants to be `ɪɹ`. It shipped, and the user
-caught it.
-
-    espeak-ng -v en-us -q --ipa "Ethereum"    # ˌiːθɚɹˈiːəm   wrong
-    espeak-ng -v en-us -q --ipa "Etheerium"   # iːθˈɪɹiəm     right
-
-The respell goes in the **spoken** half of a `(caption, spoken)` pair, exactly
-as `Binance`/`Bynanse` already does. The wider lesson is that this doc's
-phoneme rule was being applied only to words that *looked* risky — initialisms,
-tickers, invented brand names. **`Ethereum` looks like an ordinary English
-word and is not one.** Check every proper noun in the script, not the ones that
-feel like they need it.
 
 ## Titles: a question gets a question mark, every time
 

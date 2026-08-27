@@ -2,7 +2,7 @@
 
 The 2-4 minute explainer: shape, chapters, timing, the opener and the outro.
 Shared by crypto and tinnitus. Drone long form is a different engine entirely -
-see `projects/drone.md`.
+see `projects/drone-long.md`.
 
 ## The shape
 

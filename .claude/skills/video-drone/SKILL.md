@@ -10,8 +10,8 @@ video is normally long *or* short - ask which, and do not build both unasked.
 The two are different products with different audiences:
 
 - **Long form** - a folder of graded selects cut to a music track, written out
-  as an FCPXML and finished by hand in Final Cut. The footage *is* the product,
-  so a human step in the loop is the point rather than a cost.
+  as an FCPXML and finished by hand in Final Cut. It never renders a video. The
+  footage *is* the product, so a human step in the loop is the point.
 - **Short** - a 9:16 crop with quote text or narration, rendered headless.
 
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
@@ -22,17 +22,20 @@ The two are different products with different audiences:
 The steps live in `docs/video/workflow.md` - read it first, though a drone run
 skips the topic-suggestion step, which is article-driven. Then:
 
-| Step | Read |
-| --- | --- |
-| Either format | `docs/video/projects/drone.md` - the whole build lives here |
-| Narration on a Short | `docs/video/narration.md` |
-| Vertical mechanics | `docs/video/shorts.md` |
-| Type on screen | `docs/video/design.md` |
-| Music | `docs/video/audio.md` |
-| Something rendered wrong | `docs/video/troubleshooting.md` |
+**The two formats are different engines and share no build code.** Read only
+the one you are building.
 
-Drone does not use the drawn beats, the site's photos or the stock shelf, so
-`beats.md` and `footage.md` do not apply.
+| Long form (FCPXML) | Vertical (MP4) |
+| --- | --- |
+| `docs/video/projects/drone-long.md` | `docs/video/projects/drone-short.md` |
+| | `docs/video/shorts.md` - the shared vertical engine |
+| | `docs/video/narration.md` and `docs/video/voice.md`, when narrated |
+| | `docs/video/design.md` for type on screen |
+| `docs/video/audio.md` - music | `docs/video/audio.md` - music |
+| `docs/video/troubleshooting.md` | `docs/video/troubleshooting.md` |
+
+Drone uses neither the drawn beats nor the site photos and stock shelf, so
+`beats.md` and `footage.md` do not apply to either format.
 
 ## The run
 
@@ -53,6 +56,6 @@ here. Do not describe upload steps or re-derive them from memory.
 ## The rule that matters most here
 
 **Locking.** An approved cut is not to be silently re-derived. Read the locking
-section in `docs/video/projects/drone.md` before touching an existing edit; it
+section in `docs/video/projects/drone-long.md` before touching an existing edit; it
 is the one mistake in this project that destroys work rather than costing a
 render.

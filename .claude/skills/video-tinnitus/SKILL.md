@@ -24,6 +24,7 @@ only what this build touches:
 | --- | --- |
 | Before anything | `docs/video/projects/tinnitus.md` - which product, the voice roster, and the medical limits |
 | Before writing a word | `docs/video/narration.md` |
+| How the synthesiser behaves | `docs/video/voice.md` |
 | The long form | `docs/video/longform.md` |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
