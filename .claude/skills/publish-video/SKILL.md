@@ -1,16 +1,30 @@
 ---
 name: publish-video
-description: Publish a finished render to YouTube, Instagram Reels, Facebook (Reels for shorts, native video for long form) and TikTok, then to the site. Use when the user says "upload" or "publish" after a video has been built by any of the video-crypto / video-tinnitus / video-drone skills, or asks to post an existing render to the platforms. Covers the whole sequence - YouTube upload with thumbnail and metadata, the Reel workflows in n8n, the TikTok draft, the native Facebook upload for long form, and the videos.json site entry.
+description: Publish a finished render to YouTube, Instagram Reels, Facebook (Reels for shorts, native video for long form) and TikTok, then to the site. Use when the user says "upload" or "publish" after a video has been built by any of the video-crypto, video-tinnitus or video-drone skills, or asks to post an existing render to the platforms. Covers the whole sequence - YouTube upload with thumbnail and metadata, the Reel workflows in n8n, the TikTok draft, the native Facebook upload for long form, and the videos.json site entry.
 ---
 
 # Publish a video
 
-The six `video-*` skills **build**. This one **publishes**. They hand over and
+The three `video-*` skills **build**. This one **publishes**. They hand over and
 say nothing about uploading; when the user says "upload", load this file and run
 the sequence below. Splitting it this way is deliberate: the sequence is
-identical for all three projects, and six copies of it would drift.
+identical for all three projects, and a copy per project would drift.
 
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with `PYTHONPATH=.`.
+
+## Start by reading the handoff
+
+The build session ends by committing its work and writing
+`HANDOFF-PUBLISH.md` at the repo root - what was built, the absolute path of
+every file, the source article slug, and anything left undecided. **Read it
+first, and check `git status` is clean.**
+
+A dirty tree means the build session did not finish. Say so and stop rather
+than publishing a render whose script is not committed - the site entry and the
+social posts both cite work that has to exist in history afterwards.
+
+If there is no handoff file, ask the user which render to publish and confirm
+the paths before running anything. Do not guess from the Desktop's newest MP4.
 
 ## Where each video goes
 
@@ -42,6 +56,17 @@ Run the whole thing on one "upload" without asking again per step. The gates at
 the bottom are the exceptions, and they are not negotiable by a standing
 instruction.
 
+**Invoking this skill authorizes the full sequence across every platform in
+the table above, for every video the run covers - not just YouTube and the
+site.** Settled 2026-08-27, after a run stopped short of Instagram, Facebook
+Reels and TikTok on the reasoning that "upload... to the crypto wiki pages"
+meant the site only, and the user corrected it: when they say to run this
+skill, run everything the table says that project gets. Do not re-derive a
+narrower scope from the wording of the request - the table is the scope.
+The per-post confirmation in the Gates section still stands for what a
+caption says and for the moment of triggering, but it is not a reason to omit
+a platform from the run.
+
 1. **The long first, then the short.** The short's description links to the long,
    so the long needs an id before the short is uploaded.
 2. **YouTube, via `youtube-audit`.** Dry run, then `--apply`.
@@ -49,8 +74,10 @@ instruction.
    the long's native Facebook upload need a public URL, so serve the render
    folder and open one tunnel rather than one per video. Stop it after step 4.
 4. **Short: Reels then TikTok. Long: native Facebook upload, then poster,
-   `videos.json`, the deploy gate and `npm run sync-content`.** The site half is unchanged from what
-   `video-crypto-long` documents; that is still the canonical copy. The Facebook
+   `videos.json`, the deploy gate and `npm run sync-content`.** The site half is
+   documented in full below - this skill is its only copy, and
+   `docs/site-video-integration.md` in the repo is the reference for the
+   registry's shape. The Facebook
    step is the Publish Facebook Video workflow - the Share Video workflows it
    replaced were deleted on 2026-08-20. Pass the **full** YouTube description;
    that workflow trims it to the first paragraph plus the article link itself.
@@ -406,7 +433,7 @@ The whole sequence runs on one "upload". These do not:
 
 - **Pushing to the live site and posting to social media are confirmed in the
   chat they happen in, every session**, regardless of any standing instruction.
-  That rule is inherited from `video-crypto-long` and is not relaxed here.
+  This is a standing rule of the publish sequence, not a per-run preference.
 - **The `--apply` dry run is never skipped** on a YouTube upload. Show the plan.
 - **A first post to a brand's Instagram or Facebook page is public the moment it
   succeeds** and cannot be made unlisted. There is no dry run for a Reel. Confirm
@@ -441,9 +468,8 @@ now get a link post for every long-form video - `@thecryptowiki` and
 `@tinnitushelpme`, on the same credentials the article workflows use.
 
 **Long form only.** Shorts stay off Telegram: they already go to Instagram,
-Facebook Reels and TikTok, and a channel post for every short is noise. This
-matches the "only the long form gets a social share" line in
-`video-crypto-long`, which the Reel table does not contradict - a Reel is
+Facebook Reels and TikTok, and a channel post for every short is noise. Only the long form gets a
+social share of this kind, which the Reel table does not contradict - a Reel is
 distribution, a channel post is an announcement.
 
 **It is a link post, not an upload.** `sendMessage` with title, hook and the
@@ -575,6 +601,19 @@ the live node's `parameters.file` and `parameters.additionalFields.caption`
 before trusting `telegramSent` on any future run; if either still reads
 `$json.X` rather than `$('Normalise Input').item.json.X`, the inline branch
 will keep failing silently in exactly this shape.
+
+**Confirmed still present on the crypto workflow, 2026-08-26** (publishing
+`proof-of-stake`): `Telegram Post` errored `Bad Request: there is no photo in
+the request` on the inline branch, same as the tinnitus one. **Fell back to
+the standalone workflow, and it also failed once - a genuine `ETIMEDOUT` to
+Telegram's IPv6 address, not a workflow bug.** The standalone workflow has no
+IF node ahead of `Telegram Post`, so its `$json.posterUrl` is correct by
+construction; a second submission of the same form succeeded in 1.2s. **A
+timeout on the standalone workflow is safe to retry immediately** - it is
+idempotent by design (a fresh `sendPhoto` call, no state to double-write) and
+this is a different failure class from the inline branch's silent
+parameter bug. Read the execution's own error before deciding which one you
+are looking at.
 
 ## Never let n8n sign the message
 

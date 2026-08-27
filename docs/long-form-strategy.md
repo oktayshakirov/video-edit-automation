@@ -1,6 +1,6 @@
 # Long-form strategy — YouTube explainers for thecrypto.wiki and tinnitushelp.me
 
-Plan for `/video-crypto-long` and `/video-tinnitus-long`. Written 2026-08-11,
+Plan for `/video-crypto` and `/video-tinnitus`. Written 2026-08-11,
 before any of it is built. Grounded in the two sites' own traffic data and in a
 count of what pictures actually exist, not in general video advice.
 
@@ -35,7 +35,7 @@ never touches. That is real incremental discovery. It is not SEO for the site.
 **Referral traffic back to the site will be small.** Description links convert
 well under 2% of views in most niches; YouTube is built to keep people on
 YouTube. The case for this work is a second discovery surface, brand, and — for
-tinnitus — app installs, which `video-tinnitus-short` already identifies as the
+tinnitus — app installs, which `/video-tinnitus` already identifies as the
 better conversion than blog traffic.
 
 ### The risk that outweighs all of it
@@ -230,7 +230,7 @@ depth on the first actual Audio Library track.
 
 ## What Phase 3 settled
 
-Skills `/video-crypto-long` and `/video-tinnitus-long`, symlinked into
+Skills `/video-crypto` and `/video-tinnitus`, symlinked into
 `~/.claude/skills/`. First pilot built: `projects/crypto-long/satoshi-proof.py`,
 from the same post as the `crypto-satoshi-proof` short, reusing its angle and
 going deeper — three minutes has room for the verification procedure and the
@@ -408,7 +408,7 @@ consider caching prepared layers per shot.
 
 ### Phase 3 — the two skills
 
-`/video-crypto-long` and `/video-tinnitus-long`, symlinked into `~/.claude/skills/`
+`/video-crypto` and `/video-tinnitus`, symlinked into `~/.claude/skills/`
 like the others, plus per-video scripts in `projects/crypto-long/<slug>.py` and
 `projects/tinnitus-long/<slug>.py`.
 

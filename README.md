@@ -39,7 +39,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
 # make the skills available in any session, from any folder
-for s in video-drone-long video-drone-short video-crypto-short video-tinnitus-short; do
+for s in video-crypto video-tinnitus video-drone publish-video; do
   ln -sfn "$PWD/.claude/skills/$s" ~/.claude/skills/$s
 done
 ```
@@ -48,13 +48,18 @@ The symlinks matter: skills under `.claude/skills/` are project-scoped, so
 without them the commands are invisible when a session starts in a footage
 folder rather than in this repo.
 
-One skill per format, deliberately. **`/video-drone-long`** produces a long-form
-FCPXML timeline and never renders video; **`/video-drone-short`** renders vertical
-MP4s with text and optional narration. They share the clip index but have
-different pacing models, different output and different numbers behind them —
-one skill covering both would need a description vague enough to hurt routing.
-**`/video-crypto-short`** and **`/video-tinnitus-short`** are stubs that record
-their saved voices and state plainly that nothing else is built.
+**One skill per project, three of them, and they only build.**
+**`/video-crypto`** and **`/video-tinnitus`** each turn one article into a
+long-form 16:9 and its vertical Short in a single run - the pair is written
+together so the Short is not a trailer for the long one. `/video-tinnitus` also
+builds sound-therapy sessions. **`/video-drone`** builds either a long-form
+FCPXML timeline finished by hand in Final Cut, or a vertical MP4, usually one
+and not both. **`/publish-video`** is the only thing that uploads anything.
+
+The skills are thin - they carry the *order of the work*. Every rule a build
+needs lives once in `docs/video/`; start at `docs/video/README.md`, which also
+sets out where a new lesson goes so these files cannot drift back into
+duplicating each other.
 
 Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 3.11+ (`tomllib`).
@@ -110,7 +115,8 @@ video_automation/
   longform/         the 16:9 format, shared by both sites: beats, plan, build
 projects/           one directory per site AND format — see projects/README.md
   crypto-short/  crypto-long/  tinnitus-short/  tinnitus-long/  drone-long/
-.claude/skills/     six skills — symlink into ~/.claude/skills/
+.claude/skills/     four skills — symlink into ~/.claude/skills/
+docs/video/         every build rule, once — start at docs/video/README.md
 assets/
   brand/            wordmarks, looping backgrounds, the music library
   stock/            Pexels cache; bytes gitignored, manifest.json is not

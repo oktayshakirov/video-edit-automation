@@ -1,44 +1,153 @@
----
-name: video-drone-short
-description: Make vertical short-form videos for TikTok and YouTube Shorts from drone footage — 9:16 crop, quote or motivational text, optional AI voiceover with synced captions. Use when the user runs /video-drone-short, asks for a TikTok or Short or Reel, wants a vertical or cropped version of drone footage, wants text or a quote over a clip, or wants narration read over footage. For long-form YouTube edits cut to music, use video-drone-long instead.
----
+# Project: drone
 
-# Drone Automation — short form
+Graded drone footage. Unlike the two article projects, a drone video is usually
+long *or* short, not a pair - and the long form finishes by hand in Final Cut
+rather than rendering headless.
 
-Renders finished vertical MP4s. **This is the one part of the project that
-renders video**; the long-form pipeline (`video-drone-long`) only writes FCPXML.
+## Scope
 
-**Repo:** `~/Coding/video-edit-automation` — run from there, with `PYTHONPATH=.`
-so `video_automation` imports from the working copy. The repo is shared with the
-crypto and tinnitus projects; drone code lives in `video_automation/drone/`, and
-everything voice- and render-related in `video_automation/core/`.
-Footage must already be indexed: `.venv/bin/python -m video_automation drone index <folder>`
-(shared with `video-drone-long`; the proxies and clip index are the same).
+Long-form YouTube only — a Final Cut timeline, cut to music, finished by hand.
+**This pipeline never renders video.**
 
-## When the cut is approved, hand off to `/publish-video`
+Vertical short-form (TikTok, Shorts, Reels) is a different product with its own
+pacing model, its own crop problem and its own numbers. That is the vertical half of this doc.
+The clip index is shared, so a folder indexed here is ready for both.
 
-**This skill builds. It does not publish, and it deliberately no longer
-describes how.** Everything about getting a finished render out - which file
-goes to which platform, the metadata pass, thumbnails and covers, the site
-registry entry and poster, the social posts and the order they run in - lives
-in **`/publish-video`**, which is the single source of truth for all six video
-skills.
+## New footage folder
 
-That section used to be duplicated here. Two copies of one sequence drift, and
-these did: they disagreed about which steps run on a Short, and the
-disagreement cost a registry entry that had to be reverted and a social post
-that could not be un-sent. So it is removed rather than summarised - a summary
-is just a third copy waiting to go stale.
+```bash
+cd ~/Coding/video-edit-automation
+.venv/bin/python -m video_automation drone index /path/to/footage      # slow once, then cached
+```
 
-The flow ends here:
+Create `projects/drone-long/<name>.toml` (copy `projects/drone-long/plovdiv.toml`, repoint `footage` and
+`music`). Then the loop:
 
-1. Build the cut and hand over the files.
-2. The user reviews it and confirms it is good.
-3. **Run `/publish-video`** and follow what it says.
+```bash
+.venv/bin/python -m video_automation drone build --project <name> --dry-run   # seconds
+.venv/bin/python -m video_automation drone build --project <name>             # writes FCPXML
+```
 
-Do not describe upload steps, do not pre-empt them, and do not re-derive them
-from memory. Read the skill.
+**Always `--dry-run` while tuning.** It reruns the whole engine off cached
+proxies and prints the full edit list — clip, timecode, length, section, source
+in-point, speed, effects — plus coverage and per-clip usage.
 
+`--click` writes the track with clicks on every bar line. Worth doing once per
+track: downbeat phase is the weakest inference in the pipeline, and if it is off
+by two beats every cut lands on the backbeat.
+
+## Tuning
+
+Every knob is in `video_automation/drone/config.py`, grouped by phase, `GUESS`-marked
+where unvalidated. **Per-video changes go in `projects/drone-long/<name>.toml` under
+`[overrides]`**, never in `config.py` — that is the shared baseline.
+
+| Symptom | Look at |
+|---|---|
+| too many / too few cuts | `SLOT_BARS_BY_ENERGY`, `PHRASE_ACCENT_MULTIPLIER` |
+| one clip dominates | `MAX_USES_BY_MOVE`, `PENALTY_OVERUSE` |
+| feels repetitive though frames differ | `REUSE_RECENCY_WINDOW`, `MIN_SLOT_BARS_BY_MOVE` |
+| wrong footage on the drop | `W_ENERGY_MATCH`, Phase 1 `motion_energy` weights |
+| shots too long | `MAX_SHOT_SECONDS`, `LEGAL_SLOT_BARS` |
+| speed effects overused | `SPEEDUP_MIN_REMAINING`, `PENALTY_SPEEDUP_WHEN_CALM` |
+| not enough footage used | `W_COVERAGE`, `W_BITE` |
+| two clips move alike | `AUTO_REVERSE`, `REVERSIBLE_MOVES` |
+| want a speed launch into a cut | `ESCALATE_AT_BARS` |
+| cuts feel a beat late | `SNAP_SECTIONS_TO_PHRASE` — read the warning below |
+| the head of a clip is weak | `CLIP_HEAD_SKIP` |
+| a specific clip must sit in a specific slot | `PIN_CLIPS`, `PIN_SLOT_BARS` |
+
+## Locking — the most important rule here
+
+The scorer is **greedy**: any change to weights, section boundaries or slot
+lengths re-lays the grid downstream and reshuffles every clip after the change
+point. Tuning cannot preserve an approved order. This was attempted three times
+on Plovdiv and reshuffled it every time, once silently changing the opening shot.
+
+**As soon as the user approves an edit, lock it:**
+
+```bash
+.venv/bin/python -m video_automation drone build --project <name> \
+    --lock-out projects/drone-long/<name>.lock.toml
+```
+
+Add `lock = "<name>.lock.toml"` to the project file. `build` then replays the
+slot grid and assignment verbatim, scorer bypassed.
+
+**With a lock in place, a request to swap or resize one shot is a direct edit to
+the lock file** — change `clip`, `bars` or `rate`. Never reach for scoring
+weights; they no longer apply to that project.
+
+Effects that eat extra source (escalates, 2x) can still be limited by what a
+clip owes its other locked slots. When that happens, fit the effect down to what
+is available (`fit_escalate`) and report the achieved numbers — do not quietly
+take footage from a later slot and move the timeline.
+
+For an unlocked project, dry-run any structural change and diff the clip order
+against the last approved tag before presenting it. If positions moved, say so.
+Never present a reshuffled edit as though only the requested thing changed.
+
+**Change one thing per round.** A batch containing one bad change takes the good
+ones down with it.
+
+## Hard constraints
+
+- **Never slower than 1.0x.** Slow motion reads as a mistake on this footage; the
+  validator fails the build if any timeMap segment drops below real time. Long
+  clips get sped up, short clips lose the slot — a clip is never stretched.
+- **Analysis only touches proxies** in `<footage>/.analysis_cache/`.
+- **Cuts land on bar lines only.** A mid-bar accent cannot be hit; the nearest
+  legal point is up to half a bar away. Fixing it needs slot lengths in beats.
+
+## Saving an approved stage
+
+```bash
+git add -A
+git commit -m "<project>: <what changed>"
+git tag <project>-vN -m "<cuts>, <coverage>, <what was approved>"
+git push origin main && git push origin --tags
+```
+
+Add a row to `CHANGELOG.md` with the metrics from the build output, and prune
+open items the change actually resolved.
+
+## Overlays
+
+`assets/` holds the reusable location pin and, critically,
+`assets/fcpxml/location-pin-overlay.xml` — the Green Screen Keyer captured
+verbatim from a real Final Cut export. Its UID plus two base64 payloads encode
+FCP-internal state that **cannot be authored from a specification**. Reuse the
+fragment as-is. The red pin is source **9.833–14.867s** of the pack (not
+guessable — by hue it measures ~345° and classifies as pink). Placement: lane 1,
+`scale 0.06`, `position -81.524 42.1759`, `conform-rate srcFrameRate="24"`.
+
+## When Final Cut rejects the import
+
+`build` validates against Final Cut's own DTD plus semantic checks. If FCP still
+complains, reproduce it locally instead of guessing:
+
+```bash
+.venv/bin/python -c "
+from pathlib import Path; from video_automation.drone.validate import check
+print(check(Path('<file>.fcpxml')) or 'clean')"
+```
+
+Two failure classes, different tools:
+
+- **DTD / element order** — caught by `xmllint` against the bundled FCP DTD. The
+  DTD lives inside `Final Cut Pro.app`, whose path contains spaces, so it is
+  staged to a space-free temp path first; pointing xmllint at the bundle directly
+  fails with a misleading "Could not parse DTD".
+- **Semantic** — attribute values a DTD cannot reason about. The known trap: a
+  clip with a `<timeMap>` must have `start="0s"`, its in-point living in the
+  first `timept value`. Setting both makes FCP report *"Invalid edit with no
+  respective media"* and silently drop the clip.
+
+**FCPXML has no colour or keying element.** The entire `adjust-*` set is crop,
+transform, blend, stabilisation and volume. Anything else needs `<filter-video>`
+plus an `<effect uid>` that is an FCP-internal identifier. **Never guess a UID** —
+that caused two failed imports. Capture it instead: have the user apply the
+effect to one clip, `File ▸ Export XML`, and read the exact structure out.
 
 ## TikTok and YouTube are not one audience
 
@@ -97,6 +206,44 @@ months average ~200.
 
 **Shorts carry the channel** — 30 of them total ~19.5k views against ~1.5k for
 five long-form videos over the same period.
+
+## The crop is the biggest quality decision
+
+`3840×2160 → 1080×1920` keeps only 28% of the width. `pick_crop` scores an
+interest map (edge energy plus saturation, which suppresses sky without
+special-casing it) and searches **x and y together** over an integral image.
+
+**Searching x alone is not enough** — this was the first version and it failed.
+On a wide landscape the content sits in a horizontal band near the ground, so a
+full-height window spent ~60% of the frame on empty sky. Use `zoom` to tighten:
+
+- `zoom=1.0` — subject with strong vertical extent (a tower, a vertical move)
+- `zoom≈1.45` — wide landscapes, pulls the frame down off the sky
+
+At 1.45 the window is ~1490 lines upscaled to 1920, which stays sharp from 4K.
+
+**Move type predicts croppability** — check the index before choosing a clip:
+
+| fit | move | why |
+|---|---|---|
+| best | `orbit`, `vertical` | subject holds centre; vertical move suits a vertical frame |
+| good | `push_in`, `pull_back`, `hover` | centre-weighted or static |
+| poor | `lateral` | subject travels across and exits a 28% window |
+
+For laterals, use the stacked layout (two or three horizontal crops filling the
+9:16 frame) rather than cropping — already proven at 1,528 views on this channel.
+
+**The stacked layout wants a band, not a seam.** Approved on Sunset Sea Stack,
+now a repo function — `render_narrated_stack` in `voiceover.py`, tiles from
+`pick_crop_tile` — see *Building one* above for the call. Default is two
+1080x890 tiles with a 140px black band between them, captions centred at
+`y_frac=0.50` so they sit *in* the band. The first cut butted the tiles
+together and put the type across the join, which worked but made the type
+fight two moving pictures at once. The band gives it ground of its own and
+reads as a deliberate frame rather than a crop artifact.
+
+**Never use "rotate your phone".** It spends the one second that decides
+retention on an instruction. Cropping and stacking both perform; friction does not.
 
 ## Building one
 
@@ -193,44 +340,6 @@ hand-computing `OUT_H // 2`.
 
 Write outputs to the Desktop unless told otherwise — they are for uploading, not
 for the repo.
-
-## The crop is the biggest quality decision
-
-`3840×2160 → 1080×1920` keeps only 28% of the width. `pick_crop` scores an
-interest map (edge energy plus saturation, which suppresses sky without
-special-casing it) and searches **x and y together** over an integral image.
-
-**Searching x alone is not enough** — this was the first version and it failed.
-On a wide landscape the content sits in a horizontal band near the ground, so a
-full-height window spent ~60% of the frame on empty sky. Use `zoom` to tighten:
-
-- `zoom=1.0` — subject with strong vertical extent (a tower, a vertical move)
-- `zoom≈1.45` — wide landscapes, pulls the frame down off the sky
-
-At 1.45 the window is ~1490 lines upscaled to 1920, which stays sharp from 4K.
-
-**Move type predicts croppability** — check the index before choosing a clip:
-
-| fit | move | why |
-|---|---|---|
-| best | `orbit`, `vertical` | subject holds centre; vertical move suits a vertical frame |
-| good | `push_in`, `pull_back`, `hover` | centre-weighted or static |
-| poor | `lateral` | subject travels across and exits a 28% window |
-
-For laterals, use the stacked layout (two or three horizontal crops filling the
-9:16 frame) rather than cropping — already proven at 1,528 views on this channel.
-
-**The stacked layout wants a band, not a seam.** Approved on Sunset Sea Stack,
-now a repo function — `render_narrated_stack` in `voiceover.py`, tiles from
-`pick_crop_tile` — see *Building one* above for the call. Default is two
-1080x890 tiles with a 140px black band between them, captions centred at
-`y_frac=0.50` so they sit *in* the band. The first cut butted the tiles
-together and put the type across the join, which worked but made the type
-fight two moving pictures at once. The band gives it ground of its own and
-reads as a deliberate frame rather than a crop artifact.
-
-**Never use "rotate your phone".** It spends the one second that decides
-retention on an instruction. Cropping and stacking both perform; friction does not.
 
 ## Text — two templates, pick by whether there is narration
 
@@ -622,6 +731,12 @@ and a fast loop is a different reason with a different answer.
 half-second telling the viewer it is over, which is the opposite of what a
 looping short wants — the loop point should land on picture.
 
+## One clip vs. two stacked
+
+**Stacked is the default for a narrated quote with two clips.** Use
+`render_narrated_stack`. Only cut sequentially (`render_narrated_cuts`)
+when the user explicitly asks for one clip after another.
+
 ## Audio strategy
 
 - **TikTok** — a trending sound is a real reach lever, and these renders are
@@ -635,13 +750,15 @@ looping short wants — the loop point should land on picture.
   under music they read as room for the quote to breathe rather than as dead
   air, so do not shorten a pause to avoid silence that will not exist.
 
-## One clip vs. two stacked
+## Do not - long form
 
-**Stacked is the default for a narrated quote with two clips.** Use
-`render_narrated_stack`. Only cut sequentially (`render_narrated_cuts`)
-when the user explicitly asks for one clip after another.
+- Add dependencies without saying what they buy.
+- Let CV touch source files.
+- Present a guessed parameter as validated — say when something is a guess.
+- Change `config.py` for one video's taste; that is what project overrides are for.
+- Produce a 16:9 cut when the user asked for vertical — hand that to the vertical half of this doc.
 
-## Do not
+## Do not - the vertical cut
 
 - Exceed 30 seconds. Under that, report the runtime rather than forcing a number,
   and report the **ffprobed** runtime, not the one the builder returned.
