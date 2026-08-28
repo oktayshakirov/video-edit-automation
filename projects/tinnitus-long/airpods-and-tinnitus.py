@@ -108,8 +108,13 @@ ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 THUMB_PHOTO = (STOCK / "photos/man-wireless-earbuds-vertical-portrait-portrait"
                / "6857209.jpg")
 
-VOICE = "sam"                   # am_puck through ENERGETIC - a real male voice,
-                                # not a pitched-down female one. Candidate.
+VOICE = "mia"                   # was `sam` (am_puck through ENERGETIC) - see
+                                # the docstring above for why a real male
+                                # voice was picked over a pitched-down female
+                                # one. `sam` was retired from the roster on
+                                # 2026-08-28; this points at the channel's
+                                # default so a re-cut still runs. A re-cut
+                                # would not reproduce the shipped audio.
 MUSIC = music.track("night-drift")
 
 URL = "https://tinnitushelp.me/blog/airpods-and-tinnitus"

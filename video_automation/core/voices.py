@@ -129,7 +129,7 @@ class VoiceProfile:
 # glance. The recipe is still one `voices show <name>` away.
 PROFILES: dict[str, VoiceProfile] = {
 
-    # --- drone -----------------------------------------------------------
+    # --- drone -------------------------------------------------------------
     "leo": VoiceProfile(
         voice={"am_onyx": 0.60, "af_nicole": 0.40}, speed=0.95, chain=SOFT,
         projects=("drone",), status="approved", script="quote",
@@ -140,99 +140,65 @@ PROFILES: dict[str, VoiceProfile] = {
     ),
     "max": VoiceProfile(
         voice={"am_michael": 0.60, "af_nicole": 0.40}, speed=0.95, chain=SOFT,
-        projects=("drone",), status="candidate", script="quote",
-        note="Runner-up. Same idea as leo on am_michael instead of am_onyx. "
-             "Measured caveat on all these blends: they lose most of luna's "
-             "slowness — 10.2s at speed 0.95 against luna's 11.7s at 1.05.",
+        projects=("drone", "crypto", "tinnitus"), status="candidate",
+        script="quote",
+        note="Runner-up to leo on the drone quote format — am_michael instead "
+             "of am_onyx. Also the roster's alternate reader for crypto and "
+             "tinnitus article explainers, alongside mia. Not yet tuned for "
+             "that role: this is still the drone SOFT-chain recipe, not an "
+             "ENERGETIC pass — try it on a real script before shipping it "
+             "there. Measured caveat on this and every af_nicole blend: they "
+             "lose most of the bare voice's slowness — 10.2s at speed 0.95 "
+             "against 11.7s at 1.05.",
         source="A2_michael60_nicole40.wav", folder="Drone voices",
     ),
-    "noah": VoiceProfile(
-        voice={"am_michael": 0.50, "af_nicole": 0.50}, speed=0.95, chain=SOFT,
-        projects=("drone",), status="candidate", script="quote",
-        note="Even split — the most breath that still reads male.",
-        source="A3_michael50_nicole50.wav", folder="Drone voices",
-    ),
-    "luna": VoiceProfile(
-        voice="af_nicole", speed=1.10, chain=ENERGETIC,
-        projects=("drone", "tinnitus"), status="candidate", script="crypto",
-        note="Female. Kokoro's only breathy/ASMR voice — renders 23.3s where "
-             "every other female voice lands 12-15s on the same script. That "
-             "is the voice's character, not a pace setting. The base voice "
-             "inside leo, max, noah and every tinnitus profile.",
-        source="03_af_nicole.wav", folder="Drone voices, Tinnitus Help Voice",
-    ),
 
-    # --- crypto ----------------------------------------------------------
+    # --- article explainers: crypto + tinnitus long/short -------------------
     "mia": VoiceProfile(
         voice="af_heart", speed=1.10, chain=ENERGETIC,
-        projects=("crypto",), status="candidate", script="crypto",
+        projects=("crypto", "tinnitus"), status="candidate", script="crypto",
         note="Female. Graded A — the strongest English voice in Kokoro. Grade "
-             "matters here because artifacts show at speed.",
+             "matters here because artifacts show at speed. The default "
+             "reader for both channels' article explainers in practice — "
+             "every crypto long+short pair and most tinnitus pairs ship on "
+             "this voice — though status stays candidate until the user "
+             "says otherwise.",
         source="01_af_heart.wav", folder="Crypto Wiki Voices",
     ),
-    "mia-calm": VoiceProfile(
-        voice="af_heart", speed=1.00, chain=ENERGETIC,
-        projects=("crypto",), status="candidate", script="crypto",
-        note="Female. The same voice as mia, unhurried — kept as a suffix "
-             "rather than a new name because it is one speaker, not two. "
-             "Kokoro's speed is sublinear, so 1.00 vs 1.10 is only 15.6s vs "
-             "14.9s: a delivery choice more than a runtime one.",
-        source="20_pace_1.00_af_heart.wav", folder="Crypto Wiki Voices",
-    ),
-    "sam": VoiceProfile(
-        voice="am_puck", speed=1.10, chain=ENERGETIC,
-        projects=("crypto",), status="candidate", script="crypto",
-        note="Male. Graded C+ with hours of data — the steadiest American male.",
-        source="M_am_puck.wav", folder="Crypto Wiki Voices",
-    ),
-    "theo": VoiceProfile(
-        voice="am_adam", speed=1.10, chain=ENERGETIC,
-        projects=("crypto",), status="candidate", script="crypto",
-        note="Male. Lowest-graded voice on the shortlist (F on the model card) "
-             "but shortlisted by ear, which outranks the grade.",
-        source="M_am_adam.wav", folder="Crypto Wiki Voices",
-    ),
 
-    # --- tinnitus --------------------------------------------------------
-    # All four are luna pitched toward a male register. That keeps 100% of the
-    # breath by construction, which the cross-gender blends did not. They carry
-    # male names because that is what they are *for* — but whether they read as
-    # male or as a processed woman is still unconfirmed by ear.
-    "elias": VoiceProfile(
-        voice="af_nicole", speed=1.05, chain=f"{pitch(0.88)},{SOFT}",
-        projects=("tinnitus",), status="candidate", script="quote",
-        note="luna 12% down, real time restored.",
-        source="B1_nicole_p88.wav", folder="Tinnitus Help Voice",
-    ),
-    "felix": VoiceProfile(
-        voice="af_nicole", speed=1.05, chain=f"{pitch(0.84)},{SOFT}",
-        projects=("tinnitus",), status="candidate", script="quote",
-        note="luna 16% down, real time restored.",
-        source="B2_nicole_p84.wav", folder="Tinnitus Help Voice",
-    ),
-    "jonas": VoiceProfile(
-        voice="af_nicole", speed=1.05, chain=f"{pitch_slow(0.88)},{SOFT}",
-        projects=("tinnitus",), status="candidate", script="quote",
-        note="luna 12% down with the slowdown kept — no time-stretch artifacts.",
-        source="D1_nicole_slow_p88.wav", folder="Tinnitus Help Voice",
-    ),
-    "caspar": VoiceProfile(
-        voice="af_nicole", speed=1.05, chain=f"{pitch_slow(0.84)},{SOFT},{AIR}",
-        projects=("tinnitus",), status="candidate", script="quote",
-        note="luna 16% down, slowdown kept, plus the aspiration boost. The most "
-             "processed of the set and the closest to male ASMR.",
-        source="D4_nicole_slow_p84_aspirate.wav", folder="Tinnitus Help Voice",
-    ),
+    # --- tinnitus zen (sound therapy) ---------------------------------------
+    # Both are the bare af_nicole voice, which is Kokoro's only breathy/ASMR
+    # voice — measured, not assumed. All twelve male voices ran 11.7-16.2s
+    # where af_nicole ran 23.3s on the same script, and cross-gender style
+    # blends lose the character (they came in *shorter* at a slower speed).
+    # Kokoro has released no fine-tuning code, so blending and DSP are the
+    # whole ceiling — there is no way to get a male voice with this character.
     "luna-calm": VoiceProfile(
         voice="af_nicole", speed=0.90, chain=SOFT,
         projects=("tinnitus",), status="candidate", script="quote",
-        note="Female, unhurried. luna's voice off the ENERGETIC chain and onto "
-             "SOFT, which exists for exactly this — no pitch shift, presence "
-             "pulled down, air added, -16 LUFS. luna itself is 1.10 through a "
-             "chain built to punch on a phone speaker, which is the wrong "
-             "instrument for a sound-therapy piece the listener is meant to "
-             "breathe along with. Suffix, not a new name: one speaker.",
+        note="The roster's primary voice for sound-therapy sessions. The bare "
+             "af_nicole voice off the ENERGETIC chain and onto SOFT, which "
+             "exists for exactly this — no pitch shift, presence pulled "
+             "down, air added, -16 LUFS. The bare voice runs 1.10 through a "
+             "chain built to punch on a phone speaker, the wrong instrument "
+             "for a piece the listener is meant to breathe along with. "
+             "Named luna-calm because it began as a calmer variant of a "
+             "bare-voice profile that was named luna and shared this roster; "
+             "that profile is retired, and this one is due to be renamed to "
+             "luna in its place — not done yet, on the user's instruction to "
+             "hold off.",
         folder="Tinnitus Help Voice",
+    ),
+    "elias": VoiceProfile(
+        voice="af_nicole", speed=1.05, chain=f"{pitch(0.88)},{SOFT}",
+        projects=("tinnitus",), status="candidate", script="quote",
+        note="The roster's alternate for the male sound-therapy voice, "
+             "alongside luna-calm: the bare af_nicole voice pitched 12% "
+             "down, real time restored. A pitched female voice, since Kokoro "
+             "has none male with this character (see above) — whether it "
+             "reads as a man or as a processed woman is still unconfirmed by "
+             "ear.",
+        source="B1_nicole_p88.wav", folder="Tinnitus Help Voice",
     ),
 }
 

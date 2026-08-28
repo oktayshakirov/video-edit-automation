@@ -117,37 +117,26 @@ F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `gr
 
 ## Voice
 
-Five profiles, all reproducing their audition WAVs sample-for-sample:
+**`mia` is the default** for both formats — every shipped crypto long+short
+pair uses it. `max` is the roster's alternate for this project, carried over
+from drone and not yet tuned for an explainer script; see `voice.md` and
+`docs/video/projects/tinnitus.md` for the shared roster and the reasoning.
+Both remain `candidate`, not `approved`, until the user says otherwise.
 
 ```bash
 .venv/bin/python -m video_automation voices list
-.venv/bin/python -m video_automation voices show theo
+.venv/bin/python -m video_automation voices show mia
 ```
 
-| profile | voice | note |
-|---|---|---|
-| `sam` | male, `am_puck` 1.10 | **used by the current cut.** C+ with hours of data, steadiest American male |
-| `theo` | male, `am_adam` 1.10 | the first cut. Lowest Kokoro grade on the list, shortlisted by ear anyway |
-| `mia` | female, `af_heart` 1.10 | **the Saylor cut.** Graded A, the strongest English voice in Kokoro |
-| `mia-calm` | female, `af_heart` 1.00 | the same speaker, unhurried |
+The roster was trimmed from a larger shortlist (`sam`, `theo`, `mia-calm`) on
+2026-08-28, once `mia` had settled in as the working default across every
+project script.
 
-**None is approved.** `theo` took the first cut, `sam` the second, `mia` the
-Saylor short, and the user intends to work through the rest. Keep the script and
-shot list identical when swapping, so the comparison is clean. The `ENERGETIC`
-chain they all share has not been signed off either.
-
-Pace, measured on the same script: both `theo` and `sam` at 1.10 land near 3.1
-words a second, so ~105 words comes out around 35s. `mia` at 1.10 sits close
-enough to reuse the estimate — 168 words of Saylor script came out at 58.0s,
-about 2.9 words a second with `gap=0.34`, so **~175 words is a one-minute
-short**.
-
-**The long-form skill now gives 3.25 words/sec, measured on shipped cuts, and
-it is the better number here too.** `bitcoin-price-short` is 141 words plus
-12.24s of gaps: 141/3.25 + 12.24 predicts 55.6s and it rendered at **54.2s**,
-inside a second and a half. The old 2.9 predicts 61s, which is enough error to
-push a Short past the window without noticing. Use `words / 3.25 + sum(gaps)`
-and check it before rendering.
+**Pace: use `words / 3.25 + sum(gaps)`, not 2.9.** Measured on shipped cuts:
+`bitcoin-price-short` is 141 words plus 12.24s of gaps, and 3.25 predicts
+55.6s against a **54.2s** render — inside a second and a half. The old 2.9
+figure predicts 61s, which is enough error to push a Short past the window
+without noticing. `longform.md` carries the same correction for long form.
 
 ## Copy
 

@@ -66,8 +66,11 @@ CARRIAGE = STOCK / "videos/train-window-night-passing-city-dark"
 THUMB_PHOTO = (STOCK / "photos/man-wireless-earbuds-vertical-portrait-portrait"
                / "6857209.jpg")
 
-VOICE = "sam"                   # the same reader as the long form from this
-                                # post. Still a candidate, not approved.
+VOICE = "mia"                   # was `sam`, matching the long form from this
+                                # post - retired from the roster on 2026-08-28.
+                                # Points at the channel's default so a re-cut
+                                # still runs; it would not reproduce the
+                                # shipped audio.
 
 # **Shorts get a music bed now**, the same track as the long form from this
 # post. It was a standing gap rather than a decision - both short skills

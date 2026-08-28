@@ -158,7 +158,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
 
 
 def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
-                        workdir: Path, voice: str = "theo",
+                        workdir: Path, voice: str = "mia",
                         gap: "float | list[float]" = 0.34, tail: float = 1.2,
                         font_size: int = 46, y_frac: float = 0.70,
                         emoji: dict[str, str] | None = None,

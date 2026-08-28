@@ -5,49 +5,21 @@ article explainer (long + Short pair) and the sound-therapy session.
 
 ## What differs from crypto
 
-**Voice is a candidate and it moves.** The first two cuts used `mia`;
-`tinnitus-and-sleep` uses **`mia-calm`** — af_heart at 1.00, the channel's own
-reader unhurried, which is the delivery a bedtime script wanted anyway.
-
-### The male voice for an article video comes from the crypto roster
-
-**`elias`, `felix`, `jonas` and `caspar` are all ASMR voices and none of them
-belongs on an explainer.** The AirPods cut shipped with `elias` on the reading
-that only `caspar` was the ASMR one, because that is the only profile whose
-note says so. That was wrong, and the construction says why: **every "male"
-profile on this channel is `af_nicole` pitched down through the SOFT chain** —
-the chain that exists for sound therapy, with the presence band pulled down and
-air added. They differ from each other only in how far the pitch moves and
-whether the slowdown is kept. Picking a different one does not get you out of
-the ASMR read, it gets you a differently-processed ASMR read.
-
-**Use `sam` (`am_puck`, ENERGETIC).** A real male voice rather than a processed
-female one, and the roster's own note is "graded C+ with hours of data, the
-steadiest American male". `theo` (`am_adam`) is the alternative, 9% faster and
-graded F on the model card but shortlisted by ear. The tinnitus male set stays
-in `core/voices.py` because mode 2 is where it belongs.
-
-**Changing between these families rewrites the script, not just the voice.**
-Measured on one paragraph: `elias` 1.97 words/sec, `sam` 3.31, `theo` 3.60,
-`mia` 3.06. So the tinnitus male profiles need ~400 words to fill four minutes
-and `sam` needs ~620 for the same runtime — the crypto skill's 440-700 budget
-holds for `sam` and `mia` and does *not* hold for the pitched-down set. A
-script written for one and read by the other misses the window by ninety
-seconds in whichever direction. Re-run the preflight after any voice change.
+**The article-explainer voice and the sound-therapy voice are different
+families, and mixing them up costs a rewrite, not just a re-render.** Measured
+on one paragraph: the pitched-down family (`elias`) reads at 1.97 words/sec,
+the explainer default (`mia`) at 3.06. A script written for one and read by
+the other misses the runtime window by up to ninety seconds. **Re-run the
+preflight after any voice change** — do not assume the shot list survives it.
+Full roster and roles are in *Voice*, below.
 
 **`ivy` (bf_emma) was tried here and deleted from the roster entirely.** The
 British read was not wanted on this channel, and a rejected voice left in the
 profile list is one somebody picks again by accident. If a voice is out, take
 it out of `core/voices.py` rather than noting it here.
 
-`luna-calm` is the sound-therapy voice and belongs to mode 2. **A short and a
-long video from the same post must use the same voice** — two voices on one
-channel is two channels.
-
-**Changing the voice changes every clip slot.** `mia-calm` reads ~9% slower
-than `mia`, which pushed this cut from 3:47 to 4:09 and broke a slot whose clip
-was exactly 10s. Re-run the preflight after any voice change; do not assume the
-shot list survives it.
+**A short and the long video from the same post use the same voice** — two
+voices on one channel is two channels.
 
 ## Ask which one first
 
@@ -114,23 +86,9 @@ ASMR shorts are on their own lockup path (`asmr.brand_lockup`, 100px face) and
 are untouched by any of this.
 
 **The voice matches the long form from the same post, always** — a short and a
-long video on one channel reading in two different voices is two channels. That
-was `mia` for the gaming pair, **`mia-calm`** for the sleep pair, and **`sam`**
-for the AirPods pair.
-
-**`elias`, `felix`, `jonas` and `caspar` are the sound-therapy voices and none
-of them belongs on an article short.** The AirPods pair first shipped on
-`elias` and the user's note was that all of them are ASMR voices — which is
-what they are by construction: every "male" profile here is `af_nicole` pitched
-down through the SOFT chain. For a male read on an article video take **`sam`**
-(`am_puck`) from the crypto roster, or `theo`. Measured pace, one paragraph:
-`elias` 1.97 words/sec, `sam` 3.31, `theo` 3.60, `mia` 3.06 — so swapping
-between the families changes how many words fit in forty-five seconds by about
-70%, and the script has to be rewritten, not just re-rendered. `ivy`
-(bf_emma) was tried and **deleted from the roster** — the British read was not
-wanted on this channel, and a rejected voice left in the list is one somebody
-picks again by accident. `luna-calm` is the sound-therapy voice and belongs to
-`asmr.py`. All are still candidates.
+long video on one channel reading in different voices is two channels. Full
+roster and roles are in *Voice*, below; the pace-mismatch measurement is in
+*What differs from crypto*, above. Nothing here is specific to the short.
 
 **Drawn beats now sit on the brand background, not a drifting grid** — see the
 long-form skill for `core/backdrop.py`. Nothing to pass per shot; `Brand`
@@ -341,39 +299,42 @@ video cannot silently clip the end of the audio.
 
 ## Voice
 
-Six profiles, all reproducing their audition WAVs sample-for-sample:
+**Two roles, four profiles.** Article explainers (long + Short pairs) use one
+roster; sound-therapy sessions use another — they are different products with
+different delivery needs, see *Two formats, and they are not the same job*.
 
 ```bash
 .venv/bin/python -m video_automation voices list
 .venv/bin/python -m video_automation voices show luna-calm
-.venv/bin/python -m video_automation voices render felix
 ```
 
-| profile | recipe | note |
-|---|---|---|
-| `luna-calm` | female, `af_nicole` 0.90, soft | **the one used by the built format** |
-| `luna` | female, `af_nicole` 1.10, energetic | the only breathy voice Kokoro has, and the base for every profile here |
-| `elias` | 12% down, time restored | |
-| `felix` | 16% down, time restored | |
-| `jonas` | 12% down, slowdown kept | no time-stretch artifacts |
-| `caspar` | 16% down, slowdown kept, aspiration boost | most processed of the set |
+**Explainer default: `mia`.** Female, `af_heart` 1.10. Every shipped tinnitus
+long+short pair uses it except `airpods-and-tinnitus` and `tinnitus-and-sleep`,
+which were rendered on now-retired profiles and were repointed at `mia` on
+2026-08-28 so they stay re-runnable — a re-cut of either would no longer
+reproduce the exact original audio. `max` is the roster's alternate reader,
+carried over from drone and not yet tuned for an explainer script.
 
-**None is approved.** `luna-calm` is what the sound-therapy short is built on and
-is still a candidate until the user says otherwise. It exists because `luna` runs
-1.10 through ENERGETIC — a chain built to punch on a phone speaker — which is the
-wrong instrument for a piece the listener is meant to breathe along with. SOFT is
-the chain that exists for ASMR.
+**Sound-therapy primary: `luna-calm`.** Female, `af_nicole` 0.90, soft chain —
+the bare voice off the punchy `ENERGETIC` chain and onto `SOFT`, which exists
+for exactly this: no pitch shift, presence pulled down, air added, -16 LUFS.
+Due to be renamed to plain `luna` once the user confirms; hold off until then.
+`elias` is the alternate — the bare voice pitched 12% down toward a male
+register, real time restored.
 
-elias, felix, jonas and caspar are all luna pitched down. They exist because
 **Kokoro has no male breathy voice** — measured, not assumed. All twelve male
-voices ran 11.7–16.2s where `af_nicole` ran 23.3s on the same script.
-Cross-gender style blends were tried and lose the character: they came in
-*shorter* at a slower speed setting. Pitching luna down keeps 100% of the breath
-by construction. Kokoro has released no fine-tuning code, so blending and DSP are
-the whole ceiling.
+voices ran 11.7–16.2s where the bare `af_nicole` voice ran 23.3s on the same
+script. Cross-gender style blends were tried and lose the character: they came
+in *shorter* at a slower speed setting. Pitching the bare voice down keeps
+100% of the breath by construction, which is why `elias` exists and why it is
+a pitched female voice rather than a true male one. Kokoro has released no
+fine-tuning code, so blending and DSP are the whole ceiling.
 
 **Open risk:** a pitch-shifted female voice can read as "a processed woman"
 rather than "a man". No measurement settles that; only the user's ear does.
+
+**None of the four is approved.** All are `candidate` until the user says
+otherwise.
 
 **Check phonemes before rendering, not after** — same espeak traps as the drone
 skill. `tinnitus` is fine (`tˈɪnɪɾəs`). Abbreviations are not.

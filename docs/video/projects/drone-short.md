@@ -208,17 +208,15 @@ on two quotes and two clips.
 render_narrated(..., **profile_args("leo"))
 ```
 
-**Three alternates are kept for experiments**, not for shipping:
+**One alternate is kept for experiments**, not for shipping: `max` —
+leo's idea on `am_michael` instead of `am_onyx`. It also doubles as the
+roster's alternate explainer reader for crypto and tinnitus now; see
+`docs/video/voice.md`.
 
-| profile | what it is |
-|---|---|
-| `max` | runner-up — leo's idea on `am_michael` instead of `am_onyx` |
-| `noah` | even 50/50 split — the most breath that still reads male |
-| `luna` | female. `af_nicole`, the only breathy voice Kokoro has, and the base inside all three blends |
-
-Measured caveat on the blends: they lose most of luna's slowness — 10.2s at
-speed 0.95 against luna's 11.7s at the *faster* 1.05. Whatever encodes that
-character averages away in the sum.
+Both leo and max are blends built on the bare `af_nicole` voice, Kokoro's only
+breathy one. Measured caveat on the blends: they lose most of that voice's
+slowness — 10.2s at speed 0.95 against 11.7s at the *faster* 1.05. Whatever
+encodes that character averages away in the sum.
 
 **The melancholic chain is approved and should be reused verbatim.** It is wired
 into `POST_CHAINS["melancholic"]` and applied inside `synth_phrase`, before the

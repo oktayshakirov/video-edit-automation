@@ -126,12 +126,15 @@ AWAKE_PHOTO = STOCK / "photos/woman-awake-in-bed-at-night-dark-room-insomnia/694
 # source, well inside the visible band either way.
 THUMB_PHOTO = STOCK / "photos/woman-sleeping-beside-smartphone/9787924.jpg"
 
-VOICE = "mia-calm"              # af_heart at 1.00. `ivy` was tried and cut —
-                                # the British read was not wanted, and the
-                                # profile is deleted rather than left lying
-                                # around. This is the channel's own reader at
-                                # an unhurried pace, which is the delivery a
-                                # bedtime script wanted anyway. Candidate.
+VOICE = "mia"                   # was `mia-calm` (af_heart at 1.00, the same
+                                # voice unhurried) - the delivery a bedtime
+                                # script wanted, but that profile was retired
+                                # from the roster on 2026-08-28. This points
+                                # at the channel's normal-pace default so a
+                                # re-cut still runs; it would read faster and
+                                # would not reproduce the shipped audio.
+                                # `ivy` was tried before mia-calm and cut —
+                                # the British read was not wanted.
 
 # Picked by ear by the user, over the generated `bright` preset. Stored trimmed
 # in `assets/brand/music/` because it is 7.7s and loops twenty-nine times

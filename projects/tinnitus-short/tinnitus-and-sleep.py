@@ -79,10 +79,11 @@ TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
 # recover a lost axis. `ax=0.10` centres that slice on her face and the phone.
 THUMB_PHOTO = STOCK / "photos/woman-sleeping-beside-smartphone/9787924.jpg"
 
-VOICE = "mia-calm"              # af_heart at 1.00, the same reader as the long
-                                # form from this post — a short and a long
-                                # video on one channel in two voices is two
-                                # channels. `ivy` was tried and cut. Candidate.
+VOICE = "mia"                   # was `mia-calm`, matching the long form from
+                                # this post - retired from the roster on
+                                # 2026-08-28. Points at the channel's default
+                                # so a re-cut still runs; it would not
+                                # reproduce the shipped audio.
 
 SENTENCES = [
     ("Your tinnitus is not worse at night.",),
