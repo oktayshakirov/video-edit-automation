@@ -12,5 +12,5 @@ Tone-matching ("which frequency matches yours?") is the obvious next variant and
 still needs tone synthesis this repo does not have.
 
 Voices live in `core.voices` under the `tinnitus` project. None is approved;
-`luna-calm` is what the sound-therapy short is built on.
+`luna` is what the sound-therapy short is built on.
 """

@@ -30,7 +30,7 @@ brand.** Always establish which before doing anything else:
 |---|---|---|
 | what it is | a post explained | a session to leave running |
 | runtime | 2:30–4:00 | 10–60 minutes |
-| voice | **`mia`** | **`luna-calm`**, intro only |
+| voice | **`mia`** | **`luna`**, intro only |
 | module | `longform/build.py` | `longform/asmr.py` |
 | example | `projects/tinnitus-long/does-tinnitus-go-away.py` | see below |
 
@@ -305,7 +305,7 @@ different delivery needs, see *Two formats, and they are not the same job*.
 
 ```bash
 .venv/bin/python -m video_automation voices list
-.venv/bin/python -m video_automation voices show luna-calm
+.venv/bin/python -m video_automation voices show luna
 ```
 
 **Explainer default: `mia`.** Female, `af_heart` 1.10. Every shipped tinnitus
@@ -315,12 +315,13 @@ which were rendered on now-retired profiles and were repointed at `mia` on
 reproduce the exact original audio. `max` is the roster's alternate reader,
 carried over from drone and not yet tuned for an explainer script.
 
-**Sound-therapy primary: `luna-calm`.** Female, `af_nicole` 0.90, soft chain —
-the bare voice off the punchy `ENERGETIC` chain and onto `SOFT`, which exists
-for exactly this: no pitch shift, presence pulled down, air added, -16 LUFS.
-Due to be renamed to plain `luna` once the user confirms; hold off until then.
-`elias` is the alternate — the bare voice pitched 12% down toward a male
-register, real time restored.
+**Sound-therapy primary: `luna`.** Female, `af_nicole` 0.90, soft chain — the
+bare voice off the punchy `ENERGETIC` chain and onto `SOFT`, which exists for
+exactly this: no pitch shift, presence pulled down, air added, -16 LUFS.
+Renamed from `luna-calm` on 2026-08-28, once an earlier profile of the same
+name (the bare voice unprocessed at 1.10) had been retired and the name was
+free. `elias` is the alternate — the bare voice pitched 12% down toward a
+male register, real time restored.
 
 **Kokoro has no male breathy voice** — measured, not assumed. All twelve male
 voices ran 11.7–16.2s where the bare `af_nicole` voice ran 23.3s on the same
@@ -518,7 +519,7 @@ from video_automation.longform.asmr import render_asmr_long
 
 made = render_asmr_long(out, work, brand=TINNITUS, minutes=20,
                         bed=soundbed.Bed("pink", breathe=0.10, breathe_period=10.0),
-                        intro=INTRO)          # spoken by luna-calm
+                        intro=INTRO)          # spoken by luna
 ```
 
 ## The bed is generated, not recorded
@@ -570,12 +571,12 @@ closely; generate what they are listening to.
 
 ## The intro
 
-Thirty seconds of `luna-calm` at the front, then nothing. A forty-minute noise
+Thirty seconds of `luna` at the front, then nothing. A forty-minute noise
 file with no voice is indistinguishable from every other one on the platform;
 the intro is where the video says what the sound is, who it is from, and **how
 to set the level**. The bed sidechains under it and returns to full afterwards.
 
-`luna-calm` and not `mia`: SOFT chain, unhurried, no pitch shift. An explainer
+`luna` and not `mia`: SOFT chain, unhurried, no pitch shift. An explainer
 wants the reader who explains; this wants the one the listener settles under.
 
 ## Copy for a session
@@ -677,7 +678,7 @@ does — which is exactly why it could not be a number in the source.
   masking and paced breathing as things people do, never as treatment, and never
   imply a cure.
 - Write copy that oversells what a bed masks without running `band_energy`.
-- Promote a candidate voice to approved. `mia` and `luna-calm` are both
+- Promote a candidate voice to approved. `mia` and `luna` are both
   candidates.
 - Mass-produce. Same cap as crypto: see `docs/long-form-strategy.md`.
 

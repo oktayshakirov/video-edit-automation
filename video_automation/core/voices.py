@@ -173,7 +173,7 @@ PROFILES: dict[str, VoiceProfile] = {
     # blends lose the character (they came in *shorter* at a slower speed).
     # Kokoro has released no fine-tuning code, so blending and DSP are the
     # whole ceiling — there is no way to get a male voice with this character.
-    "luna-calm": VoiceProfile(
+    "luna": VoiceProfile(
         voice="af_nicole", speed=0.90, chain=SOFT,
         projects=("tinnitus",), status="candidate", script="quote",
         note="The roster's primary voice for sound-therapy sessions. The bare "
@@ -182,22 +182,20 @@ PROFILES: dict[str, VoiceProfile] = {
              "down, air added, -16 LUFS. The bare voice runs 1.10 through a "
              "chain built to punch on a phone speaker, the wrong instrument "
              "for a piece the listener is meant to breathe along with. "
-             "Named luna-calm because it began as a calmer variant of a "
-             "bare-voice profile that was named luna and shared this roster; "
-             "that profile is retired, and this one is due to be renamed to "
-             "luna in its place — not done yet, on the user's instruction to "
-             "hold off.",
+             "Named luna, replacing an earlier profile of the same name that "
+             "ran the bare voice unprocessed at 1.10 — that one is retired, "
+             "and this slower, softer recipe (previously named luna-calm) "
+             "took the name in its place on 2026-08-28.",
         folder="Tinnitus Help Voice",
     ),
     "elias": VoiceProfile(
         voice="af_nicole", speed=1.05, chain=f"{pitch(0.88)},{SOFT}",
         projects=("tinnitus",), status="candidate", script="quote",
         note="The roster's alternate for the male sound-therapy voice, "
-             "alongside luna-calm: the bare af_nicole voice pitched 12% "
-             "down, real time restored. A pitched female voice, since Kokoro "
-             "has none male with this character (see above) — whether it "
-             "reads as a man or as a processed woman is still unconfirmed by "
-             "ear.",
+             "alongside luna: the bare af_nicole voice pitched 12% down, "
+             "real time restored. A pitched female voice, since Kokoro has "
+             "none male with this character (see above) — whether it reads "
+             "as a man or as a processed woman is still unconfirmed by ear.",
         source="B1_nicole_p88.wav", folder="Tinnitus Help Voice",
     ),
 }

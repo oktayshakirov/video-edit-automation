@@ -20,7 +20,7 @@ What this wrapper adds on top is the one thing that genuinely differs:
   mascot-over-domain lockup at a wide wordmark's width dominates the frame.
 * **`mia` as the default voice**, the reader the tinnitus long-form uses. A
   short and a long video on the same channel reading in two different voices is
-  two channels. `luna-calm` is the sound-therapy voice and belongs to
+  two channels. `luna` is the sound-therapy voice and belongs to
   `asmr.py`; do not use it here. Both remain candidates.
 
 **Use `grid`, `steps` or `bars` for a drawn beat, not `checklist`.**

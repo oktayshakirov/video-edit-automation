@@ -57,7 +57,7 @@ NEURONS = STOCK / "videos/brain-neurons-abstract-dark"
 TIRED = STOCK / "videos/headache-stress-tired-woman-dark"
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
-VOICE = "mia"                   # the article-video reader. `luna-calm` is the
+VOICE = "mia"                   # the article-video reader. `luna` is the
                                 # sound-therapy voice and belongs to mode 2.
 MUSIC = "bright"
 

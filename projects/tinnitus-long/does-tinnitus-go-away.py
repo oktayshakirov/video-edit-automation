@@ -16,8 +16,8 @@ subject:
   pulsing with the heartbeat, getting louder, dizziness or hearing loss, lasting
   more than a few weeks. These are the reasons to see somebody and they are the
   most useful thirty seconds in the video, so they get the checklist.
-* **`mia`, not `luna-calm`.** The user's call: the same reader as the crypto
-  long-form. `luna-calm` is the sound-therapy voice — SOFT chain, unhurried, for
+* **`mia`, not `luna`.** The user's call: the same reader as the crypto
+  long-form. `luna` is the sound-therapy voice — SOFT chain, unhurried, for
   a piece the listener is meant to breathe along with. An explainer wants the
   reader who explains.
 

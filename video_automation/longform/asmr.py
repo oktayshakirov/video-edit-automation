@@ -316,7 +316,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      bed: soundbed.Bed | None = None,
                      bed_files: tuple[Path, Path] | None = None,
                      intro: list | None = None, outro: list | None = None,
-                     voice: str = "luna-calm",
+                     voice: str = "luna",
                      intro_at: float = 3.0, outro_at: float = 4.5,
                      intro_len: float = 30.0, outro_len: float = 30.0,
                      reveal: float = 3.0,
@@ -337,14 +337,14 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     reused. The body length must be a whole number of `loop`s and this raises
     if it is not, for the same reason `render_loop` raises.
 
-    `intro` and `outro` are spoken, read by `luna-calm`, and both are also
+    `intro` and `outro` are spoken, read by `luna`, and both are also
     drawn on screen on their own narration boundaries. The intro says what the
     sound is, who it is from and how to set the level, then the ring arrives.
     The outro is not a subscribe card — it is an invitation to run it again,
     and it is deliberately the quietest thing in the video, because a piece
     whose whole purpose is to lower arousal cannot end by raising it.
 
-    **`voice` is `luna-calm`, not the article reader.** SOFT chain, unhurried,
+    **`voice` is `luna`, not the article reader.** SOFT chain, unhurried,
     no pitch shift. The article videos use `mia` because an explainer wants the
     reader who explains; this wants the one the listener can settle under.
 
