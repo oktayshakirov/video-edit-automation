@@ -89,8 +89,9 @@ def cmd_report(root: Path) -> int:
     return 0
 
 
-def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
-              click: bool = False, lock: list[dict] | None = None,
+def cmd_build(root: Path, music, out: Path | None, name: str | None,
+              dry_run: bool, click: bool = False,
+              lock: list[dict] | None = None,
               lock_out: Path | None = None) -> int:
     """Music -> bar grid -> edit decisions -> FCPXML."""
     require_tools()
@@ -127,10 +128,25 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
                          MUSIC_LOOP_HANDOFF_BAR, MUSIC_LOOP_RETURN_BAR,
                          PHRASE_BARS)
 
-    print(f"Analysing {music.name} ...")
-    track = music_mod.analyze_track(music)
+    from .config import MUSIC_MEDLEY_CROSSFADE_BARS, MUSIC_MEDLEY_HOLD_BARS
 
-    if MUSIC_LOOP:
+    # `music` is a list whenever the project names more than one song. A medley
+    # is analysed song by song and then joined, because each one carries its own
+    # tempo and its own downbeat — there is no single grid to fit them all to.
+    songs = music if isinstance(music, list) else [music]
+    for m in songs:
+        print(f"Analysing {m.name} ...")
+    tracks = [music_mod.analyze_track(m) for m in songs]
+
+    if len(tracks) > 1:
+        holds = list(MUSIC_MEDLEY_HOLD_BARS) or [None] * len(tracks)
+        track = music_mod.concat_tracks(
+            tracks, MUSIC_MEDLEY_CROSSFADE_BARS, holds)
+    else:
+        track = tracks[0]
+    music = songs[0]
+
+    if MUSIC_LOOP and len(tracks) == 1:
         # Default handoff is the last phrase line of the song, so pass 1 runs as
         # far as it can before handing over.
         handoff = MUSIC_LOOP_HANDOFF_BAR
@@ -182,9 +198,11 @@ def cmd_build(root: Path, music: Path, out: Path | None, dry_run: bool,
 
     xml = fcpxml_mod.render(
         cuts, music, fps=fps, width=width, height=height,
-        project_name=root.name, track=track,
+        # The project's own name, not the footage folder's. They differ
+        # whenever the folder is a staging directory rather than the shoot.
+        project_name=name or root.name, track=track,
     )
-    out = out or (root / f"{root.name}.fcpxml")
+    out = out or (root / f"{name or root.name}.fcpxml")
     out.write_text(xml, encoding="utf-8")
 
     from .validate import check, summarise
@@ -238,6 +256,7 @@ def main(argv: list[str] | None = None) -> int:
     out = getattr(args, "out", None)
     music = getattr(args, "music", None)
     lock = None
+    proj_name = None
 
     try:
         # A project file supplies footage, music and tuning in one place, and
@@ -250,6 +269,7 @@ def main(argv: list[str] | None = None) -> int:
             for line in changed:
                 print(f"  override  {line}")
             root, music, out = proj.footage, proj.music, out or proj.out
+            proj_name = proj.name
             if not getattr(args, "no_lock", False):
                 lock = proj.load_lock()
         elif args.cmd == "build" and args.folder is None:
@@ -269,12 +289,19 @@ def main(argv: list[str] | None = None) -> int:
             if music is None:
                 print("build needs --music (or a project file)", file=sys.stderr)
                 return 1
-            music = Path(music).expanduser().resolve()
-            if not music.is_file():
-                print(f"Music file not found: {music}", file=sys.stderr)
-                return 1
-            return cmd_build(root, music, out, args.dry_run, args.click,
-                             lock, args.lock_out)
+            # A project may name several songs; check them all before analysing
+            # any, so a typo in the second one fails now rather than after the
+            # first analysis has run.
+            many = isinstance(music, list)
+            songs = [Path(m).expanduser().resolve()
+                     for m in (music if many else [music])]
+            for m in songs:
+                if not m.is_file():
+                    print(f"Music file not found: {m}", file=sys.stderr)
+                    return 1
+            music = songs if many else songs[0]
+            return cmd_build(root, music, out, proj_name, args.dry_run,
+                             args.click, lock, args.lock_out)
         return cmd_report(root)
     except (ToolMissing, FileNotFoundError, KeyError) as e:
         print(f"error: {e}", file=sys.stderr)

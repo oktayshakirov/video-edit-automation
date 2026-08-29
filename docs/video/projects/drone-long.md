@@ -59,6 +59,27 @@ where unvalidated. **Per-video changes go in `projects/drone-long/<name>.toml` u
 | cuts feel a beat late | `SNAP_SECTIONS_TO_PHRASE` — read the warning below |
 | the head of a clip is weak | `CLIP_HEAD_SKIP` |
 | a specific clip must sit in a specific slot | `PIN_CLIPS`, `PIN_SLOT_BARS` |
+| a clip must never appear | `CLIP_EXCLUDE` |
+| a clip must run at a speed you chose | `CLIP_SPEED` |
+| each location needs its own stretch | `CLIP_BAR_WINDOWS` |
+| one clip is graded differently to the rest | `CLIP_LUT` |
+| more than one song | `music = [...]`, `MUSIC_MEDLEY_*` |
+
+**Two traps around pins and windows**, both found the hard way on Bulgaria:
+
+- **A slot may not cross a section boundary.** `PIN_SLOT_BARS = 3` at a bar
+  with one bar left in its section is not shortened — the pin simply cannot be
+  placed. Lay pin lengths out *backwards* from the next boundary.
+- **A window that runs out of footage ends the timeline**, it does not move on
+  to the next window. Size each location's window to what that folder can
+  actually fund at the speeds set — which is `sum(clip_seconds / rate)`, so
+  speed-ups *reduce* how much timeline a location can fill. Asking Akra for
+  166s when it could fund 158s emptied it and stopped the build 5 minutes
+  short.
+
+A pin that cannot be funded is no longer fatal — the slot falls back to normal
+scoring and says so. It used to fall through to "out of unused footage" and
+truncate the video with the library barely touched.
 
 ## Locking — the most important rule here
 
@@ -123,6 +144,44 @@ FCP-internal state that **cannot be authored from a specification**. Reuse the
 fragment as-is. The red pin is source **9.833–14.867s** of the pack (not
 guessable — by hue it measures ~345° and classifies as pink). Placement: lane 1,
 `scale 0.06`, `position -81.524 42.1759`, `conform-rate srcFrameRate="24"`.
+
+### More than one place, and the text that collides with the pin
+
+`LOCATION_PINS` takes a list of `{start, text}` — a video cut from two locations
+names each on its first appearance. The singular `LOCATION_PIN_START` /
+`LOCATION_TITLE_TEXT` remain the one-location shorthand.
+
+Two things bite once there is a second pin:
+
+- **The captured title defines its text style as `ts1`.** Emitted twice that id
+  repeats and Final Cut rejects **the whole document** — "ID ts1 already
+  defined" — not just the second title. Each title now gets `ts2`, `ts3`…
+- **The title's `Position` is centre-anchored** (`Alignment` is `1 (Center)`),
+  so the words grow outward from one fixed point in both directions. A long
+  place name reaches further left and lands on top of the pin; a short one sits
+  with a gap. **The overlap is a function of how many characters the name has**,
+  which is why it shows up on one video and not the next, and why it cannot be
+  fixed once inside the fragment.
+
+  Each entry takes `dx` (and `dy`) in Motion points, shifting the anchor right
+  and up. Only a captured param's *value* changes — the key path is untouched —
+  so this is ordinary authoring, not a guessed UID. Measured on the Bulgaria
+  cut: **`dx = 110` for a ~23-character name, `dx = 65` for ~21.** Set it per
+  pin and check it on screen; there is no way to compute the rendered width of
+  the string from here.
+
+### Colour is not something this pipeline can write
+
+**There is no colour element in FCPXML** — see the import section below. A LUT
+needs `<filter-video>` plus an `<effect uid>` that is FCP-internal, and the uid
+must be **captured from a real export**, never guessed. Until that capture
+exists, grading requests are answered either by reordering shots so mismatches
+sit apart, or by baking the LUT into new media with ffmpeg's `lut3d` — which
+re-encodes the selects and is the worse answer on a project where the footage
+is the product.
+
+The user's LUT library lives in
+`~/Library/Application Support/ProApps/Custom LUTs/LUTs Library/`.
 
 ## When Final Cut rejects the import
 

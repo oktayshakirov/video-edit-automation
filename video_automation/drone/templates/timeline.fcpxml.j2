@@ -8,18 +8,29 @@
             <media-rep kind="original-media" src="{{ a.src }}"/>
         </asset>
 {% endfor %}
-        <asset id="{{ audio.id }}" name="{{ audio.name }}" uid="{{ audio.uid }}" start="0s" duration="{{ audio.duration }}" hasAudio="1" audioSources="1" audioChannels="2" audioRate="{{ audio.rate }}">
-            <media-rep kind="original-media" src="{{ audio.src }}"/>
+{% for a in audio_assets %}
+        <asset id="{{ a.id }}" name="{{ a.name }}" uid="{{ a.uid }}" start="0s" duration="{{ a.duration }}" hasAudio="1" audioSources="1" audioChannels="2" audioRate="{{ a.rate }}">
+            <media-rep kind="original-media" src="{{ a.src }}"/>
         </asset>
-{% if pin %}
-        <format id="{{ pin.format_id }}" name="FFVideoFormat1080p24" frameDuration="100/2400s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)"/>
-        <asset id="{{ pin.asset_id }}" name="location-pin" uid="location-pin-red" start="0s" duration="54833/1000s" hasVideo="1" format="{{ pin.format_id }}" videoSources="1">
-            <media-rep kind="original-media" src="{{ pin.src }}"/>
+{% endfor %}
+{% if overlays %}
+{# Every pin is the same red pin from the same file and every title uses the
+   same generator, so these resources are emitted once and referenced by all of
+   them. Repeating them per pin would offer Final Cut duplicate uids. #}
+{% set p0 = overlays[0].pin %}
+        <format id="{{ p0.format_id }}" name="FFVideoFormat1080p24" frameDuration="100/2400s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)"/>
+        <asset id="{{ p0.asset_id }}" name="location-pin" uid="location-pin-red" start="0s" duration="54833/1000s" hasVideo="1" format="{{ p0.format_id }}" videoSources="1">
+            <media-rep kind="original-media" src="{{ p0.src }}"/>
         </asset>
-        {{ pin.effect | safe }}
+        {{ p0.effect | safe }}
+{% for o in overlays %}
+{% if o.title and loop.first %}
+        {{ o.title.effect | safe }}
 {% endif %}
-{% if title %}
-        {{ title.effect | safe }}
+{% endfor %}
+{% endif %}
+{% if lut_effect %}
+        {{ lut_effect | safe }}
 {% endif %}
 {% for a in sfx_assets %}
         <asset id="{{ a.id }}" name="{{ a.name }}"{% if a.uid %} uid="{{ a.uid }}"{% endif %} start="0s" duration="{{ a.duration }}" hasAudio="1" audioSources="1" audioChannels="2" audioRate="{{ a.rate }}">
@@ -33,6 +44,9 @@
                 <sequence format="r0" duration="{{ sequence_duration }}" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
                     <spine>
 {% for c in cuts %}
+{# The overlay loop below needs this clip's index; inside that loop `loop`
+   refers to the overlay iteration, not this one. #}
+{% set ci = loop.index0 %}
                         <asset-clip ref="{{ c.ref }}" offset="{{ c.offset }}" name="{{ c.name }}" start="{{ c.start }}" duration="{{ c.duration }}" format="r0" tcFormat="NDF">
 {% if c.timemap %}
                             <timeMap>
@@ -40,6 +54,9 @@
                                 <timept time="{{ p.time }}" value="{{ p.value }}" interp="{{ p.interp | default('linear') }}"/>
 {% endfor %}
                             </timeMap>
+{% endif %}
+{% if c.lut %}
+                            {{ c.lut | safe }}
 {% endif %}
 {% if c.fade %}
                             <adjust-blend amount="1">
@@ -68,14 +85,12 @@
                             </asset-clip>
 {% endfor %}
 {% endif %}
-{% if loop.index0 == pin_host %}
-{% if pin %}
-                            {{ pin.clip | safe }}
+{% for o in overlays if o.host == ci %}
+                            {{ o.pin.clip | safe }}
+{% if o.title %}
+                            {{ o.title.clip | safe }}
 {% endif %}
-{% if title %}
-                            {{ title.clip | safe }}
-{% endif %}
-{% endif %}
+{% endfor %}
 {% for f in c.sfx %}
                             <asset-clip ref="{{ f.ref }}" lane="{{ f.lane }}" offset="{{ f.offset }}" name="{{ f.name }}" start="{{ f.start }}" duration="{{ f.duration }}" audioRole="effects"/>
 {% endfor %}

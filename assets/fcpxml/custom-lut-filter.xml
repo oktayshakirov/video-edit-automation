@@ -1,0 +1,31 @@
+<!-- Captured verbatim from a Final Cut FCPXML export (Bulgaria, 2026-08-28),
+     where the user dropped Custom LUT on one clip and exported.
+
+     FCPXML HAS NO COLOUR ELEMENT. A LUT is <filter-video> plus an <effect uid>
+     that is an FxPlug identifier — FCP-internal, not derivable, and guessing
+     one has already cost two failed imports on this project. So is the LUT
+     itself: `param name="LUT"` is a base64 ozxml document whose <dataValue>
+     encodes the chosen .cube. Neither can be authored from a specification,
+     which is why this whole fragment is reused as text.
+
+     WHICH LUT THIS IS: whatever was selected in Final Cut when this was
+     captured — the payload identifies it and nothing here names it. To change
+     the LUT, capture again; editing this file cannot do it.
+
+     @@MIX@@ is the one authored value: "Mix" is the effect's opacity, 0..1.
+     Captured at 0.2157. That IS the "low opacity, golden hour" setting, and it
+     is the only knob in here that may be changed without a fresh capture.
+
+     Final Cut also emits <adjust-colorConform> alongside this. That element is
+     FCPXML 1.11 and fails the 1.10 DTD this project writes, so it is dropped
+     rather than carried through — the same fix as in the title fragment. -->
+
+<effect id="r10" name="Custom LUT" uid="FxPlug:14B39AEF-607D-42DF-98DD-DB3DD345E925"/>
+
+<filter-video ref="r10" name="Custom LUT">
+        <data key="effectConfig">YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25ZJGFyY2hpdmVyVCR0b3BYJG9iamVjdHMSAAGGoF8QD05TS2V5ZWRBcmNoaXZlctEICVRyb290gAGlCwwVFhdVJG51bGzTDQ4PEBIUV05TLmtleXNaTlMub2JqZWN0c1YkY2xhc3OhEYACoROAA4AEXXBsdWdpblZlcnNpb24QAtIYGRobWiRjbGFzc25hbWVYJGNsYXNzZXNfEBNOU011dGFibGVEaWN0aW9uYXJ5oxocHVxOU0RpY3Rpb25hcnlYTlNPYmplY3QIERokKTI3SUxRU1lfZm55gIKEhoiKmJqfqrPJzdoAAAAAAAABAQAAAAAAAAAeAAAAAAAAAAAAAAAAAAAA4w==</data>
+        <param name="LUT" key="3" value="PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIG96eG1sc2NlbmU+Cjxvem1sIHZlcnNpb249IjUuMTMiPgoKPGZhY3RvcnkgaWQ9IjEiIHV1aWQ9IjRkMGU0OGQ4NGZjYTQyNGQ4MmFhOThhMDI3YzZlYzVjIj4KCTxkZXNjcmlwdGlvbj5DaGFubmVsPC9kZXNjcmlwdGlvbj4KCTxtYW51ZmFjdHVyZXI+QXBwbGU8L21hbnVmYWN0dXJlcj4KCTx2ZXJzaW9uPjE8L3ZlcnNpb24+CjwvZmFjdG9yeT4KCgo8cGFyYW1ldGVyIG5hbWU9IkxVVCIgaWQ9IjMiIGZsYWdzPSI0Mjk1MDMyODQ4Ij4KCTxmbGFncz40Mjk1MDMyODQ4PC9mbGFncz4KCTxudW1iZXJPZktleXBvaW50cz4wPC9udW1iZXJPZktleXBvaW50cz4KCTxkZWZhdWx0VmFsPioqKioqKioqKjZVZU1iLWdPTEJvQTExSSpFNjEtKkk0LWtkTTc1TlpRYkJkUHF0Tjc0M21NcVZkUmFKbUowRm9Qci1NNzR4V09hSlhSNUFHKio0NGMzd0Uxb3RIR3FKdE5LRi1RYUJjT0xOWlFoMjYwSjZZQTYqLWNVZ0FKR0ZpUktsZ0kqVUY0V0VkQVhSN0gyeEZKM2MqKioqKioqKi0qRSoqKioqKioqKkIqKioqKioqKioqKioqKioqKioqKktrKio8L2RlZmF1bHRWYWw+Cgk8ZGF0YVZhbHVlPioqKioqKioqKjk2ZU1iLWdPTEJvQTExSSpFNjEtKkk0LWtkTTc1TlpRYkJkUHF0Tjc0M21NcVZkUmFKbUowRm9Qci1NNzR4V09hSlhSNUFHKio0NGMzd0Uxb3RIR3FKdE5LRi1RYUJjT0xOWlFoMjYwSjZZQTYqLWNVZ0FKR0ZpUktsZ0xsKmNNbjdWQ0hZbEIxUllBSFZaQTQ3WkExQlpCMSpvQVhVcE5YTW1OMUJaTkhNdUpxM21QSndrQipVRjRXRWRBWFI3SDJ4RkozYyoqKioqKioqLSpFKioqKioqKioqQioqKioqKioqKioqKioqKioqKioqVkUqKjwvZGF0YVZhbHVlPgo8L3BhcmFtZXRlcj4KCjwvb3ptbD4K"/>
+        <param name="Input" key="100/101" value="0 (Rec. 709)"/>
+        <param name="Output" key="100/102" value="0 (Rec. 709)"/>
+        <param name="Mix" key="99990" value="@@MIX@@"/>
+    </filter-video>

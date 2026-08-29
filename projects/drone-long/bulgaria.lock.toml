@@ -1,0 +1,509 @@
+# Locked edit. Replayed verbatim by `build`, bypassing the scorer, so an
+# approved running order survives changes made elsewhere.
+#
+# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one
+# musical bar), `rate` sets a constant speed-up, `reverse` sets the play
+# direction for this slot alone.
+#
+# `reverse` is here because direction is a property of a shot, not of a
+# clip. CLIP_REVERSE_OVERRIDE can only flip every use of a clip at once,
+# which is right for a clip used once and wrong the moment one slot wants
+# to run backwards and another forwards.
+# Regenerate from the current edit with `build --lock-out <file>`.
+
+[[lock]]
+bar = 0
+clip = "Akra Castle Bulgarian Flag.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 4
+clip = "Akra Coast 10.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 8
+clip = "Akra Coast 6.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 10
+clip = "Akra Coast 8.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 12
+clip = "Akra Coast 4.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 14
+clip = "Akra Coast 7.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 15
+clip = "Akra Coast 1.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 16
+clip = "Akra Coast 5.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 18
+clip = "Akra Coast 2.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 19
+clip = "Akra Coast 3.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 20
+clip = "Akra Coast 8.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 22
+clip = "Akra Coast 9.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 23
+clip = "Akra Coast 11.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 24
+clip = "Akra Coast 4.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 26
+clip = "Akra Coast 10.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 27
+clip = "Akra Coast 7.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 28
+clip = "Akra Coast 1.mp4"
+bars = 2
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 30
+clip = "Akra Coast 5.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 31
+clip = "Akra Coast 2.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 32
+clip = "Akra Coast 9.mp4"
+bars = 2
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 34
+clip = "Akra Coast 3.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 35
+clip = "Akra Coast 11.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 36
+clip = "Akra Coast 4.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 37
+clip = "Akra Coast 1.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 38
+clip = "Akra Coast 2.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 39
+clip = "Akra Coast 9.mp4"
+bars = 1
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 40
+clip = "Akutino Sea Above 2.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 41
+clip = "Akutino Island 3.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 43
+clip = "Akutino Forest Sunset 2.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 44
+clip = "Akutino Island 1.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 45
+clip = "Akutino Forest Coast Houses.mp4"
+bars = 3
+rate = 3.000
+reverse = false
+
+[[lock]]
+bar = 48
+clip = "Akutino Coast 1.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 52
+clip = "Akutino Coast 3.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 56
+clip = "Akutino Coast 4.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 60
+clip = "Akutino Coast Boats.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 62
+clip = "Akutino Beach.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 63
+clip = "Akutino Sea 1.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 64
+clip = "Akutino Coast 5.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 66
+clip = "Akutino Coast 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 67
+clip = "Akutino Coast 6.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 68
+clip = "Akutino Forest Sunset 1.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 72
+clip = "Akutino Coast Forest Above 2.mp4"
+bars = 4
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 76
+clip = "Akutino Coast 3.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 80
+clip = "Akutino Coast 4.mp4"
+bars = 4
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 84
+clip = "Akutino Island 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 86
+clip = "Akutino Island 3.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 87
+clip = "Akutino Island 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 88
+clip = "Akutino Beach.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 90
+clip = "Akutino Coast Boats.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 91
+clip = "Akutino Forest Sunset 2.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 92
+clip = "Akutino Sea 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 94
+clip = "Akutino Coast 6.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 95
+clip = "Akutino Coast 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 96
+clip = "Akutino Coast 5.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 98
+clip = "Akutino Island 1.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 99
+clip = "Akutino Coast 1.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 100
+clip = "Akutino Island 3.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 102
+clip = "Akutino Coast Forest Above 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 103
+clip = "Akutino Forest Sunset 2.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 104
+clip = "Akutino Coast 6.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 106
+clip = "Akutino Coast 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 107
+clip = "Akutino Coast 5.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 108
+clip = "Akutino Island 3.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 110
+clip = "Akutino Coast 4.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 111
+clip = "Akutino Forest Sunset 2.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 112
+clip = "Akutino Coast 6.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 114
+clip = "Akutino Coast 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 115
+clip = "Akutino Coast 3.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 116
+clip = "Akutino Coast 5.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 117
+clip = "Akutino Coast 4.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 118
+clip = "Akra Coast 13.mp4"
+bars = 3
+rate = 1.000
+reverse = false

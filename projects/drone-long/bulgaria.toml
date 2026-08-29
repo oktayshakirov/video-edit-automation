@@ -1,0 +1,194 @@
+# Akutino & Akra Castle, Bulgaria — one video from two locations south of
+# Burgas: a hidden beach and the ruins on the headland above it.
+#
+# The footage lives in two folders. `Combined/` holds hard links to both under
+# prefixed names ("Akra Coast 2", "Akutino Coast 2") because BOTH folders
+# contain a "Coast 2" — without the prefix every CLIP_* rule below would be
+# ambiguous, and the index would carry two clips with one name.
+#
+# 32 clips, 12.5 min of source, 3840x2160. Anything under [overrides] must name
+# a real constant in video_automation/drone/config.py or the build fails loudly.
+
+name = "Bulgaria"
+profile = "youtube"
+
+footage = "~/Desktop/Bulgaria/Combined"
+
+# The approved running order (bulgaria-v1), replayed verbatim. With a lock
+# present the scorer is bypassed entirely, so nothing under [overrides] can
+# reshuffle it. Swap or resize a shot by editing the lock file, not by retuning.
+lock = "bulgaria.lock.toml"
+
+# Three songs played in sequence as one timeline — see MUSIC_MEDLEY_* in
+# config.py. Not a loop: these are different songs with different tempos, so
+# the bar grid is piecewise rather than one closed form.
+music = [
+  "~/Desktop/Bulgaria/Middle Child - Miss You.mp3",
+  "~/Desktop/Bulgaria/Rexlambo - Lost.mp3",
+  "~/Desktop/Bulgaria/Rexlambo - I'm Falling.mp3",
+]
+
+[overrides]
+# --- the medley ----------------------------------------------------------
+# Three songs, in the order the user picked. They share no tempo, so the bar
+# grid is piecewise: 3.200s bars, then 3.000s, then 2.637s.
+#
+#   Miss You     75.00 BPM   bars   0-52   0.1-166.5s
+#   Lost         80.00 BPM   bars  52-76   166.5-238.5s
+#   I'm Falling  91.00 BPM   bars  76-121  238.5-357.2s
+#
+# Every seam is calm-into-calm, which is the only thing that makes a join
+# inaudible — the crossfade hides a level change, never an arrangement jump:
+#   Miss You held to 52 bars, leaving on a phrase line inside its closing calm
+#     (energy 0.31) -> Lost opens calm (0.07).
+#   Lost held to 24 bars, which is the end of its own calm section (0.31)
+#     -> I'm Falling opens calm (0.08).
+#   I'm Falling plays whole and ends on the song's own calm ending (0.20).
+#
+# LENGTH IS SET BY THE FOOTAGE, not by the songs. All three played whole is
+# 437s, and the library can only fund ~443s at a coverage of 100% that never
+# happens — the first attempt at that ran dry and ended 5 minutes short. What
+# the clips actually yield at the speeds the user set is ~158s of Akra and
+# ~276s of Akutino, so the timeline is built to 365s and lands near 83%.
+#
+# Holding Lost rather than I'm Falling is what keeps every seam calm-to-calm:
+# Lost's bar 24 is a section line, while trimming I'm Falling to fit would have
+# cut it off inside its peak.
+MUSIC_MEDLEY_CROSSFADE_BARS = 2
+MUSIC_MEDLEY_HOLD_BARS = [52, 24, 45]
+
+# --- shot length ---------------------------------------------------------
+# Bars are 3.200s (Miss You) and 3.000s (Lost), so the slot ladder is in the
+# same range as Nessebar's and the same lengths read correctly: calm 4 bars,
+# build 2, peak 1, doubled on phrase lines. MAX_SHOT_SECONDS has to clear the
+# 4-bar slot (12.8s at the slower tempo) or calm sections collapse to 6.4s.
+SLOT_BARS_BY_ENERGY = [[0.33, 4], [0.66, 2], [1.01, 1]]
+MAX_SHOT_SECONDS = 13.0
+
+# --- the user's per-clip trims -------------------------------------------
+# Watched and called by hand. Everything here is "start later than the head",
+# which is what CLIP_HEAD_SKIP is for; the tail side is handled by the skip
+# ranges below, since there is no "stop early" knob and a range the engine may
+# not touch is the same instruction stated the other way round.
+CLIP_HEAD_SKIP = { "Akra Coast 7" = 10.0, "Akutino Island 2" = 5.0, "Akutino Forest Coast Houses" = 2.0, "Akutino Coast Forest Above 2" = 6.0 }
+
+# Source the user marked as unusable — the parts of each trimmed clip outside
+# the window they picked. Without these the engine keeps the head skip but
+# still runs off the end of the good material on a later use of the same clip,
+# because slices are handed out by an advancing cursor.
+CLIP_SKIP_RANGES = { "Akra Coast 7" = [[18.0, 24.3]], "Akra Coast 6" = [[8.0, 11.8]], "Akra Coast 5" = [[12.0, 20.0]], "Akra Coast 2" = [[39.0, 46.2]], "Akra Coast 4" = [[17.0, 26.6]], "Akutino Coast 1" = [[18.0, 21.7]], "Akutino Sea 1" = [[10.0, 19.4]], "Akutino Beach" = [[10.0, 13.5]], "Akutino Island 2" = [[13.0, 16.9]], "Akutino Forest Sunset 1" = [[13.0, 16.6]], "Akutino Coast 6" = [[21.0, 33.7]], "Akutino Forest Coast Houses" = [[36.0, 49.0]], "Akutino Coast Forest Above 2" = [[36.0, 40.0]] }
+
+# --- speed ---------------------------------------------------------------
+# The user named exactly which clips may be sped up and which stay at real
+# time, so the scorer gets no say: SPEED_CHOICES is 1.0 only, and every
+# speed-up below is a forced instruction. Left to itself the engine chose a
+# different set entirely — 3x on Coast 10 and Sea 1, which were never marked,
+# while Coast 11, which was, played at 1.0x.
+#
+# 2x: the slow, repetitive takes with a near-constant frame.
+# 3x: the same judgement on the takes long enough that 2x still drags.
+#
+# Keys carry ".mp4" because matching is by substring: "Akra Coast 1" is also
+# inside "Akra Coast 10", "11" and "13", so without the extension one entry
+# silently claims four clips and the first match wins.
+SPEED_CHOICES = [1.0]
+CLIP_SPEED = { "Akra Coast 1.mp4" = 3.0, "Akra Coast 2.mp4" = 3.0, "Akra Coast 9.mp4" = 3.0, "Akra Coast 11.mp4" = 2.0, "Akra Coast 3.mp4" = 2.0, "Akutino Forest Coast Houses.mp4" = 3.0, "Akutino Island 2.mp4" = 2.0, "Akutino Coast Forest Above 2.mp4" = 2.0, "Akutino Coast 2.mp4" = 2.0 }
+
+# --- clips that are out ------------------------------------------------
+# Coast Beach Above: litter on the sand, visible throughout — no range of it is
+# usable, so it is excluded rather than trimmed.
+# Coast Forest Above 1: dropped on the user's call.
+CLIP_EXCLUDE = ["Akutino Coast Beach Above", "Akutino Coast Forest Above 1"]
+
+# The opener plays whole and never returns. An absolute cap, so the scorer
+# cannot lift it when the library runs dry — the point of the cap is that this
+# shot is seen once.
+CLIP_MAX_USES = { "Akra Castle Bulgarian Flag.mp4" = 1 }
+
+# --- one place at a time -------------------------------------------------
+# The video opens at Akra Castle and travels to Akutino, then returns for one
+# closing shot. Without these windows the scorer interleaves the two locations
+# shot by shot — it has no concept of place — and the pins have nothing
+# coherent to label.
+#
+# The handover is bar 40 (2:08.1), a phrase line. It is set by what Akra can
+# actually fund — ~158s of timeline against the 166.5s that reaching the song
+# change at bar 52 would need. Asking for bar 52 emptied the Akra half at bar
+# 40 and stopped the whole build there, because a window that runs out of
+# footage ends the timeline rather than moving on to the next one.
+#
+# ORDER MATTERS HERE. Matching is by substring and the first match wins, so
+# "Akra Coast 13.mp4" has to be listed before the bare "Akra" or the generic
+# entry claims it and the closing shot is free to appear anywhere.
+CLIP_BAR_WINDOWS = { "Akra Coast 13.mp4" = [[118, 121]], "Akra" = [[0, 40]], "Akutino" = [[40, 118]] }
+
+# The opener: the Bulgarian flag over the ruins, played whole. 4 bars is 12.8s
+# against 13.0s of usable source, so it runs essentially end to end. Pinned
+# rather than scored, because "this is the first shot" is an instruction.
+PIN_CLIPS = { 0 = "Akra Castle Bulgarian Flag.mp4", 40 = "Akutino Sea Above 2.mp4", 41 = "Akutino Island 3.mp4", 43 = "Akutino Forest Sunset 2.mp4", 44 = "Akutino Island 1.mp4", 45 = "Akutino Forest Coast Houses.mp4", 48 = "Akutino Coast 1.mp4", 118 = "Akra Coast 13.mp4" }
+
+# Slot lengths for those pins, each fitted to what the clip actually has:
+# The Akutino six all land inside Miss You, so these are 3.200s bars.
+#
+# A SLOT MAY NOT CROSS A SECTION BOUNDARY, and there is one at bar 48. These
+# lengths are laid out backwards from it so Forest Coast Houses gets its full
+# three bars ending exactly on 48; asking for three bars at 47 left one bar of
+# room and the pin could not be placed at all.
+#   0   Flag              4 bars = 12.8s of 13.0s
+#   40  Sea Above 2       1 bar  =  3.2s — the clip is only 5.7s, so 2 bars
+#                         (6.4s) is more than it owns
+#   41  Island 3          2 bars =  6.4s
+#   43  Forest Sunset 2   1 bar  =  3.2s
+#   44  Island 1          1 bar  =  3.2s
+#   45  Forest Coast Hou. 3 bars =  9.6s, which at 3x eats 28.8s of the 34s the
+#                         user's 0:02-0:36 window leaves
+#   48  Coast 1           4 bars = 12.8s of its 18s window
+#   118 Coast 13          3 bars =  7.9s of 9.0s — the closing sunset
+#
+# I'm Falling is held to 45 bars for the same reason the whole medley is sized
+# to the footage: Akutino runs dry at bar 118, so the timeline ends at 121 and
+# the closing shot sits in the last three bars rather than after a gap.
+PIN_SLOT_BARS = { 0 = 4, 40 = 1, 41 = 2, 43 = 1, 44 = 1, 45 = 3, 48 = 4, 118 = 3 }
+
+# --- coverage ------------------------------------------------------------
+# 12.5 min of source under a ~7 min timeline; the pressure is toward finishing
+# clips rather than nibbling heads.
+W_COVERAGE = 0.45
+W_BITE = 0.55
+
+# --- stop clips reading as repeats ---------------------------------------
+# Both folders are the same coastline, so two different clips can already look
+# alike; a clip returning five times on top of that reads as the same shot
+# played again. Fewer, bigger bites instead.
+MAX_USES_DEFAULT = 4
+MAX_USES_BY_MOVE = { orbit = 3 }
+PENALTY_OVERUSE = 0.34
+REUSE_COOLDOWN_SLOTS = 6
+REUSE_RECENCY_WINDOW = 16
+
+# --- location pins -------------------------------------------------------
+# Akra: 1.5s into the 12.8s opening shot.
+# Akutino: the location changes at 128.1s, but the first shot there is only
+# 3.2s and the pin needs 5.03s, so it sits on the second one (Island 3) at
+# 131.8s. Placement is by timeline seconds and must be re-read from the edit
+# list whenever the running order moves.
+#
+# dx shifts the title right, away from the pin. The captured title is
+# CENTRE-anchored, so a longer name grows further left into the pin — the
+# overlap is a function of character count, which is why the two differ.
+LOCATION_PIN = true
+LOCATION_PINS = [
+  { start = 1.5, text = "AKRA CASTLE, BULGARIA", dx = 65 },
+  { start = 131.8, text = "AKUTINO BEACH, BULGARIA", dx = 110 },
+]
+
+# --- colour --------------------------------------------------------------
+# Three Akutino clips read cooler and flatter than the rest of that location.
+# The LUT is the one captured from Final Cut into
+# assets/fcpxml/custom-lut-filter.xml; this only sets its opacity, and the
+# captured 0.2157 is the low-opacity golden-hour setting the user dialled in.
+#
+# It will not rescue clipped highlights — see the note in the review.
+CLIP_LUT = { "Akutino Coast 3.mp4" = 0.2157, "Akutino Beach.mp4" = 0.2157, "Akutino Sea 1.mp4" = 0.2157 }
+
+LOCATION_TITLE_STYLE = {}

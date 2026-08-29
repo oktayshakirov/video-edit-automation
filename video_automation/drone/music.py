@@ -62,6 +62,24 @@ class LoopPlan:
 
 
 @dataclass
+class Movement:
+    """One song inside a medley, placed on the timeline's bar grid.
+
+    `start_bar` is the timeline bar the song takes over at, `bars` how many
+    timeline bars it holds. `track` is the song's own analysed Track, which may
+    itself carry a LoopPlan — a movement can be an already-extended song.
+    """
+    track: "Track"
+    start_bar: int
+    bars: int
+    start_time: float      # absolute timeline seconds of `start_bar`
+
+    @property
+    def end_bar(self) -> int:
+        return self.start_bar + self.bars
+
+
+@dataclass
 class Track:
     path: Path
     duration: float
@@ -78,14 +96,40 @@ class Track:
     grid_octaves: dict = field(default_factory=dict)   # half/double, for comparison
     source_bars: int = 0           # bars in one pass of the audio
     loop: "LoopPlan | None" = None
+    # Set only on a medley. Two songs rarely share a tempo, so the bar grid
+    # stops being one closed form and becomes piecewise — one linear grid per
+    # movement. Empty for an ordinary single-song track, where the closed form
+    # below is exact and error still cannot accumulate.
+    movements: list["Movement"] = field(default_factory=list)
+
+    def _movement_at_bar(self, n: int) -> "Movement | None":
+        if not self.movements:
+            return None
+        for m in self.movements:
+            if n < m.end_bar:
+                return m
+        return self.movements[-1]
 
     def bar_time(self, n: int) -> float:
-        """Closed form, so error never accumulates."""
-        return self.grid_phase + self.bar_period * n
+        """Closed form, so error never accumulates.
+
+        On a medley the closed form is per movement: the grid restarts at each
+        song's own bar length, anchored to where that song took over. Error
+        stays bounded inside a movement instead of compounding across the seam.
+        """
+        m = self._movement_at_bar(n)
+        if m is None:
+            return self.grid_phase + self.bar_period * n
+        return m.start_time + m.track.bar_period * (n - m.start_bar)
 
     def beat_time(self, n: int) -> float:
         """Closed form in beats — the finer grid, for sub-bar cutting."""
-        return self.grid_phase + self.beat_period * n
+        if not self.movements:
+            return self.grid_phase + self.beat_period * n
+        m = self._movement_at_bar(n // BEATS_PER_BAR)
+        assert m is not None
+        return (m.start_time
+                + m.track.beat_period * (n - m.start_bar * BEATS_PER_BAR))
 
     def source_bar(self, n: int) -> int:
         """Timeline bar -> which bar of the audio actually plays there."""
@@ -374,6 +418,89 @@ def extend_with_loop(t: Track, handoff_bar: int, return_bar: int,
     )
 
 
+def concat_tracks(tracks: list[Track], crossfade_bars: int = 2,
+                  hold_bars: list[int | None] | None = None) -> Track:
+    """Play several songs in sequence as one timeline — a medley.
+
+    This is not `extend_with_loop`. That one replays a single song to give the
+    footage room; this joins *different* songs, which is a different problem in
+    one specific way: they do not share a tempo. A single `bar_period` cannot
+    describe the result, so the grid becomes piecewise (see `Track.bar_time`)
+    and every cut still lands on a real bar line of whichever song is playing.
+
+    `hold_bars[i]` truncates song i to that many bars — use it to leave on a
+    phrase line rather than at whatever bar the analysis happened to end on.
+    None keeps the whole song.
+
+    The seam is a crossfade of `crossfade_bars`, measured in the *outgoing*
+    song's bars. As with a loop, the crossfade hides a level change and nothing
+    else: it cannot make a full-energy outro flow into a full-energy intro. Pick
+    the join by energy — a song ending calm into a song opening calm is what
+    makes a medley read as one piece of music rather than as a playlist.
+    """
+    if not tracks:
+        raise ValueError("concat_tracks needs at least one track")
+    if len(tracks) == 1:
+        return tracks[0]
+
+    holds = list(hold_bars or [None] * len(tracks))
+    if len(holds) != len(tracks):
+        raise ValueError("hold_bars must have one entry per track")
+
+    movements: list[Movement] = []
+    energies: list[np.ndarray] = []
+    sections: list[Section] = []
+    bar_cursor, time_cursor = 0, tracks[0].grid_phase
+
+    for t, hold in zip(tracks, holds):
+        # 0 as well as None means "keep the whole song": TOML has no null, so a
+        # project file cannot write None into this list.
+        bars = t.n_bars if not hold else min(int(hold), t.n_bars)
+        if bars <= 0:
+            raise ValueError(f"{t.path.name}: hold_bars leaves no bars")
+
+        movements.append(Movement(track=t, start_bar=bar_cursor, bars=bars,
+                                  start_time=time_cursor))
+        energies.append(t.bar_energy[:bars])
+
+        # Sections carry over shifted, clipped to the held length, so the edit
+        # engine still sees each song's own calm/build/peak structure.
+        for s in t.sections:
+            a, b = min(s.start_bar, bars), min(s.end_bar, bars)
+            if b > a:
+                sections.append(Section(start_bar=a + bar_cursor,
+                                        end_bar=b + bar_cursor,
+                                        energy=s.energy, label=s.label))
+
+        bar_cursor += bars
+        time_cursor += t.bar_period * bars
+
+    first = tracks[0]
+    total_bars = bar_cursor
+    # A representative bar length, used only where a single number is needed to
+    # judge whether a slot length is legal (MAX_SHOT_SECONDS). The longest bar
+    # is the conservative choice: it never lets through a slot that would run
+    # over the ceiling in the slower song.
+    rep_bar = max(m.track.bar_period for m in movements)
+
+    return Track(
+        path=first.path,
+        duration=time_cursor,
+        bpm=first.bpm,
+        beat_period=rep_bar / BEATS_PER_BAR,
+        bar_period=rep_bar,
+        grid_phase=first.grid_phase,
+        n_bars=total_bars,
+        bar_energy=np.concatenate(energies),
+        sections=sections,
+        downbeat_confidence=min(t.downbeat_confidence for t in tracks),
+        intro_bars=first.intro_bars,
+        grid_score=min(t.grid_score for t in tracks),
+        source_bars=total_bars,
+        movements=movements,
+    )
+
+
 def write_click_track(t: Track, out: Path) -> Path:
     """Mix the track against clicks on every bar line.
 
@@ -420,6 +547,12 @@ def describe(t: Track) -> str:
         alt = "  ".join(f"{k} {bpm:.2f} BPM scores {s:.2f}"
                         for k, (bpm, s) in t.grid_octaves.items())
         lines.append(f"  grid score {t.grid_score:.2f}   (vs {alt})")
+    for m in t.movements:
+        lines.append(
+            f"  MOVEMENT: {m.track.path.name}  bars {m.start_bar}-{m.end_bar} "
+            f"({m.start_time:.1f}-{m.start_time + m.track.bar_period * m.bars:.1f}s)  "
+            f"{m.track.bpm:.2f} BPM   bar = {m.track.bar_period:.3f}s"
+            f"{'   [looped]' if m.track.loop else ''}")
     if t.loop:
         lp = t.loop
         lines.append(

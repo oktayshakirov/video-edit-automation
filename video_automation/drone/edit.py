@@ -43,6 +43,9 @@ from .config import (
     PENALTY_SPEEDUP_WHEN_CALM,
     REWIND_WHEN_EXHAUSTED,
     SPEED_CHOICES,
+    CLIP_SPEED,
+    CLIP_BAR_WINDOWS,
+    CLIP_EXCLUDE,
     SPEEDUP_MIN_REMAINING,
     W_BITE,
     W_COVERAGE,
@@ -181,6 +184,12 @@ def load_clips(db_path: Path) -> list[Clip]:
         "SELECT hash, path, filename, duration, fps, move_type, motion_energy, hue, "
         "tx_rate, ty_rate FROM clips"
     ).fetchall()
+    # Excluded selects never enter the library, so nothing downstream — scoring,
+    # coverage, the "out of footage" accounting — counts material that is not
+    # going to be used.
+    if CLIP_EXCLUDE:
+        rows = [r for r in rows
+                if not any(x.lower() in r[2].lower() for x in CLIP_EXCLUDE)]
     clips = [
         Clip(hash=r[0], path=r[1], filename=r[2], duration=r[3], fps=r[4],
              move_type=r[5], motion_energy=r[6], hue=r[7], group=_group_of(r[2]),
@@ -619,7 +628,7 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             # single use, since one use is all there was to spend.
             reserved = {frag.lower() for at, frag in PIN_CLIPS.items() if at > bar}
 
-            def eligible(relax_uses: bool) -> list[Clip]:
+            def eligible(relax_uses: bool, pin: str | None = pin) -> list[Clip]:
                 out = []
                 for clip in clips:
                     if clip.remaining(fps) <= 0:
@@ -630,6 +639,13 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                     else:
                         low = clip.filename.lower()
                         if any(frag in low for frag in reserved):
+                            continue
+                        # A clip confined to part of the timeline — this is how
+                        # a two-location video keeps each place contiguous.
+                        windows = next((w for k, w in CLIP_BAR_WINDOWS.items()
+                                        if k.lower() in low), None)
+                        if windows is not None and not any(
+                                a <= bar < b for a, b in windows):
                             continue
                         cooling = (slot_i - clip.last_used_slot) < REUSE_COOLDOWN_SLOTS
                         if cooling and clip.times_used > 0:
@@ -645,81 +661,111 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             # rewinds cursors and puts footage the viewer has already seen back
             # on screen — the most visible failure this engine has, and the one
             # that reads as "the same shot again" even when the take continues.
-            candidates = eligible(False) or eligible(True)
+            def _pick(candidates, pin=pin):
+                """Best (clip, length, speed) for this slot, or None."""
+                best = None
 
-            for clip in candidates:
-                # A pinned length is taken literally — it is an instruction, so
-                # it is not filtered against the legal set or MAX_SHOT_SECONDS.
-                pinned_bars = PIN_SLOT_BARS.get(bar)
-                bar_choices = (pinned_bars,) if pinned_bars is not None else legal_bars
-                for bars in bar_choices:
-                    if bars > room:
-                        continue
-                    # A pinned clip is allowed to take a shorter slot than its
-                    # move type would normally justify — the instruction wins.
-                    if pin is None and bars < clip.min_slot_bars:
-                        continue
-                    t0 = track.bar_time(bar)
-                    t1 = track.bar_time(bar + bars)
-                    tl_frames = round(t1 * fps) - round(t0 * fps)
-
-                    avail = clip.remaining(fps)
-
-                    # Candidate playback modes for this slot. A punch ramp is a
-                    # mode like any other, not a post-hoc edit: it consumes the
-                    # mean of its speed curve, and deciding it here is what keeps
-                    # that consumption inside the cursor accounting. Assigning
-                    # ramps after the fact let them eat footage later cuts had
-                    # already claimed, and the same seconds appeared twice.
-                    modes = [(r, None) for r in (SPEED_CHOICES if ALLOW_SPEEDUP else (1.0,))]
-                    for rate, ramp in modes:
-                        # Speed-up only: a clip never runs slower than recorded,
-                        # so a slot it cannot fill at 1x simply goes to another
-                        # clip rather than being stretched.
-                        src_frames = int(round(tl_frames * rate))
-                        src_at = clip.start_for(src_frames, fps)
-                        if src_at is None:
+                for clip in candidates:
+                    # A pinned length is taken literally — it is an instruction, so
+                    # it is not filtered against the legal set or MAX_SHOT_SECONDS.
+                    # The pinned length goes with the pin. On the unpinned retry
+                    # the slot is sized normally, or it would still be forced to
+                    # a length chosen to fit a clip that is not being used.
+                    pinned_bars = PIN_SLOT_BARS.get(bar) if pin is not None else None
+                    bar_choices = (pinned_bars,) if pinned_bars is not None else legal_bars
+                    for bars in bar_choices:
+                        if bars > room:
                             continue
-                        if rate > 1.0 and avail < SPEEDUP_MIN_REMAINING * fps:
-                            continue     # 2x is for long clips, not for coverage
+                        # A pinned clip is allowed to take a shorter slot than its
+                        # move type would normally justify — the instruction wins.
+                        if pin is None and bars < clip.min_slot_bars:
+                            continue
+                        t0 = track.bar_time(bar)
+                        t1 = track.bar_time(bar + bars)
+                        tl_frames = round(t1 * fps) - round(t0 * fps)
 
-                        score = -W_ENERGY_MATCH * abs(clip.energy_rank - target_e)
-                        # Prefer the section's rhythm, but softly — footage wins.
-                        score -= W_SLOT_LENGTH * abs(math.log2(bars / slot_pref))
-                        if prev is not None:
-                            if clip.move_type == prev.move_type:
-                                score -= PENALTY_SAME_MOVE
-                            if clip.group == prev.group:
-                                score -= PENALTY_SAME_GROUP
-                            if _hue_distance(clip.hue, prev.hue) < HUE_CLOSE_DEG:
-                                score -= PENALTY_CLOSE_HUE
-                        # Reuse penalty decays with distance rather than counting
-                        # uses. A count-based penalty grows past any possible
-                        # energy mismatch and degenerates into round-robin
-                        # rotation, which is how hovers ended up on the drop.
-                        gap = slot_i - clip.last_used_slot
-                        if clip.times_used:
-                            score -= PENALTY_REUSE * max(0.0, 1.0 - gap / REUSE_RECENCY_WINDOW)
-                        score -= PENALTY_OVERUSE * clip.times_used
+                        avail = clip.remaining(fps)
 
-                        # Coverage pressure: prefer clips with material left, and
-                        # prefer taking a bigger bite out of them. Without this the
-                        # engine nibbles the head of every clip and abandons the
-                        # back half of every long take.
-                        total = max(clip.total_frames(fps), 1)
-                        score += W_COVERAGE * (avail / total)
-                        score += W_BITE * (src_frames / total)
+                        # Candidate playback modes for this slot. A punch ramp is a
+                        # mode like any other, not a post-hoc edit: it consumes the
+                        # mean of its speed curve, and deciding it here is what keeps
+                        # that consumption inside the cursor accounting. Assigning
+                        # ramps after the fact let them eat footage later cuts had
+                        # already claimed, and the same seconds appeared twice.
+                        forced = next((v for k, v in CLIP_SPEED.items()
+                                       if k.lower() in clip.filename.lower()), None)
+                        if forced is not None:
+                            # An instruction from watching the footage, not a
+                            # candidate to be scored against 1.0x.
+                            modes = [(float(forced), None)]
+                        else:
+                            modes = [(r, None) for r in
+                                     (SPEED_CHOICES if ALLOW_SPEEDUP else (1.0,))]
+                        for rate, ramp in modes:
+                            # Speed-up only: a clip never runs slower than recorded,
+                            # so a slot it cannot fill at 1x simply goes to another
+                            # clip rather than being stretched.
+                            src_frames = int(round(tl_frames * rate))
+                            src_at = clip.start_for(src_frames, fps)
+                            if src_at is None:
+                                continue
+                            if (rate > 1.0 and forced is None
+                                    and avail < SPEEDUP_MIN_REMAINING * fps):
+                                continue     # 2x is for long clips, not for coverage
 
-                        if rate != 1.0:
-                            score -= PENALTY_SPEEDUP_WHEN_CALM * (1.0 - target_e)
+                            score = -W_ENERGY_MATCH * abs(clip.energy_rank - target_e)
+                            # Prefer the section's rhythm, but softly — footage wins.
+                            score -= W_SLOT_LENGTH * abs(math.log2(bars / slot_pref))
+                            if prev is not None:
+                                if clip.move_type == prev.move_type:
+                                    score -= PENALTY_SAME_MOVE
+                                if clip.group == prev.group:
+                                    score -= PENALTY_SAME_GROUP
+                                if _hue_distance(clip.hue, prev.hue) < HUE_CLOSE_DEG:
+                                    score -= PENALTY_CLOSE_HUE
+                            # Reuse penalty decays with distance rather than counting
+                            # uses. A count-based penalty grows past any possible
+                            # energy mismatch and degenerates into round-robin
+                            # rotation, which is how hovers ended up on the drop.
+                            gap = slot_i - clip.last_used_slot
+                            if clip.times_used:
+                                score -= PENALTY_REUSE * max(0.0, 1.0 - gap / REUSE_RECENCY_WINDOW)
+                            score -= PENALTY_OVERUSE * clip.times_used
 
-                        if best is None or score > best[0]:
-                            best = (score, clip, bars, tl_frames, src_frames,
-                                    rate, ramp, src_at)
+                            # Coverage pressure: prefer clips with material left, and
+                            # prefer taking a bigger bite out of them. Without this the
+                            # engine nibbles the head of every clip and abandons the
+                            # back half of every long take.
+                            total = max(clip.total_frames(fps), 1)
+                            score += W_COVERAGE * (avail / total)
+                            score += W_BITE * (src_frames / total)
+
+                            if rate != 1.0:
+                                score -= PENALTY_SPEEDUP_WHEN_CALM * (1.0 - target_e)
+
+                            if best is None or score > best[0]:
+                                best = (score, clip, bars, tl_frames, src_frames,
+                                        rate, ramp, src_at)
+                return best
+
+            best = _pick(eligible(False) or eligible(True))
 
             if best is None and pin is not None:
+                # A pin that cannot be honoured is a preference the footage
+                # could not fund — not a reason to end the video. Retry the slot
+                # as an ordinary one against the whole library.
+                #
+                # This used to fall straight through to the "out of footage"
+                # branch below and truncate the timeline, with the library still
+                # almost untouched: `eligible` had only ever been asked about the
+                # pinned clip. One unfundable pin cost 214s of finished edit and
+                # reported it as running out of material.
                 print(f"  note: pin at bar {bar} ('{pin}') could not be placed — "
-                      f"no material left, or it cannot fill the slot at 1x")
+                      f"no material left, or it cannot fill the slot; "
+                      f"scoring this slot normally instead")
+                pin = None
+                best = _pick(eligible(False, None) or eligible(True, None),
+                             pin=None)
 
             if best is None:
                 # Genuinely out of material: the use cap has already been lifted

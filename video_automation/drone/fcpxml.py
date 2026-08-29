@@ -47,6 +47,9 @@ from xml.sax.saxutils import escape
 from .config import (
     EVENT_NAME,
     LOCATION_PIN,
+    LOCATION_PINS,
+    CLIP_LUT,
+    MUSIC_MEDLEY_CROSSFADE_BARS,
     LOCATION_TITLE_TEXT,
     LOCATION_TITLE_STYLE,
     MUSIC_UID,
@@ -192,6 +195,7 @@ ASSET_DIR = Path(__file__).resolve().parents[2] / "assets"
 PIN_FRAGMENT = ASSET_DIR / "fcpxml" / "location-pin-overlay.xml"
 PIN_SOURCE = ASSET_DIR / "location-pin-source.mp4"
 TITLE_FRAGMENT = ASSET_DIR / "fcpxml" / "location-title-overlay.xml"
+LUT_FRAGMENT = ASSET_DIR / "fcpxml" / "custom-lut-filter.xml"
 
 # In-point of the red pin inside the pack, from the captured export. By hue the
 # red pin measures ~345 deg and classifies as pink, so this cannot be found by
@@ -235,7 +239,8 @@ def _location_pin(offset_frames: int, dur_frames: int, fps: int,
 
 
 def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
-                    effect_id: str) -> dict | None:
+                    effect_id: str, style_id: str = "ts1",
+                    dx: float = 0.0, dy: float = 0.0) -> dict | None:
     """Splice the captured Basic Title, rewritten onto our effect id.
 
     Same reasoning as the pin: the generator's uid and the three `param key`
@@ -255,7 +260,29 @@ def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
 
     body = body.replace("@@TEXT@@", escape(text))
     body = body.replace('ref="r7"', f'ref="{effect_id}"', 1)
+    # The captured fragment defines its text style as "ts1". With more than one
+    # title in the document that id repeats, and Final Cut rejects the whole
+    # file ("ID ts1 already defined") rather than just the second title.
+    if style_id != "ts1":
+        body = body.replace('ref="ts1"', f'ref="{style_id}"')
+        body = body.replace('id="ts1"', f'id="{style_id}"')
     effect = re.sub(r'id="r7"', f'id="{effect_id}"', effect, count=1)
+
+    # The captured Position is CENTRE-anchored (Alignment is "1 (Center)"), so
+    # the text grows outward in both directions from one fixed point: a longer
+    # place name reaches further left and runs into the pin, while a short one
+    # sits with a gap. The overlap is therefore a function of how many
+    # characters the name has, which is why it appears on one video and not the
+    # next and cannot be fixed once for all of them in the fragment.
+    #
+    # dx shifts the anchor right (dy up), per pin, in Motion points. Only the
+    # value of a captured param changes — the key path is untouched — which is
+    # the same kind of edit as rewriting offset and duration below.
+    if dx or dy:
+        def _shift(m):
+            x, y = (float(v) for v in m.group(1).split())
+            return f'value="{x + dx:g} {y + dy:g}"'
+        body = re.sub(r'value="(-?[\d.]+ -?[\d.]+)"', _shift, body, count=1)
 
     body = re.sub(r'offset="[^"]*"', f'offset="{_rational(offset_frames, fps)}"', body, count=1)
     body = re.sub(r'duration="[^"]*"', f'duration="{_rational(dur_frames, fps)}"', body, count=1)
@@ -279,6 +306,92 @@ def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
                           rf'\g<1>{LOCATION_TITLE_STYLE["kerning"]}"', body)
 
     return {"effect": effect, "clip": body}
+
+
+def _lut_filter(mix: float, effect_id: str) -> dict | None:
+    """The captured Custom LUT, rewritten onto our effect id.
+
+    Same contract as the pin and the title: the uid and both base64 payloads are
+    FCP-internal and are reused as text. Only `Mix` — the opacity — is authored.
+    """
+    if not LUT_FRAGMENT.is_file():
+        return None
+    raw = re.sub(r"<!--.*?-->", "", LUT_FRAGMENT.read_text(encoding="utf-8"),
+                 flags=re.S)
+    effect = re.search(r"<effect\b[^>]*/>", raw).group(0)
+    body = raw[raw.index("<filter-video"):
+               raw.rindex("</filter-video>") + len("</filter-video>")]
+    body = body.replace("@@MIX@@", f"{mix:g}")
+    body = body.replace('ref="r10"', f'ref="{effect_id}"', 1)
+    effect = re.sub(r'id="r10"', f'id="{effect_id}"', effect, count=1)
+    return {"effect": effect, "filter": body}
+
+
+def _medley_clips(audio: dict, video_end: int, base: int, fps: int,
+                  track) -> list[dict]:
+    """Lay out several different songs in sequence, crossfaded at each seam.
+
+    `audio` here maps a song's file path to its asset dict — a medley has one
+    asset per song rather than the single one a looped track needs.
+
+    The overlap is taken from the *outgoing* song's tail rather than by starting
+    the next one early. Both would sound the same, but only this way does every
+    song still begin exactly on the timeline bar its own grid was anchored to;
+    pulling the incoming song earlier would slide its downbeat off the grid and
+    every cut in it with it.
+
+    Each clip gets its own lane. Connected clips on one lane may not overlap,
+    and at a crossfade two of them do by definition.
+    """
+    clips: list[dict] = []
+    movements = track.movements
+
+    for i, m in enumerate(movements):
+        asset = audio[str(m.track.path)]
+        src_total = int(asset["frames"])
+        xf = int(round(m.track.bar_period * MUSIC_MEDLEY_CROSSFADE_BARS * fps))
+
+        # Every song plays from its own first frame, and it is POSITIONED so
+        # that its bar 0 lands on the timeline bar the grid put it at. Bar 0 sits
+        # `grid_phase` into the file — the intro before the first downbeat — so
+        # the clip has to start that much earlier than the movement does.
+        #
+        # Placing it at the movement's own start instead pushes the whole song
+        # late by its intro: for the first song that is the audio sitting 0.100s
+        # out of sync with a spine that begins at 0s, which is small enough to
+        # read as a rendering artefact rather than a placement bug.
+        lead = int(round(m.track.grid_phase * fps))
+        tl_start = base + int(round(m.start_time * fps)) - lead
+        src_in = 0
+        nominal = lead + int(round(m.track.bar_period * m.bars * fps))
+
+        last = i == len(movements) - 1
+        if last:
+            dur = min(video_end - tl_start, src_total - src_in)
+        else:
+            # Run past the seam by the crossfade so the outgoing song covers it.
+            dur = min(nominal + xf, src_total - src_in, video_end - tl_start)
+
+        if dur <= 0:
+            continue
+
+        vol: list[tuple[int, str]] = []
+        if i > 0:
+            vol += [(src_in, "-96dB"), (src_in + xf, "0dB")]
+        if last:
+            fade = min(int(MUSIC_FADE_SECONDS * fps), max(dur - xf, 0))
+            if fade > 0:
+                vol += [(src_in + dur - fade, "0dB"), (src_in + dur, "-96dB")]
+        else:
+            vol += [(src_in + dur - xf, "0dB"), (src_in + dur, "-96dB")]
+
+        clips.append(dict(asset, lane=-(i + 1),
+                          offset=_rational(tl_start, fps),
+                          start=_rational(src_in, fps),
+                          duration=_rational(dur, fps),
+                          volume=vol))
+
+    return clips
 
 
 def _music_clips(audio: dict, music_frames: int, video_end: int, base: int,
@@ -355,6 +468,30 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
                 "src": _file_url(Path(c.clip.path)),
             }
 
+    # A medley carries one asset per song; an ordinary track has exactly one and
+    # takes the same path with a single-entry list.
+    music_paths = [music]
+    if track is not None and track.movements:
+        seen: list[Path] = []
+        for m in track.movements:
+            if m.track.path not in seen:
+                seen.append(m.track.path)
+        music_paths = seen
+
+    audio_assets: dict[str, dict] = {}
+    for mp in music_paths:
+        frames = int(_audio_duration(mp) * fps)
+        audio_assets[str(mp)] = {
+            "id": f"r{len(assets) + 1 + len(audio_assets)}",
+            "name": mp.stem,
+            "uid": MUSIC_UID if (MUSIC_UID and len(music_paths) == 1)
+            else ("music-" + hashlib.sha1(mp.name.encode("utf-8")).hexdigest()[:12]),
+            "duration": _rational(frames, fps),
+            "frames": frames,
+            "src": _file_url(mp),
+            "rate": _audio_rate(mp),
+        }
+
     music_frames = int(_audio_duration(music) * fps)
     audio = {
         "id": f"r{len(assets) + 1}",
@@ -392,6 +529,25 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             "fade": None,
         })
 
+    # The captured LUT, on whichever clips the project named. One effect
+    # resource, referenced by every clip that carries it.
+    lut_effect = None
+    if CLIP_LUT:
+        lut_id = f"r{len(assets) + len(audio_assets) + 10}"
+        for c, entry in zip(cuts, rendered_cuts):
+            mix = next((v for k, v in CLIP_LUT.items()
+                        if k.lower() in c.clip.filename.lower()), None)
+            if not mix:
+                continue
+            got = _lut_filter(float(mix), lut_id)
+            if got is None:
+                print("  note: CLIP_LUT is set but "
+                      "assets/fcpxml/custom-lut-filter.xml is missing — "
+                      "no grade applied")
+                break
+            lut_effect = got["effect"]
+            entry["lut"] = got["filter"]
+
     video_end = max(c.timeline_start + c.duration for c in cuts)
 
     # Fade the picture out under the closing music fade so both land together.
@@ -411,7 +567,10 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
     # at the parent's `start` — not at zero. That base is 0 whenever the first
     # clip carries a timeMap, and its source in-point otherwise.
     base = 0 if rendered_cuts[0]["timemap"] else cuts[0].source_start
-    music_clips = _music_clips(audio, music_frames, video_end, base, fps, track)
+    if track is not None and track.movements:
+        music_clips = _medley_clips(audio_assets, video_end, base, fps, track)
+    else:
+        music_clips = _music_clips(audio, music_frames, video_end, base, fps, track)
     for mc in music_clips:
         mc["volume"] = [{"time": _rational(t, fps), "value": v}
                         for t, v in mc.get("volume", [])]
@@ -428,7 +587,7 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             continue
         aid = next((a["id"] for a in sfx_assets if a["path"] == str(path)), None)
         if aid is None:
-            aid = f"r{len(assets) + 6 + len(sfx_assets)}"
+            aid = f"r{len(assets) + 5 + len(audio_assets) + len(sfx_assets)}"
             sfx_assets.append({
                 "id": aid, "path": str(path), "name": path.stem,
                 # No invented uid: see SOUND_EFFECTS in config.py. Final Cut
@@ -450,39 +609,59 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
             "duration": _rational(int(round(float(fx["duration"]) * fps)), fps),
         })
 
-    pin = title = None
-    pin_host = 0
+    overlays: list[dict] = []
     if LOCATION_PIN:
-        at = int(round(LOCATION_PIN_START * fps))
-        pin_dur = int(round(LOCATION_PIN_SECONDS * fps))
-        # A connected clip has to live inside a spine clip that spans it, so the
-        # pin is anchored to whichever shot is on screen when it starts — not to
-        # the first one. With a burst opening the first shot can be under two
-        # seconds, and assuming clip #1 silently truncated the overlay to fit.
-        pin_host = max((j for j, c in enumerate(cuts) if c.timeline_start <= at),
-                       default=0)
-        host, hentry = cuts[pin_host], rendered_cuts[pin_host]
-        hbase = 0 if hentry["timemap"] else host.source_start
-        pin_off = hbase + at - host.timeline_start
-        room = host.duration - (at - host.timeline_start)
-        if pin_dur > room:
-            print(f"  note: the shot under the pin is {host.duration/fps:.1f}s and "
-                  f"the pin needs {pin_dur/fps:.1f}s from {LOCATION_PIN_START:.1f}s "
-                  f"— trimming the overlay to {max(room, 0)/fps:.1f}s")
-            pin_dur = max(room, 0)
-        if pin_dur > 0:
-            pin = _location_pin(
-                pin_off, pin_dur, fps,
-                asset_id=f"r{len(assets) + 2}", format_id=f"r{len(assets) + 3}",
-                effect_id=f"r{len(assets) + 4}")
-        if pin is None:
-            print("  note: LOCATION_PIN is on but the overlay could not be "
-                  "placed — check assets/ and the shot it lands on")
-        elif LOCATION_TITLE_TEXT:
-            # The title rides the pin's window so the two appear and leave
-            # together; it sits on lane 2, above the pin's lane 1.
-            title = _location_title(LOCATION_TITLE_TEXT, pin_off, pin_dur,
-                                    fps, effect_id=f"r{len(assets) + 5}")
+        # One entry per place the video visits. The singular keys remain the
+        # one-location shorthand and become a single-entry list here, so both
+        # paths below are the same code.
+        wanted = LOCATION_PINS or [{"start": LOCATION_PIN_START,
+                                    "text": LOCATION_TITLE_TEXT}]
+        rid = len(assets) + len(audio_assets)
+        for spec in wanted:
+            at = int(round(float(spec["start"]) * fps))
+            pin_dur = int(round(float(spec.get("seconds", LOCATION_PIN_SECONDS)) * fps))
+            # A connected clip has to live inside a spine clip that spans it, so
+            # the pin is anchored to whichever shot is on screen when it starts
+            # — not to the first one. With a burst opening the first shot can be
+            # under two seconds, and assuming clip #1 silently truncated the
+            # overlay to fit.
+            host_i = max((j for j, c in enumerate(cuts) if c.timeline_start <= at),
+                         default=0)
+            host, hentry = cuts[host_i], rendered_cuts[host_i]
+            hbase = 0 if hentry["timemap"] else host.source_start
+            pin_off = hbase + at - host.timeline_start
+            room = host.duration - (at - host.timeline_start)
+            if pin_dur > room:
+                print(f"  note: the shot under the pin at {spec['start']:.1f}s is "
+                      f"{host.duration/fps:.1f}s and the pin needs "
+                      f"{pin_dur/fps:.1f}s — trimming the overlay to "
+                      f"{max(room, 0)/fps:.1f}s")
+                pin_dur = max(room, 0)
+            if pin_dur <= 0:
+                print(f"  note: no room for the pin at {spec['start']:.1f}s — skipped")
+                continue
+
+            # Every pin shares one source asset, one format and one keyer
+            # effect — they are the same red pin from the same file. Allocating
+            # a fresh set per pin would emit duplicate resources under the same
+            # uid, which Final Cut rejects for the whole document.
+            one = _location_pin(pin_off, pin_dur, fps,
+                                asset_id=f"r{rid + 1}", format_id=f"r{rid + 2}",
+                                effect_id=f"r{rid + 3}")
+            if one is None:
+                print("  note: LOCATION_PIN is on but the overlay could not be "
+                      "placed — check assets/ and the shot it lands on")
+                continue
+            entry = {"host": host_i, "pin": one, "title": None}
+            if spec.get("text"):
+                # The title rides the pin's window so the two appear and leave
+                # together; it sits on lane 2, above the pin's lane 1.
+                entry["title"] = _location_title(
+                    spec["text"], pin_off, pin_dur, fps,
+                    effect_id=f"r{rid + 4}", style_id=f"ts{len(overlays) + 1}",
+                    dx=float(spec.get("dx", 0.0)),
+                    dy=float(spec.get("dy", 0.0)))
+            overlays.append(entry)
 
     seq_frames = video_end
 
@@ -492,12 +671,11 @@ def render(cuts: list[Cut], music: Path, fps: int, width: int, height: int,
         width=width,
         height=height,
         video_assets=list(assets.values()),
-        audio=audio,
+        audio_assets=list(audio_assets.values()),
         music_clips=music_clips,
         sfx_assets=sfx_assets,
-        pin=pin,
-        title=title,
-        pin_host=pin_host,
+        overlays=overlays,
+        lut_effect=lut_effect,
         cuts=rendered_cuts,
         sequence_duration=_rational(seq_frames, fps),
         project_name=project_name,

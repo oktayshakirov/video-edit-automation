@@ -21,14 +21,17 @@ from pathlib import Path
 # Repo root is three levels up now (video_automation/drone/project.py), and
 # each project keeps its own folder so crypto and tinnitus configs cannot
 # collide with drone's.
-PROJECT_DIR = Path(__file__).resolve().parents[2] / "projects" / "drone"
+PROJECT_DIR = Path(__file__).resolve().parents[2] / "projects" / "drone-long"
 
 
 @dataclass
 class Project:
     name: str
     footage: Path
-    music: Path
+    # One song, or a list of them played in sequence as a medley. See
+    # MUSIC_MEDLEY_* in config.py — two songs do not share a tempo, so this is
+    # not the same thing as looping one.
+    music: Path | list[Path]
     profile: str = "youtube"
     out: Path | None = None
     lock: Path | None = None
@@ -63,7 +66,9 @@ def load(ref: str) -> Project:
     return Project(
         name=data.get("name", path.stem),
         footage=Path(data["footage"]).expanduser(),
-        music=Path(data["music"]).expanduser(),
+        music=([Path(m).expanduser() for m in data["music"]]
+               if isinstance(data["music"], list)
+               else Path(data["music"]).expanduser()),
         profile=data.get("profile", "youtube"),
         out=Path(data["out"]).expanduser() if data.get("out") else None,
         lock=(path.parent / data["lock"]) if data.get("lock") else None,

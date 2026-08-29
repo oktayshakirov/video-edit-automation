@@ -159,6 +159,55 @@ MIN_TAIL_MARGIN = 0.1        # never run to the exact last frame
 # cursor, the *next* use of that clip then lands on the same fault instead.
 CLIP_SKIP_RANGES: dict[str, list[list[float]]] = {}
 
+# Force a named clip's playback speed: {filename substring: rate}. A direct
+# instruction, so it overrides SPEED_CHOICES, ALLOW_SPEEDUP and the
+# SPEEDUP_MIN_REMAINING gate for that clip — those exist to stop the scorer
+# speeding things up on its own, and this is not the scorer deciding.
+#
+# The point of it: "these takes are slow, run them at 2x" is a judgement from
+# watching the footage. Left to coverage pressure the engine speeds up whichever
+# clips happen to be long, which is a different set — it sped up a clip the user
+# wanted at real time and left one they had marked at 1.0x.
+#
+# Still speed-up only, and still whole multiples under INTEGER_SPEEDS_ONLY.
+CLIP_SPEED: dict[str, float] = {}
+
+# Restrict a clip to parts of the timeline: {filename substring: [[from, to]...]}
+# in BARS, `to` exclusive. Outside its windows the clip is not a candidate at
+# all.
+#
+# This is what groups a video by place. Cut from two locations the scorer
+# interleaves them shot by shot — it scores on movement and colour and has no
+# idea the video is visiting two places — so the result reads as one shuffled
+# location rather than a journey between two, and a location pin naming each
+# "on its first appearance" has nothing to label. Giving each place a
+# contiguous stretch of the timeline is a structural decision, and it belongs
+# here rather than in a weight.
+CLIP_BAR_WINDOWS: dict[str, list[list[int]]] = {}
+
+# Clips to keep out of the edit entirely, by filename substring. For a select
+# that turns out to have something wrong in it all the way through — litter on
+# the sand, a shot that never matches the others — where CLIP_SKIP_RANGES would
+# just be the whole duration.
+#
+# Deleting the file would also work and is worse: the index would have to be
+# rebuilt, and the reason the clip is out would live nowhere. Here it is in the
+# project file with a comment next to it.
+CLIP_EXCLUDE: list[str] = []
+
+# Put the captured Custom LUT on named clips: {filename substring: mix}, where
+# mix is the effect's opacity, 0..1. Absent or 0 means no LUT.
+#
+# For the shot that does not match the others — cooler, flatter, greener than
+# the rest of the same location. This does NOT rescue clipped highlights: a LUT
+# redistributes what is there, and a take at 20% blown has no detail left in
+# those pixels to grade. Sequencing those apart is the only fix for them.
+#
+# WHICH LUT is decided by the capture in assets/fcpxml/custom-lut-filter.xml,
+# not here — the .cube is encoded inside the fragment's base64 payload and
+# nothing in this file can change it. A different LUT means a fresh capture.
+CLIP_LUT: dict[str, float] = {}
+
 # Variety penalties, applied against the previously placed clip. (GUESS)
 PENALTY_SAME_MOVE = 0.35
 PENALTY_SAME_GROUP = 0.25
@@ -296,6 +345,20 @@ LOCATION_PIN_SECONDS = 5.03    # full length of the red pin segment
 # The title rides the pin's window, so it needs no timing of its own.
 LOCATION_TITLE_TEXT = ""
 
+# More than one pin, for a video that visits more than one place. Each entry is
+# {start, text} and optionally {seconds}, and the defaults above fill in what an
+# entry leaves out. A video cut from two locations wants the name of each on its
+# first appearance; with a single pin the second place is simply unlabelled, and
+# the viewer reads the whole video as the first one.
+#
+# Set this OR the three singular keys above, not both — this list wins, and the
+# singular keys stay as the one-location shorthand they already are.
+#
+# Placement is by timeline seconds, exactly like LOCATION_PIN_START, so a pin
+# has to be moved by hand whenever the cut it sits on moves. That is the same
+# constraint the single pin already had; it is more visible with two.
+LOCATION_PINS: list[dict] = []
+
 # Attributes merged over the captured <text-style>. Unlike the generator's uid,
 # every key here is a declared FCPXML attribute — the 1.10 DTD lists font,
 # fontSize, fontFace, fontColor, backgroundColor, bold, italic, strokeColor,
@@ -360,6 +423,26 @@ MUSIC_LOOP = False
 MUSIC_LOOP_HANDOFF_BAR: int | None = None   # None = last phrase line of the song
 MUSIC_LOOP_RETURN_BAR: int | None = None
 MUSIC_LOOP_CROSSFADE_BARS = 2
+
+# --- more than one song ----------------------------------------------------
+# A medley: several songs played in sequence as one timeline. Set `music` in the
+# project file to a LIST of paths and this is what joins them.
+#
+# Different from MUSIC_LOOP in the way that matters: two songs do not share a
+# tempo, so the bar grid becomes piecewise rather than one closed form (see
+# music.Track.bar_time). Cuts still land on real bar lines throughout, but the
+# bar length changes at the seam.
+#
+# MUSIC_MEDLEY_HOLD_BARS truncates each song, in order, so it can leave on a
+# phrase line instead of at whatever bar the analysis ran out on. `null`/None
+# keeps a song whole. To fill leftover timeline, name a song twice — a repeat is
+# just another movement, and it reuses this same path.
+#
+# Choose the seam by ENERGY, not by length: a song ending calm into a song
+# opening calm is what makes this read as one piece of music. The crossfade
+# hides a level change and nothing else.
+MUSIC_MEDLEY_CROSSFADE_BARS = 2
+MUSIC_MEDLEY_HOLD_BARS: list[int | None] = []
 
 W_SLOT_LENGTH = 0.30         # how hard to push toward the preferred length
 
