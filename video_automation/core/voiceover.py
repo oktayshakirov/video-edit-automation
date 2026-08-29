@@ -45,9 +45,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import voices
+from . import sfx as sfx_lib
 from .vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
                        FONT_QUOTE, FONT_QUOTE_INDEX, FONT_QUOTE_SIZE,
                        OUT_H, OUT_W,
+                       add_caption_emoji,
                        render_short, render_text_png, sample_bg_luma,
                        stack_tile_size)
 
@@ -895,17 +897,20 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
     return out, total, cuts
 
 
-def render_narrated_stack(top: tuple[Path, float, tuple[int, int, int, int]],
-                          bottom: tuple[Path, float, tuple[int, int, int, int]],
+def render_narrated_stack(top: tuple,
+                          bottom: tuple,
                           out: Path, sentences: list[list[Phrase]],
                           workdir: Path, voice: VoiceSpec = None,
                           mood: str = "melancholic", band: int = 140,
                           font_size: "int | Callable[[str], int]" = FONT_QUOTE_SIZE,
-                          font_path: str = FONT_QUOTE,
-                          font_index: int = FONT_QUOTE_INDEX,
+                          font_path: "str | Callable[[str], str]" = FONT_QUOTE,
+                          font_index: "int | Callable[[str], int]" = FONT_QUOTE_INDEX,
                           y_frac: float = 0.50, stroke: int = 4,
                           max_w: int = CAPTION_MAX_W,
                           ink: "Callable[[str], tuple[int,int,int,int] | None] | None" = None,
+                          emoji: "Callable[[str], str | None] | None" = None,
+                          sfx: "Callable[[str], str | None] | None" = None,
+                          sfx_gain: float = 0.22,
                           fps: int = 30,
                           gap: "float | list[float]" = GAP, tail: float = TAIL,
                           ) -> tuple[Path, float]:
@@ -926,30 +931,59 @@ def render_narrated_stack(top: tuple[Path, float, tuple[int, int, int, int]],
     `font_size` and `ink` may be callables taking the caption text, same
     pattern as `render_narrated` — pass both together to give one word a
     bigger size *and* a colour pulled from the footage, the way `LUCKY` shipped
-    on Sunset Sea Stack.
+    on Sunset Sea Stack. `font_path`/`font_index` take the same treatment, for
+    the one case where a *run* of captions has to change register rather than
+    a single word: a punchline in a different face reads as a different voice
+    before it is read as words.
+
+    `emoji` and `sfx` are the same shape — caption text in, an emoji character
+    or an `sfx` cue name out, `None` for the captions that get neither. The
+    cue fires on the caption's own start, which is the frame the type appears
+    on, so the sound and the register change land together.
+
+    A tile may carry a fourth element, `(src, start, box, slow)`: a factor the
+    footage is stretched by, so a clip shorter than the narration can still
+    fill it. The engine maps with `-shortest`, so without this a short clip
+    truncates the video silently rather than failing.
     """
-    (src_a, start_a, box_a), (src_b, start_b, box_b) = top, bottom
+    (src_a, start_a, box_a, slow_a) = (*top, 1.0)[:4]
+    (src_b, start_b, box_b, slow_b) = (*bottom, 1.0)[:4]
     tile_w, tile_h = stack_tile_size(band)
 
     track, captions, total = build_narration_aligned(
         sentences, workdir, voice, mood, gap, tail)
+
+    if sfx:
+        cues = [(c.start, sfx(c.text)) for c in captions if sfx(c.text)]
+        if cues:
+            track = sfx_lib.mix(track, workdir / "narration.sfx.wav", cues,
+                                gain=sfx_gain)
 
     shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
     pngs = []
     for i, c in shown:
         p = workdir / f"cap{i:02d}.png"
         size = font_size(c.text) if callable(font_size) else font_size
+        face = font_path(c.text) if callable(font_path) else font_path
+        idx = font_index(c.text) if callable(font_index) else font_index
         word_ink = ink(c.text) if callable(ink) else ink
-        render_text_png(c.text, p, size=size, font_path=font_path,
-                        font_index=font_index, y_frac=y_frac, stroke=stroke,
+        render_text_png(c.text, p, size=size, font_path=face,
+                        font_index=idx, y_frac=y_frac, stroke=stroke,
                         max_w=max_w, ink=word_ink)
+        char = emoji(c.text) if emoji else None
+        if char:
+            add_caption_emoji(p, c.text, char, size, y_frac, face, idx)
         pngs.append(p)
 
     xa, ya, wa, ha = box_a
     xb, yb, wb, hb = box_b
+    pts_a = f",setpts={slow_a}*PTS" if slow_a != 1.0 else ""
+    pts_b = f",setpts={slow_b}*PTS" if slow_b != 1.0 else ""
     chain = [
-        f"[0:v]crop={wa}:{ha}:{xa}:{ya},scale={tile_w}:{tile_h}:flags=lanczos[top]",
-        f"[1:v]crop={wb}:{hb}:{xb}:{yb},scale={tile_w}:{tile_h}:flags=lanczos[bot]",
+        f"[0:v]crop={wa}:{ha}:{xa}:{ya},scale={tile_w}:{tile_h}:flags=lanczos"
+        f"{pts_a}[top]",
+        f"[1:v]crop={wb}:{hb}:{xb}:{yb},scale={tile_w}:{tile_h}:flags=lanczos"
+        f"{pts_b}[bot]",
         f"color=c=black:s={tile_w}x{band}:r={fps}:d={total:.3f}[band]",
         "[top][band][bot]vstack=inputs=3[v0]",
     ]
@@ -958,9 +992,11 @@ def render_narrated_stack(top: tuple[Path, float, tuple[int, int, int, int]],
                      f"enable='between(t,{c.start:.3f},{c.end:.3f})'[v{n+1}]")
     chain.append(f"[v{len(shown)}]null[vout]")   # no fade to black — see `render_short`
 
+    # Each tile is read for only as much source as its own stretch needs, so a
+    # slowed clip is not asked for footage it does not have.
     cmd = ["ffmpeg", "-v", "error", "-y",
-           "-ss", f"{start_a}", "-t", f"{total:.3f}", "-i", str(src_a),
-           "-ss", f"{start_b}", "-t", f"{total:.3f}", "-i", str(src_b)]
+           "-ss", f"{start_a}", "-t", f"{total / slow_a:.3f}", "-i", str(src_a),
+           "-ss", f"{start_b}", "-t", f"{total / slow_b:.3f}", "-i", str(src_b)]
     for p in pngs:
         cmd += ["-i", str(p)]
     cmd += ["-i", str(track), "-filter_complex", ";".join(chain),
