@@ -55,6 +55,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_side: str | None = None,
                 thumb_crop_at: tuple[float, float] | None = None,
                 thumb_crop_zoom: float = 1.0,
+                thumb_crop_band: str = "middle",
                 thumb_shift: float = 0.0,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 sound: bool = True, fps: int = 30,
@@ -222,7 +223,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         render_thumb(thumb, brand, thumb_headline, image=thumb_image,
                      accent=thumb_accent, side=thumb_side,
                      crop_at=thumb_crop_at, crop_zoom=thumb_crop_zoom,
-                     shift=thumb_shift)
+                     crop_band=thumb_crop_band, shift=thumb_shift)
         made["thumb"] = thumb
 
     if meta is not None:

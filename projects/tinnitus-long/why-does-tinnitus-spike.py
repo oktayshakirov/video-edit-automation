@@ -326,13 +326,20 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        # Large dark stock portrait, direct gaze, real copy space. Same image
-        # and headline as the Short, per the standing pairing rule.
+        # Large dark stock portrait, direct gaze. Same image and headline as
+        # the Short, per the standing pairing rule. The type is placed by
+        # hand top-left over her forehead and hair - a manual `crop_at`
+        # (which bypasses the scorer) so `side` and `crop_band` take effect;
+        # `ay=0.15` keeps the accent plate clear of her eyebrows so every
+        # facial feature stays visible.
         thumb_headline="Why does tinnitus [spike?]",
         thumb_image=STOCK / "photos"
         / "woman-pressing-temples-headache-stress-dark-background"
         / "4865631.jpg",
         thumb_accent="red",
+        thumb_side="left",
+        thumb_crop_at=(0.5, 0.15),
+        thumb_crop_band="top",
     )
     for k, v in made.items():
         print(f"{k}: {v}")
