@@ -661,17 +661,21 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
             # rewinds cursors and puts footage the viewer has already seen back
             # on screen — the most visible failure this engine has, and the one
             # that reads as "the same shot again" even when the take continues.
-            def _pick(candidates, pin=pin):
+            def _pick(candidates, pin=pin, use_pin_bars=True):
                 """Best (clip, length, speed) for this slot, or None."""
                 best = None
 
                 for clip in candidates:
                     # A pinned length is taken literally — it is an instruction, so
                     # it is not filtered against the legal set or MAX_SHOT_SECONDS.
-                    # The pinned length goes with the pin. On the unpinned retry
-                    # the slot is sized normally, or it would still be forced to
-                    # a length chosen to fit a clip that is not being used.
-                    pinned_bars = PIN_SLOT_BARS.get(bar) if pin is not None else None
+                    # A pinned length applies whether or not a clip is pinned
+                    # too: it is also how you force a slot boundary to exist at
+                    # a given bar, which is the only way to reserve the tail of
+                    # a section for a closing shot.
+                    #
+                    # It is dropped only on the unpinned retry below, where the
+                    # length was chosen to fit a clip that is no longer used.
+                    pinned_bars = PIN_SLOT_BARS.get(bar) if use_pin_bars else None
                     bar_choices = (pinned_bars,) if pinned_bars is not None else legal_bars
                     for bars in bar_choices:
                         if bars > room:
@@ -765,7 +769,7 @@ def build_edit(track: Track, clips: list[Clip], fps: int) -> list[Cut]:
                       f"scoring this slot normally instead")
                 pin = None
                 best = _pick(eligible(False, None) or eligible(True, None),
-                             pin=None)
+                             pin=None, use_pin_bars=False)
 
             if best is None:
                 # Genuinely out of material: the use cap has already been lifted
