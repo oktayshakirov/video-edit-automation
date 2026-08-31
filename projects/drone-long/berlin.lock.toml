@@ -1,0 +1,257 @@
+# Locked edit. Replayed verbatim by `build`, bypassing the scorer, so an
+# approved running order survives changes made elsewhere.
+#
+# Edit by hand: `clip` swaps a shot, `bars` resizes a slot (1 bar = one
+# musical bar), `rate` sets a constant speed-up, `reverse` sets the play
+# direction for this slot alone.
+#
+# `reverse` is here because direction is a property of a shot, not of a
+# clip. CLIP_REVERSE_OVERRIDE can only flip every use of a clip at once,
+# which is right for a clip used once and wrong the moment one slot wants
+# to run backwards and another forwards.
+# Regenerate from the current edit with `build --lock-out <file>`.
+
+[[lock]]
+bar = 0
+clip = "Spree Buildings 13.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 2
+clip = "Spree Buildings 7.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 4
+clip = "Spree Buildings 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 6
+clip = "Spree Boats.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 8
+clip = "Spree Hyperlapse 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 10
+clip = "Spree Buildings 8.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 11
+clip = "Spree Buildings 11.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 12
+clip = "Spree Buildings 12.mp4"
+bars = 2
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 14
+clip = "Spree Buildings 5.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 15
+clip = "Spree Buildings 9.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 16
+clip = "Spree Hyperlapse 2.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 18
+clip = "Spree Buildings 8.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 19
+clip = "Spree Buildings 3.mp4"
+bars = 2
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 21
+clip = "Spree Buildings 2.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 22
+clip = "Spree Buildings 5.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 23
+clip = "Spree Buildings 4.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 24
+clip = "Spree Buildings 6.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 26
+clip = "Spree Boats.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 28
+clip = "Spree Buildings 13.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 30
+clip = "Spree Buildings 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 32
+clip = "Spree Buildings 7.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 33
+clip = "Spree Buildings 10.mp4"
+bars = 2
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 35
+clip = "Spree Buildings 2.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 37
+clip = "Spree Buildings 6.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 39
+clip = "Spree Buildings 9.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 40
+clip = "Spree Hyperlapse 3.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 42
+clip = "Spree Buildings 8.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 43
+clip = "Spree Buildings 11.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 44
+clip = "Spree Buildings 12.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 46
+clip = "Spree Buildings 5.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 47
+clip = "Spree Buildings 4.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 48
+clip = "Spree Buildings 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 50
+clip = "Spree Buildings 13.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 52
+clip = "Spree Buildings 6.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 54
+clip = "Spree Buildings 2.mp4"
+bars = 2
+rate = 1.000
+reverse = false

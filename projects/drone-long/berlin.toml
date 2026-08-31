@@ -1,0 +1,28 @@
+# Berlin — Treptower Park, golden-hour sunset over the Spree. 17 graded selects
+# (13 buildings, boats, 3 hyperlapses), plus the TheFatRat track.
+#
+# Paths are absolute because footage lives outside the repo. Anything under
+# [overrides] must name a real constant in video_automation/drone/config.py or
+# the build fails loudly.
+
+name = "Berlin"
+profile = "youtube"
+
+footage = "~/Desktop/Berlin 26 2_4"
+music = "~/Desktop/Berlin 26 2_4/TheFatRat - Fly Away feat. Anjulie (VAVO Remix) [Trap].mp3"
+
+[overrides]
+# The three hyperlapses are the only fast-motion material in the folder — land
+# one on each drop. Played once the track's "peak" sections are bars 8-24 and
+# 40-48; the first is 16 bars wide and holds two of them.
+PIN_CLIPS = { 8 = "Spree Hyperlapse 1", 16 = "Spree Hyperlapse 2", 40 = "Spree Hyperlapse 3" }
+
+# No loop. Once the three slow takes run at 2x the folder funds more than the
+# song's own 3:03, so the track plays once and ends on its real ending — no
+# loop seam, and no timeline truncated mid-phrase.
+MUSIC_LOOP = false
+
+# The three most-reused takes are also the slowest-moving. Running them at 2x
+# tightens the cut and shortens the timeline. User's call from watching them,
+# not coverage pressure.
+CLIP_SPEED = { "Spree Buildings 10" = 2.0, "Spree Buildings 8" = 2.0, "Spree Buildings 4" = 2.0 }
