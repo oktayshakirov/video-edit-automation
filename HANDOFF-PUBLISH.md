@@ -1,57 +1,82 @@
 # Handoff to /publish-video
 
-**Built:** 2026-08-28 · **Project:** tinnitus (article explainer pair)
-**Source article slug:** `why-does-tinnitus-spike`
-(`~/Coding/tinnitus-blog/content/posts/why-does-tinnitus-spike.mdx`)
-**Article URL:** https://tinnitushelp.me/blog/why-does-tinnitus-spike
-**Committed:** `21d37b6` on branch `skills/three-per-project-build`
+**Built:** 2026-08-31 · **Project:** crypto (article explainer pair)
+**Source article slug:** `quantum-computers-and-crypto`
+(`~/Coding/crypto-wiki/content/posts/quantum-computers-and-crypto.mdx`)
+**Article URL:** https://thecrypto.wiki/posts/quantum-computers-and-crypto
+**Committed:** `33120fc` on branch `skills/three-per-project-build`
+(branch is 13 commits ahead of `main`; the video-skill infrastructure lives
+here, not on main.)
 
 ## What was built
 
 A long-form 16:9 explainer and its vertical Short, from one article.
 
-- **Long form** - 3:19, seven chapters. Beats: `stat` (how long spikes last),
-  `grid` (trigger groups), `steps` (the first-ten-minutes routine), `compare`
-  (a spike vs real damage). Voice `mia`, music `night-drift`.
-- **Short** - 51s. Beats: `grid` (what tips a spike over), `steps` (the
-  routine). Outro is call-to-action first ("So try it tonight."), then the
-  red-flag routing as an explicit exception. Voice `mia`, music `night-drift`
-  at 0.85.
+- **Long form** - 3:26, six chapters. Beats: `stat` (qubits to break one key),
+  `compare` (signatures vs hashing, name_columns), `steps` (how a key gets
+  exposed, 5 nodes), `quote` (harvest now, decrypt later), `checklist`
+  ("CAN IT BE MIGRATED?", flow, ✓✓✓✗). Voice `mia`, music `night-drift`.
+- **Short** - 50s. One beat: `checklist` ("IS THE KEY STILL HIDDEN?", flow,
+  ✓✗✗). Opens on its own title question; closes on the comment prompt.
+  Voice `mia`, music `night-drift` at 0.85.
 
-Medical line held: the routine is described as calming the nervous system,
-never as treatment; both cuts route to a doctor and carry the article's red
-flags (new, one-sided, pulsatile, with hearing loss or dizziness). No
-initialisms spoken. Disclaimer is in `Meta.credits` so it lands in the
-YouTube description.
+The angle is the article's own: the overnight-doomsday version is real but
+distant; the live risk is that your address is a hash of your public key, so
+the key goes on the permanent record the first time you spend, and "harvest
+now, decrypt later" plus a slow migration is what makes today matter.
+
+**No financial advice.** Mechanism only - no price, no prediction (timelines
+hedged), nothing rated, nothing recommended. Both cuts close on a comment
+question ("Are you worried about quantum computers yet? And what are you doing
+to keep your crypto safe?"). Disclaimer is in `Meta.credits` so it lands in
+the YouTube description.
 
 ## Files (all absolute)
 
 ### Long form (16:9) - YouTube, Facebook native video, Telegram, site entry
-- Video:     `/Users/oktayshakirov/Desktop/tinnitus-spike-long.mp4`
-- Captions:  `/Users/oktayshakirov/Desktop/tinnitus-spike-long.srt`
-- Thumbnail: `/Users/oktayshakirov/Desktop/tinnitus-spike-long-thumb.jpg` (1280x720)
-- Metadata:  `/Users/oktayshakirov/Desktop/tinnitus-spike-long.md` (title, description, chapters, tags)
+- Video:     `/Users/oktayshakirov/Desktop/quantum-crypto-long.mp4`
+- Captions:  `/Users/oktayshakirov/Desktop/quantum-crypto-long.srt`
+- Thumbnail: `/Users/oktayshakirov/Desktop/quantum-crypto-long-thumb.jpg` (1280x720)
+- Metadata:  `/Users/oktayshakirov/Desktop/quantum-crypto-long.md` (title, description, chapters, tags)
 
 ### Short (9:16) - YouTube, Instagram Reel, Facebook Reel, TikTok draft
-- Video:        `/Users/oktayshakirov/Desktop/tinnitus-spike-short.mp4`
-- Reel cover:   `/Users/oktayshakirov/Desktop/tinnitus-spike-short-thumb.jpg` (1080x1920)
-- YT thumbnail: `/Users/oktayshakirov/Desktop/tinnitus-spike-short-thumb-yt.jpg` (1280x720)
+- Video:      `/Users/oktayshakirov/Desktop/quantum-crypto-short.mp4`
+- Cover:      `/Users/oktayshakirov/Desktop/quantum-crypto-short-thumb.jpg` (1080x1920)
+- No metadata sidecar for the Short - use the block below.
 
 ## Metadata
 
-- **Long title:** `Why Does Tinnitus Spike?`
-- **Short title:** use the long title or a tightened form; the Short has no
-  separate metadata sidecar.
-- **Thumbnail headline (both):** `Why does tinnitus spike?` with "spike?" on
-  the red accent plate.
-- **Tags:** tinnitus, tinnitus spike, tinnitus flare up, why does tinnitus get
-  louder, ringing in ears louder, tinnitus worse today
-- Full description text is in `tinnitus-spike-long.md`.
+### Long form
+Full title, description and chapter list are in `quantum-crypto-long.md`.
+- **Title:** `Quantum Computers vs. Crypto: What Actually Breaks`
+- **Thumbnail headline (both):** `Can quantum computers [break] Bitcoin?`
+  ("break" on the orange accent plate; source is the magnetic-field image)
+- **Tags:** quantum computers crypto, quantum computing bitcoin, is bitcoin
+  quantum safe, post-quantum cryptography, harvest now decrypt later, quantum
+  computing explained, crypto security, crypto for beginners
+
+### Short (no sidecar - use this)
+- **Title:** `Can Quantum Computers Break Bitcoin?`
+- **Description:**
+  ```
+  A quantum computer cracking Bitcoin overnight is the headline. The real risk is narrower - your public key goes on the permanent record the first time you spend from an address.
+
+  Full breakdown: https://thecrypto.wiki/posts/quantum-computers-and-crypto
+
+  Nothing in this video is financial advice.
+  ```
+- **Hashtags:** #quantumcomputers #bitcoin #crypto #cryptosecurity
 
 ## Undecided / notes
 
-- The Short's YouTube cover is the 16:9 `-thumb-yt.jpg`; the 9:16
-  `-thumb.jpg` is the Reel/TikTok cover. YouTube Studio has no clean way to
-  set a 9:16 image on a Short - handle per `docs/publish/youtube.md`.
-- Project files: `projects/tinnitus-long/why-does-tinnitus-spike.py`,
-  `projects/tinnitus-short/why-does-tinnitus-spike.py`.
+- **Crypto Shorts stay YouTube-only** per channel policy - only the long form
+  gets a site `videos.json` entry, a poster and a social share. The Short is
+  published to YouTube Shorts and nowhere else. (See `docs/video/` and the
+  earlier memory note.)
+- **Video poster:** fetch YouTube's own `maxresdefault.jpg` after upload;
+  do not composite one locally.
+- **Voice delivery** is at Kokoro's ceiling (no prosody control). The user is
+  weighing an engine swap (ElevenLabs / Orpheus) - not decided, not blocking
+  this publish.
+- Project files: `projects/crypto-long/quantum-crypto.py`,
+  `projects/crypto-short/quantum-crypto.py`.
