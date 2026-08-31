@@ -78,13 +78,40 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
 - **`stat` is the best value per second in the format.** A figure spoken and not
   shown is a figure not remembered. Use it for the one number that matters, not
   every number in the paragraph.
-- **One caption per item.** That is what times the reveals — `reveals` come from
-  the caption starts of the beat's own sentence, so a line appears exactly as it
-  is spoken. Even fractions of the shot look synced until you watch them.
+- **One caption per item — and this is every beat, not just `compare`.** The
+  beat's own sentence *is* the list: one caption chunk per reveal, in reveal
+  order, nothing else in the span. `reveals` come from the caption starts of
+  that sentence, so a line appears exactly as it is spoken. The quantum cut
+  broke this on `steps` (a 5-node track under a three-chunk narrative sentence)
+  and the beat filled in visibly out of sync with the voice — the user's "the
+  visuals don't match the script" note, three times in one video. A
+  `name_columns` `compare` counts its two headings as reveals too, so its
+  sentence is 8 chunks for 3+3 items. Write the beat sentence as the enumeration
+  first, then the setup and payoff sentences around it.
 - **A `checklist` needs a ~2.4s `gap` on its own sentence**, or the verdicts have
   nowhere to land and `mark_times` compresses to nothing.
 - A checklist with every item ticked is a legitimate use — a procedure that ticks
   through. `satoshi-proof.py` uses it for the four verification steps.
+
+## A struck item has to explain itself
+
+**The user's note on the quantum cut: a lone ✗ in a list is confusing —
+"sometimes when we do this it is confusing. We need proper check for those
+lists."** A cross draws the eye and then makes the viewer work out what it
+*means*, and under a bare title ("WHAT A QUANTUM-SAFE SWITCH NEEDS") a struck
+item read as "not needed" rather than "cannot be done". Two ways to fix it, pick
+one:
+
+- **Title the beat as the yes/no question the marks answer**, and with
+  `flow=True` have the narration say each verdict out loud. `"CAN IT BE
+  MIGRATED?"` with the voice reading "Doable. Doable. Doable. Never." makes
+  ✓✓✓✗ exactly what was just said — the mark confirms the word, it does not
+  carry the meaning alone.
+- **Or make them all the same mark** — an all-✓ procedure, or an all-✗ list of
+  faults — when the split is not actually the point.
+
+The failure is a mixed list whose title is a noun phrase, so the marks are the
+only thing saying which items are good and which are bad. Never ship that.
 
 ## Checklist: two timing modes
 

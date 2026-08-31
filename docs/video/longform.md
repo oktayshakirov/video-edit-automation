@@ -80,6 +80,32 @@ why they are here:
   through the next sentence. One shot per sentence is a new scene every four
   seconds — a metronome, not a rhythm.
 
+## The screen has to say what the voice is saying
+
+**The user's standing note, from the quantum-computers cut, where they flagged
+three separate spots by timestamp: "we need to make sure the visuals and the
+voice over match and the whole video is easy to follow and easy to understand —
+this is the main idea, all topics should be easy to understand".** An explainer
+whose pictures do not track its words is a voice memo over wallpaper, and an
+abstract topic (cryptography, keys, a mechanism) cannot be followed without the
+screen reinforcing each beat. Three rules come out of it:
+
+- **Every clip carries a `payload` line.** `Shot(clip=..., payload=("", "one
+  short line"))` — the big centred statement, stating the point of *that*
+  sentence. A stretch of generic stock playing silent under a specific claim is
+  the failure the user notices every time. This is `footage.md`'s "label your
+  video clips" promoted to a hard rule for anything abstract: the countdown clip
+  says "No credible date before the 2030s", the archive clip says "Now it is on
+  the record, forever". The kicker half stays empty; one line is the whole job.
+- **Match the noun.** The picture names the same thing the sentence does, or it
+  is labelled so it does. An image the user calls "not fitting" gets replaced,
+  not defended — `footage.md`'s "say the noun the narration says", enforced.
+- **Drawn beats and labelled clips lead; unlabelled photos are connective
+  texture only.** A `PhotoShot` cannot take the centred statement without it
+  fighting the Ken Burns, so a photo under a mechanism line has to be carried by
+  the beat or the clip on either side of it. If a section is mostly unlabelled
+  photos under specific claims, it will read as hard to follow.
+
 ## Choose the beats before writing the script
 
 `does-tinnitus-go-away` shipped with four `checklist`s and they read as one
