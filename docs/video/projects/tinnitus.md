@@ -147,16 +147,13 @@ bottom band only. If a bottom-banded thumbnail ever looks slightly high in
 isolation, that is correct: it is composed against a platform overlay that is
 not in the file.
 
-**Article shorts take a music bed, and every one should have it.** Standing
-instruction from the user. `render_tinnitus_short` passes `music` and
-`music_gain` straight through to `render_crypto_short`, which now runs the same
-`render_bed` + `mix_voice_over_bed` path `render_long` always did — so a long
-video and the Short from the same post sit on the same track at the same
-relative level instead of being mixed twice by hand.
-
-```python
-render_tinnitus_short(..., music=music.track("night-drift"), music_gain=0.85)
-```
+**Article shorts take a music bed, and it is the default now — pass nothing.**
+Standing instruction from the user. `render_tinnitus_short` forwards `music` /
+`music_gain` to `render_crypto_short`, which now **defaults** `music` to
+`music.track("night-drift")` and `music_gain` to `0.85` — a build that passes
+neither still gets the bed. A long video and the Short from the same post sit on
+the same track at the same relative level instead of being mixed twice by hand.
+Pass `music=None` to opt one short out; see `audio.md`.
 
 Gain slightly under the long form's: a short is watched on a phone speaker with
 the voice carrying all of the information. **It matters more here than in long
@@ -169,7 +166,10 @@ long.
 **Do not close on "save this".** Asking for a save is asking for the wrong
 action when the video is about something to do tonight — the user's call, and
 they are right that saving a video is not the behaviour the piece is arguing
-for. Close on the action itself: "Try it tonight."
+for. Close on the action itself: "Try it tonight." — and nothing after it: no
+"let me know in the comments", no "subscribe". That is `narration.md`'s outro
+rule; a how-to closes on the action where an argument closes on the question,
+but neither appends a viewer-management line.
 
 **`checklist` works here now, and it is the beat worth reaching for.** This file
 used to say "do not use it": `ChecklistShot` was the last drawn object holding
