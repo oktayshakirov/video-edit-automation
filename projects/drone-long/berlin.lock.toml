@@ -20,7 +20,7 @@ reverse = false
 
 [[lock]]
 bar = 2
-clip = "Spree Buildings 7.mp4"
+clip = "Spree Boats.mp4"
 bars = 2
 rate = 1.000
 reverse = false
@@ -34,7 +34,7 @@ reverse = false
 
 [[lock]]
 bar = 6
-clip = "Spree Boats.mp4"
+clip = "Spree Buildings 3.mp4"
 bars = 2
 rate = 1.000
 reverse = false
@@ -83,42 +83,42 @@ reverse = false
 
 [[lock]]
 bar = 16
-clip = "Spree Hyperlapse 2.mp4"
+clip = "Spree Buildings 8.mp4"
 bars = 2
-rate = 1.000
+rate = 2.000
 reverse = false
 
 [[lock]]
 bar = 18
-clip = "Spree Buildings 8.mp4"
+clip = "Spree Buildings 4.mp4"
 bars = 1
 rate = 2.000
 reverse = false
 
 [[lock]]
 bar = 19
-clip = "Spree Buildings 3.mp4"
-bars = 2
-rate = 2.000
-reverse = false
-
-[[lock]]
-bar = 21
-clip = "Spree Buildings 2.mp4"
-bars = 1
-rate = 2.000
-reverse = false
-
-[[lock]]
-bar = 22
 clip = "Spree Buildings 5.mp4"
 bars = 1
 rate = 2.000
 reverse = false
 
 [[lock]]
+bar = 20
+clip = "Spree Hyperlapse 3.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 22
+clip = "Spree Buildings 8.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
 bar = 23
-clip = "Spree Buildings 4.mp4"
+clip = "Spree Buildings 2.mp4"
 bars = 1
 rate = 2.000
 reverse = false
@@ -139,119 +139,119 @@ reverse = false
 
 [[lock]]
 bar = 28
-clip = "Spree Buildings 13.mp4"
+clip = "Spree Buildings 7.mp4"
 bars = 2
 rate = 1.000
 reverse = false
 
 [[lock]]
 bar = 30
-clip = "Spree Buildings 1.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 32
-clip = "Spree Buildings 7.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 33
-clip = "Spree Buildings 10.mp4"
-bars = 2
-rate = 2.000
-reverse = false
-
-[[lock]]
-bar = 35
-clip = "Spree Buildings 2.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 37
-clip = "Spree Buildings 6.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 39
-clip = "Spree Buildings 9.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 40
-clip = "Spree Hyperlapse 3.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 42
-clip = "Spree Buildings 8.mp4"
-bars = 1
-rate = 2.000
-reverse = false
-
-[[lock]]
-bar = 43
-clip = "Spree Buildings 11.mp4"
-bars = 1
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 44
-clip = "Spree Buildings 12.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 46
-clip = "Spree Buildings 5.mp4"
-bars = 1
-rate = 2.000
-reverse = false
-
-[[lock]]
-bar = 47
-clip = "Spree Buildings 4.mp4"
-bars = 1
-rate = 2.000
-reverse = false
-
-[[lock]]
-bar = 48
-clip = "Spree Buildings 1.mp4"
-bars = 2
-rate = 1.000
-reverse = false
-
-[[lock]]
-bar = 50
 clip = "Spree Buildings 13.mp4"
 bars = 2
 rate = 1.000
 reverse = false
 
 [[lock]]
-bar = 52
+bar = 32
+clip = "Spree Buildings 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 34
+clip = "Spree Buildings 3.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 36
+clip = "Spree Buildings 2.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 38
 clip = "Spree Buildings 6.mp4"
 bars = 2
 rate = 1.000
 reverse = false
 
 [[lock]]
-bar = 54
-clip = "Spree Buildings 2.mp4"
+bar = 40
+clip = "Spree Buildings 12.mp4"
 bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 42
+clip = "Spree Buildings 11.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 43
+clip = "Spree Buildings 5.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 44
+clip = "Spree Hyperlapse 2.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 46
+clip = "Spree Buildings 8.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 47
+clip = "Spree Buildings 9.mp4"
+bars = 1
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 48
+clip = "Spree Buildings 7.mp4"
+bars = 1
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 49
+clip = "Spree Buildings 10.mp4"
+bars = 2
+rate = 2.000
+reverse = false
+
+[[lock]]
+bar = 51
+clip = "Spree Buildings 1.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 53
+clip = "Spree Buildings 13.mp4"
+bars = 2
+rate = 1.000
+reverse = false
+
+[[lock]]
+bar = 55
+clip = "Spree Hyperlapse 3.mp4"
+bars = 1
 rate = 1.000
 reverse = false

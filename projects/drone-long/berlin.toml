@@ -1,9 +1,9 @@
 # Berlin — Treptower Park, golden-hour sunset over the Spree. 17 graded selects
 # (13 buildings, boats, 3 hyperlapses), plus the TheFatRat track.
 #
-# Paths are absolute because footage lives outside the repo. Anything under
-# [overrides] must name a real constant in video_automation/drone/config.py or
-# the build fails loudly.
+# Paths are absolute because footage lives outside the repo. Anything under the
+# overrides table must name a real constant in video_automation/drone/config.py
+# or the build fails loudly.
 
 name = "Berlin"
 profile = "youtube"
@@ -11,11 +11,15 @@ profile = "youtube"
 footage = "~/Desktop/Berlin 26 2_4"
 music = "~/Desktop/Berlin 26 2_4/TheFatRat - Fly Away feat. Anjulie (VAVO Remix) [Trap].mp3"
 
+# Approved running order (v2), replayed verbatim — scorer bypassed. Swap a shot
+# by editing berlin.lock.toml directly, never through scoring weights.
+lock = "berlin.lock.toml"
+
 [overrides]
 # The three hyperlapses are the only fast-motion material in the folder — land
-# one on each drop. Played once the track's "peak" sections are bars 8-24 and
-# 40-48; the first is 16 bars wide and holds two of them.
-PIN_CLIPS = { 8 = "Spree Hyperlapse 1", 16 = "Spree Hyperlapse 2", 40 = "Spree Hyperlapse 3" }
+# one on each drop. Bars 8 and 20 sit in the wide 8-24 peak, bar 44 in the
+# 40-48 one. Bar 20 is the 1:06 drop the first cut walked past; bar 44 is 2:24.
+PIN_CLIPS = { 8 = "Spree Hyperlapse 1", 20 = "Spree Hyperlapse 3", 44 = "Spree Hyperlapse 2" }
 
 # No loop. Once the three slow takes run at 2x the folder funds more than the
 # song's own 3:03, so the track plays once and ends on its real ending — no
@@ -26,3 +30,18 @@ MUSIC_LOOP = false
 # tightens the cut and shortens the timeline. User's call from watching them,
 # not coverage pressure.
 CLIP_SPEED = { "Spree Buildings 10" = 2.0, "Spree Buildings 8" = 2.0, "Spree Buildings 4" = 2.0 }
+
+# Buildings 7 was shot later in the evening than the rest — warmer, further
+# into the sunset — so at cut #2 it broke the colour progression. Held back to
+# the second half, where the light around it has caught up.
+CLIP_BAR_WINDOWS = { "Spree Buildings 7" = [[28, 56]] }
+
+# --- location pin ---------------------------------------------------------
+# LOCATION_PIN is the master switch — LOCATION_PINS on its own emits nothing,
+# whatever the config comment implies. Written as a LOCATION_PINS entry rather
+# than the singular keys because only an entry carries `dx`. The title is
+# centre-anchored, so a long name grows leftward onto the pin: 22 characters
+# here, between the measured dx=65 (~21 chars) and dx=110 (~23) from the
+# Bulgaria cut. Check it on screen.
+LOCATION_PIN = true
+LOCATION_PINS = [ { start = 1.5, text = "TREPTOWER PARK, BERLIN", dx = 85 } ]
