@@ -94,7 +94,18 @@ will keep failing silently in exactly this shape.
 
 **Confirmed still present on the crypto workflow, 2026-08-26** (publishing
 `proof-of-stake`): `Telegram Post` errored `Bad Request: there is no photo in
-the request` on the inline branch, same as the tinnitus one. **Fell back to
+the request` on the inline branch, same as the tinnitus one.
+
+**Still present 2026-08-31** (publishing `ruja-ignatova`): live `Telegram Post`
+node on `zS3xX6tbXpXnF32N` still reads `{{ $json.title }}` / `{{ $json.hook }}`
+/ `{{ $json.youtubeUrl }}` / `{{ $json.posterUrl }}` - plain `$json`, which past
+the IF node resolves against `Publish Video`'s `{id}` output. Did not trigger
+the inline branch at all: omitted `field-4` (youtubeUrl) on the Facebook form so
+`Share To Telegram?` took the false branch cleanly, then posted via the
+**standalone** `5x8Kaq91qqPl6pmp` (`/form/share-video-telegram-crypto`, fields
+`title, hook, youtubeUrl`) - succeeded first try, message id 152. This is now
+the default path for the long-form Telegram post: skip the inline branch,
+use the standalone. **Fell back to
 the standalone workflow, and it also failed once - a genuine `ETIMEDOUT` to
 Telegram's IPv6 address, not a workflow bug.** The standalone workflow has no
 IF node ahead of `Telegram Post`, so its `$json.posterUrl` is correct by

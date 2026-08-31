@@ -108,6 +108,16 @@ The whole sequence runs on one "upload". These do not:
 - **Pushing to the live site and posting to social media are confirmed in the
   chat they happen in, every session**, regardless of any standing instruction.
   This is a standing rule of the publish sequence, not a per-run preference.
+
+  **One phase, one confirmation. Settled 2026-08-31.** Do not stop the run
+  mid-way to ask. Do the non-gated prep first - both YouTube uploads (unlisted,
+  after their dry runs), the poster fetch, the `videos.json` entry, the tunnel,
+  and every dry run - then post **one** message with the full caption/title text
+  for every social post and the site push, and on a single "go" run the entire
+  remainder top to bottom without pausing again. The gate is that one
+  confirmation carries the exact wording and happens in this chat; it is not a
+  licence to break the run into phases. The user's instruction: "do all in one
+  phase always."
 - **The `--apply` dry run is never skipped** on a YouTube upload. Show the plan.
 - **A first post to a brand's Instagram or Facebook page is public the moment it
   succeeds** and cannot be made unlisted. There is no dry run for a Reel. Confirm

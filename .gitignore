@@ -50,3 +50,4 @@ assets/stock/**/*.jpg
 
 # Local credentials. Never committed.
 .secrets/
+.publish-serve/
