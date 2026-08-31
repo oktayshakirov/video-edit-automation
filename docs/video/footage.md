@@ -210,6 +210,51 @@ burned into the frame. It costs about a minute for a whole cut and it is the
 only step that catches subject faults, which are the only faults the user
 ever notices.
 
+## Whole query classes come back as the wrong thing — and one class is off-message for crypto
+
+**From the Ruja pair. Three fetches shipped into the first cut and all three
+were wrong, none catchable by the luma box:**
+
+| query | what came back |
+|---|---|
+| `stock market data screen dark`, `code programming screen dark` | live **forex charts with a broker name** (Binance) and a moving price on screen |
+| `music festival crowd silhouette dark` | a **bar / lounge** — cocktails, neon, magazine posters, not a crowd |
+| `courthouse building`, `red warning flag`, `empty theatre stage` (photos) | all screened **L100+** — a bright subject on a bright ground reads dark on the mean but glares in frame |
+
+Two rules:
+
+- **A no-financial-advice crypto video shows no live price, chart, ticker or
+  broker name, ever** — not even blurred behind a beat. Those clips are the
+  literal picture of the thing the script is careful never to do. Search
+  `server room`, `data center`, `hands typing keyboard`, `dark abstract
+  particles` for "a database / a screen" instead; every one of them screened
+  L<25 and says "digital" without saying "trade this".
+- **"Screen" and "crowd" and "stage" queries are unreliable enough to sheet
+  before writing the shot list, not after.** A `data center` query returns an
+  orange data-viz animation as often as a server room; a `crowd` query returns
+  a bar. Pull a frame from each candidate the moment it downloads.
+
+## A video about one person with almost no free photos
+
+**The crypto-og content type: the subject often has one press photo and a
+mugshot, nothing more.** Ruja Ignatova has exactly the OneCoin publicity
+portrait (CC BY-SA, on Wikimedia Commons) and the FBI wanted poster (public
+domain). Her brother Konstantin, a named figure in the story, has **no free
+image at all** — not on Commons, and the DOJ arrest photo is not cleanly PD.
+
+What works:
+
+- **The one portrait, cropped wide and cropped tight, is used as open/close
+  bookends** — the same move the shared thumbnail makes. Two crops of one photo
+  spaced three minutes apart read as a punch-in, not a repeat. Never adjacent.
+- **A named person with no photo gets a labelled stock clip**, not a silhouette
+  left to the viewer's imagination: a dark courtroom clip with `payload=("",
+  "Konstantin Ignatov - testified against her")` says who and what. The label
+  carries the identity the picture cannot.
+- **Everything else is dark screened stock and the drawn beats.** Budget for a
+  real stock fetch of ~15 distinct dark clips and ~6 dark photos per video —
+  the site library cannot carry a bio piece.
+
 ## Screening for brightness is not screening for who is in the shot
 
 **The hook's two replacement faces repeated the exact fault they replaced.**
@@ -525,3 +570,12 @@ inside a minute, nothing held past about eight seconds. **A long hold is
 usually a script problem, not a footage problem** — a `Section` sentence with
 five caption chunks is one span and therefore one picture, so splitting the
 sentence fixes it without touching a word.
+
+**Every still image is used once.** The user's rule, from the Ruja cut where
+`regulators.jpg` appeared five times: a photograph the viewer has already seen
+reads as the video running out of pictures. Clips may run twice (the audit
+allows it, and there are fewer of them); a still runs once. The exceptions,
+each deliberate: the one portrait of the subject as an open/close bookend, and
+a genuinely textural backdrop behind a drawn beat — but default to no backdrop
+(the brand background) rather than repeating a photo. Write the asset list out
+before building and count.

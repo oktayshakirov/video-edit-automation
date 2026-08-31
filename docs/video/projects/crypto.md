@@ -17,9 +17,9 @@ from video_automation.core.brand import CRYPTO
 from video_automation.longform import Meta, Section, render_long
 
 made = render_long(SECTIONS, out, work, brand=CRYPTO, meta=META, voice="mia",
-                   music="pulse", callouts=None, endcard=ENDCARD,
-                   thumb_headline="...", thumb_subline="...",
-                   thumb_image=..., thumb_zoom=1.30, thumb_focus=(0.0, 0.84))
+                   music=music.track("night-drift"), callouts=None,
+                   endcard=ENDCARD, thumb_headline="NO BLOCKCHAIN. [$4 BILLION.]",
+                   thumb_image=..., thumb_accent="yellow")
 ```
 
 Produces the MP4, an `.srt`, a 1280x720 thumbnail and a `.md` sidecar carrying
@@ -184,12 +184,19 @@ a thirty-second explainer does not, and the pauses are what a viewer scrolls awa
 during.
 
 **End on a question — unless the video is a how-to, and then end on the rule and
-a save.** The question exists to earn a comment, which is the cheapest signal a
-35-second explainer can ask for. But it has to be a question the viewer can
-actually answer from what they just watched: the mining rig short closed on
-"would you have caught that before switching it on?" and the user cut it as
-confusing, correctly — "that" had three possible referents by then, and it asked
-the viewer to audit a build they have not made.
+a save.** But it has to be a question the viewer can actually answer from what
+they just watched: the mining rig short closed on "would you have caught that
+before switching it on?" and the user cut it as confusing, correctly — "that"
+had three possible referents by then, and it asked the viewer to audit a build
+they have not made.
+
+**The question is the whole outro. Do not append "in the comments", "let me
+know below", or "subscribe".** The user's standing rule for every channel —
+those lines spend the last seconds managing the viewer instead of leaving them
+with the thought. "So, what do you think — where is she now?" and stop. The
+bare compliance line ("Nothing in this video is financial advice.") may stand
+alone before it, with no "sources below" tail; the description carries the link.
+See `narration.md`.
 
 What replaced it: the rule restated as an echo of the opening line (`Cheap
 adapter, expensive mistake.`) and then `Save this before you build one.` with a

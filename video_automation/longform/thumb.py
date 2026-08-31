@@ -328,7 +328,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         return any(len(ln) == 1 and len(ln[0][0]) <= 3 for ln in lines)
 
     fallback = fallback_ok = None
-    for _ in range(16):
+    for _ in range(30):
         font = ImageFont.truetype(FONT_DISPLAY, size)
         space = d.textlength(" ", font=font)
         lines = _wrap_balanced(words, d, font, space, col_w)
@@ -419,7 +419,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
 
 def render_thumb(out: Path, brand: Brand, headline: str,
                  image: Path | None = None, accent: str = "red",
-                 size: int = 118, side: str | None = None,
+                 size: int = 300, side: str | None = None,
                  arrow_to: tuple[float, float] | None = None,
                  crop_at: tuple[float, float] | None = None,
                  crop_zoom: float = 1.0, crop_band: str = "middle",
@@ -562,12 +562,19 @@ def render_thumb(out: Path, brand: Brand, headline: str,
                            base, grad.resize((W, H)))
 
     margin = 58
-    col_w = int(W * 0.54)
+    # A NARROW column and a high starting `size` so the type grows big and
+    # wraps to four or five short rows that fill the empty half vertically -
+    # the look every large channel's thumbnails have. 0.46 of the width was
+    # tuned against the reference set ("WHERE / DID THE / MONEY / COME / FROM?").
+    # `_headline` still shrinks to keep the accent run whole on one line, so
+    # the accent should be ONE word - a two-word accent cannot both stay on one
+    # line and be large in a column this narrow.
+    col_w = int(W * 0.46)
     x_text = margin if side == "left" else W - margin - col_w
     fill, ink = ACCENTS.get(accent, ACCENTS["red"])
 
     block = _headline(base, headline, size, col_w, x_text, fill, ink,
-                      max_lines=4, max_block=H - 2 * margin, leading=1.06,
+                      max_lines=6, max_block=H - 2 * margin, leading=1.0,
                       band=vband, margin=margin, shadow=11, drop=(5, 6))
     y = {"top": margin, "middle": (H - block) // 2,
          "bottom": H - margin - block}[vband] + block
@@ -982,7 +989,7 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     margin = 52
     edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16) + 20
     _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
-              max_lines=4, max_block=VH * 0.5, leading=1.02,
+              max_lines=4, max_block=VH * 0.42, leading=1.02,
               band=band, margin=edge_margin, shadow=14, drop=(6, 8))
 
     out.parent.mkdir(parents=True, exist_ok=True)

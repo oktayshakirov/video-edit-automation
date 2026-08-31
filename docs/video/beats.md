@@ -195,13 +195,40 @@ the composition and give the eye something moving, not to mean anything. On by
 default for `stat` and `quote`; a `checklist` or `compare` already spans the
 frame and does not need it.
 
-## A year never counts up
+## A year never counts up — and `count=False` stops any figure whose partials read as facts
 
 `Stat` animates numeric values, but suppresses it for a bare four-digit year in
 1900–2100. "2009" racing from zero spends most of the beat showing 1200, 1780,
 2001 — all plausible years, all wrong, and a viewer reads the wrong one as an
 error rather than as an animation. Counting is for magnitudes, where the
 intermediate values are obviously partial.
+
+**A magnitude with a scale suffix has the same problem, and the renderer cannot
+tell.** `$4B+` counting up shows `$1B+`, `$2B+`, `$3B+` — each a real,
+plausible, wrong figure, not a partial. `$5M` reward shows `$1M`–`$4M`;
+`1 minute` shows `0 minute`. Pass **`count=False`** on any such `Stat` — it is
+the fourth positional in the payload: `payload=("$4B+", "LABEL", "note",
+False)`. The rule of thumb: if a mid-animation frame paused on screen would read
+as a claim rather than as "still loading", turn counting off. `1.1M coins`
+(supply) is the case where counting *is* right — nobody reads `0.7M` as a real
+supply figure.
+
+## `compare` with two columns: `name_columns=True`, always, and name the column before its items
+
+**Reinforced by the Ruja pair — the user's note was that the bullets were read
+without it being clear which side they belonged to.** Without `name_columns`
+both headings are painted at `f=0`, so as the voice lists the left column the
+right heading is already sitting there and the viewer is working out which one
+the voice is on. With it, each heading is its own revealed item: the narration
+says "On the slides," the heading appears, then its three items; then "And here
+is what was real," the second heading appears, then its three. On screen the
+order is the order in the mouth.
+
+Write the beat sentence as **8 caption chunks** for a 3+3 compare — two heading
+chunks plus six item chunks — and put `True` as the fifth positional in the
+payload: `payload=(left_title, [l1,l2,l3], right_title, [r1,r2,r3], True)`. The
+`name_columns=False` default only exists for the one shipped mining-rig cut
+written against the old reveal count; every new `compare` uses `True`.
 
 ## Give a beat time to be read
 

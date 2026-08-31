@@ -23,6 +23,7 @@ from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, logo_mark,
                     plan_shots, render_shots, roam_anchors)
 
 FLOW_LAG = 0.30                 # a mark lands just after the word that earns it
+_DEFAULT_MUSIC = object()       # sentinel: resolves to music.track("night-drift")
 
 
 def sentence_spans(sentences: list, captions: list) -> list[tuple[float, float]]:
@@ -163,8 +164,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         font_size: int = 46, y_frac: float = 0.70,
                         emoji: dict[str, str] | None = None,
                         sound: bool = True,
-                        music: "str | Path | None" = None,
-                        music_gain: float = 1.0,
+                        # **Every short gets the bed by default now** — the
+                        # sentinel resolves to `music.track("night-drift")`, the
+                        # same prepared track `render_long` uses, so the pair
+                        # from one post sits on one track. Pass `music=None` to
+                        # opt a specific short out; a preset name or a path still
+                        # work as before.
+                        music: "str | Path | None" = _DEFAULT_MUSIC,
+                        music_gain: float = 0.85,
                         fps: int = 30,
                         keep_work: bool = False,
                         frame: Frame = VERTICAL,
@@ -346,6 +353,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     # **The bed, sidechained under the voice** — the same path `render_long`
     # uses, so a long video and the Short from the same post sit on the same
     # track at the same relative level rather than being mixed twice by hand.
+    if music is _DEFAULT_MUSIC:
+        from ..core import music as music_mod
+        music = music_mod.track("night-drift")
     if music:
         from ..longform import audio as audio_mod
         from ..core import music as music_mod

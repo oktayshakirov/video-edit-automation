@@ -156,10 +156,19 @@ specced.
 
 ## Shorts take a music bed, and it is not optional
 
-**Every short gets `music.track("night-drift")` at `music_gain=0.85`.**
+**Every short gets `music.track("night-drift")` at `music_gain=0.85`, and this
+is now the default in `render_crypto_short` itself** — the `music` parameter
+defaults to a sentinel that resolves to the prepared track, and `music_gain`
+defaults to `0.85`. A build that passes nothing gets the bed; pass `music=None`
+to opt one specific short out, or a preset name / path to override. This covers
+`render_tinnitus_short` too, which forwards straight through. Older shorts will
+sound different if re-rendered — the same trade already accepted for the
+backdrop and the karaoke captions.
+
 `render_crypto_short` had taken `music`/`music_gain` for a long time and the
 article shorts simply never passed them, while both short skills went on
-recording it as "requested and not yet built" long after it was built.
+recording it as "requested and not yet built" long after it was built — so the
+default was moved into the function rather than left to each project file.
 
 Gain sits slightly under the long form's: a short is watched on a phone speaker
 with the voice carrying all of the information. It matters more here than in

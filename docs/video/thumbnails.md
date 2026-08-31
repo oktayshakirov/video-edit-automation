@@ -8,6 +8,37 @@ from one article they share a source image.
 `render_thumb(headline=, subline=, image=, accent=)`. **No zoom, no focus, no
 watermark** — the first two are searched and the third was removed.
 
+## The landscape headline fills the empty half vertically — many big rows, not two small ones
+
+**The user's rule, from the Ruja pair, against a reference set (The Code
+Report's "WHERE / DID THE / MONEY / COME / FROM?").** A headline sitting small
+in one or two lines with dead space around it looks amateur; the type should
+grow until it fills the empty half top to bottom, wrapping to four or five
+short rows. `_headline` now does this: a **narrow column** (`W * 0.46`) plus a
+high starting `size` forces a big font into short wrapped lines, then it shrinks
+only as far as `max_lines` / `max_block` / the one-accent-line rule require.
+
+Two things this needs from the caller:
+
+- **The accent must be ONE word.** A two-word accent (`[never existed]`) cannot
+  both stay on one line and be large in a column this narrow, so the size
+  search collapses back to two small lines. Bracket the single word that
+  carries the tension: `"The coin that never [existed]"`, not `"The coin that
+  [never existed]"`.
+- **A short headline still wants to be 3–5 words.** Very short ("KIMI fallout")
+  is fine, but a two-word headline in a narrow column is one word per line and
+  looks thin. Aim for a phrase that naturally breaks into four rows.
+
+**`render_short_thumb` is unchanged** — its column is full-width, `band`-placed,
+and two lines clear of the face is the right look there. Do not carry the
+narrow-column change across; a 9:16 thumbnail that fills vertically runs its
+type over the subject. The pair can use a one-word accent on the long and a
+two-word accent on the short and still read as a set.
+
+**When the user asks to make a thumbnail bigger or realign it, do not also
+change the words.** Text is a separate decision. Bring back the previous
+headline and change only the layout.
+
 - **Brackets mark the accent phrase**, which gets a solid vibrant box:
   `"Nobody has [passed it]"`. Every reference thumbnail that works does this;
   the box is what the eye lands on first, and a headline with no focal word is

@@ -195,6 +195,25 @@ next clause.** "Here is the thing", "what you need to understand is", "the
 question you should be asking" — all of them are the same tic, and second person
 present tense does the work without them.
 
+## The outro asks the question and stops
+
+**The user's standing rule, on every channel.** The closing line is a real
+question the viewer can answer in their head — "So, what do you think: would you
+have asked to see the blockchain?" — and nothing else. No "let me know in the
+comments", no "the sources are linked below", no "subscribe for more". Those
+lines were a pattern copied from an early script; they spend the last seconds
+of the video managing the viewer instead of leaving them with the thought. The
+one exception is the bare compliance line where a topic needs it — "Nothing in
+this video is financial advice." — which stands on its own with no "sources
+below" tail. The description carries the link and the CTA; the narration does
+not.
+
+**When that compliance line is spoken, put the disclaimer on screen too.** The
+shot under it carries a payload statement — `Shot(clip=..., payload=("", "This
+is not financial advice."))` — so it is seen as well as heard, every time. Run
+it over a quiet contemplative clip (rain on a window, dark water), never a
+person or a stage.
+
 ## Name the subject in the first sentence, not on the first chapter card
 
 **The myths cut opened on "You have probably heard at least one of these"

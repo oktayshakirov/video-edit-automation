@@ -479,13 +479,20 @@ class Stat(Beat):
     COUNT = 0.75                # how long a numeric value takes to count up
     EMBLEM = True
 
-    def __init__(self, value: str, label: str = "", note: str = "", **kw):
+    def __init__(self, value: str, label: str = "", note: str = "",
+                 count: bool = True, **kw):
         super().__init__(**kw)
         self.value, self.label, self.note = value, label, note
         # A value that is *mostly* digits counts up; one that is a word does
         # not. Splitting on that rather than on a flag means a script never has
         # to think about it — "1.1M" animates, "YES / NO" holds.
-        m = re.match(r"^(\D*?)([\d,.]+)(\D*)$", value.strip())
+        #
+        # **`count=False` forces the hold**, for a magnitude whose partial
+        # values read as real claims rather than as an animation — "$4B+"
+        # racing up shows "$1B+", "$2B+", "$3B+", each a plausible wrong
+        # figure. This is the year rule ("2009" counting through 1780) applied
+        # by hand where the renderer cannot tell a partial from a fact.
+        m = re.match(r"^(\D*?)([\d,.]+)(\D*)$", value.strip()) if count else None
         self.count = None
         # **A year never counts up.** "2009" racing from zero spends most of the
         # beat displaying 1200, 1780, 2001 — all plausible years, all wrong, and
