@@ -6050,6 +6050,150 @@
       "path": "photos/man-hand-on-head-stressed-dark-studio-portrait/9063610.jpg",
       "bytes": 3854802,
       "source": "https://www.pexels.com/photo/9063610/"
+    },
+    {
+      "id": "12138721",
+      "kind": "video",
+      "query": "supercomputer racks blinking lights dark",
+      "path": "videos/supercomputer-racks-blinking-lights-dark/12138721.mp4",
+      "bytes": 3619812,
+      "source": "https://www.pexels.com/video/12138721/"
+    },
+    {
+      "id": "13550579",
+      "kind": "video",
+      "query": "supercomputer racks blinking lights dark",
+      "path": "videos/supercomputer-racks-blinking-lights-dark/13550579.mp4",
+      "bytes": 4147626,
+      "source": "https://www.pexels.com/video/13550579/"
+    },
+    {
+      "id": "19217898",
+      "kind": "video",
+      "query": "server hallway lights dark",
+      "path": "videos/server-hallway-lights-dark/19217898.mp4",
+      "bytes": 2455395,
+      "source": "https://www.pexels.com/video/19217898/"
+    },
+    {
+      "id": "16392048",
+      "kind": "video",
+      "query": "fingerprint biometric scan dark",
+      "path": "videos/fingerprint-biometric-scan-dark/16392048.mp4",
+      "bytes": 3915790,
+      "source": "https://www.pexels.com/video/16392048/"
+    },
+    {
+      "id": "28179927",
+      "kind": "video",
+      "query": "fingerprint biometric scan dark",
+      "path": "videos/fingerprint-biometric-scan-dark/28179927.mp4",
+      "bytes": 25582184,
+      "source": "https://www.pexels.com/video/28179927/"
+    },
+    {
+      "id": "34268861",
+      "kind": "video",
+      "query": "code scrolling screen terminal dark",
+      "path": "videos/code-scrolling-screen-terminal-dark/34268861.mp4",
+      "bytes": 2422406,
+      "source": "https://www.pexels.com/video/34268861/"
+    },
+    {
+      "id": "2792370",
+      "kind": "video",
+      "query": "microchip processor macro dark",
+      "path": "videos/microchip-processor-macro-dark/2792370.mp4",
+      "bytes": 4567819,
+      "source": "https://www.pexels.com/video/2792370/"
+    },
+    {
+      "id": "33113400",
+      "kind": "video",
+      "query": "digital tunnel data stream dark",
+      "path": "videos/digital-tunnel-data-stream-dark/33113400.mp4",
+      "bytes": 6154015,
+      "source": "https://www.pexels.com/video/33113400/"
+    },
+    {
+      "id": "28828933",
+      "kind": "video",
+      "query": "person waiting dark contemplative",
+      "path": "videos/person-waiting-dark-contemplative/28828933.mp4",
+      "bytes": 10349264,
+      "source": "https://www.pexels.com/video/28828933/"
+    },
+    {
+      "id": "29527767",
+      "kind": "video",
+      "query": "clock ticking dark macro",
+      "path": "videos/clock-ticking-dark-macro/29527767.mp4",
+      "bytes": 3463262,
+      "source": "https://www.pexels.com/video/29527767/"
+    },
+    {
+      "id": "34645139",
+      "kind": "video",
+      "query": "abstract digital data particles dark",
+      "path": "videos/abstract-digital-data-particles-dark/34645139.mp4",
+      "bytes": 9546379,
+      "source": "https://www.pexels.com/video/34645139/"
+    },
+    {
+      "id": "30547566",
+      "kind": "photo",
+      "query": "cryostat quantum computer",
+      "path": "photos/cryostat-quantum-computer/30547566.jpg",
+      "bytes": 1522151,
+      "source": "https://www.pexels.com/photo/30547566/"
+    },
+    {
+      "id": "256502",
+      "kind": "photo",
+      "query": "code on screen dark",
+      "path": "photos/code-on-screen-dark/256502.jpg",
+      "bytes": 540132,
+      "source": "https://www.pexels.com/photo/256502/"
+    },
+    {
+      "id": "5380603",
+      "kind": "photo",
+      "query": "code on screen dark",
+      "path": "photos/code-on-screen-dark/5380603.jpg",
+      "bytes": 917593,
+      "source": "https://www.pexels.com/photo/5380603/"
+    },
+    {
+      "id": "3520697",
+      "kind": "photo",
+      "query": "encryption padlock circuit dark",
+      "path": "photos/encryption-padlock-circuit-dark/3520697.jpg",
+      "bytes": 1586057,
+      "source": "https://www.pexels.com/photo/3520697/"
+    },
+    {
+      "id": "30278259",
+      "kind": "photo",
+      "query": "dark abstract gold particles bokeh",
+      "path": "photos/dark-abstract-gold-particles-bokeh/30278259.jpg",
+      "bytes": 2206509,
+      "source": "https://www.pexels.com/photo/30278259/"
+    },
+    {
+      "id": "34128900",
+      "kind": "video",
+      "query": "digital ledger blocks chain dark",
+      "path": "videos/digital-ledger-blocks-chain-dark/34128900.mp4",
+      "bytes": 13232652,
+      "source": "https://www.pexels.com/video/34128900/"
+    },
+    {
+      "id": "38032287",
+      "kind": "photo",
+      "query": "magnetic field lines",
+      "path": "photos/magnetic-field-lines/38032287.jpg",
+      "bytes": 7509730,
+      "source": "https://www.pexels.com/photo/visual-representation-of-magnetic-field-lines-38032287/"
     }
   ]
 }
