@@ -158,3 +158,23 @@ More visible than hue, and worth addressing first:
   `config.py` weights — that's the point of the lock, but worth remembering so
   a future request for "more variety" or "less repetition" isn't chased through
   scoring parameters that no longer apply to this project.
+
+## Berlin
+
+Treptower Park — golden-hour sunset over the Spree. 17 graded selects (13
+buildings, boats, 3 hyperlapses), cut to TheFatRat's *Fly Away (VAVO Remix)*.
+
+| tag | cuts | mean shot | coverage | effects | notes |
+|---|---|---|---|---|---|
+| `berlin-v2` **locked** | 35 | 5.24s | 60% | 14 sped up, 0 escalates, 0 reversed | **Locked running order.** Location pin "TREPTOWER PARK, BERLIN" at 1.5s. The three hyperlapses pinned one per drop — HL1 at 0:28, HL3 at 1:06, HL2 at 2:24 — all inside the track's peak sections (bars 8–24, 40–48). Buildings 7 was shot later in the evening than the rest, so it broke the colour progression at cut #2; `CLIP_BAR_WINDOWS` holds it to the back half (bars 28–56), first appearing at 1:32. **The pin and title fragments were then re-captured from this project's own FCP export**: the user restyled the title (not bold, drop shadow instead of the outside stroke) and moved both pin and title to the lower-left — `assets/fcpxml/location-{pin,title}-overlay.xml` now carry that, `dx` back to 0. One engine note: `LOCATION_PINS` does nothing without `LOCATION_PIN = true` as the master switch, which the config comment did not say. |
+| `berlin-v1` | 35 | 5.24s | 60% | 14 sped up, 0 escalates, 0 reversed | Pre-edit fallback, kept in case a later change needed reverting. Same length and cut count; hyperlapses at 0:28 / 0:54 / 2:11, no location pin, Buildings 7 unrestricted (opened at cut #2). |
+
+### History
+
+- **First cut** — 59 cuts, 5:26, `MUSIC_LOOP` on (the track grids as ~3 min, the
+  folder as ~5). Reuse was heavy: Buildings 8 ×7, and 13 near-identical hover
+  shots of buildings is most of the folder.
+- **Speed pass** — the user marked Buildings 10, 8 and 4 for 2x. That dropped the
+  timeline below the song's own 3:03, so the loop had nothing to extend to and
+  was removed: the track now plays once and ends on its real ending, no seam.
+  Reuse fell out with it — nothing above ×4, then ×3 once the order locked.

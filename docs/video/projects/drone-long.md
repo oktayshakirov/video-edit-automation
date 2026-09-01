@@ -143,7 +143,15 @@ verbatim from a real Final Cut export. Its UID plus two base64 payloads encode
 FCP-internal state that **cannot be authored from a specification**. Reuse the
 fragment as-is. The red pin is source **9.833–14.867s** of the pack (not
 guessable — by hue it measures ~345° and classifies as pink). Placement: lane 1,
-`scale 0.06`, `position -81.524 42.1759`, `conform-rate srcFrameRate="24"`.
+`scale 0.06`, `position -81.524 -45.5365`, `conform-rate srcFrameRate="24"`.
+
+**Placement and title style were re-captured from the Berlin export
+(2026-09-01).** The user moved the pin from the upper-left
+(`-81.524 42.1759`) to the lower-left and restyled the title: **not bold**
+(`fontFace="Regular"`), and a **drop shadow** (`shadowColor="0 0 0 0.8321"`,
+`shadowOffset="5 315"`) instead of the old outside stroke. Both fragments in
+`assets/fcpxml/` now carry this; use them as-is. At the lower-left placement the
+title clears the pin, so `dx` is normally `0`.
 
 ### More than one place, and the text that collides with the pin
 
@@ -157,18 +165,20 @@ Two things bite once there is a second pin:
   repeats and Final Cut rejects **the whole document** — "ID ts1 already
   defined" — not just the second title. Each title now gets `ts2`, `ts3`…
 - **The title's `Position` is centre-anchored** (`Alignment` is `1 (Center)`),
-  so the words grow outward from one fixed point in both directions. A long
-  place name reaches further left and lands on top of the pin; a short one sits
-  with a gap. **The overlap is a function of how many characters the name has**,
-  which is why it shows up on one video and not the next, and why it cannot be
-  fixed once inside the fragment.
+  so the words grow outward from one fixed point in both directions. At the old
+  upper-left placement a long place name reached further left and landed on top
+  of the pin; a short one sat with a gap. **The overlap was a function of how
+  many characters the name has**, which is why it showed up on one video and not
+  the next, and why it could not be fixed once inside the fragment.
 
   Each entry takes `dx` (and `dy`) in Motion points, shifting the anchor right
   and up. Only a captured param's *value* changes — the key path is untouched —
   so this is ordinary authoring, not a guessed UID. Measured on the Bulgaria
-  cut: **`dx = 110` for a ~23-character name, `dx = 65` for ~21.** Set it per
-  pin and check it on screen; there is no way to compute the rendered width of
-  the string from here.
+  cut at the old placement: `dx = 110` for a ~23-character name, `dx = 65` for
+  ~21. **Since the 2026-09-01 move to the lower-left the title clears the pin,
+  so `dx` is `0` unless a name is long enough to run off the left edge.** Check
+  it on screen; there is no way to compute the rendered width of the string from
+  here.
 
 ### Colour is not something this pipeline can write
 

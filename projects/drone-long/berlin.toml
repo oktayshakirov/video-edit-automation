@@ -38,10 +38,11 @@ CLIP_BAR_WINDOWS = { "Spree Buildings 7" = [[28, 56]] }
 
 # --- location pin ---------------------------------------------------------
 # LOCATION_PIN is the master switch — LOCATION_PINS on its own emits nothing,
-# whatever the config comment implies. Written as a LOCATION_PINS entry rather
-# than the singular keys because only an entry carries `dx`. The title is
-# centre-anchored, so a long name grows leftward onto the pin: 22 characters
-# here, between the measured dx=65 (~21 chars) and dx=110 (~23) from the
-# Bulgaria cut. Check it on screen.
+# whatever the config comment implies.
+#
+# The pin and title fragments were re-captured from this project's own Final
+# Cut export (2026-09-01) after the user restyled the title and moved both to
+# the lower-left. That placement is now baked into the fragments, so dx is 0 —
+# at lower-left the title no longer collides with the pin.
 LOCATION_PIN = true
-LOCATION_PINS = [ { start = 1.5, text = "TREPTOWER PARK, BERLIN", dx = 85 } ]
+LOCATION_PINS = [ { start = 1.5, text = "TREPTOWER PARK, BERLIN" } ]

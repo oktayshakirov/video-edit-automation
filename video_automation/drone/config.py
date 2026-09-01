@@ -352,7 +352,9 @@ LOCATION_TITLE_TEXT = ""
 # the viewer reads the whole video as the first one.
 #
 # Set this OR the three singular keys above, not both — this list wins, and the
-# singular keys stay as the one-location shorthand they already are.
+# singular keys stay as the one-location shorthand they already are. Either way
+# LOCATION_PIN above is the master switch: with it False this list emits
+# nothing, however populated.
 #
 # Placement is by timeline seconds, exactly like LOCATION_PIN_START, so a pin
 # has to be moved by hand whenever the cut it sits on moves. That is the same
