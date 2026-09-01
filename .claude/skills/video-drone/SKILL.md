@@ -44,7 +44,11 @@ Drone uses neither the drawn beats nor the site photos and stock shelf, so
 3. **Hand over and wait.** Re-cut as many times as the user asks - pacing, shot
    choice, speed, clip swaps.
 4. **On approval: commit, write `HANDOFF-PUBLISH.md`, and tell the user to open
-   a fresh session for `/publish-video`.**
+   a fresh session for `/publish-video`.** For long form the handoff must carry
+   the **finished, upload-ready** title, description and tags in the drone
+   channel's settled format — this engine writes no `.md` sidecar, so the
+   handoff is the only description carrier. See "Metadata for the handoff" in
+   `docs/video/projects/drone-long.md`; a stub description ships as-is.
 
 ## This skill does not publish
 

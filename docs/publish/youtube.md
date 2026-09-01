@@ -39,6 +39,16 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   copy by hand.
 - **Reuse the `Meta` the long-form build already generated** - the `.md` sidecar
   in `<project>/transcripts/` - rather than re-deriving the description.
+- **Drone long form has no sidecar** - the handoff carries its description. Before
+  uploading, check it already follows the drone channel's settled format (two
+  prose paragraphs, `What you'll see`, gear/location, `More cities from above`
+  cross-links, Drone Pal, website, stock licensing, `Music`, copyright line,
+  hashtags - see "Metadata for the handoff" in
+  `docs/video/projects/drone-long.md`). If the handoff shipped a stub, pull the
+  most recent public long-form description with `cd ~/Coding/youtube-audit &&
+  npx tsx src/cli.ts videos --channel drone --no-shorts --json` and rebuild it to
+  match before `--apply`. Berlin (2026-09-01) shipped a three-line stub and had
+  to be rewritten after upload.
 - **`--related <long-id>` on the short.** It appends the long's URL to the
   description. Tell the user to tick Studio's Related video field by hand; the
   Data API has no field for it.

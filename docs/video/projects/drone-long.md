@@ -135,6 +135,49 @@ git push origin main && git push origin --tags
 Add a row to `CHANGELOG.md` with the metrics from the build output, and prune
 open items the change actually resolved.
 
+## Metadata for the handoff — title, description, tags
+
+**Drone long form produces no `.md` sidecar.** The narrated projects hand the
+publish step a generated `Meta` file; this engine does not, so `HANDOFF-PUBLISH.md`
+*is* the description carrier and it must contain the finished, upload-ready text —
+not a stub. A minimal "here is the gist + music credit" block is a bug: it goes
+live as-is, and the drone channel has a settled format that it then fails to match.
+(Berlin, 2026-09-01, shipped with a three-line description and had to be rewritten
+against the channel template at publish time.)
+
+The format is owned by the `youtube-audit` skill and enforced there; reproduce it
+in the handoff so the publish session pastes rather than re-derives:
+
+- **Title:** `{Hook} - {City}, {Country} in 4K by Drone`, under 60 characters,
+  plain hyphen never an em/en dash. Prefer a specific place name over the country
+  for search ("Treptower Park" beats "Germany"). The hook must match the footage.
+- **Description skeleton, in this order:**
+  1. Two prose paragraphs. The hook lands in the first ~120 characters. First
+     paragraph = what the flight does; second = one paragraph of real context
+     about the place.
+  2. `📍 What you'll see` — a `·`-separated list of locations/landmarks, no
+     timestamps (the channel uses no chapters).
+  3. `🎥 Shot in 4K with DJI Mini 5 Pro` + `📍 Location: <place>, <country>`.
+  4. `━━━` rule, then `🌍 More cities from above` — 4 cross-links to recent
+     long-form uploads as `• <Title>` / `https://youtu.be/<id>`. Pull the ids
+     with `cd ~/Coding/youtube-audit && npx tsx src/cli.ts videos --channel drone
+     --no-shorts --json`.
+  5. `🚁 Fly safer with Drone Pal` — iPhone + Android store links.
+  6. `🌍 Website & Contact` — https://oktayshakirov.com
+  7. `📥 Commercial Licensing / Stock Footage` — Adobe Stock + Shutterstock links.
+  8. `🎵 Music` — `Song:` / `Composer:` / channel URL. **Mandatory and verbatim**
+     from the footage folder's `Music Credits.rtf`; TheFatRat and most library
+     tracks are free to use *with credit*.
+  9. `❌ Do not copy, download, or re-upload this video footage without permission.`
+  10. Hashtag line — `#City #Landmark #City4K #GoldenHour #DroneFootage #Cinematic
+      #Travel #DJIMini5Pro #AerialView #4KVideo`.
+- **No em or en dash anywhere** in title, description or tags — `youtube-audit
+  upload` refuses outright on one.
+- **Tags:** ~10-15, lowercase, place-first (`berlin`, `treptower park`, `berlin
+  drone`, `spree`, then `4k`, `aerial`, `golden hour`, `cinematic`, `dji`).
+- The live descriptions on the drone channel are the format of record — copy the
+  shape of the most recent public long-form video and swap the specifics.
+
 ## Overlays
 
 `assets/` holds the reusable location pin and, critically,
