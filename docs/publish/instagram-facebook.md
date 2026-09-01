@@ -63,6 +63,57 @@ tunnel URL off their screen - take it from the metrics endpoint.
   public for the duration.
 - Facebook's leg reads the same URL, so one tunnel covers both.
 
+## The Reel caption
+
+One `caption` field, passed to **both** Instagram and Facebook by the Publish
+Reel workflow. Write it for the person watching, not for a crawler. The Reel has
+no separate title field - the burned-in hook text on the video is the de-facto
+title, and the caption's first line is the rest of it.
+
+- **No links. No URLs. No "read the full article at ...". Settled 2026-09-01.**
+  Instagram does not make caption links clickable, and a bare URL in the text
+  does nothing but signal "this post wants you to leave" - which the ranking
+  treats as a negative. The early Reels on the crypto and tinnitus accounts were
+  a line or two of plain hook and did well; reach fell off as later captions got
+  longer and link-heavy. The article link lives on the **YouTube Short's**
+  description and nowhere else in the short's distribution. Do not write "link in
+  bio" either, unless the account's bio link actually points at this article - a
+  stale pointer is worse than none.
+- **Keep it short: a hook, one or two sentences, then the tags.**
+  - **First line is the hook** - it is the only part most people read, showing
+    above the "... more" fold at roughly 125 characters. Make it a curiosity gap
+    or a concrete claim, in the video's own voice. No "In this video we..."
+    throat-clearing, and do not just retype the burned-in on-screen text.
+  - **Body: one or two plain sentences** that pay the hook off and add something
+    the on-screen text did not. A wall of text gets skipped and reads as spam.
+  - **No engagement bait.** "Comment YES", "follow for part 2", "tag 3 friends"
+    are all downranked by Instagram directly. One light, honest prompt ("save
+    this if you're mid-cycle", "full breakdown on the channel") is the ceiling,
+    and it is optional.
+  - **Emoji minimal** - none, or one. A caption sprinkled with them reads as
+    automated.
+- **Hashtags: 3 to 5, specific, at the end of the caption.**
+  - Instagram's own guidance since 2024 is a handful of relevant tags, not a
+    block of 20-30. A big pile is the clearest "spam" tell there is and it caps
+    reach.
+  - Mix one broad, two or three niche, one branded - e.g. `#tinnitus
+    #tinnitusrelief #ringingears #tinnitushelp`, or `#crypto #bitcoin
+    #cryptoexplained #thecryptowiki`.
+  - **Vary them per video.** The identical block pasted on every Reel is read as
+    automation and throttled; pick tags that match this specific video's subject.
+  - Keep them in the caption, not a first comment - Instagram has said placement
+    makes no ranking difference, the caption is simpler, and the workflow has no
+    first-comment step anyway.
+  - No banned or borderline tags: nothing cure-adjacent on tinnitus, no
+    `#followforfollow`, no `#viral`, no `#fyp` (that is TikTok's and it looks
+    copy-pasted on Instagram).
+- **The same caption goes to the Facebook Reel.** Facebook Reel captions are
+  equally dead for links, so the no-link rule covers both. A video that is
+  Instagram-only (over 90s, see below) still follows these rules.
+- **Confirm the exact caption text in chat before triggering.** A Reel is public
+  the instant it succeeds and there is no dry run - see the Gates section in the
+  skill.
+
 ## Instagram and Facebook Reels
 
 One n8n form workflow per site. n8n must be running at `http://localhost:5678`.
