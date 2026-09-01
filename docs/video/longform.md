@@ -36,7 +36,7 @@ runtime target back by removing pauses — a monotone 3:50 is worse than a
 well-punctuated 4:20, and the ceiling was never a hard platform limit.
 | shots | 27–44 | ~5.5s mean |
 | captions | **SRT only, none burned** | see below |
-| voice | `mia` (`af_heart`) | the user's pick for the first cut. **Candidate, not approved.** |
+| voice | `mia` (`af_heart`) female, or `otis` (`am_puck`) male | both **candidate, not approved**; see the project docs |
 
 ## Structure: an arc, not an agenda
 

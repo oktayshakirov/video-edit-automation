@@ -140,16 +140,18 @@ PROFILES: dict[str, VoiceProfile] = {
     ),
     "max": VoiceProfile(
         voice={"am_michael": 0.60, "af_nicole": 0.40}, speed=0.95, chain=SOFT,
-        projects=("drone", "crypto", "tinnitus"), status="candidate",
+        projects=("drone",), status="candidate",
         script="quote",
         note="Runner-up to leo on the drone quote format — am_michael instead "
-             "of am_onyx. Also the roster's alternate reader for crypto and "
-             "tinnitus article explainers, alongside mia. Not yet tuned for "
-             "that role: this is still the drone SOFT-chain recipe, not an "
-             "ENERGETIC pass — try it on a real script before shipping it "
-             "there. Measured caveat on this and every af_nicole blend: they "
-             "lose most of the bare voice's slowness — 10.2s at speed 0.95 "
-             "against 11.7s at 1.05.",
+             "of am_onyx. **Was briefly listed as the alternate male reader "
+             "for crypto and tinnitus article explainers and that was a "
+             "mistake**: it is a 60/40 am_michael/af_nicole blend on the "
+             "drone SOFT chain, and the 40% breathy-female component makes it "
+             "read androgynous rather than male on a real explainer script — "
+             "the user rejected it on the pulsatile-tinnitus cut. The male "
+             "article reader is `otis` (bare am_puck, ENERGETIC). Also the "
+             "measured af_nicole-blend caveat: they lose most of the bare "
+             "voice's slowness — 10.2s at speed 0.95 against 11.7s at 1.05.",
         source="A2_michael60_nicole40.wav", folder="Drone voices",
     ),
 
@@ -164,6 +166,31 @@ PROFILES: dict[str, VoiceProfile] = {
              "this voice — though status stays candidate until the user "
              "says otherwise.",
         source="01_af_heart.wav", folder="Crypto Wiki Voices",
+    ),
+    "otis": VoiceProfile(
+        voice="am_puck", speed=1.00, chain=ENERGETIC,
+        projects=("crypto", "tinnitus"), status="candidate", script="crypto",
+        note="**The male article reader for both channels**, the counterpart "
+             "to mia. Bare am_puck (graded C+ on hours of data, the "
+             "steadiest of the American males) on the same ENERGETIC chain "
+             "mia uses, at speed 1.00 rather than 1.10 — the male voice does "
+             "not need the lift and reads a touch calmer for it. Chosen by "
+             "the user by ear from a thirteen-voice demo over am_echo and "
+             "am_liam; picked as a real single-speaker voice after `max` (an "
+             "am_michael/af_nicole blend) was rejected for reading "
+             "androgynous. First cut: the pulsatile-tinnitus long+short pair.",
+        source="P1_am_puck_energetic.wav", folder="Crypto Wiki Voices",
+    ),
+    "arlo": VoiceProfile(
+        voice="am_liam", speed=1.00, chain=ENERGETIC,
+        projects=("crypto", "tinnitus"), status="candidate", script="crypto",
+        note="The alternate male article reader, alongside otis — bare "
+             "am_liam on the ENERGETIC chain at speed 1.00. Runner-up in the "
+             "same demo otis was picked from. Held in reserve for the planned "
+             "quiz video format, where a second distinct male voice is "
+             "wanted so the two formats do not sound identical. Not yet used "
+             "in a shipped video.",
+        source="P2_am_liam_energetic.wav", folder="Crypto Wiki Voices",
     ),
 
     # --- tinnitus zen (sound therapy) ---------------------------------------

@@ -9,8 +9,10 @@ article explainer (long + Short pair) and the sound-therapy session.
 families, and mixing them up costs a rewrite, not just a re-render.** Measured
 on one paragraph: the pitched-down family (`elias`) reads at 1.97 words/sec,
 the explainer default (`mia`) at 3.06. A script written for one and read by
-the other misses the runtime window by up to ninety seconds. **Re-run the
-preflight after any voice change** — do not assume the shot list survives it.
+the other misses the runtime window by up to ninety seconds. `otis` (the male
+explainer voice, bare `am_puck` at speed 1.00) sits close to `mia` but reads
+a little slower and calmer. **Re-run the preflight after any voice change** —
+do not assume the shot list survives it.
 Full roster and roles are in *Voice*, below.
 
 **`ivy` (bf_emma) was tried here and deleted from the roster entirely.** The
@@ -30,7 +32,7 @@ brand.** Always establish which before doing anything else:
 |---|---|---|
 | what it is | a post explained | a session to leave running |
 | runtime | 2:30–4:00 | 10–60 minutes |
-| voice | **`mia`** | **`luna`**, intro only |
+| voice | **`mia`** (female) or **`otis`** (male) | **`luna`**, intro only |
 | module | `longform/build.py` | `longform/asmr.py` |
 | example | `projects/tinnitus-long/does-tinnitus-go-away.py` | see below |
 
@@ -299,8 +301,8 @@ video cannot silently clip the end of the audio.
 
 ## Voice
 
-**Two roles, four profiles.** Article explainers (long + Short pairs) use one
-roster; sound-therapy sessions use another — they are different products with
+**Two roles.** Article explainers (long + Short pairs) use one roster;
+sound-therapy sessions use another — they are different products with
 different delivery needs, see *Two formats, and they are not the same job*.
 
 ```bash
@@ -312,8 +314,19 @@ different delivery needs, see *Two formats, and they are not the same job*.
 long+short pair uses it except `airpods-and-tinnitus` and `tinnitus-and-sleep`,
 which were rendered on now-retired profiles and were repointed at `mia` on
 2026-08-28 so they stay re-runnable — a re-cut of either would no longer
-reproduce the exact original audio. `max` is the roster's alternate reader,
-carried over from drone and not yet tuned for an explainer script.
+reproduce the exact original audio.
+
+**Explainer male reader: `otis`.** Bare `am_puck` (C+ on hours of data, the
+steadiest American male) on the same `ENERGETIC` chain `mia` uses, at speed
+1.00. The counterpart to `mia` when a pair wants a male voice — first used on
+`pulsatile-tinnitus` (2026-09-02). `arlo` (bare `am_liam`, same chain) is the
+alternate, held for the planned quiz format so the two formats do not sound
+identical. Both chosen by the user by ear from a thirteen-voice demo.
+
+**`max` is not an article voice.** It was briefly listed as the male
+alternate here and that was wrong: it is a 60/40 `am_michael`/`af_nicole`
+blend on the drone `SOFT` chain, and the breathy-female component makes it
+read androgynous on a real explainer script. It stays a drone runner-up only.
 
 **Sound-therapy primary: `luna`.** Female, `af_nicole` 0.90, soft chain — the
 bare voice off the punchy `ENERGETIC` chain and onto `SOFT`, which exists for
