@@ -65,20 +65,29 @@ tunnel URL off their screen - take it from the metrics endpoint.
 
 ## The Reel caption
 
-One `caption` field, passed to **both** Instagram and Facebook by the Publish
-Reel workflow. Write it for the person watching, not for a crawler. The Reel has
-no separate title field - the burned-in hook text on the video is the de-facto
-title, and the caption's first line is the rest of it.
+The Publish Reel workflow takes **two** caption fields: `caption` goes to
+Instagram, `facebookCaption` (optional) goes to the Facebook Reel and falls back
+to `caption` when left blank. They are split because Instagram and Facebook
+behave oppositely on links - see below. Write both for the person watching, not
+for a crawler. The Reel has no separate title field: the burned-in hook text on
+the video is the de-facto title, and the caption's first line is the rest of it.
 
-- **No links. No URLs. No "read the full article at ...". Settled 2026-09-01.**
-  Instagram does not make caption links clickable, and a bare URL in the text
-  does nothing but signal "this post wants you to leave" - which the ranking
-  treats as a negative. The early Reels on the crypto and tinnitus accounts were
-  a line or two of plain hook and did well; reach fell off as later captions got
-  longer and link-heavy. The article link lives on the **YouTube Short's**
-  description and nowhere else in the short's distribution. Do not write "link in
-  bio" either, unless the account's bio link actually points at this article - a
-  stale pointer is worse than none.
+- **Instagram caption: no links, no URLs, no "read the full article at ...".
+  Settled 2026-09-01.** Instagram does not make caption links tappable, and a
+  bare URL in the text only signals "this post wants you to leave" - which the
+  ranking treats as a negative. Concretely: Facebook longs and shorts kept
+  performing well, and it was **Instagram Reels reach that collapsed to almost
+  zero** as the captions grew longer and link-heavy versus the short plain-hook
+  captions of the first batch. The article link is carried by the **YouTube
+  Short's** description and the **Facebook** Reel caption - not Instagram's.
+  Don't write "link in bio" either, unless the account's bio link actually points
+  at this article; a stale pointer is worse than none.
+- **Facebook caption (`facebookCaption`): a link is fine and it *is* tappable.**
+  Put the real article URL on its own line at the end, before the hashtags -
+  same URL the YouTube Short uses. Everything else below (hook, length, tags)
+  applies to both captions; the link is the only difference. If you pass only
+  `caption`, the Facebook Reel reuses it and gets no link - acceptable, but
+  prefer giving it the link since that half of the audience converts.
 - **Keep it short: a hook, one or two sentences, then the tags.**
   - **First line is the hook** - it is the only part most people read, showing
     above the "... more" fold at roughly 125 characters. Make it a curiosity gap
@@ -107,11 +116,12 @@ title, and the caption's first line is the rest of it.
   - No banned or borderline tags: nothing cure-adjacent on tinnitus, no
     `#followforfollow`, no `#viral`, no `#fyp` (that is TikTok's and it looks
     copy-pasted on Instagram).
-- **The same caption goes to the Facebook Reel.** Facebook Reel captions are
-  equally dead for links, so the no-link rule covers both. A video that is
-  Instagram-only (over 90s, see below) still follows these rules.
-- **Confirm the exact caption text in chat before triggering.** A Reel is public
-  the instant it succeeds and there is no dry run - see the Gates section in the
+- **Facebook's `facebookCaption` is the Instagram caption plus the link line.**
+  Do not write a different hook or different tags for it - keep them identical so
+  the two posts read as one campaign; only the URL line is added. A video that is
+  Instagram-only (over 90s, see below) needs only `caption`.
+- **Confirm both caption texts in chat before triggering.** A Reel is public the
+  instant it succeeds and there is no dry run - see the Gates section in the
   skill.
 
 ## Instagram and Facebook Reels
@@ -127,6 +137,14 @@ each automation repo: `publish_facebook_video.json`, `publish_reel.json` and
 `createdAt`/`updatedAt`/`versionId`/`triggerCount` so the diff carries meaning.
 Credentials are referenced by id and name only, so an export holds no secrets.
 
+**`facebookCaption` is field index 4**, added after `durationSeconds` so the
+`field-0..3` HTTP indexing stays stable. `Normalise Input` reads it by label and
+by `field-4`, and defaults it to `caption` when empty; `FB Reel Finish` sends it
+as the Facebook `description` while `IG Create Container` still sends `caption`.
+Added 2026-09-01 - the two exports carry this, so if the live workflow predates
+it, re-import `publish_reel.json` or add the field by hand (Form Trigger: a
+non-required textarea named exactly `facebookCaption`, last in the list).
+
 Two caveats on the older tracked exports: `share_post.json` and `share_og.json`
 carry workflow ids that no longer exist live, and `share_video.json` describes
 a workflow deleted on 2026-08-20. Do not trust a tracked export's id without
@@ -134,8 +152,8 @@ checking it against `GET /workflows`.
 
 | Site | Workflow | formData |
 | --- | --- | --- |
-| Crypto Wiki | Publish Reel `uIV6956N14pMGMZ5` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
-| Tinnitus Help | Publish Reel `1GTSF6izfwA1gpig` | `{ videoUrl, coverUrl, caption, durationSeconds }` |
+| Crypto Wiki | Publish Reel `uIV6956N14pMGMZ5` | `{ videoUrl, coverUrl, caption, durationSeconds, facebookCaption? }` |
+| Tinnitus Help | Publish Reel `1GTSF6izfwA1gpig` | `{ videoUrl, coverUrl, caption, durationSeconds, facebookCaption? }` |
 | Crypto Wiki | Publish Facebook Video `zS3xX6tbXpXnF32N` | `{ videoUrl, title, description, thumbUrl }` |
 | Tinnitus Help | Publish Facebook Video `Lyhn5U7pYhrAs9x7` | `{ videoUrl, title, description, thumbUrl }` |
 
