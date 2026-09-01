@@ -89,8 +89,11 @@ a platform from the run.
    the long's native Facebook upload need a public URL, so serve the render
    folder and open one tunnel rather than one per video. Stop it after step 4.
 4. **Short: Reels then TikTok. Long: native Facebook upload, then poster,
-   `videos.json`, the deploy gate and `npm run sync-content`.** The site half is
-   `docs/publish/site.md`. The Facebook
+   `videos.json`, the deploy gate and `npm run sync-content`.** The Reel caption
+   rules - short hook plus one or two sentences, 3 to 5 varied hashtags, **no
+   link in the Instagram `caption`** but the article link **does** go in the
+   optional `facebookCaption` - are in `docs/publish/instagram-facebook.md`. The
+   site half is `docs/publish/site.md`. The Facebook
    step is the Publish Facebook Video workflow - the Share Video workflows it
    replaced were deleted on 2026-08-20. Pass the **full** YouTube description;
    that workflow trims it to the first paragraph plus the article link itself.
