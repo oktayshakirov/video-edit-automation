@@ -237,6 +237,33 @@ same runtime — slow delivery eats the budget fast. Roughly 30 words lands near
 
 The synthesis engine behind all of this - backends, style-tensor mixing, what Kokoro cannot do - is `voice.md`.
 
+## Per-word karaoke captions, on by default
+
+**`render_narrated_stack` now does the same per-word highlight the crypto and
+tinnitus shorts do** — the whole phrase holds on the black band and the word
+being spoken is lit and lifted a touch (`grow=1.08`). Asked for by the user on
+the Berlin map/way-home stack, same instinct as the other channels: give the
+eye something to track on the type. `karaoke=True` is the default; pass
+`karaoke=False` for a specific cut to go back to one still PNG per caption.
+
+**The highlight colour is pulled from the footage, not fixed.** `accent`
+defaults to `"auto"` — `dominant_accent` samples both clips across their length,
+takes the circular-mean hue weighted toward the colourful mid-bright pixels,
+and pushes it to near-full saturation. A golden-hour city comes back warm
+orange. Pass an `(r,g,b,a)` tuple to pin it, or a `(caption)->colour|None`
+callable for per-line control.
+
+**A set-piece word keeps its single PNG.** Karaoke only touches a plain
+multi-word caption at the base 44px. A word given its own `font_size` (the
+`belong` treatment), a colour-inked word, or an emoji caption all still render
+as one PNG — `render_caption_karaoke` models none of those, and forcing them
+through it would move the type. So the two emphasis tools compose: the quote
+lines karaoke, the one turn word stays big and white.
+
+Only `render_narrated_stack` has this so far. `render_narrated` and
+`render_narrated_cuts` still render one PNG per caption; wire the same way if a
+single-clip or sequential cut ever needs it.
+
 ## Text — two templates, pick by whether there is narration
 
 Both live in `render_text_png`; `stroke` selects between them. Neither should be

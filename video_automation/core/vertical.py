@@ -392,6 +392,78 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
     return out
 
 
+def word_spans(text: str, start: float, end: float,
+               speech: float) -> list[tuple[float, float]]:
+    """One time slice per word of `text`, inside its caption's span.
+
+    A copy of the logic `crypto/build._word_spans` has carried since the
+    karaoke captions shipped there, lifted into the shared module so the drone
+    stack engine can reach it without importing across packages. Duration is
+    apportioned by ``len(word) + 1`` — character count is a fair proxy for how
+    long a word takes to say, and the ``+1`` charges every word for the gap
+    after it so a run of short words does not race.
+
+    `speech` is where the voice actually stops (``Caption.speech_end``), before
+    `end` is stretched to the next caption's start. Timing the words across the
+    *displayed* span instead would leave the last word or two lit through the
+    sentence's trailing silence.
+    """
+    words = text.split()
+    if not words:
+        return []
+    stop = max(min(speech, end), start + 0.05)
+    weights = [len(w) + 1 for w in words]
+    total = sum(weights)
+    spans, t = [], start
+    for i, wgt in enumerate(weights):
+        nxt = start + (stop - start) * sum(weights[:i + 1]) / total
+        spans.append((t, nxt if i < len(words) - 1 else end))
+        t = nxt
+    return spans
+
+
+def dominant_accent(src: Path, box: tuple[int, int, int, int],
+                    times: "list[float]") -> tuple[int, int, int, int]:
+    """A vivid highlight colour pulled from the footage itself.
+
+    Samples the 9:16 crop at a handful of timecodes, takes the circular mean of
+    the hue weighted toward the colourful, mid-bright pixels (so sky and shadow
+    do not drag it grey), then pushes that hue to near-full saturation and
+    value. The result is the colour the clip *is* — a golden-hour city comes
+    back warm orange — bright enough to read as the lit word on the black band.
+
+    Falls back to white when the crop is unreadable or has no colour in it,
+    which is the same thing `render_caption_karaoke`'s default `accent` does.
+    """
+    xs = []
+    cap = cv2.VideoCapture(str(src))
+    x, y, w, h = box
+    for t in times:
+        cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000.0)
+        ok, frame = cap.read()
+        if not ok:
+            continue
+        crop = frame[y:y + h, x:x + w]
+        if crop.size:
+            xs.append(crop.reshape(-1, 3))
+    cap.release()
+    if not xs:
+        return (255, 255, 255, 255)
+
+    px = np.concatenate(xs, 0).astype(np.uint8).reshape(-1, 1, 3)
+    hsv = cv2.cvtColor(px, cv2.COLOR_BGR2HSV).reshape(-1, 3).astype(np.float32)
+    wgt = (hsv[:, 1] / 255.0) * np.clip(hsv[:, 2] / 255.0, 0.0, 1.0)
+    if wgt.sum() < 1e-6:
+        return (255, 255, 255, 255)
+    ang = hsv[:, 0] * (np.pi / 90.0)          # OpenCV hue is 0-180
+    cx = np.average(np.cos(ang), weights=wgt)
+    cy = np.average(np.sin(ang), weights=wgt)
+    hue = (np.arctan2(cy, cx) % (2 * np.pi)) * (90.0 / np.pi)
+    bgr = cv2.cvtColor(np.uint8([[[hue, 215, 255]]]),
+                       cv2.COLOR_HSV2BGR)[0, 0]
+    return (int(bgr[2]), int(bgr[1]), int(bgr[0]), 255)
+
+
 EMOJI_FONT = "/System/Library/Fonts/Apple Color Emoji.ttc"
 # Apple Color Emoji is a bitmap font and only loads at the sizes it has strikes
 # for — 44 and 137 both raise "invalid pixel size". Render at 160 and scale
