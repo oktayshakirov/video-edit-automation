@@ -337,6 +337,30 @@ Captions carrying an emoji keep the single-PNG treatment, because
 `add_caption_emoji` re-centres the whole line around the glyph, which the
 per-word layout does not model.
 
+## A caption clears during the between-sentence pause
+
+**A short caption goes up with its first word and comes down just after the
+voice stops** — `voiceover.caption_window`, `CAPTION_GRACE = 0.15`. It is no
+longer held across the scripted `gap` to the next sentence the way
+`build_narration_aligned` stretches `Caption.end` for long form. On a phone a
+held line sitting through a second of silence — worse, a karaoke word left lit
+with nothing being said — reads as a stuck caption, not as a beat. This is what
+every platform's own auto-captions do. Music laid over the render by hand fills
+that silence, so the cleared frame is not dead air.
+
+**The boundary itself is now pinned to the voice, not to the DTW estimate.**
+`_pad_pause` returns where speech actually stops and resumes around each
+internal sentence break; `build_narration_aligned` ends the last chunk there
+and starts the next one there. Kokoro's own between-sentence pause is often
+already longer than the scripted gap, and DTW smears that silence across the
+boundary — which used to start the next caption (and its karaoke highlight)
+half a second early, right after a break. This was the drone Berlin stack's
+"karaoke doesn't match after the short break". The fix is in the shared
+builder, so it covers the crypto and tinnitus shorts too. It also tightens
+long form, where the next sentence's caption no longer appears during the
+outgoing one's trailing silence — display stays continuous there because long
+form does not use `caption_window`.
+
 ## A short's `Shot` list has no `None` holds — that is longform-only
 
 The long-form `lay_out` treats `None` in the shots list as "keep the previous

@@ -17,7 +17,8 @@ from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
 from ..core.vertical import (add_caption_emoji, render_caption_karaoke,
                              render_text_png)
-from ..core.voiceover import CAPTION_MAX_W, build_narration_aligned, profile_args
+from ..core.voiceover import (CAPTION_MAX_W, build_narration_aligned,
+                              caption_window, profile_args)
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, logo_mark,
                     plan_shots, render_shots, roam_anchors)
@@ -315,7 +316,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                                    frame, brand, emoji)
     else:
         sprites = [s for s in
-                   (caption_sprite(p, c.start, c.end)
+                   (caption_sprite(p, *caption_window(c))
                     for p, c in zip(pngs, captions) if p is not None)
                    if s is not None]
 
@@ -458,17 +459,21 @@ def _karaoke_sprites(pngs, captions, workdir: Path, font_size: int,
         # captions. `speech_end` is set once, before the stretch, and is
         # never touched again.
         speech = c.speech_end
+        # Show the line while it is spoken and clear it through the
+        # between-sentence gap, rather than holding it across the scripted
+        # pause — see `caption_window`. Inside a sentence this is a no-op.
+        cs, ce = caption_window(c)
         words = c.text.split()
         # An emoji caption keeps the single-PNG treatment: `add_caption_emoji`
         # re-centres the whole line around the glyph, which the per-word
         # layout here does not model, and a mismatch would shunt the type
         # sideways the moment the highlight moved.
         if len(words) < 2 or (emoji and c.text in emoji):
-            s = caption_sprite(p, c.start, c.end)
+            s = caption_sprite(p, cs, ce)
             if s is not None:
                 sprites.append(s)
             continue
-        spans = _word_spans(c.text, c.start, c.end, speech)
+        spans = _word_spans(c.text, cs, ce, speech)
         for k, (a, b) in enumerate(spans):
             wp = workdir / f"kar{i:03d}_{k:02d}.png"
             render_caption_karaoke(
