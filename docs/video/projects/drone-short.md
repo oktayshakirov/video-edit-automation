@@ -260,9 +260,15 @@ as one PNG — `render_caption_karaoke` models none of those, and forcing them
 through it would move the type. So the two emphasis tools compose: the quote
 lines karaoke, the one turn word stays big and white.
 
-Only `render_narrated_stack` has this so far. `render_narrated` and
+Only `render_narrated_stack` karaokes so far. `render_narrated` and
 `render_narrated_cuts` still render one PNG per caption; wire the same way if a
 single-clip or sequential cut ever needs it.
+
+**All three clear the caption during the between-sentence pause** rather than
+holding it across the gap, and the caption boundary is pinned to where the
+voice actually stops and resumes — see *A caption clears during the
+between-sentence pause* in `shorts.md`. That fix is in the shared builder, so
+the crypto and tinnitus shorts got it at the same time.
 
 ## Text — two templates, pick by whether there is narration
 

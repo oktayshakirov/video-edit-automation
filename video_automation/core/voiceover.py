@@ -225,6 +225,28 @@ class Caption:
 # spelling than the screen does.
 Phrase = str | tuple[str, str]
 
+# A caption clears this long after the voice stops. `build_narration_aligned`
+# stretches `Caption.end` to the *next* caption's start so a caption never
+# blinks out mid-sentence — but between sentences that stretch spans the whole
+# scripted `gap`, leaving a line (or a lit karaoke word) held on screen through
+# silence. In a short that reads as a stuck caption, not as a beat. The display
+# window is tied to `speech_end` instead: the line goes up with the word and
+# comes down just after the voice stops, the way every platform's own
+# auto-captions behave. The grace is only enough to not strobe against the next
+# caption when the two abut.
+CAPTION_GRACE = 0.15
+
+
+def caption_window(c: "Caption") -> tuple[float, float]:
+    """`(start, end)` for *showing* a caption in a short — see `CAPTION_GRACE`.
+
+    Inside a sentence this is a no-op: consecutive chunks abut, so `speech_end`
+    already equals the stretched `end`. It only bites on a sentence's last
+    chunk, which is exactly where the between-sentence gap would otherwise keep
+    it on screen.
+    """
+    return c.start, min(c.end, c.speech_end + CAPTION_GRACE)
+
 # A voice name, a {name: weight} blend, or None for the approved default.
 VoiceSpec = "str | dict[str, float] | None"
 
@@ -484,10 +506,20 @@ def _pad_pause(audio, at: float, want: float):
     so the extra silence goes into the **middle** of what is already quiet
     rather than replacing the pause wholesale.
 
-    Returns `(audio, inserted_seconds)`. Never shortens: cutting the model's
-    own breath back to a scripted number reintroduces the abrupt edge this
-    whole path exists to remove, and the skill's own note is that a
-    well-punctuated video running long beats a monotone one on time.
+    Returns `(audio, inserted_seconds, speech_stop, speech_resume)`. The last
+    two are seconds in the *returned* audio's timeline: where the voice
+    actually stopped before this pause and where it picks up again (past any
+    inserted silence), or `None` when there is no real pause here at all — the
+    boundary estimate landed inside speech. The caller pins the caption
+    boundary to those, so a caption tracks the voice whether or not padding was
+    needed: the model's own between-sentence pause is often already longer than
+    the scripted gap, and DTW smears that silence across the boundary, which
+    used to start the next caption (and its karaoke highlight) early.
+
+    Never shortens: cutting the model's own breath back to a scripted number
+    reintroduces the abrupt edge this whole path exists to remove, and the
+    skill's own note is that a well-punctuated video running long beats a
+    monotone one on time.
     """
     import numpy as np
 
@@ -495,7 +527,7 @@ def _pad_pause(audio, at: float, want: float):
     c = int(at * KOKORO_SR)
     lo, hi = max(0, c - win), min(len(audio), c + win)
     if hi <= lo:
-        return audio, 0.0
+        return audio, 0.0, None, None
 
     step = int(0.010 * KOKORO_SR) or 1
 
@@ -527,7 +559,7 @@ def _pad_pause(audio, at: float, want: float):
     if not runs:
         # No real pause here — the boundary estimate is inside speech, and
         # padding it would be the very fault above. Leave it alone.
-        return audio, 0.0
+        return audio, 0.0, None, None
     a, b = max(runs, key=lambda ab: ab[1] - ab[0])
 
     # The run is clipped by the search window, so grow it outward before
@@ -540,11 +572,17 @@ def _pad_pause(audio, at: float, want: float):
 
     have = (b - a) / KOKORO_SR
     extra = want - have
+    stop = a / KOKORO_SR
     if extra <= 0.01:
-        return audio, 0.0
+        # The model's own pause already covers the scripted gap. Nothing to
+        # insert, but still report where speech stops and resumes so the
+        # caption boundary lands on the voice rather than mid-silence.
+        return audio, 0.0, stop, b / KOKORO_SR
     split = (a + b) // 2
-    pad = np.zeros(int(extra * KOKORO_SR), dtype=audio.dtype)
-    return np.concatenate([audio[:split], pad, audio[split:]]), extra
+    ins = int(extra * KOKORO_SR)
+    pad = np.zeros(ins, dtype=audio.dtype)
+    out = np.concatenate([audio[:split], pad, audio[split:]])
+    return out, extra, stop, (b + ins) / KOKORO_SR
 
 
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
@@ -627,18 +665,31 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
         for n in counts:
             k += n
             bounds.append(k)
-        # How much silence was opened *after* each chunk, so the next caption
-        # can start on the far side of it rather than at its beginning.
-        pad_after: dict[int, float] = {}
+        # For each internal sentence boundary: pin the last chunk's end to
+        # where the voice actually stops (`stop_at`) and the next chunk's start
+        # to where it actually resumes (`resume`), past the model's own pause
+        # and anything `_pad_pause` inserts into it. DTW smears the silence
+        # across the boundary, so without this the next caption — and its
+        # karaoke highlight — comes up while the pause is still playing.
+        # Backwards, so earlier indices stay valid as the array grows.
+        stop_at: dict[int, float] = {}
+        resume: dict[int, float] = {}
         for j in range(len(run) - 2, -1, -1):
-            want = gaps[run[j]]
-            audio, added = _pad_pause(audio, ends[bounds[j]], want)
+            bi = bounds[j]
+            audio, added, stop, res = _pad_pause(audio, ends[bi], gaps[run[j]])
             if added:
-                for m in range(bounds[j] + 1, len(ends)):
+                for m in range(bi + 1, len(ends)):
                     ends[m] += added
-                # The boundary itself keeps its time — the speech really did
-                # stop there — and the pause opens after it.
-                pad_after[bounds[j]] = pad_after.get(bounds[j], 0.0) + added
+                # Shift the boundaries already recorded downstream of this one
+                # (we walk backwards, so those are later in the run) — their
+                # timestamps are absolute and this insert sits in front of them.
+                for key in stop_at:
+                    if key > bi:
+                        stop_at[key] += added
+                        resume[key] += added
+            if stop is not None:
+                stop_at[bi] = stop
+                resume[bi] = res
 
         raw = workdir / f"run{ri:02d}.raw.wav"
         wav = workdir / f"run{ri:02d}.wav"
@@ -665,17 +716,16 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
         ci = 0
         for pairs in pairs_in:
             for caption, _ in pairs:
-                end = ends[ci]
-                # **Start after any pause inserted behind us, not inside it.**
-                # `prev` is the previous chunk's end, which is where the voice
-                # stopped; the padded silence sits between that and this
-                # chunk's first word. Starting at `prev` put the next
-                # sentence's caption on screen during the pause — measured at
-                # ~0.4s early on a 0.55s gap, and it would scale with the gap.
-                start = prev + pad_after.get(ci - 1, 0.0)
+                # A sentence's last chunk ends where the voice stops, not where
+                # DTW put the boundary (mid-pause); the chunk after it starts
+                # where the voice resumes. Everything inside a sentence is
+                # untouched — chunks there abut and `resume`/`stop_at` are
+                # empty for them.
+                end = stop_at.get(ci, ends[ci])
+                start = resume.get(ci - 1, prev)
                 captions.append(Caption(caption, t + start * scale,
                                         t + end * scale))
-                prev = end
+                prev = ends[ci]
                 ci += 1
 
         pieces.append(wav)
@@ -774,8 +824,9 @@ def render_narrated(src: Path, out: Path, start: float,
     chain = [f"[0:v]crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos[v0]"]
     for n, (_, c) in enumerate(shown):
         src_lbl, dst_lbl = f"[v{n}]", f"[v{n+1}]"
+        cs, ce = caption_window(c)
         chain.append(
-            f"{src_lbl}[{n+1}:v]overlay=0:0:enable='between(t,{c.start:.3f},{c.end:.3f})'{dst_lbl}"
+            f"{src_lbl}[{n+1}:v]overlay=0:0:enable='between(t,{cs:.3f},{ce:.3f})'{dst_lbl}"
         )
     # No fade to black — see `render_short`. Shorts loop, and the fade spent
     # the last half-second announcing the end instead of holding the picture.
@@ -884,8 +935,9 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
     prev = "[base]"
     for n, (_, c) in enumerate(shown):
         dst = f"[v{n+1}]"
+        cs, ce = caption_window(c)
         chain.append(f"{prev}[{len(clips)+n}:v]overlay=0:0:"
-                     f"enable='between(t,{c.start:.3f},{c.end:.3f})'{dst}")
+                     f"enable='between(t,{cs:.3f},{ce:.3f})'{dst}")
         prev = dst
     chain.append(f"{prev}null[vout]")      # no fade to black — see `render_short`
 
@@ -1005,6 +1057,8 @@ def render_narrated_stack(top: tuple,
         word_ink = ink(c.text) if callable(ink) else ink
         char = emoji(c.text) if emoji else None
         words = c.text.split()
+        # Show it while it is spoken, clear it through the between-sentence gap.
+        cs, ce = caption_window(c)
 
         # Karaoke handles a plain multi-word line. A set-piece word (its own
         # size), a colour-inked word or an emoji caption keep the single PNG —
@@ -1013,7 +1067,7 @@ def render_narrated_stack(top: tuple,
                 and size == FONT_QUOTE_SIZE):
             acc = accent_for(c.text)
             for k, (a, b) in enumerate(
-                    word_spans(c.text, c.start, c.end, c.speech_end)):
+                    word_spans(c.text, cs, ce, c.speech_end)):
                 p = workdir / f"cap{i:02d}_{k:02d}.png"
                 render_caption_karaoke(c.text, p, active=k, size=size,
                                        font_path=face, font_index=idx,
@@ -1028,7 +1082,7 @@ def render_narrated_stack(top: tuple,
                         max_w=max_w, ink=word_ink)
         if char:
             add_caption_emoji(p, c.text, char, size, y_frac, face, idx)
-        layers.append((p, c.start, c.end))
+        layers.append((p, cs, ce))
 
     xa, ya, wa, ha = box_a
     xb, yb, wb, hb = box_b
