@@ -49,9 +49,10 @@ from . import sfx as sfx_lib
 from .vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
                        FONT_QUOTE, FONT_QUOTE_INDEX, FONT_QUOTE_SIZE,
                        OUT_H, OUT_W,
-                       add_caption_emoji,
+                       add_caption_emoji, dominant_accent,
+                       render_caption_karaoke,
                        render_short, render_text_png, sample_bg_luma,
-                       stack_tile_size)
+                       stack_tile_size, word_spans)
 
 TTS_BACKEND = "kokoro"                      # "kokoro" | "edge" | "say"
 
@@ -912,6 +913,8 @@ def render_narrated_stack(top: tuple,
                           sfx: "Callable[[str], str | None] | None" = None,
                           sfx_gain: float = 0.22,
                           fps: int = 30,
+                          karaoke: bool = True,
+                          accent: "tuple | Callable[[str], tuple | None] | str | None" = "auto",
                           gap: "float | list[float]" = GAP, tail: float = TAIL,
                           ) -> tuple[Path, float]:
     """Two clips stacked into one frame, quote read on the band between them.
@@ -945,6 +948,17 @@ def render_narrated_stack(top: tuple,
     footage is stretched by, so a clip shorter than the narration can still
     fill it. The engine maps with `-shortest`, so without this a short clip
     truncates the video silently rather than failing.
+
+    `karaoke` is on by default — the same per-word highlight the crypto and
+    tinnitus shorts use: the whole phrase holds on the band and the word being
+    spoken is lit and lifted a touch. `accent` is the highlight colour and
+    defaults to `"auto"`, which samples both clips and pulls the hue the
+    footage actually is (a golden-hour city comes back warm orange), pushed to
+    near-full saturation so it reads on the black band. Pass an `(r,g,b,a)`
+    tuple to fix it, a `(caption)->colour|None` callable for per-line control,
+    or `karaoke=False` to go back to one still PNG per caption. A set-piece
+    word (its own `font_size`), a colour-inked word or an emoji caption always
+    keep the single PNG — the karaoke renderer models none of those.
     """
     (src_a, start_a, box_a, slow_a) = (*top, 1.0)[:4]
     (src_b, start_b, box_b, slow_b) = (*bottom, 1.0)[:4]
@@ -959,21 +973,62 @@ def render_narrated_stack(top: tuple,
             track = sfx_lib.mix(track, workdir / "narration.sfx.wav", cues,
                                 gain=sfx_gain)
 
-    shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
-    pngs = []
-    for i, c in shown:
-        p = workdir / f"cap{i:02d}.png"
+    # One dominant colour pulled from both clips, sampled across their length —
+    # the karaoke highlight is "the colour the footage is", not a fixed brand
+    # ink. Resolved once; a per-caption callable or an explicit tuple overrides.
+    auto_acc = None
+    if accent == "auto":
+        ts_a = [start_a + f * (total / slow_a) for f in (0.2, 0.5, 0.8)]
+        ts_b = [start_b + f * (total / slow_b) for f in (0.2, 0.5, 0.8)]
+        a1 = dominant_accent(src_a, box_a, ts_a)
+        a2 = dominant_accent(src_b, box_b, ts_b)
+        auto_acc = tuple((x + y) // 2 for x, y in zip(a1, a2))
+
+    def accent_for(text: str) -> tuple:
+        if callable(accent):
+            return accent(text) or (255, 255, 255, 255)
+        if accent == "auto":
+            return auto_acc or (255, 255, 255, 255)
+        if accent is None:
+            return (255, 255, 255, 255)
+        return accent
+
+    # (png, start, end) — one per caption normally, one per *word* where the
+    # caption is karaoke'd.
+    layers: list[tuple[Path, float, float]] = []
+    for i, c in enumerate(captions):
+        if not c.text.strip():
+            continue
         size = font_size(c.text) if callable(font_size) else font_size
         face = font_path(c.text) if callable(font_path) else font_path
         idx = font_index(c.text) if callable(font_index) else font_index
         word_ink = ink(c.text) if callable(ink) else ink
+        char = emoji(c.text) if emoji else None
+        words = c.text.split()
+
+        # Karaoke handles a plain multi-word line. A set-piece word (its own
+        # size), a colour-inked word or an emoji caption keep the single PNG —
+        # `render_caption_karaoke` models none of those.
+        if (karaoke and len(words) >= 2 and not char and not word_ink
+                and size == FONT_QUOTE_SIZE):
+            acc = accent_for(c.text)
+            for k, (a, b) in enumerate(
+                    word_spans(c.text, c.start, c.end, c.speech_end)):
+                p = workdir / f"cap{i:02d}_{k:02d}.png"
+                render_caption_karaoke(c.text, p, active=k, size=size,
+                                       font_path=face, font_index=idx,
+                                       y_frac=y_frac, stroke=stroke,
+                                       max_w=max_w, accent=acc)
+                layers.append((p, a, b))
+            continue
+
+        p = workdir / f"cap{i:02d}.png"
         render_text_png(c.text, p, size=size, font_path=face,
                         font_index=idx, y_frac=y_frac, stroke=stroke,
                         max_w=max_w, ink=word_ink)
-        char = emoji(c.text) if emoji else None
         if char:
             add_caption_emoji(p, c.text, char, size, y_frac, face, idx)
-        pngs.append(p)
+        layers.append((p, c.start, c.end))
 
     xa, ya, wa, ha = box_a
     xb, yb, wb, hb = box_b
@@ -987,20 +1042,20 @@ def render_narrated_stack(top: tuple,
         f"color=c=black:s={tile_w}x{band}:r={fps}:d={total:.3f}[band]",
         "[top][band][bot]vstack=inputs=3[v0]",
     ]
-    for n, (_, c) in enumerate(shown):
+    for n, (_, s, e) in enumerate(layers):
         chain.append(f"[v{n}][{n+2}:v]overlay=0:0:"
-                     f"enable='between(t,{c.start:.3f},{c.end:.3f})'[v{n+1}]")
-    chain.append(f"[v{len(shown)}]null[vout]")   # no fade to black — see `render_short`
+                     f"enable='between(t,{s:.3f},{e:.3f})'[v{n+1}]")
+    chain.append(f"[v{len(layers)}]null[vout]")   # no fade to black — see `render_short`
 
     # Each tile is read for only as much source as its own stretch needs, so a
     # slowed clip is not asked for footage it does not have.
     cmd = ["ffmpeg", "-v", "error", "-y",
            "-ss", f"{start_a}", "-t", f"{total / slow_a:.3f}", "-i", str(src_a),
            "-ss", f"{start_b}", "-t", f"{total / slow_b:.3f}", "-i", str(src_b)]
-    for p in pngs:
+    for p, _, _ in layers:
         cmd += ["-i", str(p)]
     cmd += ["-i", str(track), "-filter_complex", ";".join(chain),
-            "-map", "[vout]", "-map", f"{len(pngs)+2}:a",
+            "-map", "[vout]", "-map", f"{len(layers)+2}:a",
             "-c:v", "libx264", "-crf", "18", "-preset", "slow",
             "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
             "-shortest", "-movflags", "+faststart", str(out)]
