@@ -116,8 +116,18 @@ class Meta:
         link is the whole game — a link below three paragraphs of boilerplate is
         a link nobody clicks, which is most of why description traffic is as bad
         as it is.
+
+        The link appears exactly once. `cta` is the descriptive phrasing for
+        that single line ("Full article, the red flags and sources: <url>"); it
+        used to be emitted a second time after the chapters, which put the same
+        URL in the description twice — YouTube shows it as a duplicate and it
+        reads as sloppy. If `cta` is given it becomes the before-the-fold link
+        line; otherwise a plain "Full article:" line is used.
         """
-        parts = [self.hook, "", f"Full article: {self.url}", ""]
+        link_line = self.cta.strip() if self.cta else f"Full article: {self.url}"
+        if self.url not in link_line:
+            link_line = f"{link_line} {self.url}".strip()
+        parts = [self.hook, "", link_line, ""]
         if self.summary:
             parts += [self.summary, ""]
         if chapters:
@@ -125,8 +135,6 @@ class Meta:
             for t, name in chapters:
                 parts.append(f"{timestamp(t)} {name}")
             parts.append("")
-        if self.cta:
-            parts += [self.cta, ""]
         if self.credits:
             parts.append("Credits")
             parts += self.credits
