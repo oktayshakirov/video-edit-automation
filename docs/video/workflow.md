@@ -37,6 +37,13 @@ written in one pass.** They are not the same video at two lengths:
   `longform.md`.
 - The **Short** does the single move the long form spends three chapters setting
   up, and opens by asking its own title question. See `shorts.md`.
+- The **long-form YouTube title must be a phrase people type into YouTube
+  search** - "how to X", "why does X", "what is X", "X vs Y" where both are
+  searched. Never the Short's curiosity hook reworded. The Short is pushed by
+  the Shorts feed and keeps its teasing title question (`shorts.md`); a
+  brand-new long-form earns almost no browse or suggested impressions and is
+  found by search or not at all, so its title has to *be* the search. Pick a
+  different query angle from the Short. See `longform.md`.
 
 Writing them together is what stops the Short from being a trailer for the long
 one. Read `narration.md` before writing a line of either, and the project doc

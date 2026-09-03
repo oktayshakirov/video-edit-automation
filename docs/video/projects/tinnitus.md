@@ -49,6 +49,19 @@ person, no burned captions, push transitions, unnumbered question cards, the
 checklist's two timing modes, scene holds, screened stock, the thumbnail layout.
 None of that is repeated here. **This file is only what differs.**
 
+## The long-form YouTube title is a search query
+
+The Short opens by asking its title question and can tease; the long-form's
+`Meta` title is what a sufferer types into search, and that is essentially the
+only distribution a new long-form gets. "How to Sleep With Tinnitus" is the one
+long-form on this channel that has beaten its own Short (95 to 36) because it
+matches a real evergreen search; the losing ones reworded the Short's hook.
+Write the title as the phrase someone searches - "why is tinnitus worse at
+night", "does tinnitus go away", "white noise vs brown noise for tinnitus" - on
+a different angle from the Short. Same medical rule as everywhere: describe what
+the video is, promise no relief, fix or cure. Full reasoning in the
+`youtube-audit` skill.
+
 Built: `projects/tinnitus-long/does-tinnitus-go-away.py` and
 `projects/tinnitus-long/gaming-and-tinnitus.py`.
 

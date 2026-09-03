@@ -80,6 +80,27 @@ why they are here:
   through the next sentence. One shot per sentence is a new scene every four
   seconds — a metronome, not a rhythm.
 
+## The YouTube title is a search query, not the Short's hook
+
+The `Meta` title (the video's YouTube title - not the chapter cards, not the
+on-screen title stamp) must be a phrase a person actually types into YouTube
+search: "How to sleep with tinnitus", "Why is tinnitus worse at night", "What
+is proof of stake", "proof of stake vs proof of work". It must **not** be the
+Short's curiosity or challenge hook reworded onto the long form.
+
+The reason is distribution, not style. YouTube runs Shorts and long-form on
+separate ranking systems and evaluates per video, so the Short is not holding
+the long-form back - but a new long-form gets almost no browse or suggested
+traffic and is found by search or not at all. The one long-form on either
+channel that has beaten its own Short ("How to Sleep With Tinnitus", 95 views
+to 36) has a title matching a real high-volume evergreen search; the ones stuck
+at 0-12 views have titles nobody searches ("Who Controls Bitcoin's Price? Not
+Who You Think", "Quantum Computers vs. Crypto: What Actually Breaks").
+
+Pick a different query angle from the Short, so the two are not competing for
+one search-results page (YouTube rarely shows two videos from one channel
+back-to-back on a single query). Full reasoning in the `youtube-audit` skill.
+
 ## The screen has to say what the voice is saying
 
 **The user's standing note, from the quantum-computers cut, where they flagged
