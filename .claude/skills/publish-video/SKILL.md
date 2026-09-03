@@ -102,7 +102,9 @@ a platform from the run.
    Short, the TikTok draft's caption and cover, and - for a Short - **the
    cover image itself**, which is a manual Studio step by design and not an
    API failure. Give the path to the vertical file rather than just naming
-   the step.
+   the step. The user may also stagger the two publishes if they want - long
+   form first, the Short a day or two later - but that is their call and
+   changes nothing this skill does; do not add a pause for it.
 
 ## Gates
 
@@ -121,6 +123,16 @@ The whole sequence runs on one "upload". These do not:
   confirmation carries the exact wording and happens in this chat; it is not a
   licence to break the run into phases. The user's instruction: "do all in one
   phase always."
+
+  **Resuming after an interruption - do not re-confirm. Settled 2026-09-02.**
+  If the run was already approved with a "go" this session and then broke
+  part-way (a killed background task, an authorization-classifier denial on a
+  curl to the tunnel URL, a process teardown), reconcile what actually landed -
+  n8n executions (`?limit`, then `?status=running`), `git log` in the site repo,
+  the YouTube channel, the `.secrets/tiktok-tokens.json` mtime - and finish the
+  remaining steps without asking again. The captions were already shown and
+  approved; the wording does not change on a resume. The user: "always run all
+  steps in one go, no need to ask me."
 - **The `--apply` dry run is never skipped** on a YouTube upload. Show the plan.
 - **A first post to a brand's Instagram or Facebook page is public the moment it
   succeeds** and cannot be made unlisted. There is no dry run for a Reel. Confirm

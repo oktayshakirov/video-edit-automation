@@ -224,6 +224,19 @@ a `(caption, spoken)` pair so the caption still reads correctly.
 nine"), names are fine (`satoshi nakamoto`), but `ecdsa` comes out `ˈɛkdsə` —
 spell out or avoid any initialism.
 
+## The long-form YouTube title is a search query
+
+The Short's title is a curiosity hook; the long-form's `Meta` title is what
+someone types into YouTube search, and rewording the Short is why crypto
+long-forms sit at 0-12 views - "Who Controls Bitcoin's Price? Not Who You
+Think", "Quantum Computers vs. Crypto: What Actually Breaks" are phrases nobody
+searches. Write it as a real query on a different angle from the Short: "how do
+crypto exchanges work", "what is a validator", "proof of stake vs proof of
+work". Shorts and long-form rank on separate systems and are judged per video,
+so the Short is not the problem - the non-searchable title is. Still no
+financial advice in the title: a mechanism question, never a price or a
+direction. Full reasoning in the `youtube-audit` skill.
+
 ## Decisions already taken
 
 **Render headless with ffmpeg, not FCPXML.** Drone long-form writes XML to finish
