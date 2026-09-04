@@ -254,6 +254,21 @@ None of these marks are ever spoken aloud — they stay punctuation in the
 phonemes. ALL CAPS and bracketed emotion tags were not tested; keep avoiding
 them.
 
+**ALL CAPS is now tested, on a two-letter word, and it fails.** A `chapter`
+beat's on-screen card is naturally capitals, and when the same string is also
+the spoken half of its sentence, a bare capitalised `IT` phonemizes as the
+initialism: `espeak-ng -v en-us -q --ipa "keeps IT honest"` returns
+`kˈiːps ˌaɪtˈiː ˈɑːnɪst` — "keeps I.T. honest" — where the lower-case version
+returns the correct `ɪɾ`. This shipped audibly on the `perpetual-futures`
+short at 0:34 and the user caught it by ear. **A chapter card's `payload` (the
+on-screen text) and its narration sentence are two different strings, not
+one** — write the sentence chunk as a `(caption, spoken)` pair, caps on
+screen, a normal sentence spoken: `(("NO EXPIRY. JUST A FEE THAT KEEPS IT
+HONEST.", "No expiry. Just a fee that keeps it honest."),)`. Check every
+short all-caps word this way, not just two-letter ones — `IT`, `OR`, `AM` and
+`ARE` are all real words with real capitalised siblings that mean something
+else to espeak.
+
 ## Caption sync
 
 **Use `sentences=`, not `phrases=`, for narrated quotes.** This reversed an
