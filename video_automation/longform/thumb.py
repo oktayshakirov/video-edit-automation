@@ -113,6 +113,24 @@ def face_boxes(bgr: np.ndarray) -> list[tuple[int, int, int, int]]:
     return out
 
 
+def _scale(src, nw: int, nh: int):
+    """Resize a BGR frame to ``(nw, nh)`` with a filter that suits the ratio.
+
+    **`cv2.INTER_LANCZOS4` does not prefilter when shrinking**, so a heavy
+    downscale of a slightly noisy night photo aliases into what reads as film
+    grain - which is why the landscape thumbnail came back visibly noisier
+    than the Short's built from the *same* source (`render_short_thumb`
+    resamples through PIL, which always antialiases on reduce). `INTER_AREA`
+    is the correct decimation filter; LANCZOS4 stays only where the target is
+    not smaller than the source.
+    """
+    sh, sw = src.shape[:2]
+    down = nw * nh < sw * sh
+    return cv2.resize(
+        src, (nw, nh),
+        interpolation=cv2.INTER_AREA if down else cv2.INTER_LANCZOS4)
+
+
 def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
             want_side: str | None = None
             ) -> tuple[Image.Image, str, str, float, bool]:
@@ -200,7 +218,7 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
                         best = cand
 
     score, zoom, sc, nw, nh, x0, y0, side, vband = best
-    big = cv2.resize(src, (nw, nh), interpolation=cv2.INTER_LANCZOS4)
+    big = _scale(src, nw, nh)
     crop = big[y0:y0 + H, x0:x0 + W]
     img = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
     # 0.20 of peak edge energy is about the level of a plain wall with soft
@@ -453,7 +471,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
         sh, sw = src.shape[:2]
         s = max(W / sw, H / sh) * crop_zoom
         nw, nh = int(np.ceil(sw * s)), int(np.ceil(sh * s))
-        big = cv2.resize(src, (nw, nh), interpolation=cv2.INTER_LANCZOS4)
+        big = _scale(src, nw, nh)
         ax, ay = crop_at
         if nw >= W and nh >= H:
             x0 = int(np.clip((nw - W) * ax, 0, max(nw - W, 0)))

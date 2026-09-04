@@ -369,3 +369,24 @@ draws across the bottom of a Short's grid tile, and the user was opening the
 artwork and lifting it by hand before every upload. **It is composed against a
 platform overlay that is not in the file**, so a bottom-banded thumbnail that
 looks marginally high in isolation is correct. `band="top"` is unchanged.
+
+## The landscape thumbnail must resample with `INTER_AREA`, not `INTER_LANCZOS4`
+
+**The caffeine pair shipped with a visibly grainy face on the 16:9 thumbnail
+and a clean one on the 9:16 - from the same 7952px source photo.** The user's
+note: "the person in the short thumbnail is very good quality but in the long
+is noisy". It is not the source, the crop or the JPEG quality (both save at
+92).
+
+`render_short_thumb` resamples through PIL (`Image.LANCZOS`), which **always
+prefilters on reduce**. `_layout` and `render_thumb`'s `crop_at` path used
+`cv2.resize(..., INTER_LANCZOS4)`, and **OpenCV's interpolation filters do not
+prefilter when shrinking** - a fixed 8x8 kernel sampling a 6x downscale of a
+slightly noisy night photo aliases high-frequency grain straight into the
+output. `cv2.INTER_AREA` is the correct decimation filter (it area-averages).
+
+`thumb._scale(src, nw, nh)` now picks `INTER_AREA` when the target is smaller
+than the source and `INTER_LANCZOS4` otherwise, and both downscale sites call
+it. This is brand-agnostic - it fixes the crypto thumbnails too. **Never
+resample a shrink with `INTER_CUBIC`/`INTER_LINEAR`/`INTER_LANCZOS4` in this
+repo; they all skip the prefilter.**
