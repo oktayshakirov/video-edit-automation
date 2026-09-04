@@ -1,10 +1,10 @@
 # Handoff → /publish-video
 
-**Built:** `caffeine-and-tinnitus` — a tinnitushelp.me article explainer pair (long 16:9 + vertical Short).
-**Source article:** `caffeine-and-tinnitus`
-`https://tinnitushelp.me/blog/caffeine-and-tinnitus`
+**Built:** `perpetual-futures` — a thecrypto.wiki article explainer pair (long 16:9 + vertical Short).
+**Source article:** `what-are-perpetual-futures`
+`https://thecrypto.wiki/posts/what-are-perpetual-futures`
 **Date:** 2026-09-04
-**Voice:** `mia` (`af_heart`, ENERGETIC chain, 1.10) — the explainer default. Still `candidate`.
+**Voice:** `mia` (`af_heart`) — the crypto explainer default. Still `candidate`.
 
 ---
 
@@ -13,35 +13,44 @@
 ### Long form (YouTube)
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long.mp4` |
-| captions (SRT) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long.srt` |
-| metadata sidecar | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long.md` |
-| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long-thumb.jpg` |
+| video | `/Users/oktayshakirov/Desktop/perpetual-futures-long.mp4` |
+| captions (SRT) | `/Users/oktayshakirov/Desktop/perpetual-futures-long.srt` |
+| metadata sidecar | `/Users/oktayshakirov/Desktop/perpetual-futures-long.md` |
+| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/perpetual-futures-long-thumb.jpg` |
 
-Runtime **3:37** (217.86s). 9 chapters (in the sidecar). Title: **Does Caffeine Make Tinnitus Worse?**
-The sidecar carries the full description, chapters, tags and the medical disclaimer — use it, do not re-derive.
+Runtime **3:22** (202.96s). 6 chapters (in the sidecar). Title: **What Are Perpetual Futures?**
+The sidecar carries the full description, chapters, tags and the financial-advice disclaimer — use it, do not re-derive.
 
-> **Note on the long thumbnail:** the `.mp4`/`.srt`/`.md` are from the approved render; the
-> `-thumb.jpg` was regenerated afterwards against the `INTER_AREA` fix (below), so it is a
-> few KB smaller and visibly less grainy than what that render first emitted. Content is
-> identical. A fresh `render_long` would reproduce exactly this thumbnail.
+> **Note on the long thumbnail:** the `.mp4`/`.srt`/`.md` are from the approved render, unchanged.
+> The `-thumb.jpg` was regenerated standalone afterwards (review caught "EXPIRES" clipping off
+> the right edge on the first headline, and asked for simpler text) — same source photo, new
+> headline "What Are Perpetual [Futures]?". The video itself was never re-rendered. A fresh
+> `render_long` from the committed script would reproduce today's thumbnail exactly.
 
 ### Short (YouTube Shorts / Instagram Reel / Facebook Reel / TikTok)
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-short.mp4` |
-| thumbnail (9:16 Reel cover) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-short-thumb.jpg` |
-| thumbnail (16:9 YouTube) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-short-thumb-yt.jpg` |
+| video | `/Users/oktayshakirov/Desktop/perpetual-futures-short.mp4` |
+| thumbnail (9:16 Reel cover) | `/Users/oktayshakirov/Desktop/perpetual-futures-short-thumb.jpg` |
 
-Runtime **56.1s**. No SRT (Shorts don't get one). No metadata sidecar — `/publish-video` writes the short captions.
+Runtime **47.5s**. No SRT (Shorts don't get one). No metadata sidecar — `/publish-video` writes the short captions.
 
-**What the Short covers, for the captions:** does caffeine make tinnitus worse — for most people it does not universally, and quitting suddenly can be the bigger mistake; abrupt withdrawal brings headaches, poor sleep and irritability, all of which push tinnitus up, so cold turkey *looks* like proof caffeine was the culprit; what actually stacks a spike (a cup too late, the bad night after, a stressful week, energy drinks on top); how to test it — log drinks/sleep/ringing, move the last cup earlier before cutting, only then taper slowly, judge after two weeks; usually it is the timing, not the caffeine; **exception**: if tinnitus is new, one-sided, or pulses with the heartbeat, see a doctor first.
-Distribution: **full table** (YouTube Short + IG Reel + FB Reel + TikTok).
+**What the Short covers, for the captions:** why a contract with no expiration date doesn't just
+drift away from the real price — a perpetual future lets you trade something like Bitcoin with
+leverage and never expires; an ordinary futures contract settles on a date and that date is what
+pulls its price back to reality, this one has none; so a fee does that job instead, paid directly
+between traders every few hours — above the real price, longs pay shorts, below it, shorts pay
+longs; it's a small fee, not the exchange getting rich, just two traders settling up automatically;
+closes on "so what's actually keeping a price like that honest?". **No financial-advice line** —
+per the user's standing rule (2026-09-04), Shorts on this channel never carry the compliance line,
+only the paired long form does; do not add one during captioning.
+Distribution: **full table** (YouTube Short + IG Reel + FB Reel + TikTok) — per the standing note
+that crypto Short distribution is contested/full-table now, not YouTube-only.
 
 ---
 
 ## Site registry
-`videos.json` entry points at the source post slug `caffeine-and-tinnitus`.
+`videos.json` (crypto-wiki repo) entry should point at the source post slug `what-are-perpetual-futures`.
 
 ## Meta / Facebook token
 Per the standing note, the n8n Facebook Graph credential expires ~every 60 days and blocks the IG Reel + FB Reel + FB long video steps. If those fail, the user re-auths in n8n and the run resumes.
@@ -50,14 +59,24 @@ Per the standing note, the n8n Facebook Graph credential expires ~every 60 days 
 
 ## Undecided / worth a look before or during publish
 
-- **Short runtime 56s** — a little over the 40–50s target for the format. It reads fine; the extra came from adding a proper hinge sentence before the `grid` list (a review fix). Not worth a re-cut, but noted.
-- **Short's final shot** — the 9:16 crop of the kitchen-silhouette clip (`man-drinking-from-mug`, `clip_at=10`) sits mostly on the man's dark back under "get that checked by a doctor first". Murky but brief; acceptable.
-- **Thumbnail** — shared source `man-coffee-mug-dark-serious/32536421.jpg` (Pexels), subject right, type left, orange accent, question mark inside the plate. `render_thumb`'s scorer still prints a marginal-composition warning (score 0.04); it reads fine at feed size.
-- **`mia` voice** — still `candidate`, but every shipped tinnitus explainer pair uses it and the user approved this pair.
+- **Exchange logos in the long form** (`logos` beat: Binance, Bybit, Kraken, Hyperliquid, grouped
+  centralized vs. decentralized) — no per-tile verdict marks, since this isn't a judgement, just
+  where the contract trades. Confirmed rendering correctly on a pulled frame.
+- **`bars` beat** (leverage vs. how far the price can move against you) is pure arithmetic, no
+  price level or recommendation — confirmed on review, nothing to flag.
+- **Assets are entirely fresh** for this post — nothing shared with any other crypto video, so no
+  cross-video reuse to reconcile in the manifest beyond what's already committed.
+- **`mia` voice** — still `candidate`, but every shipped crypto explainer pair uses it and the user
+  approved this pair without comment on the voice.
 
 ## Repo state
-All code + docs committed and pushed to `main`:
-- `thumb: resample thumbnail downscales with INTER_AREA, not INTER_LANCZOS4` — general fix (crypto + tinnitus), so the 16:9 thumbnail stops coming back grainier than the 9:16 from the same source.
-- `tinnitus: caffeine-and-tinnitus long + short pair` (this handoff's commit) — also adds the "a drawn beat in a short needs a hinge sentence in front of it" rule to `shorts.md` and the fetched stock to `assets/stock/manifest.json`.
+All code + docs committed on `main` (commit `acca8eb`):
+- `projects/crypto-long/perpetual-futures.py`, `projects/crypto-short/perpetual-futures.py`
+- `docs/video/narration.md` — new rule: Shorts on this channel never carry the financial-advice
+  compliance line, only the paired long form does.
+- `docs/video/voice.md` — new finding: a `chapter` beat's on-screen card and its spoken sentence
+  must be split into a `(caption, spoken)` pair when the card is ALL CAPS; a bare capitalised `IT`
+  phonemizes as the initialism "I.T." (caught by the user on the first cut, at 0:34, fixed and
+  re-rendered before this handoff).
 
 Working tree clean. Open a fresh session and run `/publish-video`.
