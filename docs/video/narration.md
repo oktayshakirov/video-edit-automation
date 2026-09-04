@@ -208,6 +208,14 @@ this video is financial advice." — which stands on its own with no "sources
 below" tail. The description carries the link and the CTA; the narration does
 not.
 
+**The compliance line is long-form only. A Short never carries it.** The
+user's note on the `perpetual-futures` short: shorts on this channel drop the
+disclaimer sentence entirely and close on the question alone - a Short has no
+room to earn the line's own weight, and the long form it is paired with
+already carries it, so the pair as a whole is never missing it. Do not mirror
+the long form's disclaimer into a Short "for consistency"; the two formats
+are deliberately asymmetric here.
+
 **When that compliance line is spoken, put the disclaimer on screen too.** The
 shot under it carries a payload statement — `Shot(clip=..., payload=("", "This
 is not financial advice."))` — so it is seen as well as heard, every time. Run
