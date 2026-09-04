@@ -435,3 +435,26 @@ vertical lays it over moving footage and keeps both.
 unchanged, so nothing shipped moves. It exists for per-word karaoke captions,
 where the shared 0.13s entrance would re-fire on every syllable and
 cross-dissolve the phrase against a near-identical copy of itself.
+
+## A drawn beat in a short needs a hinge sentence in front of it, exactly like the long form
+
+**The caffeine short listed its `grid` cards with no lead-in and the user's
+note was that it "starts listing the 4 bullet points without good transition
+... Make sure we have good flow always before listing those things like we do
+in the long."** The long form's "say the point, then show the graphic" rule
+(`longform.md`) applies here in full - a short is not exempt because it is
+short.
+
+**The hinge cannot ride inside the beat's own sentence.** `crypto/build.py`
+fills `reveals` from the *first N* caption starts of the beat sentence
+(`n = len(payload[0])`), so a hinge chunk prepended to a 4-item `grid`
+sentence takes reveal 0 and shunts every card one caption late - the same
+"eats reveal zero" failure `checklist` has. So the hinge gets **its own
+sentence and its own `Shot`**, sitting immediately before the beat:
+"And caffeine is rarely the only thing pushing it. It stacks with everything
+else." then the grid.
+
+A trailing *reaction* chunk is still fine (it claims no reveal slot); only a
+leading hinge is the problem. When the sentence before the beat already does
+the setup work ("If you want to test it, do this." before a `steps`), no
+extra sentence is needed - check whether the flow is there before adding one.

@@ -1,10 +1,10 @@
 # Handoff → /publish-video
 
-**Built:** `pulsatile-tinnitus` — a tinnitushelp.me article explainer pair (long 16:9 + vertical Short).
-**Source article:** `pulsatile-tinnitus-why-you-hear-your-heartbeat`
-`https://tinnitushelp.me/blog/pulsatile-tinnitus-why-you-hear-your-heartbeat`
-**Date:** 2026-09-02
-**Voice:** `otis` (bare `am_puck`, ENERGETIC chain, speed 1.00) — the male article reader added this session. First shipped use of the profile. Still `candidate`.
+**Built:** `caffeine-and-tinnitus` — a tinnitushelp.me article explainer pair (long 16:9 + vertical Short).
+**Source article:** `caffeine-and-tinnitus`
+`https://tinnitushelp.me/blog/caffeine-and-tinnitus`
+**Date:** 2026-09-04
+**Voice:** `mia` (`af_heart`, ENERGETIC chain, 1.10) — the explainer default. Still `candidate`.
 
 ---
 
@@ -13,45 +13,51 @@
 ### Long form (YouTube)
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-long.mp4` |
-| captions (SRT) | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-long.srt` |
-| metadata sidecar | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-long.md` |
-| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-long-thumb.jpg` |
+| video | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long.mp4` |
+| captions (SRT) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long.srt` |
+| metadata sidecar | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long.md` |
+| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-long-thumb.jpg` |
 
-Runtime **2:56** (176.06s). 7 chapters (in the sidecar). Title: **Why Can You Hear Your Heartbeat in Your Ear?**
+Runtime **3:37** (217.86s). 9 chapters (in the sidecar). Title: **Does Caffeine Make Tinnitus Worse?**
 The sidecar carries the full description, chapters, tags and the medical disclaimer — use it, do not re-derive.
+
+> **Note on the long thumbnail:** the `.mp4`/`.srt`/`.md` are from the approved render; the
+> `-thumb.jpg` was regenerated afterwards against the `INTER_AREA` fix (below), so it is a
+> few KB smaller and visibly less grainy than what that render first emitted. Content is
+> identical. A fresh `render_long` would reproduce exactly this thumbnail.
 
 ### Short (YouTube Shorts / Instagram Reel / Facebook Reel / TikTok)
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-short.mp4` |
-| thumbnail (9:16 Reel cover) | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-short-thumb.jpg` |
-| thumbnail (16:9 YouTube) | `/Users/oktayshakirov/Desktop/pulsatile-tinnitus-short-thumb-yt.jpg` |
+| video | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-short.mp4` |
+| thumbnail (9:16 Reel cover) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-short-thumb.jpg` |
+| thumbnail (16:9 YouTube) | `/Users/oktayshakirov/Desktop/caffeine-and-tinnitus-short-thumb-yt.jpg` |
 
-Runtime **49.1s**. No SRT (Shorts don't get one). No metadata sidecar — `/publish-video` writes the short captions.
+Runtime **56.1s**. No SRT (Shorts don't get one). No metadata sidecar — `/publish-video` writes the short captions.
 
-**What the Short covers, for the captions:** why you hear your own heartbeat in your ear = pulsatile tinnitus; it's turbulent blood flow near the ear amplified into a whoosh; common causes (narrowed vessels, pressure around the brain, middle-ear fluid, anemia/thyroid); unlike ordinary ringing this kind often has a cause a doctor can find and sometimes treat; get it checked — especially if sudden, one-sided, or with headaches/vision changes; while you wait: soft sound at night, raise the head of the bed, track what changes it.
-Distribution: full table (YouTube Short + IG Reel + FB Reel + TikTok).
+**What the Short covers, for the captions:** does caffeine make tinnitus worse — for most people it does not universally, and quitting suddenly can be the bigger mistake; abrupt withdrawal brings headaches, poor sleep and irritability, all of which push tinnitus up, so cold turkey *looks* like proof caffeine was the culprit; what actually stacks a spike (a cup too late, the bad night after, a stressful week, energy drinks on top); how to test it — log drinks/sleep/ringing, move the last cup earlier before cutting, only then taper slowly, judge after two weeks; usually it is the timing, not the caffeine; **exception**: if tinnitus is new, one-sided, or pulses with the heartbeat, see a doctor first.
+Distribution: **full table** (YouTube Short + IG Reel + FB Reel + TikTok).
 
 ---
 
-## Crypto Short distribution note
-Not relevant here (this is tinnitus), but per the standing rule the tinnitus Short goes to the full table above.
-
 ## Site registry
-`videos.json` entry points at the source post slug `pulsatile-tinnitus-why-you-hear-your-heartbeat`.
+`videos.json` entry points at the source post slug `caffeine-and-tinnitus`.
+
+## Meta / Facebook token
+Per the standing note, the n8n Facebook Graph credential expires ~every 60 days and blocks the IG Reel + FB Reel + FB long video steps. If those fail, the user re-auths in n8n and the run resumes.
 
 ---
 
 ## Undecided / worth a look before or during publish
 
-- **`otis` voice** — this is the first video rendered on it. The user said the pair is ready to publish, so treat as approved, but it has not been A/B'd against `mia` on a full render.
-- **Short thumbnail** — the source photo (`woman-holding-hands-on-her-chest`, Pexels 13419231) has the subject looking down, so her face is cropped at the top edge in both the 9:16 and 16:9 covers. The hands-on-chest gesture is the subject and it reads. A different source would be needed for a full face.
-- **Long thumbnail** — same photo, straight cover crop, type on the left.
+- **Short runtime 56s** — a little over the 40–50s target for the format. It reads fine; the extra came from adding a proper hinge sentence before the `grid` list (a review fix). Not worth a re-cut, but noted.
+- **Short's final shot** — the 9:16 crop of the kitchen-silhouette clip (`man-drinking-from-mug`, `clip_at=10`) sits mostly on the man's dark back under "get that checked by a doctor first". Murky but brief; acceptable.
+- **Thumbnail** — shared source `man-coffee-mug-dark-serious/32536421.jpg` (Pexels), subject right, type left, orange accent, question mark inside the plate. `render_thumb`'s scorer still prints a marginal-composition warning (score 0.04); it reads fine at feed size.
+- **`mia` voice** — still `candidate`, but every shipped tinnitus explainer pair uses it and the user approved this pair.
 
 ## Repo state
 All code + docs committed and pushed to `main`:
-- `voices: add otis (am_puck) as the male article reader, arlo (am_liam) as alternate` (9224e01)
-- `tinnitus: pulsatile-tinnitus long + short pair` (this handoff's commit)
+- `thumb: resample thumbnail downscales with INTER_AREA, not INTER_LANCZOS4` — general fix (crypto + tinnitus), so the 16:9 thumbnail stops coming back grainier than the 9:16 from the same source.
+- `tinnitus: caffeine-and-tinnitus long + short pair` (this handoff's commit) — also adds the "a drawn beat in a short needs a hinge sentence in front of it" rule to `shorts.md` and the fetched stock to `assets/stock/manifest.json`.
 
 Working tree clean. Open a fresh session and run `/publish-video`.
