@@ -1,82 +1,83 @@
 # Handoff → /publish-video
 
-**Built:** `perpetual-futures` — a thecrypto.wiki article explainer pair (long 16:9 + vertical Short).
-**Source article:** `what-are-perpetual-futures`
-`https://thecrypto.wiki/posts/what-are-perpetual-futures`
-**Date:** 2026-09-04
-**Voice:** `mia` (`af_heart`) — the crypto explainer default. Still `candidate`.
+**Built:** `478-breathing-white-noise-20min` — a tinnitushelp.me sound-therapy session (Mode 2, not an article pair).
+**Source article:** none — off-site topic, `SOURCE_POST = None`. No Short; a session is its own single long-form video.
+**Date:** 2026-09-05
+**Voice:** `luna` (`af_nicole` 0.90, SOFT chain) — the session-format default. Still `candidate`.
 
 ---
 
 ## Files (all on the Desktop)
 
-### Long form (YouTube)
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/perpetual-futures-long.mp4` |
-| captions (SRT) | `/Users/oktayshakirov/Desktop/perpetual-futures-long.srt` |
-| metadata sidecar | `/Users/oktayshakirov/Desktop/perpetual-futures-long.md` |
-| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/perpetual-futures-long-thumb.jpg` |
+| video (16:9) | `/Users/oktayshakirov/Desktop/4-7-8 Breathing + White Noise for Tinnitus (20 Minutes).mp4` |
+| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/4-7-8 Breathing + White Noise for Tinnitus (20 Minutes).jpg` |
 
-Runtime **3:22** (202.96s). 6 chapters (in the sidecar). Title: **What Are Perpetual Futures?**
-The sidecar carries the full description, chapters, tags and the financial-advice disclaimer — use it, do not re-derive.
+Runtime **exactly 20:00** (1200.0s, ffprobe-checked). 1920x1080, h264/aac.
+No SRT — sessions have no dialogue track worth captioning, same as the earlier
+5-minute masking session. No `.md` metadata sidecar was generated (same
+precedent) — title/description/tags below are raw material, not pre-written copy.
 
-> **Note on the long thumbnail:** the `.mp4`/`.srt`/`.md` are from the approved render, unchanged.
-> The `-thumb.jpg` was regenerated standalone afterwards (review caught "EXPIRES" clipping off
-> the right edge on the first headline, and asked for simpler text) — same source photo, new
-> headline "What Are Perpetual [Futures]?". The video itself was never re-rendered. A fresh
-> `render_long` from the committed script would reproduce today's thumbnail exactly.
+## What this video is
 
-### Short (YouTube Shorts / Instagram Reel / Facebook Reel / TikTok)
-| what | path |
-| --- | --- |
-| video | `/Users/oktayshakirov/Desktop/perpetual-futures-short.mp4` |
-| thumbnail (9:16 Reel cover) | `/Users/oktayshakirov/Desktop/perpetual-futures-short-thumb.jpg` |
+Twenty minutes of generated white noise (`soundbed.Bed(colour="white")` —
+67% of its energy sits above 8 kHz, per `docs/video/projects/tinnitus.md`,
+so it covers a high whistling tinnitus better than the pink/brown default)
+paired with **4-7-8 paced breathing** (inhale 4s, hold 7s, exhale 8s) —
+Dr. Andrew Weil's pattern, distinct from every other session on the channel,
+which use 4-in/6-out. 30s spoken intro (what the sound is, how to set the
+level, the pattern by name and by count), a body of twenty 19s loops, 26s
+outro (no CTA — a piece built to lower arousal doesn't end by asking for
+something).
 
-Runtime **47.5s**. No SRT (Shorts don't get one). No metadata sidecar — `/publish-video` writes the short captions.
+**Suggested title** (working, matches the filename): "4-7-8 Breathing + White
+Noise for Tinnitus (20 Minutes)". Both halves are real search phrases
+("4-7-8 breathing", "white noise for tinnitus") — pick whichever ordering
+reads best, or split into title + a first-line-of-description mention of the
+other.
 
-**What the Short covers, for the captions:** why a contract with no expiration date doesn't just
-drift away from the real price — a perpetual future lets you trade something like Bitcoin with
-leverage and never expires; an ordinary futures contract settles on a date and that date is what
-pulls its price back to reality, this one has none; so a fee does that job instead, paid directly
-between traders every few hours — above the real price, longs pay shorts, below it, shorts pay
-longs; it's a small fee, not the exchange getting rich, just two traders settling up automatically;
-closes on "so what's actually keeping a price like that honest?". **No financial-advice line** —
-per the user's standing rule (2026-09-04), Shorts on this channel never carry the compliance line,
-only the paired long form does; do not add one during captioning.
-Distribution: **full table** (YouTube Short + IG Reel + FB Reel + TikTok) — per the standing note
-that crypto Short distribution is contested/full-table now, not YouTube-only.
+**Angle for the description: partial masking.** Set the volume just below
+your tinnitus so you can still faintly hear it — burying it completely is
+what most people do and what the site's own post
+(`brown-noise-vs-white-noise-for-tinnitus.mdx`) argues against.
 
----
+**Required disclaimer language** (no medical claims — the rule that outranks
+everything else in this project, see `docs/video/projects/tinnitus.md`):
+this is a sound to listen to, not a treatment; never say it relieves,
+improves, or cures tinnitus. If useful, the standard red-flag routing line:
+"If your tinnitus lasts more than a few weeks, is getting louder, is in one
+ear only, pulses with your heartbeat, or comes with dizziness or hearing
+loss, see a doctor."
 
-## Site registry
-`videos.json` (crypto-wiki repo) entry should point at the source post slug `what-are-perpetual-futures`.
+## Distribution
 
-## Meta / Facebook token
-Per the standing note, the n8n Facebook Graph credential expires ~every 60 days and blocks the IG Reel + FB Reel + FB long video steps. If those fail, the user re-auths in n8n and the run resumes.
+No standing rule for sound-therapy sessions specifically (the crypto/tinnitus
+Short distribution notes in memory are about article Shorts). This is a
+single long-form video with no Short counterpart — default to YouTube long
+form only unless the user says otherwise.
 
----
+## Engine changes shipped with this build (see commit below)
 
-## Undecided / worth a look before or during publish
-
-- **Exchange logos in the long form** (`logos` beat: Binance, Bybit, Kraken, Hyperliquid, grouped
-  centralized vs. decentralized) — no per-tile verdict marks, since this isn't a judgement, just
-  where the contract trades. Confirmed rendering correctly on a pulled frame.
-- **`bars` beat** (leverage vs. how far the price can move against you) is pure arithmetic, no
-  price level or recommendation — confirmed on review, nothing to flag.
-- **Assets are entirely fresh** for this post — nothing shared with any other crypto video, so no
-  cross-video reuse to reconcile in the manifest beyond what's already committed.
-- **`mia` voice** — still `candidate`, but every shipped crypto explainer pair uses it and the user
-  approved this pair without comment on the voice.
+- `longform/asmr.py`: `_breath`/`render_loop`/`render_bookend`/
+  `render_asmr_long` now take `inhale`/`hold`/`exhale` (default 4/0/6,
+  byte-identical to every prior session) and an optional `palette`
+  (`bg_deep, nebula_a, nebula_b, ring`; `None` keeps the app's purple/peach).
+  `render_session_thumb` in `longform/thumb.py` takes the same `palette`.
+- This session uses `inhale=4, hold=7, exhale=8`, `loop=57` (three 19s
+  cycles), and a blue palette + orange thumbnail accent so it reads as a
+  different video from the existing purple/cyan 5-minute session on sight,
+  not just a different number.
+- Fixed: the intro's "4-7-8" is a `(caption, spoken)` pair — Kokoro/espeak
+  read the hyphens literally as "dash" (`espeak-ng --ipa "4-7-8"` →
+  `fˈɔːɹ dˈæʃ sˈɛvən dˈæʃ ˈeɪt`), so the caption keeps the numerals and the
+  voice gets "four, seven, eight".
 
 ## Repo state
-All code + docs committed on `main` (commit `acca8eb`):
-- `projects/crypto-long/perpetual-futures.py`, `projects/crypto-short/perpetual-futures.py`
-- `docs/video/narration.md` — new rule: Shorts on this channel never carry the financial-advice
-  compliance line, only the paired long form does.
-- `docs/video/voice.md` — new finding: a `chapter` beat's on-screen card and its spoken sentence
-  must be split into a `(caption, spoken)` pair when the card is ALL CAPS; a bare capitalised `IT`
-  phonemizes as the initialism "I.T." (caught by the user on the first cut, at 0:34, fixed and
-  re-rendered before this handoff).
+
+All code committed and pushed to `origin/main` (commit `e443a48`):
+- `projects/tinnitus-long/478-breathing-white-noise-20min.py` (new)
+- `video_automation/longform/asmr.py`, `video_automation/longform/thumb.py`,
+  `video_automation/tinnitus/asmr.py` (parameterised breathing pattern + palette)
 
 Working tree clean. Open a fresh session and run `/publish-video`.
