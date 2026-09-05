@@ -743,7 +743,8 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
 def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
                                headline: str, pattern: str | None = None,
                                accent: str = "cyan", seed: int = 7,
-                               size: int = 88) -> Path:
+                               size: int = 88,
+                               palette: tuple | None = None) -> Path:
     """A 9:16 companion to `render_session_thumb`, for a session's own Short.
 
     Same materials, reflowed — the nebula at this seed, the ring-and-count
@@ -758,11 +759,19 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
     phrase in brackets). A session thumbnail has never used it and this is a
     vertical cut of the *session* style, not a new one: same Futura stroke,
     same nebula, same ring, just reflowed.
+
+    `palette` matches `render_session_thumb`'s — pass the same one the video
+    and its landscape thumbnail used.
     """
     from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 
-    base = Image.fromarray(nebula_canvas(VW * 2, VH * 2, seed)).resize(
-        (VW, VH), Image.LANCZOS).convert("RGB")
+    if palette is not None:
+        bg_deep, nebula_a, nebula_b, ring_color = palette
+        canvas = nebula_canvas(VW * 2, VH * 2, seed, bg_deep, nebula_a, nebula_b)
+    else:
+        ring_color = None
+        canvas = nebula_canvas(VW * 2, VH * 2, seed)
+    base = Image.fromarray(canvas).resize((VW, VH), Image.LANCZOS).convert("RGB")
     base = ImageEnhance.Brightness(base).enhance(1.22)
 
     # Scrim over the top band, where the headline sits now — the landscape
@@ -783,7 +792,8 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
     r = 300
     cx, cy = VW // 2, int(VH * 0.56)
     k = int(r * 2 + 90)
-    ring = _ring_sprite(r).resize((k, k), Image.LANCZOS)
+    ring = (_ring_sprite(r, ring_color) if ring_color is not None
+           else _ring_sprite(r)).resize((k, k), Image.LANCZOS)
     base.alpha_composite(ring, (cx - k // 2, cy - k // 2))
     d = ImageDraw.Draw(base)
 
