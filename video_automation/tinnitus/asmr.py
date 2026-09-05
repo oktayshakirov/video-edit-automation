@@ -130,8 +130,18 @@ def _fbm(h: int, w: int, octaves: int, rng: np.random.Generator) -> np.ndarray:
     return out / total
 
 
-def nebula_canvas(w: int, h: int, seed: int = 7) -> np.ndarray:
-    """One large still the video drifts across. RGB uint8."""
+def nebula_canvas(w: int, h: int, seed: int = 7,
+                  bg_deep: tuple = BG_DEEP, nebula_a: tuple = NEBULA_A,
+                  nebula_b: tuple = NEBULA_B) -> np.ndarray:
+    """One large still the video drifts across. RGB uint8.
+
+    `bg_deep`/`nebula_a`/`nebula_b` default to the app's own palette, which is
+    what keeps every session built before this parameter existed unchanged.
+    A long-form channel with several sessions live wants them to read as
+    different videos at a glance, not just a different seed's cloud layout —
+    passing an alternate triple is how a session earns its own colour without
+    forking this function.
+    """
     rng = np.random.default_rng(seed)
     clouds = _fbm(h, w, 5, rng)
     # Push the midtones down so the frame is mostly void with a few bright
@@ -147,9 +157,9 @@ def nebula_canvas(w: int, h: int, seed: int = 7) -> np.ndarray:
 
     img = np.zeros((h, w, 3), np.float32)
     for c in range(3):
-        img[..., c] = (BG_DEEP[c]
-                       + clouds * (NEBULA_A[c] - BG_DEEP[c])
-                       + np.clip(clouds - 0.55, 0, 1) * 1.9 * (NEBULA_B[c] - NEBULA_A[c]))
+        img[..., c] = (bg_deep[c]
+                       + clouds * (nebula_a[c] - bg_deep[c])
+                       + np.clip(clouds - 0.55, 0, 1) * 1.9 * (nebula_b[c] - nebula_a[c]))
 
     # Stars last, so they sit on top of the cloud rather than being tinted by
     # it. Two populations. The faint ones give the drift something to measure
@@ -169,11 +179,14 @@ def nebula_canvas(w: int, h: int, seed: int = 7) -> np.ndarray:
     return np.clip(img, 0, 255).astype(np.uint8)
 
 
-def _ring_sprite(r_max: int) -> Image.Image:
+def _ring_sprite(r_max: int, ring: tuple = RING) -> Image.Image:
     """The breathing disc at full size, drawn once and scaled per frame.
 
     Redrawing the glow every frame is the expensive way to do this and looks
     identical — the shape is radially symmetric, so a resize is exact.
+
+    `ring` defaults to the app's own tint; pass an alternate to match a
+    session rendered with a different `nebula_canvas` palette.
     """
     s = r_max * 2 + 80
     c = s // 2
@@ -183,11 +196,11 @@ def _ring_sprite(r_max: int) -> Image.Image:
     # over the whole circle and the nebula behind it went to mud — the disc has
     # to stay a window onto the background, not a lens cap.
     rim = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    ImageDraw.Draw(rim).ellipse(box, outline=RING + (255,), width=7)
+    ImageDraw.Draw(rim).ellipse(box, outline=ring + (255,), width=7)
     sprite = rim.filter(ImageFilter.GaussianBlur(14))
 
     fill = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    ImageDraw.Draw(fill).ellipse(box, fill=RING + (26,))
+    ImageDraw.Draw(fill).ellipse(box, fill=ring + (26,))
     sprite.alpha_composite(fill)
     sprite.alpha_composite(rim)
     return sprite

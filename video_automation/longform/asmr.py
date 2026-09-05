@@ -51,7 +51,12 @@ from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 # The ring breathes on a 4-in / 6-out cycle, the pattern paced-breathing
 # guidance generally favours over box breathing — and the slow half is the half
 # a viewer is watching the ring shrink through.
+# The 4-in / 6-out default. Kept as module constants because every shipped
+# session before this one relied on them as `render_loop`'s and
+# `render_asmr_long`'s defaults — pass `inhale`/`hold`/`exhale` to use a
+# different pattern (box breathing, 4-7-8, resonance breathing).
 INHALE, EXHALE = 4.0, 6.0
+HOLD = 0.0
 BREATH = INHALE + EXHALE
 
 
@@ -59,13 +64,20 @@ def _ease(x: float) -> float:
     return 0.5 - 0.5 * math.cos(math.pi * max(0.0, min(1.0, x)))
 
 
-def _breath(t: float, r_min: float, r_max: float) -> tuple[float, str, int]:
-    """Radius, label and seconds remaining at `t`, closing exactly at `BREATH`.
+def _breath(t: float, r_min: float, r_max: float,
+           inhale: float = INHALE, hold: float = HOLD,
+           exhale: float = EXHALE) -> tuple[float, str, int]:
+    """Radius, label and seconds remaining at `t`, closing exactly at one cycle.
 
     The label and the count are not decoration — they are what makes this a
     breathing video rather than a screensaver with a circle on it. The short
     has them and the first long cut did not, which is the whole difference
     between "follow this" and "watch this".
+
+    `hold` sits between inhale and exhale, ring pinned at `r_max` — the same
+    order the short's `breathing_phases` uses, so a pattern like 4-7-8 reads
+    the same way in both formats. 0 (the default) skips it entirely, which is
+    what keeps every session built before this parameter existed unchanged.
 
     The count is `ceil`, not the short's `int(left) + 1`. Both give 4,3,2,1
     across a 4s phase, but `int + 1` reads 5 when `left` is exactly 4.0 — an
@@ -73,13 +85,17 @@ def _breath(t: float, r_min: float, r_max: float) -> tuple[float, str, int]:
     t=0, which is exactly a phase boundary, so frame one of every repetition
     would flash a number the pattern does not contain.
     """
-    p = t % BREATH
-    if p < INHALE:
-        r = r_min + (r_max - r_min) * _ease(p / INHALE)
-        left = INHALE - p
+    breath = inhale + hold + exhale
+    p = t % breath
+    if p < inhale:
+        r = r_min + (r_max - r_min) * _ease(p / inhale)
+        left = inhale - p
         return r, "inhale", max(1, math.ceil(left))
-    r = r_max - (r_max - r_min) * _ease((p - INHALE) / EXHALE)
-    left = BREATH - p
+    if p < inhale + hold:
+        left = inhale + hold - p
+        return r_max, "hold", max(1, math.ceil(left))
+    r = r_max - (r_max - r_min) * _ease((p - inhale - hold) / exhale)
+    left = breath - p
     return r, "exhale", max(1, math.ceil(left))
 
 
@@ -128,23 +144,38 @@ def _centred(draw: ImageDraw.ImageDraw, text: str, cx: int, y: int,
 def render_loop(out: Path, brand: Brand, loop: float = 60.0,
                 frame: Frame = LANDSCAPE, fps: int = 30, seed: int = 7,
                 r_min: int = 150, r_max: int = 330,
+                inhale: float = INHALE, hold: float = HOLD,
+                exhale: float = EXHALE,
+                palette: tuple | None = None,
                 logo_w: int | None = None) -> Path:
     """One seamless loop of picture: drifting nebula, breathing ring, mark.
 
-    `loop` must be a whole number of `BREATH` cycles or the ring jumps at the
-    splice; this raises rather than shipping the jump, because a seam every
-    minute for forty minutes is the kind of fault nobody spots in review and
-    everybody spots in playback.
+    `loop` must be a whole number of `inhale + hold + exhale` cycles or the
+    ring jumps at the splice; this raises rather than shipping the jump,
+    because a seam every minute for forty minutes is the kind of fault nobody
+    spots in review and everybody spots in playback.
+
+    `palette` is `(bg_deep, nebula_a, nebula_b, ring)`, forwarded to
+    `nebula_canvas`/`_ring_sprite`. `None` (the default) uses their own
+    defaults — the app's palette — so every session rendered before this
+    parameter existed is unchanged. Pass an alternate so a session reads as a
+    different video on sight, not just a different seed's cloud layout.
     """
-    if abs(loop / BREATH - round(loop / BREATH)) > 1e-6:
+    breath = inhale + hold + exhale
+    if abs(loop / breath - round(loop / breath)) > 1e-6:
         raise ValueError(
-            f"loop={loop}s is {loop / BREATH:.2f} breathing cycles — it must be "
-            f"a whole number of {BREATH}s cycles or the ring jumps at the splice")
+            f"loop={loop}s is {loop / breath:.2f} breathing cycles — it must be "
+            f"a whole number of {breath}s cycles or the ring jumps at the splice")
 
     pad = 260
     cw, ch = frame.w + pad, frame.h + pad
-    canvas = nebula_canvas(cw, ch, seed)
-    sprite = _ring_sprite(r_max)
+    if palette is not None:
+        bg_deep, nebula_a, nebula_b, ring = palette
+        canvas = nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
+        sprite = _ring_sprite(r_max, ring)
+    else:
+        canvas = nebula_canvas(cw, ch, seed)
+        sprite = _ring_sprite(r_max)
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
 
     # Type scaled off the ring, so the label and count keep the proportions the
@@ -176,7 +207,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
         bx, by = _drift(t, loop, cw, ch, frame)      # closes exactly at `loop`
         img = Image.fromarray(subpixel(canvas, bx, by, frame.w, frame.h))
 
-        r, label, left = _breath(t, r_min, r_max)
+        r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale)
         # `2r + 80`, the short's sizing, not `r / r_max * sprite.width`. The
         # sprite is the circle plus a fixed glow margin; scaling the whole
         # sprite by the radius ratio shrinks the glow too, so the hairline
@@ -207,6 +238,7 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
                    fps: int = 30, seed: int = 7, r_min: int = 150,
                    r_max: int = 330, reveal: float = 3.0,
                    caption_at: float = 0.0,
+                   palette: tuple | None = None,
                    logo_w: int | None = None) -> Path:
     """The intro or the outro: instruction cards, and the ring's entrance.
 
@@ -234,8 +266,13 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
 
     pad = 260
     cw, ch = frame.w + pad, frame.h + pad
-    canvas = nebula_canvas(cw, ch, seed)
-    sprite = _ring_sprite(r_max)
+    if palette is not None:
+        bg_deep, nebula_a, nebula_b, ring = palette
+        canvas = nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
+        sprite = _ring_sprite(r_max, ring)
+    else:
+        canvas = nebula_canvas(cw, ch, seed)
+        sprite = _ring_sprite(r_max)
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
 
     text_size = 68
@@ -322,12 +359,30 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      reveal: float = 3.0,
                      loop: float = 60.0, fps: int = 30, seed: int = 7,
                      fade: float = 6.0, r_min: int = 150, r_max: int = 330,
+                     inhale: float = INHALE, hold: float = HOLD,
+                     exhale: float = EXHALE,
+                     palette: tuple | None = None,
                      keep_work: bool = False,
                      frame: Frame = LANDSCAPE) -> dict:
     """A full sound-therapy video: looped picture, generated bed, long fades.
 
     Returns the paths produced. `minutes` is the finished length; the picture is
     rendered once at `loop` seconds and repeated.
+
+    **`inhale`/`hold`/`exhale` set the breathing pattern** — the default is
+    the 4-in/6-out `render_loop` has always used. `hold=0` skips the hold
+    phase entirely, which is why every session built before this parameter
+    existed still renders unchanged. `loop` must be a whole number of
+    `inhale + hold + exhale` cycles, same as `render_loop`; picking a pattern
+    means picking a `loop` (and a `minutes`) that divides evenly by it — 4-7-8
+    is a 19s cycle, so `loop=57` (three cycles) is the natural choice, not the
+    60s that suits 4-in/6-out.
+
+    **`palette` is `(bg_deep, nebula_a, nebula_b, ring)`**, forwarded to both
+    `render_loop` and `render_bookend` so the body and the bookends are one
+    consistent colour. `None` (the default) keeps the app's own purple/peach,
+    which is what every session built before this parameter existed still
+    gets.
 
     **The picture is three segments, not one.** `intro_len` seconds of
     instruction cards with no ring, then `total - intro_len - outro_len`
@@ -361,8 +416,9 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     workdir.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
     total = minutes * 60.0
+    breath = inhale + hold + exhale
     bed = bed or soundbed.Bed(colour="pink", breathe=0.10,
-                              breathe_period=BREATH)
+                              breathe_period=breath)
 
     body = total - intro_len - outro_len
     if body <= 0 or abs(body / loop - round(body / loop)) > 1e-6:
@@ -372,7 +428,9 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
 
     picture = render_loop(workdir / "loop.mp4", brand, loop=loop,
                           frame=frame, fps=fps, seed=seed,
-                          r_min=r_min, r_max=r_max)
+                          r_min=r_min, r_max=r_max,
+                          inhale=inhale, hold=hold, exhale=exhale,
+                          palette=palette)
 
     if bed_files is not None:
         low, high = bed_files
@@ -458,11 +516,11 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     head = render_bookend(workdir / "intro.mp4", brand, intro_len, intro_caps,
                           "intro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
-                          caption_at=intro_at)
+                          caption_at=intro_at, palette=palette)
     tail = render_bookend(workdir / "outro.mp4", brand, outro_len, outro_caps,
                           "outro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
-                          caption_at=outro_at)
+                          caption_at=outro_at, palette=palette)
 
     # The body, as its own file — `-stream_loop` and the concat demuxer cannot
     # be combined in one pass, and re-encoding the loop N times to stitch it

@@ -626,7 +626,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
 def render_session_thumb(out: Path, brand: Brand, minutes: int,
                          headline: str, pattern: str | None = None,
                          accent: str = "cyan", seed: int = 7,
-                         size: int = 104) -> Path:
+                         size: int = 104,
+                         palette: tuple | None = None) -> Path:
     """Thumbnail for a sound-therapy session: nebula, ring, duration, spec.
 
     `headline` is two or three words, no brackets — the accent here is the
@@ -634,15 +635,23 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     the breath spec ("4 IN / 6 OUT"), drawn as a chip under the headline.
 
     The nebula comes from the video's own generator at the same `seed`, so the
-    thumbnail is a picture of this video rather than of the format.
+    thumbnail is a picture of this video rather than of the format. Pass the
+    same `palette` the video was rendered with — `(bg_deep, nebula_a,
+    nebula_b, ring)` — so the thumbnail is a picture of this video's colour
+    too, not the app's default purple/peach.
     """
     from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 
     # Generated a good deal larger and downsampled. The nebula's stars are
     # single pixels; rendering at 1280 wide and saving as JPEG turns them into
     # mush, where rendering at 2x and resizing keeps them as points.
-    base = Image.fromarray(nebula_canvas(W * 2, H * 2, seed)).resize(
-        (W, H), Image.LANCZOS).convert("RGB")
+    if palette is not None:
+        bg_deep, nebula_a, nebula_b, ring_color = palette
+        canvas = nebula_canvas(W * 2, H * 2, seed, bg_deep, nebula_a, nebula_b)
+    else:
+        ring_color = None
+        canvas = nebula_canvas(W * 2, H * 2, seed)
+    base = Image.fromarray(canvas).resize((W, H), Image.LANCZOS).convert("RGB")
     # Lift it. In the video the nebula is a backdrop nobody looks at directly;
     # in a grid it is competing, and the same pixels read as an empty black box.
     base = ImageEnhance.Brightness(base).enhance(1.22)
@@ -667,7 +676,8 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     r = 232
     cx, cy = int(W * 0.735), H // 2
     k = int(r * 2 + 80)
-    ring = _ring_sprite(r).resize((k, k), Image.LANCZOS)
+    ring = (_ring_sprite(r, ring_color) if ring_color is not None
+           else _ring_sprite(r)).resize((k, k), Image.LANCZOS)
     base = base.convert("RGBA")
     base.alpha_composite(ring, (cx - k // 2, cy - k // 2))
     d = ImageDraw.Draw(base)
