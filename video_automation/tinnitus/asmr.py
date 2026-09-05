@@ -41,6 +41,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from ..core import soundbed
 from ..core.frame import VERTICAL
 from ..crypto.shots import roam_anchors
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, OUT_H, OUT_W,
@@ -284,6 +285,7 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
                   brand_at: tuple[int, int] = (58, 292),
                   brand_float: float = 9.0, brand_period: float = 5.5,
                   brand_roam: bool = False, brand_hold: float = 13.0,
+                  palette: tuple | None = None,
                   font_path: str = FONT_CAPTION,
                   font_index: int = FONT_CAPTION_INDEX) -> Path:
     """Drifting nebula with the breathing ring, straight into ffmpeg.
@@ -295,12 +297,20 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
     cutting every `brand_hold` seconds — see `crypto.shots.roam_anchors` for
     why, and for how the second anchor is placed. Off by default, so the
     shipped sound-therapy shorts are unchanged.
+
+    `palette` is `(bg_deep, nebula_a, nebula_b, ring)`, the same shape
+    `longform.asmr.render_loop` takes — pass the long-form session's own
+    palette so its Short is the same colour, not the app's default purple.
     """
     pad_x, pad_y = 220, 320
     cw, ch = OUT_W + pad_x, OUT_H + pad_y
-    canvas = nebula_canvas(cw, ch, seed)
-
-    sprite = _ring_sprite(r_max)
+    if palette is not None:
+        bg_deep, nebula_a, nebula_b, ring = palette
+        canvas = nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
+        sprite = _ring_sprite(r_max, ring)
+    else:
+        canvas = nebula_canvas(cw, ch, seed)
+        sprite = _ring_sprite(r_max)
     label_font = ImageFont.truetype(font_path, 52, index=font_index)
     count_font = ImageFont.truetype(font_path, 116, index=font_index)
 
@@ -475,8 +485,9 @@ def mix_voice_over_bed(bed: Path, voice: Path, out: Path, duration: float,
 
 # --- assembly ------------------------------------------------------------
 
-def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
-                      out: Path, workdir: Path,
+def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
+                      low: Path | None = None, high: Path | None = None,
+                      bed: soundbed.Bed | None = None,
                       cycles: int = 3, inhale: float = 4.0,
                       hold: float = 0.0, exhale: float = 6.0,
                       voice: str = "luna",
@@ -486,6 +497,7 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
                       font_size: int = 44, y_frac: float = 0.50,
                       fps: int = 30, seed: int = 7,
                       roam: bool = False, logo_hold: float = 13.0,
+                      palette: tuple | None = None,
                       keep_work: bool = False) -> tuple[Path, float]:
     """Narration, breathing block, bed and picture into one vertical MP4.
 
@@ -495,6 +507,14 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
     would leave "now breathe with the circle" on screen for the entire breathing
     block, on top of the ring. Two calls give both blocks natural caption ends
     and put the seam exactly where the breathing starts.
+
+    **Either `(low, high)` or `bed`, not both.** `(low, high)` layers the
+    brand's own album tracks via `render_bed` — the original short's sound,
+    kept for making a genuinely matching long cut of an already-published
+    short. Both tracks are gone from disk as of this writing, so a fresh short
+    needs `bed`, a `soundbed.Bed`, generated and loudness-matched the same way
+    `render_bed`'s output is (`loudnorm=I=-23`, the same fade lengths) so
+    `mix_voice_over_bed`'s sidechain behaves identically either way.
     """
     from ..core.vertical import render_text_png
     from ..core.voiceover import CAPTION_MAX_W
@@ -545,12 +565,25 @@ def render_asmr_short(intro: list, outro: list, low: Path, high: Path,
                     "-i", str(listing), "-c", "copy", str(narration)],
                    check=True, capture_output=True)
 
-    bed = render_bed(low, high, workdir / "bed.wav", total)
-    audio = mix_voice_over_bed(bed, narration, workdir / "mix.wav", total)
+    if bed is not None:
+        raw = soundbed.write(workdir / "bed-raw.wav", total, bed)
+        bed_wav = workdir / "bed.wav"
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-y", "-i", str(raw),
+             "-af", "loudnorm=I=-23:TP=-2:LRA=7,afade=t=in:st=0:d=2.5,"
+                    f"afade=t=out:st={max(total - 3.5, 0):.2f}:d=3.5",
+             "-ar", "48000", "-ac", "2", str(bed_wav)],
+            check=True, capture_output=True)
+    elif low is not None and high is not None:
+        bed_wav = render_bed(low, high, workdir / "bed.wav", total)
+    else:
+        raise ValueError("pass either (low, high) or bed, not neither")
+    audio = mix_voice_over_bed(bed_wav, narration, workdir / "mix.wav", total)
 
     picture = render_visual(workdir / "picture.mp4", total, phases,
                             fps=fps, seed=seed,
-                            brand_roam=roam, brand_hold=logo_hold)
+                            brand_roam=roam, brand_hold=logo_hold,
+                            palette=palette)
 
     pngs = []
     for i, (text, _, _) in enumerate(captions):
