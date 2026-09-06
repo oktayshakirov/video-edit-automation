@@ -113,6 +113,17 @@ one:
 The failure is a mixed list whose title is a noun phrase, so the marks are the
 only thing saying which items are good and which are bad. Never ship that.
 
+**An all-✗ list still needs a question for a title, and a noun phrase over one
+is a double negative.** The Ethereum short shipped `WHAT THE FOUNDER CONTROLS`
+over four items that were then all struck, which asks the viewer to read "what
+he controls" and then subtract every line of it — the user's note was that the
+whole list was confusing. `CAN HE DO IT ALONE?` over the same four items fixes
+it with no other change: the title poses the question, the crosses are the
+answer, and no item has to be interpreted against its heading. So the rule
+above is not only for mixed lists — **title every marked beat as the question
+its marks answer**, and keep the items as plain noun phrases with the verdict
+nowhere but the mark.
+
 ## Checklist: two timing modes
 
 `flow=False` (default) is the shorts' original — every item appears unmarked, so

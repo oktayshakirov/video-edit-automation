@@ -328,6 +328,22 @@ Check before rendering rather than after:
 _kokoro().tokenizer.phonemize("i read a quote that said", lang="en-us")
 ```
 
+**`live` is the one on this list that a tech explainer will actually hit, and it
+shipped.** "Ethereum went live in 2015" phonemizes as `wɛnt lˈɪv` — the verb, to
+*live* somewhere — where the sentence wants `lˈaɪv`, the adjective. The user
+heard it immediately. `went lyve` returns `wɛnt lˈaɪv`, which is right.
+
+The trap is that espeak gets the *same word* right elsewhere: "the network is
+live" and "it is live" both come back `lˈaɪv` correctly. So a spot-check on one
+sentence proves nothing about another. **Grep the finished script for every
+heteronym before rendering** and check each occurrence in its own sentence — a
+launch/release script will be full of "went live", "goes live", "is live", and
+only some of them are wrong.
+
+A per-script `es()` helper doing the respells in the spoken half of every chunk
+is the cheapest way to keep this consistent; both Ethereum project files carry
+one.
+
 **`gap` is the honest runtime lever.** Speech length is fixed by the script, and
 trimming words to hit a number is the wrong trade. Silence between phrases is
 not: at melancholic pace ~1.0s reads as deliberate where the 0.18s default reads

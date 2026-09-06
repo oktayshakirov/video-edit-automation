@@ -136,6 +136,16 @@ past `MAX_UPSCALE = 1.45`.
   cropping in gives it half or better. How far it can crop is bounded by
   resolution, not taste — cropping narrows the source and raises the upscale, so
   `MAX_UPSCALE` wins and the aspect target yields.
+- **To show a photograph whole, set `aspect` to the source's own ratio.**
+  `crop_w = min(src.w, src.h * aspect)`, so when `aspect == src.w / src.h` the
+  crop is a no-op and the picture is letterboxed into the blurred fill instead
+  of cut into. The default 1.15 is a *crop* target, and on an already-tall
+  portrait it takes the top of the head and the chest off — which is what the
+  user saw as "cropped" on the Ethereum short's opening face. **`bias` cannot
+  fix this; it only slides the same-sized window.** Reach for the source ratio
+  whenever the subject is a person and the shot is the one the viewer decides
+  on: `FACE_ASPECT = 1670 / 2553` reads far better than a tighter crop, and the
+  blur band above and below is what the layout is for.
 - **Do not use a source under ~750px wide.** Below that, `MAX_UPSCALE` leaves the
   photo as a small rectangle floating in blur. `crypto-ogs/satoshi.png` (400px)
   was tried and swapped for `posts/hacker.jpg` (996px).
@@ -336,6 +346,18 @@ eyeballing frames.
 Captions carrying an emoji keep the single-PNG treatment, because
 `add_caption_emoji` re-centres the whole line around the glyph, which the
 per-word layout does not model.
+
+**Which means an emoji silently switches karaoke off for that line, and a viewer
+reads that as the effect breaking.** The user caught it by timestamp on the
+Ethereum short — the highlight ran for seven seconds, stopped dead on the one
+caption carrying a 🏢, and came back afterwards. It is not a bug; it is the
+trade, and it was never written down as one.
+
+**Karaoke wins. Default to no emoji on a short that has it on** (settled 2026-09-06). Two glyphs are
+decoration; a highlight that stops mid-video is a fault the viewer notices. If a
+line genuinely needs the glyph, put it on the **last** caption of the piece,
+where the break has nothing after it to be inconsistent with — and never on a
+line in the first fifteen seconds.
 
 ## A caption clears during the between-sentence pause
 
