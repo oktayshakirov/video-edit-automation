@@ -111,13 +111,31 @@ whose pictures do not track its words is a voice memo over wallpaper, and an
 abstract topic (cryptography, keys, a mechanism) cannot be followed without the
 screen reinforcing each beat. Three rules come out of it:
 
-- **Every clip carries a `payload` line.** `Shot(clip=..., payload=("", "one
-  short line"))` — the big centred statement, stating the point of *that*
-  sentence. A stretch of generic stock playing silent under a specific claim is
-  the failure the user notices every time. This is `footage.md`'s "label your
-  video clips" promoted to a hard rule for anything abstract: the countdown clip
-  says "No credible date before the 2030s", the archive clip says "Now it is on
-  the record, forever". The kicker half stays empty; one line is the whole job.
+- **A `payload` line is a repair, not a default — and this reverses the rule
+  that used to stand here (settled 2026-09-06).** `Shot(clip=...,
+  payload=("", "one short line"))` draws a 96px centred statement. This file used to say *every* clip carries
+  one, and the Ethereum cut followed it literally: twenty-five labelled clips
+  plus six chapter cards plus five drawn beats, so almost every frame of a
+  four-minute video had a big line of type on it. The user's verdict was **"we
+  have too many titles after each other and the script is very hard to
+  follow"**, and they were right — a statement every four seconds stops reading
+  as emphasis and starts reading as a slideshow, and each one duplicates the
+  sentence being spoken over it.
+
+  The failure the old rule was written against is real and unchanged: *generic
+  stock playing silent under a specific claim*. But the fix for that is *a
+  picture that names the noun*, which is the next bullet — not a caption bolted
+  onto a picture that does not. So:
+
+  **Write the payload only when it adds something the narration does not say.**
+  The title stamp. The name of an event the script deliberately never
+  pronounces on air (`2016 - the DAO hack`, because "DAO" phonemizes as "dow").
+  The compliance line, which the user requires on screen. A figure the voice
+  gives without a unit. Everything else runs clean.
+
+  **Never two labelled shots in a row**, and budget roughly **one payload per
+  minute**. The Ethereum re-cut ships four across 3:52 and reads far better for
+  it. If a slot seems to need a label, try replacing the picture first.
 - **Match the noun.** The picture names the same thing the sentence does, or it
   is labelled so it does. An image the user calls "not fitting" gets replaced,
   not defended — `footage.md`'s "say the noun the narration says", enforced.

@@ -116,6 +116,51 @@ put the picture in a beat's picture column, where the same file is a
 what that layout exists for; the fitted panel was never a design, only what
 the renderer does when it runs out of pixels.
 
+## A portrait or square photograph must never fill a 16:9 frame
+
+**The sibling of the rule above, and it is about *shape* rather than
+resolution.** `PhotoShot` cover-crops to the `aspect` it is given, so a portrait
+source in a landscape slot (`aspect=16/9`) keeps the full width and throws away
+the height: a 1670x2553 press portrait becomes a **938px band across the face**,
+with the top of the head and everything below the chest gone. It upscales
+cleanly, nothing raises, and the user's word for it was "zoomed in too close".
+
+So, on any video about a person:
+
+- **Only a landscape source may fill the frame.** Do the check before writing
+  the shot, not after: if the source is taller than 16:9, it cannot go in a
+  full-frame slot at all.
+- **Portrait and square crops go in a beat's `picture=` column**, where `Beat`
+  scales the column *down to the picture* instead of cropping it. That is a
+  framed inset, it is what the split layout exists for, and it looks
+  deliberate — the Ethereum cut puts one beside the pull quote and one beside
+  the `stat` whose note names the man.
+- **A low-resolution landscape source can be promoted once**, by resizing it to
+  the frame and saving that as its own asset. A clean studio shot survives 2x;
+  a busy one does not.
+
+## A brand-recoloured logo is a legitimate asset, and often the best one
+
+**Built on the Ethereum cut, where the site library had no usable picture of
+the subject at all.** Most of these topics have an official mark on Wikimedia
+Commons at 2000px+ under CC BY or CC0. Flattening it against the brand
+background and mapping its luminance onto the brand's own gold ramp gives a
+full-frame shot that is unmistakable, perfectly on-palette, needs no screening
+and can never be off-message.
+
+Two things it buys that stock cannot:
+
+- **The noun, exactly.** A line that says "Ethereum went live" over the Ethereum
+  mark needs no label — see the payload rule in `longform.md`.
+- **A contrast that carries an argument.** Rendering a second mark in a
+  different tone makes a fork visible: Ethereum in gold, Ethereum Classic in
+  pewter, the same shape in a lesser metal. That is the whole 2016 split in one
+  cut, with no caption.
+
+Keep the licence line in the project's `CREDITS.md` and in `Meta.credits`. Do
+**not** do this to a company's logo in a piece that criticises it — a recoloured
+mark still reads as that brand.
+
 ## Label a contact sheet, or you will pick the wrong clip
 
 A green-lit apartment block shipped into a short under the line "rain, a fan,
@@ -146,13 +191,20 @@ frames in a near-black video. Dropping the backdrop entirely is usually the
 right answer: a flat panel with the drifting grid is what those beats were
 designed for.
 
-## Label your video clips
+## Label a video clip only when the picture cannot say the noun
 
-`Shot(clip=..., payload=("KICKER", "One line"))`. Stock footage is wallpaper by
-construction — it was not shot for this script and cannot say anything
-specific, so a stretch of it with nothing on top is the dullest thing in the
-video. A kicker and one line in the same lockup the drawn beats use turns
-wallpaper into a titled shot.
+**Narrowed 2026-09-06; this section used to read "label your video clips" and
+was applied to all of them.** The reasoning was sound as far as it went — stock
+was not shot for this script, so a stretch of it under a specific claim says
+nothing. But the conclusion was wrong: the cure for a picture that cannot name
+the noun is **a different picture**, and only where no such picture exists does
+`Shot(clip=..., payload=("", "One line"))` earn its place.
+
+Labelling every clip put a 96px statement on almost every frame of a
+four-minute video and the user's verdict was that it was impossible to follow.
+The density rule, the three things a payload may still carry, and the
+one-per-minute budget live in `longform.md` — see the payload bullet under *The
+screen has to say what the voice is saying*.
 
 ## A clip is over-used long before it is used twice
 
@@ -404,6 +456,15 @@ The rule this doc already had — *say the whole name of a thing* — was about
 the script. This is its other half: **the picture has to name the same noun the
 voice does.** Read the shot list against the sentence list once, out loud, and
 check every pair.
+
+**And it must name the noun in *its own* sentence, not the one after it.** The
+Ethereum short opened on the founder's portrait while the voice asked "who is in
+charge of *Ethereum*?", then cut to the Ethereum mark while the voice said
+"*Vitalik Buterin* created it". Both pictures were in the video and both were
+right — they were one slot apart, and the user caught it immediately. An
+off-by-one is harder to spot than a wrong picture, because every shot looks
+correct in isolation and only the *pairing* is wrong. Reading the two lists
+side by side as pairs catches it; reading the shot list alone never will.
 
 ## Show the thing the line is about
 
