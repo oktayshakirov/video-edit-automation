@@ -1,9 +1,13 @@
 # Handoff → /publish-video
 
-**Built:** `478-breathing-white-noise` — a tinnitushelp.me sound-therapy session, long form (20 min) **and its own vertical Short** (Mode 2, not an article pair).
-**Source article:** none — off-site topic, `SOURCE_POST = None`.
-**Date:** 2026-09-05
-**Voice:** `luna` (`af_nicole` 0.90, SOFT chain) — the session-format default. Still `candidate`.
+**Built:** `vitalik-ethereum` — a thecrypto.wiki **long form + Short pair**, one
+article at two angles.
+**Source article:** `crypto-ogs/vitalik-buterin` (`SOURCE_POST` is set in both
+project files).
+**Date:** 2026-09-06
+**Voice:** `otis` (`am_puck`, ENERGETIC chain, speed 1.00) — the male article
+reader, used on both. Still `candidate`, not approved.
+**Approved by the user** after three review passes.
 
 ---
 
@@ -12,102 +16,121 @@
 ### Long form (YouTube)
 | what | path |
 | --- | --- |
-| video (16:9) | `/Users/oktayshakirov/Desktop/4-7-8 Breathing + White Noise for Tinnitus (20 Minutes).mp4` |
-| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/4-7-8 Breathing + White Noise for Tinnitus (20 Minutes).jpg` |
+| video (16:9) | `/Users/oktayshakirov/Desktop/crypto-vitalik-ethereum-long.mp4` |
+| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/crypto-vitalik-ethereum-long-thumb.jpg` |
+| captions | `/Users/oktayshakirov/Desktop/crypto-vitalik-ethereum-long.srt` |
+| **metadata sidecar** | `/Users/oktayshakirov/Desktop/crypto-vitalik-ethereum-long.md` |
 
-Runtime **exactly 20:00** (1200.0s, ffprobe-checked). 1920x1080, h264/aac.
+**3:52.6** (232.61s), 1920x1080, h264/aac, 160 MB.
+
+**Read the `.md` sidecar for the title, description, tags and chapter list —
+they are already written. Do not re-derive them.** Title is
+`Why Was Ethereum Created?`, a search query rather than the Short's hook.
+
+Chapters (also in the sidecar, and they drive the site transcript page):
+
+```
+0:00 It started as a complaint about Bitcoin
+0:35 A calculator, or a computer?
+1:24 So what did that make possible?
+2:00 So who is in charge?
+2:33 How does a change actually happen?
+3:19 So what did he actually build?
+```
 
 ### Short (YouTube Shorts / Instagram Reel / Facebook Reel / TikTok)
 | what | path |
 | --- | --- |
-| video (9:16) | `/Users/oktayshakirov/Desktop/4-7-8 Breathing + White Noise for Tinnitus (Short).mp4` |
-| thumbnail (9:16) | `/Users/oktayshakirov/Desktop/4-7-8 Breathing + White Noise for Tinnitus (Short).jpg` |
+| video (9:16) | `/Users/oktayshakirov/Desktop/crypto-vitalik-ethereum-short.mp4` |
+| thumbnail (9:16) | `/Users/oktayshakirov/Desktop/crypto-vitalik-ethereum-short-thumb.jpg` |
 
-Runtime **57.3s**, 1080x1920, h264/aac. Same pattern, bed and nebula palette
-as the long form, same seed — built as its companion, not a trailer for it:
-2 cycles of 4-7-8 (38s breathing block) instead of the long form's twenty.
+**48.7s**, 1080x1920, h264/aac, 29 MB. No SRT and no `.md` sidecar — the Short
+burns its own captions, as every article Short on this channel does.
 
-Neither file has an SRT or a `.md` metadata sidecar — sessions have no
-dialogue track worth captioning line-by-line, same precedent as the earlier
-5-minute masking session. Title/description material below is raw material,
-not pre-written copy.
+Working title, and it is deliberately **not** the long form's: *Who Is In
+Charge Of Ethereum?* The two are on separate search angles so they are not
+competing for one results page.
 
-## What this is
+## What the pair says
 
-Generated white noise (`soundbed.Bed(colour="white")` — 67% of its energy
-sits above 8 kHz, per `docs/video/projects/tinnitus.md`, so it covers a high
-whistling tinnitus better than the pink/brown default) paired with **4-7-8
-paced breathing** (inhale 4s, hold 7s, exhale 8s) — Dr. Andrew Weil's
-pattern, distinct from every other session on the channel, which use
-4-in/6-out. Both formats end with no CTA — a piece built to lower arousal
-doesn't end by asking for something; the Short's outro just points at the
-full session on the channel.
+The long form asks **why Ethereum exists at all** — a nineteen-year-old wanted
+Bitcoin to run any program, the Bitcoin developers turned him down, so he built
+a programmable network and then built it so nobody, himself included, runs it.
+The Short takes only the governance half and does that one move: the founder
+cannot change the rules, reverse a payment, freeze a wallet or switch it off,
+and nobody else can either.
 
-**Suggested title** (working, matches the filename): "4-7-8 Breathing + White
-Noise for Tinnitus" (+ "(20 Minutes)" for the long form). Both halves are
-real search phrases ("4-7-8 breathing", "white noise for tinnitus") — pick
-whichever ordering reads best, or split into title + a first-line-of-
-description mention of the other. Same title angle for the Short is fine, or
-lean into the Shorts-feed curiosity-hook convention if that reads better for
-that surface — the video opens on the pattern named, not a question, so pick
-whichever framing the captioning pass finds most natural.
+**No financial advice anywhere in either file** — design and governance history
+only. No price, no prediction, no platform rated. The long form speaks and
+displays the compliance line at 3:42; the Short carries none, which is this
+channel's deliberate asymmetry for article Shorts.
 
-**Angle for the description: partial masking.** Set the volume just below
-your tinnitus so you can still faintly hear it — burying it completely is
-what most people do and what the site's own post
-(`brown-noise-vs-white-noise-for-tinnitus.mdx`) argues against.
+## ⚠️ Attribution is required in the description — this is a licence condition
 
-**Required disclaimer language** (no medical claims — the rule that outranks
-everything else in this project, see `docs/video/projects/tinnitus.md`):
-this is a sound to listen to, not a treatment; never say it relieves,
-improves, or cures tinnitus. If useful, the standard red-flag routing line:
-"If your tinnitus lasts more than a few weeks, is getting louder, is in one
-ear only, pulses with your heartbeat, or comes with dizziness or hearing
-loss, see a doctor." Put it in the long-form description; the Shorts-carry-
-no-disclaimer memory is about article Shorts specifically — use judgement on
-whether a session Short needs it (it reads more like the product itself than
-an article Short does).
+Both files use Creative Commons images. `Meta.credits` already carries the block
+and it is inside the sidecar's description; **keep it there on upload.**
 
-## Distribution
+> Photographs of Vitalik Buterin by John Phillips / TechCrunch, CC BY 2.0, via
+> Wikimedia Commons (TechCrunch Disrupt London 2015).
+> Ethereum mark by the Ethereum Foundation, CC BY 3.0, via Wikimedia Commons
+> (recoloured). Ethereum Classic mark: CC0.
 
-No standing rule for sound-therapy sessions specifically (the crypto/tinnitus
-Short distribution notes in memory are about article Shorts). Suggest: long
-form to YouTube; Short to the full table (YouTube Shorts + IG Reel + FB Reel
-+ TikTok) since it's now built and self-contained — but confirm with the user
-if unsure, since this is the first ASMR Short actually built in this repo.
+CC BY is attribution-only, **not** share-alike, so neither video is forced under
+a copyleft licence — unlike the Ruja pair. Full detail in
+`assets/crypto/vitalik-buterin/CREDITS.md`. The Short uses the same portraits
+and the same two marks, so the same block belongs on its description wherever a
+platform has room for one.
 
-## Engine changes shipped with this build (two commits, see below)
+## Undecided / for the publish session to call
 
-- `longform/asmr.py`: `_breath`/`render_loop`/`render_bookend`/
-  `render_asmr_long` take `inhale`/`hold`/`exhale` (default 4/0/6,
-  byte-identical to every prior session) and an optional `palette`
-  (`bg_deep, nebula_a, nebula_b, ring`; `None` keeps the app's purple/peach).
-- `longform/thumb.py`: `render_session_thumb` and `render_session_thumb_short`
-  take the same `palette`.
-- `tinnitus/asmr.py`: `render_asmr_short` took only `(low, high)` — the
-  brand's own album MP3s — and both are confirmed gone from disk, so no fresh
-  ASMR short could be rendered at all before this. It now also takes
-  `bed: soundbed.Bed | None`, generated and loudness-matched the same way
-  `render_bed`'s output is. `render_visual` takes the same `palette`.
-- Fixed: the intro's "4-7-8" is a `(caption, spoken)` pair in both formats —
-  Kokoro/espeak read the hyphens literally as "dash" (`espeak-ng --ipa
-  "4-7-8"` → `fˈɔːɹ dˈæʃ sˈɛvən dˈæʃ ˈeɪt`), so the caption keeps the numerals
-  and the voice gets "four, seven, eight".
-- This session uses `inhale=4, hold=7, exhale=8` and a blue palette + orange
-  thumbnail accent so it reads as a different video from the existing
-  purple/cyan 5-minute session on sight, not just a different number.
+- **The Short's title.** *Who Is In Charge Of Ethereum?* is what the script
+  opens by asking, but it has not been chosen against anything.
+- **Which surfaces the Short goes to.** No decision was taken in this session.
+- **The long-form thumbnail trips the layout scorer** (`busiest-case score
+  1.95`) because the TechCrunch step-and-repeat behind him has no quiet patch.
+  It was looked at and judged fine — the type sits on the darkened right half
+  and reads cleanly at feed size. Not a problem to re-fix, just don't be
+  surprised by the warning if anything is re-rendered.
+
+## Assets added by this build
+
+`assets/crypto/vitalik-buterin/` is new — three crops of one 2015 TechCrunch
+press shoot, the site's own studio photo promoted to frame size, the site's
+Bitcoin neon photo cropped to 16:9, and the Ethereum / Ethereum Classic marks
+recoloured to the brand palette. `CREDITS.md` in that folder is the source of
+truth for every licence line above.
+
+Twenty stock clips were fetched fresh and are recorded in
+`assets/stock/manifest.json` (the bytes are gitignored; the manifest is what
+makes the build reproducible).
+
+## Docs changed by this build
+
+Three review passes produced four rule changes, each written once in the doc
+that owns it, per `docs/video/README.md`:
+
+- `longform.md` — **reversed** "every clip carries a payload line". Labelling
+  every clip put a statement on almost every frame and the user's verdict was
+  "too many titles after each other". A payload now only survives where it adds
+  something the narration does not say; this cut ships four in 3:52.
+- `footage.md` — a portrait or square photograph must never fill a 16:9 frame
+  (it becomes a band across the face); the picture must name the noun in *its
+  own* sentence, not the next one; a brand-recoloured official logo is a
+  legitimate asset. Also narrowed the old "label your video clips" section to
+  match the reversal above.
+- `shorts.md` — set `aspect` to the source's own ratio to show a photograph
+  whole; an emoji caption silently switches per-word karaoke off for that line,
+  and karaoke wins.
+- `beats.md` — an all-struck checklist still needs a question for a title;
+  a noun phrase over one reads as a double negative.
+- `voice.md` — `live` is the heteronym a tech explainer actually hits: "went
+  live" phonemizes as the verb.
 
 ## Repo state
 
-All code committed and pushed to `origin/main`:
-- `e443a48` — long-form build + engine parameterisation (pattern, palette)
-- `c77e038` — first handoff write (superseded by this one)
-- `671b531` — Short build + `render_asmr_short` generated-bed support
+Everything is committed and pushed to `origin/main`. Project files:
 
-Files:
-- `projects/tinnitus-long/478-breathing-white-noise-20min.py`
-- `projects/tinnitus-short/478-breathing-white-noise-short.py`
-- `video_automation/longform/asmr.py`, `video_automation/longform/thumb.py`,
-  `video_automation/tinnitus/asmr.py`
+- `projects/crypto-long/vitalik-ethereum.py`
+- `projects/crypto-short/vitalik-ethereum.py`
 
 Working tree clean. Open a fresh session and run `/publish-video`.
