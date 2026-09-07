@@ -25,11 +25,13 @@ SITES = {
         "posts": CODING / "crypto-wiki/content/posts",
         "videos": CODING / "crypto-wiki/json/videos.json",
         "projects": ("crypto-long", "crypto-short"),
+        "quiz": "quiz-crypto",
     },
     "tinnitus": {
         "posts": CODING / "tinnitus-blog/content/posts",
         "videos": CODING / "tinnitus-blog/src/data/videos.json",
         "projects": ("tinnitus-long", "tinnitus-short"),
+        "quiz": "quiz-tinnitus",
     },
 }
 
@@ -92,9 +94,54 @@ def published(site: dict) -> set[str]:
     return out
 
 
+def _quiz(args, site: dict, explainers: dict[str, set[str]]) -> int:
+    """Sources for a quiz short. A different question from the default list.
+
+    **Coverage means a *quiz*, not any video.** An article with a long form and
+    a Short is not used up — it is the best possible quiz source, because the
+    audience has already been taught the thing they are about to be tested on
+    and the channel gets a second video out of one piece of research.
+
+    So the ordering is inverted against the main list: an article with an
+    explainer sorts first and is *labelled* with what exists, rather than being
+    filtered out. Only an article that already has a quiz drops off.
+    """
+    d = REPO / "projects" / site["quiz"]
+    has_quiz = {slug_of(f) for f in sorted(d.glob("*.py"))} if d.is_dir() else set()
+    has_quiz.discard(None)
+
+    posts = [p for p in sorted(site["posts"].glob("*.mdx"))
+             if not p.stem.startswith("_")]
+    rows = []
+    for p in posts:
+        if p.stem in has_quiz:
+            continue
+        rows.append((p.stem, title_of(p), explainers.get(p.stem, set())))
+    # Explainer first, then alphabetical, so the strongest sources are at the top.
+    rows.sort(key=lambda r: (not r[2], r[0]))
+    if args.limit:
+        rows = rows[: args.limit]
+
+    print(f"{args.site} quiz: {len(has_quiz)} article(s) already have a quiz - "
+          f"showing {len(rows)} that do not\n")
+    for slug, title, formats in rows:
+        mark = (f"  [explainer: {', '.join(sorted(formats))}]" if formats
+                else "  [no explainer yet]")
+        print(f"  {slug}\n      {title}{mark}")
+    print("\nAn article that already has an explainer is the *better* quiz "
+          "source, not a used-up one - the audience has been taught the thing "
+          "they are being tested on.")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("site", choices=sorted(SITES))
+    ap.add_argument("--quiz", action="store_true",
+                    help="suggest sources for a /video-quiz short instead. "
+                         "Coverage means a quiz script, not any video, and "
+                         "articles that already have an explainer are listed "
+                         "first rather than excluded")
     ap.add_argument("--covered", action="store_true",
                     help="list what is already done instead of what is left")
     ap.add_argument("--limit", type=int, default=0)
@@ -106,6 +153,8 @@ def main() -> int:
         return 1
 
     have, live = built(site), published(site)
+    if args.quiz:
+        return _quiz(args, site, have)
     posts = [p for p in sorted(site["posts"].glob("*.mdx"))
              if not p.stem.startswith("_")]
 

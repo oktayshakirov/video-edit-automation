@@ -44,6 +44,15 @@ class Brand:
     # and 1.14x on green, and tinnitus' red has to survive being on purple.
     strike: RGB
     grid: RGB                     # legacy: the drifting grid, no longer drawn
+    # The one colour that is not the site's. A quiz card marked correct has to
+    # read as *correct* before it reads as on-brand: green is the convention the
+    # viewer already has, and neither `primary` — gold on one site, peach on the
+    # other — carries it. Both of those also sit next to `negative` red on the
+    # same screen, where the pair has to be unambiguous at a glance and at
+    # phone size. Defaulted, so no existing Brand changes and no shipped video
+    # moves; only the quiz format reads it. Overridable per site if one ever
+    # wants a green of its own.
+    positive: RGB = (76, 175, 80)
     # The looping background behind a drawn beat, by name in
     # `assets/brand/backgrounds/`. None falls back to a flat `bg` panel. This
     # replaced a ruled grid that was identical on both channels and stepped a

@@ -110,13 +110,21 @@ All synthesized, all in `core/sfx.py`, all cued from the shot list by
 | `impact` | on the card — the riser's full stop |
 | `whoosh` | cutting *out* of a card, covering the return to content |
 | `reveal` | an item arriving on any drawn beat |
-| `cross` / `tick` | a checklist verdict landing |
+| `cross` / `tick` | a checklist verdict landing, and a quiz card's |
+| `clock` / `clock_final` | one per second under a quiz countdown, the last a fourth up |
 
 `LEVELS` sets each against the narration peak, and one gain for all of them
 cannot work: a transition has to be heard over the bed, an item tick has to sit
 under a syllable, and those are a factor of four apart. **The set is
 deliberately small** — a sound on every event is a cartoon. The `riser` is
 subtle by design and has not been judged by ear.
+
+The clock cues (and the quiz's own `whoosh`, one per question, cueing the cut
+into it) are the exception to "cued from the shot list": a quiz's ask phase is
+nine shots sharing one countdown, so asking each of them for its own cues
+would mix the same eight ticks nine times over. `quiz.build.render_quiz_short`
+computes every quiz cue once, in the same `plan()` pass that sets the ring's
+timing, so the sound and the picture cannot disagree. See `projects/quiz.md`.
 
 ## Sound
 

@@ -186,7 +186,35 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # and a diagram in it is the one way to show an
                         # architecture without giving up the motion underneath.
                         overlays: "list | None" = None,
-                        logo_hold: float = 13.0) -> tuple[Path, float]:
+                        logo_hold: float = 13.0,
+                        # --- extension points, for a format this file does not
+                        # know about. All three default to exactly what this
+                        # function has always done, so nothing shipped moves.
+                        #
+                        # They exist because the quiz format needs a beat with
+                        # its own layout, its own reveal arithmetic and its own
+                        # sound, and every other way of getting that was worse:
+                        # a second copy of this pipeline would have duplicated
+                        # the narration, caption, karaoke, watermark and bed
+                        # path that both channels already share (the mistake
+                        # the publish skill exists to have stopped), and
+                        # teaching this file about quizzes would have put a
+                        # third format's timing rules inside the crypto build.
+                        factory=None,
+                        plan_graphics=None,
+                        cues=None,
+                        # Lower this and every scripted gap at or above it
+                        # becomes a *guaranteed* silence in the concat rather
+                        # than a request `_pad_pause` can only honour where the
+                        # model already left a pause. See `_run_groups`. Prose
+                        # wants the default; a list of discrete items does not.
+                        run_break=None,
+                        # The bed's loudness target. `music_gain` cannot do
+                        # this job — it is applied *before* `loudnorm` in
+                        # `render_bed`, which then normalises the result back
+                        # to `BED_LUFS` and undoes most of it. To actually put
+                        # a bed further under the voice, move the target.
+                        music_lufs=None) -> tuple[Path, float]:
     """One short, end to end.
 
     `gap` is tighter than the drone quotes' 0.65. A quote wants air between
@@ -211,6 +239,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     workdir.mkdir(parents=True, exist_ok=True)
     track, captions, total = build_narration_aligned(
         [list(s) for s in sentences], workdir, gap=gap, tail=tail,
+        **({} if run_break is None else {"run_break": run_break}),
         **profile_args(voice))
 
     plan_shots(shots, sentence_spans(sentences, captions))
@@ -263,6 +292,13 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 sh.marks = ([r + FLOW_LAG for r in sh.reveals] if flow else
                             _mark_times(starts[-1], sh.start + sh.hold, n))
         first += len(sent)
+
+    # The post-hook runs *after* the block above rather than instead of it, so
+    # a format that adds one beat does not have to re-derive the timings of
+    # every beat it did not add. It sees shots that already carry their spans
+    # and the measured captions, and overwrites only what is its own.
+    if plan_graphics is not None:
+        plan_graphics(shots, sentences, captions)
 
     # **Cut, do not dissolve, between a drawn beat and a video clip.** The
     # shorts' "always dissolve" is a rule about photographs and it survives for
@@ -332,7 +368,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
-                           factory=lambda sh, fr: _short_factory(sh, fr, brand),
+                           factory=(factory if factory is not None else
+                                    lambda sh, fr: _short_factory(sh, fr, brand)),
                            mark=mark, brand=brand,
                            logo_anchors=anchors, logo_hold=logo_hold,
                            overlays=overlays)
@@ -340,7 +377,11 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     # A mark that lands silently is a graphic; one that lands with a sound is an
     # event. The cues come from the same list that drives the drawing, so they
     # cannot drift apart.
-    if sound:
+    if sound and cues is not None:
+        cue_list = cues(shots)
+        if cue_list:
+            track = sfx.mix(track, workdir / "track-sfx.wav", cue_list)
+    elif sound:
         # The verdict is the item's **last** element whatever the beat: a
         # checklist row is `(text, ok)` and a logo tile is `(slug, label, ok)`,
         # and unpacking a fixed shape here would have raised on the second one.
@@ -365,7 +406,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         else:
             src = Path(music)
         bed = audio_mod.render_bed(src, workdir / "bed.wav", total,
-                                   gain=music_gain)
+                                   gain=music_gain,
+                                   **({} if music_lufs is None
+                                      else {"lufs": music_lufs}))
         track = audio_mod.mix_voice_over_bed(bed, track, workdir / "mix.wav",
                                              total)
 

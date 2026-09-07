@@ -149,6 +149,57 @@ def reveal(sr: int = SR, dur: float = 0.16) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+def clock(sr: int = SR, dur: float = 0.09) -> np.ndarray:
+    """One second of a countdown clock. Wood-dry, no pitch to speak of.
+
+    The quiz format lays one of these per second under a silent countdown, so
+    it has to survive being heard eight times in a row without turning into a
+    rhythm section. That rules out the `mark_cross` recipe: its 196 Hz body is
+    a *note*, and eight of the same note in a row reads as music the bed is out
+    of tune with. This is nearly all transient — a band-passed click with only
+    enough body to give it a body — which is what a real escapement sounds
+    like and what stays neutral against any bed.
+
+    The tension comes from the spacing and from the silence around it, not from
+    the sound. Anything more dramatic here and the viewer is being hurried
+    rather than given time to think, which is the opposite of the beat's job.
+    """
+    from scipy.signal import butter, sosfilt
+
+    n = int(sr * dur)
+    rng = np.random.default_rng(31)
+    sos = butter(2, [1400.0, 5200.0], btype="band", fs=sr, output="sos")
+    click = sosfilt(sos, rng.normal(0.0, 1.0, n)) * _env(n, sr, 0.0003, 0.010)
+
+    t = np.arange(n) / sr
+    body = np.sin(2 * np.pi * 880.0 * t) * _env(n, sr, 0.001, 0.006) * 0.30
+
+    out = click + body
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def clock_final(sr: int = SR, dur: float = 0.11) -> np.ndarray:
+    """The last tick of a countdown — the same escapement, a fourth up.
+
+    A countdown that ends on the same tick it has been making has no full stop,
+    and the reveal then has to do the work of saying that time is up as well as
+    saying what the answer was. One pitched tick at the end costs nothing and
+    the beat lands on its own.
+    """
+    from scipy.signal import butter, sosfilt
+
+    n = int(sr * dur)
+    rng = np.random.default_rng(37)
+    sos = butter(2, [1900.0, 6400.0], btype="band", fs=sr, output="sos")
+    click = sosfilt(sos, rng.normal(0.0, 1.0, n)) * _env(n, sr, 0.0003, 0.012)
+
+    t = np.arange(n) / sr
+    body = np.sin(2 * np.pi * 1174.7 * t) * _env(n, sr, 0.001, 0.009) * 0.35
+
+    out = click + body
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
 # Per-cue level against the narration peak. A single `gain` for everything was
 # tried and cannot work: a transition covering a cut has to be heard over the
 # bed, while an item tick has to sit under a syllable, and those are a factor of
@@ -156,6 +207,16 @@ def reveal(sr: int = SR, dur: float = 0.16) -> np.ndarray:
 LEVELS = {
     "cross": 1.00, "tick": 1.00,
     "whoosh": 0.85, "riser": 0.55, "impact": 0.95, "reveal": 0.34,
+    # A countdown tick is heard eight times in a row, and it is the only thing
+    # in the mix for those eight seconds — **except that it is not, any more.**
+    # These started at 0.18/0.30, set against silence and judged as nagging at
+    # anything higher. Then the quiz gained a music bed, and under it the ticks
+    # were inaudible: at 0.18 a tick lands ~0.04 of the narration peak, which
+    # sits under a -32 LUFS bed rather than over it. Raised to carry over the
+    # bed while staying below a struck mark, which is still the loudest cue in
+    # the file. If the bed is ever removed from this format, these come back
+    # down — the pair only makes sense together.
+    "clock": 0.70, "clock_final": 0.95,
 }
 
 
@@ -172,7 +233,8 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     audio, sr = sf.read(str(track), always_2d=True, dtype="float32")
     peak = float(np.max(np.abs(audio))) or 1.0
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
-              "riser": riser, "impact": impact, "reveal": reveal}
+              "riser": riser, "impact": impact, "reveal": reveal,
+              "clock": clock, "clock_final": clock_final}
 
     for at, kind in cues:
         clip = makers[kind](sr) * peak * gain * LEVELS.get(kind, 1.0)

@@ -119,12 +119,12 @@ F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `gr
 
 **`mia` (female) is the default** for both formats — every shipped crypto
 long+short pair uses it. **`otis` (male, bare `am_puck` on the ENERGETIC chain
-at speed 1.00) is the male reader**, the counterpart to `mia`, and `arlo`
-(bare `am_liam`) is its alternate, held in reserve for the planned quiz
-format. `max` is **not** an article voice — it is a drone blend that was
-briefly mislisted here and reads androgynous on a real script; see `voice.md`
-and `docs/video/projects/tinnitus.md`. All remain `candidate`, not
-`approved`, until the user says otherwise.
+at speed 1.00) is the male reader**, the counterpart to `mia`, and also the
+quiz format's reader — see `projects/quiz.md`. `max` is **not** an article
+voice — it is a drone blend that was briefly mislisted here and reads
+androgynous on a real script; see `voice.md` and
+`docs/video/projects/tinnitus.md`. All remain `candidate`, not `approved`,
+until the user says otherwise.
 
 ```bash
 .venv/bin/python -m video_automation voices list

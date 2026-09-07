@@ -332,9 +332,8 @@ reproduce the exact original audio.
 **Explainer male reader: `otis`.** Bare `am_puck` (C+ on hours of data, the
 steadiest American male) on the same `ENERGETIC` chain `mia` uses, at speed
 1.00. The counterpart to `mia` when a pair wants a male voice — first used on
-`pulsatile-tinnitus` (2026-09-02). `arlo` (bare `am_liam`, same chain) is the
-alternate, held for the planned quiz format so the two formats do not sound
-identical. Both chosen by the user by ear from a thirteen-voice demo.
+`pulsatile-tinnitus` (2026-09-02), chosen by the user by ear from a
+thirteen-voice demo. Also the quiz format's reader — see `projects/quiz.md`.
 
 **`max` is not an article voice.** It was briefly listed as the male
 alternate here and that was wrong: it is a 60/40 `am_michael`/`af_nicole`
