@@ -597,12 +597,66 @@ def _pad_pause(audio, at: float, want: float):
     return out, extra, stop, (b + ins) / KOKORO_SR
 
 
+def _force_pad(audio, at: float, want: float,
+              search: float = 0.15, ramp: float = 0.006):
+    """Splice `want` seconds of silence into `audio`, unconditionally.
+
+    `_pad_pause` above only ever tops up a pause the model already left —
+    where two words run together with nothing to top up, it does nothing,
+    which is correct for a sentence gap (silence between two thoughts should
+    never invent itself) and wrong for the case this exists for: a pause the
+    *script* wants **inside** a continuous utterance, where by definition
+    there is no natural gap to find.
+
+    **It does not cut blindly at `at`.** `align_chunks`' own note is that its
+    boundaries carry roughly 0.19s of mean error, which is longer than a
+    single short word — a lettered option's "A." runs about 0.15-0.3s, so
+    cutting at the raw DTW estimate risks landing inside the word itself
+    instead of after it. The actual cut point is the locally quietest sample
+    within `search` seconds either side of `at`, found the same way
+    `_pad_pause` measures a window — just without requiring the minimum clear
+    any floor, since there may be no genuine pause here at all. A short linear
+    ramp into and out of the cut keeps the splice from clicking.
+
+    Returns `(audio, cut_at)` — `cut_at` is where the cut actually landed, in
+    the *returned* audio's timeline, since it can differ from `at` by the
+    width of `search`. The caller should treat this as the chunk's real
+    boundary rather than the original DTW guess.
+    """
+    import numpy as np
+
+    sr = KOKORO_SR
+    c = int(at * sr)
+    win = int(search * sr)
+    lo, hi = max(0, c - win), min(len(audio), c + win)
+    step = int(0.005 * sr) or 1
+    cut = c
+    if hi > lo + step:
+        best_e = float("inf")
+        for p in range(lo, hi - step, step):
+            e = float(np.sqrt(np.mean(audio[p:p + step] ** 2)))
+            if e < best_e:
+                best_e, cut = e, p + step // 2
+
+    rn = int(ramp * sr)
+    lo2, hi2 = max(0, cut - rn), min(len(audio), cut + rn)
+    pre, post = audio[lo2:cut].copy(), audio[cut:hi2].copy()
+    if len(pre):
+        pre *= np.linspace(1.0, 0.0, len(pre)).astype(audio.dtype)
+    if len(post):
+        post *= np.linspace(0.0, 1.0, len(post)).astype(audio.dtype)
+    silence = np.zeros(int(want * sr), dtype=audio.dtype)
+    out = np.concatenate([audio[:lo2], pre, silence, post, audio[hi2:]])
+    return out, cut / sr
+
+
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                             voice: VoiceSpec = None,
                             mood: str = "melancholic",
                             gap: "float | list[float]" = 0.55,
                             tail: float = TAIL,
                             run_break: float = RUN_BREAK_GAP,
+                            chunk_pad: "dict[int, float] | None" = None,
                             ) -> tuple[Path, list[Caption], float]:
     """Speak whole runs of sentences; recover caption boundaries inside them.
 
@@ -639,6 +693,15 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     A chunk whose *caption* is empty is spoken but never shown. The screen
     clears and only the voice carries it, which is a different instrument from
     a caption and worth having.
+
+    `chunk_pad` is a different instrument from `gap`, for a different problem.
+    `gap` is silence between sentences; `chunk_pad` forces silence **inside**
+    one, after a specific chunk, keyed by that chunk's index into the flat
+    order `sentences` is walked in (the same order `captions` comes back in).
+    It exists because splitting a chunk into its own sentence to get a
+    guaranteed gap changes how the model reads it — see `_force_pad` and the
+    quiz format's own doc for the measurement that forced this rather than
+    just widening `gap`.
     """
     import soundfile as sf
 
@@ -663,6 +726,23 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     # One silence per *run*, not per sentence: a gap inside a run is already in
     # the audio as the model's own pause, topped up by `_pad_pause`.
     run_gaps: list[float] = []
+
+    # `chunk_pad` is keyed by the flat global chunk index, but each run's own
+    # `ends` array is indexed from 0 within that run — so translate once,
+    # before any run is processed, from "chunk N overall" to "chunk N of run
+    # R". Built the same way the runs themselves are: walking `all_pairs` in
+    # the order `_run_groups` assigned sentences to runs.
+    chunk_pad = chunk_pad or {}
+    pad_local: dict[int, dict[int, float]] = {}   # run index -> {local: secs}
+    gi = 0
+    for ri0, run0 in enumerate(runs):
+        local = 0
+        for si in run0:
+            for _ in all_pairs[si]:
+                if gi in chunk_pad:
+                    pad_local.setdefault(ri0, {})[local] = chunk_pad[gi]
+                gi += 1
+                local += 1
 
     for ri, run in enumerate(runs):
         pairs_in = [all_pairs[si] for si in run]
@@ -711,6 +791,31 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
             if stop is not None:
                 stop_at[bi] = stop
                 resume[bi] = res
+
+        # Forced intra-sentence pauses. A separate, later backward pass: these
+        # target chunk boundaries the sentence-gap loop above never touches
+        # (anything that is not a sentence's *last* chunk), so there is no
+        # shared bookkeeping to interleave, only the same "walk backwards,
+        # shift what comes after" shape.
+        for li, want in sorted(pad_local.get(ri, {}).items(), reverse=True):
+            audio, cut = _force_pad(audio, ends[li], want)
+            ends[li] = cut                # the real cut, not the DTW guess
+            # `stop_at`/`resume` are what the caption loop actually reads for
+            # this chunk's end and the next one's start — leaving them unset
+            # was the first version's bug: `ends[li]` grew correctly, but
+            # `prev` (the next chunk's fallback start) is set from `ends[li]`
+            # *before* this pass ever touches it, so without an explicit
+            # `resume[li]` the next chunk's caption still started right where
+            # this one ended, silently erasing the inserted silence from the
+            # timeline it was inserted into.
+            stop_at[li] = cut
+            resume[li] = cut + want
+            for m in range(li + 1, len(ends)):
+                ends[m] += want
+            for key in list(stop_at):
+                if key > li:
+                    stop_at[key] += want
+                    resume[key] += want
 
         raw = workdir / f"run{ri:02d}.raw.wav"
         wav = workdir / f"run{ri:02d}.wav"

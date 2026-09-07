@@ -107,8 +107,14 @@ def _quiz(args, site: dict, explainers: dict[str, set[str]]) -> int:
     filtered out. Only an article that already has a quiz drops off.
     """
     d = REPO / "projects" / site["quiz"]
-    has_quiz = {slug_of(f) for f in sorted(d.glob("*.py"))} if d.is_dir() else set()
+    scripts = sorted(d.glob("*.py")) if d.is_dir() else []
+    has_quiz = {slug_of(f) for f in scripts}
     has_quiz.discard(None)
+    # The series number is a count of what's on disk, the same "derived, never
+    # tracked" rule everything else in this file follows - one script is one
+    # built quiz, whether or not it names a source article, so there is
+    # nothing to hand-maintain and nothing to drift.
+    next_number = len(scripts) + 1
 
     posts = [p for p in sorted(site["posts"].glob("*.mdx"))
              if not p.stem.startswith("_")]
@@ -123,7 +129,9 @@ def _quiz(args, site: dict, explainers: dict[str, set[str]]) -> int:
         rows = rows[: args.limit]
 
     print(f"{args.site} quiz: {len(has_quiz)} article(s) already have a quiz - "
-          f"showing {len(rows)} that do not\n")
+          f"showing {len(rows)} that do not")
+    print(f"next quiz number: {next_number} - opens the video's title card "
+          f"(\"{site['quiz'].split('-')[-1].title()} Quiz #{next_number}\")\n")
     for slug, title, formats in rows:
         mark = (f"  [explainer: {', '.join(sorted(formats))}]" if formats
                 else "  [no explainer yet]")

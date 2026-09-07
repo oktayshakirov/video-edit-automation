@@ -37,24 +37,28 @@ Three consequences, and they are the whole format:
 
 | | |
 | --- | --- |
-| Length | ~75s. Three questions. |
+| Length | ~95-100s. Three questions, opening on a numbered title card. |
 | Format | 9:16 only. There is no long form — see below. |
 | Voice | **`otis`** (bare `am_puck`, ENERGETIC chain). |
+| Countdown | 6s (was 8s; brought down once the format had shipped and been watched). |
 | Beat | `quiz.cards.QuizShot`, drawn across seven shots per question — see below. |
 | Source | one article, `SOURCE_POST` set like every other project script. |
 
-**Three questions, not five.** A question costs about twenty-five seconds —
-two to ask, eight to read four cards with real pauses between them, eight to
-wait, five to reveal and explain — so five questions is over two minutes.
+**Three questions, not five.** A question costs about thirty seconds — two to
+ask, roughly thirteen to read four cards with the pause after every letter and
+between every card, six to wait, five to reveal and explain — so five
+questions would run past two and a half minutes.
 
-**The original estimate was 60s and the format lands at ~75s.** That is the
-cost of the pauses being real, and it was the user's call once the first two
-cuts came back as "read all together". The only silence this engine can give
-a script is a scripted gap between two sentences, and each one is paid for in
-runtime; nothing recovers that time without cutting a pause back to
-inaudible. **The countdown is the largest single line in the budget** — three
-times `countdown`, so 24s of the 75 — and it is the first thing to trade if a
-run has to come down. Trade it before trading the pauses.
+**The original estimate was 60s; the format has landed at ~95-100s across two
+more rounds of real pauses.** That is the cost of the pauses being real, and
+it was the user's call each time, after watching a cut that ran them
+together. The only silence this engine can give a script is a scripted gap
+(or a forced splice — see below), and each one is paid for in runtime;
+nothing recovers that time without cutting a pause back to inaudible. The
+countdown moved the other way: it came down from 8s to 6s once the format had
+shipped and been watched, which is 6s recovered per question, 18s across
+three. It is still the largest single line in the budget and the first thing
+to trade further if a run needs to come down again.
 
 **Voice `otis` — and the argument for a distinct one lost to the ear.** This
 format was first built on a second, reserved-for-quiz male profile, on the
@@ -77,8 +81,9 @@ landscape version wants a different layout rather than the same one wider.
 ## The three phases
 
 1. **Ask.** The question sets. The four cards arrive one at a time, each as
-   its own line is read. Nothing is marked.
-2. **Wait.** The narration stops for eight seconds. A ring drains around a
+   its own line is read — letter, a beat, then the answer (see
+   `LETTER_ANSWER_GAP` below). Nothing is marked.
+2. **Wait.** The narration stops for six seconds. A ring drains around a
    number and one clock tick lands per second, the last a fourth higher. This
    silence *is* the format. A quiz that answers itself immediately is a list.
 3. **Reveal.** On the cut, the three wrong cards go red and dim together; a
@@ -106,10 +111,11 @@ punctuation-length pause, which on the ENERGETIC chain is close to nothing —
 one option ran straight into the next, and the user's own word for it was
 "instantly following."
 
-There is no engine knob that buys a pause *inside* a sentence. The only fix
-that is real is more sentences: the question, each card, and each half of the
-reveal are separate one-chunk sentences in `quiz.build.render_quiz_short`,
-each with its own scripted gap —
+At the time there was no engine knob that bought a pause *inside* a
+sentence — `chunk_pad` didn't exist yet, and it's a later fix (see the
+letter/answer section below). The fix here was more sentences: the question,
+each card, and each half of the reveal are separate one-chunk sentences in
+`quiz.build.render_quiz_short`, each with its own scripted gap —
 
 | gap | value | buys |
 |---|---|---|
@@ -117,6 +123,7 @@ each with its own scripted gap —
 | `CARD_GAP` | 0.70s | between one card and the next |
 | `ANSWER_LEAD_GAP` | 0.40s | after "The correct answer is B.", before the why |
 | `NEXT_Q_GAP` | 1.00s | after the answer line, before the next question |
+| `TITLE_GAP` / `INTRO_GAP` | 1.00s | after the title card, and after the intro |
 
 — and `plan_shots` requires one `Shot` per sentence, so a question is seven
 shots: the question, the four cards, and the two halves of the reveal.
@@ -138,9 +145,9 @@ because there was no daylight between the last syllable and the timer
 appearing. `LEAD` (0.25s) is silence *after* real speech before the ring
 shows; `TAIL` (0.25s) is stillness *after* the ring's last tick before the cut
 to the marked cards. Both are added to the requested silence on the last
-option's gap (`LEAD + countdown + TAIL`), not carved out of the eight-second
-wait itself — the ring still runs for exactly `countdown` seconds, it just no
-longer starts on top of the word that was still finishing.
+option's gap (`LEAD + countdown + TAIL`), not carved out of the wait itself —
+the ring still runs for exactly `countdown` seconds, it just no longer starts
+on top of the word that was still finishing.
 
 A `whoosh` cues the cut into every question, including the first one off the
 intro card, placed `WHOOSH_LEAD` (0.70s) *ahead* of the question so it has
@@ -148,14 +155,15 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## A letter is never spoken on its own
+## A letter is never *synthesised* on its own — but it is still followed by a real pause
 
-**Measured, and it overturned the previous design.** The build that isolated
-the letter — "A." as its own one-word run, so a guaranteed silence could
+**This section used to conclude the opposite of what it concludes now, and
+the correction matters more than the fact.** The build that isolated the
+letter — "A." as its own one-word *sentence*, so a guaranteed silence could
 follow it — came back as the letters sounding weird and the voice unnatural.
-The pitch track says exactly why. Inside "A. It has no effect." the letter
-runs **137 Hz → 208 Hz**: a rising list-item contour that *leads into* the
-answer. Synthesised alone it is flat and half again as long —
+The pitch track said why. Inside "A. It has no effect." the letter runs
+**137 Hz → 208 Hz**: a rising list-item contour that *leads into* the answer.
+Synthesised alone it is flat and half again as long —
 
 | spoken alone | F0 start → end | duration |
 |---|---|---|
@@ -165,15 +173,24 @@ answer. Synthesised alone it is flat and half again as long —
 | `"A"` | 116 → 143 Hz | 0.51s |
 | in context | **137 → 208 Hz** | ~0.35s |
 
-Flat and drawn out is the sound being complained about, and no punctuation
-recovers the rise.
+That measurement was read as "the letter and the pause cannot coexist," and
+the pause was dropped. **It only proves the letter cannot be synthesised
+without its answer — not that nothing can be inserted between them
+afterward.** The two claims look identical until you separate synthesis from
+post-processing, and the fix is exactly that separation: the letter and its
+answer are still synthesised as one sentence, in one pass, so the model still
+produces the natural rising contour — and *then* the engine cuts the
+resulting audio at the boundary between them and splices in
+`LETTER_ANSWER_GAP` (0.70s) of silence. See `chunk_pad` and `_force_pad` in
+`core/voiceover.py`, and `LETTER_ANSWER_GAP` in `quiz.build` for the full
+account, including why the cut does not land inside the word: `align_chunks`'
+own boundary estimate carries too much jitter for a token this short, so the
+actual splice point is the locally quietest sample near that estimate, not
+the estimate itself.
 
-**So this is a genuine either/or, not a tuning problem.** The letter's
-naturalness *consists of* it leading into its own answer, so any silence
-inserted after it removes the thing that makes it sound right. A break after
-the letter and a natural-sounding letter cannot both exist on this
-synthesiser. The letter travels with its option as one utterance, and the
-pauses live between cards, where they cost nothing. Do not split them again.
+Checked against the raw waveform on all four cards of a real question before
+this shipped: a clean ~0.7s silence after each letter, nothing clipped on
+either side.
 
 ## A scripted gap under `RUN_BREAK_GAP` is a request, not a guarantee
 
@@ -230,6 +247,27 @@ payoff arrives fourth. The wrong cards are *dimmed towards the background*
 rather than filled red — three red cards next to one green one is a traffic
 light, and the eye goes to the red because there is more of it.
 
+## Every video opens on a numbered title card
+
+`render_quiz_short(..., title=(caption, spoken), title_number=N)` — a
+`ChapterCard` before the intro, with `N` drawn as a large numeral above the
+title via the beat's own numbered mode (`payload=(title, number)`). That mode
+exists for "a script that is genuinely counting something the narration also
+counts out loud" — `ChapterCard`'s own words — and a quiz series is exactly
+that: `Tinnitus quiz, number one.` is a real sentence the card can back up
+visually, not a numeral bolted on top of an agenda.
+
+**Never write the number into the caption text as `#1`.** Checked, not
+assumed: Kokoro reads a bare `#1` as "hash one." The number belongs in the
+numeral (via `title_number`) and, if the sentence should say it, spelled out
+in the *spoken* half of `title` — the caption can stay clean ("Tinnitus Quiz:
+Tinnitus Myths Edition") without duplicating what the numeral already shows.
+
+`N` is incremented by hand per channel, and derived rather than
+tracked — the same rule `tools/topics.py` follows everywhere else. It is a
+count of the scripts already in `projects/quiz-<channel>/`, plus one; the
+`--quiz` flag prints it so nobody has to count.
+
 ## Cards carry type, not photographs
 
 Considered and settled: four stock images per question is twelve to twenty
@@ -243,6 +281,19 @@ every one with the real font at the real width and raises before anything
 renders. Clipping quietly would put a *wrong answer on screen*, and a truncated
 D option is exactly the fault that survives review because the reviewer already
 knows what it says.
+
+## No thumbnail render
+
+Every article explainer calls `render_short_thumb` with a site photo or, at
+worst, a headline card. A quiz project script does neither, on the user's
+call (2026-09-08): the video's own picture is already four drawn cards, and a
+generated headline plate would just restate the hook a viewer is about to see
+anyway in the first two seconds. The Reel cover comes from a frame pulled out
+of the finished render at publish time instead — see
+`docs/publish/instagram-facebook.md`. A Short gets no thumbnail from the
+YouTube API regardless of format, and TikTok's draft cover is always set by
+hand, so the only real consumer of a generated thumbnail file was ever the
+Instagram/Facebook Reel cover — which a video frame serves just as well.
 
 ## The safe box is the layout
 

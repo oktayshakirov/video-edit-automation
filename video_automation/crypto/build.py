@@ -209,6 +209,16 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # model already left a pause. See `_run_groups`. Prose
                         # wants the default; a list of discrete items does not.
                         run_break=None,
+                        # A forced pause *inside* one sentence rather than
+                        # between two — keyed by the flat chunk index
+                        # `build_narration_aligned` walks `sentences` in, same
+                        # indexing `captions` comes back with. For where even
+                        # `run_break` is the wrong tool: splitting a chunk into
+                        # its own sentence to get a guaranteed gap changes how
+                        # the model reads it (a quiz's lettered option is the
+                        # example — see `quiz.build`), and this buys the pause
+                        # without that cost.
+                        chunk_pad=None,
                         # The bed's loudness target. `music_gain` cannot do
                         # this job — it is applied *before* `loudnorm` in
                         # `render_bed`, which then normalises the result back
@@ -240,6 +250,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     track, captions, total = build_narration_aligned(
         [list(s) for s in sentences], workdir, gap=gap, tail=tail,
         **({} if run_break is None else {"run_break": run_break}),
+        **({} if chunk_pad is None else {"chunk_pad": chunk_pad}),
         **profile_args(voice))
 
     plan_shots(shots, sentence_spans(sentences, captions))

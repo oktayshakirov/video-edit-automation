@@ -105,6 +105,20 @@ for a script whose pauses have to be certain — a list of discrete items rather
 than prose. The quiz format is the worked example, and the measurement of what
 Kokoro does and does not leave a pause after is in `projects/quiz.md`.
 
+**A pause *inside* one sentence is a different problem, with a different
+fix.** Splitting a chunk into its own sentence to get a guaranteed gap changes
+how the model reads it — the quiz format's lettered options are the measured
+example, where isolating the letter made it sound flat instead of leading
+naturally into its answer (see `projects/quiz.md`). Where the sentence has to
+stay whole, `build_narration_aligned` also takes a `chunk_pad` — a forced
+splice at a specific chunk boundary, applied to the audio *after* synthesis,
+so the model still sees the full sentence and produces its natural prosody.
+It does not require or top up an existing pause the way `_pad_pause` does;
+`_force_pad` cuts live speech, at the locally quietest sample near the
+boundary rather than the raw alignment estimate (which carries too much
+jitter for a short word to trust blindly), and ramps in and out of the cut so
+the splice does not click.
+
 **What this does not fix.** Kokoro is an 82M model with no prosody control and
 no emotion parameter. The register and the joins are much better; the ceiling
 is unchanged. Anything beyond it is an engine change, and the options
