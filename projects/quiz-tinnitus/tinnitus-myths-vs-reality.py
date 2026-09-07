@@ -35,9 +35,10 @@ none of the four cards on any question is invented.
 **No thumbnail render.** The format's own convention now — see
 `docs/video/projects/quiz.md` and the skill.
 
-**Quiz #1 for this channel.** The title card opens on a large "1" — see
-`tools/topics.py tinnitus --quiz`, which now prints the next number so it
-never has to be counted by hand.
+**Opens on "Tinnitus Quiz: Myths Edition", no number and no second intro
+card.** Both were tried on this exact video and cut on the user's call
+(2026-09-08) — the number as an unnecessary flourish, the second card as
+redundant with the title.
 
 Run from the repo root:
 
@@ -51,9 +52,7 @@ from video_automation.quiz.build import Question, render_quiz_short
 
 SOURCE_POST = "tinnitus-myths-vs-reality"
 
-QUIZ_NUMBER = 1
-TITLE = ("Tinnitus Quiz: Tinnitus Myths Edition",
-         "Tinnitus quiz, number one. Tinnitus myths edition.")
+TITLE = ("Tinnitus Quiz: Myths Edition", "Tinnitus quiz, myths edition.")
 
 QUESTIONS = [
     # Myth 1 in the source: "Only Loud Noises Cause Tinnitus." The three
@@ -99,10 +98,9 @@ def main() -> None:
     out = Path.home() / "Desktop/quiz-tinnitus-myths-vs-reality.mp4"
     work = Path.home() / "Desktop/.quiz-tinnitus-myths-vs-reality-work"
     path, total = render_quiz_short(
-        ("Three tinnitus myths.", "Most people believe at least one."),
         QUESTIONS,
         ("How many did you get?",),
-        out, work, title=TITLE, title_number=QUIZ_NUMBER, brand=TINNITUS)
+        out, work, title=TITLE, brand=TINNITUS, keep_work=True)
     print(f"{path}  {total:.1f}s")
 
 

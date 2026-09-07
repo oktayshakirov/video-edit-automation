@@ -302,10 +302,11 @@ class _Group:
     reveal_body: Shot    # the reason
 
 
-def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
+def render_quiz_short(questions: list[Question], outro: tuple,
                       out: Path, workdir: Path,
                       title: "str | tuple[str, str] | None" = None,
                       title_number: "int | None" = None,
+                      intro: "tuple | None" = None,
                       voice: str = "otis",
                       brand: Brand = CRYPTO,
                       frame: Frame = VERTICAL,
@@ -313,29 +314,24 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
                       **kw) -> tuple[Path, float]:
     """One quiz short, end to end.
 
-    `title` and `title_number` open the video, before `intro` — the series
-    card: "Tinnitus Quiz: Tinnitus Myths Edition" with a large "1" above it.
-    `title_number` is `ChapterCard`'s own `number` field, built for exactly
-    this — "a script that is genuinely counting something the narration also
-    counts out loud" — so the count gets the card's dedicated large-numeral
-    treatment instead of living inside the title text. **Do not write the
-    number into `title` as "#1"**: it does not just look worse next to a
-    numeral the card is already drawing, Kokoro reads a bare "#1" as "hash
-    one" (checked, not assumed) and there would be nothing stopping the
-    caption text from getting spoken literally. `title` is a `(caption,
-    spoken)` pair when the two need to differ — write "Tinnitus Quiz, number
-    one." into the spoken half if the sentence needs the count said aloud.
+    `title` opens the video — the series card, a full-frame `chapter` beat:
+    "Tinnitus Quiz: Myths Edition" and so on. **No number by default, on the
+    user's call (2026-09-08).** The format tried a large numeral above the
+    title for exactly one video — `title_number`, `ChapterCard`'s own field
+    for "a script that is genuinely counting something the narration also
+    counts out loud" — before it was dropped; the parameter still works if a
+    later run wants it back. Nothing in this format writes the number into
+    `title`'s own text either way: Kokoro reads a bare "#1" as "hash one"
+    (checked), reason enough on its own never to put a numeral in the caption
+    string.
 
-    The number is incremented by hand each time a new quiz is built - count
-    the existing scripts in `projects/quiz-<channel>/` and add one, or read
-    it straight off `tools/topics.py <site> --quiz`, which prints it. Leaving
-    both `None` omits the card entirely, for any quiz built before this
-    existed.
+    `intro` is optional and off by default. The first video carried a second
+    card between the title and the first question, stating the stake ("Three
+    tinnitus myths. Most people believe at least one.") — the user cut it as
+    redundant with the title (2026-09-08). Pass it to bring a stake-setting
+    card back for a quiz where the title alone does not carry enough context.
 
-    `intro` and `outro` are caption-chunk tuples like any other sentence; each
-    renders as a full-frame `chapter` card, so neither burns a caption over
-    itself and both are read rather than watched. The intro states the stake
-    ("Three questions on Ethereum. Most people miss the second one.").
+    `outro` is required and always renders, unlike `intro`.
 
     **The outro just asks the question** — "How many did you get?" and stop.
     It used to add "Tell me in the comments", and the user cut it: a quiz that
@@ -395,16 +391,21 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
         add((title,))
         display = title if isinstance(title, str) else title[0]
         shots.append(Shot(graphic="chapter", payload=(display, title_number)))
-        # Holds the whoosh into the first question, same as `INTRO_GAP` does
-        # for the card after it.
+        # Whichever of title/intro is last has to hold the first question's
+        # whoosh — `TITLE_GAP` and `INTRO_GAP` are both 1.00s for exactly
+        # that reason, not because the two cards need different silences.
         gaps.append(TITLE_GAP)
 
-    add(tuple(intro))
-    shots.append(card(" ".join(c if isinstance(c, str) else c[0]
-                               for c in intro)))
-    # The intro's own gap has to hold the first question's `whoosh`, same as
-    # every later question's does.
-    gaps.append(INTRO_GAP)
+    if intro is not None:
+        add(tuple(intro))
+        shots.append(card(" ".join(c if isinstance(c, str) else c[0]
+                                   for c in intro)))
+        gaps.append(INTRO_GAP)
+
+    if not shots:
+        raise ValueError("a quiz needs at least a title or an intro to open "
+                         "on — the first question's whoosh has nothing to "
+                         "sit inside otherwise")
 
     groups: list[_Group] = []
     # `whoosh` marks the cut into a new question — including the first, off

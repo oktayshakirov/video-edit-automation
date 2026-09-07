@@ -598,7 +598,9 @@ def _pad_pause(audio, at: float, want: float):
 
 
 def _force_pad(audio, at: float, want: float,
-              search: float = 0.15, ramp: float = 0.006):
+              search: float = 0.40, guard: float = 0.05,
+              min_run: float = 0.025, rel_floor: float = 0.35,
+              ramp: float = 0.012):
     """Splice `want` seconds of silence into `audio`, unconditionally.
 
     `_pad_pause` above only ever tops up a pause the model already left —
@@ -608,35 +610,103 @@ def _force_pad(audio, at: float, want: float,
     *script* wants **inside** a continuous utterance, where by definition
     there is no natural gap to find.
 
-    **It does not cut blindly at `at`.** `align_chunks`' own note is that its
-    boundaries carry roughly 0.19s of mean error, which is longer than a
-    single short word — a lettered option's "A." runs about 0.15-0.3s, so
-    cutting at the raw DTW estimate risks landing inside the word itself
-    instead of after it. The actual cut point is the locally quietest sample
-    within `search` seconds either side of `at`, found the same way
-    `_pad_pause` measures a window — just without requiring the minimum clear
-    any floor, since there may be no genuine pause here at all. A short linear
-    ramp into and out of the cut keeps the splice from clicking.
+    **It does not cut blindly at `at`, and `at` turned out to deserve less
+    trust than the first two versions of this function gave it.** `at` comes
+    from `align_chunks`, which finds a chunk boundary by synthesising each
+    chunk *alone* as a DTW reference — and for a one- or two-character chunk
+    like a lettered option's "A.", that reference is a poor acoustic match
+    for how the letter actually sounds *in context* (see `LETTER_ANSWER_GAP`
+    in `quiz.build` for the measurement: a letter spoken alone is flat and
+    runs longer than the same letter leading into an answer). DTW's own
+    documented error is "~0.19s mean," but that is an average over ordinary
+    multi-word chunks; a first-word one- or two-character chunk with a badly
+    mismatched reference is exactly the degenerate case that average doesn't
+    cover, and it was measured landing over 200ms early — at the letter's own
+    energy *peak*, not its end. A search window sized to the documented
+    "mean" error was not wide enough to recover from that.
+
+    So `at` is now only a rough anchor for a much wider, mostly-forward
+    search (`search` seconds ahead of it, `guard` seconds behind — biased
+    forward because every measured failure was DTW landing too early, never
+    too late), and the cut point is found independently of how close it ends
+    up to `at`: the audio's own energy envelope in that window is scanned for
+    a run of at least `min_run` seconds whose level stays under `rel_floor`
+    of the window's peak (the letter's own loudest moment) — a *relative*
+    floor, since there is no absolute silence floor to test against this
+    close to live speech. The **earliest** qualifying run wins, so the cut
+    lands right after the letter finishes rather than drifting into
+    whatever's next.
+
+    **This replaced two narrower searches, and both failures are worth
+    keeping.** The first scored candidates on a single 5ms window, which is
+    short enough to land inside a vowel and still read as quiet — every
+    waveform crosses zero continuously, so a live vowel has plenty of 5ms
+    stretches that average near-silent without the word having ended. Widening
+    the scoring window to 20ms fixed *that* failure but not the real one: the
+    search was still centred on `at`, and `at` itself was the problem. Both
+    were reported back as "the letters sound weird," which they were — both
+    were cutting the letter off mid-word, just by different amounts.
 
     Returns `(audio, cut_at)` — `cut_at` is where the cut actually landed, in
-    the *returned* audio's timeline, since it can differ from `at` by the
-    width of `search`. The caller should treat this as the chunk's real
-    boundary rather than the original DTW guess.
+    the *returned* audio's timeline. The caller should treat this as the
+    chunk's real boundary rather than the original DTW guess.
     """
     import numpy as np
 
     sr = KOKORO_SR
     c = int(at * sr)
-    win = int(search * sr)
-    lo, hi = max(0, c - win), min(len(audio), c + win)
-    step = int(0.005 * sr) or 1
+    lo = max(0, c - int(guard * sr))
+    hi = min(len(audio), c + int(search * sr))
+    step = int(0.004 * sr) or 1              # candidate spacing
+    env_win = int(0.015 * sr) or 1           # envelope window, wide enough to
+                                             # not read a zero-crossing as quiet
+
     cut = c
-    if hi > lo + step:
-        best_e = float("inf")
-        for p in range(lo, hi - step, step):
-            e = float(np.sqrt(np.mean(audio[p:p + step] ** 2)))
-            if e < best_e:
-                best_e, cut = e, p + step // 2
+    if hi > lo + env_win:
+        positions = np.arange(lo, hi - env_win, step)
+        env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
+                        for p in positions])
+        run_len = max(1, int(round(min_run / (step / sr))))
+
+        # **The peak is tracked causally (running max up to each candidate),
+        # not taken once over the whole window.** A global peak is wrong the
+        # moment the search window reaches into the *next* word and that word
+        # is louder than the letter — measured on "D. Certain medications...":
+        # the true D./Certain boundary dips to ~30% of D.'s own peak, which
+        # is comfortably quiet against D. alone but reads as unremarkable
+        # against "Certain"'s later, louder peak, so a global-peak version of
+        # this search walked straight past the real boundary and landed in
+        # the next gap instead — inside "Certain medications," not after "D."
+        # Tracking the peak causally means the threshold at any candidate
+        # reflects only what the letter has actually done so far.
+        #
+        # The **first** qualifying dip wins, not the deepest, for the same
+        # reason: a later, deeper dip is more likely to belong to the answer
+        # text than to the letter.
+        found = None
+        running_peak = 0.0
+        i = 0
+        while i < len(env):
+            running_peak = max(running_peak, float(env[i]))
+            thresh = running_peak * rel_floor
+            if env[i] < thresh:
+                j = i
+                while j < len(env) and env[j] < thresh:
+                    j += 1
+                if j - i >= run_len:
+                    found = positions[i] + env_win // 2
+                    break
+                i = j
+            else:
+                i += 1
+        if found is not None:
+            cut = int(found)
+        elif len(env):
+            # Nothing cleared the relative floor for long enough — fall back
+            # to the single quietest point rather than cutting blindly at the
+            # untrusted `at`. Better than nothing; should be rare enough to
+            # be worth knowing about if it isn't.
+            cut = int(positions[int(np.argmin(env))] + env_win // 2)
 
     rn = int(ramp * sr)
     lo2, hi2 = max(0, cut - rn), min(len(audio), cut + rn)
