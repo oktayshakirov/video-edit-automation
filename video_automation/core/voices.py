@@ -178,21 +178,12 @@ PROFILES: dict[str, VoiceProfile] = {
              "the user by ear from a thirteen-voice demo over am_echo and "
              "am_liam; picked as a real single-speaker voice after `max` (an "
              "am_michael/af_nicole blend) was rejected for reading "
-             "androgynous. First cut: the pulsatile-tinnitus long+short pair.",
+             "androgynous. First cut: the pulsatile-tinnitus long+short pair. "
+             "**Also the quiz format's reader**, from 2026-09-07 — reading "
+             "the quiz in the same voice as the explainers is what makes it "
+             "sound like the channel rather than a different show.",
         source="P1_am_puck_energetic.wav", folder="Crypto Wiki Voices",
     ),
-    "arlo": VoiceProfile(
-        voice="am_liam", speed=1.00, chain=ENERGETIC,
-        projects=("crypto", "tinnitus"), status="candidate", script="crypto",
-        note="The alternate male article reader, alongside otis — bare "
-             "am_liam on the ENERGETIC chain at speed 1.00. Runner-up in the "
-             "same demo otis was picked from. Held in reserve for the planned "
-             "quiz video format, where a second distinct male voice is "
-             "wanted so the two formats do not sound identical. Not yet used "
-             "in a shipped video.",
-        source="P2_am_liam_energetic.wav", folder="Crypto Wiki Voices",
-    ),
-
     # --- tinnitus zen (sound therapy) ---------------------------------------
     # Both are the bare af_nicole voice, which is Kokoro's only breathy/ASMR
     # voice — measured, not assumed. All twelve male voices ran 11.7-16.2s

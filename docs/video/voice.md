@@ -94,6 +94,17 @@ inserting into the **quietest point** of the existing pause, so the decay
 before and the onset after survive. Measured on the same seven lines: internal
 absolute-silence gaps went 7 → 3.
 
+**A gap below `RUN_BREAK_GAP` is therefore a request, not a guarantee, and it
+fails silently.** `_pad_pause` can only insert into a pause the model already
+left: it needs a quiet stretch of `MIN_PAUSE` under `PAUSE_FLOOR` at that
+boundary, and where the model ran two sentences together there is nothing to
+top up, so the scripted gap is dropped with no warning and no error. A gap at
+or above the threshold is a real silence file in the concat and always
+happens. `build_narration_aligned` takes a `run_break` to move that threshold
+for a script whose pauses have to be certain — a list of discrete items rather
+than prose. The quiz format is the worked example, and the measurement of what
+Kokoro does and does not leave a pause after is in `projects/quiz.md`.
+
 **What this does not fix.** Kokoro is an 82M model with no prosody control and
 no emotion parameter. The register and the joins are much better; the ceiling
 is unchanged. Anything beyond it is an engine change, and the options

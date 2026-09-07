@@ -1,7 +1,7 @@
 # The video docs
 
-Three skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-drone` -
-and one publishes them, `/publish-video`. The skills are thin: they hold the
+Four skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
+`/video-drone` - and one publishes them, `/publish-video`. The skills are thin: they hold the
 *order of the work*. Everything a build actually needs to know lives here, once.
 
 ## Map
@@ -21,6 +21,7 @@ and one publishes them, `/publish-video`. The skills are thin: they hold the
 | `troubleshooting.md` | Engine faults that already cost a re-cut once |
 | `projects/crypto.md` | thecrypto.wiki: voice, copy, what the site gives you |
 | `projects/tinnitus.md` | tinnitushelp.me: article explainers *and* sound-therapy sessions |
+| `projects/quiz.md` | The quiz Short: three questions, four cards, a countdown - both channels |
 | `projects/drone-long.md` | Drone: the Final Cut FCPXML edit |
 | `projects/drone-short.md` | Drone: the vertical cut |
 

@@ -470,17 +470,29 @@ def build_narration(text: str, workdir: Path, voice: VoiceSpec = None,
     return track, captions, t + tail
 
 
-def _run_groups(gaps: list[float], est: list[float]) -> list[list[int]]:
+def _run_groups(gaps: list[float], est: list[float],
+                run_break: float = RUN_BREAK_GAP) -> list[list[int]]:
     """Group sentence indices into runs spoken as one utterance.
 
     A run breaks where the *script* asks for a real pause, which is the only
-    honest place to break it: `RUN_BREAK_GAP` and over is a written beat and
+    honest place to break it: `run_break` and over is a written beat and
     the silence is the point, so joining across it would smooth away the thing
     the gap was buying. Everything under that is punctuation inside a thought.
 
     `est` is a rough per-sentence duration, used only to keep a run under
     `RUN_MAX_S` — a long run is not wrong, but one bad warp inside it would
     smear more captions than it is worth risking.
+
+    **`run_break` is the threshold, and lowering it is how a script buys a
+    *guaranteed* silence.** The distinction matters more than it looks: a gap
+    below the threshold is topped up by `_pad_pause` inside continuous audio,
+    which can only work where the model already left a pause to top up — and
+    where it did not, the scripted gap is silently dropped. A gap at or above
+    the threshold becomes a real silence file in the concat and always
+    happens. Prose wants the default (a breath inside a thought should not
+    restart the model's prosody); a list of discrete items — a quiz's four
+    lettered options — wants it low, because there the pauses are the format
+    and an item-by-item read is correct rather than a regression.
     """
     runs: list[list[int]] = []
     cur: list[int] = []
@@ -489,7 +501,7 @@ def _run_groups(gaps: list[float], est: list[float]) -> list[list[int]]:
         cur.append(i)
         total += est[i]
         last = i == len(gaps) - 1
-        if last or g >= RUN_BREAK_GAP or total + est[i + 1] > RUN_MAX_S:
+        if last or g >= run_break or total + est[i + 1] > RUN_MAX_S:
             runs.append(cur)
             cur, total = [], 0.0
     if cur:
@@ -590,6 +602,7 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                             mood: str = "melancholic",
                             gap: "float | list[float]" = 0.55,
                             tail: float = TAIL,
+                            run_break: float = RUN_BREAK_GAP,
                             ) -> tuple[Path, list[Caption], float]:
     """Speak whole runs of sentences; recover caption boundaries inside them.
 
@@ -615,6 +628,14 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     others. A reveal needs the pause before it to be longer than the pauses
     inside the setup, or it lands as just another line.
 
+    **A `gap` under `run_break` is a request, not a guarantee.** Under the
+    threshold the silence is inserted into the model's own pause by
+    `_pad_pause`, which needs a real pause there to insert into — where the
+    model ran two sentences together, there is nothing to top up and the
+    scripted gap is dropped without a word. At or above the threshold the gap
+    is a silence file in the concat and always happens. Lower `run_break` when
+    a script needs its pauses to be certain; see `_run_groups`.
+
     A chunk whose *caption* is empty is spoken but never shown. The screen
     clears and only the voice carries it, which is a different instrument from
     a caption and worth having.
@@ -637,7 +658,7 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     all_pairs = [[(c, c) if isinstance(c, str) else c for c in chunks]
                  for chunks in sentences]
     est = [len(" ".join(s for _, s in p).split()) / 3.0 + 0.4 for p in all_pairs]
-    runs = _run_groups(gaps, est)
+    runs = _run_groups(gaps, est, run_break)
 
     # One silence per *run*, not per sentence: a gap inside a run is already in
     # the audio as the model's own pause, topped up by `_pad_pause`.
