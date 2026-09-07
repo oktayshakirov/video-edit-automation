@@ -63,6 +63,18 @@ tunnel URL off their screen - take it from the metrics endpoint.
   public for the duration.
 - Facebook's leg reads the same URL, so one tunnel covers both.
 
+**A quiz Short has no `-thumb.jpg`.** Every other format's build step renders
+one with `render_short_thumb`; the quiz format's own skill does not, since the
+picture is already four drawn cards and a generated headline card would just
+repeat the hook. Grab a frame from the finished render instead - a moment with
+all four cards on screen and none marked yet reads best as a static cover -
+and serve that alongside the mp4 for `<cover>.jpg` above:
+
+```bash
+ffmpeg -y -ss <seconds into a fully-populated ask phase> -i <name>.mp4 \
+  -frames:v 1 <name>-cover.jpg
+```
+
 ## The Reel caption
 
 The Publish Reel workflow takes **two** caption fields: `caption` goes to

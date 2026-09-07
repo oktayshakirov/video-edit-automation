@@ -23,17 +23,20 @@ the picture is one continuous drawing sliced across six hard cuts rather than
 seven different pictures. A cut between two frames computed identically at the
 boundary is invisible; that is what makes this cheap.
 
-**Three review rounds shaped the pacing, and two of them overturned an
-assumption.** First: `gap` is only ever silence *between sentences*, so a
-question carrying its options as caption chunks had nothing separating them.
-Second: a scripted gap under `RUN_BREAK_GAP` is not even a guarantee — it is
-inserted into the model's own pause by `_pad_pause`, and where the model left
-no pause the gap is dropped in silence. Every gap here is now at or above
-`RUN_BREAK`, which this module lowers to 0.30 through `render_crypto_short`'s
-`run_break`, making each item its own run and each gap a real silence file in
-the concat. Third: isolating a bare letter to hang a silence off it made the
-letters sound wrong, and the pitch track showed why — see
-`LETTER_WITH_OPTION`. The pauses live between cards.
+**Four review rounds shaped the pacing, and each one overturned the previous
+fix's assumption.** First: `gap` is only ever silence *between sentences*, so
+a question carrying its options as caption chunks had nothing separating
+them. Second: a scripted gap under `RUN_BREAK_GAP` is not even a guarantee —
+it is inserted into the model's own pause by `_pad_pause`, and where the
+model left no pause the gap is dropped in silence; every gap here is now at
+or above `RUN_BREAK`, which this module lowers to 0.30 through
+`render_crypto_short`'s `run_break`. Third: isolating a bare letter into its
+own *sentence* to get that guaranteed gap made the letter itself sound
+wrong — the pitch track showed it reads flat alone and rising in context.
+Fourth, and this is the one that actually reconciles the other two: a letter
+can stay in its answer's sentence (natural contour, same synthesis pass) and
+still get a real pause after it, by splitting it into a *chunk* rather than a
+*sentence* and forcing a splice with `chunk_pad` — see `LETTER_ANSWER_GAP`.
 """
 
 from __future__ import annotations
@@ -47,10 +50,11 @@ from ..crypto.build import _short_factory, render_crypto_short
 from ..crypto.shots import Shot
 from .cards import LETTERS, QuizShot
 
-# The default wait. Eight seconds was the user's number and it is a long time
-# on a phone — long enough that the viewer either answers or leaves, which is
-# the trade the format is making. Both outcomes beat scrolling past.
-COUNTDOWN = 8.0
+# The default wait. Started at eight seconds and came down to six on the
+# user's call (2026-09-08) once the format had shipped and the eight-second
+# version had actually been watched — still long enough on a phone that the
+# viewer either answers or leaves, which is the trade the format is making.
+COUNTDOWN = 6.0
 
 # --- pacing, all of it real silence bought from `build_narration_aligned` ---
 #
@@ -83,31 +87,39 @@ CARD_GAP = 0.70          # between one card and the next
 ANSWER_LEAD_GAP = 0.40   # after "The correct answer is B.", before the why
 NEXT_Q_GAP = 1.00        # after the answer line, before the next question
 INTRO_GAP = 1.00         # after the intro card, before the first question
+TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
-# **A letter is never spoken on its own, and this is measured rather than a
-# preference.** The build that isolated it — "A." as its own one-word run, so
-# a guaranteed silence could follow it — was reported back as the letters
-# sounding weird and the voice unnatural, and the pitch track says exactly
-# why. Inside "A. It has no effect." the letter runs 137 Hz -> 208 Hz: a
-# rising list-item contour that *leads into* the answer. Synthesised alone it
-# is flat — "A." 127 -> 127 Hz, "A," 120 -> 120, "A?" 125 -> 128 — and half
-# again as long. Flat and drawn out is the sound being complained about.
+# **The letter is never *synthesised* on its own, but it is still followed by
+# a real pause — those are different claims, and confusing them was the first
+# version's whole bug.** Isolating "A." as its own one-word *sentence* (so a
+# guaranteed gap could follow it) made the model read it wrong: measured on
+# the pitch track, "A." spoken alone runs flat (127 -> 127 Hz) where the same
+# letter *in context* — as the opening of "A. It has no effect." — rises
+# 137 -> 208 Hz, a natural list-item contour leading into the answer. That
+# rise only exists if the model sees the whole sentence at once.
 #
-# The consequence is a genuine either/or, not a tuning problem: the letter's
-# naturalness *consists of* it leading into its own answer, so any silence
-# inserted after it removes the thing that makes it sound right. A break after
-# the letter and a natural letter cannot both exist on this synthesiser. The
-# letter therefore travels with its option as one utterance, and the pauses
-# live between cards, where they cost nothing.
-LETTER_WITH_OPTION = True
+# So the letter and its answer are still one **sentence** — one continuous
+# synthesis, one natural contour — and they always have been. What changed is
+# how the pause after the letter gets in: not by giving it a separate
+# sentence, but by splitting it into two *chunks* of the same sentence and
+# asking `chunk_pad` to force a real splice between them after synthesis. The
+# model still reads "A. It has no effect." as one phrase; the engine then cuts
+# the resulting audio at the DTW-aligned chunk boundary (nudged to the locally
+# quietest sample nearby, so the cut lands between the words, not inside one)
+# and inserts `LETTER_ANSWER_GAP` of silence. Checked against the raw
+# waveform before this shipped — a clean silence, no clipped word on either
+# side — but not yet against a human ear; see `_force_pad` in
+# `core/voiceover.py`, and confirm the actual splice sounds right on the
+# first render this ships in.
+LETTER_ANSWER_GAP = 0.70
 
 # The countdown ring used to start the instant the model's own audio ended —
 # mathematically correct and still read as the video cutting the last option
 # off mid-word, because there was no daylight between "the last syllable" and
 # "the timer appears". `LEAD` buys that daylight; `TAIL` buys the matching
 # beat of stillness *after* the ring's last tick, before the cut to the marked
-# cards. Both are added to the requested silence, not carved out of the
-# 8-second wait itself — the ring itself still runs for exactly `countdown`.
+# cards. Both are added to the requested silence, not carved out of the wait
+# itself — the ring itself still runs for exactly `countdown`.
 LEAD = 0.25
 TAIL = 0.25
 
@@ -123,8 +135,8 @@ WHOOSH_LEAD = 0.70
 # result straight back and undoes most of the gain. The loudness target is
 # what actually moves a bed, so this is passed as `music_lufs`. -32 against
 # the default -23 puts the bed roughly a ninth of the power under the voice:
-# present under eight seconds of countdown silence, which is the whole reason
-# a quiz wants one, and not competing with the read.
+# present under the countdown's silence, which is the whole reason a quiz
+# wants one, and not competing with the read.
 MUSIC_LUFS = -32
 
 # Silence between the two full-frame cards and the rest.
@@ -187,20 +199,24 @@ class Question:
             spoken += "."
         return text if spoken == text else (text, spoken)
 
-    def option_line(self, i: int) -> "str | tuple[str, str]":
-        """One card, letter and answer together, as one spoken utterance.
+    def option_line(self, i: int) -> tuple:
+        """One card's two chunks: the letter, then the answer.
 
-        The letter is not separable — see `LETTER_WITH_OPTION`. `spoken` is
-        keyed by the option as written, so a writer respelling a word does not
-        have to know the engine says "B. " in front of it.
+        Both chunks belong to the *same sentence* — Kokoro still synthesises
+        "A. It has no effect." as one continuous phrase, so the letter keeps
+        its natural rising contour. Splitting it into two chunks only gives
+        `render_quiz_short` a boundary to hand `chunk_pad`, which is what
+        actually forces `LETTER_ANSWER_GAP` of silence in after synthesis —
+        see the module docstring. `spoken` is keyed by the option as written,
+        so a writer respelling a word does not have to know the engine says
+        "B. " in front of it.
         """
         opt = self.options[i]
         said = self.spoken.get(opt, opt)
         if said and said[-1] not in ".!?…:,":
             said += "."
-        caption = f"{LETTERS[i]}. {opt}"
-        spoken = f"{LETTERS[i]}. {said}"
-        return caption if caption == spoken else (caption, spoken)
+        text_chunk = opt if said == opt else (opt, said)
+        return (f"{LETTERS[i]}.", text_chunk)
 
     def lead_line(self) -> str:
         """"The correct answer is B." — spoken alone, then a beat, then why.
@@ -288,12 +304,33 @@ class _Group:
 
 def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
                       out: Path, workdir: Path,
+                      title: "str | tuple[str, str] | None" = None,
+                      title_number: "int | None" = None,
                       voice: str = "otis",
                       brand: Brand = CRYPTO,
                       frame: Frame = VERTICAL,
                       gap: float = GAP,
                       **kw) -> tuple[Path, float]:
     """One quiz short, end to end.
+
+    `title` and `title_number` open the video, before `intro` — the series
+    card: "Tinnitus Quiz: Tinnitus Myths Edition" with a large "1" above it.
+    `title_number` is `ChapterCard`'s own `number` field, built for exactly
+    this — "a script that is genuinely counting something the narration also
+    counts out loud" — so the count gets the card's dedicated large-numeral
+    treatment instead of living inside the title text. **Do not write the
+    number into `title` as "#1"**: it does not just look worse next to a
+    numeral the card is already drawing, Kokoro reads a bare "#1" as "hash
+    one" (checked, not assumed) and there would be nothing stopping the
+    caption text from getting spoken literally. `title` is a `(caption,
+    spoken)` pair when the two need to differ — write "Tinnitus Quiz, number
+    one." into the spoken half if the sentence needs the count said aloud.
+
+    The number is incremented by hand each time a new quiz is built - count
+    the existing scripts in `projects/quiz-<channel>/` and add one, or read
+    it straight off `tools/topics.py <site> --quiz`, which prints it. Leaving
+    both `None` omits the card entirely, for any quiz built before this
+    existed.
 
     `intro` and `outro` are caption-chunk tuples like any other sentence; each
     renders as a full-frame `chapter` card, so neither burns a caption over
@@ -332,12 +369,42 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
 
     _check_fits(questions, frame, brand)
 
-    sentences: list[tuple] = [tuple(intro)]
-    shots: list[Shot] = [Shot(graphic="chapter", payload=(" ".join(
-        c if isinstance(c, str) else c[0] for c in intro),))]
+    sentences: list[tuple] = []
+    shots: list[Shot] = []
+    gaps: list[float] = []
+    # `chunk_pad` is keyed by the flat global chunk index — the position a
+    # chunk lands at once every sentence appended so far is flattened, the
+    # same order `build_narration_aligned` walks `sentences` in. `chunk_i`
+    # tracks that running total as sentences are appended below, so a pad can
+    # be recorded *before* its sentence is appended without re-deriving the
+    # count from `sentences` afterwards.
+    chunk_pad: dict[int, float] = {}
+    chunk_i = 0
+
+    def add(chunks: tuple) -> None:
+        nonlocal chunk_i
+        sentences.append(chunks)
+        chunk_i += len(chunks)
+
+    def card(text: "str | tuple[str, str]") -> Shot:
+        """A full-frame `chapter` beat — the title, the intro, the outro."""
+        display = text if isinstance(text, str) else text[0]
+        return Shot(graphic="chapter", payload=(display,))
+
+    if title is not None:
+        add((title,))
+        display = title if isinstance(title, str) else title[0]
+        shots.append(Shot(graphic="chapter", payload=(display, title_number)))
+        # Holds the whoosh into the first question, same as `INTRO_GAP` does
+        # for the card after it.
+        gaps.append(TITLE_GAP)
+
+    add(tuple(intro))
+    shots.append(card(" ".join(c if isinstance(c, str) else c[0]
+                               for c in intro)))
     # The intro's own gap has to hold the first question's `whoosh`, same as
     # every later question's does.
-    gaps: list[float] = [INTRO_GAP]
+    gaps.append(INTRO_GAP)
 
     groups: list[_Group] = []
     # `whoosh` marks the cut into a new question — including the first, off
@@ -364,16 +431,17 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
             return sh
 
         question_shot = quiz_shot()
-        sentences.append((q._say(q.question),))
+        add((q._say(q.question),))
         shots.append(question_shot)
         gaps.append(QUESTION_GAP)
 
         option_shots = []
         for i in range(len(q.options)):
             os_ = quiz_shot()
-            # Letter and answer in one utterance — the letter is not spoken
-            # alone. See `LETTER_WITH_OPTION`.
-            sentences.append((q.option_line(i),))
+            # The pad lands after the letter — the *first* of this sentence's
+            # two chunks, which is exactly `chunk_i` right before it is added.
+            chunk_pad[chunk_i] = LETTER_ANSWER_GAP
+            add(q.option_line(i))
             shots.append(os_)
             # The last card's gap is what the countdown is built from —
             # `LEAD` seconds of runway past its real speech end, the ring's
@@ -383,12 +451,12 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
             option_shots.append(os_)
 
         reveal_lead = quiz_shot()
-        sentences.append((q.lead_line(),))
+        add((q.lead_line(),))
         shots.append(reveal_lead)
         gaps.append(ANSWER_LEAD_GAP)
 
         reveal_body = quiz_shot()
-        sentences.append((q._say(q.answer),))
+        add((q._say(q.answer),))
         shots.append(reveal_body)
         gaps.append(NEXT_Q_GAP)
 
@@ -398,9 +466,9 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
             state[id(sh)] = {"options": options, "question": q.question,
                              "correct": q.correct, "countdown": q.countdown}
 
-    sentences.append(tuple(outro))
-    shots.append(Shot(graphic="chapter", payload=(" ".join(
-        c if isinstance(c, str) else c[0] for c in outro),)))
+    add(tuple(outro))
+    shots.append(card(" ".join(c if isinstance(c, str) else c[0]
+                               for c in outro)))
     gaps.append(gap)
 
     quiz_cues: list[tuple[float, str]] = []
@@ -476,5 +544,5 @@ def render_quiz_short(intro: tuple, questions: list[Question], outro: tuple,
     return render_crypto_short(
         sentences, shots, out, workdir, voice=voice, frame=frame, brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        gap=gaps, run_break=RUN_BREAK, factory=factory, plan_graphics=plan,
-        cues=cue_list, **kw)
+        gap=gaps, run_break=RUN_BREAK, chunk_pad=chunk_pad, factory=factory,
+        plan_graphics=plan, cues=cue_list, **kw)

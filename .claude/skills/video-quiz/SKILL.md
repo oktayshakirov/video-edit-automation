@@ -29,7 +29,6 @@ The steps live in `docs/video/workflow.md` - read it first, every run. Then:
 | Shorts pacing and titles | `docs/video/shorts.md` |
 | Type and layout on screen | `docs/video/design.md` |
 | Music and sound | `docs/video/audio.md` |
-| The thumbnail | `docs/video/thumbnails.md` |
 | Something rendered wrong | `docs/video/troubleshooting.md` |
 
 Do not work from memory of these rules. They are edited as the engine changes,
@@ -43,7 +42,9 @@ and a remembered version is a stale one.
    *best* quiz source, not a used-up one, because the audience has been taught
    the thing they are about to be tested on. Offer three to five candidates
    with a reason each - what the four options would be, and which misconception
-   the article corrects - then stop and wait.
+   the article corrects - then stop and wait. **The same command prints "next
+   quiz number: N"** - read the series number for the title card off it rather
+   than counting `projects/quiz-<channel>/` by hand.
 2. **Write the questions.** Three of them, each a `Question`: the question,
    four options, the index of the right one, and `answer` — the *because*
    only, never "the answer is B." The format itself says the letter
@@ -53,12 +54,26 @@ and a remembered version is a stale one.
 3. **Build** - `projects/quiz-crypto/<name>.py` or
    `projects/quiz-tinnitus/<name>.py`, calling
    `video_automation.quiz.build.render_quiz_short` and setting `SOURCE_POST`.
+   - **Open on a title card.** `title=(caption, spoken)` and `title_number=N`
+     — "Tinnitus Quiz: Tinnitus Myths Edition" with a large "1" drawn above
+     it, from `ChapterCard`'s own numbered-card mode. **Never write the number
+     into the caption text as "#1"** — Kokoro reads a bare "#1" as "hash one"
+     (checked), and it also just duplicates what the numeral already draws.
+     Write the count out in the *spoken* half if the sentence should say it
+     ("Tinnitus quiz, number one.").
+   - **No thumbnail render.** Every other format calls `render_short_thumb`
+     because it has a site photo or a headline worth a dedicated card; a quiz
+     has neither — the picture *is* the four cards, and a frame pulled from the
+     finished video already shows the hook (the question, or the countdown) in
+     a way a generated headline card would just repeat. `/publish-video` pulls
+     the cover frame from the render itself for this format; do not add a
+     `render_short_thumb` call to a quiz project script.
 4. **Hand over and wait.** Re-cut as many times as the user asks; that loop is
    the normal case.
 5. **On approval: commit, write `HANDOFF-PUBLISH.md`, and tell the user to open
    a fresh session for `/publish-video`.**
 
-## Three things that are settled, and are not to be re-litigated per run
+## Four things that are settled, and are not to be re-litigated per run
 
 - **Three questions, not five.** A question costs ~25s once its pauses are
   real (see `quiz.md`). Five would run past two minutes. The user chose three
@@ -73,6 +88,9 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
+- **Every video opens on a numbered title card.** "Tinnitus Quiz: Tinnitus
+  Myths Edition" with a large "1" above it - see step 3. The number always
+  goes up; it is never reused, even if an earlier quiz is later reworked.
 
 ## What makes a question work
 
