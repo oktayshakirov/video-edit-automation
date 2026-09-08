@@ -86,12 +86,15 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
-- **A card's letter is its own sentence, read alone, then a real 0.70s pause
-  before its answer.** A version that kept the letter in the same sentence as
-  its answer and forced a cut between them after synthesis was tried and sent
-  back twice as sounding wrong - see `LETTER_ANSWER_GAP` in `quiz.build`. Do
-  not try to reconstruct that approach; it was found unreliable across
-  different letters, not merely untuned.
+- **A card's letter is its own sentence, then a real 0.70s pause before its
+  answer - but the letter is synthesised *in* its answer's context and
+  trimmed, not read with nothing around it.** `synth_word_in_context` in
+  `core/voiceover.py` gives the letter a natural onset, then discards the
+  answer's own audio. Two earlier versions - the letter read fully alone, and
+  the letter kept in the answer's own sentence with a forced splice between
+  them - were both tried and both sent back as sounding wrong, for different
+  reasons; see `LETTER_ANSWER_GAP` in `quiz.build` for the full account. Do
+  not try to reconstruct either one.
 
 ## What makes a question work
 
