@@ -315,3 +315,45 @@ lengths are knowable immediately** - `ffprobe` the whole folder once and keep
 the long ones (20s+) for the paragraphs and the short ones for the one-line
 sentences. A clip that is short can still be used twice at different
 `clip_at`; a clip that is short in the wrong slot is a re-render.
+
+## The beat set rotates across the channel, and `callout` covers the rest of the video
+
+**Both come out of counting the nineteen shipped long-form scripts on these
+two channels (2026-09-07).** The measurement and the three new beats it
+produced are in `beats.md`; what it means for writing a long form is here.
+
+**Pick five shapes from twelve, and read the last three scripts on that
+channel before picking.** "Choose the beats before writing the script" above
+was right and scoped too narrowly - it checks one video against itself, and
+with nine beats available the way to pass that check is to use the whole set
+once. Which is what every script did, so `quote`, `stat`, `compare`,
+`checklist`, `grid`, `steps` appears in almost all nineteen files and six
+videos in a row open on a `quote` and resolve on a `steps`. A recipe is as
+templated as a repeated shape; it just takes three videos instead of one to
+see it.
+
+**Drawn beats are four to nine shots out of thirty to forty-five, so a new
+beat shape cannot fix "generic" on its own.** Three quarters of every video is
+a stock clip or a Ken Burns still, and on this repo's tinnitus long form it is
+worse than that - `airpods-and-tinnitus` is 37 clips against 1 site image.
+`callout` is the beat built for that share of the runtime: it puts the
+explanation *on* a photograph rather than replacing one, so a shot that was
+connective texture starts carrying an argument. It is also, finally, the
+"labels and arrows" vocabulary this file has cited as the reference channel's
+whole on-screen language since the format was designed.
+
+Reach for it wherever a specific claim currently runs under an unlabelled
+photo - which the section above already names as the thing that reads as hard
+to follow.
+
+**`diagram` is the beat for a mechanism, and it is the kind that was
+missing.** Every other beat is type arriving in the order it is spoken; none
+of them draws a relationship. A causal chain narrated over a stock brain scan
+is the format's weakest four seconds and it happens in nearly every explainer
+on both channels. `diagram(loop=True)` additionally draws a feedback cycle,
+which no list can - a list ends and the mechanism does not.
+
+**`gauge` replaces the weak `stat`s.** A figure that only means something
+against some other figure was always the wrong beat for `stat`; there just was
+not a right one. See `beats.md` for its two-reveal order, which is the "say the
+point, then show the graphic" rule operating inside one beat.

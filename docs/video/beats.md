@@ -480,3 +480,139 @@ the other way — forward then reversed — which is only invisible on subjects
 with no arrow of time. Water, smoke, cloth. Measured on the water: the seam is
 2.91 against a median ordinary step of 4.41, so the join is *less* change than
 a normal frame.
+
+## Three new beats, and the measurement that asked for them
+
+**`gauge`, `callout` and `diagram` were added 2026-09-07** after the user's
+note that the explainers on both channels look repetitive and generic. Before
+writing any of them the shipped scripts were counted, because "repetitive"
+should be checkable rather than a feeling, and it turned out to be worse than
+this file thought:
+
+```
+checklist 32 · stat 27 · steps 23 · quote 20 · grid 20 · compare 19 · bars 9 · chapter 7 · logos 3
+```
+
+Across nineteen long-form scripts on the two channels that resolves to **one
+recipe run over and over** - `quote`, `stat`, `compare`, `checklist`, `grid`,
+`steps`, roughly once each, in almost every file. Six videos in a row open a
+`quote`, land a `stat` and resolve on a `steps`.
+
+**That is this file's own silhouette rule producing the thing it was written to
+prevent.** "Do not use the same two shapes four times *inside* a video" was
+followed exactly, and the way to follow it with nine beats available is to use
+the whole set once - so every video became the same video. The rule was
+scoped to the wrong unit. It is restated below.
+
+Two more numbers, which matter more than the beat mix:
+
+- **Beats are four to nine shots out of thirty to forty-five.** This file
+  opens by claiming they "carry the largest single share of the runtime".
+  They do not, and never have: three quarters of every video is a stock clip
+  or a Ken Burns still.
+- **Tinnitus long form is nearly pure stock** - `airpods-and-tinnitus` is 37
+  clips against 1 site image, `why-does-tinnitus-spike` 24 against 1. That is
+  where "generic" actually comes from, and no new beat *shape* touches it.
+
+And the structural finding: **all nine existing beats are the same event.**
+Type arrives on a background in the order it is spoken. Nothing draws a
+relationship, nothing shows change against a limit, nothing moves between two
+states. For channels whose whole subject is mechanism, that was the largest
+gap in the format.
+
+### `diagram` - a mechanism, with arrows
+
+`payload: (nodes, title, loop)`, nodes `[(label, note, emoji), ...]`. Three or
+four boxes with an arrowhead drawing between each pair. **It is not `steps`
+with boxes**: `steps` is a numbered *procedure* where the numerals are the
+content, this is a causal chain where the arrow says *therefore* rather than
+*next*. One reveal per node, one caption chunk per node, exactly like every
+other beat here.
+
+**`loop=True` is why it earns its place.** A feedback cycle - the last node
+feeding back into the first - is not a sequence, and nothing else in the
+library can draw one. It is also the mechanism the tinnitus articles keep
+describing (quieter room, more gain, louder tone, more noticing) and the one a
+list makes actively harder to follow, because a list ends and the thing being
+described does not.
+
+Boxes are all as tall as the tallest one's content needs. The first version
+fixed the height at 230 and a two-line label over a two-line note printed
+straight through the bottom edge - a `rounded_rectangle` is drawn before its
+type and simply has type sitting outside it afterwards, so nothing clips and
+nothing raises.
+
+### `callout` - labels and arrows on a photograph
+
+`payload: (photo, items, title)`, items `[(label, x, y), ...]` where **x and y
+are fractions of the picture, not of the frame** - the picture is fitted, so
+where it sits depends on its own aspect ratio, and a frame fraction moves the
+label off the subject the moment the source changes.
+
+**This is the one that attacks the three quarters of the video the other beats
+never touch.** A beat replaces a photograph; this one explains one. It is also
+the vocabulary `longform.md` names as the reference channel's entire on-screen
+language - "nothing on screen but labels and arrows" - quoted approvingly here
+for a year and never built.
+
+- **The picture is fitted, never covered.** A cover-crop moves the subject out
+  from under coordinates measured on the source, and covering 1920 from the
+  ~900px median source on these sites is the upscale the split layout exists
+  to avoid.
+- **The argument is `photo`, not `picture`.** `make_beat` passes `picture=` to
+  every beat for the split layout's right-hand column, so a first positional
+  of that name collides with it and every callout raises. Found by building
+  one.
+- The photograph is dimmed to 0.68 under the labels. A leader line disappears
+  into an undimmed image entirely.
+
+### `gauge` - one value against a threshold
+
+`payload: (value, frac, label, threshold, threshold_label, title)`. Two
+reveals: **the limit first, the value second**, so write two caption chunks in
+that order. Written the other way round the marker lands before there is a
+line for it to sit past, which is "say the point, then show the graphic"
+inside a single beat.
+
+`stat` shows a bare figure and `bars` shows proportions of a whole; neither can
+show a *limit*, and on these two sites that is one of the commonest claims
+there is - decibels against safe exposure, a dose against a threshold. It
+replaces the weak `stat` uses rather than adding to them.
+
+- **One row, never two.** The moment a second track appears it is a bar chart
+  and the silhouette is gone.
+- **The fill changes colour where it crosses the line** - primary up to the
+  threshold, `brand.negative` past it. The first version drew one fill
+  straight over the shaded danger zone, which hid the shading and left the
+  whole claim resting on a thin upright; on a rendered frame it read as
+  "quite full", not as "past the limit".
+- **`frac` and `threshold` are positions, not data.** A logarithmic quantity
+  does not go on a linear track by dividing one number by another. Place the
+  ticks where the scale actually falls and put the real values in the labels.
+
+### Vary the beats across the channel, not only within one video
+
+**Restating the silhouette rule at the unit it should always have used.**
+Before choosing beats, read the last three scripts on that channel, not just
+the one being written. Five shapes per video out of twelve, rotating, so no
+two consecutive videos share an outline set. Using the whole library once per
+video is a recipe, and a recipe is exactly as templated as repeating one
+shape - it just takes three videos instead of one to notice.
+
+`bars` at 9 uses and `logos` at 3 are under-used, not obscure; reach for them
+before reaching for a fourth `checklist`.
+
+### Three notes that generalise beyond these beats
+
+- **Type overlapping type raises nothing.** The gauge's label printed through
+  its own figure on the first rendered frame because both were positioned off
+  constants 18px apart while the figure was 132px tall. Place type off a
+  measured `textbbox`, and look at the frame.
+- **A marker filled with the colour of the bar it sits on is invisible.** The
+  one element whose job is to say *where* was the least visible thing on the
+  frame until it was filled with ink and ringed in the fill's colour.
+- **Portrait is not landscape scaled down**, in the gap between elements as
+  much as in the margin. A three-node chain at the landscape gap ended a third
+  of the way up a 9:16 frame with nothing below it - and a drawn beat burns no
+  caption there, so nothing else was ever going to fill it. Boxes stay the size
+  their content needs and the *gaps* take up the slack.
