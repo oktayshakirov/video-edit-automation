@@ -219,6 +219,11 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # example — see `quiz.build`), and this buys the pause
                         # without that cost.
                         chunk_pad=None,
+                        # Audio a caller already synthesised and trimmed
+                        # itself — keyed by sentence index, only used where
+                        # that sentence is alone in its own run. See
+                        # `synth_word_in_context` in `core/voiceover.py`.
+                        precomputed=None,
                         # The bed's loudness target. `music_gain` cannot do
                         # this job — it is applied *before* `loudnorm` in
                         # `render_bed`, which then normalises the result back
@@ -251,6 +256,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         [list(s) for s in sentences], workdir, gap=gap, tail=tail,
         **({} if run_break is None else {"run_break": run_break}),
         **({} if chunk_pad is None else {"chunk_pad": chunk_pad}),
+        **({} if precomputed is None else {"precomputed": precomputed}),
         **profile_args(voice))
 
     plan_shots(shots, sentence_spans(sentences, captions))

@@ -40,15 +40,13 @@ card.** Both were tried on an earlier cut of this same video and cut on the
 user's call (2026-09-08) — the number as an unnecessary flourish, the second
 card as redundant with the title.
 
-**The letter/answer pause is a separate sentence again, not a splice.** An
-earlier cut of this video tried keeping a card's letter and answer in one
-sentence and forcing a cut between them after synthesis, to preserve the
-letter's natural rising contour without giving up a guaranteed gap. Sent back
-twice — "weird cut," "letters sound weird" — because finding *where* to cut
-inside continuous, coarticulated speech proved unreliable across different
-letters. The letter is isolated as its own sentence again, guaranteed via
-`run_break` like every other gap in the format; see `LETTER_ANSWER_GAP` in
-`quiz.build` for the full account.
+**A card's letter is synthesised in its answer's context, then trimmed** —
+`synth_word_in_context` in `core/voiceover.py`. Two earlier cuts of this same
+video were sent back: the letter read with nothing around it ("very weird and
+glitchy"), then the letter kept in the answer's own sentence with a forced
+cut between them ("weird cut," "letters sound weird" again, for a different
+reason). See `LETTER_ANSWER_GAP` in `quiz.build` for the full account of
+both failures and why the third design holds.
 
 Run from the repo root:
 

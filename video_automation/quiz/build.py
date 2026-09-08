@@ -24,16 +24,16 @@ cuts rather than eleven different pictures. A cut between two frames computed
 identically at the boundary is invisible; that is what makes this cheap.
 
 **Several review rounds shaped the pacing, and more than one overturned the
-previous fix's assumption — see `LETTER_ANSWER_GAP` for the fullest account,
-letter and answer are back to being separate sentences after a real attempt
-at something cleverer.** In short: `gap` is only ever silence *between
-sentences*, so a question carrying its options as caption chunks had nothing
-separating them; a scripted gap under `RUN_BREAK_GAP` is not even a
-guarantee, so every gap here sits at or above `RUN_BREAK`, which this module
-lowers to 0.30 through `render_crypto_short`'s `run_break`; and a letter read
-as its own sentence sounds a little flatter than the same letter read into
-its answer, which turned out to be the smaller, more predictable cost next to
-the alternative.
+previous fix's assumption — see `LETTER_ANSWER_GAP` for the fullest account.**
+In short: `gap` is only ever silence *between sentences*, so a question
+carrying its options as caption chunks had nothing separating them; a
+scripted gap under `RUN_BREAK_GAP` is not even a guarantee, so every gap here
+sits at or above `RUN_BREAK`, which this module lowers to 0.30 through
+`render_crypto_short`'s `run_break`; and a letter still needs its own
+sentence to get a guaranteed gap, but it is no longer read with nothing
+around it — `synth_word_in_context` gives it its real answer as context for
+synthesis, then discards that answer's audio, so the letter keeps a natural
+onset without the pause depending on where a cut lands inside it.
 """
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ from pathlib import Path
 
 from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
+from ..core.voiceover import profile_args, synth_word_in_context
 from ..crypto.build import _short_factory, render_crypto_short
 from ..crypto.shots import Shot
 from .cards import LETTERS, QuizShot
@@ -87,42 +88,53 @@ NEXT_Q_GAP = 1.00        # after the answer line, before the next question
 INTRO_GAP = 1.00         # after the intro card, before the first question
 TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
-# **Two designs were tried for the letter/answer pause, and both were sent
-# back as sounding wrong, for two genuinely different reasons — this is the
-# second one, and the fix it settled on.**
+# **Three designs were tried for the letter/answer pause before one held.**
+# Each of the first two was sent back as sounding wrong, for a different
+# reason, and each fix's own reasoning is worth keeping — the third design
+# only makes sense in light of why the other two failed.
 #
-# *Design 1: the letter as its own one-word sentence.* Guarantees the gap
-# through `run_break`, same as every other gap here, but changes how the
-# model reads the letter: measured on the pitch track, "A." spoken alone runs
-# flat (127 -> 127 Hz) where the same letter *in context* — as the opening of
-# "A. It has no effect." — rises 137 -> 208 Hz. Reported back as "weird" and
-# "unnatural."
+# *Design 1: the letter as its own one-word sentence, read with no context at
+# all.* Guarantees the gap through `run_break`, same as every other gap here,
+# but changes how the model reads the letter: measured on the pitch track,
+# "A." spoken with nothing around it runs flat (127 -> 127 Hz) where the same
+# letter *in context* — as the opening of "A. It has no effect." — opens with
+# a real rise. Reported back as "weird," "unnatural," "very weird and
+# glitchy." A quieter defect than it sounds like on paper: Kokoro also gives a
+# bare one-word utterance the same trailing lengthening it gives the *end* of
+# a real sentence, so the isolated letter runs 0.45-0.55s — three times its
+# natural length in context — mostly hollow decay tail.
 #
-# *Design 2: letter and answer kept as one sentence, split into two chunks of
-# it, with the engine forcing a splice between them after synthesis
-# (`chunk_pad`/`_force_pad` in `core/voiceover.py`).* This keeps the natural
-# contour — the model still reads the whole sentence as one phrase — but it
+# *Design 2: letter and answer kept as one sentence, split into two chunks,
+# with the engine forcing a splice between them after synthesis
+# (`chunk_pad`/`_force_pad` in `core/voiceover.py`).* Keeps the natural
+# contour — the model still reads the whole sentence as one phrase — but
 # requires finding *where* to cut inside continuous, coarticulated audio that
-# has no real boundary to find. That turned out not to be solvable reliably:
-# checked against four real cards ("A.", "B.", "C.", "D." each opening a
-# different answer), no single energy-based heuristic — absolute floor,
-# relative-to-peak floor, causal peak tracking, widened search windows — found
-# the true boundary on all four. Each letter's own loudness and its dip into
-# the next word varied enough that a threshold tuned to fix one card's cut
-# broke another's, and DTW's own boundary *estimate*, meant to anchor the
-# search, was itself off by anywhere from -0.06s to +0.14s with no consistent
-# direction to correct for. Reported back, again, as "weird cut" and "letters
-# sound weird" — because some cards really were being cut mid-word.
+# has no real boundary to find. Not solvable reliably: checked against four
+# real cards, no single energy heuristic found the true boundary on all four,
+# and `align_chunks`' own DTW estimate, meant to anchor the search, was off by
+# -0.06s to +0.14s with no consistent direction. Reported back, again, as
+# "weird cut" and "letters sound weird" — some cards were genuinely cut
+# mid-word.
 #
-# **So this is Design 1 again, and the flat pitch is the accepted cost.** A
-# letter that reads a little flat is a smaller fault than a letter that is
-# sometimes chopped off entirely and unpredictably; the second was not a
-# tuning problem this session could finish solving, the first is a known,
-# bounded, always-the-same-way cost. `chunk_pad`/`_force_pad` stay in
-# `core/voiceover.py` as general engine capability — they are correct and
-# useful where a real quiet stretch already exists to top up or where the
-# cut's exact placement does not matter this much — this format just does not
-# use them here any more.
+# **Design 3, which shipped: synthesise the letter *in* its real answer's
+# context — so the model still gives it a real onset — then throw the
+# answer's audio away instead of trying to keep or precisely bound it**
+# (`synth_word_in_context` in `core/voiceover.py`, wired in below via
+# `precomputed`). The insight Design 2 missed: cutting into the discarded
+# half is *safe* to get wrong in one direction and dangerous in the other.
+# Landing early only shortens the kept letter — no different from Design 1's
+# own trailing-decay cost, since neither audibly clips the word's own
+# content. Landing late lets a real fragment of the answer survive into the
+# clip, which is a genuine defect. So `_find_word_end` is biased the opposite
+# way from `_force_pad`'s search: it finds the letter's own peak in a short,
+# fixed early window (a longer word later in the clip cannot out-peak it and
+# steal the reference), then cuts at the very first point after that where
+# the energy drops — no minimum run length, because a shallow within-word dip
+# reading as "the end" is the safe failure here, not the dangerous one.
+#
+# `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability
+# for a case where the *kept* side of a cut is not the risk — this format
+# does not use them for this any more.
 
 # The countdown ring used to start the instant the model's own audio ended —
 # mathematically correct and still read as the video cutting the last option
@@ -375,6 +387,14 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     sentences: list[tuple] = []
     shots: list[Shot] = []
     gaps: list[float] = []
+    # A card's letter is synthesised once here, in the context of its own
+    # answer, then trimmed to just the letter — see `synth_word_in_context`
+    # and `LETTER_ANSWER_GAP` below for why. Keyed by sentence index, which
+    # `build_narration_aligned` only ever honours for a sentence alone in its
+    # own run — true of every letter here, since `LETTER_ANSWER_GAP` already
+    # sits at or above `RUN_BREAK`.
+    precomputed: dict[int, object] = {}
+    voice_pa = profile_args(voice)
 
     def add(chunks: tuple) -> None:
         sentences.append(chunks)
@@ -436,6 +456,9 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         letter_shots, text_shots = [], []
         for i in range(len(q.options)):
             ls = quiz_shot()
+            precomputed[len(sentences)] = synth_word_in_context(
+                q.letter_line(i), q.options[i], voice_pa["voice"],
+                voice_pa.get("mood"))
             add((q.letter_line(i),))
             shots.append(ls)
             gaps.append(LETTER_ANSWER_GAP)
@@ -548,5 +571,5 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     return render_crypto_short(
         sentences, shots, out, workdir, voice=voice, frame=frame, brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        gap=gaps, run_break=RUN_BREAK, factory=factory,
-        plan_graphics=plan, cues=cue_list, **kw)
+        gap=gaps, run_break=RUN_BREAK, precomputed=precomputed,
+        factory=factory, plan_graphics=plan, cues=cue_list, **kw)

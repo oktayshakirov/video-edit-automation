@@ -597,6 +597,186 @@ def _pad_pause(audio, at: float, want: float):
     return out, extra, stop, (b + ins) / KOKORO_SR
 
 
+def _find_cut(audio, at: float, search: float = 0.40, guard: float = 0.05,
+             min_run: float = 0.025, rel_floor: float = 0.35) -> int:
+    """The sample index of the first genuine post-peak quiet stretch near `at`.
+
+    Shared by `_force_pad` (splices silence at the cut) and `_trim_after`
+    (discards everything past it) — the search itself does not know or care
+    which the caller wants done with the answer.
+
+    Scans forward-biased from `at` (an untrusted anchor — see `_force_pad`'s
+    own docstring for the measurement of just how untrusted) for a stretch of
+    at least `min_run` seconds whose 15ms-windowed energy stays under
+    `rel_floor` of the *causally tracked* peak — the loudest the audio has
+    been so far, not the loudest it ever gets, so a later, louder word cannot
+    hide an earlier, real dip. The **first** qualifying stretch wins.
+    """
+    import numpy as np
+
+    sr = KOKORO_SR
+    c = int(at * sr)
+    lo = max(0, c - int(guard * sr))
+    hi = min(len(audio), c + int(search * sr))
+    step = int(0.004 * sr) or 1              # candidate spacing
+    env_win = int(0.015 * sr) or 1           # envelope window, wide enough to
+                                             # not read a zero-crossing as quiet
+
+    if hi <= lo + env_win:
+        return c
+
+    positions = np.arange(lo, hi - env_win, step)
+    env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
+                    for p in positions])
+    run_len = max(1, int(round(min_run / (step / sr))))
+
+    found = None
+    running_peak = 0.0
+    i = 0
+    while i < len(env):
+        running_peak = max(running_peak, float(env[i]))
+        thresh = running_peak * rel_floor
+        if env[i] < thresh:
+            j = i
+            while j < len(env) and env[j] < thresh:
+                j += 1
+            if j - i >= run_len:
+                found = positions[i] + env_win // 2
+                break
+            i = j
+        else:
+            i += 1
+    if found is not None:
+        return int(found)
+    if len(env):
+        # Nothing cleared the relative floor for long enough — fall back to
+        # the single quietest point rather than cutting blindly at `at`.
+        return int(positions[int(np.argmin(env))] + env_win // 2)
+    return c
+
+
+def _trim_after(audio, cut: int, ramp: float = 0.08, ramp_frac: float = 0.4):
+    """Keep `audio[:cut]`, with a fade-out long enough to survive compression.
+
+    The tail-discarding counterpart to `_force_pad` — used where the goal is
+    not a pause but a clean, natural-sounding fragment: `synth_word_in_context`
+    synthesises a word *with* a throwaway continuation so the model gives it
+    real prosody, then throws the continuation's audio away entirely rather
+    than trying to preserve or silence it in place.
+
+    **The fade has to be long, and a short one is worse than none.** The
+    ENERGETIC chain's compressor reduces dynamic range on every run, this
+    one included, and a 10ms linear fade is short enough that compression
+    mostly undoes it — checked against a real case: full volume through
+    0.16s, then a clean fade at the source became a drop to near-silence in
+    two 20ms steps *after* the chain, an audible hard stop rather than the
+    soft one that was written. 80ms of fade survives that. But `ramp` also
+    cannot outlast the clip it is fading — a lettered option can be trimmed
+    to under 100ms (see `_find_word_end`), and an 80ms fade on a 90ms clip
+    fades nearly the whole thing to a whisper. `ramp_frac` caps the actual
+    fade at 40% of the kept audio's own length, so a short clip gets a
+    proportionally shorter (but still real) fade instead.
+    """
+    import numpy as np
+
+    sr = KOKORO_SR
+    cut = max(0, min(len(audio), cut))
+    rn = min(int(ramp * sr), int(cut * ramp_frac))
+    lo = max(0, cut - rn)
+    tail = audio[lo:cut].copy()
+    if len(tail):
+        tail *= np.linspace(1.0, 0.0, len(tail)).astype(audio.dtype)
+    return np.concatenate([audio[:lo], tail])
+
+
+def _find_word_end(audio, peak_window: float = 0.08, search: float = 0.60,
+                   rel_floor: float = 0.55, env_win_s: float = 0.015,
+                   step_s: float = 0.004) -> int:
+    """The sample index where a short lead word's own energy first collapses.
+
+    Built for `synth_word_in_context`, and biased the **opposite** way from
+    `_find_cut`, on purpose — the two functions serve opposite risk
+    profiles. `_find_cut` inserts a pause between two things a viewer hears in
+    full, so cutting early is the catastrophic failure and it searches
+    forward from a rough anchor. Here everything past the cut is *discarded*,
+    so cutting a little early only shortens the kept word slightly — a
+    strictly safer failure than cutting late, which lets a real fragment of
+    the next word survive into the final clip. First tried the forward-biased
+    search reused verbatim: it reliably found a genuine dip, just usually
+    the **wrong** one — the one after the lead word's own peak often sits
+    only 30-40% below that peak, similar in depth to a plosive-to-vowel
+    transition *inside* a longer answer word, so the search kept walking
+    past the real boundary into content that was supposed to be thrown away.
+
+    So this does not anchor on DTW at all. `peak_window` is deliberately
+    short — measured across four different letters, a lettered option's own
+    peak always lands within it, before any next-word content can compete for
+    it — and the peak found there is the only reference the threshold is set
+    against. From that peak, the search moves strictly forward for the first
+    point where energy drops under `rel_floor` of it. No minimum-run
+    requirement: a brief, shallow within-word dip getting mistaken for the
+    end is the safe failure here, not the dangerous one.
+    """
+    import numpy as np
+
+    sr = KOKORO_SR
+    step = int(step_s * sr) or 1
+    env_win = int(env_win_s * sr) or 1
+
+    pk_hi = min(len(audio), int(peak_window * sr))
+    pk_positions = np.arange(0, max(1, pk_hi - env_win), step)
+    pk_env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
+                       for p in pk_positions])
+    if not len(pk_env):
+        return pk_hi
+    peak_i = int(pk_env.argmax())
+    thresh = float(pk_env[peak_i]) * rel_floor
+
+    hi = min(len(audio), int(search * sr))
+    start = pk_positions[peak_i]
+    positions = np.arange(start, max(start + 1, hi - env_win), step)
+    env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
+                    for p in positions])
+    for i, e in enumerate(env):
+        if e < thresh:
+            return int(positions[i] + env_win // 2)
+    return hi
+
+
+def synth_word_in_context(word: str, context: str, voice: VoiceSpec = None,
+                          mood: str = "melancholic") -> "np.ndarray":
+    """Synthesise `word` with its natural onset, without keeping `context`.
+
+    For a case exactly like a quiz's lettered option: "A." read on its own is
+    measurably flat (127 Hz -> 127 Hz on the pitch track) where the same
+    letter *leading into an answer* opens with a real rise (137 Hz rising) —
+    the model only produces that onset when it can see what comes next. But
+    the engine also needs "A." as a clean, standalone clip it can place in
+    its own sentence with a guaranteed gap after it (see `LETTER_ANSWER_GAP`
+    in `quiz.build` for why that gap has to be a real sentence boundary and
+    not a splice into a longer one).
+
+    This reconciles both: synthesise `"{word} {context}"` as one continuous
+    utterance — the model sees the full context and gives `word` its real
+    onset — then throw `context`'s audio away with `_find_word_end` and
+    `_trim_after`.
+
+    **This keeps the onset, not the full rise into `context`.** An earlier
+    version tried to cut right at the word/context boundary to keep as much
+    natural contour as possible, and it was unreliable in the *unsafe*
+    direction: on four different letters it frequently landed inside
+    `context`, so a fragment of a real word — not silence — occasionally
+    survived into the final clip. `_find_word_end` cuts as soon as `word`'s
+    own energy has genuinely dropped, favouring a shorter, safely-trimmed
+    word over a fuller one that sometimes carries an audible scrap of
+    whatever follows it.
+    """
+    combined = f"{word} {context}"
+    audio = _synth_raw(combined, voice, mood)
+    cut = _find_word_end(audio)
+    return _trim_after(audio, cut)
+
+
 def _force_pad(audio, at: float, want: float,
               search: float = 0.40, guard: float = 0.05,
               min_run: float = 0.025, rel_floor: float = 0.35,
@@ -628,14 +808,8 @@ def _force_pad(audio, at: float, want: float,
     So `at` is now only a rough anchor for a much wider, mostly-forward
     search (`search` seconds ahead of it, `guard` seconds behind — biased
     forward because every measured failure was DTW landing too early, never
-    too late), and the cut point is found independently of how close it ends
-    up to `at`: the audio's own energy envelope in that window is scanned for
-    a run of at least `min_run` seconds whose level stays under `rel_floor`
-    of the window's peak (the letter's own loudest moment) — a *relative*
-    floor, since there is no absolute silence floor to test against this
-    close to live speech. The **earliest** qualifying run wins, so the cut
-    lands right after the letter finishes rather than drifting into
-    whatever's next.
+    too late) — see `_find_cut`, which this and `_trim_after`'s caller,
+    `synth_word_in_context`, share.
 
     **This replaced two narrower searches, and both failures are worth
     keeping.** The first scored candidates on a single 5ms window, which is
@@ -645,7 +819,10 @@ def _force_pad(audio, at: float, want: float,
     the scoring window to 20ms fixed *that* failure but not the real one: the
     search was still centred on `at`, and `at` itself was the problem. Both
     were reported back as "the letters sound weird," which they were — both
-    were cutting the letter off mid-word, just by different amounts.
+    were cutting the letter off mid-word, just by different amounts. That
+    history is also why the quiz format no longer uses this function to pause
+    between a letter and its answer — see `LETTER_ANSWER_GAP` in
+    `quiz.build` — even though the search itself is more reliable now.
 
     Returns `(audio, cut_at)` — `cut_at` is where the cut actually landed, in
     the *returned* audio's timeline. The caller should treat this as the
@@ -654,59 +831,8 @@ def _force_pad(audio, at: float, want: float,
     import numpy as np
 
     sr = KOKORO_SR
-    c = int(at * sr)
-    lo = max(0, c - int(guard * sr))
-    hi = min(len(audio), c + int(search * sr))
-    step = int(0.004 * sr) or 1              # candidate spacing
-    env_win = int(0.015 * sr) or 1           # envelope window, wide enough to
-                                             # not read a zero-crossing as quiet
-
-    cut = c
-    if hi > lo + env_win:
-        positions = np.arange(lo, hi - env_win, step)
-        env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
-                        for p in positions])
-        run_len = max(1, int(round(min_run / (step / sr))))
-
-        # **The peak is tracked causally (running max up to each candidate),
-        # not taken once over the whole window.** A global peak is wrong the
-        # moment the search window reaches into the *next* word and that word
-        # is louder than the letter — measured on "D. Certain medications...":
-        # the true D./Certain boundary dips to ~30% of D.'s own peak, which
-        # is comfortably quiet against D. alone but reads as unremarkable
-        # against "Certain"'s later, louder peak, so a global-peak version of
-        # this search walked straight past the real boundary and landed in
-        # the next gap instead — inside "Certain medications," not after "D."
-        # Tracking the peak causally means the threshold at any candidate
-        # reflects only what the letter has actually done so far.
-        #
-        # The **first** qualifying dip wins, not the deepest, for the same
-        # reason: a later, deeper dip is more likely to belong to the answer
-        # text than to the letter.
-        found = None
-        running_peak = 0.0
-        i = 0
-        while i < len(env):
-            running_peak = max(running_peak, float(env[i]))
-            thresh = running_peak * rel_floor
-            if env[i] < thresh:
-                j = i
-                while j < len(env) and env[j] < thresh:
-                    j += 1
-                if j - i >= run_len:
-                    found = positions[i] + env_win // 2
-                    break
-                i = j
-            else:
-                i += 1
-        if found is not None:
-            cut = int(found)
-        elif len(env):
-            # Nothing cleared the relative floor for long enough — fall back
-            # to the single quietest point rather than cutting blindly at the
-            # untrusted `at`. Better than nothing; should be rare enough to
-            # be worth knowing about if it isn't.
-            cut = int(positions[int(np.argmin(env))] + env_win // 2)
+    cut = _find_cut(audio, at, search=search, guard=guard,
+                    min_run=min_run, rel_floor=rel_floor)
 
     rn = int(ramp * sr)
     lo2, hi2 = max(0, cut - rn), min(len(audio), cut + rn)
@@ -727,6 +853,7 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                             tail: float = TAIL,
                             run_break: float = RUN_BREAK_GAP,
                             chunk_pad: "dict[int, float] | None" = None,
+                            precomputed: "dict[int, object] | None" = None,
                             ) -> tuple[Path, list[Caption], float]:
     """Speak whole runs of sentences; recover caption boundaries inside them.
 
@@ -772,6 +899,18 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     guaranteed gap changes how the model reads it — see `_force_pad` and the
     quiz format's own doc for the measurement that forced this rather than
     just widening `gap`.
+
+    `precomputed` skips synthesis entirely for a sentence that is alone in its
+    own run — keyed by that sentence's index, value a raw Kokoro-rate
+    `np.ndarray` to use as its audio instead of calling `_synth_raw` on its
+    text. For a sentence built by `synth_word_in_context`: naturally-read
+    audio the caller already produced and trimmed outside this function, that
+    still needs the same post-chain, gap accounting and caption bookkeeping
+    every other sentence gets. Only fires when the sentence is *alone* in its
+    run (a multi-sentence run's `spoken` text is one continuous synthesis
+    call, so there is no single audio array to substitute one sentence's
+    worth of) — everywhere else in this format that is already true of any
+    sentence carrying its own `run_break`-guaranteed gap.
     """
     import soundfile as sf
 
@@ -814,13 +953,18 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                 gi += 1
                 local += 1
 
+    precomputed = precomputed or {}
+
     for ri, run in enumerate(runs):
         pairs_in = [all_pairs[si] for si in run]
         # Joined with a space; the sentences keep their own full stops, which
         # is what tells the model where one ends and the next begins.
         spoken = " ".join(s for pairs in pairs_in for _, s in pairs)
 
-        audio = _synth_raw(spoken, voice, mood)
+        if len(run) == 1 and run[0] in precomputed:
+            audio = precomputed[run[0]]
+        else:
+            audio = _synth_raw(spoken, voice, mood)
 
         # Every chunk of the run, aligned in one pass against the run audio.
         # Same machinery as before, just at run scope rather than sentence.

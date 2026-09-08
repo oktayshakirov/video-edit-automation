@@ -154,17 +154,15 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## The letter/answer pause: two designs tried, one shipped
+## The letter/answer pause: three designs tried, one shipped
 
-**The first design was rejected twice, for two different reasons, before this
-one held.**
-
-*Isolating the letter as its own one-word sentence* — say "A." on its own, so
-`run_break` could guarantee a real gap after it, the same mechanism every
-other gap in the table above uses — was the first attempt, and it was sent
-back as sounding weird and unnatural. The pitch track said why: inside "A. It
-has no effect." the letter rises **137 → 208 Hz**, a natural list-item contour
-leading into the answer. Synthesised alone it is flat and runs longer —
+**Design 1: isolating the letter as its own one-word sentence** — say "A." on
+its own, so `run_break` could guarantee a real gap after it, the same
+mechanism every other gap in the table above uses. Sent back as sounding
+weird and unnatural, then again — a later cut on the same design — as "very
+weird and glitchy." The pitch track said part of why: inside "A. It has no
+effect." the letter rises, a natural list-item contour leading into the
+answer, where synthesised with nothing around it, it is flat —
 
 | spoken alone | F0 start → end | duration |
 |---|---|---|
@@ -174,27 +172,57 @@ leading into the answer. Synthesised alone it is flat and runs longer —
 | `"A"` | 116 → 143 Hz | 0.51s |
 | in context | **137 → 208 Hz** | ~0.35s |
 
-*Keeping the letter in the same sentence as its answer and forcing a splice
-between them after synthesis* (`chunk_pad`/`_force_pad`, still in
-`core/voiceover.py`) was the second attempt, built specifically to keep that
-natural contour while still buying the pause. It was sent back too — "weird
-cut," "letters sound weird" — and the cause was real: finding *where* to cut
-inside continuous, coarticulated speech that has no actual boundary turned out
-not to be solvable by energy alone. Checked against four real cards, no
-single heuristic — absolute floor, relative-to-peak floor, causal peak
-tracking, wider search windows — found the true boundary on all four; the
-threshold that fixed one card's cut broke another's, and `align_chunks`' own
-boundary *estimate*, meant to anchor the search, was off by anywhere from
--0.06s to +0.14s with no consistent direction. Some cards really were being
-cut off mid-word.
+— but not the whole story: a bare one-word utterance also gets the same
+trailing lengthening Kokoro gives the *end* of a real sentence, which is why
+"A." alone runs 0.45-0.55s, three to four times its natural in-context
+length, mostly hollow decay tail rather than content.
 
-**So the letter is isolated again, and the flat pitch is the accepted cost.**
-A letter that reads a little flat every time is a smaller, more predictable
-fault than a letter that is sometimes — unpredictably, card by card — chopped
-off entirely. `chunk_pad`/`_force_pad` were kept in the engine as general
-capability (documented in `voice.md`) for cases where a real quiet stretch
-already exists to top up, or where the cut's exact placement matters less;
-this format does not use them.
+**Design 2: keeping the letter in the same sentence as its answer and forcing
+a splice between them after synthesis** (`chunk_pad`/`_force_pad`, still in
+`core/voiceover.py`) — built specifically to keep the natural contour while
+still buying the pause. Sent back too — "weird cut," "letters sound weird" —
+and the cause was real: finding *where* to cut inside continuous,
+coarticulated speech that has no actual boundary turned out not to be solvable
+by energy alone. Checked against four real cards, no single heuristic —
+absolute floor, relative-to-peak floor, causal peak tracking, wider search
+windows — found the true boundary on all four; the threshold that fixed one
+card's cut broke another's, and `align_chunks`' own boundary *estimate*, meant
+to anchor the search, was off by anywhere from -0.06s to +0.14s with no
+consistent direction. Some cards really were being cut off mid-word.
+
+**Design 3, which shipped: synthesise the letter *in* its real answer's
+context, then throw the answer's audio away instead of trying to keep or
+precisely bound it** (`synth_word_in_context` in `core/voiceover.py`, wired in
+through `precomputed`). The insight Design 2 missed: cutting into audio that
+gets *discarded* is safe to get wrong in one direction and dangerous in the
+other. Landing early only shortens the kept letter — the same cost Design 1
+already accepted, since neither clips the word's own recognisable content.
+Landing late lets a real fragment of the answer survive into the clip, which
+is the actual defect worth avoiding. `_find_word_end` is built on that
+asymmetry, and deliberately biased the *opposite* way from `_force_pad`'s own
+search: it locates the letter's own peak in a short, fixed early window — long
+enough that a lettered option's peak always falls inside it, short enough that
+the far louder answer word after it never gets the chance to steal the
+reference — then cuts at the first point after that peak where energy drops,
+with no minimum-run requirement, because a shallow within-word dip reading as
+"the end" is the safe failure here rather than the dangerous one.
+
+**A clean cut still is not enough — the fade needs to survive the compressor
+after it.** The first version of `_trim_after` used a 10ms fade, which is fine
+before the ENERGETIC chain and is not what the chain produces: checked on a
+real case, full volume through 0.16s of a 0.19s clip, then a fade that
+measured smoothly at the source became a drop to near-silence in two 20ms
+steps *after* the chain — the compressor reduces dynamic range on everything
+it touches, so a short fade is short enough that compression mostly undoes
+it, and what ships is a hard stop rather than the soft one that was written.
+`_trim_after`'s fade is now 80ms, long enough to survive that — capped at 40%
+of the clip's own length, since a lettered option can trim to under 100ms
+(see `_find_word_end`) and an 80ms fade on a 90ms clip fades nearly the whole
+thing to a whisper.
+
+`chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability for
+a case where the *kept* side of a cut is the one that matters — this format
+no longer uses them for this.
 
 ## A scripted gap under `RUN_BREAK_GAP` is a request, not a guarantee
 
