@@ -1,4 +1,4 @@
-"""Three tinnitus myths, tested - ~75s vertical quiz Short.
+"""Three tinnitus myths, tested - ~96s vertical quiz Short.
 
 Source: tinnitus-blog/content/posts/tinnitus-myths-vs-reality.mdx, which is
 already structured as eight myth/reality pairs. That structure is why this
@@ -36,9 +36,19 @@ none of the four cards on any question is invented.
 `docs/video/projects/quiz.md` and the skill.
 
 **Opens on "Tinnitus Quiz: Myths Edition", no number and no second intro
-card.** Both were tried on this exact video and cut on the user's call
-(2026-09-08) — the number as an unnecessary flourish, the second card as
-redundant with the title.
+card.** Both were tried on an earlier cut of this same video and cut on the
+user's call (2026-09-08) — the number as an unnecessary flourish, the second
+card as redundant with the title.
+
+**The letter/answer pause is a separate sentence again, not a splice.** An
+earlier cut of this video tried keeping a card's letter and answer in one
+sentence and forcing a cut between them after synthesis, to preserve the
+letter's natural rising contour without giving up a guaranteed gap. Sent back
+twice — "weird cut," "letters sound weird" — because finding *where* to cut
+inside continuous, coarticulated speech proved unreliable across different
+letters. The letter is isolated as its own sentence again, guaranteed via
+`run_break` like every other gap in the format; see `LETTER_ANSWER_GAP` in
+`quiz.build` for the full account.
 
 Run from the repo root:
 
@@ -100,7 +110,7 @@ def main() -> None:
     path, total = render_quiz_short(
         QUESTIONS,
         ("How many did you get?",),
-        out, work, title=TITLE, brand=TINNITUS, keep_work=True)
+        out, work, title=TITLE, brand=TINNITUS)
     print(f"{path}  {total:.1f}s")
 
 

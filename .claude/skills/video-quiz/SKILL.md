@@ -5,7 +5,7 @@ description: Build a vertical quiz Short for either channel - three questions fr
 
 # Quiz videos
 
-**One article, three questions, about 75 seconds.** The same format on both
+**One article, three questions, about 95 seconds.** The same format on both
 channels - `/video-quiz crypto` and `/video-quiz tinnitus` - because the only
 things that differ are a `Brand` and the safety rules.
 
@@ -42,9 +42,7 @@ and a remembered version is a stale one.
    *best* quiz source, not a used-up one, because the audience has been taught
    the thing they are about to be tested on. Offer three to five candidates
    with a reason each - what the four options would be, and which misconception
-   the article corrects - then stop and wait. **The same command prints "next
-   quiz number: N"** - read the series number for the title card off it rather
-   than counting `projects/quiz-<channel>/` by hand.
+   the article corrects - then stop and wait.
 2. **Write the questions.** Three of them, each a `Question`: the question,
    four options, the index of the right one, and `answer` — the *because*
    only, never "the answer is B." The format itself says the letter
@@ -54,13 +52,13 @@ and a remembered version is a stale one.
 3. **Build** - `projects/quiz-crypto/<name>.py` or
    `projects/quiz-tinnitus/<name>.py`, calling
    `video_automation.quiz.build.render_quiz_short` and setting `SOURCE_POST`.
-   - **Open on a title card.** `title=(caption, spoken)` and `title_number=N`
-     — "Tinnitus Quiz: Tinnitus Myths Edition" with a large "1" drawn above
-     it, from `ChapterCard`'s own numbered-card mode. **Never write the number
-     into the caption text as "#1"** — Kokoro reads a bare "#1" as "hash one"
-     (checked), and it also just duplicates what the numeral already draws.
-     Write the count out in the *spoken* half if the sentence should say it
-     ("Tinnitus quiz, number one.").
+   - **Open on a plain title card.** `title=(caption, spoken)` — "Tinnitus
+     Quiz: Myths Edition" and so on. **No number, and no second intro card
+     after it** — both were tried and cut on the user's call (2026-09-08): the
+     number as an unnecessary flourish, a second stake-setting card as
+     redundant with the title. `title_number` and `intro` both still exist as
+     parameters if a later run is explicitly asked to bring either back, but
+     do not add them by default.
    - **No thumbnail render.** Every other format calls `render_short_thumb`
      because it has a site photo or a headline worth a dedicated card; a quiz
      has neither — the picture *is* the four cards, and a frame pulled from the
@@ -73,12 +71,12 @@ and a remembered version is a stale one.
 5. **On approval: commit, write `HANDOFF-PUBLISH.md`, and tell the user to open
    a fresh session for `/publish-video`.**
 
-## Four things that are settled, and are not to be re-litigated per run
+## Five things that are settled, and are not to be re-litigated per run
 
-- **Three questions, not five.** A question costs ~25s once its pauses are
-  real (see `quiz.md`). Five would run past two minutes. The user chose three
-  with that arithmetic in front of them; the countdown is what gives way first
-  if a cut needs to come back down, not the pauses.
+- **Three questions, not five.** A question costs ~30s once its pauses are
+  real (see `quiz.md`). Five would run past two and a half minutes. The user
+  chose three with that arithmetic in front of them; the countdown is what
+  gives way first if a cut needs to come back down, not the pauses.
 - **Cards carry type, not photographs.** Four stock images a question is
   twelve to twenty licensed images a video, and most answers have no
   photographable subject.
@@ -88,9 +86,12 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
-- **Every video opens on a numbered title card.** "Tinnitus Quiz: Tinnitus
-  Myths Edition" with a large "1" above it - see step 3. The number always
-  goes up; it is never reused, even if an earlier quiz is later reworked.
+- **A card's letter is its own sentence, read alone, then a real 0.70s pause
+  before its answer.** A version that kept the letter in the same sentence as
+  its answer and forced a cut between them after synthesis was tried and sent
+  back twice as sounding wrong - see `LETTER_ANSWER_GAP` in `quiz.build`. Do
+  not try to reconstruct that approach; it was found unreliable across
+  different letters, not merely untuned.
 
 ## What makes a question work
 

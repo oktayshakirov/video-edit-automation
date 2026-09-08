@@ -13,30 +13,27 @@ sidechained bed, the encode — is `render_crypto_short`, unchanged, exactly as
 the tinnitus article shorts use it. This file adds a beat and its arithmetic
 and nothing else.
 
-**A question is seven shots, not one**, and the number is a consequence
+**A question is eleven shots, not one**, and the number is a consequence
 rather than a design: every scripted silence needs a sentence boundary to sit
-on, and `plan_shots` wants one `Shot` per sentence. So the question, each of
-the four cards, and the two halves of the reveal are seven one-chunk
-sentences — and therefore seven `Shot`s. All of them are `QuizShot`s built
-from the *same* absolute timings (`reveals`, `countdown_at`, `mark_at`), so
-the picture is one continuous drawing sliced across six hard cuts rather than
-seven different pictures. A cut between two frames computed identically at the
-boundary is invisible; that is what makes this cheap.
+on, and `plan_shots` wants one `Shot` per sentence. So the question, each
+card's letter, each card's answer, and the two halves of the reveal are
+eleven one-chunk sentences — and therefore eleven `Shot`s. All of them are
+`QuizShot`s built from the *same* absolute timings (`reveals`, `countdown_at`,
+`mark_at`), so the picture is one continuous drawing sliced across ten hard
+cuts rather than eleven different pictures. A cut between two frames computed
+identically at the boundary is invisible; that is what makes this cheap.
 
-**Four review rounds shaped the pacing, and each one overturned the previous
-fix's assumption.** First: `gap` is only ever silence *between sentences*, so
-a question carrying its options as caption chunks had nothing separating
-them. Second: a scripted gap under `RUN_BREAK_GAP` is not even a guarantee —
-it is inserted into the model's own pause by `_pad_pause`, and where the
-model left no pause the gap is dropped in silence; every gap here is now at
-or above `RUN_BREAK`, which this module lowers to 0.30 through
-`render_crypto_short`'s `run_break`. Third: isolating a bare letter into its
-own *sentence* to get that guaranteed gap made the letter itself sound
-wrong — the pitch track showed it reads flat alone and rising in context.
-Fourth, and this is the one that actually reconciles the other two: a letter
-can stay in its answer's sentence (natural contour, same synthesis pass) and
-still get a real pause after it, by splitting it into a *chunk* rather than a
-*sentence* and forcing a splice with `chunk_pad` — see `LETTER_ANSWER_GAP`.
+**Several review rounds shaped the pacing, and more than one overturned the
+previous fix's assumption — see `LETTER_ANSWER_GAP` for the fullest account,
+letter and answer are back to being separate sentences after a real attempt
+at something cleverer.** In short: `gap` is only ever silence *between
+sentences*, so a question carrying its options as caption chunks had nothing
+separating them; a scripted gap under `RUN_BREAK_GAP` is not even a
+guarantee, so every gap here sits at or above `RUN_BREAK`, which this module
+lowers to 0.30 through `render_crypto_short`'s `run_break`; and a letter read
+as its own sentence sounds a little flatter than the same letter read into
+its answer, which turned out to be the smaller, more predictable cost next to
+the alternative.
 """
 
 from __future__ import annotations
@@ -83,35 +80,49 @@ COUNTDOWN = 6.0
 RUN_BREAK = 0.30         # at or above this, a gap is guaranteed rather than hoped for
 
 QUESTION_GAP = 0.65      # after the question, before the first card
+LETTER_ANSWER_GAP = 0.70  # after the letter, before that card's own answer
 CARD_GAP = 0.70          # between one card and the next
 ANSWER_LEAD_GAP = 0.40   # after "The correct answer is B.", before the why
 NEXT_Q_GAP = 1.00        # after the answer line, before the next question
 INTRO_GAP = 1.00         # after the intro card, before the first question
 TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
-# **The letter is never *synthesised* on its own, but it is still followed by
-# a real pause — those are different claims, and confusing them was the first
-# version's whole bug.** Isolating "A." as its own one-word *sentence* (so a
-# guaranteed gap could follow it) made the model read it wrong: measured on
-# the pitch track, "A." spoken alone runs flat (127 -> 127 Hz) where the same
-# letter *in context* — as the opening of "A. It has no effect." — rises
-# 137 -> 208 Hz, a natural list-item contour leading into the answer. That
-# rise only exists if the model sees the whole sentence at once.
+# **Two designs were tried for the letter/answer pause, and both were sent
+# back as sounding wrong, for two genuinely different reasons — this is the
+# second one, and the fix it settled on.**
 #
-# So the letter and its answer are still one **sentence** — one continuous
-# synthesis, one natural contour — and they always have been. What changed is
-# how the pause after the letter gets in: not by giving it a separate
-# sentence, but by splitting it into two *chunks* of the same sentence and
-# asking `chunk_pad` to force a real splice between them after synthesis. The
-# model still reads "A. It has no effect." as one phrase; the engine then cuts
-# the resulting audio at the DTW-aligned chunk boundary (nudged to the locally
-# quietest sample nearby, so the cut lands between the words, not inside one)
-# and inserts `LETTER_ANSWER_GAP` of silence. Checked against the raw
-# waveform before this shipped — a clean silence, no clipped word on either
-# side — but not yet against a human ear; see `_force_pad` in
-# `core/voiceover.py`, and confirm the actual splice sounds right on the
-# first render this ships in.
-LETTER_ANSWER_GAP = 0.70
+# *Design 1: the letter as its own one-word sentence.* Guarantees the gap
+# through `run_break`, same as every other gap here, but changes how the
+# model reads the letter: measured on the pitch track, "A." spoken alone runs
+# flat (127 -> 127 Hz) where the same letter *in context* — as the opening of
+# "A. It has no effect." — rises 137 -> 208 Hz. Reported back as "weird" and
+# "unnatural."
+#
+# *Design 2: letter and answer kept as one sentence, split into two chunks of
+# it, with the engine forcing a splice between them after synthesis
+# (`chunk_pad`/`_force_pad` in `core/voiceover.py`).* This keeps the natural
+# contour — the model still reads the whole sentence as one phrase — but it
+# requires finding *where* to cut inside continuous, coarticulated audio that
+# has no real boundary to find. That turned out not to be solvable reliably:
+# checked against four real cards ("A.", "B.", "C.", "D." each opening a
+# different answer), no single energy-based heuristic — absolute floor,
+# relative-to-peak floor, causal peak tracking, widened search windows — found
+# the true boundary on all four. Each letter's own loudness and its dip into
+# the next word varied enough that a threshold tuned to fix one card's cut
+# broke another's, and DTW's own boundary *estimate*, meant to anchor the
+# search, was itself off by anywhere from -0.06s to +0.14s with no consistent
+# direction to correct for. Reported back, again, as "weird cut" and "letters
+# sound weird" — because some cards really were being cut mid-word.
+#
+# **So this is Design 1 again, and the flat pitch is the accepted cost.** A
+# letter that reads a little flat is a smaller fault than a letter that is
+# sometimes chopped off entirely and unpredictably; the second was not a
+# tuning problem this session could finish solving, the first is a known,
+# bounded, always-the-same-way cost. `chunk_pad`/`_force_pad` stay in
+# `core/voiceover.py` as general engine capability — they are correct and
+# useful where a real quiet stretch already exists to top up or where the
+# cut's exact placement does not matter this much — this format just does not
+# use them here any more.
 
 # The countdown ring used to start the instant the model's own audio ended —
 # mathematically correct and still read as the video cutting the last option
@@ -199,24 +210,18 @@ class Question:
             spoken += "."
         return text if spoken == text else (text, spoken)
 
-    def option_line(self, i: int) -> tuple:
-        """One card's two chunks: the letter, then the answer.
+    def letter_line(self, i: int) -> str:
+        """One card's letter, on its own — see the module docstring for why."""
+        return f"{LETTERS[i]}."
 
-        Both chunks belong to the *same sentence* — Kokoro still synthesises
-        "A. It has no effect." as one continuous phrase, so the letter keeps
-        its natural rising contour. Splitting it into two chunks only gives
-        `render_quiz_short` a boundary to hand `chunk_pad`, which is what
-        actually forces `LETTER_ANSWER_GAP` of silence in after synthesis —
-        see the module docstring. `spoken` is keyed by the option as written,
-        so a writer respelling a word does not have to know the engine says
-        "B. " in front of it.
+    def option_line(self, i: int) -> "str | tuple[str, str]":
+        """One card's answer text — its own sentence, after the letter's.
+
+        `spoken` is keyed by the option as written, not by any lettered form,
+        so a writer respelling a word does not have to account for anything
+        the engine adds around it.
         """
-        opt = self.options[i]
-        said = self.spoken.get(opt, opt)
-        if said and said[-1] not in ".!?…:,":
-            said += "."
-        text_chunk = opt if said == opt else (opt, said)
-        return (f"{LETTERS[i]}.", text_chunk)
+        return self._say(self.options[i])
 
     def lead_line(self) -> str:
         """"The correct answer is B." — spoken alone, then a beat, then why.
@@ -283,12 +288,13 @@ def _check_fits(questions: list[Question], frame: Frame, brand: Brand) -> None:
 
 @dataclass
 class _Group:
-    """The seven shots that make up one question.
+    """The eleven shots that make up one question.
 
-    One for the question, one per card, then two for the reveal — the spoken
-    "The correct answer is B." and the reason after it. Seven because every
-    scripted silence needs a sentence boundary to sit on and `plan_shots`
-    wants one `Shot` per sentence.
+    One for the question, one per card for its letter, one per card for its
+    answer, then two for the reveal — the spoken "The correct answer is B."
+    and the reason after it. Eleven because every scripted silence needs a
+    sentence boundary to sit on and `plan_shots` wants one `Shot` per
+    sentence.
 
     Kept as object references rather than looked up again later — by the time
     `plan_graphics` runs, `plan_shots` has already set `.start`/`.hold` on
@@ -297,7 +303,8 @@ class _Group:
     """
     q: Question
     question_shot: Shot
-    option_shots: list   # 4 Shots, one per card (letter and answer together)
+    letter_shots: list   # 4 Shots, one per card's letter
+    text_shots: list     # 4 Shots, one per card's answer
     reveal_lead: Shot    # "The correct answer is B."
     reveal_body: Shot    # the reason
 
@@ -368,19 +375,9 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     sentences: list[tuple] = []
     shots: list[Shot] = []
     gaps: list[float] = []
-    # `chunk_pad` is keyed by the flat global chunk index — the position a
-    # chunk lands at once every sentence appended so far is flattened, the
-    # same order `build_narration_aligned` walks `sentences` in. `chunk_i`
-    # tracks that running total as sentences are appended below, so a pad can
-    # be recorded *before* its sentence is appended without re-deriving the
-    # count from `sentences` afterwards.
-    chunk_pad: dict[int, float] = {}
-    chunk_i = 0
 
     def add(chunks: tuple) -> None:
-        nonlocal chunk_i
         sentences.append(chunks)
-        chunk_i += len(chunks)
 
     def card(text: "str | tuple[str, str]") -> Shot:
         """A full-frame `chapter` beat — the title, the intro, the outro."""
@@ -436,20 +433,23 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         shots.append(question_shot)
         gaps.append(QUESTION_GAP)
 
-        option_shots = []
+        letter_shots, text_shots = [], []
         for i in range(len(q.options)):
-            os_ = quiz_shot()
-            # The pad lands after the letter — the *first* of this sentence's
-            # two chunks, which is exactly `chunk_i` right before it is added.
-            chunk_pad[chunk_i] = LETTER_ANSWER_GAP
-            add(q.option_line(i))
-            shots.append(os_)
+            ls = quiz_shot()
+            add((q.letter_line(i),))
+            shots.append(ls)
+            gaps.append(LETTER_ANSWER_GAP)
+            letter_shots.append(ls)
+
+            ts = quiz_shot()
+            add((q.option_line(i),))
+            shots.append(ts)
             # The last card's gap is what the countdown is built from —
             # `LEAD` seconds of runway past its real speech end, the ring's
             # own `countdown`, then `TAIL` seconds of stillness before the
             # cut to the marked cards.
             gaps.append(CARD_GAP if i < 3 else LEAD + q.countdown + TAIL)
-            option_shots.append(os_)
+            text_shots.append(ts)
 
         reveal_lead = quiz_shot()
         add((q.lead_line(),))
@@ -461,9 +461,11 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         shots.append(reveal_body)
         gaps.append(NEXT_Q_GAP)
 
-        grp = _Group(q, question_shot, option_shots, reveal_lead, reveal_body)
+        grp = _Group(q, question_shot, letter_shots, text_shots,
+                    reveal_lead, reveal_body)
         groups.append(grp)
-        for sh in [question_shot, *option_shots, reveal_lead, reveal_body]:
+        for sh in [question_shot, *letter_shots, *text_shots,
+                  reveal_lead, reveal_body]:
             state[id(sh)] = {"options": options, "question": q.question,
                              "correct": q.correct, "countdown": q.countdown}
 
@@ -483,21 +485,22 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         design needed and this one does not.
         """
         for grp in groups:
-            # A card pops in as its own line starts being read.
-            reveals = [os_.start for os_ in grp.option_shots]
+            # A card pops in as its own letter starts being read.
+            reveals = [ls.start for ls in grp.letter_shots]
             countdown_at = grp.reveal_lead.start - TAIL - grp.q.countdown
             # The verdict lands on the cut into "The correct answer is B." —
             # the marks and the sentence naming the answer arrive together.
             mark_at = grp.reveal_lead.start
 
-            for sh in [grp.question_shot, *grp.option_shots[:-1]]:
+            for sh in [grp.question_shot, *grp.letter_shots,
+                      *grp.text_shots[:-1]]:
                 state[id(sh)].update(reveals=reveals)
-            # Only the last card carries the countdown: its `.hold` has
-            # already been extended (by the engine's own gap-closing pass)
-            # all the way to `reveal_lead.start`, so the ring's window fits
-            # inside it.
-            state[id(grp.option_shots[-1])].update(reveals=reveals,
-                                                   countdown_at=countdown_at)
+            # Only the last card's answer carries the countdown: its `.hold`
+            # has already been extended (by the engine's own gap-closing
+            # pass) all the way to `reveal_lead.start`, so the ring's window
+            # fits inside it.
+            state[id(grp.text_shots[-1])].update(reveals=reveals,
+                                                 countdown_at=countdown_at)
             # Both reveal shots carry the same absolute `mark_at`, so the
             # verdicts stay drawn across the cut between them, and the same
             # band text, so the reason stays on screen while it is read.
@@ -535,7 +538,7 @@ def render_quiz_short(questions: list[Question], outro: tuple,
 
         Not derived by asking each prepared shot for its own cues: a group's
         shots share one `countdown_at` and one `mark_at`, and asking each of
-        them would mix the same eight ticks seven times over. `plan` is the
+        them would mix the same eight ticks eleven times over. `plan` is the
         one place that already knows which shot owns which timing, so it is
         the one source.
         """
@@ -545,5 +548,5 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     return render_crypto_short(
         sentences, shots, out, workdir, voice=voice, frame=frame, brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        gap=gaps, run_break=RUN_BREAK, chunk_pad=chunk_pad, factory=factory,
+        gap=gaps, run_break=RUN_BREAK, factory=factory,
         plan_graphics=plan, cues=cue_list, **kw)
