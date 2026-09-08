@@ -480,3 +480,33 @@ A trailing *reaction* chunk is still fine (it claims no reveal slot); only a
 leading hinge is the problem. When the sentence before the beat already does
 the setup work ("If you want to test it, do this." before a `steps`), no
 extra sentence is needed - check whether the flow is there before adding one.
+
+## `diagram` and `gauge` transfer to 9:16; `callout` is landscape-first
+
+Added with the three new beats (see `beats.md`), and screened in portrait
+rather than assumed:
+
+- **`diagram` is the strongest of the three here.** The chain turns ninety
+  degrees and runs down the frame, which is the axis 9:16 has to spare - the
+  same argument `steps` makes for its own track. Boxes stay the size their
+  content needs and the *gaps* stretch to fill the height, because at the
+  landscape gap a three-node chain ended a third of the way up the frame with
+  nothing under it, and a drawn beat burns no caption there to fill it.
+  `loop=True` works in portrait and returns up the left margin.
+- **`gauge` works but is landscape-first.** A horizontal scale in a vertical
+  frame is the wrong way round by nature and leaves the lower third empty; it
+  is legible and on-brand, and the track thickens to 46px because 34 across
+  1080 reads as a hairline. Use it in a short when the *limit* is the whole
+  point of the section, not as a general-purpose figure - `stat` is still the
+  better vertical beat for a number that stands alone.
+- **`callout` is allowed but rarely right in 9:16.** The site's images are
+  landscape and 700-1200px, so a fitted panel inside a portrait frame is a
+  band across the middle with a lot of nothing above and below it, and the
+  labels have no width to sit in. In portrait the answer to "explain this
+  picture" is still `ImageOverlay` over moving footage - see that section.
+  Reach for `callout` in the long form and let the short use the same
+  photograph differently, exactly as the pair already shares its opening face.
+
+The rule the vertical format already had applies unchanged: **two drawn beats
+in one short must not share a silhouette.** With twelve shapes now there is no
+excuse for a second `checklist`.

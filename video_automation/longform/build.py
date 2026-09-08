@@ -291,7 +291,8 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             end = sh.start + sh.hold
             if end < total - 0.4:
                 cues.append((end - 0.18, "whoosh"))
-        elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos"):
+        elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
+                            "gauge", "callout", "diagram"):
             for t in (sh.reveals or [])[:8]:
                 cues.append((t, "reveal"))
         if sh.graphic in ("checklist", "logos") and sh.marks:

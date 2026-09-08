@@ -40,8 +40,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from ..core import backdrop
 from ..core.brand import Brand
-from ..core.draw import (contain, cover, ease_out, mark, shadow_text,
-                         subpixel, wrap)
+from ..core.draw import (contain, cover, ease_out, mark, partial,
+                         shadow_text, subpixel, wrap)
 from ..core.frame import LANDSCAPE, Frame
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
@@ -1319,6 +1319,541 @@ class Steps(Beat):
                 ty += 48
 
 
+class Gauge(Beat):
+    """One value on a scale, against a threshold. The beat for "how much is too much".
+
+    **`stat` shows a bare number and `bars` shows proportions of a whole;
+    neither can show a *limit*.** "Eighty-five decibels" is a figure with no
+    meaning attached, and drawing it larger does not give it one — the fact
+    the viewer needs is that it sits past the line where damage starts. That
+    is a different claim from a proportion (`bars`) and a different graphic
+    from a number in an empty half-frame (`stat`), and on both of these sites
+    it is one of the commonest claims there is: decibels against safe
+    exposure, a caffeine dose against a threshold, leverage against a
+    liquidation point.
+
+    It replaces the weakest `stat` uses rather than adding to them. A `stat`
+    whose figure only means something relative to some other figure was
+    always the wrong beat; there simply was not a right one.
+
+    **The silhouette is one track, not several.** `bars` stacks rows down the
+    left with labels beside them and reads as a chart; this is a single thick
+    scale across the middle of the frame with a flag above it, and at a glance
+    the two are not the same graphic. Keeping it to one row is the whole
+    point — the moment a second row appears it is a bar chart.
+
+    Two reveals, in this order:
+
+    0. **The scale and the threshold.** The track draws across, the threshold
+       uprights, and its label sets. This is the sentence that says what the
+       limit is: "Eight hours a day is safe at eighty decibels."
+    1. **The value.** The marker travels along the track to its position and
+       the figure counts up over it. This is the sentence that says where the
+       thing actually sits: "A hairdryer is ninety-five."
+
+    So write the beat as **two caption chunks**, limit first and value second.
+    Written the other way round the marker lands before there is a line for it
+    to sit past, which is the "say the point, then show the graphic" rule
+    inside a single beat.
+
+    `frac` and `threshold` are fractions of the track, 0..1 — they are
+    *positions*, not data, and it is the author's job to place them honestly.
+    A logarithmic quantity (decibels, and most of what this beat is for) does
+    not go on a linear track by dividing one number by another; place the
+    ticks where the scale actually falls and put the real values in
+    `scale_labels`.
+
+    payload: (value, frac, label, threshold, threshold_label, title)
+      value            "95 dB"      the figure, drawn on the flag
+      frac             0.0..1.0     where the marker sits on the track
+      label            "A HAIRDRYER"  what the value is, under the flag
+      threshold        0.0..1.0 or None
+      threshold_label  "SAFE FOR 8 HOURS"
+      title            the beat's kicker
+    """
+
+    EMBLEM = False
+    TRACK_H = 34
+    GROW = 0.75                 # how long the marker takes to travel
+
+    def __init__(self, value: str, frac: float, label: str = "",
+                 threshold: float | None = None, threshold_label: str = "",
+                 title: str = "", **kw):
+        super().__init__(**kw)
+        self.value, self.frac, self.label = value, float(frac), label
+        self.threshold = None if threshold is None else float(threshold)
+        self.threshold_label, self.title = threshold_label, title
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        fr = self.frame
+        top0 = self.heading(out, self.title, f)
+
+        x0 = self.margin
+        w = fr.w - 2 * self.margin
+        # A 34px track across 1080 reads as a hairline where the same track
+        # across 1920 reads as a bar. Portrait is not landscape scaled down,
+        # which is the note `Beat.__init__` already makes about the margin.
+        track_h = self.TRACK_H if not self.portrait else 46
+        # Room for the flag above and the threshold label below, rather
+        # than the frame's own middle — a track centred at h/2 put the
+        # figure high and left the bottom third of the frame empty.
+        cy = max(top0 + 260, int(fr.h * 0.52))
+        big = _display(132 if not self.portrait else 108)
+        flag_font = _font(40 if not self.portrait else 44)
+        thr_font = _font(34 if not self.portrait else 38)
+
+        # --- reveal 0: the track and the threshold ------------------------
+        e0 = self.due(0, 2, f)
+        if e0 < 0:
+            return
+        draw_e = ease_out(min(1.0, (self.at(f) - (self.reveals[0]
+                                                  if self.reveals else
+                                                  self.start)) / 0.55))
+        # The empty track, drawn across as the beat opens — the same device
+        # `steps` and `compare` use, so the shape of the claim is established
+        # before any value is in it.
+        d.rounded_rectangle([x0, cy, x0 + w * draw_e, cy + track_h],
+                            radius=track_h // 2,
+                            fill=(255, 255, 255, 26))
+
+        if self.threshold is not None:
+            tx = x0 + w * max(0.0, min(1.0, self.threshold))
+            if draw_e * w >= (tx - x0):
+                # An upright through the track, and the region past it shaded
+                # — the shading is what says "this side is the problem"
+                # without a word of type doing it.
+                d.rectangle([tx, cy, x0 + w, cy + track_h],
+                            fill=self.brand.negative + (40,))
+                d.line([(tx, cy - 54), (tx, cy + track_h + 54)],
+                       fill=self.brand.ink + (150,), width=3)
+                if self.threshold_label:
+                    ty = cy + track_h + 70
+                    for ln in wrap(d, self.threshold_label.upper(), thr_font,
+                                   min(w * 0.42, w - (tx - x0) + 120)):
+                        shadow_text(d, (tx + 16, ty), ln, thr_font,
+                                    self.brand.ink + (170,))
+                        ty += 42
+
+        # --- reveal 1: the value travels ----------------------------------
+        e1 = self.due(1, 2, f)
+        if e1 < 0:
+            return
+        g = ease_out(min(1.0, (self.at(f) - self.reveals[1]) / self.GROW)
+                     if self.reveals and len(self.reveals) > 1 else 1.0)
+        vx = x0 + w * max(0.0, min(1.0, self.frac)) * g
+        # **The fill changes colour where it crosses the line.** The first
+        # version drew one primary-coloured fill straight over the shaded
+        # danger zone, which hid the shading completely and left the whole
+        # claim resting on a thin upright — on a rendered frame the bar simply
+        # read as "quite full", not as "past the limit". Two colours say it
+        # without a word of type: the beat is *about* the crossing, so the
+        # crossing is the thing that has to be visible.
+        over = (self.threshold is not None
+                and self.frac > self.threshold)
+        tx = x0 + w * (self.threshold or 0.0)
+        d.rounded_rectangle([x0, cy, max(x0 + 1, min(vx, tx) if over else vx),
+                             cy + track_h],
+                            radius=track_h // 2,
+                            fill=self.brand.primary + (235,))
+        if over and vx > tx:
+            d.rounded_rectangle([tx, cy, vx, cy + track_h],
+                                radius=track_h // 2,
+                                fill=self.brand.negative + (240,))
+        head = self.brand.negative if over else self.brand.primary
+        # **The marker is filled with the ink, ringed in the fill's colour.**
+        # Filled with `head` it was the same colour as the bar it sits on and
+        # disappeared into it — the one element that has to say *where* was
+        # the least visible thing on the frame.
+        d.ellipse([vx - 24, cy + track_h // 2 - 24,
+                   vx + 24, cy + track_h // 2 + 24],
+                  fill=self.brand.ink, outline=head, width=6)
+
+        # The flag above the marker: the figure, and the label under it.
+        #
+        # **The label is placed off the figure's measured box, not off a
+        # constant.** The first version set the value at `cy - 96` and the
+        # label at `cy - 78`, which are 18px apart while the figure itself is
+        # 132px tall — so "A HAIRDRYER" printed straight through "95 dB" on
+        # the very first rendered frame. Nothing raises on overlapping type;
+        # the only way to catch it is to look.
+        a = int(255 * min(1.0, e1))
+        tb = d.textbbox((0, 0), self.value, font=big)
+        bw, bh = tb[2] - tb[0], tb[3] - tb[1]
+        lab = self.label.upper() if self.label else ""
+        lh = 52 if lab else 0
+        rise = int(round(RISE * (1.0 - min(1.0, e1))))
+        # Bottom of the whole flag sits a clear gap above the track.
+        fy = cy - 46 - lh - bh + rise
+        fx = min(max(vx - bw / 2 - tb[0], x0), x0 + w - bw)
+        shadow_text(d, (fx, fy - tb[1]), self.value, big, head + (a,), alpha=a)
+        if lab:
+            lw = d.textlength(lab, font=flag_font)
+            shadow_text(d, (min(max(vx - lw / 2, x0), x0 + w - lw),
+                            fy + bh + 10), lab, flag_font,
+                        self.brand.ink + (a,), alpha=a)
+
+
+class Callout(Beat):
+    """Labels and pointers drawn onto a photograph, one per line spoken.
+
+    **This is the beat that changes the shots the other beats never touch.**
+    Measured across the nineteen long-form scripts on these two channels,
+    drawn beats are four to nine shots out of thirty to forty-five — the other
+    three quarters of every video is a stock clip or a Ken Burns still with
+    nothing on it but a slow push. No amount of new beat *shapes* moves that
+    number, because a beat replaces a photograph rather than doing anything
+    with one. This one puts the explanation **on** the picture, so a shot that
+    was connective texture becomes a shot that carries an argument.
+
+    It is also the vocabulary `longform.md` names as the reference channel's
+    entire on-screen language — "nothing on screen but labels and arrows" —
+    which this repo had quoted approvingly for a year and never built.
+
+    Each item is a point on the picture and a short label beside it. A leader
+    line draws from the point out to the label, and the dot pulses once as it
+    lands, so the eye is taken to the place before it is given the word.
+
+    **Coordinates are fractions of the picture, not of the frame** (0..1, from
+    its top-left). That is the only workable choice: the picture is fitted, so
+    where it sits in the frame depends on its own aspect ratio, and a fraction
+    of the frame would move the label off the subject the moment the source
+    changed. Read them off the source file.
+
+    **The picture is fitted, never covered.** `PhotoShot` scales to cover and
+    crops, which is right for a full-frame photograph and wrong here for two
+    reasons: a crop moves the subject out from under coordinates that were
+    measured on the source, and covering 1920 from the ~900px median source on
+    these sites is the upscale the split layout exists to avoid. Fitted inside
+    a margin, the median source is at or below 1:1 and the callouts land where
+    they were placed. The picture carries the brand hairline, as every fitted
+    photograph in this format does.
+
+    The photograph is dimmed under the labels — `DIM`, 0.68. Type over an
+    undimmed photograph is the legibility problem every other beat avoids by
+    not having one, and a leader line disappears into a busy image entirely.
+
+    payload: (picture, items, title)
+      photo     Path to the image. Named `photo` rather than `picture`
+                because `make_beat` already passes `picture=` to every beat
+                for the split layout's right-hand column, and the two would
+                collide — see `__init__`.
+      items     [(label, x, y), ...] — x, y are fractions of the picture
+      title     the beat's kicker
+    """
+
+    EMBLEM = False
+    DIM = 0.68
+    DOT = 13
+
+    def __init__(self, photo: Path, items: list[tuple[str, float, float]],
+                 title: str = "", **kw):
+        # **The argument is `photo`, not `picture`, and it has to be.**
+        # `make_beat` passes `picture=` to every beat as a keyword — it is the
+        # split layout's right-hand column — so a first positional of that name
+        # collides with it and every callout raises "multiple values for
+        # argument 'picture'". Found by building one.
+        kw.pop("picture", None)
+        super().__init__(**kw)
+        self.items, self.title = items, title
+        src = Path(photo)
+        if not src.exists():
+            raise FileNotFoundError(f"callout picture not found: {src}")
+        fr = self.frame
+        # The panel: the frame less a margin, and a band off the top so the
+        # kicker and the watermark are never drawn over.
+        # **Reserve the heading band only when there is a heading.** The
+        # first version always took `head_y + 96` off the top and a full
+        # margin off the bottom, which on a 3:2 source left the picture
+        # height-limited at ~1120px inside a 1920 frame with dead bands down
+        # both sides. The picture is the subject of this beat; every pixel
+        # spent not showing it is spent badly.
+        self.top_band = (self.head_y + 74) if title else fr.logo_at[1] + 60
+        pw = fr.w - 2 * self.margin
+        ph = fr.h - self.top_band - 56
+        im = Image.open(src).convert("RGB")
+        if im.width * im.height == 0:
+            raise ValueError(f"callout picture is empty: {src}")
+        # Fitted, and never enlarged past the frame's own ceiling — the
+        # coordinates were measured on the source and a cover-crop would move
+        # the subject out from under them.
+        k = min(pw / im.width, ph / im.height, fr.max_upscale)
+        self.pw, self.ph = int(im.width * k), int(im.height * k)
+        panel = im.resize((self.pw, self.ph), Image.LANCZOS)
+        self.panel = (np.asarray(panel) * self.DIM).astype(np.uint8)
+        self.px = (fr.w - self.pw) // 2
+        self.py = self.top_band + (ph - self.ph) // 2
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        self.heading(out, self.title, f)
+        out.paste(Image.fromarray(self.panel), (self.px, self.py))
+        d.rectangle([self.px, self.py, self.px + self.pw, self.py + self.ph],
+                    outline=self.brand.primary, width=3)
+
+        n = len(self.items)
+        font = _font(46 if not self.portrait else 50)
+        for i, (label, fx, fy) in enumerate(self.items):
+            e = self.due(i, n, f)
+            if e < 0:
+                continue
+            a = int(255 * min(1.0, e))
+            x = self.px + self.pw * max(0.0, min(1.0, float(fx)))
+            y = self.py + self.ph * max(0.0, min(1.0, float(fy)))
+
+            # The label goes to whichever side of the point has more room, so
+            # a callout near the right edge does not run off the panel.
+            right = x < self.px + self.pw * 0.55
+            avail = ((self.px + self.pw) - x if right else x - self.px) - 120
+            lines = wrap(d, label, font, max(220, avail))
+            lw = max(d.textlength(ln, font=font) for ln in lines)
+            leader = 96
+            lx = x + leader + 18 if right else x - leader - 18 - lw
+            ly = y - (len(lines) * 56) // 2
+
+            # The leader draws out from the dot rather than appearing, which
+            # is what takes the eye to the place before it is given the word.
+            partial(d, [(x, y), (x + (leader if right else -leader), y)],
+                    min(1.0, e * 1.6), self.brand.primary, 3)
+            d.ellipse([x - self.DOT, y - self.DOT, x + self.DOT, y + self.DOT],
+                      outline=self.brand.primary, width=4)
+            d.ellipse([x - 4, y - 4, x + 4, y + 4], fill=self.brand.primary)
+
+            ty = ly + int(round(RISE * (1.0 - min(1.0, e))))
+            for ln in lines:
+                shadow_text(d, (lx, ty), ln, font, self.brand.ink + (a,),
+                            alpha=a)
+                ty += 56
+
+
+class Diagram(Beat):
+    """A mechanism: labelled nodes with arrows drawing between them.
+
+    **The kind of beat this library did not have.** All nine existing beats
+    are the same event — type arrives on a background, in the order it is
+    spoken. None of them draws a *relationship*, so a video explaining how one
+    thing causes another has only ever been able to show a bulleted summary of
+    the causation next to a photograph. On channels whose whole subject is
+    mechanism — how a transaction becomes a block, how noise damage becomes a
+    phantom sound — that is the largest single gap in the format.
+
+    **It is not `steps` with boxes.** `steps` is a numbered track: a
+    *procedure*, where the numerals are the content and the viewer is being
+    told what to do in what order. This is a causal chain: no numerals, boxes
+    rather than discs, and an arrowhead between each pair that says *therefore*
+    rather than *next*. The two are also different silhouettes at a glance,
+    which is the test `beats.md` sets for a new shape.
+
+    **`loop=True` is why this earns its place over a prettier `steps`.** A
+    feedback cycle — the last node feeding back into the first — is not a
+    sequence at all, and no other beat in the library can draw one. It is also
+    exactly the mechanism the tinnitus articles keep describing (the quieter
+    it gets, the more gain the brain applies, the louder the tone, the more
+    you notice the quiet) and the one a list makes actively harder to follow,
+    because a list has an end and the thing being described does not.
+
+    One reveal per node. The connector into node `i` draws first and the node
+    lands on it, so the arrow is already travelling while the sentence names
+    where it is going. Write **one caption chunk per node**, like every other
+    beat here.
+
+    Three or four nodes. Five sets the labels too narrow to wrap decently
+    across 1920, and a five-link causal chain is usually two mechanisms that
+    want two beats.
+
+    **In portrait the chain runs down**, for the reason `steps` records for
+    its own track: four boxes across 1080 is a 270px slot, which cannot hold a
+    wrapped label at phone-readable size.
+
+    payload: (nodes, title, loop)
+      nodes  [(label, note | None, emoji | None) | (label, note) | label, ...]
+      title  the beat's kicker
+      loop   draw the feedback arrow from the last node back to the first
+    """
+
+    EMBLEM = False
+    ARROW = 0.28                # how long a connector takes to draw
+
+    def __init__(self, nodes: list, title: str = "", loop: bool = False, **kw):
+        super().__init__(**kw)
+        norm = []
+        for nd in nodes:
+            if isinstance(nd, str):
+                norm.append((nd, None, None))
+            else:
+                norm.append((nd[0],
+                             nd[1] if len(nd) > 1 else None,
+                             nd[2] if len(nd) > 2 else None))
+        self.nodes, self.title, self.loop = norm, title, loop
+
+    def _arrow(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple,
+               p: float) -> None:
+        """A connector that draws from `a` to `b`, head last."""
+        if p <= 0:
+            return
+        partial(d, [a, b], p, self.brand.primary, 4)
+        # The head only lands once the shaft has arrived, so the arrow reads
+        # as travelling rather than as a shape fading up.
+        if p >= 0.999:
+            self._head(d, a, b)
+
+    def _head(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple) -> None:
+        """Just the arrowhead at `b`, pointing away from `a`.
+
+        **Separate from `_arrow` because the loop needs a head with no shaft
+        of its own.** The feedback arrow's shaft is the whole four-point
+        polyline `partial` has already drawn; calling `_arrow` to cap it drew
+        a second, straight 30px segment on top of the corner, which rendered
+        as a stray tail hanging below the arrowhead. Visible on the first
+        frame, invisible in the code.
+        """
+        vx, vy = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(vx, vy) or 1.0
+        ux, uy = vx / L, vy / L
+        s = 20
+        d.polygon([b, (b[0] - ux * s - uy * s * 0.6,
+                       b[1] - uy * s + ux * s * 0.6),
+                   (b[0] - ux * s + uy * s * 0.6,
+                    b[1] - uy * s - ux * s * 0.6)],
+                  fill=self.brand.primary)
+
+    LINE, NOTE_LINE, PAD, ICON = 50, 40, 30, 74
+
+    def _measure(self, d: ImageDraw.ImageDraw, w: int, label_font,
+                 note_font) -> tuple[list, int]:
+        """Wrap every node against a box `w` wide and return the height they
+        all need.
+
+        **Every box is as tall as the tallest one needs, not a constant.**
+        The first version fixed `bh = 230`, and the four-node tinnitus chain
+        put a two-line label and a two-line note in its third box: the note's
+        second line printed straight through the bottom edge of the box.
+        Nothing clips and nothing raises — a `rounded_rectangle` is drawn
+        before the type and simply has type sitting outside it afterwards.
+        Boxes of differing heights would be worse than the overflow, so the
+        set is levelled up to whichever node needs the most.
+        """
+        laid = []
+        for label, note, icon in self.nodes:
+            lines = wrap(d, label, label_font, w - 44)
+            nlines = wrap(d, note, note_font, w - 44) if note else []
+            laid.append((lines, nlines, icon))
+        need = max((self.ICON if ic else 0) + len(ln) * self.LINE
+                   + len(nl) * self.NOTE_LINE + 2 * self.PAD
+                   for ln, nl, ic in laid)
+        return laid, need
+
+    def _box(self, out: Image.Image, d: ImageDraw.ImageDraw,
+             box: tuple[int, int, int, int], laid: tuple, e: float,
+             label_font, note_font) -> None:
+        x0, y0, x1, y1 = box
+        a = int(255 * min(1.0, e))
+        lines, note_lines, icon = laid
+        # Filled with the page ground, like a `steps` node and for the same
+        # reason: the connector runs behind it and a line crossing type is the
+        # two-graphics-at-once fault the transitions doc warns about.
+        d.rounded_rectangle([x0, y0, x1, y1], radius=18,
+                            fill=self.brand.bg + (238,),
+                            outline=self.brand.primary + (a,), width=3)
+        block = ((self.ICON if icon else 0) + len(lines) * self.LINE
+                 + len(note_lines) * self.NOTE_LINE)
+        ty = (y0 + y1) // 2 - block // 2
+        if icon:
+            from ..core.vertical import emoji_image
+            im = emoji_image(icon, 58)
+            if a < 255:
+                im = im.copy()
+                im.putalpha(im.getchannel("A").point(lambda v: v * a // 255))
+            out.paste(im, ((x0 + x1) // 2 - im.width // 2, ty), im)
+            ty += self.ICON
+        for ln in lines:
+            tb = d.textbbox((0, 0), ln, font=label_font)
+            shadow_text(d, ((x0 + x1) / 2 - (tb[2] - tb[0]) / 2 - tb[0], ty),
+                        ln, label_font, self.brand.ink + (a,), alpha=a)
+            ty += self.LINE
+        for ln in note_lines:
+            tb = d.textbbox((0, 0), ln, font=note_font)
+            shadow_text(d, ((x0 + x1) / 2 - (tb[2] - tb[0]) / 2 - tb[0], ty),
+                        ln, note_font, self.brand.primary + (a,), alpha=a)
+            ty += self.NOTE_LINE
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        fr = self.frame
+        n = len(self.nodes)
+        top0 = self.heading(out, self.title, f)
+        label_font = _font(42 if not self.portrait else 46)
+        note_font = _font(32 if not self.portrait else 36)
+
+        if self.portrait:
+            bw = fr.w - 2 * self.margin
+            laid, bh = self._measure(d, bw, label_font, note_font)
+            # **The gap is what fills a 9:16 frame, not the boxes.** At a
+            # fixed 108 a three-node chain ended around 1300 of 1920 and left
+            # the bottom third of the frame empty — and a drawn beat burns no
+            # caption there, so nothing else was ever going to fill it.
+            # Boxes stay the size their content needs; the space between them
+            # takes up the slack, within limits, so two chains of different
+            # lengths still look like the same graphic.
+            room = fr.h - top0 - 120 - (150 if self.loop else 0)
+            gap = int(max(96, min(210, (room - n * bh) / max(1, n - 1))))
+            block = n * bh + (n - 1) * gap
+            top = max(top0, (fr.h - block - (150 if self.loop else 0)) // 2)
+            boxes = [(self.margin, top + i * (bh + gap),
+                      self.margin + bw, top + i * (bh + gap) + bh)
+                     for i in range(n)]
+            ends = [((self.margin + bw // 2, b[3]),
+                     (self.margin + bw // 2, b[3] + gap)) for b in boxes[:-1]]
+        else:
+            usable = fr.w - 2 * self.margin
+            gap = 86
+            bw = int((usable - (n - 1) * gap) / n)
+            laid, bh = self._measure(d, bw, label_font, note_font)
+            top = max(top0 + 20, (fr.h - bh) // 2 - (40 if self.loop else 0))
+            boxes = [(self.margin + i * (bw + gap), top,
+                      self.margin + i * (bw + gap) + bw, top + bh)
+                     for i in range(n)]
+            ends = [((b[2], top + bh // 2), (b[2] + gap, top + bh // 2))
+                    for b in boxes[:-1]]
+
+        # Each connector belongs to the node it points *at*, so it is already
+        # travelling while the sentence names where it is going.
+        for i in range(n):
+            e = self.due(i, n, f)
+            if e < 0:
+                continue
+            if i > 0:
+                t = self.at(f) - (self.reveals[i] if self.reveals
+                                  and i < len(self.reveals) else self.start)
+                self._arrow(d, ends[i - 1][0], ends[i - 1][1],
+                            ease_out(min(1.0, max(0.0, t / self.ARROW))))
+            self._box(out, d, boxes[i], laid[i], e, label_font, note_font)
+
+        # The feedback arrow lands only once the whole chain is up — it is a
+        # statement about the mechanism as a whole, not a step in it.
+        if self.loop and n > 1 and self.due(n - 1, n, f) >= 1.0:
+            last = self.reveals[n - 1] if self.reveals else self.start
+            p = ease_out(min(1.0, max(0.0, (self.at(f) - last - self.ARROW)
+                                      / 0.55)))
+            if p > 0:
+                if self.portrait:
+                    x = self.margin + 40
+                    y0, y1 = boxes[-1][3], boxes[0][1]
+                    pts = [(boxes[-1][0], (boxes[-1][1] + y0) // 2),
+                           (x - 60, (boxes[-1][1] + y0) // 2),
+                           (x - 60, (y1 + boxes[0][3]) // 2),
+                           (boxes[0][0], (y1 + boxes[0][3]) // 2)]
+                else:
+                    y = boxes[0][3] + 92
+                    pts = [((boxes[-1][0] + boxes[-1][2]) // 2, boxes[-1][3]),
+                           ((boxes[-1][0] + boxes[-1][2]) // 2, y),
+                           ((boxes[0][0] + boxes[0][2]) // 2, y),
+                           ((boxes[0][0] + boxes[0][2]) // 2, boxes[0][3])]
+                partial(d, pts, p, self.brand.primary + (170,), 3)
+                if p >= 0.999:
+                    self._head(d, pts[-2], pts[-1])
+
+
 BEATS = {
     "chapter": ChapterCard,
     "checklist": Checklist,
@@ -1329,6 +1864,9 @@ BEATS = {
     "grid": Grid,
     "steps": Steps,
     "logos": Logos,
+    "gauge": Gauge,
+    "callout": Callout,
+    "diagram": Diagram,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -1343,6 +1881,9 @@ _COUNT = {
     "grid": lambda p: len(p[0]),
     "steps": lambda p: len(p[0]),
     "logos": lambda p: len(p[0]),
+    "gauge": lambda p: 2,
+    "callout": lambda p: len(p[1]),
+    "diagram": lambda p: len(p[0]),
 }
 
 
