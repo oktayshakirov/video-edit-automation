@@ -86,27 +86,23 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
-- **A card's letter is never separated from its answer at synthesis time -
-  they are always synthesised as one utterance.** `LETTER_WITH_OPTION` in
-  `quiz.build` is the settled position, not an open question: four different
-  ways of giving the letter its own clip and a guaranteed silence after it
-  were built, shipped, and sent back sounding wrong, each for a different
-  reason - flat and unnaturally lengthened when read alone (twice, including
-  once with an aggressive trim that only shortened the same flat read),
-  unreliably spliced mid-word, and rushed by Kokoro to as little as 55ms of
-  real content when synthesised in context and cut free of it. See
-  `LETTER_WITH_OPTION` in `quiz.build` for the full account. Do not attempt a
-  sixth way of isolating the letter - the premise fails, not the
-  implementation.
-- **A short pause between the letter and the answer is spliced into that same
-  already-good audio afterward, only where it's safe to.**
-  `synth_option_paused` in `core/voiceover.py` measures how quiet the moment
-  between letter and answer actually is and only inserts a pause there when
-  it clears a confidence floor - roughly half of any given set of cards, since
-  a fast letter like "C." rarely leaves Kokoro any room. Some cards on a
-  rendered video will carry the pause and some will not; that inconsistency
-  is the deliberate trade against ever risking a click on a card where the
-  room isn't really there.
+- **A card is read "B." - a real 0.70s silence - "It has no effect.", and
+  that pause took six attempts.** The letter and the answer are synthesised
+  separately and joined around real silence (`synth_letter_then_answer` in
+  `core/voiceover.py`), so nothing ever has to find a boundary inside
+  continuous speech. The letter gets a throwaway carrier word through
+  synthesis so the model still gives it in-context length and contour, and the
+  carrier starts with a plosive whose stop closure is a genuine silence to cut
+  in. Five earlier attempts shipped and were sent back: isolated letter
+  (twice - it reads with a falling contour, and no trim reaches that), forced
+  splice mid-sentence, in-context-then-discarded, and a gated short splice
+  that only reached half the cards. **Three of those rested on a measurement
+  that was simply wrong** - "Kokoro rushes the letter to 55-90ms" came from an
+  energy search firing on the /s/ to /iː/ transition inside "C" itself; the
+  letter actually occupies 180-360ms. See `LETTER_ANSWER_GAP` in `quiz.build`
+  for the full account. Do not re-derive any of this from scratch, and do not
+  change `LETTER_CARRIER` without re-measuring letter length, cut energy and
+  contour across all four letters.
 
 ## What makes a question work
 

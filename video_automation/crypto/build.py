@@ -217,7 +217,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # its own sentence to get a guaranteed gap changes how
                         # the model reads it (a quiz's lettered option was the
                         # case this was built for, and tried repeatedly — see
-                        # `LETTER_WITH_OPTION` in `quiz.build` for why none of
+                        # `LETTER_ANSWER_GAP` in `quiz.build` for why none of
                         # those attempts held), and this buys the pause without
                         # that cost.
                         chunk_pad=None,
@@ -225,7 +225,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # itself — keyed by sentence index, only used where
                         # that sentence is alone in its own run. The quiz
                         # format uses this for its cards' letter+answer pause
-                        # (`synth_option_paused` in `core/voiceover.py`).
+                        # (`synth_letter_then_answer` in `core/voiceover.py`).
                         precomputed=None,
                         # The bed's loudness target. `music_gain` cannot do
                         # this job — it is applied *before* `loudnorm` in
