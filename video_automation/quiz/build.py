@@ -29,11 +29,11 @@ In short: `gap` is only ever silence *between sentences*, so a question
 carrying its options as caption chunks had nothing separating them; a
 scripted gap under `RUN_BREAK_GAP` is not even a guarantee, so every gap here
 sits at or above `RUN_BREAK`, which this module lowers to 0.30 through
-`render_crypto_short`'s `run_break`; and a letter still needs its own
-sentence to get a guaranteed gap, but it is no longer read with nothing
-around it — `synth_word_in_context` gives it its real answer as context for
-synthesis, then discards that answer's audio, so the letter keeps a natural
-onset without the pause depending on where a cut lands inside it.
+`render_crypto_short`'s `run_break`; and a letter is synthesised entirely on
+its own — `synth_letter_alone` gives it Kokoro's ordinary sentence-final
+lengthening and a strict trim, rather than trying to borrow an onset from an
+answer it can't fully voice — see `LETTER_ANSWER_GAP` for the full account of
+why that replaced an approach that measured clean and still sounded wrong.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ from pathlib import Path
 
 from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
-from ..core.voiceover import profile_args, synth_word_in_context
+from ..core.voiceover import profile_args, synth_letter_alone
 from ..crypto.build import _short_factory, render_crypto_short
 from ..crypto.shots import Shot
 from .cards import LETTERS, QuizShot
@@ -88,10 +88,10 @@ NEXT_Q_GAP = 1.00        # after the answer line, before the next question
 INTRO_GAP = 1.00         # after the intro card, before the first question
 TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
-# **Three designs were tried for the letter/answer pause before one held.**
-# Each of the first two was sent back as sounding wrong, for a different
-# reason, and each fix's own reasoning is worth keeping — the third design
-# only makes sense in light of why the other two failed.
+# **Four designs were tried for the letter/answer pause before one held.**
+# Each of the first three was sent back as sounding wrong, for a different
+# reason, and each fix's own reasoning is worth keeping — the fourth design
+# only makes sense in light of why the other three failed.
 #
 # *Design 1: the letter as its own one-word sentence, read with no context at
 # all.* Guarantees the gap through `run_break`, same as every other gap here,
@@ -102,7 +102,9 @@ TITLE_GAP = 1.00         # after the series/edition card, before the intro
 # glitchy." A quieter defect than it sounds like on paper: Kokoro also gives a
 # bare one-word utterance the same trailing lengthening it gives the *end* of
 # a real sentence, so the isolated letter runs 0.45-0.55s — three times its
-# natural length in context — mostly hollow decay tail.
+# natural length in context — mostly hollow decay tail, kept in at the time by
+# the module's ordinary `TRIM_DB=35` trim, which only removes near-silence and
+# left that whole tail in.
 #
 # *Design 2: letter and answer kept as one sentence, split into two chunks,
 # with the engine forcing a splice between them after synthesis
@@ -116,25 +118,41 @@ TITLE_GAP = 1.00         # after the series/edition card, before the intro
 # "weird cut" and "letters sound weird" — some cards were genuinely cut
 # mid-word.
 #
-# **Design 3, which shipped: synthesise the letter *in* its real answer's
-# context — so the model still gives it a real onset — then throw the
-# answer's audio away instead of trying to keep or precisely bound it**
-# (`synth_word_in_context` in `core/voiceover.py`, wired in below via
-# `precomputed`). The insight Design 2 missed: cutting into the discarded
-# half is *safe* to get wrong in one direction and dangerous in the other.
-# Landing early only shortens the kept letter — no different from Design 1's
-# own trailing-decay cost, since neither audibly clips the word's own
-# content. Landing late lets a real fragment of the answer survive into the
-# clip, which is a genuine defect. So `_find_word_end` is biased the opposite
-# way from `_force_pad`'s search: it finds the letter's own peak in a short,
-# fixed early window (a longer word later in the clip cannot out-peak it and
-# steal the reference), then cuts at the very first point after that where
-# the energy drops — no minimum run length, because a shallow within-word dip
-# reading as "the end" is the safe failure here, not the dangerous one.
+# *Design 3: synthesise the letter *in* its real answer's context — so the
+# model still gives it a real onset — then throw the answer's audio away
+# instead of trying to keep or precisely bound it* (`synth_word_in_context` in
+# `core/voiceover.py`, previously wired in here via `precomputed`). Measured
+# clean on every check available at the time — no click, no bleed into the
+# next word, a fade that survives the compression chain — and still came back
+# "the letters are not spoken properly and sound like are cut in the middle."
+# The check that was missing: how much of the letter Kokoro actually voices
+# once it can see an answer coming. Traced frame-by-frame, "C." in "C. Loud
+# noise is the only cause" carries real content for only ~60-90ms before
+# "Loud" begins — not `_find_word_end` finding the wrong boundary, but the
+# true boundary landing that early. Kokoro rushes the letter itself given
+# somewhere to go; no cut point downstream of that synthesis can recover
+# content that was never voiced in the first place.
 #
-# `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability
-# for a case where the *kept* side of a cut is not the risk — this format
-# does not use them for this any more.
+# **Design 4, which shipped: synthesise the letter completely on its own, but
+# trim it far more aggressively than Design 1 did** (`synth_letter_alone` in
+# `core/voiceover.py`). Giving the letter nowhere to go is what fixes Design
+# 3's real defect — Kokoro's ordinary sentence-final lengthening replaces the
+# rushed in-context read, measured at 310-380ms of real content versus
+# 55-90ms in-context. `librosa.effects.trim(top_db=15)`, far stricter than the
+# module's usual `TRIM_DB=35`, removes the hollow decay tail that made Design
+# 1's *length* the complaint, without risking a cut into real content the way
+# every cut-point search in Designs 2 and 3 did — a trim can only remove
+# below-threshold edges, never the middle of a rise. The trade is Design 1's
+# original complaint about pitch: alone, the letter's pitch now falls across
+# its length rather than rising into an answer the way it does in real
+# context. Read as ordinary single-word sentence-final intonation rather than
+# as a defect — nothing here manufactures a rise Kokoro didn't produce, which
+# is the flatness that made Design 1 sound "glitchy" in the first place.
+#
+# `synth_word_in_context`/`_find_word_end` and `chunk_pad`/`_force_pad` all
+# stay in `core/voiceover.py` as documented dead ends (the former) and general
+# capability for a case where the kept side of a cut is not the risk (the
+# latter) — this format does not use either for the quiz letter any more.
 
 # The countdown ring used to start the instant the model's own audio ended —
 # mathematically correct and still read as the video cutting the last option
@@ -387,9 +405,9 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     sentences: list[tuple] = []
     shots: list[Shot] = []
     gaps: list[float] = []
-    # A card's letter is synthesised once here, in the context of its own
-    # answer, then trimmed to just the letter — see `synth_word_in_context`
-    # and `LETTER_ANSWER_GAP` below for why. Keyed by sentence index, which
+    # A card's letter is synthesised once here, entirely on its own, then
+    # trimmed aggressively — see `synth_letter_alone` and `LETTER_ANSWER_GAP`
+    # below for why. Keyed by sentence index, which
     # `build_narration_aligned` only ever honours for a sentence alone in its
     # own run — true of every letter here, since `LETTER_ANSWER_GAP` already
     # sits at or above `RUN_BREAK`.
@@ -456,9 +474,8 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         letter_shots, text_shots = [], []
         for i in range(len(q.options)):
             ls = quiz_shot()
-            precomputed[len(sentences)] = synth_word_in_context(
-                q.letter_line(i), q.options[i], voice_pa["voice"],
-                voice_pa.get("mood"))
+            precomputed[len(sentences)] = synth_letter_alone(
+                q.letter_line(i), voice_pa["voice"], voice_pa.get("mood"))
             add((q.letter_line(i),))
             shots.append(ls)
             gaps.append(LETTER_ANSWER_GAP)

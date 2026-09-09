@@ -87,14 +87,16 @@ and a remembered version is a stale one.
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
 - **A card's letter is its own sentence, then a real 0.70s pause before its
-  answer - but the letter is synthesised *in* its answer's context and
-  trimmed, not read with nothing around it.** `synth_word_in_context` in
-  `core/voiceover.py` gives the letter a natural onset, then discards the
-  answer's own audio. Two earlier versions - the letter read fully alone, and
-  the letter kept in the answer's own sentence with a forced splice between
-  them - were both tried and both sent back as sounding wrong, for different
-  reasons; see `LETTER_ANSWER_GAP` in `quiz.build` for the full account. Do
-  not try to reconstruct either one.
+  answer - and the letter is synthesised completely on its own, then trimmed
+  hard.** `synth_letter_alone` in `core/voiceover.py` gives the letter
+  Kokoro's ordinary sentence-final lengthening instead of a rushed in-context
+  read, then a strict `librosa.effects.trim` removes the resulting decay
+  tail. Three earlier versions - the letter read alone with a light trim, the
+  letter kept in the answer's own sentence with a forced splice, and the
+  letter synthesised *in* its answer's context then cut free of it - were all
+  tried and all sent back as sounding wrong, for different reasons; see
+  `LETTER_ANSWER_GAP` in `quiz.build` for the full account. Do not try to
+  reconstruct any of them.
 
 ## What makes a question work
 

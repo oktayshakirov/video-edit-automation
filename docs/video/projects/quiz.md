@@ -154,7 +154,7 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## The letter/answer pause: three designs tried, one shipped
+## The letter/answer pause: four designs tried, one shipped
 
 **Design 1: isolating the letter as its own one-word sentence** — say "A." on
 its own, so `run_break` could guarantee a real gap after it, the same
@@ -190,22 +190,22 @@ card's cut broke another's, and `align_chunks`' own boundary *estimate*, meant
 to anchor the search, was off by anywhere from -0.06s to +0.14s with no
 consistent direction. Some cards really were being cut off mid-word.
 
-**Design 3, which shipped: synthesise the letter *in* its real answer's
-context, then throw the answer's audio away instead of trying to keep or
-precisely bound it** (`synth_word_in_context` in `core/voiceover.py`, wired in
-through `precomputed`). The insight Design 2 missed: cutting into audio that
-gets *discarded* is safe to get wrong in one direction and dangerous in the
-other. Landing early only shortens the kept letter — the same cost Design 1
-already accepted, since neither clips the word's own recognisable content.
-Landing late lets a real fragment of the answer survive into the clip, which
-is the actual defect worth avoiding. `_find_word_end` is built on that
-asymmetry, and deliberately biased the *opposite* way from `_force_pad`'s own
-search: it locates the letter's own peak in a short, fixed early window — long
-enough that a lettered option's peak always falls inside it, short enough that
-the far louder answer word after it never gets the chance to steal the
-reference — then cuts at the first point after that peak where energy drops,
-with no minimum-run requirement, because a shallow within-word dip reading as
-"the end" is the safe failure here rather than the dangerous one.
+**Design 3: synthesise the letter *in* its real answer's context, then throw
+the answer's audio away instead of trying to keep or precisely bound it**
+(`synth_word_in_context` in `core/voiceover.py`, wired in through
+`precomputed`). The insight Design 2 missed: cutting into audio that gets
+*discarded* is safe to get wrong in one direction and dangerous in the other.
+Landing early only shortens the kept letter — the same cost Design 1 already
+accepted, since neither clips the word's own recognisable content. Landing
+late lets a real fragment of the answer survive into the clip, which is the
+actual defect worth avoiding. `_find_word_end` is built on that asymmetry, and
+deliberately biased the *opposite* way from `_force_pad`'s own search: it
+locates the letter's own peak in a short, fixed early window — long enough
+that a lettered option's peak always falls inside it, short enough that the
+far louder answer word after it never gets the chance to steal the reference —
+then cuts at the first point after that peak where energy drops, with no
+minimum-run requirement, because a shallow within-word dip reading as "the
+end" is the safe failure here rather than the dangerous one.
 
 **A clean cut still is not enough — the fade needs to survive the compressor
 after it.** The first version of `_trim_after` used a 10ms fade, which is fine
@@ -220,9 +220,41 @@ of the clip's own length, since a lettered option can trim to under 100ms
 (see `_find_word_end`) and an 80ms fade on a 90ms clip fades nearly the whole
 thing to a whisper.
 
-`chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability for
-a case where the *kept* side of a cut is the one that matters — this format
-no longer uses them for this.
+**Sent back anyway — "the letters are not spoken properly and sound like are
+cut in the middle."** Every check run against Design 3 at the time passed: no
+click at the cut, no bleed into the next word, a fade measured to survive the
+compressor. The check that was missing was how much of the letter Kokoro
+actually *voices* once it can see an answer coming. Traced frame-by-frame at
+5-10ms resolution, "C." in `"C. Loud noise is the only cause"` carries real
+content for only ~60-90ms before "Loud" begins — `_find_word_end` was finding
+a real, correct boundary, not a wrong one; the true boundary genuinely sits
+that early. Kokoro rushes the letter itself once it has somewhere to go in the
+sentence, and no cut point downstream of that synthesis can recover content
+the model never voiced.
+
+**Design 4, which shipped: synthesise the letter completely on its own, and
+trim it far harder than Design 1 did** (`synth_letter_alone` in
+`core/voiceover.py`). Giving the letter nowhere to go is what fixes Design 3's
+real defect — alone, Kokoro gives it the same sentence-final lengthening it
+gives the end of any sentence, instead of rushing it toward an answer:
+measured at 310-380ms of real content per letter, against 55-90ms for the same
+letters in-context. `librosa.effects.trim(top_db=15)` — far stricter than
+`_synth_raw`'s usual `TRIM_DB=35` — removes the hollow decay tail that was
+Design 1's actual complaint about *length*, and can only ever remove
+below-threshold material at either edge, never cut into a rise or sustained
+content the way every search-based cut in Designs 2 and 3 risked. The
+remaining trade is Design 1's pitch complaint: alone, the letter's pitch now
+*falls* across its length (measured 133→123 Hz for "A.", 142→119 Hz for "C.")
+rather than rising into a real answer (137→208 Hz in-context). Read as
+ordinary single-word sentence-final intonation rather than a defect — nothing
+here manufactures a rise Kokoro never produced, which is the flatness (127→127
+Hz, no shaping at all) that made Design 1 read as "glitchy" in the first
+place, not the direction of the pitch move itself.
+
+`chunk_pad`/`_force_pad` and `synth_word_in_context`/`_find_word_end` all stay
+in `core/voiceover.py` — the former as general capability for a case where the
+*kept* side of a cut is the one that matters, the latter as a documented dead
+end — this format no longer uses either for the quiz letter.
 
 ## A scripted gap under `RUN_BREAK_GAP` is a request, not a guarantee
 
