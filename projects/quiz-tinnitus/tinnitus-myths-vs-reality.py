@@ -40,22 +40,31 @@ card.** Both were tried on an earlier cut of this same video and cut on the
 user's call (2026-09-08) — the number as an unnecessary flourish, the second
 card as redundant with the title.
 
-**A card's letter is never spoken apart from its answer — they are one
-utterance, and the pause sits between cards instead** — `LETTER_WITH_OPTION`
-in `quiz.build`. Four earlier cuts of this same video were sent back, each
-after a different attempt to give the letter its own clip and a guaranteed
-silence after it: read alone, flat and unnaturally lengthened ("very weird
-and glitchy," then again, after a harder trim on the same isolated read,
-"very weird and unnatural," "lengthened," "very glitchy"); kept in the
-answer's sentence with a forced splice ("weird cut," "letters sound weird");
-synthesised *in* the answer's context and trimmed free of it ("not spoken
-properly," "cut in the middle" — measured clean on every waveform check
-available at the time, but Kokoro was found to genuinely rush the letter
-itself to ~60-90ms once it can see an answer coming). See
-`LETTER_WITH_OPTION` in `quiz.build` for the full account of all four
-failures and why none of them can be fixed further — reading the letter with
-its answer, as one phrase, is the format's original design and the only one
-that never had this problem.
+**A card's letter is never spoken apart from its answer — they are always
+synthesised as one utterance** — `LETTER_WITH_OPTION` in `quiz.build`. Four
+earlier cuts of this same video were sent back, each after a different
+attempt to give the letter its own clip and a guaranteed silence after it:
+read alone, flat and unnaturally lengthened ("very weird and glitchy," then
+again, after a harder trim on the same isolated read, "very weird and
+unnatural," "lengthened," "very glitchy"); kept in the answer's sentence with
+a forced splice ("weird cut," "letters sound weird"); synthesised *in* the
+answer's context and trimmed free of it ("not spoken properly," "cut in the
+middle" — measured clean on every waveform check available at the time, but
+Kokoro was found to genuinely rush the letter itself to ~60-90ms once it can
+see an answer coming). See `LETTER_WITH_OPTION` in `quiz.build` for the full
+account of all four failures — reading the letter with its answer, as one
+phrase, is the format's original design and the only one that never made the
+letter itself sound wrong.
+
+**A short pause between the letter and the answer is spliced in afterward,
+where it is safe** — `synth_option_paused` in `core/voiceover.py`, on the
+same already-good audio, not a fifth way of synthesising the letter. It only
+inserts the pause where the audio itself shows a genuinely quiet moment
+between letter and answer to put it in; Kokoro doesn't leave that room
+consistently (a fast letter like "C." often leaves almost none), so some
+cards on this video carry the added pause and some do not — checked against
+this project's own twelve option lines before shipping, and every "C." card
+among them consistently has none.
 
 Run from the repo root:
 

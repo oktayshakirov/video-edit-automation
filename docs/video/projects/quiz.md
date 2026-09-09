@@ -154,17 +154,20 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## The letter/answer pause: four attempts to split them, all sent back
+## The letter/answer pause: five attempts, one shipped in a gated form
 
-**The letter is never spoken apart from its answer, and this is the settled
-position, not an open question.** `LETTER_WITH_OPTION` in `quiz.build` reads
-each card's letter and answer as one utterance — "A. It has no effect." — and
-the pause the format needs sits *between* cards (`CARD_GAP`) instead of inside
-one. This was the format's original design. Four different ways of giving the
-letter its own clip and a guaranteed silence after it were tried instead, and
-every one was sent back sounding wrong, for a different reason each time. The
-full history is worth keeping, because every one of the four looked sound on
-paper and each was rejected only after being built and actually heard.
+**The letter is never synthesised apart from its answer, and this is the
+settled position, not an open question.** `LETTER_WITH_OPTION` in
+`quiz.build` reads each card's letter and answer as one utterance — "A. It
+has no effect." — and the format-wide pause sits *between* cards (`CARD_GAP`)
+instead of inside one. This was the format's original design. Four different
+ways of giving the letter its own clip and a guaranteed silence after it were
+tried instead, and every one was sent back sounding wrong, for a different
+reason each time. A fifth way — not changing how the letter is synthesised at
+all, only splicing a short pause into the audio afterward — does ship, but
+only where the audio shows it is safe; see below. The full history is worth
+keeping, because every one of the first four looked sound on paper and each
+was rejected only after being built and actually heard.
 
 **Attempt 1: isolating the letter as its own one-word sentence** — say "A." on
 its own, so `run_break` could guarantee a real gap after it, the same
@@ -240,20 +243,46 @@ with pitch when it is given nothing to lead into, so a harder trim on an
 isolated letter was always going to be Attempt 1 with a shorter tail, not a
 fix for what was actually wrong with it.
 
-**What all four attempts share, and why none of them can be patched into
-working:** every one gives the letter a guaranteed silence *after* it, and
-every one changes how Kokoro reads the letter to buy that silence — because
-the letter's naturalness *consists of* it leading into its own answer as one
-phrase. A break after the letter and a natural letter cannot both exist on
-this synthesiser. There is no fifth variant of "isolate the letter, then fix
-it up afterward" worth trying; the premise is what fails, not the
-implementation. If a guaranteed pause after just the letter is ever wanted
-again, that is a research question with an unproven premise, not an
-engineering task with a known answer — do not attempt it as one.
+**What all four of those attempts share:** every one gives the letter a
+*guaranteed* silence after it, and every one either changes how Kokoro reads
+the letter to buy that silence, or needs a cut boundary that turned out not
+to be reliably findable — because the letter's naturalness *consists of* it
+leading into its own answer as one phrase.
+
+**Attempt 5: leave the letter's synthesis alone entirely, and splice a short
+silence into the combined audio afterward, only where the audio itself shows
+a genuinely quiet moment to put it in** (`synth_option_paused` in
+`core/voiceover.py`, wired in through `precomputed` the same way Attempts 3
+and 4 were). Applied unconditionally — splice a pause into *every* card,
+wherever the least-loud point between letter and answer happens to be — this
+fails the same way Attempt 2 did: the quiet point is not at a consistent
+acoustic distance from the letter. A slow letter ("A.", "D.") usually leaves
+a real 100-200ms lull before the answer starts. A fast one ("C.") often
+leaves almost none — Kokoro can already be rising into the answer within
+60-90ms of the letter's own peak, the same rushing Attempt 3 measured — and
+forcing a splice there lands it on the shoulder of the answer's own onset, a
+real waveform discontinuity several times the size of the same measurement on
+a slow-letter card: the concrete shape of an audible click.
+
+**What ships is that same idea, gated.** `_letter_gap_anchor` finds the
+quietest point between the letter's own peak and the answer's onset (the
+steepest energy rise following it), and only returns it as a splice point if
+it is genuinely quiet — under a confidence floor relative to the letter's own
+peak energy, not merely the least-loud sample in an already-loud stretch. A
+card the gate rejects keeps its unmodified audio, read exactly as
+`LETTER_WITH_OPTION` alone would have produced it. Checked against the
+twelve real option lines in this format's own tinnitus script before
+anything was rendered, the gate accepts roughly half of them and rejects the
+rest — every "C." card among them, consistently, because the fast-letter
+problem is systematic to that letter rather than occasional. **This means a
+rendered quiz can have some cards with the added pause and some without**,
+depending on how much room Kokoro happened to leave on that specific letter
+and answer — a real trade, accepted deliberately rather than risking the
+click the unconditional version produces.
 
 `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability for
 a case where the *kept* side of a cut is the one that matters — this format
-does not use them for the letter/answer pause, and should not.
+does not use them for the letter/answer pause.
 
 ## A scripted gap under `RUN_BREAK_GAP` is a request, not a guarantee
 
