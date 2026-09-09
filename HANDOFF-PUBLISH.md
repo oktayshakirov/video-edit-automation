@@ -1,17 +1,20 @@
 # Handoff → /publish-video
 
-**Built:** `quiz-tinnitus-basics` — the first video in the new **quiz Short**
-format (`/video-quiz`), for tinnitushelp.me.
-**Source article:** none. `SOURCE_POST = None` in
-`projects/quiz-tinnitus/tinnitus-basics.py` — see "Not sourced from an
-article" below before publishing.
-**Date:** 2026-09-08
-**Voice:** `otis` (`am_puck`, ENERGETIC chain, speed 1.00) — the male article
-reader, same voice both channels' explainers use. Still `candidate`, not
-approved.
-**Approved by the user** after four review rounds on this exact content: the
-pacing (letters and cards running together, a countdown starting mid-word),
-the tick level against a new music bed, the reveal wording, and the voice.
+**Built:** `quiz-tinnitus-myths-vs-reality` — a quiz Short (`/video-quiz`) for
+tinnitushelp.me.
+**Source article:** `tinnitus-blog/content/posts/tinnitus-myths-vs-reality.mdx`
+— `SOURCE_POST = "tinnitus-myths-vs-reality"` in
+`projects/quiz-tinnitus/tinnitus-myths-vs-reality.py`. Every wrong option on
+every card traces to that article's own "Reality" paragraphs; nothing here is
+invented.
+**Date:** 2026-09-10
+**Voice:** `otis` (`am_puck`, ENERGETIC chain) — the male article reader, same
+voice both channels' explainers use.
+**Approved by the user** after several review rounds, all on the same one
+question: how the four lettered options on each card should sound. See "The
+letter is shown, never spoken" below — that is the one piece of this build
+worth reading in full before publishing, because it changed what the audio
+actually contains partway through the project's history.
 
 ---
 
@@ -19,75 +22,91 @@ the tick level against a new music bed, the reveal wording, and the voice.
 
 | what | path |
 | --- | --- |
-| video (9:16) | `/Users/oktayshakirov/Desktop/quiz-tinnitus-basics.mp4` |
-| thumbnail (9:16) | `/Users/oktayshakirov/Desktop/quiz-tinnitus-basics-thumb.jpg` |
+| video (9:16) | `/Users/oktayshakirov/Desktop/quiz-tinnitus-myths-vs-reality.mp4` |
 
-**75.5s**, 1080x1920, h264/aac. No SRT and no `.md` sidecar — a quiz burns its
-own type as drawn cards rather than captions, and there is no long form to
-carry chapters.
+**81.7s**, 1080x1920, h264/aac. No SRT, no thumbnail file, no `.md` sidecar —
+a quiz burns its own type as drawn cards rather than captions, and the format
+does not call `render_short_thumb` at all (see "No thumbnail render" below).
+There is no long form to pair this with.
 
-No title, description or tags are written anywhere. `/publish-video` will
-need them; nothing here should be treated as already decided.
+No title, description or tags are written anywhere yet. `/publish-video` will
+need them; nothing here should be treated as already decided. The on-screen
+title card reads "Tinnitus Quiz: Myths Edition" — that is narration/caption
+text burned into the video, not a proposed YouTube/social title.
 
 ## What it is
 
-Three general tinnitus questions, each a four-card multiple choice with an
-eight-second countdown and a marked reveal:
+Three questions from the article, each a "which of these is a myth about
+tinnitus?" with four lettered cards, a 6-second countdown, and a marked
+reveal:
 
-1. Where tinnitus actually comes from (brain filling a gap in the signal, not
-   earwax or blood pressure).
-2. Whether silence makes it louder (it can make it more *noticeable* — a
-   masking-sound point, not a severity claim).
-3. Which of four statements is a myth ("nothing can be done" is the myth;
-   habituation is real).
+1. **Cause.** Myth: "loud noise is the only cause." Reality: ear infections,
+   aging and certain medications cause it too.
+2. **Duration.** Myth: "it always resolves within a few days." Reality: it
+   can fade, but for many it becomes chronic.
+3. **Treatment.** Myth: "there is nothing that can be done about it." Reality:
+   sound therapy, CBT and hearing aids all help manage it.
 
-Outro: "How many did you get?" — no "tell me in the comments," on the user's
-call that a scored quiz prompts comments on its own.
+Outro: "How many did you get?" — no "tell me in the comments," on the
+format's standing call that a scored quiz prompts comments on its own.
 
-## Not sourced from an article — read this before publishing
+Every wrong option is one of the article's own true statements about an
+*adjacent* myth, not an invented distractor — checked against
+`docs/video/projects/tinnitus.md`'s rule before any of the three questions
+were written. No diagnostic or treatment claim, no ear close-ups.
 
-**Every other video this repo ships is built from one post's own content**, so
-a wrong-answer card is a misconception the source article corrects, not a
-claim this session made up. This one is not: `SOURCE_POST = None`, and the
-three questions are general audiology rather than any tinnitushelp.me post's
-`quickFacts`.
+## The letter is shown, never spoken — read this before publishing
 
-This was a deliberate tradeoff, not an oversight — the user was asked whether
-to pick a real article and build from it, or approve this exact
-engine-verification render as-is, and chose the latter. Flagging it here
-because `/publish-video` cannot see that conversation and the render alone
-does not show which path was taken.
+**This is the one thing about this build that is not routine**, because it
+changed the audio itself after the video had already been sent for review
+more than once. A card reads "B. It has no effect." on screen. The voice only
+ever says "It has no effect." — the letter is never sent to the synthesiser
+as its own utterance, on any card, anywhere in the format.
 
-Nothing in the three questions makes a diagnostic or treatment claim — checked
-against `docs/video/projects/tinnitus.md`'s rule before this was written up —
-but "checked by the build session" is a lower bar than "corrects a specific
-article's content," and that gap is worth knowing about before this goes to a
-health audience.
+That is the end state of eight attempts at making a *spoken* letter sound
+right next to its answer — isolated, forced-spliced, synthesised in context
+then cut free, gated to half the cards, given a carrier word whose consonant
+leaked through, and finally a correctly measured, cleanly bounded silence
+inserted into an untouched natural read. That last one passed every waveform
+check and was still rejected by ear: a letter's own spoken length is
+0.15-0.36s, and a sound that short, spoken alone, reads as clipped no matter
+how cleanly it is cut. The fix was not a better cut — it was not asking
+Kokoro to say the letter at all. Full account: `LETTER_SPOKEN` in
+`video_automation/quiz/build.py`, and `docs/video/projects/quiz.md`.
 
-## The engine this shipped
+**Why this belongs in a publish handoff and not just a commit message:** if
+this render is ever compared against an earlier cut of the same video, or
+against screenshots/notes from an earlier review round, the letters will
+sound different — earlier cuts spoke every letter (badly, which is why they
+were sent back), this one speaks none of them. That is not a regression to
+flag; it is the fix landing. The reveal is unaffected either way — "The
+correct answer is B." was never part of the problem and still speaks the
+letter out loud, as a real sentence.
 
-`docs/video/projects/quiz.md` has the full account; the short version is that
-three things were tried, measured wrong, and fixed on this exact render before
-it was approved:
+## No thumbnail render
 
-- A scripted pause under `RUN_BREAK_GAP` is a request `_pad_pause` can only
-  honour where the model happened to leave a pause — not a guarantee. Fixed
-  with a `run_break` threshold the quiz lowers to make every card boundary a
-  real silence.
-- A letter spoken alone ("A.") is flat and sounds wrong — measured on the
-  pitch track, 127→127 Hz alone against 137→208 Hz in context. The letter now
-  travels with its option as one utterance.
-- The countdown ticks were inaudible under a new -32 LUFS music bed at their
-  original level; raised until they measured +6 dB over the bed.
+The format does not call `render_short_thumb` — the video's own picture is
+already four drawn cards, and a generated headline plate would restate the
+hook a viewer is about to see in the first two seconds. Pull the Reel cover
+from a frame of the finished render instead, per
+`docs/publish/instagram-facebook.md`. A Short gets no thumbnail from the
+YouTube API regardless of format, and TikTok's draft cover is set by hand.
 
-## What `/publish-video` still needs to do
+## What `/publish-video` needs to do
 
-Same sequence as every other Short: YouTube Shorts upload with a title,
-description and the thumbnail above; the Reel workflows in n8n for Instagram
-and Facebook; the TikTok draft; a `videos.json` entry on tinnitushelp.me. No
-long form exists for this format, so there is nothing to pair it with and no
-16:9 thumbnail to make.
+This is a **short only** — the standard "tinnitus short" row of the platform
+table: YouTube (Short), Instagram Reel, Facebook Reel, TikTok (draft). **No
+site entry** — shorts do not get one, and there is no long form to pair this
+with or attach a `videos.json` row to.
 
-**No title has been proposed.** `docs/video/shorts.md`'s title conventions are
-written for an article Short with a source post to search-bind against; this
-one has none, so pick a title fresh rather than reaching for that section.
+- **YouTube Shorts** — title, description, the usual `youtube-audit` dry run
+  then `--apply`.
+- **Instagram Reel** and **Facebook Reel** — via the tunnel, per
+  `docs/publish/instagram-facebook.md`. Cover pulled from a render frame, not
+  a generated thumbnail (see above).
+- **TikTok** — draft, per `docs/publish/tiktok.md`; cover set by hand in the
+  draft.
+
+No title has been proposed for any platform — pick one fresh rather than
+reaching for `docs/video/shorts.md`'s source-bound conventions, since this is
+a quiz format with its own on-screen title already burned in.
