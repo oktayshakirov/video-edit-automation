@@ -653,155 +653,147 @@ def _find_cut(audio, at: float, search: float = 0.40, guard: float = 0.05,
     return c
 
 
-# **A quiz option's letter is never synthesised apart from its answer, and
-# this is the settled position, not an open question — see `LETTER_WITH_OPTION`
-# in `quiz.build` for the measurements.** Four different ways of giving the
-# letter its own clip and a guaranteed pause after it were built, shipped, and
-# sent back sounding wrong, each for a different reason: read with nothing
-# around it, it is flat and unnaturally lengthened; spliced out of its own
-# answer's sentence after synthesis, the splice point is unfindable reliably;
-# synthesised *with* the answer as context and then cut free of it, Kokoro
-# turns out to rush the letter itself to as little as 55ms of real content
-# once it can see an answer coming, so no cut point downstream can recover
-# what was never voiced; trimmed harder while still isolated, it is merely a
-# shorter version of the first failure — still flat, still not what "A. It
-# has no effect." sounds like when read as one phrase. Every one of these was
-# a genuine attempt to buy a guaranteed silence after the letter without
-# paying for it in naturalness, and every one paid for it anyway.
+# **How a quiz option's letter gets a real pause before its answer, and the
+# five attempts that failed before this one — see `LETTER_ANSWER_GAP` in
+# `quiz.build` for the format's side of the story.**
 #
-# **A fifth idea does ship, in a gated form: `synth_option_paused` below
-# splices a short silence into the natural combined read, without isolating
-# or changing how the letter is pronounced — but only where the audio itself
-# shows a genuinely quiet moment to splice into.** The letter and answer are
-# still synthesised together, exactly as `LETTER_WITH_OPTION` requires; this
-# only ever inserts silence after the fact, into audio that already exists.
-# Applied unconditionally it fails the same way `chunk_pad` did: the quiet
-# point is not at a consistent acoustic distance from the letter. A slow
-# letter ("A.", "D.") usually leaves a real 100-200ms lull before the answer
-# starts. A fast one ("C.") often leaves almost none — Kokoro can already be
-# rising into the answer within 60-90ms of the letter's own peak, the same
-# rushing measured for the third attempt above — and forcing a splice there
-# lands it on the shoulder of the answer's own onset, a real waveform
-# discontinuity several times the size of the same measurement on a
-# slow-letter card: the concrete shape of an audible click.
+# The problem: a lettered option ("A. It has no effect.") wants a real pause
+# after the letter, and Kokoro will not leave one. Reading the letter alone so
+# a scripted gap can follow it changes how the model says it — measured on the
+# pitch track, an isolated letter's contour *falls* (134 -> 124 Hz for "A.",
+# and every punctuation variant behaves the same), where the same letter
+# leading into an answer stays level or rises. Isolated letters were shipped
+# twice, with two different trims, and came back "flat," "lengthened," "very
+# weird and glitchy" both times.
 #
-# `_letter_gap_anchor` is the gate: it finds the quietest point between the
-# letter's own peak and the answer's onset (the steepest energy rise
-# following it) and *refuses* to name it a splice point unless that quiet
-# point is genuinely quiet — under `confidence` (0.25) of the letter's own
-# peak energy, not just the least-loud moment in an already-loud stretch.
-# Measured against the twelve real option lines this was tuned on, that gate
-# passes about half of them and rejects the rest — every "C." card among
-# them, consistently, because the fast-letter problem above is systematic to
-# that letter, not occasional. A card the gate rejects keeps its unmodified
-# audio, read exactly as `LETTER_WITH_OPTION` alone would have produced it —
-# **this trades a pause on every card for a pause only where one is safe,
-# rather than trading naturalness for consistency the way the first four
-# attempts did.**
+# **The measurement that unblocked this, and it corrects an earlier one that
+# was wrong for two sessions:** it was believed that Kokoro *rushes* the
+# letter when it can see an answer coming — "C." was measured at only 55-90ms
+# of real content inside "C. Loud noise is the only cause." That number came
+# from an energy search, and it was wrong. Aligning the *answer* against the
+# combined read with DTW — a long, acoustically rich reference, the case DTW
+# is reliable for, unlike the one- or two-character letter that made
+# `_force_pad`'s own anchor untrustworthy — puts the answer's onset at
+# 180-360ms, cross-checked by the fact that what remains after it matches the
+# answer synthesised alone to within 0.02-0.17s on all twelve cards of a real
+# script. The letter was never rushed to 90ms. **The old energy search was
+# firing on the /s/ -> /iː/ transition inside "C" itself, so every cut built
+# on it sliced the letter in half — which is exactly what "the letters sound
+# cut in the middle" was.**
+#
+# That still leaves the cut itself. At the answer's true onset the letter is
+# often at full energy — 98% of its own peak for "C. Loud noise", where /iː/
+# glides straight into /l/ with no boundary of any kind to cut on. No search
+# fixes that, because nothing is there to find.
+#
+# **So this stops searching for a boundary and makes one.** `LETTER_CARRIER`
+# is a throwaway word that follows the letter through synthesis and is then
+# discarded: the model still sees something coming, so the letter keeps its
+# in-context length and contour, but the carrier begins with a **plosive**,
+# and a plosive requires a stop closure — a genuine silence — before its
+# burst. Cutting in that closure is cutting in silence. Measured across A, B,
+# C and D: the closure sits at 0.29-0.31s (the letter's natural in-context
+# length), the letter has decayed to 10-22% of its own peak by then (it
+# *ended*; nothing is being chopped), the closure itself is ~3% of peak, and
+# the contour is level-to-rising rather than the isolated read's fall.
+#
+# "Because." is the carrier because it produced the most consistent letter
+# across all four (0.292/0.312/0.308/0.312s — so no letter sounds rushed
+# next to another) among the plosive-initial candidates tried ("Two.",
+# "Ten.", "Top.", "Table.", "Definitely.", "Pick one.", "Take note."). The
+# word is never heard; only its closure is used, and only as a place to cut.
+LETTER_CARRIER = "Because."
 
-SHORT_PAUSE = 0.15              # the "..." feel, not a real sentence gap
-GAP_CONFIDENCE = 0.25           # how quiet, relative to the letter's own peak,
-                                 # a splice point has to be to trust it
 
+def _first_closure(audio, floor: float = 0.06, min_run: float = 0.020,
+                   after: float = 0.10, env_win_s: float = 0.010,
+                   step_s: float = 0.004) -> "int | None":
+    """The first sustained near-silence after a leading letter, in samples.
 
-def _letter_gap_anchor(audio, peak_window: float = 0.08, cap: float = 0.30,
-                       confidence: float = GAP_CONFIDENCE,
-                       env_win_s: float = 0.015, step_s: float = 0.004
-                       ) -> "float | None":
-    """Where to splice a pause after a leading letter — or `None`, refused.
-
-    Two stages, both read off the *combined* letter+answer audio directly
-    (no DTW, no separate reference synthesis, no throwaway context — see the
-    note above this function for why those all failed). First, find the
-    letter's own energy peak in a short early window — `peak_window` is the
-    same 80ms that worked for the third attempt's now-removed word-end
-    search, measured to always contain a lettered option's own peak before
-    any next-word content can compete for it. Second, from that peak, find
-    the steepest *rise* in energy within `cap` seconds after it — the
-    answer's own onset — and take the quietest point strictly before that
-    rise as the candidate splice point.
-
-    **That candidate is only returned if it is actually quiet.** A card
-    where the letter runs straight into its answer with barely a lull still
-    has *some* "quietest point before the onset" — it just is not quiet, it
-    is merely the least-loud sample in an already-loud stretch. `confidence`
-    rejects those: the candidate has to sit under `confidence` of the
-    letter's own peak energy, not just be a local minimum. Refusing to name
-    an anchor there, rather than returning one and letting the caller splice
-    into it anyway, is what keeps this from repeating the earlier failure —
-    every rejected version of this idea returned *a* point every time, they
-    just weren't reliably the right one.
+    That silence is `LETTER_CARRIER`'s stop closure, and it is the only thing
+    this looks for — a stretch of at least `min_run` seconds under `floor` of
+    the clip's peak, starting at least `after` seconds in (past the letter
+    itself). Deliberately a much easier question than any of the boundary
+    searches that came before it: the closure is true silence rather than a
+    dip inside continuous speech, so the threshold has enormous margin and
+    does not have to be tuned per letter. Returns `None` if the model did not
+    leave one, which has not been observed on a plosive carrier but is worth
+    failing loudly rather than cutting somewhere arbitrary.
     """
     import numpy as np
 
     sr = KOKORO_SR
+    win = int(env_win_s * sr) or 1
     step = int(step_s * sr) or 1
-    env_win = int(env_win_s * sr) or 1
-
-    pk_hi = min(len(audio), int(peak_window * sr))
-    pk_pos = np.arange(0, max(1, pk_hi - env_win), step)
-    pk_env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
-                       for p in pk_pos])
-    if not len(pk_env):
+    pos = np.arange(0, max(1, len(audio) - win), step)
+    if not len(pos):
         return None
-    peak_i = int(pk_env.argmax())
-    peak_v = float(pk_env[peak_i])
-    if peak_v <= 0:
-        return None
+    env = np.array([np.sqrt(np.mean(audio[p:p + win] ** 2)) for p in pos])
+    thresh = env.max() * floor
+    need = max(1, int(min_run / (step / sr)))
 
-    start = pk_pos[peak_i]
-    hi = min(len(audio), start + int(cap * sr))
-    pos = np.arange(start, max(start + 1, hi - env_win), step)
-    env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
-                    for p in pos])
-    if len(env) < 3:
-        return None
-
-    onset_i = int(np.diff(env).argmax())     # the answer's own onset
-    before_onset = env[:onset_i + 1]
-    if not len(before_onset):
-        return None
-    min_i = int(before_onset.argmin())
-    if before_onset[min_i] / peak_v > confidence:
-        return None                           # not actually quiet — refuse
-    return float(pos[min_i]) / sr
+    i = 0
+    while i < len(env):
+        if pos[i] >= after * sr and env[i] < thresh:
+            j = i
+            while j < len(env) and env[j] < thresh:
+                j += 1
+            if j - i >= need:
+                return int(pos[i])
+            i = j
+        else:
+            i += 1
+    return None
 
 
-def synth_option_paused(text: str, voice: VoiceSpec = None,
-                        mood: str = "melancholic",
-                        want: float = SHORT_PAUSE) -> "np.ndarray":
-    """A quiz card's letter+answer, with a short pause spliced in where safe.
+def synth_letter(letter: str, voice: VoiceSpec = None,
+                 mood: str = "melancholic") -> "np.ndarray":
+    """A lettered option's letter, read as though an answer follows it.
 
-    `text` is synthesised exactly as `_synth_raw` always has for this
-    format — the letter's own pronunciation is untouched, per
-    `LETTER_WITH_OPTION`. `_letter_gap_anchor` then looks for a genuinely
-    quiet moment between the letter and the answer in that same audio; if it
-    finds one, `want` seconds of silence are crossfaded in at a short (8ms)
-    ramp — short because the anchor is trusted here, unlike `_force_pad`'s
-    wider search for an untrusted DTW guess. If it does not find one, this
-    returns the audio unchanged: no pause, but also no risk of splicing into
-    the answer's own onset. See the note above `_letter_gap_anchor` for why
-    that refusal is the point, not a shortcoming.
+    Synthesises `"{letter}. {LETTER_CARRIER}"` and returns everything before
+    the carrier's stop closure — the letter with its in-context length and
+    contour, cut in silence rather than in speech. See the note above
+    `LETTER_CARRIER` for why the carrier exists and why every earlier attempt
+    to get this without one failed.
     """
     import numpy as np
 
-    sr = KOKORO_SR
-    audio = _synth_raw(text, voice, mood)
-    at = _letter_gap_anchor(audio)
-    if at is None:
+    audio = _synth_raw(f"{letter}. {LETTER_CARRIER}", voice, mood)
+    cut = _first_closure(audio)
+    if cut is None:                       # no closure: keep the letter whole
         return audio
+    out = audio[:cut].copy()
+    # The cut is already in silence, so this only smooths the seam.
+    n = int(0.008 * KOKORO_SR)
+    if len(out) > n:
+        ramp = 0.5 * (1 + np.cos(np.linspace(0, np.pi, n)))
+        out[-n:] *= ramp.astype(out.dtype)
+    return out
 
-    ramp = 0.008
-    c = int(at * sr)
-    rn = int(ramp * sr)
-    lo2, hi2 = max(0, c - rn), min(len(audio), c + rn)
-    pre, post = audio[lo2:c].copy(), audio[c:hi2].copy()
-    if len(pre):
-        pre *= np.linspace(1.0, 0.0, len(pre)).astype(audio.dtype)
-    if len(post):
-        post *= np.linspace(0.0, 1.0, len(post)).astype(audio.dtype)
-    silence = np.zeros(int(want * sr), dtype=audio.dtype)
-    return np.concatenate([audio[:lo2], pre, silence, post, audio[hi2:]])
+
+def synth_letter_then_answer(letter: str, answer: str, voice: VoiceSpec = None,
+                             mood: str = "melancholic",
+                             gap: float = 0.70) -> "np.ndarray":
+    """One quiz card: the letter, a real `gap` of silence, then the answer.
+
+    Returned as a single array for one sentence, so the card stays one
+    sentence and one `Shot` in `quiz.build` — the pause is *inside* the
+    card's own audio rather than a scripted gap between two sentences, which
+    is what lets it be guaranteed without splitting the card in the caption
+    or the shot list.
+
+    The answer is synthesised on its own and is a complete sentence, so it
+    reads with ordinary sentence prosody; only the letter needs the carrier
+    trick above. Nothing here searches for a boundary inside continuous
+    speech, which is the whole point — the two halves never shared an
+    utterance, so there is no boundary to find.
+    """
+    import numpy as np
+
+    head = synth_letter(letter, voice, mood)
+    tail = _synth_raw(answer, voice, mood)
+    silence = np.zeros(int(gap * KOKORO_SR), dtype=head.dtype)
+    return np.concatenate([head, silence, tail])
 
 
 def _force_pad(audio, at: float, want: float,
@@ -937,10 +929,10 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     to substitute one sentence's worth of) — everywhere else in this format
     that is already true of any sentence carrying its own
     `run_break`-guaranteed gap. The quiz format's letter+answer card is the
-    case this was built for — `synth_option_paused` in this module produces
-    the audio it precomputes, splicing a short pause in where one is safe;
-    see the note just after `_find_cut` in this module for the full history
-    of what did and did not work for that card.
+    case this was built for — `synth_letter_then_answer` in this module
+    produces the audio it precomputes, with the card's own letter/answer
+    pause already inside it; see the note above `LETTER_CARRIER` in this
+    module for the full history of what did and did not work for that card.
     """
     import soundfile as sf
 

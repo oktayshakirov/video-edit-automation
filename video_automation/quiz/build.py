@@ -24,18 +24,15 @@ seven different pictures. A cut between two frames computed identically at
 the boundary is invisible; that is what makes this cheap.
 
 **Several review rounds shaped the pacing, and more than one overturned the
-previous fix's assumption — see `LETTER_WITH_OPTION` for the fullest
+previous fix's assumption — see `LETTER_ANSWER_GAP` for the fullest
 account.** In short: `gap` is only ever silence *between sentences*, so a
 question carrying its options as caption chunks had nothing separating them;
 a scripted gap under `RUN_BREAK_GAP` is not even a guarantee, so every gap
 here sits at or above `RUN_BREAK`, which this module lowers to 0.30 through
-`render_crypto_short`'s `run_break`; and a card's letter is never split from
-its answer at synthesis time — five different ways of doing that were tried
-and four were shipped and sent back sounding wrong, so the letter and the
-answer are always synthesised together as one utterance. A short pause
-between them is still possible, spliced into that same audio afterward
-(`synth_option_paused`) where the audio itself shows room for one; the
-format-wide pause between cards (`CARD_GAP`) costs nothing either way.
+`render_crypto_short`'s `run_break`; and a card's own letter/answer pause is
+not a scripted gap at all but real silence built into that card's audio,
+between a separately-synthesised letter and answer — six attempts went into
+that one pause, five of which shipped and came back wrong.
 """
 
 from __future__ import annotations
@@ -45,7 +42,7 @@ from pathlib import Path
 
 from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
-from ..core.voiceover import profile_args, synth_option_paused
+from ..core.voiceover import profile_args, synth_letter_then_answer
 from ..crypto.build import _short_factory, render_crypto_short
 from ..crypto.shots import Shot
 from .cards import LETTERS, QuizShot
@@ -89,88 +86,64 @@ NEXT_Q_GAP = 1.00        # after the answer line, before the next question
 INTRO_GAP = 1.00         # after the intro card, before the first question
 TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
-# **A letter is never spoken apart from its answer, and this is measured
-# rather than a preference — five different attempts at separating them were
-# built (four of them shipped) and every one sent back sounding wrong, each
-# for a different reason.**
+# **A card's letter gets a real 0.70s pause before its answer, and getting
+# there took six attempts — five of which shipped and were sent back.** The
+# engine side of this is `LETTER_CARRIER` and `synth_letter_then_answer` in
+# `core/voiceover.py`; this is what each attempt was and why it failed.
 #
-# *Attempt 1: the letter as its own one-word sentence, read with no context at
-# all.* Guarantees a gap through `run_break`, same as every other gap here,
-# but changes how the model reads the letter: measured on the pitch track,
-# "A." spoken with nothing around it runs flat (127 -> 127 Hz) where the same
-# letter *in context* — as the opening of "A. It has no effect." — opens with
-# a real rise. Reported back as "weird," "unnatural," "very weird and
-# glitchy." A bare one-word utterance also gets the same trailing lengthening
-# Kokoro gives the *end* of a real sentence, so the isolated letter runs
-# noticeably longer than its natural length in context — the flatness is the
-# actual defect, not the length.
+# *Attempt 1: the letter as its own one-word sentence, read with nothing
+# around it,* so `run_break` could guarantee a gap after it like every other
+# gap here. Changes how the model says the letter: an isolated letter's pitch
+# *falls* (134 -> 124 Hz for "A."), where the same letter leading into an
+# answer stays level or rises. Sent back "weird," "unnatural," "very weird
+# and glitchy."
 #
-# *Attempt 2: letter and answer kept as one sentence, split into two chunks,
-# with the engine forcing a splice between them after synthesis
-# (`chunk_pad`/`_force_pad` in `core/voiceover.py`).* Keeps the natural
-# contour — the model still reads the whole sentence as one phrase — but
-# requires finding *where* to cut inside continuous, coarticulated audio that
-# has no real boundary to find. Not solvable reliably: checked against four
-# real cards, no single energy heuristic found the true boundary on all four,
-# and `align_chunks`' own DTW estimate, meant to anchor the search, was off by
-# -0.06s to +0.14s with no consistent direction. Reported back, again, as
-# "weird cut" and "letters sound weird" — some cards were genuinely cut
-# mid-word.
+# *Attempt 2: letter and answer as one sentence, split into two chunks, with
+# the engine forcing a splice between them* (`chunk_pad`/`_force_pad`). Keeps
+# the contour, but needs to find *where* to cut inside continuous speech.
+# `align_chunks`' DTW anchor was off by -0.06s to +0.14s with no consistent
+# direction, because a one- or two-character chunk is a hopeless DTW
+# reference. "Weird cut," "letters sound weird."
 #
-# *Attempt 3: synthesise the letter in its real answer's context — so the
-# model still gives it a real onset — then throw the answer's audio away
-# instead of trying to keep or precisely bound it.* Measured clean on every
-# check available at the time — no click, no bleed into the next word, a fade
-# that survives the compression chain — and still came back "the letters are
-# not spoken properly and sound like are cut in the middle." The check that
-# was missing: how much of the letter Kokoro actually voices once it can see
-# an answer coming. Traced frame-by-frame, "C." in "C. Loud noise is the only
-# cause" carries real content for only ~60-90ms before "Loud" begins — the
-# cut-finder was landing on a real, correct boundary, not a wrong one; the
-# true boundary genuinely sits that early. Kokoro rushes the letter itself
-# given somewhere to go; no cut point downstream of that synthesis can
-# recover content that was never voiced.
+# *Attempt 3: synthesise the letter in its real answer's context, then throw
+# the answer's audio away.* Measured clean on every check available at the
+# time and still came back "not spoken properly," "cut in the middle."
 #
-# *Attempt 4: isolate the letter again, exactly as Attempt 1 did, but trim it
-# far harder.* Shipped once, briefly, and sent back with nearly Attempt 1's
-# own words — "weird and unnatural," "lengthened," "glitchy." Trimming only
-# ever touches length; the actual defect was always the flat or falling pitch
-# a letter gets with nothing to lead into, and no trim setting touches pitch.
+# *Attempt 4: isolate the letter again, but trim it much harder.* Nearly
+# Attempt 1's words back: "lengthened," "glitchy." Trimming only touches
+# length; the defect was always the falling contour, which no trim reaches.
 #
-# *Attempt 5: keep the combined read exactly as it already sounds, and splice
-# a short pause into whatever quiet point already exists between letter and
-# answer — nothing isolated, nothing discarded.* Applied to every card, this
-# fails the same way: the quiet point is not at a consistent acoustic
-# distance from the letter across different cards. A slow letter ("A.", "D.")
-# leaves a real 100-200ms lull before the answer starts. A fast one ("C.")
-# barely leaves any — Kokoro is already rising into the answer within
-# 60-90ms of the letter's own peak, the same rushing Attempt 3 measured — and
-# a splice forced there lands on the shoulder of the answer's own onset, a
-# real waveform discontinuity.
+# *Attempt 5: leave the combined read alone and splice a short silence into
+# whatever quiet moment already exists between letter and answer,* gated to
+# only the cards where that moment is genuinely quiet. Shipped and was the
+# closest yet — but the gate rejected about half the cards (every "C." among
+# them), so half the video had a pause and half did not, and the pause it did
+# place was capped at ~0.15s by how little room there was.
 #
-# **What shipped is Attempt 5 gated rather than unconditional: the pause is
-# only spliced in where the audio itself shows a genuinely quiet moment to
-# put it in, and every other card keeps the plain, already-accepted read.**
-# `synth_option_paused` (`core/voiceover.py`) measures how quiet the
-# candidate splice point is relative to the letter's own peak and refuses to
-# use it below a confidence floor — checked against the same twelve real
-# option lines the unconditional version was tested on, that gate accepts
-# about half of them and rejects the rest, every "C." card among them
-# consistently, because the fast-letter problem is systematic to that letter
-# rather than occasional. The letter's pronunciation itself is untouched
-# either way — `synth_option_paused` synthesises exactly the same text
-# `LETTER_WITH_OPTION` always has, and only ever splices *after* that
-# synthesis, into audio that already exists.
+# **The measurement that unblocked it, and it corrects one that stood wrong
+# for two sessions.** Attempts 3-5 all rested on "Kokoro rushes the letter to
+# 55-90ms when it can see an answer coming." That came from an energy search
+# and it was false. DTW-aligning the *answer* against the combined read — a
+# long reference, the case DTW handles well, rather than the letter that made
+# Attempt 2's anchor useless — puts the answer's onset at 180-360ms, and what
+# remains after it matches the answer synthesised alone to within 0.02-0.17s
+# across all twelve cards of this project's real script. **The letter was
+# never rushed. The old search was firing on the /s/ -> /iː/ transition
+# inside "C" itself, so every cut built on it sliced the letter in half —
+# which is precisely what "cut in the middle" was.**
 #
-# **What the first four attempts share, and what Attempt 5 avoids by being
-# gated rather than unconditional: forcing a silence onto every card is what
-# made the earlier attempts trade the letter's own naturalness away to get
-# it.** `LETTER_WITH_OPTION`: the letter travels with its answer as one
-# spoken utterance (`option_line` below); the format-wide pause still lives
-# between cards (`CARD_GAP`), where it always costs nothing; and a per-card
-# pause after the letter is added only where measurement says it is safe,
-# never at the cost of how the letter itself sounds.
-LETTER_WITH_OPTION = True
+# **Attempt 6, which ships: stop looking for a boundary and make one.** The
+# letter is synthesised with a throwaway carrier word after it, so the model
+# still gives it in-context length and contour — and the carrier starts with
+# a plosive, whose stop closure is a genuine silence to cut in. The letter is
+# then joined to its separately-synthesised answer around a real
+# `LETTER_ANSWER_GAP` of silence. Nothing searches inside continuous speech,
+# because the two halves never shared an utterance. Measured on all twelve
+# cards: the letter runs 0.29-0.31s (its natural in-context length, and
+# uniform across A/B/C/D so none sounds rushed beside another), has decayed
+# to 10-22% of its own peak before the cut, and the gap is exactly 0.70s of
+# true silence on every card rather than on half of them.
+LETTER_ANSWER_GAP = 0.70   # inside the card's own audio, not a scripted gap
 
 # `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability
 # for a case where the *kept* side of a cut is the one that matters — this
@@ -263,11 +236,12 @@ class Question:
         return text if spoken == text else (text, spoken)
 
     def option_line(self, i: int) -> "str | tuple[str, str]":
-        """One card, letter and answer together, as one spoken utterance.
+        """One card as the viewer reads it — "B. It has no effect."
 
-        The letter is not separable — see `LETTER_WITH_OPTION`. `spoken` is
-        keyed by the option as written, so a writer respelling a word does not
-        have to know the engine says "B. " in front of it.
+        Still one caption chunk and one sentence, even though the two halves
+        are synthesised separately (`option_parts`) so a real pause can sit
+        between them: the pause lives *inside* the card's own audio, so the
+        card stays one `Shot` and the caption never splits.
         """
         opt = self.options[i]
         said = self.spoken.get(opt, opt)
@@ -276,6 +250,21 @@ class Question:
         caption = f"{LETTERS[i]}. {opt}"
         spoken = f"{LETTERS[i]}. {said}"
         return caption if caption == spoken else (caption, spoken)
+
+    def option_parts(self, i: int) -> tuple[str, str]:
+        """The card's letter and its answer, as two separate utterances.
+
+        What `synth_letter_then_answer` needs: the letter alone (it gets its
+        own carrier word through synthesis — see `LETTER_ANSWER_GAP`) and the
+        answer as a complete sentence of its own. `spoken` is keyed by the
+        option as written, so a writer respelling a word does not have to know
+        anything the engine puts around it.
+        """
+        opt = self.options[i]
+        said = self.spoken.get(opt, opt)
+        if said and said[-1] not in ".!?…:,":
+            said += "."
+        return LETTERS[i], said
 
     def lead_line(self) -> str:
         """"The correct answer is B." — spoken alone, then a beat, then why.
@@ -427,12 +416,14 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     sentences: list[tuple] = []
     shots: list[Shot] = []
     gaps: list[float] = []
-    # A card's letter+answer is synthesised once here rather than left to
-    # `build_narration_aligned`'s own pass, so `synth_option_paused` can
-    # splice its short pause in where the audio shows room for one — see
-    # `LETTER_WITH_OPTION`. Keyed by sentence index, which `precomputed` only
-    # ever honours for a sentence alone in its own run — true of every card
-    # here, since every gap in this format sits at or above `RUN_BREAK`.
+    # A card's audio is built here rather than left to
+    # `build_narration_aligned`'s own pass, because the letter and the answer
+    # are synthesised separately and joined around a real `LETTER_ANSWER_GAP`
+    # of silence — see that constant for the six attempts it took to get a
+    # pause there without wrecking the letter. Keyed by sentence index, which
+    # `precomputed` only ever honours for a sentence alone in its own run —
+    # true of every card here, since every gap in this format sits at or
+    # above `RUN_BREAK`.
     precomputed: dict[int, object] = {}
     voice_pa = profile_args(voice)
 
@@ -496,16 +487,14 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         option_shots = []
         for i in range(len(q.options)):
             os_ = quiz_shot()
-            # Letter and answer in one utterance — the letter is not spoken
-            # alone. See `LETTER_WITH_OPTION`. The same text is pre-synthesised
-            # here (rather than left to the engine's own pass) so a short
-            # pause can be spliced in after the letter where the audio shows
-            # room for one — see `synth_option_paused`.
-            line = q.option_line(i)
-            spoken = line[1] if isinstance(line, tuple) else line
-            precomputed[len(sentences)] = synth_option_paused(
-                spoken, voice_pa["voice"], voice_pa.get("mood"))
-            add((line,))
+            # The letter and the answer are synthesised apart and joined
+            # around a real silence — one array, so this stays one sentence
+            # and one shot. See `LETTER_ANSWER_GAP`.
+            letter, answer = q.option_parts(i)
+            precomputed[len(sentences)] = synth_letter_then_answer(
+                letter, answer, voice_pa["voice"], voice_pa.get("mood"),
+                gap=LETTER_ANSWER_GAP)
+            add((q.option_line(i),))
             shots.append(os_)
             # The last card's gap is what the countdown is built from —
             # `LEAD` seconds of runway past its real speech end, the ring's
