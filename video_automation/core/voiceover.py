@@ -653,155 +653,31 @@ def _find_cut(audio, at: float, search: float = 0.40, guard: float = 0.05,
     return c
 
 
-# **How a quiz option's letter gets a real pause before its answer, and the
-# six attempts that failed first — see `LETTER_ANSWER_GAP` in `quiz.build`
-# for the format's side of it.**
+# **A quiz option's letter is never spoken at all — see `LETTER_SPOKEN` in
+# `quiz.build` for the full account.** Seven attempts were made to put a
+# spoken letter into a card's audio and have it sound right next to its
+# answer: isolated (twice — its pitch contour falls, and no trim reaches
+# that), forced-spliced mid-sentence, synthesised in context then cut free of
+# it, gated to only the cards with room for a clean splice, given a carrier
+# word whose consonant leaked through, and finally — the closest any of them
+# came — synthesised as one natural utterance with real silence inserted at a
+# correctly measured, correctly bounded cut. That last one was clean by every
+# waveform check and was still sent back: a letter's natural spoken length is
+# 0.15-0.36s, and a sound that short, alone, followed by silence, reads as
+# clipped no matter how cleanly it is bounded — a single letter does not
+# carry enough acoustic content to be its own spoken moment. The fix was not
+# a better cut. It was not needing one: the letter is shown on the card and
+# never sent to the synthesiser as its own utterance.
 #
-# The problem: a lettered option ("A. It has no effect.") wants a real pause
-# after the letter, and Kokoro will not leave one — it never pauses after a
-# lone letter, and it never reads a lone letter naturally either. So a pause
-# has to be put there afterwards, and everything hinges on *where* the cut
-# goes and what, if anything, gets added.
-#
-# Two things were measured wrong along the way and cost four attempts between
-# them, so both are recorded here.
-#
-# **Wrong measurement 1: "Kokoro rushes the letter to 55-90ms when it can see
-# an answer coming."** That came from an energy search and it is false. Align
-# the *answer* against the combined read with DTW — a long, acoustically rich
-# reference, which is the case DTW is reliable for, unlike the one- or
-# two-character letter that made `_force_pad`'s own anchor untrustworthy — and
-# the answer's onset lands at 180-360ms, cross-checked by what remains after
-# it matching the answer synthesised alone to within 0.02-0.17s on all twelve
-# cards of a real script. The letter is never rushed. The old search was
-# firing on the /s/ -> /iː/ transition *inside* "C" itself, so every cut built
-# on it sliced the letter in half — which is exactly what "the letters sound
-# cut in the middle" was.
-#
-# **Wrong measurement 2: that an isolated letter's falling pitch contour was
-# what made it sound wrong.** Isolated letters do fall (134 -> 124 Hz for
-# "A.", and every punctuation variant behaves the same, so there is no trick
-# spelling that escapes it) — but two attempts built on "fix the contour" and
-# both were rejected in the same words as the attempt before them. The
-# per-run `loudnorm` was also suspected of over-boosting a lone 0.4s letter
-# and measured innocent: about 1 dB. The honest conclusion is that a lone
-# letter simply does not read as a quiz option, for reasons no single number
-# here captures.
-#
-# **A carrier word was tried and is the one to *not* repeat.** Letting a
-# throwaway word follow the letter through synthesis does give the letter
-# in-context length, and a plosive-initial carrier does leave a stop closure
-# to cut in. But `"Because."` starts with a **voiced** plosive, whose closure
-# is not silence at all — it carries a voice bar, and the burst after it was
-# plainly audible on the shipped cut ("we cut it with a 'b' sound"). A
-# voiceless carrier avoids the buzz, but the letter still runs at 36-59% of
-# its peak straight into the closure, because a vowel before a stop is cut
-# off by that stop rather than decaying. **Nothing may be added to what is
-# spoken.**
-#
-# **What ships adds nothing and isolates nothing.** The card is synthesised
-# as one natural utterance, exactly the read that was approved before any
-# pause existed, and the silence is inserted into it:
-#
-#   1. `_answer_onset` locates where the answer begins, by DTW on the answer.
-#   2. `_letter_end` walks back from there past any fricative belonging to the
-#      answer — /s/ and /f/ onsets ("Sound therapy", "For many") sit under a
-#      DTW estimate that is otherwise sound, and cutting inside one leaves a
-#      stray hiss before the pause. High-frequency dominance identifies them;
-#      the walk is capped so it can never eat into the letter.
-#   3. Everything before that point — the letter, with the length and contour
-#      the model gave it in context — is kept and faded out over 25ms.
-#   4. The answer is taken from its *own* synthesis rather than from the
-#      combined read, so it always begins at its own natural onset and can
-#      never start mid-sound after the silence.
-#
-# Measured across all twelve cards of the tinnitus script: letter 0.156-0.357s
-# (its natural in-context length), a full 0.70s of true digital silence on
-# every card, and a worst-case seam discontinuity of 0.06 — against 0.68 for
-# the same cards cut without the fricative back-off.
+# The DTW-onset and fricative-backoff logic built for the seventh attempt
+# (aligning an answer's own synthesis against a combined read to find a safe
+# cut point) is not kept here — nothing in this format calls a cut point
+# inside continuous speech that finds a *letter's* boundary any more, and the
+# generic version of that problem (a cut point that keeps rather than
+# discards the far side) already has a home in `_force_pad`/`chunk_pad`
+# below.
 
 
-def _answer_onset(combined: "np.ndarray", answer: "np.ndarray") -> float:
-    """Seconds into `combined` where `answer` starts, by DTW on the answer.
-
-    The reference is the *answer* — several words, acoustically rich, the
-    case subsequence DTW handles well. Aligning the letter instead is the
-    degenerate case documented on `_force_pad`, and it is what made two
-    earlier attempts at this cut land in the wrong place.
-    """
-    import librosa
-    import numpy as np                                          # noqa: F401
-
-    def logmel(a):
-        m = librosa.feature.melspectrogram(y=a, sr=KOKORO_SR, n_fft=1024,
-                                           hop_length=ALIGN_HOP, n_mels=64)
-        return librosa.power_to_db(m)
-
-    _, path = librosa.sequence.dtw(X=logmel(answer), Y=logmel(combined),
-                                   subseq=True, metric="cosine")
-    return float(path[::-1][0][1]) * ALIGN_HOP / KOKORO_SR
-
-
-def _letter_end(audio: "np.ndarray", onset: float, max_back: float = 0.090,
-                hf_floor: float = 0.35, win_s: float = 0.010,
-                step_s: float = 0.004) -> float:
-    """Back off `onset` past a fricative that belongs to the answer.
-
-    An answer opening on /s/ or /f/ ("Sound therapy", "For many") puts a band
-    of high-frequency noise before its first vowel, and a DTW onset can land
-    inside it — cutting there leaves a stray hiss hanging before the silence.
-    Fricatives are almost all energy above 3kHz, so walking back while that
-    holds finds where the answer really begins. `max_back` caps the walk so a
-    letter ending in its own fricative cannot be eaten into.
-    """
-    import numpy as np
-
-    sr = KOKORO_SR
-    win, step = int(win_s * sr), int(step_s * sr)
-    p = int(onset * sr)
-    limit = max(0, p - int(max_back * sr))
-    freqs = np.fft.rfftfreq(win, 1 / sr)
-    hi = freqs > 3000
-    while p - step >= limit and p >= win:
-        seg = audio[p - win:p]
-        spec = np.abs(np.fft.rfft(seg * np.hanning(len(seg))))
-        if float(spec[hi].sum() / max(spec.sum(), 1e-9)) < hf_floor:
-            break
-        p -= step
-    return p / sr
-
-
-def synth_letter_then_answer(letter: str, answer: str, voice: VoiceSpec = None,
-                             mood: str = "melancholic",
-                             gap: float = 0.70) -> "np.ndarray":
-    """One quiz card: the letter, `gap` seconds of silence, then the answer.
-
-    **Nothing is added to what is spoken and nothing is read in isolation** —
-    the letter comes from the card's own natural read, so it keeps exactly the
-    pronunciation the format had before any pause existed. See the note above
-    for the six attempts that established both of those constraints.
-
-    Returned as one array for one sentence, so the card stays one sentence and
-    one `Shot` in `quiz.build`: the pause lives inside the card's own audio
-    rather than between two sentences, which is what lets it be guaranteed
-    without splitting the caption or the shot list — and what keeps the whole
-    card on a single pass of the post chain.
-    """
-    import numpy as np
-
-    sr = KOKORO_SR
-    combined = _synth_raw(f"{letter}. {answer}", voice, mood)
-    alone = _synth_raw(answer, voice, mood)
-
-    cut = int(_letter_end(combined, _answer_onset(combined, alone)) * sr)
-    head = combined[:cut].copy()
-    ramp = int(0.025 * sr)
-    if len(head) > ramp:
-        fade = 0.5 * (1 + np.cos(np.linspace(0, np.pi, ramp)))
-        head[-ramp:] *= fade.astype(head.dtype)
-
-    silence = np.zeros(int(gap * sr), dtype=head.dtype)
-    return np.concatenate([head, silence, alone])
 
 
 def _force_pad(audio, at: float, want: float,
@@ -936,11 +812,11 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     text is one continuous synthesis call, so there is no single audio array
     to substitute one sentence's worth of) — everywhere else in this format
     that is already true of any sentence carrying its own
-    `run_break`-guaranteed gap. The quiz format's letter+answer card is the
-    case this was built for — `synth_letter_then_answer` in this module
-    produces the audio it precomputes, with the card's own letter/answer
-    pause already inside it; see the note above `_answer_onset` in this
-    module for the full history of what did and did not work for that card.
+    `run_break`-guaranteed gap. **General capability, currently unused by
+    any shipped format** — the quiz format's lettered option was the case
+    this was built for, across several attempts at giving that card's letter
+    its own precomputed audio; see `LETTER_SPOKEN` in `quiz.build` for why
+    the format stopped needing any of them.
     """
     import soundfile as sf
 

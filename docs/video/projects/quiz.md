@@ -80,9 +80,9 @@ landscape version wants a different layout rather than the same one wider.
 
 ## The three phases
 
-1. **Ask.** The question sets. The four cards arrive one at a time, each as
-   its own line is read — the letter, a real 0.70s pause, then the answer (see
-   `LETTER_ANSWER_GAP` below). Nothing is marked.
+1. **Ask.** The question sets. The four cards arrive one at a time, each
+   showing its letter — but the voice only reads the answer (see
+   `LETTER_SPOKEN` below). Nothing is marked.
 2. **Wait.** The narration stops for six seconds. A ring drains around a
    number and one clock tick lands per second, the last a fourth higher. This
    silence *is* the format. A quiz that answers itself immediately is a list.
@@ -118,7 +118,6 @@ each with its own scripted gap —
 | gap | value | buys |
 |---|---|---|
 | `QUESTION_GAP` | 0.65s | a breath after the question, before the first card |
-| `LETTER_ANSWER_GAP` | 0.70s | after a card's letter, before its answer — *not* a scripted gap; see below |
 | `CARD_GAP` | 0.70s | between one card and the next |
 | `ANSWER_LEAD_GAP` | 0.40s | after "The correct answer is B.", before the why |
 | `NEXT_Q_GAP` | 1.00s | after the answer line, before the next question |
@@ -154,19 +153,21 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## The letter/answer pause: seven attempts, and two wrong measurements
+## The card's letter: eight attempts, and the one that stopped trying
 
-**A card is read "B." — 0.70s of real silence — "It has no effect."** The
-pause is not a scripted `gap`; it is silence built into that card's own audio,
-between a letter and an answer that were synthesised separately and never
-shared an utterance (`synth_letter_then_answer` in `core/voiceover.py`, handed
-to the engine through `precomputed`). Getting there took six attempts, five of
-which shipped and were sent back. The history matters because five of the six
-failed on the same bad assumption.
+**A card shows its letter but never speaks it.** The voice reads only the
+answer — "It has no effect." — and the letter is left to the card itself and
+to the reveal, which names it out loud as a real sentence: "The correct
+answer is B." Getting to that was eight attempts, seven of which put a
+spoken letter into a card's audio and tried to make it sound right next to
+its answer. The history is worth keeping in full, because the eighth
+attempt's whole premise is that the other seven were solving the wrong
+problem.
 
-**Attempt 1: isolate the letter as its own one-word sentence,** so `run_break`
-guarantees a gap after it. It changes how the model says the letter — an
-isolated letter's pitch *falls*, and no punctuation variant escapes it:
+**Attempt 1: isolate the letter as its own one-word sentence,** so
+`run_break` guarantees a gap after it. It changes how the model says the
+letter — an isolated letter's pitch *falls*, and no punctuation variant
+escapes it:
 
 | spoken alone | F0 start → end | duration |
 |---|---|---|
@@ -183,36 +184,36 @@ speech; `align_chunks`' DTW anchor was off by -0.06s to +0.14s with no
 consistent direction, because a one- or two-character chunk is a hopeless DTW
 reference. "Weird cut," "letters sound weird."
 
-**Attempt 3: synthesise the letter in its real answer's context, then discard
-the answer's audio.** Measured clean on every check available at the time and
-came back "not spoken properly," "cut in the middle."
+**Attempt 3: synthesise the letter in its real answer's context, then
+discard the answer's audio.** Measured clean on every check available at the
+time and came back "not spoken properly," "cut in the middle."
 
-**Attempt 4: isolate the letter again, but trim it much harder.** Came back in
-nearly Attempt 1's words: "lengthened," "glitchy." Trimming only touches
+**Attempt 4: isolate the letter again, but trim it much harder.** Came back
+in nearly Attempt 1's words: "lengthened," "glitchy." Trimming only touches
 length; the defect was the falling contour, which no trim reaches.
 
 **Attempt 5: splice a short silence into the combined read, gated to cards
-where the gap is genuinely quiet.** The closest yet, and the first to ship
-without a click — but the gate rejected about half the cards (every "C." among
-them), so half the video had a pause and half did not, and the pause it could
-place was capped near 0.15s by how little room there was.
+where the gap is genuinely quiet.** The closest yet at the time, and the
+first to ship without a click — but the gate rejected about half the cards
+(every "C." among them), so half the video had a pause and half did not, and
+the pause it could place was capped near 0.15s by how little room there was.
 
-### The measurement that was wrong for two sessions
+### A measurement that was wrong for two sessions
 
 Attempts 3, 4 and 5 all rested on one number: *Kokoro rushes the letter to
 55-90ms once it can see an answer coming.* It came from an energy search, and
 it was false.
 
-Align the **answer** against the combined read with DTW — a long, acoustically
-rich reference, the case DTW is reliable for, rather than the letter that made
-Attempt 2's anchor useless — and the answer's onset lands at **180-360ms**,
-cross-checked by the fact that what remains after it matches the answer
-synthesised alone to within 0.02-0.17s on all twelve cards of the tinnitus
-script. The letter was never rushed. **The old search was firing on the
-/s/ → /iː/ transition inside "C" itself, so every cut built on it sliced the
-letter in half — which is exactly what "the letters sound cut in the middle"
-was.** A wrong measurement, trusted because it was a measurement, cost three
-attempts.
+Align the **answer** against the combined read with DTW — a long,
+acoustically rich reference, the case DTW is reliable for, rather than the
+letter that made Attempt 2's anchor useless — and the answer's onset lands at
+**180-360ms**, cross-checked by the fact that what remains after it matches
+the answer synthesised alone to within 0.02-0.17s on all twelve cards of the
+tinnitus script. The letter was never rushed. **The old search was firing on
+the /s/ → /iː/ transition inside "C" itself, so every cut built on it sliced
+the letter in half — which is exactly what "the letters sound cut in the
+middle" was.** A wrong measurement, trusted because it was a measurement,
+cost three attempts.
 
 Correcting it is necessary but not sufficient: at the answer's *true* onset
 the letter is often still at full energy — 98% of its own peak on "C. Loud
@@ -220,59 +221,63 @@ noise", where /iː/ glides into /l/ with no boundary of any kind. No search
 fixes that, because nothing is there to find.
 
 **Attempt 6: give the letter a throwaway carrier word through synthesis**
-(`"Because."`), so it keeps its in-context length, and cut in the stop closure
-of the carrier's opening plosive — a plosive needs a silence before its burst,
-so there would be something safe to cut in. Shipped, and came back *"we cut it
-with a 'b' sound."* `/b/` is a **voiced** plosive: its closure is not silence
-at all but a voice bar, and the burst after it was plainly audible. Switching
-to a voiceless carrier removes the buzz but not the real problem — the letter
-still runs at 36-59% of its peak straight into the closure, because a vowel
-before a stop is cut off by that stop rather than decaying, so it still ends
-abruptly. **Nothing may be added to what is spoken.**
+(`"Because."`), so it keeps its in-context length, and cut in the stop
+closure of the carrier's opening plosive — a plosive needs a silence before
+its burst, so there would be something safe to cut in. Shipped, and came back
+*"we cut it with a 'b' sound."* `/b/` is a **voiced** plosive: its closure is
+not silence at all but a voice bar, and the burst after it was plainly
+audible. **Nothing may be added to what is spoken.**
 
-### The second wrong measurement
+### A second measurement that was wrong
 
 Attempts 1 and 4 were both read as "the isolated letter's falling pitch
-contour is the defect." Isolated letters do fall (134 → 124 Hz for `"A."`, and
-every punctuation variant behaves the same — there is no trick spelling that
-escapes it), but two attempts built on fixing the contour and both came back
-in the same words as the attempt before. The per-run `loudnorm` was also
-suspected of over-boosting a lone 0.4s letter, and measured innocent: about
-1 dB. The honest conclusion is that a lone letter does not read as a quiz
-option for reasons no single number here captures — so **do not isolate the
-letter**, rather than keep trying to repair an isolated one.
+contour is the defect." Isolated letters do fall (134 → 124 Hz for `"A."`,
+and every punctuation variant behaves the same — there is no trick spelling
+that escapes it), but two attempts built on fixing the contour and both came
+back in the same words as the attempt before. The per-run `loudnorm` was
+also suspected of over-boosting a lone 0.4s letter, and measured innocent:
+about 1 dB. Neither explained it.
 
-### Attempt 7, which ships: add nothing, isolate nothing
+**Attempt 7: add nothing, isolate nothing.** The card is synthesised as one
+natural utterance — exactly the read that was approved before any pause
+existed — and the silence is *inserted into it*: the answer's onset is found
+by DTW **on the answer**, the cut backs off past any fricative belonging to
+the answer (an /s/ or /f/ onset otherwise leaves a stray hiss before the
+pause), the letter is kept with a 25ms fade, and the answer is re-taken from
+its own synthesis so it always starts at its own natural onset. Measured
+across all twelve cards: letter 0.156-0.357s (its natural in-context length),
+a full **0.70s of true digital silence on every card**, worst-case seam
+discontinuity 0.06.
 
-The card is synthesised as **one natural utterance** — exactly the read that
-was approved before any pause existed, so the letter's pronunciation is not in
-question — and the silence is *inserted into it*
-(`synth_letter_then_answer`):
+**Sent back anyway** — *"the letter is said very quick so it sounds like
+it's cut."* This is the finding that ended the search rather than refining
+it further: a letter's natural, in-context spoken length genuinely is
+0.15-0.36s — the number Attempt 7 correctly measured and correctly used —
+and a syllable that short, spoken once and followed by silence, reads as
+clipped regardless of how cleanly it is bounded. **A single letter does not
+carry enough acoustic content to be its own spoken moment.** Every attempt
+before this one had been chasing a synthesis problem; underneath all of them
+was a structural one.
 
-1. `_answer_onset` finds where the answer begins, by DTW **on the answer**.
-2. `_letter_end` walks back from there past any fricative that belongs to the
-   answer. An /s/ or /f/ onset ("Sound therapy", "For many") sits under an
-   otherwise sound DTW estimate, and cutting inside one leaves a stray hiss
-   before the pause; high-frequency dominance identifies it, and the walk is
-   capped so it can never eat into the letter.
-3. Everything before that point — the letter, with the length and contour the
-   model gave it *in context* — is kept, faded out over 25ms.
-4. The answer is re-taken from its **own** synthesis rather than from the
-   combined read, so it always begins at its own natural onset and can never
-   start mid-sound after the silence.
+### Attempt 8, which ships: stop speaking the letter
 
-Measured across all twelve cards of the tinnitus script: letter 0.156-0.357s
-(its natural in-context length), a full **0.70s of true digital silence on
-every card**, and a worst-case seam discontinuity of 0.06 — against 0.68 for
-the same cards cut without the fricative back-off.
+The letter is shown on the card exactly as before — the countdown, the
+reveal band, and the whole visual identity of the format depend on the
+viewer reading it there — and is never sent to Kokoro as its own utterance.
+`Question.option_line` still returns "B. It has no effect." as the *caption*;
+the *spoken* half is only "It has no effect." `LETTER_SPOKEN = False` in
+`quiz.build` is the flag, though there is no longer a code path that reads
+it any other way — it exists to name the decision so a future session does
+not reopen it without reading this history first.
 
-The card is still **one sentence and one `Shot`** — the pause lives inside its
-audio rather than between two sentences, so neither the caption nor the shot
-list splits, and the whole card gets a single pass of the post chain.
+The reveal is unaffected and was never part of the problem: "The correct
+answer is B." is a real, multi-word sentence with its own natural contour,
+never the isolated one-syllable case every attempt above was fighting.
 
-`chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability for
-a case where the *kept* side of a cut is the one that matters — this format
-does not use them for the letter/answer pause.
+`chunk_pad`/`_force_pad` in `core/voiceover.py` stay as general capability
+for a case where the *kept* side of a cut is the one that matters — this
+format has no cut to make inside continuous speech any more, for the letter
+or anything else.
 
 ## A scripted gap under `RUN_BREAK_GAP` is a request, not a guarantee
 
