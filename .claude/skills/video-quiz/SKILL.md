@@ -86,18 +86,27 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
-- **A card's letter is never separated from its answer - they are synthesised
-  as one utterance, and the pause lives between cards instead.**
-  `LETTER_WITH_OPTION` in `quiz.build` is the settled position, not an open
-  question: four different ways of giving the letter its own clip and a
-  guaranteed silence after it were built, shipped, and sent back sounding
-  wrong, each for a different reason - flat and unnaturally lengthened when
-  read alone (twice, including once with an aggressive trim that only shortened
-  the same flat read), unreliably spliced mid-word, and rushed by Kokoro to as
-  little as 55ms of real content when synthesised in context and cut free
-  of it. See `LETTER_WITH_OPTION` in `quiz.build` for the full account. Do
-  not attempt a fifth way of isolating the letter - the premise fails, not
-  the implementation.
+- **A card's letter is never separated from its answer at synthesis time -
+  they are always synthesised as one utterance.** `LETTER_WITH_OPTION` in
+  `quiz.build` is the settled position, not an open question: four different
+  ways of giving the letter its own clip and a guaranteed silence after it
+  were built, shipped, and sent back sounding wrong, each for a different
+  reason - flat and unnaturally lengthened when read alone (twice, including
+  once with an aggressive trim that only shortened the same flat read),
+  unreliably spliced mid-word, and rushed by Kokoro to as little as 55ms of
+  real content when synthesised in context and cut free of it. See
+  `LETTER_WITH_OPTION` in `quiz.build` for the full account. Do not attempt a
+  sixth way of isolating the letter - the premise fails, not the
+  implementation.
+- **A short pause between the letter and the answer is spliced into that same
+  already-good audio afterward, only where it's safe to.**
+  `synth_option_paused` in `core/voiceover.py` measures how quiet the moment
+  between letter and answer actually is and only inserts a pause there when
+  it clears a confidence floor - roughly half of any given set of cards, since
+  a fast letter like "C." rarely leaves Kokoro any room. Some cards on a
+  rendered video will carry the pause and some will not; that inconsistency
+  is the deliberate trade against ever risking a click on a card where the
+  room isn't really there.
 
 ## What makes a question work
 

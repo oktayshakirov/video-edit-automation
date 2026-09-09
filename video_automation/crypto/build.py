@@ -223,9 +223,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         chunk_pad=None,
                         # Audio a caller already synthesised and shaped
                         # itself — keyed by sentence index, only used where
-                        # that sentence is alone in its own run. General
-                        # capability, currently unused by any shipped format —
-                        # see `build_narration_aligned` in `core/voiceover.py`.
+                        # that sentence is alone in its own run. The quiz
+                        # format uses this for its cards' letter+answer pause
+                        # (`synth_option_paused` in `core/voiceover.py`).
                         precomputed=None,
                         # The bed's loudness target. `music_gain` cannot do
                         # this job — it is applied *before* `loudnorm` in

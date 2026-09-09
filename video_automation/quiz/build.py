@@ -30,10 +30,12 @@ question carrying its options as caption chunks had nothing separating them;
 a scripted gap under `RUN_BREAK_GAP` is not even a guarantee, so every gap
 here sits at or above `RUN_BREAK`, which this module lowers to 0.30 through
 `render_crypto_short`'s `run_break`; and a card's letter is never split from
-its answer — four different ways of doing that were tried, shipped, and sent
-back sounding wrong, so the letter and the answer are synthesised together as
-one utterance and the pause sits *between* cards instead, where it costs
-nothing.
+its answer at synthesis time — five different ways of doing that were tried
+and four were shipped and sent back sounding wrong, so the letter and the
+answer are always synthesised together as one utterance. A short pause
+between them is still possible, spliced into that same audio afterward
+(`synth_option_paused`) where the audio itself shows room for one; the
+format-wide pause between cards (`CARD_GAP`) costs nothing either way.
 """
 
 from __future__ import annotations
@@ -43,6 +45,7 @@ from pathlib import Path
 
 from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
+from ..core.voiceover import profile_args, synth_option_paused
 from ..crypto.build import _short_factory, render_crypto_short
 from ..crypto.shots import Shot
 from .cards import LETTERS, QuizShot
@@ -134,34 +137,39 @@ TITLE_GAP = 1.00         # after the series/edition card, before the intro
 # ever touches length; the actual defect was always the flat or falling pitch
 # a letter gets with nothing to lead into, and no trim setting touches pitch.
 #
-# *Attempt 5, tried and caught before shipping this time, not after: keep the
-# combined read exactly as it already sounds, and splice a short (~0.18s)
-# silence into whatever quiet point already exists between letter and
-# answer — nothing isolated, nothing discarded.* The most promising-looking
-# idea yet, and it still fails, for a reason distinct from the first four:
-# that quiet point is not at a consistent acoustic distance from the letter
-# across different cards. A slow letter ("A.", "D.") leaves a real 100-200ms
-# lull before the answer starts. A fast one ("C.") barely leaves any — Kokoro
-# is already rising into the answer within 60-90ms of the letter's own peak,
-# the same rushing Attempt 3 measured. Three different ways of locating that
-# quiet point were tested against all twelve real option lines in this
-# project's own script before anything was wired in or rendered, and every
-# one placed the splice close enough to the answer's onset on the fast-letter
-# cards to produce a real waveform discontinuity there — several times the
-# size of the same measurement on a slow-letter card. Tuning the search
-# further only traded which letters broke.
+# *Attempt 5: keep the combined read exactly as it already sounds, and splice
+# a short pause into whatever quiet point already exists between letter and
+# answer — nothing isolated, nothing discarded.* Applied to every card, this
+# fails the same way: the quiet point is not at a consistent acoustic
+# distance from the letter across different cards. A slow letter ("A.", "D.")
+# leaves a real 100-200ms lull before the answer starts. A fast one ("C.")
+# barely leaves any — Kokoro is already rising into the answer within
+# 60-90ms of the letter's own peak, the same rushing Attempt 3 measured — and
+# a splice forced there lands on the shoulder of the answer's own onset, a
+# real waveform discontinuity.
 #
-# **What all five attempts share: every one gave the letter a guaranteed
-# silence after it, and every one either changed how Kokoro reads the letter
-# to get it, or needed a boundary that is not consistently there to find —
-# because the letter's naturalness *consists of* it leading into its own
-# answer as one phrase. A break after the letter and a natural letter cannot
-# both exist on this synthesiser.** So `LETTER_WITH_OPTION`: the letter
-# travels with its answer as one spoken utterance (`option_line` below), and
-# the pause lives between cards (`CARD_GAP`), where it costs nothing. This was
-# the format's original design, before any of the five attempts above — it
-# never had this problem, because it never separates the two things whose
-# separation causes it. Do not attempt a sixth.
+# **What shipped is Attempt 5 gated rather than unconditional: the pause is
+# only spliced in where the audio itself shows a genuinely quiet moment to
+# put it in, and every other card keeps the plain, already-accepted read.**
+# `synth_option_paused` (`core/voiceover.py`) measures how quiet the
+# candidate splice point is relative to the letter's own peak and refuses to
+# use it below a confidence floor — checked against the same twelve real
+# option lines the unconditional version was tested on, that gate accepts
+# about half of them and rejects the rest, every "C." card among them
+# consistently, because the fast-letter problem is systematic to that letter
+# rather than occasional. The letter's pronunciation itself is untouched
+# either way — `synth_option_paused` synthesises exactly the same text
+# `LETTER_WITH_OPTION` always has, and only ever splices *after* that
+# synthesis, into audio that already exists.
+#
+# **What the first four attempts share, and what Attempt 5 avoids by being
+# gated rather than unconditional: forcing a silence onto every card is what
+# made the earlier attempts trade the letter's own naturalness away to get
+# it.** `LETTER_WITH_OPTION`: the letter travels with its answer as one
+# spoken utterance (`option_line` below); the format-wide pause still lives
+# between cards (`CARD_GAP`), where it always costs nothing; and a per-card
+# pause after the letter is added only where measurement says it is safe,
+# never at the cost of how the letter itself sounds.
 LETTER_WITH_OPTION = True
 
 # `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability
@@ -419,6 +427,14 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     sentences: list[tuple] = []
     shots: list[Shot] = []
     gaps: list[float] = []
+    # A card's letter+answer is synthesised once here rather than left to
+    # `build_narration_aligned`'s own pass, so `synth_option_paused` can
+    # splice its short pause in where the audio shows room for one — see
+    # `LETTER_WITH_OPTION`. Keyed by sentence index, which `precomputed` only
+    # ever honours for a sentence alone in its own run — true of every card
+    # here, since every gap in this format sits at or above `RUN_BREAK`.
+    precomputed: dict[int, object] = {}
+    voice_pa = profile_args(voice)
 
     def add(chunks: tuple) -> None:
         sentences.append(chunks)
@@ -481,8 +497,15 @@ def render_quiz_short(questions: list[Question], outro: tuple,
         for i in range(len(q.options)):
             os_ = quiz_shot()
             # Letter and answer in one utterance — the letter is not spoken
-            # alone. See `LETTER_WITH_OPTION`.
-            add((q.option_line(i),))
+            # alone. See `LETTER_WITH_OPTION`. The same text is pre-synthesised
+            # here (rather than left to the engine's own pass) so a short
+            # pause can be spliced in after the letter where the audio shows
+            # room for one — see `synth_option_paused`.
+            line = q.option_line(i)
+            spoken = line[1] if isinstance(line, tuple) else line
+            precomputed[len(sentences)] = synth_option_paused(
+                spoken, voice_pa["voice"], voice_pa.get("mood"))
+            add((line,))
             shots.append(os_)
             # The last card's gap is what the countdown is built from —
             # `LEAD` seconds of runway past its real speech end, the ring's
@@ -585,5 +608,5 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     return render_crypto_short(
         sentences, shots, out, workdir, voice=voice, frame=frame, brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        gap=gaps, run_break=RUN_BREAK,
+        gap=gaps, run_break=RUN_BREAK, precomputed=precomputed,
         factory=factory, plan_graphics=plan, cues=cue_list, **kw)
