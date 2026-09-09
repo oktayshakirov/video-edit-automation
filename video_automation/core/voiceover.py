@@ -601,9 +601,7 @@ def _find_cut(audio, at: float, search: float = 0.40, guard: float = 0.05,
              min_run: float = 0.025, rel_floor: float = 0.35) -> int:
     """The sample index of the first genuine post-peak quiet stretch near `at`.
 
-    Shared by `_force_pad` (splices silence at the cut) and `_trim_after`
-    (discards everything past it) — the search itself does not know or care
-    which the caller wants done with the answer.
+    Used by `_force_pad`, which splices silence at the cut this returns.
 
     Scans forward-biased from `at` (an untrusted anchor — see `_force_pad`'s
     own docstring for the measurement of just how untrusted) for a stretch of
@@ -655,185 +653,26 @@ def _find_cut(audio, at: float, search: float = 0.40, guard: float = 0.05,
     return c
 
 
-def _trim_after(audio, cut: int, ramp: float = 0.08, ramp_frac: float = 0.4):
-    """Keep `audio[:cut]`, with a fade-out long enough to survive compression.
-
-    The tail-discarding counterpart to `_force_pad` — used where the goal is
-    not a pause but a clean, natural-sounding fragment: `synth_word_in_context`
-    synthesises a word *with* a throwaway continuation so the model gives it
-    real prosody, then throws the continuation's audio away entirely rather
-    than trying to preserve or silence it in place.
-
-    **The fade has to be long, and a short one is worse than none.** The
-    ENERGETIC chain's compressor reduces dynamic range on every run, this
-    one included, and a 10ms linear fade is short enough that compression
-    mostly undoes it — checked against a real case: full volume through
-    0.16s, then a clean fade at the source became a drop to near-silence in
-    two 20ms steps *after* the chain, an audible hard stop rather than the
-    soft one that was written. 80ms of fade survives that. But `ramp` also
-    cannot outlast the clip it is fading — a lettered option can be trimmed
-    to under 100ms (see `_find_word_end`), and an 80ms fade on a 90ms clip
-    fades nearly the whole thing to a whisper. `ramp_frac` caps the actual
-    fade at 40% of the kept audio's own length, so a short clip gets a
-    proportionally shorter (but still real) fade instead.
-    """
-    import numpy as np
-
-    sr = KOKORO_SR
-    cut = max(0, min(len(audio), cut))
-    rn = min(int(ramp * sr), int(cut * ramp_frac))
-    lo = max(0, cut - rn)
-    tail = audio[lo:cut].copy()
-    if len(tail):
-        tail *= np.linspace(1.0, 0.0, len(tail)).astype(audio.dtype)
-    return np.concatenate([audio[:lo], tail])
-
-
-def _find_word_end(audio, peak_window: float = 0.08, search: float = 0.60,
-                   rel_floor: float = 0.55, env_win_s: float = 0.015,
-                   step_s: float = 0.004) -> int:
-    """The sample index where a short lead word's own energy first collapses.
-
-    Built for `synth_word_in_context`, and biased the **opposite** way from
-    `_find_cut`, on purpose — the two functions serve opposite risk
-    profiles. `_find_cut` inserts a pause between two things a viewer hears in
-    full, so cutting early is the catastrophic failure and it searches
-    forward from a rough anchor. Here everything past the cut is *discarded*,
-    so cutting a little early only shortens the kept word slightly — a
-    strictly safer failure than cutting late, which lets a real fragment of
-    the next word survive into the final clip. First tried the forward-biased
-    search reused verbatim: it reliably found a genuine dip, just usually
-    the **wrong** one — the one after the lead word's own peak often sits
-    only 30-40% below that peak, similar in depth to a plosive-to-vowel
-    transition *inside* a longer answer word, so the search kept walking
-    past the real boundary into content that was supposed to be thrown away.
-
-    So this does not anchor on DTW at all. `peak_window` is deliberately
-    short — measured across four different letters, a lettered option's own
-    peak always lands within it, before any next-word content can compete for
-    it — and the peak found there is the only reference the threshold is set
-    against. From that peak, the search moves strictly forward for the first
-    point where energy drops under `rel_floor` of it. No minimum-run
-    requirement: a brief, shallow within-word dip getting mistaken for the
-    end is the safe failure here, not the dangerous one.
-    """
-    import numpy as np
-
-    sr = KOKORO_SR
-    step = int(step_s * sr) or 1
-    env_win = int(env_win_s * sr) or 1
-
-    pk_hi = min(len(audio), int(peak_window * sr))
-    pk_positions = np.arange(0, max(1, pk_hi - env_win), step)
-    pk_env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
-                       for p in pk_positions])
-    if not len(pk_env):
-        return pk_hi
-    peak_i = int(pk_env.argmax())
-    thresh = float(pk_env[peak_i]) * rel_floor
-
-    hi = min(len(audio), int(search * sr))
-    start = pk_positions[peak_i]
-    positions = np.arange(start, max(start + 1, hi - env_win), step)
-    env = np.array([np.sqrt(np.mean(audio[p:p + env_win] ** 2))
-                    for p in positions])
-    for i, e in enumerate(env):
-        if e < thresh:
-            return int(positions[i] + env_win // 2)
-    return hi
-
-
-def synth_word_in_context(word: str, context: str, voice: VoiceSpec = None,
-                          mood: str = "melancholic") -> "np.ndarray":
-    """Synthesise `word` with its natural onset, without keeping `context`.
-
-    For a case exactly like a quiz's lettered option: "A." read on its own is
-    measurably flat (127 Hz -> 127 Hz on the pitch track) where the same
-    letter *leading into an answer* opens with a real rise (137 Hz rising) —
-    the model only produces that onset when it can see what comes next. But
-    the engine also needs "A." as a clean, standalone clip it can place in
-    its own sentence with a guaranteed gap after it (see `LETTER_ANSWER_GAP`
-    in `quiz.build` for why that gap has to be a real sentence boundary and
-    not a splice into a longer one).
-
-    This reconciles both: synthesise `"{word} {context}"` as one continuous
-    utterance — the model sees the full context and gives `word` its real
-    onset — then throw `context`'s audio away with `_find_word_end` and
-    `_trim_after`.
-
-    **This keeps the onset, not the full rise into `context`.** An earlier
-    version tried to cut right at the word/context boundary to keep as much
-    natural contour as possible, and it was unreliable in the *unsafe*
-    direction: on four different letters it frequently landed inside
-    `context`, so a fragment of a real word — not silence — occasionally
-    survived into the final clip. `_find_word_end` cuts as soon as `word`'s
-    own energy has genuinely dropped, favouring a shorter, safely-trimmed
-    word over a fuller one that sometimes carries an audible scrap of
-    whatever follows it.
-
-    **Superseded by `synth_letter_alone` for the quiz letter, and kept only
-    as a documented dead end** — see that function's docstring for why. Left
-    in place because it is still the right tool for a *word*-length lead-in
-    with real inflection to preserve; it is specifically the quiz's one- or
-    two-character letter that Kokoro rushes to nothing when it can see an
-    answer coming.
-    """
-    combined = f"{word} {context}"
-    audio = _synth_raw(combined, voice, mood)
-    cut = _find_word_end(audio)
-    return _trim_after(audio, cut)
-
-
-LETTER_TRIM_DB = 15             # far stricter than TRIM_DB — see synth_letter_alone
-
-
-def synth_letter_alone(letter: str, voice: VoiceSpec = None,
-                       mood: str = "melancholic") -> "np.ndarray":
-    """Synthesise a quiz option's letter completely on its own.
-
-    Third attempt at this problem, after two that both came back as "sounds
-    wrong" for opposite reasons — see `LETTER_ANSWER_GAP` in `quiz.build` for
-    the full account of the first two. `synth_word_in_context` above was the
-    second: put the letter in its answer's own sentence so Kokoro gives it a
-    real onset, then cut it free. It measured clean on every check that
-    mattered at the time — no click, no bleed into the next word, a fade that
-    survives the compression chain — and still came back "cut in the middle."
-
-    The measurement that was missing: how much of the letter Kokoro actually
-    voices when it can see the answer coming. Traced frame-by-frame, "C." in
-    `"C. Loud noise is the only cause"` has real content for roughly 60-90ms
-    before "Loud" begins — not a cutter finding the wrong boundary, but the
-    true boundary landing that early. Kokoro rushes the letter itself once it
-    has somewhere to go, and no cut point downstream of that synthesis can
-    recover content that was never voiced.
-
-    So this doesn't give it anywhere to go. `letter` alone gets Kokoro's
-    ordinary sentence-final lengthening instead of a mid-sentence rush —
-    measured at 310-380ms per letter, versus 55-90ms for the same letter
-    in-context. The trade is the pitch contour: alone, the letter's own pitch
-    now *falls* over its length (started higher than it ends) rather than
-    rising the way it did leading into a real answer. That reads as ordinary
-    single-word sentence-final intonation, not as a defect — nothing here
-    manufactures a rise Kokoro didn't produce on its own, which is exactly
-    what made the first, fully-isolated design come back "weird and
-    glitchy": a flat, uninflected 127 Hz -> 127 Hz track with no shaping at
-    all.
-
-    The other defect in the *first* isolated design — 469-576ms including
-    Kokoro's own trailing room-tone padding — is handled with a stricter
-    `librosa.effects.trim(top_db=LETTER_TRIM_DB)` in place of the module's
-    default `TRIM_DB`. `top_db=15` only removes audio below that floor
-    relative to the letter's own peak, at either edge — it can never cut into
-    a rise or a sustained sound the way a fixed-position cutter can, so
-    there's no risk of the earlier designs' truncated-content failure here.
-    """
-    audio, _ = _kokoro().create(letter, voice=voice_style(voice),
-                                speed=KOKORO_MOODS.get(mood, KOKORO_SPEED),
-                                lang="en-us")
-    import librosa
-    trimmed, _ = librosa.effects.trim(audio.astype("float32"),
-                                      top_db=LETTER_TRIM_DB)
-    return trimmed
+# **A quiz option's letter is never synthesised apart from its answer, and
+# this is the settled position, not an open question — see `LETTER_WITH_OPTION`
+# in `quiz.build` for the measurements.** Four different ways of giving the
+# letter its own clip and a guaranteed pause after it were built, shipped, and
+# sent back sounding wrong, each for a different reason: read with nothing
+# around it, it is flat and unnaturally lengthened; spliced out of its own
+# answer's sentence after synthesis, the splice point is unfindable reliably;
+# synthesised *with* the answer as context and then cut free of it, Kokoro
+# turns out to rush the letter itself to as little as 55ms of real content
+# once it can see an answer coming, so no cut point downstream can recover
+# what was never voiced; trimmed harder while still isolated, it is merely a
+# shorter version of the first failure — still flat, still not what "A. It
+# has no effect." sounds like when read as one phrase. Every one of these was
+# a genuine attempt to buy a guaranteed silence after the letter without
+# paying for it in naturalness, and every one paid for it anyway. Do not
+# attempt a fifth: the previous four each looked sound on paper and each was
+# rejected on the same axis (the letter itself sounds wrong), by ear, after
+# being built. If a guaranteed pause after just the letter is ever wanted
+# again, treat that as a research question with an unproven premise, not an
+# engineering task with a known answer.
 
 
 def _force_pad(audio, at: float, want: float,
@@ -854,21 +693,20 @@ def _force_pad(audio, at: float, want: float,
     from `align_chunks`, which finds a chunk boundary by synthesising each
     chunk *alone* as a DTW reference — and for a one- or two-character chunk
     like a lettered option's "A.", that reference is a poor acoustic match
-    for how the letter actually sounds *in context* (see `LETTER_ANSWER_GAP`
-    in `quiz.build` for the measurement: a letter spoken alone is flat and
-    runs longer than the same letter leading into an answer). DTW's own
-    documented error is "~0.19s mean," but that is an average over ordinary
-    multi-word chunks; a first-word one- or two-character chunk with a badly
-    mismatched reference is exactly the degenerate case that average doesn't
-    cover, and it was measured landing over 200ms early — at the letter's own
-    energy *peak*, not its end. A search window sized to the documented
-    "mean" error was not wide enough to recover from that.
+    for how the letter actually sounds *in context* (see the note just after
+    `_find_cut` in this module for the measurement: a letter spoken alone is
+    flat and runs longer than the same letter leading into an answer). DTW's
+    own documented error is "~0.19s mean," but that is an average over
+    ordinary multi-word chunks; a first-word one- or two-character chunk with
+    a badly mismatched reference is exactly the degenerate case that average
+    doesn't cover, and it was measured landing over 200ms early — at the
+    letter's own energy *peak*, not its end. A search window sized to the
+    documented "mean" error was not wide enough to recover from that.
 
     So `at` is now only a rough anchor for a much wider, mostly-forward
     search (`search` seconds ahead of it, `guard` seconds behind — biased
     forward because every measured failure was DTW landing too early, never
-    too late) — see `_find_cut`, which this and `_trim_after`'s caller,
-    `synth_word_in_context`, share.
+    too late) — see `_find_cut`, which this function calls.
 
     **This replaced two narrower searches, and both failures are worth
     keeping.** The first scored candidates on a single 5ms window, which is
@@ -880,8 +718,8 @@ def _force_pad(audio, at: float, want: float,
     were reported back as "the letters sound weird," which they were — both
     were cutting the letter off mid-word, just by different amounts. That
     history is also why the quiz format no longer uses this function to pause
-    between a letter and its answer — see `LETTER_ANSWER_GAP` in
-    `quiz.build` — even though the search itself is more reliable now.
+    between a letter and its answer — see the note just after `_find_cut` in
+    this module — even though the search itself is more reliable now.
 
     Returns `(audio, cut_at)` — `cut_at` is where the cut actually landed, in
     the *returned* audio's timeline. The caller should treat this as the
@@ -962,14 +800,17 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     `precomputed` skips synthesis entirely for a sentence that is alone in its
     own run — keyed by that sentence's index, value a raw Kokoro-rate
     `np.ndarray` to use as its audio instead of calling `_synth_raw` on its
-    text. For a sentence built by `synth_word_in_context`: naturally-read
-    audio the caller already produced and trimmed outside this function, that
-    still needs the same post-chain, gap accounting and caption bookkeeping
-    every other sentence gets. Only fires when the sentence is *alone* in its
-    run (a multi-sentence run's `spoken` text is one continuous synthesis
-    call, so there is no single audio array to substitute one sentence's
-    worth of) — everywhere else in this format that is already true of any
-    sentence carrying its own `run_break`-guaranteed gap.
+    text. For audio the caller already produced and shaped outside this
+    function by some other means, that still needs the same post-chain, gap
+    accounting and caption bookkeeping every other sentence gets. Only fires
+    when the sentence is *alone* in its run (a multi-sentence run's `spoken`
+    text is one continuous synthesis call, so there is no single audio array
+    to substitute one sentence's worth of) — everywhere else in this format
+    that is already true of any sentence carrying its own
+    `run_break`-guaranteed gap. **General capability, currently unused by any
+    shipped format** — the quiz format's letter/answer pair was the case this
+    was built for, and it no longer uses it; see the note just after
+    `_find_cut` in this module for why.
     """
     import soundfile as sf
 

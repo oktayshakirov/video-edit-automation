@@ -41,13 +41,13 @@ Three consequences, and they are the whole format:
 | Format | 9:16 only. There is no long form — see below. |
 | Voice | **`otis`** (bare `am_puck`, ENERGETIC chain). |
 | Countdown | 6s (was 8s; brought down once the format had shipped and been watched). |
-| Beat | `quiz.cards.QuizShot`, drawn across eleven shots per question — see below. |
+| Beat | `quiz.cards.QuizShot`, drawn across seven shots per question — see below. |
 | Source | one article, `SOURCE_POST` set like every other project script. |
 
 **Three questions, not five.** A question costs about thirty seconds — two to
-ask, roughly thirteen to read four cards with the pause after every letter and
-between every card, six to wait, five to reveal and explain — so five
-questions would run past two and a half minutes.
+ask, roughly thirteen to read four cards (letter and answer together as one
+line, a pause between cards), six to wait, five to reveal and explain — so
+five questions would run past two and a half minutes.
 
 **The original estimate was 60s; the format has landed at ~96s across three
 more rounds of real pauses.** That is the cost of the pauses being real, and
@@ -81,8 +81,8 @@ landscape version wants a different layout rather than the same one wider.
 ## The three phases
 
 1. **Ask.** The question sets. The four cards arrive one at a time, each as
-   its own line is read — letter, a beat, then the answer (see
-   `LETTER_ANSWER_GAP` below). Nothing is marked.
+   its own line is read — letter and answer together, as one phrase (see
+   `LETTER_WITH_OPTION` below). Nothing is marked.
 2. **Wait.** The narration stops for six seconds. A ring drains around a
    number and one clock tick lands per second, the last a fourth higher. This
    silence *is* the format. A quiz that answers itself immediately is a list.
@@ -99,7 +99,7 @@ a quiz that has just scored the viewer generates comments on its own, and
 saying the ask out loud is the one line in the format that sounds like a
 channel asking for engagement rather than a quiz ending.
 
-## A question is eleven shots, not one
+## A question is seven shots, not one
 
 It used to be one `QuizShot` per phase — the whole point of drawing a phase as
 one object was that its timings could not drift apart. That held for *drawing*
@@ -111,25 +111,25 @@ punctuation-length pause, which on the ENERGETIC chain is close to nothing —
 one option ran straight into the next, and the user's own word for it was
 "instantly following."
 
-The fix is more sentences: the question, each card's letter, each card's
-answer, and each half of the reveal are separate one-chunk sentences in
+The fix is more sentences: the question, each card (letter and answer
+together, one utterance — see `LETTER_WITH_OPTION` below), and each half of
+the reveal are separate one-chunk sentences in
 `quiz.build.render_quiz_short`, each with its own scripted gap —
 
 | gap | value | buys |
 |---|---|---|
-| `QUESTION_GAP` | 0.65s | a breath after the question, before the first letter |
-| `LETTER_ANSWER_GAP` | 0.70s | after a card's letter, before that card's answer |
-| `CARD_GAP` | 0.70s | after an answer, before the next card's letter |
+| `QUESTION_GAP` | 0.65s | a breath after the question, before the first card |
+| `CARD_GAP` | 0.70s | between one card and the next |
 | `ANSWER_LEAD_GAP` | 0.40s | after "The correct answer is B.", before the why |
 | `NEXT_Q_GAP` | 1.00s | after the answer line, before the next question |
 | `TITLE_GAP` / `INTRO_GAP` | 1.00s | after the title card, and after the intro |
 
-— and `plan_shots` requires one `Shot` per sentence, so a question is eleven
-shots: the question, four letters, four answers, and the two halves of the
-reveal. **This does not reopen the "one object, agreeing timings" problem.**
-Every one of the eleven is a `QuizShot` built from the *same* absolute
-`reveals`, `countdown_at` and `mark_at`, computed once per question in
-`render_quiz_short`'s `plan()` closure and copied onto all eleven — a card's
+— and `plan_shots` requires one `Shot` per sentence, so a question is seven
+shots: the question, four cards, and the two halves of the reveal. **This does
+not reopen the "one object, agreeing timings" problem.** Every one of the
+seven is a `QuizShot` built from the *same* absolute `reveals`,
+`countdown_at` and `mark_at`, computed once per question in
+`render_quiz_short`'s `plan()` closure and copied onto all seven — a card's
 draw condition is `t < due` against an absolute clock, so which shot happens
 to be active when `t` crosses `due` is invisible in the output. Every
 internal edge is a hard cut (`shot.xfade = 0.0`): a cut between two frames
@@ -154,15 +154,26 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## The letter/answer pause: four designs tried, one shipped
+## The letter/answer pause: four attempts to split them, all sent back
 
-**Design 1: isolating the letter as its own one-word sentence** — say "A." on
+**The letter is never spoken apart from its answer, and this is the settled
+position, not an open question.** `LETTER_WITH_OPTION` in `quiz.build` reads
+each card's letter and answer as one utterance — "A. It has no effect." — and
+the pause the format needs sits *between* cards (`CARD_GAP`) instead of inside
+one. This was the format's original design. Four different ways of giving the
+letter its own clip and a guaranteed silence after it were tried instead, and
+every one was sent back sounding wrong, for a different reason each time. The
+full history is worth keeping, because every one of the four looked sound on
+paper and each was rejected only after being built and actually heard.
+
+**Attempt 1: isolating the letter as its own one-word sentence** — say "A." on
 its own, so `run_break` could guarantee a real gap after it, the same
 mechanism every other gap in the table above uses. Sent back as sounding
-weird and unnatural, then again — a later cut on the same design — as "very
-weird and glitchy." The pitch track said part of why: inside "A. It has no
-effect." the letter rises, a natural list-item contour leading into the
-answer, where synthesised with nothing around it, it is flat —
+weird and unnatural, then again — a later cut on the same design that only
+tightened the trim without giving the letter any context — as "weird and
+unnatural," "lengthened," "glitchy." The pitch track said part of why: inside
+"A. It has no effect." the letter rises, a natural list-item contour leading
+into the answer, where synthesised with nothing around it, it is flat —
 
 | spoken alone | F0 start → end | duration |
 |---|---|---|
@@ -174,14 +185,17 @@ answer, where synthesised with nothing around it, it is flat —
 
 — but not the whole story: a bare one-word utterance also gets the same
 trailing lengthening Kokoro gives the *end* of a real sentence, which is why
-"A." alone runs 0.45-0.55s, three to four times its natural in-context
-length, mostly hollow decay tail rather than content.
+"A." alone runs noticeably longer than its natural in-context length, mostly
+hollow decay tail rather than content. Trimming that tail harder (checked down
+to `top_db=15`, well past the module's ordinary `TRIM_DB=35`) still left a
+flat, uninflected read — trimming touches length, not the flatness that was
+the actual complaint every time this attempt was made.
 
-**Design 2: keeping the letter in the same sentence as its answer and forcing
-a splice between them after synthesis** (`chunk_pad`/`_force_pad`, still in
-`core/voiceover.py`) — built specifically to keep the natural contour while
-still buying the pause. Sent back too — "weird cut," "letters sound weird" —
-and the cause was real: finding *where* to cut inside continuous,
+**Attempt 2: keeping the letter in the same sentence as its answer and
+forcing a splice between them after synthesis** (`chunk_pad`/`_force_pad`,
+still in `core/voiceover.py`) — built specifically to keep the natural contour
+while still buying the pause. Sent back too — "weird cut," "letters sound
+weird" — and the cause was real: finding *where* to cut inside continuous,
 coarticulated speech that has no actual boundary turned out not to be solvable
 by energy alone. Checked against four real cards, no single heuristic —
 absolute floor, relative-to-peak floor, causal peak tracking, wider search
@@ -190,71 +204,56 @@ card's cut broke another's, and `align_chunks`' own boundary *estimate*, meant
 to anchor the search, was off by anywhere from -0.06s to +0.14s with no
 consistent direction. Some cards really were being cut off mid-word.
 
-**Design 3: synthesise the letter *in* its real answer's context, then throw
-the answer's audio away instead of trying to keep or precisely bound it**
-(`synth_word_in_context` in `core/voiceover.py`, wired in through
-`precomputed`). The insight Design 2 missed: cutting into audio that gets
-*discarded* is safe to get wrong in one direction and dangerous in the other.
-Landing early only shortens the kept letter — the same cost Design 1 already
-accepted, since neither clips the word's own recognisable content. Landing
-late lets a real fragment of the answer survive into the clip, which is the
-actual defect worth avoiding. `_find_word_end` is built on that asymmetry, and
-deliberately biased the *opposite* way from `_force_pad`'s own search: it
-locates the letter's own peak in a short, fixed early window — long enough
-that a lettered option's peak always falls inside it, short enough that the
-far louder answer word after it never gets the chance to steal the reference —
-then cuts at the first point after that peak where energy drops, with no
-minimum-run requirement, because a shallow within-word dip reading as "the
-end" is the safe failure here rather than the dangerous one.
+**Attempt 3: synthesise the letter *in* its real answer's context, then throw
+the answer's audio away instead of trying to keep or precisely bound it.**
+The insight Attempt 2 missed: cutting into audio that gets *discarded* is safe
+to get wrong in one direction and dangerous in the other. Landing early only
+shortens the kept letter. Landing late lets a real fragment of the answer
+survive into the clip, which is the actual defect worth avoiding. The cutter
+built on that asymmetry located the letter's own peak in a short, fixed early
+window, then cut at the first point after that peak where energy dropped, no
+minimum-run requirement. Measured clean on every check available at the
+time — no click at the cut, no bleed into the next word, a fade tuned to
+survive the ENERGETIC chain's compressor — and still came back "the letters
+are not spoken properly and sound like are cut in the middle." The check that
+was missing: how much of the letter Kokoro actually *voices* once it can see
+an answer coming. Traced frame-by-frame at 5-10ms resolution, "C." in "C.
+Loud noise is the only cause" carries real content for only ~60-90ms before
+"Loud" begins — the cutter was finding a real, correct boundary, not a wrong
+one; the true boundary genuinely sits that early. Kokoro rushes the letter
+itself once it has somewhere to go in the sentence, and no cut point
+downstream of that synthesis can recover content the model never voiced.
 
-**A clean cut still is not enough — the fade needs to survive the compressor
-after it.** The first version of `_trim_after` used a 10ms fade, which is fine
-before the ENERGETIC chain and is not what the chain produces: checked on a
-real case, full volume through 0.16s of a 0.19s clip, then a fade that
-measured smoothly at the source became a drop to near-silence in two 20ms
-steps *after* the chain — the compressor reduces dynamic range on everything
-it touches, so a short fade is short enough that compression mostly undoes
-it, and what ships is a hard stop rather than the soft one that was written.
-`_trim_after`'s fade is now 80ms, long enough to survive that — capped at 40%
-of the clip's own length, since a lettered option can trim to under 100ms
-(see `_find_word_end`) and an 80ms fade on a 90ms clip fades nearly the whole
-thing to a whisper.
-
-**Sent back anyway — "the letters are not spoken properly and sound like are
-cut in the middle."** Every check run against Design 3 at the time passed: no
-click at the cut, no bleed into the next word, a fade measured to survive the
-compressor. The check that was missing was how much of the letter Kokoro
-actually *voices* once it can see an answer coming. Traced frame-by-frame at
-5-10ms resolution, "C." in `"C. Loud noise is the only cause"` carries real
-content for only ~60-90ms before "Loud" begins — `_find_word_end` was finding
-a real, correct boundary, not a wrong one; the true boundary genuinely sits
-that early. Kokoro rushes the letter itself once it has somewhere to go in the
-sentence, and no cut point downstream of that synthesis can recover content
-the model never voiced.
-
-**Design 4, which shipped: synthesise the letter completely on its own, and
-trim it far harder than Design 1 did** (`synth_letter_alone` in
-`core/voiceover.py`). Giving the letter nowhere to go is what fixes Design 3's
-real defect — alone, Kokoro gives it the same sentence-final lengthening it
+**Attempt 4: synthesise the letter completely on its own, but trim it far
+harder than Attempt 1 did.** Giving the letter nowhere to go does fix Attempt
+3's defect — alone, Kokoro gives it the same sentence-final lengthening it
 gives the end of any sentence, instead of rushing it toward an answer:
-measured at 310-380ms of real content per letter, against 55-90ms for the same
-letters in-context. `librosa.effects.trim(top_db=15)` — far stricter than
-`_synth_raw`'s usual `TRIM_DB=35` — removes the hollow decay tail that was
-Design 1's actual complaint about *length*, and can only ever remove
-below-threshold material at either edge, never cut into a rise or sustained
-content the way every search-based cut in Designs 2 and 3 risked. The
-remaining trade is Design 1's pitch complaint: alone, the letter's pitch now
-*falls* across its length (measured 133→123 Hz for "A.", 142→119 Hz for "C.")
-rather than rising into a real answer (137→208 Hz in-context). Read as
-ordinary single-word sentence-final intonation rather than a defect — nothing
-here manufactures a rise Kokoro never produced, which is the flatness (127→127
-Hz, no shaping at all) that made Design 1 read as "glitchy" in the first
-place, not the direction of the pitch move itself.
+measured at 310-380ms of real content per letter, against 55-90ms for the
+same letters in-context. A stricter trim (`top_db=15`) removed the hollow
+decay tail that was Attempt 1's complaint about *length*. **Sent back anyway**
+— "very weird and unnatural," "lengthened in a way that doesn't sound
+natural," "very glitchy" — because the actual defect in Attempt 1 was never
+the length. It was the flat, unshaped pitch contour: alone, a letter's pitch
+either stays flat or falls across its length, where the same letter leading
+into a real answer rises. No amount of trimming changes what the model does
+with pitch when it is given nothing to lead into, so a harder trim on an
+isolated letter was always going to be Attempt 1 with a shorter tail, not a
+fix for what was actually wrong with it.
 
-`chunk_pad`/`_force_pad` and `synth_word_in_context`/`_find_word_end` all stay
-in `core/voiceover.py` — the former as general capability for a case where the
-*kept* side of a cut is the one that matters, the latter as a documented dead
-end — this format no longer uses either for the quiz letter.
+**What all four attempts share, and why none of them can be patched into
+working:** every one gives the letter a guaranteed silence *after* it, and
+every one changes how Kokoro reads the letter to buy that silence — because
+the letter's naturalness *consists of* it leading into its own answer as one
+phrase. A break after the letter and a natural letter cannot both exist on
+this synthesiser. There is no fifth variant of "isolate the letter, then fix
+it up afterward" worth trying; the premise is what fails, not the
+implementation. If a guaranteed pause after just the letter is ever wanted
+again, that is a research question with an unproven premise, not an
+engineering task with a known answer — do not attempt it as one.
+
+`chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability for
+a case where the *kept* side of a cut is the one that matters — this format
+does not use them for the letter/answer pause, and should not.
 
 ## A scripted gap under `RUN_BREAK_GAP` is a request, not a guarantee
 

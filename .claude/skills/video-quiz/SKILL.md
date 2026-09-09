@@ -86,17 +86,18 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
-- **A card's letter is its own sentence, then a real 0.70s pause before its
-  answer - and the letter is synthesised completely on its own, then trimmed
-  hard.** `synth_letter_alone` in `core/voiceover.py` gives the letter
-  Kokoro's ordinary sentence-final lengthening instead of a rushed in-context
-  read, then a strict `librosa.effects.trim` removes the resulting decay
-  tail. Three earlier versions - the letter read alone with a light trim, the
-  letter kept in the answer's own sentence with a forced splice, and the
-  letter synthesised *in* its answer's context then cut free of it - were all
-  tried and all sent back as sounding wrong, for different reasons; see
-  `LETTER_ANSWER_GAP` in `quiz.build` for the full account. Do not try to
-  reconstruct any of them.
+- **A card's letter is never separated from its answer - they are synthesised
+  as one utterance, and the pause lives between cards instead.**
+  `LETTER_WITH_OPTION` in `quiz.build` is the settled position, not an open
+  question: four different ways of giving the letter its own clip and a
+  guaranteed silence after it were built, shipped, and sent back sounding
+  wrong, each for a different reason - flat and unnaturally lengthened when
+  read alone (twice, including once with an aggressive trim that only shortened
+  the same flat read), unreliably spliced mid-word, and rushed by Kokoro to as
+  little as 55ms of real content when synthesised in context and cut free
+  of it. See `LETTER_WITH_OPTION` in `quiz.build` for the full account. Do
+  not attempt a fifth way of isolating the letter - the premise fails, not
+  the implementation.
 
 ## What makes a question work
 

@@ -215,14 +215,17 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # indexing `captions` comes back with. For where even
                         # `run_break` is the wrong tool: splitting a chunk into
                         # its own sentence to get a guaranteed gap changes how
-                        # the model reads it (a quiz's lettered option is the
-                        # example — see `quiz.build`), and this buys the pause
-                        # without that cost.
+                        # the model reads it (a quiz's lettered option was the
+                        # case this was built for, and tried repeatedly — see
+                        # `LETTER_WITH_OPTION` in `quiz.build` for why none of
+                        # those attempts held), and this buys the pause without
+                        # that cost.
                         chunk_pad=None,
-                        # Audio a caller already synthesised and trimmed
+                        # Audio a caller already synthesised and shaped
                         # itself — keyed by sentence index, only used where
-                        # that sentence is alone in its own run. See
-                        # `synth_word_in_context` in `core/voiceover.py`.
+                        # that sentence is alone in its own run. General
+                        # capability, currently unused by any shipped format —
+                        # see `build_narration_aligned` in `core/voiceover.py`.
                         precomputed=None,
                         # The bed's loudness target. `music_gain` cannot do
                         # this job — it is applied *before* `loudnorm` in
