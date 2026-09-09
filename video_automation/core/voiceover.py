@@ -667,12 +667,38 @@ def _find_cut(audio, at: float, search: float = 0.40, guard: float = 0.05,
 # shorter version of the first failure — still flat, still not what "A. It
 # has no effect." sounds like when read as one phrase. Every one of these was
 # a genuine attempt to buy a guaranteed silence after the letter without
-# paying for it in naturalness, and every one paid for it anyway. Do not
-# attempt a fifth: the previous four each looked sound on paper and each was
-# rejected on the same axis (the letter itself sounds wrong), by ear, after
-# being built. If a guaranteed pause after just the letter is ever wanted
-# again, treat that as a research question with an unproven premise, not an
-# engineering task with a known answer.
+# paying for it in naturalness, and every one paid for it anyway.
+#
+# **A fifth was tried and caught before shipping, not after: splice a short
+# (~0.18s) silence into the natural combined read, without isolating or
+# discarding anything.** In principle the safest-sounding idea yet — the
+# letter and answer stay exactly as synthesised, nothing about the read
+# changes, a small gap is only inserted at whatever quiet point already exists
+# between them. It fails for a different reason than the first four: that
+# quiet point does not exist at a consistent acoustic distance from the
+# letter. A slow letter ("A.", "D.") leaves 100-200ms of real lull before the
+# answer starts. A fast one ("C.") barely leaves any — Kokoro is already
+# rising into the answer within 60-90ms of the letter's own peak, the same
+# rushing measured for the third attempt above. Three different ways of
+# locating that quiet point (an energy-threshold crossing from the letter's
+# peak, the point of lowest energy in a following window, backing off a fixed
+# margin from the answer's own onset) were each tested against twelve real
+# option lines before anything was wired in or rendered, and each one placed
+# the splice close enough to the answer's onset on the fast-letter cards that
+# the crossfade produced a real waveform discontinuity there — 5-8x the size
+# of the same measurement on a slow-letter card, the concrete shape of an
+# audible click or stutter. Tuning the search further only traded which
+# letters broke; it could not be made to hold on all of them, because the
+# thing being searched for is not reliably there to find.
+#
+# Do not attempt a sixth: five attempts have now failed on three different
+# axes — the letter itself sounding wrong (isolated, twice), the splice point
+# being unfindable in continuous coarticulated speech (mid-sentence, twice,
+# for two different definitions of "mid-sentence"), and Kokoro simply not
+# leaving a consistent enough gap to split on at all, at any pause length. If
+# a guaranteed pause after just the letter is ever wanted again, treat that as
+# a research question with an unproven premise, not an engineering task with
+# a known answer.
 
 
 def _force_pad(audio, at: float, want: float,
