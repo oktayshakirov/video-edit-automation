@@ -86,21 +86,23 @@ and a remembered version is a stale one.
 - **The outro asks the question and stops** - "How many did you get?", no
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
-- **A card is read "B." - a real 0.70s silence - "It has no effect.", and
-  that pause took six attempts to get right.** The card is synthesised as one
-  natural utterance and the silence is *inserted into it*
-  (`synth_letter_then_answer` in `core/voiceover.py`): the answer's onset is
-  located by DTW **on the answer** (a long reference DTW is reliable for -
-  aligning the letter is the degenerate case), the cut backs off past any
-  fricative belonging to the answer, and the answer is re-taken from its own
-  synthesis so it can never start mid-sound. **Nothing is added to what is
-  spoken and nothing is read in isolation** - both were tried and both were
-  rejected by ear: an isolated letter does not read as a quiz option
-  (twice), and a carrier word leaks - `"Because."` put an audible "b" into
-  the shipped cut, because a voiced plosive's closure is not silence. Two
-  measurements were also wrong for several sessions and are corrected in
-  `LETTER_ANSWER_GAP` in `quiz.build`; read that before touching any of this,
-  and do not re-derive it from scratch.
+- **A card shows its letter but never speaks it.** `Question.option_line`
+  returns "B. It has no effect." as the caption and "It has no effect." as
+  what Kokoro is asked to say. This is `LETTER_SPOKEN = False` in
+  `quiz.build`, settled after eight attempts. Seven of them each put a
+  spoken letter into the audio and tried to make it sound right beside its
+  answer - isolated (twice), forced-spliced mid-sentence, synthesised in
+  context then cut free of it, gated to half the cards, given a carrier word
+  whose consonant leaked through, and finally a correctly measured, cleanly
+  bounded silence inserted into the natural read. **That last one was clean
+  on every waveform check and was still sent back** - a letter's own spoken
+  length is 0.15-0.36s, and a sound that short, spoken alone, reads as
+  clipped no matter how cleanly it is cut. The fix is not a better cut; it
+  is not needing one. The reveal still names the letter out loud - "The
+  correct answer is B." - because that is a full sentence with its own
+  contour, never the isolated case that broke every attempt before this one.
+  Read `LETTER_SPOKEN` in `quiz.build` for the full account before touching
+  any of this, and do not re-derive it from scratch.
 
 ## What makes a question work
 

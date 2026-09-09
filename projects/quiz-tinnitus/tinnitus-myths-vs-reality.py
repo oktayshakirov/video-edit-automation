@@ -1,4 +1,4 @@
-"""Three tinnitus myths, tested - ~94s vertical quiz Short.
+"""Three tinnitus myths, tested - ~82s vertical quiz Short.
 
 Source: tinnitus-blog/content/posts/tinnitus-myths-vs-reality.mdx, which is
 already structured as eight myth/reality pairs. That structure is why this
@@ -40,17 +40,18 @@ card.** Both were tried on an earlier cut of this same video and cut on the
 user's call (2026-09-08) — the number as an unnecessary flourish, the second
 card as redundant with the title.
 
-**A card is read "C." — a real 0.70s pause — then the answer.** Six earlier
-cuts of this same video were sent back, each after a different way of trying
-to buy that pause: the letter read alone (twice — a lone letter does not read
-as a quiz option, and no trim or contour fix repairs that); kept in the
-answer's sentence with a forced splice; synthesised in the answer's context
-and trimmed free of it; a short splice that only landed on about half the
-cards; and a throwaway carrier word whose "b" was audible in the cut. What
-ships adds nothing to what is spoken and isolates nothing — the card is
-synthesised as one natural utterance and the silence is inserted into it. See
-`LETTER_ANSWER_GAP` in `quiz.build`, including the two measurements that were
-wrong for several sessions and caused four of those six failures.
+**A card shows its letter but never speaks it.** Seven earlier cuts of this
+same video tried to make a spoken letter sound right next to its answer, and
+all seven were sent back: read alone (twice); kept in the answer's sentence
+with a forced splice; synthesised in the answer's context and trimmed free of
+it; a short splice that only landed on about half the cards; a throwaway
+carrier word whose consonant was audible in the cut; and finally a correctly
+measured, cleanly bounded silence inserted into the natural read — still
+rejected, because a letter's own spoken length (0.15-0.36s) is too short to be
+its own moment no matter how cleanly it is cut. What ships stops trying: the
+letter stays on the card, the voice only ever says the answer, and the reveal
+still names the letter out loud as a real sentence — "The correct answer is
+B." See `LETTER_SPOKEN` in `quiz.build` for the full account of all seven.
 
 Run from the repo root:
 
