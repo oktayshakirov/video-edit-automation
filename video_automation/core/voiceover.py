@@ -770,11 +770,70 @@ def synth_word_in_context(word: str, context: str, voice: VoiceSpec = None,
     own energy has genuinely dropped, favouring a shorter, safely-trimmed
     word over a fuller one that sometimes carries an audible scrap of
     whatever follows it.
+
+    **Superseded by `synth_letter_alone` for the quiz letter, and kept only
+    as a documented dead end** — see that function's docstring for why. Left
+    in place because it is still the right tool for a *word*-length lead-in
+    with real inflection to preserve; it is specifically the quiz's one- or
+    two-character letter that Kokoro rushes to nothing when it can see an
+    answer coming.
     """
     combined = f"{word} {context}"
     audio = _synth_raw(combined, voice, mood)
     cut = _find_word_end(audio)
     return _trim_after(audio, cut)
+
+
+LETTER_TRIM_DB = 15             # far stricter than TRIM_DB — see synth_letter_alone
+
+
+def synth_letter_alone(letter: str, voice: VoiceSpec = None,
+                       mood: str = "melancholic") -> "np.ndarray":
+    """Synthesise a quiz option's letter completely on its own.
+
+    Third attempt at this problem, after two that both came back as "sounds
+    wrong" for opposite reasons — see `LETTER_ANSWER_GAP` in `quiz.build` for
+    the full account of the first two. `synth_word_in_context` above was the
+    second: put the letter in its answer's own sentence so Kokoro gives it a
+    real onset, then cut it free. It measured clean on every check that
+    mattered at the time — no click, no bleed into the next word, a fade that
+    survives the compression chain — and still came back "cut in the middle."
+
+    The measurement that was missing: how much of the letter Kokoro actually
+    voices when it can see the answer coming. Traced frame-by-frame, "C." in
+    `"C. Loud noise is the only cause"` has real content for roughly 60-90ms
+    before "Loud" begins — not a cutter finding the wrong boundary, but the
+    true boundary landing that early. Kokoro rushes the letter itself once it
+    has somewhere to go, and no cut point downstream of that synthesis can
+    recover content that was never voiced.
+
+    So this doesn't give it anywhere to go. `letter` alone gets Kokoro's
+    ordinary sentence-final lengthening instead of a mid-sentence rush —
+    measured at 310-380ms per letter, versus 55-90ms for the same letter
+    in-context. The trade is the pitch contour: alone, the letter's own pitch
+    now *falls* over its length (started higher than it ends) rather than
+    rising the way it did leading into a real answer. That reads as ordinary
+    single-word sentence-final intonation, not as a defect — nothing here
+    manufactures a rise Kokoro didn't produce on its own, which is exactly
+    what made the first, fully-isolated design come back "weird and
+    glitchy": a flat, uninflected 127 Hz -> 127 Hz track with no shaping at
+    all.
+
+    The other defect in the *first* isolated design — 469-576ms including
+    Kokoro's own trailing room-tone padding — is handled with a stricter
+    `librosa.effects.trim(top_db=LETTER_TRIM_DB)` in place of the module's
+    default `TRIM_DB`. `top_db=15` only removes audio below that floor
+    relative to the letter's own peak, at either edge — it can never cut into
+    a rise or a sustained sound the way a fixed-position cutter can, so
+    there's no risk of the earlier designs' truncated-content failure here.
+    """
+    audio, _ = _kokoro().create(letter, voice=voice_style(voice),
+                                speed=KOKORO_MOODS.get(mood, KOKORO_SPEED),
+                                lang="en-us")
+    import librosa
+    trimmed, _ = librosa.effects.trim(audio.astype("float32"),
+                                      top_db=LETTER_TRIM_DB)
+    return trimmed
 
 
 def _force_pad(audio, at: float, want: float,

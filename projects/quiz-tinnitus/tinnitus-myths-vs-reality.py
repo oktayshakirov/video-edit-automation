@@ -40,13 +40,17 @@ card.** Both were tried on an earlier cut of this same video and cut on the
 user's call (2026-09-08) — the number as an unnecessary flourish, the second
 card as redundant with the title.
 
-**A card's letter is synthesised in its answer's context, then trimmed** —
-`synth_word_in_context` in `core/voiceover.py`. Two earlier cuts of this same
-video were sent back: the letter read with nothing around it ("very weird and
-glitchy"), then the letter kept in the answer's own sentence with a forced
-cut between them ("weird cut," "letters sound weird" again, for a different
-reason). See `LETTER_ANSWER_GAP` in `quiz.build` for the full account of
-both failures and why the third design holds.
+**A card's letter is synthesised entirely on its own, then trimmed hard** —
+`synth_letter_alone` in `core/voiceover.py`. Three earlier cuts of this same
+video were sent back: the letter read with nothing around it and trimmed
+lightly ("very weird and glitchy"), the letter kept in the answer's own
+sentence with a forced cut between them ("weird cut," "letters sound weird"
+again, for a different reason), then the letter synthesised *in* its
+answer's context and trimmed free of it ("not spoken properly," "cut in the
+middle" — measured clean on every waveform check available at the time, but
+Kokoro was found to genuinely rush the letter itself to ~60-90ms once it can
+see an answer coming). See `LETTER_ANSWER_GAP` in `quiz.build` for the full
+account of all three failures and why the fourth design holds.
 
 Run from the repo root:
 
