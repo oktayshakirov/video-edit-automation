@@ -87,8 +87,9 @@ INTRO_GAP = 1.00         # after the intro card, before the first question
 TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
 # **A letter is never spoken apart from its answer, and this is measured
-# rather than a preference — four different attempts at separating them were
-# built, shipped, and sent back sounding wrong, each for a different reason.**
+# rather than a preference — five different attempts at separating them were
+# built (four of them shipped) and every one sent back sounding wrong, each
+# for a different reason.**
 #
 # *Attempt 1: the letter as its own one-word sentence, read with no context at
 # all.* Guarantees a gap through `run_break`, same as every other gap here,
@@ -96,13 +97,10 @@ TITLE_GAP = 1.00         # after the series/edition card, before the intro
 # "A." spoken with nothing around it runs flat (127 -> 127 Hz) where the same
 # letter *in context* — as the opening of "A. It has no effect." — opens with
 # a real rise. Reported back as "weird," "unnatural," "very weird and
-# glitchy," and — on a later attempt that only tightened the trim without
-# giving it any context — "weird and unnatural," "lengthened," "glitchy"
-# again. A bare one-word utterance also gets the same trailing lengthening
+# glitchy." A bare one-word utterance also gets the same trailing lengthening
 # Kokoro gives the *end* of a real sentence, so the isolated letter runs
-# noticeably longer than its natural length in context regardless of how hard
-# the trim is tuned — the flatness is the actual defect, not the length, and
-# no trim setting touches flatness.
+# noticeably longer than its natural length in context — the flatness is the
+# actual defect, not the length.
 #
 # *Attempt 2: letter and answer kept as one sentence, split into two chunks,
 # with the engine forcing a splice between them after synthesis
@@ -130,16 +128,40 @@ TITLE_GAP = 1.00         # after the series/edition card, before the intro
 # given somewhere to go; no cut point downstream of that synthesis can
 # recover content that was never voiced.
 #
-# **What all four attempts share: every one gave the letter a guaranteed
-# silence after it, and every one changed how Kokoro reads the letter to get
-# it — because the letter's naturalness *consists of* it leading into its own
+# *Attempt 4: isolate the letter again, exactly as Attempt 1 did, but trim it
+# far harder.* Shipped once, briefly, and sent back with nearly Attempt 1's
+# own words — "weird and unnatural," "lengthened," "glitchy." Trimming only
+# ever touches length; the actual defect was always the flat or falling pitch
+# a letter gets with nothing to lead into, and no trim setting touches pitch.
+#
+# *Attempt 5, tried and caught before shipping this time, not after: keep the
+# combined read exactly as it already sounds, and splice a short (~0.18s)
+# silence into whatever quiet point already exists between letter and
+# answer — nothing isolated, nothing discarded.* The most promising-looking
+# idea yet, and it still fails, for a reason distinct from the first four:
+# that quiet point is not at a consistent acoustic distance from the letter
+# across different cards. A slow letter ("A.", "D.") leaves a real 100-200ms
+# lull before the answer starts. A fast one ("C.") barely leaves any — Kokoro
+# is already rising into the answer within 60-90ms of the letter's own peak,
+# the same rushing Attempt 3 measured. Three different ways of locating that
+# quiet point were tested against all twelve real option lines in this
+# project's own script before anything was wired in or rendered, and every
+# one placed the splice close enough to the answer's onset on the fast-letter
+# cards to produce a real waveform discontinuity there — several times the
+# size of the same measurement on a slow-letter card. Tuning the search
+# further only traded which letters broke.
+#
+# **What all five attempts share: every one gave the letter a guaranteed
+# silence after it, and every one either changed how Kokoro reads the letter
+# to get it, or needed a boundary that is not consistently there to find —
+# because the letter's naturalness *consists of* it leading into its own
 # answer as one phrase. A break after the letter and a natural letter cannot
 # both exist on this synthesiser.** So `LETTER_WITH_OPTION`: the letter
 # travels with its answer as one spoken utterance (`option_line` below), and
 # the pause lives between cards (`CARD_GAP`), where it costs nothing. This was
-# the format's original design, before any of the four attempts above — it
+# the format's original design, before any of the five attempts above — it
 # never had this problem, because it never separates the two things whose
-# separation causes it.
+# separation causes it. Do not attempt a sixth.
 LETTER_WITH_OPTION = True
 
 # `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability
