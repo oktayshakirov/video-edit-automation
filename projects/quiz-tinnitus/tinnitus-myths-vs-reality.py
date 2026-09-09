@@ -40,16 +40,17 @@ card.** Both were tried on an earlier cut of this same video and cut on the
 user's call (2026-09-08) — the number as an unnecessary flourish, the second
 card as redundant with the title.
 
-**A card is read "C." — a real 0.70s pause — then the answer.** Five earlier
+**A card is read "C." — a real 0.70s pause — then the answer.** Six earlier
 cuts of this same video were sent back, each after a different way of trying
-to buy that pause: the letter read alone, flat and lengthened ("very weird and
-glitchy," and again after a harder trim); kept in the answer's sentence with a
-forced splice ("weird cut"); synthesised in the answer's context and trimmed
-free of it ("not spoken properly," "cut in the middle"); and a short splice
-that only landed on about half the cards. What ships synthesises the letter
-and the answer separately and joins them around real silence — see
-`LETTER_ANSWER_GAP` in `quiz.build`, including the measurement that was wrong
-for two sessions and caused three of those five failures.
+to buy that pause: the letter read alone (twice — a lone letter does not read
+as a quiz option, and no trim or contour fix repairs that); kept in the
+answer's sentence with a forced splice; synthesised in the answer's context
+and trimmed free of it; a short splice that only landed on about half the
+cards; and a throwaway carrier word whose "b" was audible in the cut. What
+ships adds nothing to what is spoken and isolates nothing — the card is
+synthesised as one natural utterance and the silence is inserted into it. See
+`LETTER_ANSWER_GAP` in `quiz.build`, including the two measurements that were
+wrong for several sessions and caused four of those six failures.
 
 Run from the repo root:
 

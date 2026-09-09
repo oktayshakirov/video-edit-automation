@@ -87,8 +87,8 @@ INTRO_GAP = 1.00         # after the intro card, before the first question
 TITLE_GAP = 1.00         # after the series/edition card, before the intro
 
 # **A card's letter gets a real 0.70s pause before its answer, and getting
-# there took six attempts — five of which shipped and were sent back.** The
-# engine side of this is `LETTER_CARRIER` and `synth_letter_then_answer` in
+# there took seven attempts — six of which shipped and were sent back.** The
+# engine side of this is `synth_letter_then_answer` in
 # `core/voiceover.py`; this is what each attempt was and why it failed.
 #
 # *Attempt 1: the letter as its own one-word sentence, read with nothing
@@ -132,17 +132,29 @@ TITLE_GAP = 1.00         # after the series/edition card, before the intro
 # inside "C" itself, so every cut built on it sliced the letter in half —
 # which is precisely what "cut in the middle" was.**
 #
-# **Attempt 6, which ships: stop looking for a boundary and make one.** The
-# letter is synthesised with a throwaway carrier word after it, so the model
-# still gives it in-context length and contour — and the carrier starts with
-# a plosive, whose stop closure is a genuine silence to cut in. The letter is
-# then joined to its separately-synthesised answer around a real
-# `LETTER_ANSWER_GAP` of silence. Nothing searches inside continuous speech,
-# because the two halves never shared an utterance. Measured on all twelve
-# cards: the letter runs 0.29-0.31s (its natural in-context length, and
-# uniform across A/B/C/D so none sounds rushed beside another), has decayed
-# to 10-22% of its own peak before the cut, and the gap is exactly 0.70s of
-# true silence on every card rather than on half of them.
+# *Attempt 6: give the letter a throwaway carrier word through synthesis, so
+# it keeps in-context length, and cut in the stop closure of the carrier's
+# opening plosive.* Shipped, and came back "we cut it with a 'b' sound":
+# `"Because."` opens on a **voiced** plosive, whose closure is not silence but
+# a voice bar, with the burst audible right after it. A voiceless carrier
+# avoids the buzz, but the letter still runs at 36-59% of its peak straight
+# into the closure — a vowel before a stop is cut off by that stop rather than
+# decaying — so it still ends abruptly. **Nothing may be added to what is
+# spoken.**
+#
+# **What ships adds nothing and isolates nothing.** The card is synthesised as
+# one natural utterance — exactly the read that was approved before any pause
+# existed, so the letter's pronunciation is not in question — and the silence
+# is inserted into it. The answer's onset is found by DTW on the *answer*, the
+# cut backs off past any fricative belonging to the answer (an /s/ or /f/
+# onset otherwise leaves a stray hiss before the pause), and the answer is
+# re-taken from its own synthesis so it always starts at its own natural
+# beginning. See `synth_letter_then_answer` in `core/voiceover.py`.
+#
+# Measured across all twelve cards of this project's script: letter
+# 0.156-0.357s (its natural in-context length), a full 0.70s of true silence
+# on every card, worst seam discontinuity 0.06 — against 0.68 for the same
+# cards cut without the fricative back-off.
 LETTER_ANSWER_GAP = 0.70   # inside the card's own audio, not a scripted gap
 
 # `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability

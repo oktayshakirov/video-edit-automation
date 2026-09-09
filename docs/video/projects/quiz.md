@@ -154,7 +154,7 @@ finished before the voice starts — on the shot start it swelled over the
 question's first word. That is what `NEXT_Q_GAP` and `INTRO_GAP` are sized to
 hold. See `audio.md`.
 
-## The letter/answer pause: six attempts, and one wrong measurement
+## The letter/answer pause: seven attempts, and two wrong measurements
 
 **A card is read "B." — 0.70s of real silence — "It has no effect."** The
 pause is not a scripted `gap`; it is silence built into that card's own audio,
@@ -219,38 +219,56 @@ the letter is often still at full energy — 98% of its own peak on "C. Loud
 noise", where /iː/ glides into /l/ with no boundary of any kind. No search
 fixes that, because nothing is there to find.
 
-### Attempt 6, which ships: stop looking for a boundary, make one
+**Attempt 6: give the letter a throwaway carrier word through synthesis**
+(`"Because."`), so it keeps its in-context length, and cut in the stop closure
+of the carrier's opening plosive — a plosive needs a silence before its burst,
+so there would be something safe to cut in. Shipped, and came back *"we cut it
+with a 'b' sound."* `/b/` is a **voiced** plosive: its closure is not silence
+at all but a voice bar, and the burst after it was plainly audible. Switching
+to a voiceless carrier removes the buzz but not the real problem — the letter
+still runs at 36-59% of its peak straight into the closure, because a vowel
+before a stop is cut off by that stop rather than decaying, so it still ends
+abruptly. **Nothing may be added to what is spoken.**
 
-The letter is synthesised with a throwaway carrier word after it
-(`LETTER_CARRIER`, currently `"Because."`): the model still sees something
-coming, so the letter keeps its in-context length and contour — but the
-carrier starts with a **plosive**, and a plosive requires a stop closure, a
-genuine silence, before its burst. Cutting there is cutting in silence. The
-carrier is never heard; only its closure is used, and only as a place to cut.
+### The second wrong measurement
 
-Measured across A, B, C and D with `"Because."`:
+Attempts 1 and 4 were both read as "the isolated letter's falling pitch
+contour is the defect." Isolated letters do fall (134 → 124 Hz for `"A."`, and
+every punctuation variant behaves the same — there is no trick spelling that
+escapes it), but two attempts built on fixing the contour and both came back
+in the same words as the attempt before. The per-run `loudnorm` was also
+suspected of over-boosting a lone 0.4s letter, and measured innocent: about
+1 dB. The honest conclusion is that a lone letter does not read as a quiz
+option for reasons no single number here captures — so **do not isolate the
+letter**, rather than keep trying to repair an isolated one.
 
-| | |
-|---|---|
-| letter length | 0.292 / 0.312 / 0.308 / 0.312s — its natural in-context length, and uniform, so no letter sounds rushed beside another |
-| energy at the cut | 10-22% of the letter's own peak — it *ended*; nothing is chopped |
-| the closure itself | ~3% of peak, sustained — an enormous threshold margin, unlike every earlier boundary search |
-| contour | level-to-rising, not the isolated read's fall |
+### Attempt 7, which ships: add nothing, isolate nothing
 
-`"Because."` was chosen over other plosive-initial candidates (`"Two."`,
-`"Ten."`, `"Top."`, `"Table."`, `"Definitely."`, `"Pick one."`, `"Take
-note."`) for producing the most consistent letter across all four.
+The card is synthesised as **one natural utterance** — exactly the read that
+was approved before any pause existed, so the letter's pronunciation is not in
+question — and the silence is *inserted into it*
+(`synth_letter_then_answer`):
 
-The answer is then synthesised on its own — it is a complete sentence and
-reads with ordinary sentence prosody — and the two are joined around
-`LETTER_ANSWER_GAP` of digital silence. **Nothing in the shipped path searches
-for a boundary inside continuous speech**, which is the whole point: the two
-halves never shared an utterance, so there is no boundary to find. Every card
-gets the full 0.70s, not half of them.
+1. `_answer_onset` finds where the answer begins, by DTW **on the answer**.
+2. `_letter_end` walks back from there past any fricative that belongs to the
+   answer. An /s/ or /f/ onset ("Sound therapy", "For many") sits under an
+   otherwise sound DTW estimate, and cutting inside one leaves a stray hiss
+   before the pause; high-frequency dominance identifies it, and the walk is
+   capped so it can never eat into the letter.
+3. Everything before that point — the letter, with the length and contour the
+   model gave it *in context* — is kept, faded out over 25ms.
+4. The answer is re-taken from its **own** synthesis rather than from the
+   combined read, so it always begins at its own natural onset and can never
+   start mid-sound after the silence.
+
+Measured across all twelve cards of the tinnitus script: letter 0.156-0.357s
+(its natural in-context length), a full **0.70s of true digital silence on
+every card**, and a worst-case seam discontinuity of 0.06 — against 0.68 for
+the same cards cut without the fricative back-off.
 
 The card is still **one sentence and one `Shot`** — the pause lives inside its
 audio rather than between two sentences, so neither the caption nor the shot
-list splits.
+list splits, and the whole card gets a single pass of the post chain.
 
 `chunk_pad`/`_force_pad` stay in `core/voiceover.py` as general capability for
 a case where the *kept* side of a cut is the one that matters — this format

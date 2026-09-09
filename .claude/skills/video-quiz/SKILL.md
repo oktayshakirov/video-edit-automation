@@ -87,22 +87,20 @@ and a remembered version is a stale one.
   "tell me in the comments." A quiz that has just scored the viewer generates
   comments on its own.
 - **A card is read "B." - a real 0.70s silence - "It has no effect.", and
-  that pause took six attempts.** The letter and the answer are synthesised
-  separately and joined around real silence (`synth_letter_then_answer` in
-  `core/voiceover.py`), so nothing ever has to find a boundary inside
-  continuous speech. The letter gets a throwaway carrier word through
-  synthesis so the model still gives it in-context length and contour, and the
-  carrier starts with a plosive whose stop closure is a genuine silence to cut
-  in. Five earlier attempts shipped and were sent back: isolated letter
-  (twice - it reads with a falling contour, and no trim reaches that), forced
-  splice mid-sentence, in-context-then-discarded, and a gated short splice
-  that only reached half the cards. **Three of those rested on a measurement
-  that was simply wrong** - "Kokoro rushes the letter to 55-90ms" came from an
-  energy search firing on the /s/ to /iː/ transition inside "C" itself; the
-  letter actually occupies 180-360ms. See `LETTER_ANSWER_GAP` in `quiz.build`
-  for the full account. Do not re-derive any of this from scratch, and do not
-  change `LETTER_CARRIER` without re-measuring letter length, cut energy and
-  contour across all four letters.
+  that pause took six attempts to get right.** The card is synthesised as one
+  natural utterance and the silence is *inserted into it*
+  (`synth_letter_then_answer` in `core/voiceover.py`): the answer's onset is
+  located by DTW **on the answer** (a long reference DTW is reliable for -
+  aligning the letter is the degenerate case), the cut backs off past any
+  fricative belonging to the answer, and the answer is re-taken from its own
+  synthesis so it can never start mid-sound. **Nothing is added to what is
+  spoken and nothing is read in isolation** - both were tried and both were
+  rejected by ear: an isolated letter does not read as a quiz option
+  (twice), and a carrier word leaks - `"Because."` put an audible "b" into
+  the shipped cut, because a voiced plosive's closure is not silence. Two
+  measurements were also wrong for several sessions and are corrected in
+  `LETTER_ANSWER_GAP` in `quiz.build`; read that before touching any of this,
+  and do not re-derive it from scratch.
 
 ## What makes a question work
 
