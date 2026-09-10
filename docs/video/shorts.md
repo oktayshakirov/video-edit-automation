@@ -492,20 +492,22 @@ rather than assumed:
   content needs and the *gaps* stretch to fill the height, because at the
   landscape gap a three-node chain ended a third of the way up the frame with
   nothing under it, and a drawn beat burns no caption there to fill it.
-  `loop=True` works in portrait and returns up the left margin.
+  `loop=True` works in portrait: the boxes inset from the left and the return
+  arrow runs down that channel, filleted corners and all. The connectors draw
+  against the voice (`span_p`), same as landscape.
 - **`gauge` works but is landscape-first.** A horizontal scale in a vertical
   frame is the wrong way round by nature and leaves the lower third empty; it
   is legible and on-brand, and the track thickens to 46px because 34 across
   1080 reads as a hairline. Use it in a short when the *limit* is the whole
   point of the section, not as a general-purpose figure - `stat` is still the
   better vertical beat for a number that stands alone.
-- **`callout` is allowed but rarely right in 9:16.** The site's images are
-  landscape and 700-1200px, so a fitted panel inside a portrait frame is a
-  band across the middle with a lot of nothing above and below it, and the
-  labels have no width to sit in. In portrait the answer to "explain this
-  picture" is still `ImageOverlay` over moving footage - see that section.
-  Reach for `callout` in the long form and let the short use the same
-  photograph differently, exactly as the pair already shares its opening face.
+- **`callout` is landscape only in practice.** In 9:16 there is no width for
+  side gutters, so the labels fall back to a column below the image and the
+  beat loses the clean side rails that are the whole point of the rebuild.
+  It renders, but the answer to "explain this picture" in a short is still
+  `ImageOverlay` over moving footage - see that section. Reach for `callout`
+  in the long form and let the short use the same photograph differently,
+  exactly as the pair already shares its opening face.
 
 The rule the vertical format already had applies unchanged: **two drawn beats
 in one short must not share a silhouette.** With twelve shapes now there is no

@@ -50,6 +50,46 @@ POP = 0.14                      # an item's entrance
 RISE = 14                       # px an item travels on its way in
 
 
+def _smooth(p: float) -> float:
+    """Smoothstep — eased at both ends, so a long slow draw neither jumps off
+    the mark nor stalls into the target. `ease_out` is right for a fast pop
+    and wrong for a line travelling for a second and a half against the
+    voice."""
+    p = min(1.0, max(0.0, p))
+    return p * p * (3.0 - 2.0 * p)
+
+
+def _unit(a: tuple, b: tuple) -> tuple:
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    L = math.hypot(dx, dy) or 1.0
+    return dx / L, dy / L
+
+
+def _round_corners(pts: list, r: float, seg: int = 7) -> list:
+    """Fillet every interior vertex of a polyline with a quadratic curve of
+    radius ~`r`, so `partial` draws rounded bends instead of hard mitres — a
+    feedback arrow with square corners reads as a stray underline, not a
+    loop."""
+    if len(pts) < 3:
+        return [tuple(p) for p in pts]
+    out = [tuple(pts[0])]
+    for i in range(1, len(pts) - 1):
+        a, b, c = pts[i - 1], pts[i], pts[i + 1]
+        u1, u2 = _unit(b, a), _unit(b, c)
+        d = min(r, math.dist(a, b) * 0.5, math.dist(b, c) * 0.5)
+        p1 = (b[0] + u1[0] * d, b[1] + u1[1] * d)
+        p2 = (b[0] + u2[0] * d, b[1] + u2[1] * d)
+        out.append(p1)
+        for s in range(1, seg):
+            tt = s / seg
+            out.append((
+                (1 - tt) ** 2 * p1[0] + 2 * (1 - tt) * tt * b[0] + tt ** 2 * p2[0],
+                (1 - tt) ** 2 * p1[1] + 2 * (1 - tt) * tt * b[1] + tt ** 2 * p2[1]))
+        out.append(p2)
+    out.append(tuple(pts[-1]))
+    return out
+
+
 def _font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
 
@@ -166,6 +206,30 @@ class Beat:
             return -1.0
         t = self.at(f)
         return ease_out((t - self.marks[i]) / DRAW) if t >= self.marks[i] else -1.0
+
+    def span_p(self, i: int, f: float, *, lead: float = 0.12,
+               cap: float = 2.0, tail: float = 0.06) -> float:
+        """Progress 0..1 of an element that draws *across* the phrase that
+        reveals item `i`.
+
+        It starts `lead` seconds after item `i`'s caption begins and travels
+        the whole way to item `i+1`'s caption (or the shot's end), capped at
+        `cap` so a long scripted pause does not leave it crawling. This is the
+        clock for a line or an arrow that has to track the voice — a fixed
+        fast pop reads as movement detached from what is being said, which was
+        the note on the first diagram cut. Smoothstepped, so a draw lasting a
+        second and a half neither jumps nor stalls.
+        """
+        rv = self.reveals or []
+        src = rv[i] if i < len(rv) else self.start
+        nxt = rv[i + 1] if i + 1 < len(rv) else self.start + self.hold
+        span = nxt - src
+        if span <= 0.08:                    # reveals collapsed to one time
+            dur, t0 = 0.44, src
+        else:
+            dur = min(cap, max(0.5, span - lead - tail))
+            t0 = src + lead
+        return _smooth((self.at(f) - t0) / dur) if self.at(f) >= t0 else 0.0
 
     # --- painting -------------------------------------------------------
 
@@ -1374,7 +1438,6 @@ class Gauge(Beat):
 
     EMBLEM = False
     TRACK_H = 34
-    GROW = 0.75                 # how long the marker takes to travel
 
     def __init__(self, value: str, frac: float, label: str = "",
                  threshold: float | None = None, threshold_label: str = "",
@@ -1407,9 +1470,11 @@ class Gauge(Beat):
         e0 = self.due(0, 2, f)
         if e0 < 0:
             return
-        draw_e = ease_out(min(1.0, (self.at(f) - (self.reveals[0]
-                                                  if self.reveals else
-                                                  self.start)) / 0.55))
+        # Drawn across the limit sentence, not in a fixed 0.55s — the same
+        # voice-synced clock the diagram's connectors use, so the track is
+        # still extending while "eight hours a day is safe at eighty
+        # decibels" is being said.
+        draw_e = self.span_p(0, f, lead=0.05, cap=1.6)
         # The empty track, drawn across as the beat opens — the same device
         # `steps` and `compare` use, so the shape of the claim is established
         # before any value is in it.
@@ -1439,8 +1504,10 @@ class Gauge(Beat):
         e1 = self.due(1, 2, f)
         if e1 < 0:
             return
-        g = ease_out(min(1.0, (self.at(f) - self.reveals[1]) / self.GROW)
-                     if self.reveals and len(self.reveals) > 1 else 1.0)
+        # The marker travels across the value sentence — "a hairdryer is
+        # ninety-five" — so the figure arrives at its mark as the sentence
+        # names it, not a fixed beat later.
+        g = self.span_p(1, f, lead=0.05, cap=1.5)
         vx = x0 + w * max(0.0, min(1.0, self.frac)) * g
         # **The fill changes colour where it crosses the line.** The first
         # version drew one primary-coloured fill straight over the shaded
@@ -1495,94 +1562,131 @@ class Gauge(Beat):
 
 
 class Callout(Beat):
-    """Labels and pointers drawn onto a photograph, one per line spoken.
+    """A photograph in the middle, its labels stacked in the side margins.
 
     **This is the beat that changes the shots the other beats never touch.**
-    Measured across the nineteen long-form scripts on these two channels,
-    drawn beats are four to nine shots out of thirty to forty-five — the other
-    three quarters of every video is a stock clip or a Ken Burns still with
-    nothing on it but a slow push. No amount of new beat *shapes* moves that
-    number, because a beat replaces a photograph rather than doing anything
-    with one. This one puts the explanation **on** the picture, so a shot that
-    was connective texture becomes a shot that carries an argument.
+    Drawn beats are four to nine shots out of thirty-odd; the rest of every
+    video is a stock clip or a Ken Burns still with nothing on it. A beat
+    *replaces* a photograph, so no new beat shape moves that number. This one
+    explains one instead — a shot that was connective texture starts carrying
+    an argument.
 
-    It is also the vocabulary `longform.md` names as the reference channel's
-    entire on-screen language — "nothing on screen but labels and arrows" —
-    which this repo had quoted approvingly for a year and never built.
+    **The labels live in a gutter each side, never over the image.** The first
+    version drew the text on top of the photo with a short leader, and the
+    user's note was that the anchor points looked random and the words
+    fought the picture. Type over a photograph is the legibility problem every
+    other beat avoids by not having one. So the photo is narrowed to a centre
+    column, the labels sit in clean vertical rails left and right of it, and a
+    leader runs from each anchor dot out to its rail. The dots still have to
+    be placed on the real thing named — that is the author's job and no
+    layout saves a badly placed dot — but the words are now orderly whatever
+    the dots do.
 
-    Each item is a point on the picture and a short label beside it. A leader
-    line draws from the point out to the label, and the dot pulses once as it
-    lands, so the eye is taken to the place before it is given the word.
+    Each label goes to the side its dot is nearer. Within a side the labels
+    are distributed evenly down the image height, in dot order, so two on the
+    same side never collide however close their dots are.
 
-    **Coordinates are fractions of the picture, not of the frame** (0..1, from
-    its top-left). That is the only workable choice: the picture is fitted, so
-    where it sits in the frame depends on its own aspect ratio, and a fraction
-    of the frame would move the label off the subject the moment the source
-    changed. Read them off the source file.
+    **The leader draws across the phrase, not in a pop** (`span_p`): the dot
+    lands and pulses as its caption begins, the leader travels out to the rail
+    while the phrase is spoken, the label settles as it arrives. Synced to the
+    voice, the same clock the diagram's arrows now use.
 
-    **The picture is fitted, never covered.** `PhotoShot` scales to cover and
-    crops, which is right for a full-frame photograph and wrong here for two
-    reasons: a crop moves the subject out from under coordinates that were
-    measured on the source, and covering 1920 from the ~900px median source on
-    these sites is the upscale the split layout exists to avoid. Fitted inside
-    a margin, the median source is at or below 1:1 and the callouts land where
-    they were placed. The picture carries the brand hairline, as every fitted
-    photograph in this format does.
+    **Coordinates are fractions of the photo** (0..1 from its top-left), not
+    of the frame — the photo is fitted, so where it sits depends on its aspect
+    ratio. Read them off the source file.
 
-    The photograph is dimmed under the labels — `DIM`, 0.68. Type over an
-    undimmed photograph is the legibility problem every other beat avoids by
-    not having one, and a leader line disappears into a busy image entirely.
+    Landscape only in practice. In portrait there is no width for gutters and
+    the answer is `ImageOverlay` over moving footage — see `shorts.md`. It
+    still renders in 9:16 (labels above and below), but reach for it in the
+    long form.
 
-    payload: (picture, items, title)
-      photo     Path to the image. Named `photo` rather than `picture`
-                because `make_beat` already passes `picture=` to every beat
-                for the split layout's right-hand column, and the two would
-                collide — see `__init__`.
-      items     [(label, x, y), ...] — x, y are fractions of the picture
-      title     the beat's kicker
+    payload: (photo, items, title)
+      photo   Path to the image. Named `photo` not `picture` because
+              `make_beat` passes `picture=` to every beat for the split
+              layout and the two would collide — see `__init__`.
+      items   [(label, x, y), ...] — x, y are fractions of the photo
+      title   the beat's kicker
     """
 
     EMBLEM = False
-    DIM = 0.68
-    DOT = 13
+    DIM = 0.58
+    DOT = 12
+    GUTTER = 360               # label rail width each side, at 1920
+    RAIL = 34                 # px the vertical leader rail sits off the image
 
     def __init__(self, photo: Path, items: list[tuple[str, float, float]],
                  title: str = "", **kw):
         # **The argument is `photo`, not `picture`, and it has to be.**
-        # `make_beat` passes `picture=` to every beat as a keyword — it is the
-        # split layout's right-hand column — so a first positional of that name
-        # collides with it and every callout raises "multiple values for
-        # argument 'picture'". Found by building one.
+        # `make_beat` passes `picture=` to every beat as a keyword — the split
+        # layout's right-hand column — so a first positional of that name
+        # collides with it and every callout raises. Found by building one.
         kw.pop("picture", None)
         super().__init__(**kw)
         self.items, self.title = items, title
         src = Path(photo)
         if not src.exists():
-            raise FileNotFoundError(f"callout picture not found: {src}")
+            raise FileNotFoundError(f"callout photo not found: {src}")
         fr = self.frame
-        # The panel: the frame less a margin, and a band off the top so the
-        # kicker and the watermark are never drawn over.
-        # **Reserve the heading band only when there is a heading.** The
-        # first version always took `head_y + 96` off the top and a full
-        # margin off the bottom, which on a 3:2 source left the picture
-        # height-limited at ~1120px inside a 1920 frame with dead bands down
-        # both sides. The picture is the subject of this beat; every pixel
-        # spent not showing it is spent badly.
         self.top_band = (self.head_y + 74) if title else fr.logo_at[1] + 60
-        pw = fr.w - 2 * self.margin
-        ph = fr.h - self.top_band - 56
+        bottom = fr.h - 56
         im = Image.open(src).convert("RGB")
         if im.width * im.height == 0:
-            raise ValueError(f"callout picture is empty: {src}")
-        # Fitted, and never enlarged past the frame's own ceiling — the
-        # coordinates were measured on the source and a cover-crop would move
-        # the subject out from under them.
-        k = min(pw / im.width, ph / im.height, fr.max_upscale)
+            raise ValueError(f"callout photo is empty: {src}")
+
+        if self.portrait:
+            # No width for gutters — the photo takes the upper half and the
+            # labels stack below it. Documented as the weak orientation.
+            box_w = fr.w - 2 * self.margin
+            box_h = int((bottom - self.top_band) * 0.52)
+            self._below = True
+        else:
+            g = int(self.GUTTER * fr.w / 1920)
+            box_w = fr.w - 2 * (self.margin + g)
+            box_h = bottom - self.top_band
+            self._below = False
+        # Fitted, never covered: a crop moves the subject out from under
+        # coordinates measured on the source, and covering 1920 from a ~900px
+        # median source is the upscale the split layout exists to dodge.
+        k = min(box_w / im.width, box_h / im.height, fr.max_upscale)
         self.pw, self.ph = int(im.width * k), int(im.height * k)
         panel = im.resize((self.pw, self.ph), Image.LANCZOS)
         self.panel = (np.asarray(panel) * self.DIM).astype(np.uint8)
         self.px = (fr.w - self.pw) // 2
-        self.py = self.top_band + (ph - self.ph) // 2
+        self.py = self.top_band + (
+            0 if self._below else (box_h - self.ph) // 2)
+
+        # Assign each item a side and a slot, once, in __init__ — the layout
+        # must not shift as items reveal.
+        idx = list(range(len(items)))
+        if self._below:
+            self._sides = {i: ("below", k) for k, i in enumerate(idx)}
+        else:
+            left = [i for i in idx
+                    if items[i][1] < 0.5]
+            right = [i for i in idx if i not in left]
+            self._sides = {}
+            for k, i in enumerate(sorted(left, key=lambda j: items[j][2])):
+                self._sides[i] = ("left", k)
+            for k, i in enumerate(sorted(right, key=lambda j: items[j][2])):
+                self._sides[i] = ("right", k)
+            self._counts = {"left": len(left), "right": len(right)}
+
+    def _label_anchor(self, i: int, d: ImageDraw.ImageDraw,
+                      font) -> tuple[str, float, float]:
+        """(side, elbow_x, label_cy) for item `i` — where its leader ends."""
+        side, slot = self._sides[i]
+        if side == "below":
+            n = len(self.items)
+            slot_w = (self.frame.w - 2 * self.margin) / n
+            cx = self.margin + slot_w * (slot + 0.5)
+            return side, cx, self.py + self.ph + 90
+        rail_x = (self.px - self.RAIL if side == "left"
+                  else self.px + self.pw + self.RAIL)
+        c = self._counts[side]
+        top = self.py + 46
+        span = self.ph - 92
+        cy = top + (span * (slot + 0.5) / c if c else span / 2)
+        return side, rail_x, cy
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
@@ -1592,38 +1696,62 @@ class Callout(Beat):
                     outline=self.brand.primary, width=3)
 
         n = len(self.items)
-        font = _font(46 if not self.portrait else 50)
+        font = _font(40 if not self.portrait else 44)
         for i, (label, fx, fy) in enumerate(self.items):
             e = self.due(i, n, f)
             if e < 0:
                 continue
-            a = int(255 * min(1.0, e))
+            lead = self.span_p(i, f, lead=0.10, cap=1.4)
             x = self.px + self.pw * max(0.0, min(1.0, float(fx)))
             y = self.py + self.ph * max(0.0, min(1.0, float(fy)))
+            side, ex, cy = self._label_anchor(i, d, font)
 
-            # The label goes to whichever side of the point has more room, so
-            # a callout near the right edge does not run off the panel.
-            right = x < self.px + self.pw * 0.55
-            avail = ((self.px + self.pw) - x if right else x - self.px) - 120
-            lines = wrap(d, label, font, max(220, avail))
-            lw = max(d.textlength(ln, font=font) for ln in lines)
-            leader = 96
-            lx = x + leader + 18 if right else x - leader - 18 - lw
-            ly = y - (len(lines) * 56) // 2
+            # Leader: horizontal out of the dot to the rail, then along the
+            # rail to the label's height — an L, never a diagonal. Every
+            # label's vertical segment lands on the same rail x, so together
+            # they read as one bus bar rather than a fan of slants. Drawn
+            # against the voice via `lead`.
+            if side == "below":
+                pts = [(x, y), (x, y + 40), (ex, y + 40), (ex, cy - 24)]
+            else:
+                pts = _round_corners([(x, y), (ex, y), (ex, cy)], 14)
+            partial(d, pts, lead, self.brand.primary, 3)
 
-            # The leader draws out from the dot rather than appearing, which
-            # is what takes the eye to the place before it is given the word.
-            partial(d, [(x, y), (x + (leader if right else -leader), y)],
-                    min(1.0, e * 1.6), self.brand.primary, 3)
+            # The dot, and a single expanding pulse ring as it lands.
+            pr = min(1.0, max(0.0, (self.at(f) - self.reveals[i]) / 0.5)
+                     if self.reveals and i < len(self.reveals) else 1.0)
+            if 0.0 < pr < 1.0:
+                rr = self.DOT + int(20 * pr)
+                d.ellipse([x - rr, y - rr, x + rr, y + rr],
+                          outline=self.brand.primary + (int(200 * (1 - pr)),),
+                          width=3)
             d.ellipse([x - self.DOT, y - self.DOT, x + self.DOT, y + self.DOT],
                       outline=self.brand.primary, width=4)
             d.ellipse([x - 4, y - 4, x + 4, y + 4], fill=self.brand.primary)
 
-            ty = ly + int(round(RISE * (1.0 - min(1.0, e))))
+            # The label settles as the leader reaches it.
+            if lead < 0.55:
+                continue
+            a = int(255 * min(1.0, (lead - 0.55) / 0.45))
+            rise = int(round(RISE * (1.0 - a / 255)))
+            if side == "below":
+                lines = wrap(d, label, font, 360)
+                ty = cy - 24 + rise
+                for ln in lines:
+                    tb = d.textbbox((0, 0), ln, font=font)
+                    shadow_text(d, (ex - (tb[2] - tb[0]) / 2, ty), ln, font,
+                                self.brand.ink + (a,), alpha=a)
+                    ty += 52
+                continue
+            g = int(self.GUTTER * self.frame.w / 1920)
+            lines = wrap(d, label, font, g - 40)
+            ty = cy - (len(lines) * 52) // 2 + rise
             for ln in lines:
+                tw = d.textlength(ln, font=font)
+                lx = (ex - 16 - tw if side == "left" else ex + 16)
                 shadow_text(d, (lx, ty), ln, font, self.brand.ink + (a,),
                             alpha=a)
-                ty += 56
+                ty += 52
 
 
 class Diagram(Beat):
@@ -1652,10 +1780,19 @@ class Diagram(Beat):
     you notice the quiet) and the one a list makes actively harder to follow,
     because a list has an end and the thing being described does not.
 
-    One reveal per node. The connector into node `i` draws first and the node
-    lands on it, so the arrow is already travelling while the sentence names
-    where it is going. Write **one caption chunk per node**, like every other
-    beat here.
+    One reveal per node. Write **one caption chunk per node**, like every
+    other beat here.
+
+    **The connectors are drawn against the voice, not popped in.** The first
+    version drew every arrow in a fixed 0.28s the instant its node's caption
+    began, so the whole diagram was a burst of movement at the top of each
+    phrase and then dead air. Now the connector between node `k` and node
+    `k+1` draws *slowly, across the phrase that bridges them* — it starts a
+    breath after box `k` lands and travels the whole gap until box `k+1`
+    appears on its far end. The line grows while the narrator speaks the
+    causal link; the box lands as the line reaches it. That is the synced
+    animation the user asked for, and it is the whole reason the beat is worth
+    more than a bulleted list.
 
     Three or four nodes. Five sets the labels too narrow to wrap decently
     across 1920, and a five-link causal chain is usually two mechanisms that
@@ -1665,6 +1802,14 @@ class Diagram(Beat):
     its own track: four boxes across 1080 is a 270px slot, which cannot hold a
     wrapped label at phone-readable size.
 
+    **The feedback arrow (`loop=True`) is its own gesture.** It stands well
+    clear of the boxes — a wide return channel, not a line hugging the row —
+    is drawn heavier than the forward connectors, and takes its time: it draws
+    across the closing sentence that describes the mechanism turning back on
+    itself, not in a snap after the last box. The first version ran a thin
+    line ~90px under the row with square corners and it read as a stray
+    underline rather than as "and round it goes again".
+
     payload: (nodes, title, loop)
       nodes  [(label, note | None, emoji | None) | (label, note) | label, ...]
       title  the beat's kicker
@@ -1672,7 +1817,10 @@ class Diagram(Beat):
     """
 
     EMBLEM = False
-    ARROW = 0.28                # how long a connector takes to draw
+    FLOW_W = 5                  # forward connector stroke
+    LOOP_W = 7                  # the feedback arrow, drawn heavier
+    LOOP_DROP = 150             # px the return channel stands off the row
+    LOOP_CAP = 2.4             # the feedback arrow never crawls longer
 
     def __init__(self, nodes: list, title: str = "", loop: bool = False, **kw):
         super().__init__(**kw)
@@ -1687,17 +1835,20 @@ class Diagram(Beat):
         self.nodes, self.title, self.loop = norm, title, loop
 
     def _arrow(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple,
-               p: float) -> None:
+               p: float, w: int | None = None,
+               colour: tuple | None = None) -> None:
         """A connector that draws from `a` to `b`, head last."""
         if p <= 0:
             return
-        partial(d, [a, b], p, self.brand.primary, 4)
+        col = colour or self.brand.primary
+        partial(d, [a, b], p, col, w or self.FLOW_W)
         # The head only lands once the shaft has arrived, so the arrow reads
         # as travelling rather than as a shape fading up.
         if p >= 0.999:
-            self._head(d, a, b)
+            self._head(d, a, b, col)
 
-    def _head(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple) -> None:
+    def _head(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple,
+              colour: tuple | None = None) -> None:
         """Just the arrowhead at `b`, pointing away from `a`.
 
         **Separate from `_arrow` because the loop needs a head with no shaft
@@ -1707,15 +1858,16 @@ class Diagram(Beat):
         as a stray tail hanging below the arrowhead. Visible on the first
         frame, invisible in the code.
         """
+        col = colour or self.brand.primary
         vx, vy = b[0] - a[0], b[1] - a[1]
         L = math.hypot(vx, vy) or 1.0
         ux, uy = vx / L, vy / L
-        s = 20
-        d.polygon([b, (b[0] - ux * s - uy * s * 0.6,
-                       b[1] - uy * s + ux * s * 0.6),
-                   (b[0] - ux * s + uy * s * 0.6,
-                    b[1] - uy * s - ux * s * 0.6)],
-                  fill=self.brand.primary)
+        s = 23
+        d.polygon([b, (b[0] - ux * s - uy * s * 0.62,
+                       b[1] - uy * s + ux * s * 0.62),
+                   (b[0] - ux * s + uy * s * 0.62,
+                    b[1] - uy * s - ux * s * 0.62)],
+                  fill=col)
 
     LINE, NOTE_LINE, PAD, ICON = 50, 40, 30, 74
 
@@ -1785,8 +1937,14 @@ class Diagram(Beat):
         label_font = _font(42 if not self.portrait else 46)
         note_font = _font(32 if not self.portrait else 36)
 
+        # A loop needs a clear return channel. In portrait it runs down the
+        # left, so the boxes give it room by insetting from that edge rather
+        # than the line hugging them — the "too close to the boxes" note.
+        loop_inset = 108 if (self.loop and self.portrait) else 0
+
         if self.portrait:
-            bw = fr.w - 2 * self.margin
+            bw = fr.w - 2 * self.margin - loop_inset
+            bx0 = self.margin + loop_inset
             laid, bh = self._measure(d, bw, label_font, note_font)
             # **The gap is what fills a 9:16 frame, not the boxes.** At a
             # fixed 108 a three-node chain ended around 1300 of 1920 and left
@@ -1795,63 +1953,75 @@ class Diagram(Beat):
             # Boxes stay the size their content needs; the space between them
             # takes up the slack, within limits, so two chains of different
             # lengths still look like the same graphic.
-            room = fr.h - top0 - 120 - (150 if self.loop else 0)
-            gap = int(max(96, min(210, (room - n * bh) / max(1, n - 1))))
+            room = fr.h - top0 - 120 - (self.LOOP_DROP if self.loop else 0)
+            gap = int(max(104, min(220, (room - n * bh) / max(1, n - 1))))
             block = n * bh + (n - 1) * gap
-            top = max(top0, (fr.h - block - (150 if self.loop else 0)) // 2)
-            boxes = [(self.margin, top + i * (bh + gap),
-                      self.margin + bw, top + i * (bh + gap) + bh)
+            top = max(top0, (fr.h - block) // 2)
+            boxes = [(bx0, top + i * (bh + gap),
+                      bx0 + bw, top + i * (bh + gap) + bh)
                      for i in range(n)]
-            ends = [((self.margin + bw // 2, b[3]),
-                     (self.margin + bw // 2, b[3] + gap)) for b in boxes[:-1]]
+            ends = [((bx0 + bw // 2, b[3]),
+                     (bx0 + bw // 2, b[3] + gap)) for b in boxes[:-1]]
         else:
             usable = fr.w - 2 * self.margin
-            gap = 86
+            gap = 96
             bw = int((usable - (n - 1) * gap) / n)
             laid, bh = self._measure(d, bw, label_font, note_font)
-            top = max(top0 + 20, (fr.h - bh) // 2 - (40 if self.loop else 0))
+            if self.loop:
+                # Centre the whole gesture — row plus return channel — in the
+                # band under the title, not just the row.
+                lo, hi = top0 + 20, fr.h - 56
+                group = bh + self.LOOP_DROP + 30
+                top = lo + max(0, (hi - lo - group) // 2)
+            else:
+                top = max(top0 + 20, (fr.h - bh) // 2)
             boxes = [(self.margin + i * (bw + gap), top,
                       self.margin + i * (bw + gap) + bw, top + bh)
                      for i in range(n)]
             ends = [((b[2], top + bh // 2), (b[2] + gap, top + bh // 2))
                     for b in boxes[:-1]]
 
-        # Each connector belongs to the node it points *at*, so it is already
-        # travelling while the sentence names where it is going.
+        # The forward connectors — drawn slowly against the voice (`span_p`),
+        # so each line is still travelling while its bridging phrase is spoken
+        # and arrives as the next box lands. Drawn before the box it points at,
+        # so the opaque box covers the head where it meets it.
         for i in range(n):
             e = self.due(i, n, f)
-            if e < 0:
-                continue
             if i > 0:
-                t = self.at(f) - (self.reveals[i] if self.reveals
-                                  and i < len(self.reveals) else self.start)
-                self._arrow(d, ends[i - 1][0], ends[i - 1][1],
-                            ease_out(min(1.0, max(0.0, t / self.ARROW))))
-            self._box(out, d, boxes[i], laid[i], e, label_font, note_font)
+                p = self.span_p(i - 1, f, cap=self.LOOP_CAP)
+                if p > 0:
+                    self._arrow(d, ends[i - 1][0], ends[i - 1][1], p)
+            if e >= 0:
+                self._box(out, d, boxes[i], laid[i], e, label_font, note_font)
 
-        # The feedback arrow lands only once the whole chain is up — it is a
-        # statement about the mechanism as a whole, not a step in it.
-        if self.loop and n > 1 and self.due(n - 1, n, f) >= 1.0:
-            last = self.reveals[n - 1] if self.reveals else self.start
-            p = ease_out(min(1.0, max(0.0, (self.at(f) - last - self.ARROW)
-                                      / 0.55)))
+        # The feedback arrow: it starts once the last box is essentially up
+        # and draws across the closing sentence, heavier and well clear of the
+        # row. `LOOP_CAP` keeps it from crawling if that sentence is long.
+        if self.loop and n > 1 and self.due(n - 1, n, f) >= 0.55:
+            rv = self.reveals or []
+            last = rv[n - 1] if len(rv) >= n else self.start
+            t0 = last + 0.30
+            dur = min(self.LOOP_CAP,
+                      max(0.9, (self.start + self.hold) - t0 - 0.20))
+            p = _smooth((self.at(f) - t0) / dur) if self.at(f) >= t0 else 0.0
             if p > 0:
+                col = self.brand.primary + (235,)
                 if self.portrait:
-                    x = self.margin + 40
-                    y0, y1 = boxes[-1][3], boxes[0][1]
-                    pts = [(boxes[-1][0], (boxes[-1][1] + y0) // 2),
-                           (x - 60, (boxes[-1][1] + y0) // 2),
-                           (x - 60, (y1 + boxes[0][3]) // 2),
-                           (boxes[0][0], (y1 + boxes[0][3]) // 2)]
+                    rx = self.margin + 30
+                    sy = (boxes[-1][1] + boxes[-1][3]) // 2
+                    ty = (boxes[0][1] + boxes[0][3]) // 2
+                    pts = [(boxes[-1][0], sy), (rx, sy),
+                           (rx, ty), (boxes[0][0], ty)]
                 else:
-                    y = boxes[0][3] + 92
-                    pts = [((boxes[-1][0] + boxes[-1][2]) // 2, boxes[-1][3]),
-                           ((boxes[-1][0] + boxes[-1][2]) // 2, y),
-                           ((boxes[0][0] + boxes[0][2]) // 2, y),
-                           ((boxes[0][0] + boxes[0][2]) // 2, boxes[0][3])]
-                partial(d, pts, p, self.brand.primary + (170,), 3)
+                    y = boxes[0][3] + self.LOOP_DROP
+                    sx = (boxes[-1][0] + boxes[-1][2]) // 2
+                    dx = (boxes[0][0] + boxes[0][2]) // 2
+                    pts = [(sx, boxes[-1][3]), (sx, y),
+                           (dx, y), (dx, boxes[0][3])]
+                pts = _round_corners(pts, 40)
+                partial(d, pts, p, col, self.LOOP_W)
                 if p >= 0.999:
-                    self._head(d, pts[-2], pts[-1])
+                    self._head(d, pts[-2], pts[-1], col)
 
 
 BEATS = {
