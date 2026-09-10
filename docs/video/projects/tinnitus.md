@@ -193,7 +193,11 @@ vertical-native beat in the format was ruled out on this site by a hard-coded
 colour that would have rendered off-brand with nothing raising. It takes a
 `Brand` now, like `grid`, `steps` and `bars` always did, and
 `render_tinnitus_short` passes it. The portrait-safe set is **`checklist`,
-`grid`, `steps` and `bars`**; anything else raises rather than falling through.
+`grid`, `steps`, `bars`, `logos`, `chapter` and — since 2026-09-10 —
+`diagram`**; `gauge` and `callout` still raise. Anything else raises rather
+than falling through. **Every recent tinnitus Short has run `grid` + `steps`
+and nothing else** — when a Short needs a beat, `diagram` (a mechanism, or a
+feedback loop) is the one that breaks that pattern.
 It used to fall through to `ChecklistShot`, which is how `bars` first "shipped":
 it happened to blow up unpacking a three-tuple as `(text, ok)`, and a
 two-element payload would have drawn the wrong beat silently.

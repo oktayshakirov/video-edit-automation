@@ -47,6 +47,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_image: Path | None = None,
                 thumb_headline: str | None = None,
                 thumb_accent: str = "red",
+                thumb_accent2: str | None = None,
                 # Overrides the searched side. The scorer answers "where is the
                 # picture empty enough to take type", which a flat studio
                 # backdrop can fail on its texture while still reading clean —
@@ -221,7 +222,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     if thumb_headline:
         thumb = out.with_name(out.stem + "-thumb.jpg")
         render_thumb(thumb, brand, thumb_headline, image=thumb_image,
-                     accent=thumb_accent, side=thumb_side,
+                     accent=thumb_accent, accent2=thumb_accent2,
+                     side=thumb_side,
                      crop_at=thumb_crop_at, crop_zoom=thumb_crop_zoom,
                      crop_band=thumb_crop_band, shift=thumb_shift)
         made["thumb"] = thumb

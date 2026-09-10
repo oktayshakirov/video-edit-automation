@@ -115,8 +115,17 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
                          label=None, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
-    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter"):
-        # **These three are portrait-safe.** `Grid` drops to one
+    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
+                        "diagram"):
+        # **`diagram` joined this set 2026-09-10.** Its portrait layout runs
+        # the causal chain down the frame with the feedback arrow (`loop=True`)
+        # returning up an inset left channel — see `longform/beats.py`. Reveal
+        # sizing already works: `payload[0]` is the node list, so
+        # `len(sh.payload[0])` below is the node count with no special case.
+        # `gauge` and `callout` are still landscape-only — a horizontal scale
+        # and a bordered photo do not earn their space in 9:16.
+        #
+        # **These are portrait-safe.** `Grid` drops to one
         # column up to four items and `Steps` turns its track ninety degrees;
         # see `longform/beats.py`. Scaling the landscape layouts would give a
         # 293px card and a 216px step slot, which is why they were declared
@@ -152,7 +161,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # refusing them is the honest answer, not routing them.
         raise ValueError(
             f"{shot.graphic!r} has no portrait layout — the vertical beats are "
-            f"checklist, grid, steps and bars")
+            f"checklist, grid, steps, bars, logos, chapter and diagram")
     return ChecklistShot(*shot.payload, backdrop=shot.backdrop,
                          reveals=shot.reveals, marks=shot.marks,
                          start=shot.start, hold=shot.hold, frame=frame,
