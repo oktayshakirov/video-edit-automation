@@ -73,6 +73,12 @@ ACCENTS = {
     "orange": ((255, 106, 0), (255, 255, 255)),
     "blue": ((26, 128, 226), (255, 255, 255)),
     "cyan": ((0, 176, 208), (255, 255, 255)),
+    # For a headline that colour-codes its two focal words to what they name -
+    # `{white noise}` on a pale plate, `[brown noise]` on a brown one. The
+    # plate *is* the meaning, so the words sit in dark or cream ink to stay
+    # readable against their own box rather than in the usual white.
+    "paper": ((236, 231, 221), (18, 18, 18)),
+    "brown": ((104, 68, 43), (240, 232, 222)),
 }
 
 
@@ -228,15 +234,22 @@ def _layout(image: Path, col: float = 0.54, margin_px: int = 26,
     return img, side, vband, score, score < 0.0
 
 
-def _split(headline: str) -> list[tuple[str, bool]]:
-    """Split `"a [b] c"` into [(word, is_accent), ...]."""
-    out = []
-    for chunk in re.split(r"(\[[^\]]*\])", headline):
+def _split(headline: str) -> list[tuple[str, int]]:
+    """Split `"a [b] {c} d"` into [(word, tag), ...].
+
+    tag 0 = plain, 1 = the `[...]` accent (the usual one), 2 = a `{...}`
+    second accent in a different colour. Two accent colours exist for one
+    reason - a headline that names two things and colours each word to match,
+    "white noise or brown noise" - and stay rare: the device is a *single*
+    focal point, and two is the most that can be one.
+    """
+    out: list[tuple[str, int]] = []
+    for chunk in re.split(r"(\[[^\]]*\]|\{[^}]*\})", headline):
         if not chunk:
             continue
-        hot = chunk.startswith("[") and chunk.endswith("]")
-        for word in chunk.strip("[]").split():
-            out.append((word, hot))
+        tag = 1 if chunk.startswith("[") else 2 if chunk.startswith("{") else 0
+        for word in chunk.strip("[]{}").split():
+            out.append((word, tag))
     return out
 
 
@@ -316,7 +329,8 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
               x_text: int, fill, ink, max_lines: int = 4,
               max_block: float = 1e9, leading: float = 1.02,
               band: str = "middle", margin: int = 58,
-              shadow: int = 14, drop: tuple = (6, 8)):
+              shadow: int = 14, drop: tuple = (6, 8),
+              fill2=None, ink2=None):
     """Lay out and paint the headline. Shared by both aspects on purpose.
 
     Returns the block height. `band` places it once the height is known, which
@@ -353,10 +367,19 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         line_h = int(size * leading)
         block = len(lines) * line_h
         fits = len(lines) <= max_lines and block < max_block
-        hot_lines = {i for i, ln in enumerate(lines) if any(h for _, h, _ in ln)}
+        # Each accent *run* must stay whole on one line - one plate, one focal
+        # point. With two accent colours the two runs may sit on different
+        # lines ("WHITE NOISE" / "BROWN NOISE?"), so the test is per-tag, not
+        # "all accent words on one line".
+        tag_lines: dict[int, set] = {}
+        for i, ln in enumerate(lines):
+            for _, t, _ in ln:
+                if t:
+                    tag_lines.setdefault(t, set()).add(i)
+        runs_intact = all(len(v) == 1 for v in tag_lines.values())
         if fits and fallback is None:
             fallback = (size, font, space, lines, line_h, block)
-        if fits and len(hot_lines) <= 1:
+        if fits and runs_intact:
             if fallback_ok is None:
                 fallback_ok = (size, font, space, lines, line_h, block)
             # **Do not stop at the first size that merely fits.** The largest
@@ -386,33 +409,35 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     cap_h = font.getbbox("H")[3] - font.getbbox("H")[1]
     pad_x, pad_v = 18, int(size * 0.13)
 
-    plates, glyphs = [], []
+    colour = {1: (fill, ink), 2: (fill2 or fill, ink2 or ink)}
+
+    plates, glyphs = [], []      # plates: [x0,y0,x1,y1,tag]  glyphs: (x,y,word,tag)
     yy = y
     for line in lines:
         base_y = yy + asc
-        x = x_text
-        # One plate per *run* of accent words, not one per word. Boxing each
-        # word separately leaves a seam of background between them, which reads
-        # as a rendering fault rather than a highlight.
-        runs, start, width = [], None, 0.0
-        for word, hot, ww in line:
-            if hot and start is None:
-                start, width = x, ww
-            elif hot:
-                width = x + ww - start
-            elif start is not None:
-                runs.append((start, width))
-                start = None
+        # Per-word x positions, then group maximal same-tag accent runs. One
+        # plate per run, not one per word - a seam of background between two
+        # boxed words reads as a fault; a run breaks where the tag changes.
+        xs, x = [], x_text
+        for _, _, ww in line:
+            xs.append(x)
             x += ww + space
-        if start is not None:
-            runs.append((start, width))
-        for rx, rw in runs:
-            plates.append([rx - pad_x, base_y - cap_h - pad_v,
-                           rx + rw + pad_x, base_y + pad_v])
-        x = x_text
-        for word, hot, ww in line:
-            glyphs.append((x, yy, word, hot))
-            x += ww + space
+        k = 0
+        while k < len(line):
+            tag = line[k][1]
+            if not tag:
+                k += 1
+                continue
+            j = k
+            while j < len(line) and line[j][1] == tag:
+                j += 1
+            x0 = xs[k]
+            x1 = xs[j - 1] + line[j - 1][2]
+            plates.append([x0 - pad_x, base_y - cap_h - pad_v,
+                           x1 + pad_x, base_y + pad_v, tag])
+            k = j
+        for (word, tag, _), gx in zip(line, xs):
+            glyphs.append((gx, yy, word, tag))
         yy += line_h
 
     dx, dy = drop
@@ -420,8 +445,8 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     ld = ImageDraw.Draw(lay)
     for b in plates:
         ld.rectangle([b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy], fill=190)
-    for gx, gy, word, hot in glyphs:
-        if not hot:
+    for gx, gy, word, tag in glyphs:
+        if not tag:
             ld.text((gx + dx, gy + dy), word, font=font, fill=210)
     lay = lay.filter(ImageFilter.GaussianBlur(shadow))
     base.paste(Image.composite(Image.new("RGB", base.size, (0, 0, 0)),
@@ -429,14 +454,16 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
 
     d = ImageDraw.Draw(base)
     for b in plates:
-        d.rectangle(b, fill=fill)
-    for gx, gy, word, hot in glyphs:
-        d.text((gx, gy), word, font=font, fill=ink if hot else (255, 255, 255))
+        d.rectangle(b[:4], fill=colour[b[4]][0])
+    for gx, gy, word, tag in glyphs:
+        d.text((gx, gy), word, font=font,
+               fill=colour[tag][1] if tag else (255, 255, 255))
     return block
 
 
 def render_thumb(out: Path, brand: Brand, headline: str,
                  image: Path | None = None, accent: str = "red",
+                 accent2: str | None = None,
                  size: int = 300, side: str | None = None,
                  arrow_to: tuple[float, float] | None = None,
                  crop_at: tuple[float, float] | None = None,
@@ -590,10 +617,12 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     col_w = int(W * 0.46)
     x_text = margin if side == "left" else W - margin - col_w
     fill, ink = ACCENTS.get(accent, ACCENTS["red"])
+    fill2, ink2 = ACCENTS.get(accent2, (None, None)) if accent2 else (None, None)
 
     block = _headline(base, headline, size, col_w, x_text, fill, ink,
                       max_lines=6, max_block=H - 2 * margin, leading=1.0,
-                      band=vband, margin=margin, shadow=11, drop=(5, 6))
+                      band=vband, margin=margin, shadow=11, drop=(5, 6),
+                      fill2=fill2, ink2=ink2)
     y = {"top": margin, "middle": (H - block) // 2,
          "bottom": H - margin - block}[vband] + block
     d = ImageDraw.Draw(base)
@@ -944,6 +973,7 @@ def fetch_video_poster(out: Path, video_id: str) -> Path:
 
 def render_short_thumb(out: Path, brand: Brand, headline: str,
                        image: Path | None = None, accent: str = "red",
+                       accent2: str | None = None,
                        size: int = 168, at: float = 0.34, ax: float = 0.5,
                        zoom: float = 1.0, band: str = "top") -> Path:
     """A 9:16 thumbnail for a Short.
@@ -978,6 +1008,7 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     the picture itself has the empty half at the bottom; the scrim follows.
     """
     fill, ink = ACCENTS.get(accent, ACCENTS["red"])
+    fill2, ink2 = ACCENTS.get(accent2, (None, None)) if accent2 else (None, None)
 
     if image is not None and Path(image).exists():
         src = Image.open(image).convert("RGB")
@@ -1028,7 +1059,8 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16) + 20
     _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
               max_lines=4, max_block=VH * 0.42, leading=1.02,
-              band=band, margin=edge_margin, shadow=14, drop=(6, 8))
+              band=band, margin=edge_margin, shadow=14, drop=(6, 8),
+              fill2=fill2, ink2=ink2)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     base.save(out, quality=92)

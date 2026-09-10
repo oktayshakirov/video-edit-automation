@@ -3,12 +3,22 @@
 Shorts, Reels and TikToks. One engine for every project - what changes per
 project is the voice, the source material and the safety rules, not this.
 
-## Four beats transfer to 9:16 now, not two
+## Seven beats transfer to 9:16 now, not two
 
-`checklist`, `grid`, `steps`, `bars` — and **`logos` and `chapter`**, added on
-the crypto-exchanges short. Everything else still raises, which is the honest
-answer: the landscape beats lay a content column beside a picture column at
-1920 and have no portrait layout.
+`checklist`, `grid`, `steps`, `bars`, `logos`, `chapter` — and **`diagram`**,
+added 2026-09-10. `gauge` and `callout` still raise: a horizontal scale wastes
+a vertical frame and a bordered photo with margin labels has no room for the
+margins. Everything else raises too, which is the honest answer — the
+remaining landscape beats lay a content column beside a picture column at 1920
+and have no portrait layout.
+
+**`diagram` is the one to reach for when every recent Short has run
+`grid` + `steps`** — which, on the tinnitus channel, is all of them. Its
+portrait layout runs the causal chain down the frame; `loop=True` returns the
+feedback arrow up an inset left channel, filleted corners and all, and the
+connectors draw against the voice (`span_p`). It is the beat for a mechanism a
+scroller has not seen drawn — the tinnitus night loop, a volume arms race —
+and it is a different silhouette from anything else the format has.
 
 **`logos` is the beat for named platforms.** The site owns 27 exchange brand
 cards in `public/images/exchanges/`, and in portrait the beat lays them 2x2

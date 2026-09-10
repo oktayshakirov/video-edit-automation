@@ -47,11 +47,21 @@ headline and change only the layout.
   channel's own dark imagery and disappears in a grid.
 - One box per *run* of accent words, not per word. Per-word boxing leaves a seam
   of background between them and reads as a rendering fault.
-- **The accent must land on one line**, and the size search enforces it: it
-  takes the largest size at which the whole accent run sits on a single line,
+- **Each accent run must land whole on one line**, and the size search enforces
+  it: it takes the largest size at which every run sits on a single line,
   falling back to merely fitting if no size does. An accent that wraps draws two
   plates on two lines and loses the single focal point the device exists for.
   Nothing to tune per thumbnail.
+- **A second accent colour, `{...}` and `accent2`, for a headline that names
+  two things and colours each to match** (2026-09-10). "White noise vs brown
+  noise": `"{White noise} or [brown noise]?"` with `accent="brown"`,
+  `accent2="paper"` - `{white noise}` sits on a pale cream plate, `[brown
+  noise]` on a brown one, the plate itself carrying the meaning. The two runs
+  may sit on different lines here (`WHITE NOISE` / `BROWN NOISE?`), which is
+  why the whole-run test is per-tag rather than "all accent words on one
+  line". Rare by design - the device is a single focal point, and two colours
+  is the most that can be one. `paper` and `brown` in `ACCENTS` carry dark and
+  cream ink respectively so the words stay readable against their own box.
 - **The box is sized from the cap band**, not the line box, so uppercase sits
   optically centred in it. A font's line box carries ascender and descender room
   that caps never use, and padding that left the words riding high in the plate.
@@ -135,6 +145,16 @@ one. The tinnitus thumbnail's source was picked that way: every image in the
 site library scored "busy", so a batch of stock was fetched and scored and the
 best one taken. Scoring is far more reliable than looking at a full-size file,
 because the failure only shows at feed size.
+
+**When the face keeps losing, drop the face.** The brown-vs-white pair
+(2026-09-10) went three rounds: the auto-crop cut the opener's eyes, then
+picked a different face than the video opens on, then clashed with the accent.
+The fix was to stop placing a subject at all — a clean object shot (white
+earbuds on dark fabric, whole thing, real black around it) has nothing for the
+scorer to cut, and the two-colour headline (`{...}` / `accent2`) carries the
+hook by itself. Reach for this on any topic where the words are the draw and no
+single face is *the* face: an object or texture shot plus a coloured headline
+beats a fought crop.
 
 Brightness is normalised toward a target rather than dimmed by a fixed factor —
 a flat 0.80 crushed the dark portraits this selects for into near-black.
