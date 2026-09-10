@@ -567,40 +567,39 @@ closing sentence rather than snapping after the last box. In portrait the
 return runs down the left and the boxes inset from that edge (`loop_inset`) so
 the line is not hugging them.
 
-### `callout` - a photo, with margin labels that point in from outside
+### `callout` - a photo, with margin labels that connect to its border
 
 `payload: (photo, items, title)`, items `[(label, x, y), ...]` where **x and y
 are fractions of the photo, not the frame** - the photo is fitted, so where it
 sits depends on its aspect ratio.
 
-**Rebuilt twice, 2026-09-10.** v1 drew the labels *on* the photo - the words
-fought the picture. v2 moved the labels to side rails but still planted a disc
-on the chosen pixel, and the user's verdict was that a disc on a face or a
-random patch looks arbitrary and defacing however carefully it is placed. v3,
-which is what ships: **nothing is planted on the photo at all.** Each label
-sits in a margin column with a small node beside it; a thin pointer leaves the
-node, meets the image edge square-on at the node's height, then angles a short
-way in to an arrowhead that stops just short of the detail. The photo carries
-one small arrowhead per item and nothing else.
+**Rebuilt three times, 2026-09-10.** v1 drew the labels *on* the photo - the
+words fought the picture. v2 moved them to side columns but planted a disc on
+the chosen pixel - a disc on a face or a random patch looks arbitrary however
+carefully placed. v3 reached in with an arrow to the detail - still "pointing
+at the exact word". v4, which ships: **the leader stops at the frame.** The
+label sits in a margin column; its leader runs to a small dot **on the image
+border**, roughly level with the thing it names. Nothing crosses the edge.
 
-- **You still pick the spot** - `(x, y)` is where the arrow points - but it is
-  a gesture toward a region, not a pin through a point, so a slightly-off
-  `(x, y)` reads as "around here", not as a mistake. A genuinely wrong spot is
-  still a script note.
-- **The label goes to the side its point is nearer**; within a side the nodes
-  are spaced evenly down the image height in reading order, so the column is
-  tidy no matter where the points are. A point far from its label's side just
-  gets a longer pointer across the image.
+- **The dot marks a place on the frame, not a point in the picture.** `x`
+  picks the side, `y` places the dot along that edge; a little off reads as
+  "over here", not as a mistake. Getting the region wrong is still a script
+  note.
+- **Dots nudge apart, labels stay evenly spaced.** Within a side the contact
+  dots are placed by `y` and pushed apart so a cluster does not overlap, but
+  the label column is always evenly spaced so the text block is tidy whatever
+  the dots do. The leader is an L - out from the label, along a rail, a short
+  stub to the dot.
 - **Keep labels to two or three words.** The column is ~340px; longer wraps
   ragged.
-- **The pointer draws against the voice** (`span_p`) - node lands on the
-  caption start, line travels out-and-in while the phrase is spoken, arrowhead
-  and label settle as it arrives. Same clock as the diagram's connectors.
+- **The leader draws against the voice** (`span_p`) - it travels from label to
+  frame while the phrase is spoken, the dot pulses and the label settles as it
+  lands. Same clock as the diagram's connectors.
 - **The argument is `photo`, not `picture`** - `make_beat` passes `picture=`
   to every beat for the split layout and the two collide.
-- **Landscape only in practice.** Portrait drops the labels to a row under the
-  image and loses the side columns that make it work; in 9:16 the answer is
-  `ImageOverlay` over moving footage - see `shorts.md`.
+- **Landscape only in practice.** Portrait drops to a plain vertical list
+  under the image with leaders up to border dots - unambiguous but plain; in
+  9:16 the real answer is `ImageOverlay` over moving footage, see `shorts.md`.
 
 ### `gauge` - one value against a threshold
 
