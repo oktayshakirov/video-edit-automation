@@ -338,14 +338,15 @@ a stock clip or a Ken Burns still, and on this repo's tinnitus long form it is
 worse than that - `airpods-and-tinnitus` is 37 clips against 1 site image.
 `callout` is the beat built for that share of the runtime: it explains a
 photograph rather than replacing one, so a shot that was connective texture
-starts carrying an argument. The photo sits in a centre column with its
-labels in clean rails down the side margins (rebuilt 2026-09-10 - the first
-version put the text on the image and it fought the picture; details in
+starts carrying an argument. The photo sits in a centre column; each label
+sits in a margin column with a thin pointer that comes in from outside the
+image to an arrowhead at the detail - nothing is planted on the photo itself
+(rebuilt twice, 2026-09-10; details and the two rejected versions in
 `beats.md`). Reach for it wherever a specific claim currently runs under an
 unlabelled photo - which the section above already names as the thing that
-reads as hard to follow - and keep each label to two or three words. It is a
-tool for pointing at real features: a dot in the wrong place is a script
-note, not something the layout can save.
+reads as hard to follow - and keep each label to two or three words. You pick
+the spot the arrow points at; a wrong spot is a script note, not something
+the layout can save.
 
 **`diagram` is the beat for a mechanism, and it is the kind that was
 missing.** Every other beat is type arriving in the order it is spoken; none
