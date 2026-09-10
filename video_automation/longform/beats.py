@@ -231,6 +231,22 @@ class Beat:
             t0 = src + lead
         return _smooth((self.at(f) - t0) / dur) if self.at(f) >= t0 else 0.0
 
+    def _head(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple,
+              colour: tuple | None = None, s: int = 23) -> None:
+        """An arrowhead at `b`, pointing away from `a` — drawn from a polygon
+        so it can cap a line that `partial` has already travelled, or stand
+        alone at the end of a rounded path. Shared by `diagram` and
+        `callout`."""
+        col = colour or self.brand.primary
+        vx, vy = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(vx, vy) or 1.0
+        ux, uy = vx / L, vy / L
+        d.polygon([b, (b[0] - ux * s - uy * s * 0.62,
+                       b[1] - uy * s + ux * s * 0.62),
+                   (b[0] - ux * s + uy * s * 0.62,
+                    b[1] - uy * s - ux * s * 0.62)],
+                  fill=col)
+
     # --- painting -------------------------------------------------------
 
     def background(self, f: float) -> Image.Image:
@@ -1562,7 +1578,7 @@ class Gauge(Beat):
 
 
 class Callout(Beat):
-    """A photograph in the middle, its labels stacked in the side margins.
+    """A photograph in the middle, a column of labels each side pointing in.
 
     **This is the beat that changes the shots the other beats never touch.**
     Drawn beats are four to nine shots out of thirty-odd; the rest of every
@@ -1571,48 +1587,52 @@ class Callout(Beat):
     explains one instead — a shot that was connective texture starts carrying
     an argument.
 
-    **The labels live in a gutter each side, never over the image.** The first
-    version drew the text on top of the photo with a short leader, and the
-    user's note was that the anchor points looked random and the words
-    fought the picture. Type over a photograph is the legibility problem every
-    other beat avoids by not having one. So the photo is narrowed to a centre
-    column, the labels sit in clean vertical rails left and right of it, and a
-    leader runs from each anchor dot out to its rail. The dots still have to
-    be placed on the real thing named — that is the author's job and no
-    layout saves a badly placed dot — but the words are now orderly whatever
-    the dots do.
+    **Nothing is planted on the photo — the markers sit outside it and point
+    in.** Two earlier versions failed the same way: text on the image fought
+    the picture, and a disc pinned on a chosen pixel (a face, a random patch)
+    looked arbitrary and defacing however carefully it was placed. The user's
+    fix, and it is the right one: keep every mark *off* the image. Each label
+    sits in a rail in the margin with a small node beside it; a thin pointer
+    runs from that node to the image edge and then a short way in to an
+    arrowhead at the detail. The photo is untouched except for one small
+    arrowhead per item.
 
-    Each label goes to the side its dot is nearer. Within a side the labels
-    are distributed evenly down the image height, in dot order, so two on the
-    same side never collide however close their dots are.
+    You still pick the spot — `(x, y)` is where the arrow points — but the
+    treatment is a gesture toward a region, not a pin through a point, so a
+    slightly-off `(x, y)` reads as "around here" rather than as a mistake.
 
-    **The leader draws across the phrase, not in a pop** (`span_p`): the dot
-    lands and pulses as its caption begins, the leader travels out to the rail
-    while the phrase is spoken, the label settles as it arrives. Synced to the
-    voice, the same clock the diagram's arrows now use.
+    Each label goes to the side its point is nearer. Within a side the labels
+    are distributed evenly down the image height, in reading order, so two on
+    the same side never collide however close their points are.
+
+    **The pointer draws across the phrase, not in a pop** (`span_p`): the node
+    lands as its caption begins, the line travels out and in while the phrase
+    is spoken, the arrowhead and label settle as it arrives. Same voice-synced
+    clock as the diagram's connectors.
 
     **Coordinates are fractions of the photo** (0..1 from its top-left), not
     of the frame — the photo is fitted, so where it sits depends on its aspect
     ratio. Read them off the source file.
 
-    Landscape only in practice. In portrait there is no width for gutters and
-    the answer is `ImageOverlay` over moving footage — see `shorts.md`. It
-    still renders in 9:16 (labels above and below), but reach for it in the
-    long form.
+    Landscape only in practice. In portrait there is no width for side
+    columns; the labels fall to a row under the image and the beat loses the
+    thing that makes it work — in 9:16 the answer is `ImageOverlay` over
+    moving footage, see `shorts.md`.
 
     payload: (photo, items, title)
       photo   Path to the image. Named `photo` not `picture` because
               `make_beat` passes `picture=` to every beat for the split
               layout and the two would collide — see `__init__`.
-      items   [(label, x, y), ...] — x, y are fractions of the photo
+      items   [(label, x, y), ...] — x, y are fractions of the photo, the
+              spot the arrow points at
       title   the beat's kicker
     """
 
     EMBLEM = False
     DIM = 0.58
-    DOT = 12
-    GUTTER = 360               # label rail width each side, at 1920
-    RAIL = 34                 # px the vertical leader rail sits off the image
+    NODE = 7                  # the marker beside each label, out in the rail
+    GUTTER = 360              # label column width each side, at 1920
+    RAIL = 40                # px the node sits off the image edge
 
     def __init__(self, photo: Path, items: list[tuple[str, float, float]],
                  title: str = "", **kw):
@@ -1671,22 +1691,23 @@ class Callout(Beat):
                 self._sides[i] = ("right", k)
             self._counts = {"left": len(left), "right": len(right)}
 
-    def _label_anchor(self, i: int, d: ImageDraw.ImageDraw,
-                      font) -> tuple[str, float, float]:
-        """(side, elbow_x, label_cy) for item `i` — where its leader ends."""
+    def _node(self, i: int) -> tuple[str, float, float]:
+        """(side, node_x, node_y) for item `i` — the marker out in the rail
+        that the label sits beside and the pointer leaves from. Evenly spaced
+        down the image height so the column is orderly regardless of where the
+        points are."""
         side, slot = self._sides[i]
         if side == "below":
             n = len(self.items)
             slot_w = (self.frame.w - 2 * self.margin) / n
-            cx = self.margin + slot_w * (slot + 0.5)
-            return side, cx, self.py + self.ph + 90
-        rail_x = (self.px - self.RAIL if side == "left"
+            return side, self.margin + slot_w * (slot + 0.5), \
+                self.py + self.ph + 96
+        node_x = (self.px - self.RAIL if side == "left"
                   else self.px + self.pw + self.RAIL)
         c = self._counts[side]
-        top = self.py + 46
-        span = self.ph - 92
-        cy = top + (span * (slot + 0.5) / c if c else span / 2)
-        return side, rail_x, cy
+        top, span = self.py + 54, self.ph - 108
+        ny = top + (span * (slot + 0.5) / c if c else span / 2)
+        return side, node_x, ny
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
@@ -1694,6 +1715,7 @@ class Callout(Beat):
         out.paste(Image.fromarray(self.panel), (self.px, self.py))
         d.rectangle([self.px, self.py, self.px + self.pw, self.py + self.ph],
                     outline=self.brand.primary, width=3)
+        col = self.brand.primary
 
         n = len(self.items)
         font = _font(40 if not self.portrait else 44)
@@ -1701,57 +1723,61 @@ class Callout(Beat):
             e = self.due(i, n, f)
             if e < 0:
                 continue
-            lead = self.span_p(i, f, lead=0.10, cap=1.4)
-            x = self.px + self.pw * max(0.0, min(1.0, float(fx)))
-            y = self.py + self.ph * max(0.0, min(1.0, float(fy)))
-            side, ex, cy = self._label_anchor(i, d, font)
+            draw = self.span_p(i, f, lead=0.10, cap=1.4)
+            tx = self.px + self.pw * max(0.0, min(1.0, float(fx)))
+            ty = self.py + self.ph * max(0.0, min(1.0, float(fy)))
+            side, nx, ny = self._node(i)
 
-            # Leader: horizontal out of the dot to the rail, then along the
-            # rail to the label's height — an L, never a diagonal. Every
-            # label's vertical segment lands on the same rail x, so together
-            # they read as one bus bar rather than a fan of slants. Drawn
-            # against the voice via `lead`.
+            # The pointer: node (outside the image) -> the image edge at the
+            # node's height -> a short way in to an arrowhead just short of
+            # the detail. Nothing else touches the photo. It enters square to
+            # the edge so the set stays tidy, then angles to the point.
             if side == "below":
-                pts = [(x, y), (x, y + 40), (ex, y + 40), (ex, cy - 24)]
+                edge = (nx, self.py + self.ph)
             else:
-                pts = _round_corners([(x, y), (ex, y), (ex, cy)], 14)
-            partial(d, pts, lead, self.brand.primary, 3)
+                edge = (self.px if side == "left" else self.px + self.pw, ny)
+            ux, uy = _unit(edge, (tx, ty))
+            tip = (tx - ux * 12, ty - uy * 12)      # a hair short — gesture,
+            path = _round_corners([(nx, ny), edge, tip], 16)  # not a stab
+            partial(d, path, draw, col, 3)
 
-            # The dot, and a single expanding pulse ring as it lands.
-            pr = min(1.0, max(0.0, (self.at(f) - self.reveals[i]) / 0.5)
-                     if self.reveals and i < len(self.reveals) else 1.0)
+            # The node in the rail, with one expanding pulse as it lands.
+            pr = (min(1.0, max(0.0, (self.at(f) - self.reveals[i]) / 0.5))
+                  if self.reveals and i < len(self.reveals) else 1.0)
             if 0.0 < pr < 1.0:
-                rr = self.DOT + int(20 * pr)
-                d.ellipse([x - rr, y - rr, x + rr, y + rr],
-                          outline=self.brand.primary + (int(200 * (1 - pr)),),
-                          width=3)
-            d.ellipse([x - self.DOT, y - self.DOT, x + self.DOT, y + self.DOT],
-                      outline=self.brand.primary, width=4)
-            d.ellipse([x - 4, y - 4, x + 4, y + 4], fill=self.brand.primary)
+                rr = self.NODE + int(16 * pr)
+                d.ellipse([nx - rr, ny - rr, nx + rr, ny + rr],
+                          outline=col + (int(200 * (1 - pr)),), width=3)
+            d.ellipse([nx - self.NODE, ny - self.NODE,
+                       nx + self.NODE, ny + self.NODE], fill=col)
 
-            # The label settles as the leader reaches it.
-            if lead < 0.55:
+            # The arrowhead lands once the shaft has arrived.
+            if draw >= 0.999:
+                self._head(d, edge, tip, col, s=17)
+
+            # The label beside the node, settling as the pointer completes.
+            if draw < 0.5:
                 continue
-            a = int(255 * min(1.0, (lead - 0.55) / 0.45))
+            a = int(255 * min(1.0, (draw - 0.5) / 0.4))
             rise = int(round(RISE * (1.0 - a / 255)))
             if side == "below":
                 lines = wrap(d, label, font, 360)
-                ty = cy - 24 + rise
+                lty = ny + 12 + rise
                 for ln in lines:
                     tb = d.textbbox((0, 0), ln, font=font)
-                    shadow_text(d, (ex - (tb[2] - tb[0]) / 2, ty), ln, font,
+                    shadow_text(d, (nx - (tb[2] - tb[0]) / 2, lty), ln, font,
                                 self.brand.ink + (a,), alpha=a)
-                    ty += 52
+                    lty += 52
                 continue
             g = int(self.GUTTER * self.frame.w / 1920)
-            lines = wrap(d, label, font, g - 40)
-            ty = cy - (len(lines) * 52) // 2 + rise
+            lines = wrap(d, label, font, g - 46)
+            lty = ny - (len(lines) * 52) // 2 + rise
             for ln in lines:
                 tw = d.textlength(ln, font=font)
-                lx = (ex - 16 - tw if side == "left" else ex + 16)
-                shadow_text(d, (lx, ty), ln, font, self.brand.ink + (a,),
+                lx = (nx - 20 - tw if side == "left" else nx + 20)
+                shadow_text(d, (lx, lty), ln, font, self.brand.ink + (a,),
                             alpha=a)
-                ty += 52
+                lty += 52
 
 
 class Diagram(Beat):
@@ -1846,28 +1872,6 @@ class Diagram(Beat):
         # as travelling rather than as a shape fading up.
         if p >= 0.999:
             self._head(d, a, b, col)
-
-    def _head(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple,
-              colour: tuple | None = None) -> None:
-        """Just the arrowhead at `b`, pointing away from `a`.
-
-        **Separate from `_arrow` because the loop needs a head with no shaft
-        of its own.** The feedback arrow's shaft is the whole four-point
-        polyline `partial` has already drawn; calling `_arrow` to cap it drew
-        a second, straight 30px segment on top of the corner, which rendered
-        as a stray tail hanging below the arrowhead. Visible on the first
-        frame, invisible in the code.
-        """
-        col = colour or self.brand.primary
-        vx, vy = b[0] - a[0], b[1] - a[1]
-        L = math.hypot(vx, vy) or 1.0
-        ux, uy = vx / L, vy / L
-        s = 23
-        d.polygon([b, (b[0] - ux * s - uy * s * 0.62,
-                       b[1] - uy * s + ux * s * 0.62),
-                   (b[0] - ux * s + uy * s * 0.62,
-                    b[1] - uy * s - ux * s * 0.62)],
-                  fill=col)
 
     LINE, NOTE_LINE, PAD, ICON = 50, 40, 30, 74
 

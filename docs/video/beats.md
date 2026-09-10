@@ -567,37 +567,40 @@ closing sentence rather than snapping after the last box. In portrait the
 return runs down the left and the boxes inset from that edge (`loop_inset`) so
 the line is not hugging them.
 
-### `callout` - a photo in the middle, labels in the side margins
+### `callout` - a photo, with margin labels that point in from outside
 
 `payload: (photo, items, title)`, items `[(label, x, y), ...]` where **x and y
 are fractions of the photo, not the frame** - the photo is fitted, so where it
 sits depends on its aspect ratio.
 
-**Rebuilt 2026-09-10.** The first version drew the labels *on* the photo with
-short leaders, and the user's note was that the anchor points looked random
-and the words fought the picture. Type over a photograph is the legibility
-problem every other beat avoids by not having one. Now the photo is narrowed
-to a centre column, each label sits in a clean vertical rail in the gutter to
-its side, and an L-shaped leader runs from the anchor dot horizontally out to
-the rail then along it to the label. Every leader's vertical segment lands on
-the same rail x, so the set reads as one bus bar rather than a fan of slants.
-Within a side the labels are distributed evenly down the image height in dot
-order, so two never collide however close their dots.
+**Rebuilt twice, 2026-09-10.** v1 drew the labels *on* the photo - the words
+fought the picture. v2 moved the labels to side rails but still planted a disc
+on the chosen pixel, and the user's verdict was that a disc on a face or a
+random patch looks arbitrary and defacing however carefully it is placed. v3,
+which is what ships: **nothing is planted on the photo at all.** Each label
+sits in a margin column with a small node beside it; a thin pointer leaves the
+node, meets the image edge square-on at the node's height, then angles a short
+way in to an arrowhead that stops just short of the detail. The photo carries
+one small arrowhead per item and nothing else.
 
-- **This does not fix a badly placed dot.** Placing each dot on the real thing
-  named is the author's job; the layout only guarantees the *words* are
-  orderly whatever the dots do. If the dots still look arbitrary in review,
-  that is a script note - or cut the beat.
-- **Keep labels to two or three words.** The rail is ~340px; a longer phrase
-  wraps to three ragged lines.
-- **The leader draws against the voice** (`span_p`), the dot pulses once as
-  its caption begins, the label settles as the leader reaches the rail. Same
-  synced clock as the diagram.
+- **You still pick the spot** - `(x, y)` is where the arrow points - but it is
+  a gesture toward a region, not a pin through a point, so a slightly-off
+  `(x, y)` reads as "around here", not as a mistake. A genuinely wrong spot is
+  still a script note.
+- **The label goes to the side its point is nearer**; within a side the nodes
+  are spaced evenly down the image height in reading order, so the column is
+  tidy no matter where the points are. A point far from its label's side just
+  gets a longer pointer across the image.
+- **Keep labels to two or three words.** The column is ~340px; longer wraps
+  ragged.
+- **The pointer draws against the voice** (`span_p`) - node lands on the
+  caption start, line travels out-and-in while the phrase is spoken, arrowhead
+  and label settle as it arrives. Same clock as the diagram's connectors.
 - **The argument is `photo`, not `picture`** - `make_beat` passes `picture=`
   to every beat for the split layout and the two collide.
-- **Landscape only in practice.** Portrait has no width for gutters; it
-  renders (labels above/below) but the real answer in 9:16 is `ImageOverlay`
-  over moving footage - see `shorts.md`.
+- **Landscape only in practice.** Portrait drops the labels to a row under the
+  image and loses the side columns that make it work; in 9:16 the answer is
+  `ImageOverlay` over moving footage - see `shorts.md`.
 
 ### `gauge` - one value against a threshold
 
