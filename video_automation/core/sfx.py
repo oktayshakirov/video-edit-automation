@@ -149,6 +149,58 @@ def reveal(sr: int = SR, dur: float = 0.16) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+def link(sr: int = SR, dur: float = 0.13) -> np.ndarray:
+    """A soft two-partial click for a connector landing on a diagram box — the
+    sound of "and therefore".
+
+    Fuller than `reveal` (one partial, for a line of type arriving) because
+    this marks a *relationship* being made, but still well under a struck
+    mark. A fifth stacked on the fundamental, the same interval `mark_tick`
+    uses, so the drawn beats sound like one instrument.
+    """
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    body = (np.sin(2 * np.pi * 523.3 * t) * _env(n, sr, 0.001, 0.020)
+            + 0.5 * np.sin(2 * np.pi * 784.0 * t) * _env(n, sr, 0.001, 0.013))
+    out = body + 0.28 * _noise_transient(n, sr, 0.003)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def loop_close(sr: int = SR, dur: float = 0.42) -> np.ndarray:
+    """A low, round tone easing downward — the feedback arrow closing a cycle.
+
+    Distinct from `impact` (lower and heavier, a full stop) and `mark_cross`
+    (a dry knock): this one is pitched and a little warm, because a loop
+    closing is a resolution rather than a hit. It is the one moment in a
+    `diagram` that is about the mechanism as a whole.
+    """
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    f = 233.0 * (2.0 ** (-0.28 * (t / dur)))          # a slight fall
+    tone = np.sin(2 * np.pi * np.cumsum(f) / sr)
+    out = (tone * _env(n, sr, 0.004, 0.20)
+           + 0.4 * np.sin(2 * np.pi * 116.5 * t) * _env(n, sr, 0.004, 0.14)
+           + 0.12 * _noise_transient(n, sr, 0.006))
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def limit(sr: int = SR, dur: float = 0.34) -> np.ndarray:
+    """A firm low note with a touch of grit — the `gauge` marker crossing its
+    threshold.
+
+    Not a siren: a pitched sweep reads as an alert and this is not an alarm,
+    it is a fact landing. One weighted note that says "past the line" and
+    stops. D2 with a fifth under it and a quiet octave over.
+    """
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    body = (np.sin(2 * np.pi * 146.8 * t) * _env(n, sr, 0.002, 0.19)
+            + 0.45 * np.sin(2 * np.pi * 98.0 * t) * _env(n, sr, 0.002, 0.12)
+            + 0.20 * np.sin(2 * np.pi * 220.0 * t) * _env(n, sr, 0.002, 0.06))
+    out = body + 0.22 * _noise_transient(n, sr, 0.008)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
 def clock(sr: int = SR, dur: float = 0.09) -> np.ndarray:
     """One second of a countdown clock. Wood-dry, no pitch to speak of.
 
@@ -207,6 +259,10 @@ def clock_final(sr: int = SR, dur: float = 0.11) -> np.ndarray:
 LEVELS = {
     "cross": 1.00, "tick": 1.00,
     "whoosh": 0.85, "riser": 0.55, "impact": 0.95, "reveal": 0.34,
+    # The drawn-beat cues (2026-09-10). `link` sits just above `reveal` — it is
+    # still punctuation, not an event. `loop_close` and `limit` each fire once
+    # per beat at the one structural moment, so they can carry like an impact.
+    "link": 0.42, "loop_close": 0.60, "limit": 0.74,
     # A countdown tick is heard eight times in a row, and it is the only thing
     # in the mix for those eight seconds — **except that it is not, any more.**
     # These started at 0.18/0.30, set against silence and judged as nagging at
@@ -234,6 +290,7 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     peak = float(np.max(np.abs(audio))) or 1.0
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
               "riser": riser, "impact": impact, "reveal": reveal,
+              "link": link, "loop_close": loop_close, "limit": limit,
               "clock": clock, "clock_final": clock_final}
 
     for at, kind in cues:

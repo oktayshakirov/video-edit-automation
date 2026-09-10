@@ -639,15 +639,26 @@ before reaching for a fourth `checklist`.
 
 ### An animation clock that tracks the voice - `Beat.span_p`
 
-**Every drawn element that travels - a line, an arrow, a marker, a track -
-should draw across the phrase that introduces it, not pop in a fixed fraction
-of a second.** `span_p(i, f)` returns that progress: start a short `lead`
-after item `i`'s caption begins, finish as item `i+1`'s begins (or the shot
-ends), `cap` seconds maximum, smoothstepped. It came out of the diagram note
-but it is the general rule - a fast pop reads as motion detached from what is
-being said. `diagram` (connectors, feedback arrow) and `gauge` (track, marker)
-use it; `checklist`/`compare`/`grid` reveals are discrete items and keep the
-fast `POP`, which is correct for a thing that appears rather than travels.
+**Every drawn element that travels - a line, an arrow, a marker, a bar, a
+track - should draw across the phrase that introduces it, not pop in a fixed
+fraction of a second.** Two clocks:
+
+- **`span_p(i, f)`** - progress of an element tied to *item `i`'s* phrase:
+  start a short `lead` after that caption begins, finish as item `i+1`'s
+  begins (or the shot ends), `cap` seconds maximum, smoothstepped. For
+  `diagram` connectors, `callout` leaders, `gauge`'s marker, and (2026-09-10)
+  **`bars`** - each bar now grows across its own row's phrase instead of a
+  fixed 0.85s, so the value at its tip tracks the voice.
+- **`open_p(f, dur)`** - progress of a beat's *opening scaffolding*, anchored
+  at the shot start: `compare`'s dividing rule and `steps`' track (2026-09-10,
+  both were a fast `ease_out`). It draws the stage before the items populate
+  it, and now glides at the same rate they do rather than snapping while they
+  ease.
+
+`checklist` / `grid` / `logos` / `quote` / `stat` reveals are discrete items
+that *appear* - they keep the fast `POP`, which is right for a thing that does
+not travel. The rule of thumb: does the element have extent that fills in
+(draw it against the voice), or does it just switch on (pop it)?
 
 ### Three notes that generalise beyond these beats
 

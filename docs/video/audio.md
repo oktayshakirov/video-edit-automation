@@ -109,8 +109,11 @@ All synthesized, all in `core/sfx.py`, all cued from the shot list by
 | `riser` | 0.75s before a chapter card — says a cut is coming |
 | `impact` | on the card — the riser's full stop |
 | `whoosh` | cutting *out* of a card, covering the return to content |
-| `reveal` | an item arriving on any drawn beat |
+| `reveal` | an item arriving on a `checklist`, `compare`, `stat`, `quote`, `logos`, `callout` or `gauge` |
 | `cross` / `tick` | a checklist verdict landing, and a quiz card's |
+| `link` | a `diagram` connector landing on its box — "and therefore" |
+| `loop_close` | a `diagram`'s feedback arrow closing the cycle, once, near the shot end |
+| `limit` | a `gauge` marker crossing its threshold — fired at the crossing, not the reveal |
 | `clock` / `clock_final` | one per second under a quiz countdown, the last a fourth up |
 
 `LEVELS` sets each against the narration peak, and one gain for all of them
@@ -118,6 +121,16 @@ cannot work: a transition has to be heard over the bed, an item tick has to sit
 under a syllable, and those are a factor of four apart. **The set is
 deliberately small** — a sound on every event is a cartoon. The `riser` is
 subtle by design and has not been judged by ear.
+
+**The three drawn-beat cues (2026-09-10) mark the mechanism turning, not every
+frame of it.** `diagram` gets one `link` per node — a step in a causal chain
+is more than a line of type, so it is a shade above `reveal` but still
+punctuation — and one `loop_close` if `loop=True`. `gauge` keeps plain
+`reveal`s for its two phrases and adds a single `limit` at the moment the
+marker passes the line, computed in `_cues` from the same travel timing the
+beat draws with. All three are a fifth-stacked interval like `mark_tick`, so
+the beats sound like one instrument. Judged by waveform, not yet by ear over a
+full render.
 
 The clock cues (and the quiz's own `whoosh`, one per question, cueing the cut
 into it) are the exception to "cued from the shot list": a quiz's ask phase is
