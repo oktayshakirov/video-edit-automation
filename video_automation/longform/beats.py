@@ -1587,28 +1587,24 @@ class Callout(Beat):
     explains one instead — a shot that was connective texture starts carrying
     an argument.
 
-    **Nothing is planted on the photo — the markers sit outside it and point
-    in.** Two earlier versions failed the same way: text on the image fought
-    the picture, and a disc pinned on a chosen pixel (a face, a random patch)
-    looked arbitrary and defacing however carefully it was placed. The user's
-    fix, and it is the right one: keep every mark *off* the image. Each label
-    sits in a rail in the margin with a small node beside it; a thin pointer
-    runs from that node to the image edge and then a short way in to an
-    arrowhead at the detail. The photo is untouched except for one small
-    arrowhead per item.
+    **Nothing lands inside the photo — the leaders stop at the frame.** Three
+    versions failed before this one: text on the image fought the picture; a
+    disc pinned on a chosen pixel looked arbitrary and defacing; an arrow
+    reaching in to the detail still "pointed at the exact word". The user's
+    call, and it is right: the label sits in a margin column, and its leader
+    runs to a small dot **on the image border** — nothing crosses the edge.
+    The dot sits roughly level with the thing it names (`y` places it along
+    that edge) but it marks a place on the frame, not a point in the picture,
+    so being a little off reads as "over here" rather than as a mistake.
 
-    You still pick the spot — `(x, y)` is where the arrow points — but the
-    treatment is a gesture toward a region, not a pin through a point, so a
-    slightly-off `(x, y)` reads as "around here" rather than as a mistake.
+    `x` picks the side; within a side the dots are placed by `y` and nudged
+    apart so a cluster does not overlap, while the labels themselves stay
+    evenly spaced down the column so the text block is always tidy.
 
-    Each label goes to the side its point is nearer. Within a side the labels
-    are distributed evenly down the image height, in reading order, so two on
-    the same side never collide however close their points are.
-
-    **The pointer draws across the phrase, not in a pop** (`span_p`): the node
-    lands as its caption begins, the line travels out and in while the phrase
-    is spoken, the arrowhead and label settle as it arrives. Same voice-synced
-    clock as the diagram's connectors.
+    **The leader draws across the phrase, not in a pop** (`span_p`): the line
+    travels from the label out to its dot on the frame while the phrase is
+    spoken, the dot pulses and the label settles as it arrives. Same
+    voice-synced clock as the diagram's connectors.
 
     **Coordinates are fractions of the photo** (0..1 from its top-left), not
     of the frame — the photo is fitted, so where it sits depends on its aspect
@@ -1623,16 +1619,18 @@ class Callout(Beat):
       photo   Path to the image. Named `photo` not `picture` because
               `make_beat` passes `picture=` to every beat for the split
               layout and the two would collide — see `__init__`.
-      items   [(label, x, y), ...] — x, y are fractions of the photo, the
-              spot the arrow points at
+      items   [(label, x, y), ...] — x, y are fractions of the photo. `x`
+              picks the side; `y` (and `x` in portrait) places the dot along
+              that edge, roughly level with the thing. Nothing lands inside
+              the image.
       title   the beat's kicker
     """
 
     EMBLEM = False
     DIM = 0.58
-    NODE = 7                  # the marker beside each label, out in the rail
+    DOT = 8                   # the marker where the leader meets the frame
     GUTTER = 360              # label column width each side, at 1920
-    RAIL = 40                # px the node sits off the image edge
+    RAIL = 40                # px the label column sits off the image edge
 
     def __init__(self, photo: Path, items: list[tuple[str, float, float]],
                  title: str = "", **kw):
@@ -1675,39 +1673,63 @@ class Callout(Beat):
         self.py = self.top_band + (
             0 if self._below else (box_h - self.ph) // 2)
 
-        # Assign each item a side and a slot, once, in __init__ — the layout
-        # must not shift as items reveal.
+        # Assign side/order and the edge contact points, once, in __init__ —
+        # the layout must not shift as items reveal.
         idx = list(range(len(items)))
         if self._below:
-            self._sides = {i: ("below", k) for k, i in enumerate(idx)}
+            # Portrait: a plain vertical list under the image, each row's dot
+            # on the bottom border at the item's x. Documented weak
+            # orientation — this only has to be unambiguous, not elegant.
+            order = sorted(idx, key=lambda j: items[j][1])
+            self._sides = {i: ("below", k) for k, i in enumerate(order)}
+            lo, hi = self.px + 30, self.px + self.pw - 30
+            xs = self._spread([items[i][1] for i in order], lo, hi, 90)
+            self._contact = {i: (x, self.py + self.ph)
+                             for i, x in zip(order, xs)}
         else:
-            left = [i for i in idx
-                    if items[i][1] < 0.5]
+            left = [i for i in idx if items[i][1] < 0.5]
             right = [i for i in idx if i not in left]
-            self._sides = {}
-            for k, i in enumerate(sorted(left, key=lambda j: items[j][2])):
-                self._sides[i] = ("left", k)
-            for k, i in enumerate(sorted(right, key=lambda j: items[j][2])):
-                self._sides[i] = ("right", k)
+            self._sides, self._contact = {}, {}
+            for name, edge_x, group in (("left", self.px, left),
+                                        ("right", self.px + self.pw, right)):
+                order = sorted(group, key=lambda j: items[j][2])
+                for k, i in enumerate(order):
+                    self._sides[i] = (name, k)
+                lo, hi = self.py + 26, self.py + self.ph - 26
+                ys = self._spread([items[i][2] for i in order], lo, hi, 48)
+                for i, y in zip(order, ys):
+                    self._contact[i] = (edge_x, y)
             self._counts = {"left": len(left), "right": len(right)}
 
-    def _node(self, i: int) -> tuple[str, float, float]:
-        """(side, node_x, node_y) for item `i` — the marker out in the rail
-        that the label sits beside and the pointer leaves from. Evenly spaced
-        down the image height so the column is orderly regardless of where the
-        points are."""
+    @staticmethod
+    def _spread(fracs: list[float], lo: float, hi: float,
+                gap: float) -> list[float]:
+        """Place each fraction between `lo` and `hi`, in order, nudged apart so
+        no two contact points sit closer than `gap`. Keeps the dots roughly
+        level with their features without letting a cluster overlap."""
+        out: list[float] = []
+        for fr in fracs:
+            v = lo + (hi - lo) * max(0.0, min(1.0, fr))
+            if out and v - out[-1] < gap:
+                v = out[-1] + gap
+            out.append(v)
+        if out and out[-1] > hi:                      # slid off the end
+            shift = out[-1] - hi
+            out = [v - shift for v in out]
+        if out and out[0] < lo:                       # now too tight to fit
+            step = (hi - lo) / max(1, len(out) - 1)
+            out = [lo + step * k for k in range(len(out))]
+        return out
+
+    def _label_y(self, i: int) -> tuple[str, float]:
+        """(side, y) of item `i`'s label — evenly spaced down the column so the
+        text block stays tidy even where the contact dots cluster."""
         side, slot = self._sides[i]
         if side == "below":
-            n = len(self.items)
-            slot_w = (self.frame.w - 2 * self.margin) / n
-            return side, self.margin + slot_w * (slot + 0.5), \
-                self.py + self.ph + 96
-        node_x = (self.px - self.RAIL if side == "left"
-                  else self.px + self.pw + self.RAIL)
+            return side, self.py + self.ph + 74 + slot * 60
         c = self._counts[side]
         top, span = self.py + 54, self.ph - 108
-        ny = top + (span * (slot + 0.5) / c if c else span / 2)
-        return side, node_x, ny
+        return side, top + (span * (slot + 0.5) / c if c else span / 2)
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
@@ -1724,57 +1746,49 @@ class Callout(Beat):
             if e < 0:
                 continue
             draw = self.span_p(i, f, lead=0.10, cap=1.4)
-            tx = self.px + self.pw * max(0.0, min(1.0, float(fx)))
-            ty = self.py + self.ph * max(0.0, min(1.0, float(fy)))
-            side, nx, ny = self._node(i)
+            side, ly = self._label_y(i)
+            cxp, cyp = self._contact[i]
 
-            # The pointer: node (outside the image) -> the image edge at the
-            # node's height -> a short way in to an arrowhead just short of
-            # the detail. Nothing else touches the photo. It enters square to
-            # the edge so the set stays tidy, then angles to the point.
+            # The leader: from beside the label, out to a rail just off the
+            # image, along it to the contact height, then a short stub to a
+            # dot **on the frame**. Nothing crosses into the picture — the
+            # dot marks a place on the border, it does not point at a pixel.
             if side == "below":
-                edge = (nx, self.py + self.ph)
+                bullet_x = self.margin + 4
+                path = [(bullet_x, ly), (cxp, ly), (cxp, cyp)]
             else:
-                edge = (self.px if side == "left" else self.px + self.pw, ny)
-            ux, uy = _unit(edge, (tx, ty))
-            tip = (tx - ux * 12, ty - uy * 12)      # a hair short — gesture,
-            path = _round_corners([(nx, ny), edge, tip], 16)  # not a stab
-            partial(d, path, draw, col, 3)
+                rail_x = (self.px - self.RAIL if side == "left"
+                          else self.px + self.pw + self.RAIL)
+                path = [(rail_x, ly), (rail_x, cyp), (cxp, cyp)]
+            partial(d, _round_corners(path, 13), draw, col, 3)
 
-            # The node in the rail, with one expanding pulse as it lands.
-            pr = (min(1.0, max(0.0, (self.at(f) - self.reveals[i]) / 0.5))
-                  if self.reveals and i < len(self.reveals) else 1.0)
-            if 0.0 < pr < 1.0:
-                rr = self.NODE + int(16 * pr)
-                d.ellipse([nx - rr, ny - rr, nx + rr, ny + rr],
-                          outline=col + (int(200 * (1 - pr)),), width=3)
-            d.ellipse([nx - self.NODE, ny - self.NODE,
-                       nx + self.NODE, ny + self.NODE], fill=col)
+            # The dot on the frame, with one expanding pulse as it lands.
+            if draw >= 0.6:
+                pr = min(1.0, (draw - 0.6) / 0.4)
+                if pr < 1.0:
+                    rr = self.DOT + int(15 * pr)
+                    d.ellipse([cxp - rr, cyp - rr, cxp + rr, cyp + rr],
+                              outline=col + (int(200 * (1 - pr)),), width=3)
+                d.ellipse([cxp - self.DOT, cyp - self.DOT,
+                           cxp + self.DOT, cyp + self.DOT], fill=col)
 
-            # The arrowhead lands once the shaft has arrived.
-            if draw >= 0.999:
-                self._head(d, edge, tip, col, s=17)
-
-            # The label beside the node, settling as the pointer completes.
+            # The label, settling as the leader completes.
             if draw < 0.5:
                 continue
             a = int(255 * min(1.0, (draw - 0.5) / 0.4))
             rise = int(round(RISE * (1.0 - a / 255)))
             if side == "below":
-                lines = wrap(d, label, font, 360)
-                lty = ny + 12 + rise
-                for ln in lines:
-                    tb = d.textbbox((0, 0), ln, font=font)
-                    shadow_text(d, (nx - (tb[2] - tb[0]) / 2, lty), ln, font,
-                                self.brand.ink + (a,), alpha=a)
-                    lty += 52
+                shadow_text(d, (self.margin + 34, ly + 12), label, font,
+                            self.brand.ink + (a,), alpha=a)
                 continue
             g = int(self.GUTTER * self.frame.w / 1920)
+            rail_x = (self.px - self.RAIL if side == "left"
+                      else self.px + self.pw + self.RAIL)
             lines = wrap(d, label, font, g - 46)
-            lty = ny - (len(lines) * 52) // 2 + rise
+            lty = ly - (len(lines) * 52) // 2 + rise
             for ln in lines:
                 tw = d.textlength(ln, font=font)
-                lx = (nx - 20 - tw if side == "left" else nx + 20)
+                lx = (rail_x - 20 - tw if side == "left" else rail_x + 20)
                 shadow_text(d, (lx, lty), ln, font, self.brand.ink + (a,),
                             alpha=a)
                 lty += 52
