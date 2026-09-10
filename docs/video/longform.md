@@ -336,22 +336,27 @@ see it.
 beat shape cannot fix "generic" on its own.** Three quarters of every video is
 a stock clip or a Ken Burns still, and on this repo's tinnitus long form it is
 worse than that - `airpods-and-tinnitus` is 37 clips against 1 site image.
-`callout` is the beat built for that share of the runtime: it puts the
-explanation *on* a photograph rather than replacing one, so a shot that was
-connective texture starts carrying an argument. It is also, finally, the
-"labels and arrows" vocabulary this file has cited as the reference channel's
-whole on-screen language since the format was designed.
-
-Reach for it wherever a specific claim currently runs under an unlabelled
-photo - which the section above already names as the thing that reads as hard
-to follow.
+`callout` is the beat built for that share of the runtime: it explains a
+photograph rather than replacing one, so a shot that was connective texture
+starts carrying an argument. The photo sits in a centre column with its
+labels in clean rails down the side margins (rebuilt 2026-09-10 - the first
+version put the text on the image and it fought the picture; details in
+`beats.md`). Reach for it wherever a specific claim currently runs under an
+unlabelled photo - which the section above already names as the thing that
+reads as hard to follow - and keep each label to two or three words. It is a
+tool for pointing at real features: a dot in the wrong place is a script
+note, not something the layout can save.
 
 **`diagram` is the beat for a mechanism, and it is the kind that was
 missing.** Every other beat is type arriving in the order it is spoken; none
 of them draws a relationship. A causal chain narrated over a stock brain scan
 is the format's weakest four seconds and it happens in nearly every explainer
 on both channels. `diagram(loop=True)` additionally draws a feedback cycle,
-which no list can - a list ends and the mechanism does not.
+which no list can - a list ends and the mechanism does not. The connectors
+draw slowly against the narration (`span_p`) rather than popping in - the line
+travels while the bridging phrase is spoken and lands as the next box appears.
+That synced draw is the reason the beat beats a bulleted list; `gauge` uses
+the same clock.
 
 **`gauge` replaces the weak `stat`s.** A figure that only means something
 against some other figure was always the wrong beat for `stat`; there just was

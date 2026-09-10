@@ -542,29 +542,62 @@ straight through the bottom edge - a `rounded_rectangle` is drawn before its
 type and simply has type sitting outside it afterwards, so nothing clips and
 nothing raises.
 
-### `callout` - labels and arrows on a photograph
+#### The connectors draw against the voice, not in a pop (2026-09-10)
+
+**The user's note on the first cut: the arrows should draw live, while we
+speak, matching the script - and everything should animate smooth and synced,
+not snap.** The first version drew every connector in a fixed 0.28s the moment
+its node's caption began, so the whole diagram was a burst of motion at the
+top of each phrase and then a static hold. Now `Beat.span_p(i, f)` gives the
+progress of an element that draws *across* item `i`'s phrase: it starts a
+breath after the box lands and travels the whole gap to the next box's
+caption, capped so a long pause does not leave it crawling, smoothstepped so a
+1.5s draw neither jumps nor stalls. The line grows while the narrator speaks
+the causal link and arrives as the next box appears. `gauge` uses the same
+clock now (track draws across the limit sentence, marker travels across the
+value sentence), and it is the clock any future line-drawing beat should use.
+
+#### The feedback arrow is its own gesture
+
+`loop=True`'s return arrow was a thin line ~90px under the row with square
+corners, and it read as a stray underline. Now: it stands `LOOP_DROP` (150px)
+clear of the row, is drawn at `LOOP_W` (7px) against the forward connectors'
+5px, has its corners filleted by `_round_corners`, and draws slowly across the
+closing sentence rather than snapping after the last box. In portrait the
+return runs down the left and the boxes inset from that edge (`loop_inset`) so
+the line is not hugging them.
+
+### `callout` - a photo in the middle, labels in the side margins
 
 `payload: (photo, items, title)`, items `[(label, x, y), ...]` where **x and y
-are fractions of the picture, not of the frame** - the picture is fitted, so
-where it sits depends on its own aspect ratio, and a frame fraction moves the
-label off the subject the moment the source changes.
+are fractions of the photo, not the frame** - the photo is fitted, so where it
+sits depends on its aspect ratio.
 
-**This is the one that attacks the three quarters of the video the other beats
-never touch.** A beat replaces a photograph; this one explains one. It is also
-the vocabulary `longform.md` names as the reference channel's entire on-screen
-language - "nothing on screen but labels and arrows" - quoted approvingly here
-for a year and never built.
+**Rebuilt 2026-09-10.** The first version drew the labels *on* the photo with
+short leaders, and the user's note was that the anchor points looked random
+and the words fought the picture. Type over a photograph is the legibility
+problem every other beat avoids by not having one. Now the photo is narrowed
+to a centre column, each label sits in a clean vertical rail in the gutter to
+its side, and an L-shaped leader runs from the anchor dot horizontally out to
+the rail then along it to the label. Every leader's vertical segment lands on
+the same rail x, so the set reads as one bus bar rather than a fan of slants.
+Within a side the labels are distributed evenly down the image height in dot
+order, so two never collide however close their dots.
 
-- **The picture is fitted, never covered.** A cover-crop moves the subject out
-  from under coordinates measured on the source, and covering 1920 from the
-  ~900px median source on these sites is the upscale the split layout exists
-  to avoid.
-- **The argument is `photo`, not `picture`.** `make_beat` passes `picture=` to
-  every beat for the split layout's right-hand column, so a first positional
-  of that name collides with it and every callout raises. Found by building
-  one.
-- The photograph is dimmed to 0.68 under the labels. A leader line disappears
-  into an undimmed image entirely.
+- **This does not fix a badly placed dot.** Placing each dot on the real thing
+  named is the author's job; the layout only guarantees the *words* are
+  orderly whatever the dots do. If the dots still look arbitrary in review,
+  that is a script note - or cut the beat.
+- **Keep labels to two or three words.** The rail is ~340px; a longer phrase
+  wraps to three ragged lines.
+- **The leader draws against the voice** (`span_p`), the dot pulses once as
+  its caption begins, the label settles as the leader reaches the rail. Same
+  synced clock as the diagram.
+- **The argument is `photo`, not `picture`** - `make_beat` passes `picture=`
+  to every beat for the split layout and the two collide.
+- **Landscape only in practice.** Portrait has no width for gutters; it
+  renders (labels above/below) but the real answer in 9:16 is `ImageOverlay`
+  over moving footage - see `shorts.md`.
 
 ### `gauge` - one value against a threshold
 
@@ -601,6 +634,18 @@ shape - it just takes three videos instead of one to notice.
 
 `bars` at 9 uses and `logos` at 3 are under-used, not obscure; reach for them
 before reaching for a fourth `checklist`.
+
+### An animation clock that tracks the voice - `Beat.span_p`
+
+**Every drawn element that travels - a line, an arrow, a marker, a track -
+should draw across the phrase that introduces it, not pop in a fixed fraction
+of a second.** `span_p(i, f)` returns that progress: start a short `lead`
+after item `i`'s caption begins, finish as item `i+1`'s begins (or the shot
+ends), `cap` seconds maximum, smoothstepped. It came out of the diagram note
+but it is the general rule - a fast pop reads as motion detached from what is
+being said. `diagram` (connectors, feedback arrow) and `gauge` (track, marker)
+use it; `checklist`/`compare`/`grid` reveals are discrete items and keep the
+fast `POP`, which is correct for a thing that appears rather than travels.
 
 ### Three notes that generalise beyond these beats
 
