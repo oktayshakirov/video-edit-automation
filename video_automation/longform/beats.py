@@ -231,6 +231,14 @@ class Beat:
             t0 = src + lead
         return _smooth((self.at(f) - t0) / dur) if self.at(f) >= t0 else 0.0
 
+    def open_p(self, f: float, dur: float = 1.0) -> float:
+        """Progress 0..1 of the beat's opening gesture — the scaffolding a beat
+        draws before its items populate it: a comparison's dividing rule, a
+        sequence's track. Anchored at the shot's start and smoothstepped, so it
+        matches the voice-synced item draws instead of snapping in a quick
+        `ease_out` while everything else glides."""
+        return _smooth((self.at(f) - self.start) / dur)
+
     def _head(self, d: ImageDraw.ImageDraw, a: tuple, b: tuple,
               colour: tuple | None = None, s: int = 23) -> None:
         """An arrowhead at `b`, pointing away from `a` — drawn from a polygon
@@ -685,8 +693,10 @@ class Compare(Beat):
         # A dividing rule that draws down as the beat opens, so the split is
         # established before either side has anything in it. Spanning the block
         # rather than the frame — a rule running into empty space below the last
-        # item is the thing that made the first build look unfinished.
-        e = ease_out(min(1.0, (self.at(f) - self.start) / 0.5))
+        # item is the thing that made the first build look unfinished. Drawn on
+        # `open_p` so it glides at the same rate as the items that follow it,
+        # rather than snapping in a fast `ease_out` while they ease.
+        e = self.open_p(f, 1.0)
         d.line([(mid, top), (mid, top + int(block * e))],
                fill=self.brand.primary, width=3)
 
@@ -806,7 +816,6 @@ class Bars(Beat):
     payload: (rows, title) where rows is [(label, fraction, value_text), ...]
     """
 
-    GROW = 0.85                 # how long a bar takes to reach its length
     EMBLEM = False
 
     def __init__(self, rows: list[tuple[str, float, str]], title: str = "",
@@ -846,8 +855,10 @@ class Bars(Beat):
             if e < 0:
                 continue
             y = top + i * pitch
-            g = ease_out(min(1.0, (self.at(f) - self.reveals[i]) / self.GROW)
-                         if self.reveals and i < len(self.reveals) else 1.0)
+            # The bar grows across its own phrase (`span_p`), not a fixed
+            # 0.85s — so a row spoken slowly fills slowly, and the value at
+            # its tip tracks the voice instead of racing ahead of it.
+            g = self.span_p(i, f, lead=0.06, cap=1.6)
 
             shadow_text(d, (x, y), label, label_font, self.brand.ink)
 
@@ -1334,8 +1345,9 @@ class Steps(Beat):
             y += h
 
         # The track first, drawn downward as the beat opens — the same trick
-        # the horizontal version and the comparison's divider use.
-        e = ease_out(min(1.0, (self.at(f) - self.start) / 0.55))
+        # the horizontal version and the comparison's divider use, on the same
+        # `open_p` clock so the scaffolding glides at the rate its nodes do.
+        e = self.open_p(f, 1.1)
         y0, y1 = centres[0], centres[-1]
         d.line([(cx, y0), (cx, y0 + (y1 - y0) * e)],
                fill=self.brand.primary + (110,), width=3)
@@ -1370,8 +1382,9 @@ class Steps(Beat):
         top = max(top0, (fr.h - block) // 2)
         cy = top + self.R
 
-        # The track first, drawn across as the beat opens.
-        e = ease_out(min(1.0, (self.at(f) - self.start) / 0.55))
+        # The track first, drawn across as the beat opens, on `open_p` so it
+        # glides at the same rate as the nodes that populate it.
+        e = self.open_p(f, 1.1)
         x0 = self.margin + slot / 2
         x1 = self.margin + usable - slot / 2
         d.line([(x0, cy), (x0 + (x1 - x0) * e, cy)],

@@ -276,8 +276,10 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
     applied to transitions as well as marks.
 
     The set is deliberately small. A sound on every event is a cartoon; these
-    mark the three things that are genuinely structural — a section beginning, a
-    verdict landing, and an item arriving.
+    mark what is genuinely structural — a section beginning, an item arriving,
+    a verdict landing, and (for the beats that draw a mechanism) the moment the
+    mechanism turns: a causal link made, a feedback loop closing, a threshold
+    crossed.
     """
     cues: list[tuple[float, str]] = []
     for i, sh in enumerate(shots):
@@ -291,8 +293,30 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             end = sh.start + sh.hold
             if end < total - 0.4:
                 cues.append((end - 0.18, "whoosh"))
+        elif sh.graphic == "diagram":
+            # Each node lands with its connector, so one cue per reveal marks
+            # "and therefore" — `link`, not `reveal`, because a causal step is
+            # more than a line of type arriving.
+            for t in (sh.reveals or [])[:8]:
+                cues.append((t, "link"))
+            # `loop=True` (payload[2]): the feedback arrow closes across the
+            # closing sentence — one low tone as it lands, near the shot end.
+            if len(sh.payload) > 2 and sh.payload[2] and sh.reveals:
+                cues.append((sh.start + sh.hold - 0.45, "loop_close"))
+        elif sh.graphic == "gauge":
+            for t in (sh.reveals or [])[:2]:
+                cues.append((t, "reveal"))
+            # The marker crosses the threshold partway through the value
+            # sentence — `limit` lands at that crossing, not at the reveal.
+            frac = float(sh.payload[1]) if len(sh.payload) > 1 else 0.0
+            thr = sh.payload[3] if len(sh.payload) > 3 else None
+            if (thr is not None and frac > float(thr)
+                    and sh.reveals and len(sh.reveals) > 1):
+                r1 = sh.reveals[1]
+                travel = min(1.5, max(0.5, (sh.start + sh.hold - r1) - 0.16))
+                cues.append((r1 + 0.05 + travel * (float(thr) / frac), "limit"))
         elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
-                            "gauge", "callout", "diagram"):
+                            "callout"):
             for t in (sh.reveals or [])[:8]:
                 cues.append((t, "reveal"))
         if sh.graphic in ("checklist", "logos") and sh.marks:
