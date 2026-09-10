@@ -331,6 +331,18 @@ corner of it read as a smudge. The whole point of the icon is to be legible
 *before* the label is. Portrait stays at 54, where the card is narrower and
 the glyph is already proportionally larger.
 
+## A five-item `grid` is better with no icons at all
+
+**The rug-pull long form's `grid` shipped once with five glyphs — one per
+pattern — and on a rendered frame every one read as a smudge.** With five cards
+the landscape layout goes three-up then two, so each card is *narrower* than
+the two-column case the 64px rule was measured on, and five different glyphs
+means at least one lands grey or off-hue however carefully they are chosen.
+The label plus the note line already carries the card; the icon is decoration
+it does not need. **Reach for icons on a three- or four-item `grid`, drop them
+on a five.** `diagram` and `steps` still take them — those nodes are wider and
+there are fewer of them — but screen each on a frame, not in the editor.
+
 ## Screen an emoji against the card, not against your editor
 
 **The plug glyph (U+1F50C) shipped into the proof-of-stake short and all but
@@ -391,6 +403,24 @@ underneath. See the short's skill.
 `core/backdrop.py`. **tinnitushelp.me is `tinnitus-galaxy`** — a nebula
 starfield the user supplied, ping-ponged — and thecrypto.wiki is
 `crypto-blackwater`.
+
+### `Shot(backdrop=)` overrides the brand default per beat — use it to keep the water for the chapter cards only
+
+**The rug-pull long form's note was that `crypto-blackwater` was the ground
+under *every* graphic — six chapter cards and five drawn beats — so the water
+stopped reading as a brand moment and started reading as "this channel has one
+background".** `Beat.__init__` already takes a per-shot `backdrop` (it is what
+`callout` and the split-layout beats pass a photo through), and
+`crypto/build.py` and `longform/build.py` both forward `Shot.backdrop`. So:
+pass the beats a still and leave the chapter cards alone — they have no
+`backdrop=` and fall through to `Brand.backdrop`.
+
+`assets/brand/beat-ground-crypto.jpg` is that still: a warm near-black bloom on
+the gold ramp, generated. **The supplied-backdrop path covers, blurs 30 and
+multiplies by 0.42**, so the source is generated bright (~L45) to land ~L19
+behind type — measure the post-dim value, not the file. The water stays on the
+cards; the beats get a ground that is on-palette but visibly *not* the water,
+and the two together read as a system rather than a rerun.
 
 **`tinnitus-galaxy` is gone too, and the brand is now `tinnitus-plum`.** The
 galaxy shipped on the silence cut and the user's note was simply that they
