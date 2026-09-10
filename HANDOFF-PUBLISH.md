@@ -1,20 +1,22 @@
 # Handoff → /publish-video
 
-**Built:** `quiz-tinnitus-myths-vs-reality` — a quiz Short (`/video-quiz`) for
+**Built:** `brown-noise-vs-white-noise-for-tinnitus` — a long-form 16:9
+explainer and its vertical Short, built as a pair (`/video-tinnitus`) for
 tinnitushelp.me.
-**Source article:** `tinnitus-blog/content/posts/tinnitus-myths-vs-reality.mdx`
-— `SOURCE_POST = "tinnitus-myths-vs-reality"` in
-`projects/quiz-tinnitus/tinnitus-myths-vs-reality.py`. Every wrong option on
-every card traces to that article's own "Reality" paragraphs; nothing here is
-invented.
+**Source article:**
+`tinnitus-blog/content/posts/brown-noise-vs-white-noise-for-tinnitus.mdx` —
+`SOURCE_POST = "brown-noise-vs-white-noise-for-tinnitus"` in both
+`projects/tinnitus-long/brown-noise-vs-white-noise-for-tinnitus.py` and
+`projects/tinnitus-short/brown-noise-vs-white-noise-for-tinnitus.py`.
 **Date:** 2026-09-10
-**Voice:** `otis` (`am_puck`, ENERGETIC chain) — the male article reader, same
-voice both channels' explainers use.
-**Approved by the user** after several review rounds, all on the same one
-question: how the four lettered options on each card should sound. See "The
-letter is shown, never spoken" below — that is the one piece of this build
-worth reading in full before publishing, because it changed what the audio
-actually contains partway through the project's history.
+**Voice:** `mia` (`af_heart`, 1.10) — the female article reader, the tinnitus
+explainer default. Same voice on both cuts.
+**Music:** `night-drift`, the prepared track, shared by both cuts.
+**Approved by the user** after five review rounds. The last round was six
+fixes on the first cut; all six landed and were checked in the frames before
+approval. They are listed under "What changed on the last cut" — worth a
+glance before publishing, because an earlier cut that may have been
+screenshotted looks different.
 
 ---
 
@@ -22,91 +24,94 @@ actually contains partway through the project's history.
 
 | what | path |
 | --- | --- |
-| video (9:16) | `/Users/oktayshakirov/Desktop/quiz-tinnitus-myths-vs-reality.mp4` |
+| long video (16:9) | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-long.mp4` |
+| long captions | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-long.srt` |
+| long thumbnail | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-long-thumb.jpg` |
+| long metadata sidecar | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-long.md` |
+| short video (9:16) | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-short.mp4` |
+| short Reel cover (9:16) | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-short-thumb.jpg` |
+| short YouTube thumb (16:9) | `/Users/oktayshakirov/Desktop/brown-noise-vs-white-noise-short-thumb-yt.jpg` |
 
-**81.7s**, 1080x1920, h264/aac. No SRT, no thumbnail file, no `.md` sidecar —
-a quiz burns its own type as drawn cards rather than captions, and the format
-does not call `render_short_thumb` at all (see "No thumbnail render" below).
-There is no long form to pair this with.
+- **Long:** 3:23 (203.86s), 1920x1080, h264/aac.
+- **Short:** 41.7s, 1080x1920, h264/aac. No SRT file — captions are burned in.
 
-No title, description or tags are written anywhere yet. `/publish-video` will
-need them; nothing here should be treated as already decided. The on-screen
-title card reads "Tinnitus Quiz: Myths Edition" — that is narration/caption
-text burned into the video, not a proposed YouTube/social title.
+The long's `.md` sidecar carries a **proposed** title, description, chapter
+list and tags. Treat it as a draft for `/publish-video` to work from, not a
+decision. Proposed title there: "White Noise vs Brown Noise for Tinnitus".
 
 ## What it is
 
-Three questions from the article, each a "which of these is a myth about
-tinnitus?" with four lettered cards, a 6-second countdown, and a marked
-reveal:
+Six chapters from the article:
 
-1. **Cause.** Myth: "loud noise is the only cause." Reality: ear infections,
-   aging and certain medications cause it too.
-2. **Duration.** Myth: "it always resolves within a few days." Reality: it
-   can fade, but for many it becomes chronic.
-3. **Treatment.** Myth: "there is nothing that can be done about it." Reality:
-   sound therapy, CBT and hearing aids all help manage it.
+1. **The colour wheel** — the app has white/pink/brown/green and no guidance;
+   here is the short version.
+2. **What do the noise colours actually mean?** — `grid` beat, five colours
+   (white, pink, brown, grey, green) each with a one-line description and an
+   emoji.
+3. **Which colour matches your tinnitus?** — `compare` beat, two named
+   columns: a high whistle or ring (start white/pink) vs a low hum or roar
+   (start brown).
+4. **How loud should it be?** — `gauge` beat: the marker sits at "BURIED, the
+   ringing is gone", past a threshold tick labelled "partial masking — aim
+   here". The track turns red past the threshold.
+5. **What about notched sound therapy?** — `diagram` beat, four nodes, forward
+   flow (no loop): cut your exact pitch → that band goes quiet → neighbouring
+   nerve cells turn it down (lateral inhibition) → the overactive signal
+   weakens over months.
+6. **So which one do you start with?** — close.
 
-Outro: "How many did you get?" — no "tell me in the comments," on the
-format's standing call that a scored quiz prompts comments on its own.
+**The Short is not a compression of the long.** It keeps one move: the colour
+barely matters, the real mistake is turning the volume up until the ringing
+is gone — a "volume arms race". One drawn beat, `diagram` with `loop=True`
+(turn it up → brain adjusts → turn it up again), then a `chapter` full-screen
+payoff card "IT IS THE VOLUME." and the action close "try it tonight". No
+disclaimer line (long-form only).
 
-Every wrong option is one of the article's own true statements about an
-*adjacent* myth, not an invented distractor — checked against
-`docs/video/projects/tinnitus.md`'s rule before any of the three questions
-were written. No diagnostic or treatment claim, no ear close-ups.
+## Medical line
 
-## The letter is shown, never spoken — read this before publishing
+No diagnosis and no promise of relief anywhere in either cut. Masking is
+described by what it does — overlaps the frequency, gives partial cover,
+leaves room for habituation — never as a treatment. The long carries the
+standard disclaimer in its credits; the Short does not, per
+`docs/video/narration.md`. No ear close-ups in either format.
 
-**This is the one thing about this build that is not routine**, because it
-changed the audio itself after the video had already been sent for review
-more than once. A card reads "B. It has no effect." on screen. The voice only
-ever says "It has no effect." — the letter is never sent to the synthesiser
-as its own utterance, on any card, anywhere in the format.
+## What changed on the last cut (2026-09-10)
 
-That is the end state of eight attempts at making a *spoken* letter sound
-right next to its answer — isolated, forced-spliced, synthesised in context
-then cut free, gated to half the cards, given a carrier word whose consonant
-leaked through, and finally a correctly measured, cleanly bounded silence
-inserted into an untouched natural read. That last one passed every waveform
-check and was still rejected by ear: a letter's own spoken length is
-0.15-0.36s, and a sound that short, spoken alone, reads as clipped no matter
-how cleanly it is cut. The fix was not a better cut — it was not asking
-Kokoro to say the letter at all. Full account: `LETTER_SPOKEN` in
-`video_automation/quiz/build.py`, and `docs/video/projects/quiz.md`.
+Six fixes on the first cut, all landed:
 
-**Why this belongs in a publish handoff and not just a commit message:** if
-this render is ever compared against an earlier cut of the same video, or
-against screenshots/notes from an earlier review round, the letters will
-sound different — earlier cuts spoke every letter (badly, which is why they
-were sent back), this one speaks none of them. That is not a regression to
-flag; it is the fix landing. The reveal is unaffected either way — "The
-correct answer is B." was never part of the problem and still speaks the
-letter out loud, as a real sentence.
-
-## No thumbnail render
-
-The format does not call `render_short_thumb` — the video's own picture is
-already four drawn cards, and a generated headline plate would restate the
-hook a viewer is about to see in the first two seconds. Pull the Reel cover
-from a frame of the finished render instead, per
-`docs/publish/instagram-facebook.md`. A Short gets no thumbnail from the
-YouTube API regardless of format, and TikTok's draft cover is set by hand.
+1. **Thumbnail image** — was a cropped face that lost its eyes and did not
+   match the opener. Now a clean object shot: white earbuds on dark fabric,
+   whole thing, no subject to place. Same shot on the long cover, the Short
+   Reel cover and the Short's YouTube thumb.
+2. **Two-colour headline plates** — `"{White noise} or [brown noise]?"` with
+   `accent="brown"`, `accent2="paper"`: "white noise" on a pale cream plate,
+   "brown noise" on a brown one. New `{...}` / `accent2` feature in
+   `thumb.py`; see `docs/video/thumbnails.md`.
+3. **Opening line** — "Your **favourite** tinnitus app has a colour wheel
+   now" (was "your tinnitus app", which sounded like the channel was pushing
+   its own app).
+4. **The 0:03 clip** — was a phone screen with someone dragging an
+   image-edit slider. Now a person in bed with a phone, screen facing away.
+5. **Opener face** — now the night profile of a man with an earphone,
+   matching the Short's opener.
+6. **Short first line** — "White, pink, or brown?" is its own caption on its
+   own line, with a 0.5s gap after the opening question, instead of racing
+   out on its tail.
 
 ## What `/publish-video` needs to do
 
-This is a **short only** — the standard "tinnitus short" row of the platform
-table: YouTube (Short), Instagram Reel, Facebook Reel, TikTok (draft). **No
-site entry** — shorts do not get one, and there is no long form to pair this
-with or attach a `videos.json` row to.
+Standard **tinnitus explainer pair**:
 
-- **YouTube Shorts** — title, description, the usual `youtube-audit` dry run
-  then `--apply`.
-- **Instagram Reel** and **Facebook Reel** — via the tunnel, per
-  `docs/publish/instagram-facebook.md`. Cover pulled from a render frame, not
-  a generated thumbnail (see above).
-- **TikTok** — draft, per `docs/publish/tiktok.md`; cover set by hand in the
-  draft.
+- **Long form** → YouTube (long), the `videos.json` site entry on
+  tinnitushelp.me, and the Share Video run. Use the `.md` sidecar's proposed
+  title/description/tags/chapters as the starting draft, then the usual
+  `youtube-audit` dry run before `--apply`.
+- **Short** → YouTube (Short), Instagram Reel, Facebook Reel, TikTok (draft).
+  **No site entry, no social Share for the Short** — that rule is settled
+  (see `HANDOFF.md`). The Short attaches to the long only in that they are
+  the same topic.
+- **Reel cover** — `brown-noise-vs-white-noise-short-thumb.jpg` is the 9:16
+  Reel cover; the YouTube Short thumb is `-thumb-yt.jpg` (16:9). TikTok cover
+  is set by hand in the draft.
 
-No title has been proposed for any platform — pick one fresh rather than
-reaching for `docs/video/shorts.md`'s source-bound conventions, since this is
-a quiz format with its own on-screen title already burned in.
+Nothing is posted or scheduled. All titles are proposals.
