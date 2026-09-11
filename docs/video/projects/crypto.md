@@ -193,6 +193,20 @@ before switching it on?" and the user cut it as confusing, correctly — "that"
 had three possible referents by then, and it asked the viewer to audit a build
 they have not made.
 
+**This paragraph is now the narrower, older version of a channel-wide finding —
+read `narration.md`'s "A Short's ending loops; it does not ask" before trusting
+it.** Reading every shipped Short's closing line against its actual retention
+(2026-09-11) found the how-to exception generalises past how-tos: *any* Short
+that ends on an engagement question sits at 34-56% retention on this channel
+(Whales 48%, Saylor 41%, OneCoin 34%), and *any* Short that ends cold on a
+statement or a directive sits at 82-152%, several looping past 100%. The
+"confusing referent" reasoning above is real but was never the whole story —
+the mining rig short's replacement close works because it does not ask a
+question at all, not just because it fixed the pronoun. **Default every Short
+to a cold close now, how-to or not**, and treat "end on a question" as the
+exception (arguments where the viewer's own opinion is the actual point,
+sparingly) rather than the rule.
+
 **The question is the whole outro. Do not append "in the comments", "let me
 know below", or "subscribe".** The user's standing rule for every channel —
 those lines spend the last seconds managing the viewer instead of leaving them
@@ -213,6 +227,39 @@ procedure.
 there is one test that settles it" — built from
 `posts/what-it-actually-takes-to-prove-someone-is-satoshi-nakamoto.mdx`. It works
 because the answer is concrete, surprising, and needs no financial advice.
+
+**A profile or a scam story (Satoshi, Saylor, OneCoin, and every future OG
+piece) is a different genre from a mechanism explainer, and it earns a
+different arc from `longform.md`'s default `hook -> reframe -> deep dive ->
+twist -> mirror -> echo`.** Investigative and true-crime writing - the genre
+these pieces actually belong to, whatever the topic - runs on withheld
+information, not on explained mechanism, and two of its devices transfer
+directly:
+
+- **Evidence in a list, not one reveal.** Lay out several false or partial
+  claims one at a time, each dismissed, building toward the one that actually
+  holds - rather than a single reveal dropped cold. `satoshi-proof.py`
+  already does this, in its `checklist` section: "A court ruling", "A writing
+  style", "Old emails", "A famous endorsement" — four things people have
+  offered as proof, each marked false — resolving into the one signed
+  message that would count. Name it as the pattern and use it deliberately
+  in the next profile: **several rejected claims, then the one that
+  actually settles it**, rather than jumping straight to the verdict.
+- **A verified fact planted early pays off late.** Screenwriting calls a
+  reveal with no setup a "cheap surprise" (McKee) - the same twist, with the
+  fact that explains it stated plainly a few beats earlier, reads as earned
+  instead. Plant the date, the habit or the number that will matter before
+  it becomes the pivot, not at the pivot itself, so the attentive viewer
+  half-sees it coming. OneCoin's FBI-reward figure or Saylor's original
+  business (a "business intelligence company") are exactly this kind of
+  plantable fact for a future script.
+
+Do not reach for these on a mechanism piece (Proof of Stake, exchanges,
+quantum computing) - there is no person and no withheld fact, and forcing a
+reveal structure onto "here is how X works" is exactly the "generic advice
+stapled onto a topic" failure this doc already warns against elsewhere. Use
+the default arc for those; reserve this one for a named person or a named
+scheme.
 
 **Check phonemes with espeak rather than guessing** — Kokoro phonemizes through
 espeak-ng, so `espeak-ng -v en-us -q --ipa "Binance"` is the whole check. It

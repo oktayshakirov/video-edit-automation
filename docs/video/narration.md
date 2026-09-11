@@ -197,6 +197,11 @@ present tense does the work without them.
 
 ## The outro asks the question and stops
 
+**This section is long-form's rule.** A Short's outro follows a different and
+now better-evidenced rule - see "A Short's ending loops; it does not ask"
+below - because a Short is optimised for the replay YouTube counts as watch
+time, not for a comment, and the two goals want opposite last lines.
+
 **The user's standing rule, on every channel.** The closing line is a real
 question the viewer can answer in their head — "So, what do you think: would you
 have asked to see the blockchain?" — and nothing else. No "let me know in the
@@ -210,17 +215,87 @@ not.
 
 **The compliance line is long-form only. A Short never carries it.** The
 user's note on the `perpetual-futures` short: shorts on this channel drop the
-disclaimer sentence entirely and close on the question alone - a Short has no
-room to earn the line's own weight, and the long form it is paired with
-already carries it, so the pair as a whole is never missing it. Do not mirror
-the long form's disclaimer into a Short "for consistency"; the two formats
-are deliberately asymmetric here.
+disclaimer sentence entirely and close clean, with nothing tacked on after
+the video's own last line - a Short has no room to earn the disclaimer's own
+weight, and the long form it is paired with already carries it, so the pair
+as a whole is never missing it. Do not mirror the long form's disclaimer into
+a Short "for consistency"; the two formats are deliberately asymmetric here.
+(That short's own closing line was still a question, which the section below
+now flags - the two notes are about different things and neither excuses the
+other.)
 
 **When that compliance line is spoken, put the disclaimer on screen too.** The
 shot under it carries a payload statement — `Shot(clip=..., payload=("", "This
 is not financial advice."))` — so it is seen as well as heard, every time. Run
 it over a quiet contemplative clip (rain on a window, dark water), never a
 person or a stage.
+
+## A Short's ending loops; it does not ask
+
+**Found by reading every shipped Short's closing line against its retention,
+2026-09-11.** Split every Short on both channels by how it ends and the split
+is nearly total:
+
+| ends on | retention | example |
+|---|---|---|
+| an engagement question ("what do you think", "who do you blame", "where is she now") | **34-56%** | Whales 48%, Saylor 41% ("Tell me what you think."), OneCoin 34%, Ethereum 56% ("who do you blame?") |
+| a flat statement or a directive ("save this", "try it", "get it looked at") | **82-152%** | Pulsatile 82% ("So don't just live with it - get it looked at."), Silence 118% ("Silence is not neutral. Try it in the next quiet room."), Mining rig 122% / Gaming headset 152% (both "Save this before...") |
+
+Retention above 100% is YouTube Studio counting a replay as watch time - the
+video looped. **Every Short that closes cold, with no question, is the one
+that loops; every Short that closes by asking the viewer something stays
+under 100% even when it did well.**
+
+**Confirmed against the curves, 2026-09-11** (`youtube-audit`'s `retention`
+command), which is what turns this from a correlation across averages into a
+visible mechanism. Two Shorts of near-identical length:
+
+| | opens at | closes at | final seconds |
+|---|---|---|---|
+| Silence, cold close | **190.4%** | **88.5%** | dead flat - no drop at all |
+| Ethereum, "who do you blame?" | 128.1% | **25.0%** | -3.1, then -6.2 |
+
+The question-closer **loses people during its own closing question** - two
+drops inside the last four seconds - and only a quarter of its audience
+reaches the final frame, against 88.5% for the cold close. The loop signal
+tracks it too: 190% against 128%. So the ask is not merely failing to earn a
+comment, it is actively spending the seconds that would otherwise have rolled
+into a replay.
+
+This also matches how the mechanism is documented externally: a loop is a video that does not visibly end, so the next frame
+(its own first frame) reads as a continuation rather than a restart, and the
+strongest loops chain a matching image, a matching motion, or an ending that
+recontextualises the opening line rather than re-asking it. An explicit
+question is the opposite of that - it is a full stop dressed as a sentence,
+it tells the viewer the video is over and a response is now expected, and a
+three-second sign-off on a 40-50s Short is 6-8% of the runtime spent
+announcing the ending instead of extending it.
+
+**The fix, and it costs nothing:** end a Short on the fact, the rule, or the
+directive the video earned - never on "what do you think" / "tell me" / a
+question inviting an opinion. The two mechanisms that work, in order of
+strength:
+
+- **Recontextualise the opening line instead of re-asking it.** The mining
+  rig short's close ("Cheap adapter, expensive mistake.") answers its own
+  opening arithmetic ("The part of a mining rig that burns houses down costs
+  about two dollars.") without repeating the question - the viewer's last
+  thought and first thought are now the same thought, which is what makes the
+  replay read as continuous rather than as a restart.
+- **A directive with a real reason to act, not a bare "save this."** It only
+  works because the video just earned it - a how-to a viewer would want to
+  reference again, or a rule worth remembering. A directive bolted onto a
+  video that gave no reason to keep it is the outro-CTA problem in different
+  words.
+
+**This is a Short-only reversal of the long-form outro rule above, not a
+replacement for it.** Long form wants the viewer to sit with a thought and
+comment; a Short is judged on completion and replay, and a question that
+would be the right close on the long form is the thing costing the Short its
+loop. Keep both rules; apply the one that matches the format.
+
+Sources: [Shortimize, YouTube Shorts retention](https://www.shortimize.com/blog/youtube-shorts-retention-rate),
+[Virvid, looping structure](https://virvid.ai/blog/looping-structure-shorts-retention-2026).
 
 ## Name the subject in the first sentence, not on the first chapter card
 
@@ -260,10 +335,74 @@ existing rules only half-cover:
   of those is partly true, the other two are just wrong") is a promise that
   could only be written after the five myth sections existed, and it is a
   far better opener than the first pass's generic three-claim list.
+- **Write every chapter's payoff before its setup, not only the video's
+  hook.** The rule above is the general case of a wider one: a section that
+  promises before it has confirmed what it delivers tends to promise the
+  wrong thing. Draft the chapter card and the last sentence of a section
+  first - the line that actually answers the question the card asks - then
+  write backward into the sentences that earn it. A `Section` whose card and
+  closing sentence do not yet exist is not ready to have its opening written.
+- **A specific number or a named entity beats a vague claim, in a hook and
+  everywhere else.** "A few patterns" persuades nobody; "three patterns" is
+  checkable and therefore credible, which is most of why it lands. This
+  channel already half-follows this on instinct - `stat` and `bars` exist
+  because a number is the thing narration cannot make vivid alone (see "A
+  number that is spoken must also be seen" above) - but it applies to the
+  words too, not only the beats: prefer "one point one million coins" to
+  "most of the early coins", prefer naming Ruja Ignatova over "the founder".
+  A claim with nothing to check reads as marketing copy even when it is true.
 
 Sources: [vidIQ](https://vidiq.com/blog/post/write-youtube-video-script/),
 [Storyflow](https://storyflow.so/blog/youtube-video-script-template-7-part-framework-retention-2025),
-[Sumera](https://sumera.io/blog/youtube-hook-formulas-script-examples).
+[Sumera](https://sumera.io/blog/youtube-hook-formulas-script-examples),
+[TubeAI, retention scripting](https://learn.tubeai.app/blog/youtube-script-writing-retention),
+[Vugola, hook formulas](https://www.vugolaai.com/blog/hook-writing-tips).
+
+## The payoff belongs in sentence two, not behind a setup
+
+**Diagnosed from a real channel gap, not a style guide - and then confirmed
+against the actual retention curve** (`youtube-audit`'s `retention` command,
+2026-09-11). The caffeine-and-tinnitus Short opened on the title question, then
+spent sentences 2-3 hedging and building the withdrawal-symptoms case before
+sentence 4 revealed the actual point (withdrawal fakes the caffeine-culprit
+signal). It shipped at 181 views and 20.3% average retention on a 57s video.
+
+The curve says exactly where they went, and it is worse than the average
+suggests. **100% of viewers are still there at 4.6 seconds. By 6.3 seconds
+half of them are gone** - a 22-point drop at 5.1s, another 17 by 6.3s. Timing
+the script against that: sentence 1 (the title question) ends around 2.4s,
+and sentence 2 - *"Maybe - but quitting it suddenly might be the bigger
+mistake."* - ends around 5.5s. **The exodus is the hedge.** They asked a
+question, heard "maybe", and left. Nobody got near sentence 4.
+
+Compare "Does Silence Make Tinnitus Worse?" (221 views, 118% average) on the
+same channel: its curve **opens at 190%** - replays, the video loops - and
+then decays *smoothly*, still at 128% by 13 seconds, with no cliff anywhere in
+the opening. Its sentence 2 answers ("You get somewhere quiet and the ringing
+gets louder") and sentence 3 reverses flat ("It did not."). Same channel, same
+format, same length band; the difference is what sentence 2 did.
+"Why Can You Hear Your Heartbeat in Your Ear?" (82%) does the same - sentence 2
+names and validates the sensation ("has a name... pulsatile tinnitus"), no
+hedge in front of it.
+
+**So sentence 2 is not "early", it is the decision point.** The viewer is
+deciding at roughly five seconds whether this video is going to tell them
+anything, and sentence 2 is the whole of the evidence they have.
+
+**The title-question opener (see above, and standing in every Short) is not the
+hook by itself - it is the setup for one.** The line that answers it, flips it, or
+names the thing has to be sentence 2. If the honest answer to the title question is
+"maybe" or "it's complicated," say the complicating fact plainly instead of
+signalling uncertainty - "Usually not - it's quitting it suddenly that backfires"
+lands as fast as a flat "It did not" and is just as true as "Maybe, but...". Any
+setup that has to run before the payoff (symptoms, mechanism, list of causes) goes
+*after* sentence 2-3, never before it - restructure the sentence order, not the
+content.
+
+**A quick self-check while scripting:** read sentences 1-3 alone. If they do not
+already contain the one thing a scroller would repeat to a friend, the payoff is
+buried too deep - move it up, don't just trust that a good idea later in the script
+will be reached.
 
 ## A tip needs a reason before it is a tip
 

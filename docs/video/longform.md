@@ -243,6 +243,63 @@ is steepest is the worst available use of it. A clip is already moving on frame
 one and costs nothing else. Keep the still for later, where a change of pace
 reads as a change of pace rather than as the video not having started.
 
+## The first five seconds carry information or they lose the room
+
+**Measured, not assumed** - `youtube-audit`'s `retention` command returns the
+real curve for any video with enough views (see "Known limitations" in that
+skill; roughly 60+ views on these channels). `tinnitus-and-sleep` is the
+highest-traffic long form on either channel at 130 views, and its curve is the
+clearest diagnosis this format has:
+
+| at | still watching | |
+|---|---|---|
+| 2.4s | 98.3% | everybody is here |
+| **4.8s** | **76.7%** | **-21.6 in one step** |
+| 7.2s | 69.8% | |
+| 12-14s | ~65% | a plateau |
+| **16.9s** | **48.3%** | **-18.1. half the room is gone** |
+| 41s | 18.1% | |
+| 90s+ | ~5% | flat to the end |
+
+Now time the script against it. The opening section runs five sentences:
+*"It is two in the morning. The house is silent. And your ears are not."* (ends
+~4.6s) / *"All day it was manageable. Now it is the only thing in the room."*
+(~9s) / *"So you lie there waiting for it to fade so you can finally sleep."*
+(~14s) / *"Here is the part that changes it: your tinnitus did not get louder
+tonight."* (~18s - **the reversal**) / then the promise.
+
+**The first cliff lands at the end of sentence one and the second lands just
+before the reversal.** Three sentences of mood come before the video says
+anything the viewer did not already know - they *live* this, it is why they
+searched for it - and a fifth of them leave before sentence two, half before
+the payoff.
+
+This is the same fault as the caffeine Short (`narration.md`, "The payoff
+belongs in sentence two"), and it is worth stating in this file too because
+the long-form rules did not catch it: **the script passes the three-phase
+opening.** It has a pattern interrupt, a promise by 15s and a commit by 30s.
+The interrupt is just made of atmosphere rather than information. So:
+
+- **A pattern interrupt has to be a fact, a number or a reversal - not a
+  scene.** "It is two in the morning" is a setting. "Your tinnitus did not get
+  louder tonight - your room got quieter" is an interrupt. Scene-setting cold
+  opens are a convention borrowed from channels whose audience already trusts
+  them; a channel with four subscribers has no credit to spend on fifteen
+  seconds of mood.
+- **Move the reversal to sentence one or two and let the atmosphere follow
+  it.** The imagery is not the problem and does not need cutting - the
+  ordering is. Say the surprising thing, then paint the 2am room as the
+  evidence for it.
+- **Do not fix a retention cliff by changing the shot.** This script's own
+  comment shows the trap: the sentence was deliberately split because
+  "it sits at 10-20s, which is where the retention drop is steepest". That
+  correctly identified the danger zone and then addressed the *picture*. The
+  curve says the words were what people left over.
+
+**Pull the curve before rewriting any opener.** An average retention figure
+says a video lost people; only the curve says at which sentence, and the two
+have pointed at different sentences every time they have been compared.
+
 ## The end-screen sting
 
 `render_long(endcard=..., endcard_lead=7.0)`, screen-blended over the last
