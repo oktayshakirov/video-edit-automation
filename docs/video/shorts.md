@@ -241,6 +241,11 @@ silence make tinnitus worse?" - over the opening face, not over a card. It
 costs about two seconds and it turns the next forty into an answer somebody is
 waiting for. Budget for it: the format's 40-50s window did not move.
 
+**The closing line does not mirror this.** Open on the question; close on the
+answer, never on another question - `narration.md`'s "A Short's ending loops;
+it does not ask" has the retention split. Asking again at the end ("what do
+you think?") is the long-form outro habit leaking into the wrong format.
+
 ## A vertical cut must be cropped onto its subject
 
 **`Shot(clip_ax=, clip_ay=)`**, fractions of the leftover cover-crop slack

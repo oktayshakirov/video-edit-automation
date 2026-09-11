@@ -183,8 +183,19 @@ action when the video is about something to do tonight — the user's call, and
 they are right that saving a video is not the behaviour the piece is arguing
 for. Close on the action itself: "Try it tonight." — and nothing after it: no
 "let me know in the comments", no "subscribe". That is `narration.md`'s outro
-rule; a how-to closes on the action where an argument closes on the question,
-but neither appends a viewer-management line.
+rule; neither a how-to nor an argument appends a viewer-management line.
+
+**"An argument closes on the question" is the line this paragraph used to end
+on, and it is now known to be wrong for a Short.** Reading every shipped
+Short's closing line against its retention (`narration.md`, "A Short's ending
+loops; it does not ask", 2026-09-11) found the reverse: the argument Shorts
+that close on an engagement question sit at 34-37% (AirPods, the night short);
+the ones that close cold on a flat statement sit at 82-118% (Pulsatile,
+Silence) or loop past 100%. **"Try it tonight" was already the right call for
+the wrong stated reason** - it works because it is a cold close, not because
+it names an action rather than an argument. Close every tinnitus Short cold,
+argument or how-to alike; a question is now the exception, not the format for
+one genre.
 
 **`checklist` works here now, and it is the beat worth reaching for.** This file
 used to say "do not use it": `ChecklistShot` was the last drawn object holding
