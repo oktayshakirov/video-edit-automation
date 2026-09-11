@@ -93,11 +93,18 @@ For laterals, use the stacked layout (two or three horizontal crops filling the
 **The stacked layout wants a band, not a seam.** Approved on Sunset Sea Stack,
 now a repo function — `render_narrated_stack` in `voiceover.py`, tiles from
 `pick_crop_tile` — see *Building one* above for the call. Default is two
-1080x890 tiles with a 140px black band between them, captions centred at
+1080x910 tiles with a 100px black band between them, captions centred at
 `y_frac=0.50` so they sit *in* the band. The first cut butted the tiles
 together and put the type across the join, which worked but made the type
 fight two moving pictures at once. The band gives it ground of its own and
 reads as a deliberate frame rather than a crop artifact.
+
+**The band is 100px, down from the 140 Sunset Sea Stack approved.** Trimmed on
+Golden Girl / 100 Rejections — the user asked for a shorter strip twice and
+then to make it the default. Karaoke words and an 88px set-piece word still
+clear the tile edges at 100; go tighter only if a specific cut needs it. Keep
+any override a multiple of 4 (`1920 - band` must divide by 4) or both tiles
+come out odd and x264 refuses the encode.
 
 **Never use "rotate your phone".** It spends the one second that decides
 retention on an instruction. Cropping and stacking both perform; friction does not.
@@ -172,7 +179,7 @@ cuts. Both tiles fill the whole width; the quote reads on the black band
 between them rather than over either picture:
 
 ```python
-tile_w, tile_h = stack_tile_size()                 # band=140 by default
+tile_w, tile_h = stack_tile_size()                 # band=100 by default
 box_top    = pick_crop_tile(proxy_top, tile_w, tile_h)
 box_bottom = pick_crop_tile(proxy_bottom, tile_w, tile_h)
 
@@ -330,8 +337,12 @@ on Sunset Sea Stack
   colour to reach for. **Approved on Sunset Sea 2** as `COLD` at 88px against a
   44px body, chosen over the same word at body size. Drop the comma from the
   caption — a set-piece word does not want punctuation hanging off it — but keep
-  it in the spoken half so the engine still takes the breath. One per script, on
-  the same turn that would otherwise get its own small caption
+  it in the spoken half so the engine still takes the breath. Usually one per
+  script, on the same turn that would otherwise get its own small caption —
+  Golden Girl / 100 Rejections ran **two** (`excited` and `no`) on the user's
+  call, because the line has two turns: the reframe and the word it reframes.
+  Two is the ceiling and needs a reason; the closing `”` may stay on the second
+  one (`no”`) since a quote delimiter is not punctuation hanging off
 
 Both wrap with **no widows** — the wrap pulls a word back so the last line is
 never a single orphan; that is the usual tell that a card was generated.
