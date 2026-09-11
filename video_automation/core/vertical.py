@@ -133,13 +133,15 @@ def pick_crop(proxy: Path, zoom: float = 1.0,
     return _search_box(interest_map(proxy), crop_w, crop_h, src_w, src_h)
 
 
-def stack_tile_size(band: int = 140) -> tuple[int, int]:
+def stack_tile_size(band: int = 100) -> tuple[int, int]:
     """The size of one tile in the stacked two-clip layout.
 
     `band` is the black strip between the tiles that the caption sits in —
-    approved at 140px on Sunset Sea Stack. Call this before `pick_crop_tile`
-    for each clip so both tiles and the caller's `render_narrated_stack` call
-    agree on the same split without repeating the arithmetic.
+    first approved at 140px on Sunset Sea Stack, then trimmed to 100 on Golden
+    Girl / 100 Rejections and kept as the default. Call this before
+    `pick_crop_tile` for each clip so both tiles and the caller's
+    `render_narrated_stack` call agree on the same split without repeating the
+    arithmetic. Keep `band` a multiple of 4 so both tiles stay even for x264.
     """
     return OUT_W, (OUT_H - band) // 2
 
