@@ -1,111 +1,88 @@
-# Handoff → /publish-video
+# Handoff: Crypto Fear & Greed Index pair
 
-**Built:** `does-magnesium-help-tinnitus` — an article-explainer pair
-(`/video-tinnitus`), long form + Short, both from one tinnitushelp.me post.
-**Source article:** `https://tinnitushelp.me/blog/does-magnesium-help-tinnitus`
-(`SOURCE_POST = "does-magnesium-help-tinnitus"` in both scripts).
-**Scripts:**
-- `projects/tinnitus-long/does-magnesium-help-tinnitus.py`
-- `projects/tinnitus-short/does-magnesium-help-tinnitus.py`
+Built and approved 2026-09-13. Commit `2f76089` on `main`, pushed. Working
+tree clean at hand-off.
 
-**Date:** 2026-09-13.
-**Voice:** `mia` (`af_heart` 1.10) — the explainer default, same voice on both
-videos per the project doc.
-**Approved by the user.** Built in this session; no re-cut rounds requested.
-**Committed:** this commit, on `main`. Working tree clean once pushed.
+**Source article:** `crypto-fear-and-greed-index-for-beginners`
+`https://thecrypto.wiki/posts/crypto-fear-and-greed-index-for-beginners`
+
+Both videos are built from that one post and are published as a pair.
 
 ---
 
-## Files (Desktop)
+## Long form (16:9, YouTube)
 
-| what | path |
+| | |
 | --- | --- |
-| long video (16:9) | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-long.mp4` |
-| long captions | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-long.srt` |
-| long thumbnail | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-long-thumb.jpg` |
-| long metadata sidecar | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-long.md` |
-| short video (9:16) | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-short.mp4` |
-| short cover (Reels/Facebook, 1080x1920) | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-short-thumb.jpg` |
-| short cover (YouTube, 1280x720) | `/Users/oktayshakirov/Desktop/does-magnesium-help-tinnitus-short-thumb-yt.jpg` |
+| Video | `/Users/oktayshakirov/Desktop/crypto-fear-greed-index-long.mp4` |
+| Thumbnail | `/Users/oktayshakirov/Desktop/crypto-fear-greed-index-long-thumb.jpg` |
+| Captions | `/Users/oktayshakirov/Desktop/crypto-fear-greed-index-long.srt` |
+| Metadata sidecar | `/Users/oktayshakirov/Desktop/crypto-fear-greed-index-long.md` |
+| Runtime | 3:11 (191.16s) |
+| Build script | `projects/crypto-long/fear-greed-index.py` |
 
-- Long form: **3:47** (227.95s), six chapters, `SRT` only (no burned
-  captions, per the long-form engine).
-- Short: **47.9s**, karaoke captions on by default, music bed
-  `music.track("night-drift")` at gain 0.85 (same track as the long form, at
-  1.0).
-- **The `.md` sidecar carries the finished long-form title, description,
-  chapters, tags and credits block — read it rather than re-deriving any of
-  that from this handoff or from the script.** The Short has no sidecar (per
-  the engine); its title/description need writing at publish time from the
-  script's own docstring and sentence list below.
+**Title:** What Is the Crypto Fear and Greed Index?
 
-## What it is
+**Chapters** (all six ≥10s, first at 0:00, no violations reported in the
+sidecar):
 
-**Long form** — "Does Magnesium Help Tinnitus?" The honest answer is that
-nobody knows: the one placebo-controlled trial people cite tested magnesium
-combined with vitamins and a plant extract, so it can't isolate what the
-magnesium did. Walks the research, the plausible-but-unproven calcium-gate
-mechanism, real milligram counts in ordinary food (`bars`), and a four-week
-self-test with the drug-interaction warnings on screen (`steps`). Closes by
-routing to a professional for the real red flags.
+```
+0:00 The mood ring
+0:20 What does the number actually measure?
+0:53 How does that score get built?
+1:29 Why does it swing so hard?
+1:56 Why do millions watch a mood?
+2:26 Can you trade off this number?
+```
 
-Beats: `quote`, `diagram`, `bars`, `steps` — none shared with the three most
-recent tinnitus long forms (which ran grid/compare in every one).
+**The description, tags, chapter list and credits are all in the `.md`
+sidecar — use it rather than re-deriving any of them.**
 
-**Short** — same post, a different single move: the honest "nobody knows" is
-sentence two (no hedge), and what survives is what's actually knowable off
-the label in front of the viewer — oxide is cheap and poorly absorbed,
-glycinate is gentlest, read the elemental magnesium not the compound weight.
-One `checklist` beat with `flow=True`, closes cold on "Check your label
-tonight." — no question, no disclaimer line (per the Short/long-form
-asymmetry in `narration.md`).
+## Short (9:16)
 
-**No medical claims in either cut.** Nothing promises relief; magnesium is
-described only as something possibly worth correcting if a viewer is short of
-it. Full reasoning and every claim's source is in each script's own
-docstring.
+| | |
+| --- | --- |
+| Video | `/Users/oktayshakirov/Desktop/crypto-fear-greed-index-short.mp4` |
+| Thumbnail | `/Users/oktayshakirov/Desktop/crypto-fear-greed-index-short-thumb.jpg` |
+| Runtime | 46.84s |
+| Build script | `projects/crypto-short/fear-greed-index.py` |
 
-## Where it goes
+No SRT and no metadata sidecar — the short format produces neither.
 
-Standard tinnitushelp.me pair distribution — YouTube (long + Shorts),
-Instagram Reels, Facebook, TikTok, and a site `videos.json` entry. Follow
-`/publish-video`'s own sequence for the exact steps; nothing here pre-empts
-it.
+The Short carries **no financial-advice disclaimer**, which is the standing
+rule for this channel: the paired long form carries it, and a Short closes
+cold on its own last line.
 
-Channel: **`tinnitus`**.
+---
 
-## Metadata
+## Things the publish step needs to know
 
-**Long form:** fully written in
-`~/Desktop/does-magnesium-help-tinnitus-long.md` — title, description,
-chapters, tags, credits, hashtags. Use it as-is.
+**Both thumbnails carry the same headline, word for word** — "THIS NUMBER
+CLAIMS TO KNOW CRYPTO'S MOOD" — and the same image, the index dial. That is
+deliberate: a viewer who sees the second one should recognise it. The Short's
+thumbnail is 1080x1920; YouTube Studio has no working way to set a 9:16 image
+as a Short's cover, which is a platform quirk to solve at upload time.
 
-**Short:** no sidecar generated (the engine doesn't produce one for Shorts).
-Starting point for publish time:
+**Credits that must appear in the description** (they are already in the
+sidecar's credits block):
 
-- **Title:** `Does Magnesium Help Tinnitus?` (or add `#shorts`, per whatever
-  the channel's settled Shorts title convention is)
-- **Description:**
-  ```
-  Nobody knows yet - but there's one thing about magnesium and tinnitus that is actually knowable. Full research breakdown: https://tinnitushelp.me/blog/does-magnesium-help-tinnitus
+- Footage: Pexels (Pexels licence, no attribution required)
+- Music: oosongoo, via Pixabay
+- Fear & Greed Index scale: thecrypto.wiki
+- Nothing in this video is financial advice
 
-  #tinnitus #magnesium #ringinginears
-  ```
-- **Tags:** reuse the long form's tag list from the `.md` sidecar above.
+**Nothing in either video is financial advice, and the copy must not add
+any.** No token, platform, price level or direction is named anywhere in
+either script, and the dial is drawn parked at the midpoint on purpose — a
+needle in the red would read as a claim about today's market. Do not write a
+description, title or social post that implies a reading, a direction or a
+recommendation.
 
-## Undecided / notes for publish
+## Not done, and deliberately left to `/publish-video`
 
-- Both videos and both thumbnails were checked against the docs' three
-  thumbnail rules (face not covered, subject fits, words are the script's
-  own) and against the crop rules for a portrait source cover-cropped into
-  16:9 and 9:16 — the automatic scorer initially cropped the capsules out of
-  frame on both, and both now use a hand-set `crop_at`/`ax`. Nothing else
-  flagged for review.
-- All footage is freshly fetched stock (the site's own two images for this
-  post are too bright and too small to use, per the script's own docstring)
-  — every clip's folder is new to the tinnitus channel, so there's no
-  reused-asset risk to check here.
-- `assets/stock/manifest.json` updated with the 22 new assets used across the
-  pair (21 clips + the shared thumbnail photo), same commit.
+- The YouTube uploads, the Reel workflows, the TikTok draft and the Facebook
+  upload.
+- The `videos.json` registry entry on the site.
+- Any social posts, and their order.
 
-**Open a fresh session and run `/publish-video`.**
+Nothing here has been uploaded or posted anywhere.
