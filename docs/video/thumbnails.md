@@ -191,6 +191,37 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
+## If the video has no person in it, the thumbnail has no person in it
+
+**The user's rejection of the `fear-greed-index` thumbnail, in their words:
+"just some black guy which is also super irrelevant."** Both halves of that
+are right and they are separate faults.
+
+The relevance half is the one to fix first, because it is the one that costs
+clicks. That thumbnail was a stock portrait chosen by scoring a batch for a
+quiet patch of frame — which is what this file tells you to do, and it works
+when the video *is* about a person. This video is about a 0-100 instrument.
+A stranger's face on it promises a profile, a story, somebody's opinion; the
+viewer who clicks gets a mechanism explainer and bounces, and the viewer who
+wanted the mechanism explainer never clicks at all. **A face is not a neutral
+default that makes any thumbnail more human — it is a promise about the
+subject, and on a concept video it is the wrong promise.**
+
+The replacement is the concept itself, drawn: the `dial` beat rendered as a
+still, shifted right with `shift=`, headline on the black it uncovers. It
+took no photograph at all. This is the same move as *"When the face keeps
+losing, drop the face"* above, arriving from relevance rather than from a
+fought crop — and between them the rule is now general: **reach for a
+photograph of a person only when a person is the subject.** An object, a
+drawn beat or a texture is the better ground for everything else.
+
+The second half is casting, and it is a real mechanism rather than a
+coincidence — `footage.md` records that screening on `MAX_LUMA` against dark
+backdrops structurally selects the same casting whatever the search query
+says, and that the durable fix is to stop casting in most slots rather than
+to fight the filter. A thumbnail built from a drawn graphic never reaches that
+question at all.
+
 ## A thumbnail may open the loop; it may not point at the wrong answer
 
 **The off-message rule applies to the thumbnail, not just to the shots**, and

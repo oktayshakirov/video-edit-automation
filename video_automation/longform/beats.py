@@ -2055,6 +2055,229 @@ class Diagram(Beat):
                     self._head(d, pts[-2], pts[-1], col)
 
 
+def _hex(s: str) -> tuple[int, int, int]:
+    """`"#f85032"` -> `(248, 80, 50)`. Bands are quoted from the source site."""
+    t = s.lstrip("#")
+    return tuple(int(t[i:i + 2], 16) for i in (0, 2, 4))
+
+
+class Dial(Beat):
+    """A semicircular gauge: coloured bands around an arc, and a needle.
+
+    **The beat for a named scale, which `gauge` is not.** `gauge` draws one
+    value against one *threshold* — a dose past a safe limit, decibels past
+    where damage starts — and its whole silhouette is a single straight track
+    with a flag on it. This draws a *graduated scale with named regions*: 0 to
+    100 with five bands, a severity ladder, a risk register. The difference is
+    not decoration. On a `gauge` the question is "which side of the line is
+    it on"; here the question is "which band is it in", and a linear track
+    with five colours on it reads as a stacked bar chart rather than as an
+    instrument.
+
+    It was built for the Crypto Fear & Greed Index, where the dial *is* the
+    subject — the site publishes the scale, the five band names and their
+    colours, and the video had no way to show any of it except by filming a
+    person looking worried. That is the failure this beat exists to end: an
+    abstract topic whose nouns are "a number", "a score" and "a scale" has no
+    photographic referent at all, so stock footage under it is always going to
+    be mood rather than meaning. Draw the noun.
+
+    **Radial, and that is the point.** Every other beat in this library lays
+    type in rows; this one is the only circular object in the set, so it can
+    never be mistaken at a glance for a list. It is also the one shape that
+    reads *better* in portrait than in landscape — a dial is as tall as it is
+    wide, where `gauge`'s horizontal track wastes a 9:16 frame.
+
+    Two reveals, in this order:
+
+    0. **The scale.** The arc sweeps left to right, the bands colour in behind
+       it, the boundary ticks and their numbers set. This is the sentence that
+       says what the scale *is*: "It runs from zero to a hundred."
+    1. **The needle.** It travels from the low end to its position while the
+       figure counts up under it. This is the sentence that says where
+       something sits.
+
+    So write it as **two caption chunks, scale first and needle second** — the
+    same "say the point, then show the graphic" rule the other beats follow
+    inside a single beat. Pass `value=None` for a scale with no needle at all,
+    which is one reveal and is the honest graphic for a line that describes
+    the instrument rather than a reading on it. In a YMYL niche that
+    distinction is the difference between explaining an index and appearing to
+    call one, so it is a payload option rather than something a script has to
+    fake by parking the needle somewhere.
+
+    **The vector layer is supersampled; the type is not.** PIL draws neither
+    arcs nor polygons antialiased, and a 46px band with a stair-stepped edge
+    at 1920 reads as a rendering fault rather than as an instrument — the same
+    objection this file already makes to whole-pixel motion and to instant
+    strike-throughs. The arc, the ticks and the needle are drawn at `SS` times
+    final size into their own RGBA layer and downscaled with LANCZOS; the
+    numerals go on afterwards at full resolution through `shadow_text`, so
+    they keep the crispness every other beat's type has.
+
+    payload: (bands, value, label, title)
+      bands  [(name, upto, "#rrggbb"), ...] — `upto` is the band's far edge as
+             a fraction of the scale, ascending, ending at 1.0. The first and
+             last names are drawn under the arc's ends as the poles.
+      value  0.0..1.0, or None for a scale with no needle
+      label  what the needle position is called, under the figure
+      title  the beat's kicker
+    """
+
+    EMBLEM = False
+    SS = 2                      # supersample factor for the vector layer
+    NEEDLE_W = 15               # half-width of the needle at the hub
+    TICKS = (0.0, 0.25, 0.5, 0.75, 1.0)
+
+    def __init__(self, bands: list, value: float | None = None,
+                 label: str = "", title: str = "", **kw):
+        super().__init__(**kw)
+        self.bands = [(str(b[0]), float(b[1]), b[2]) for b in bands]
+        self.value = None if value is None else float(value)
+        self.label, self.title = label, title
+
+    def _geom(self) -> tuple[int, int, int, int, int]:
+        """cx, cy, radius, band thickness, hub radius."""
+        fr = self.frame
+        if self.portrait:
+            return fr.w // 2, int(fr.h * 0.46), 386, 56, 30
+        return fr.w // 2, int(fr.h * 0.63), 352, 46, 26
+
+    def _vector(self, R: int, th: int, hub_r: int, sweep: float,
+                needle: float | None) -> tuple[Image.Image, int, int]:
+        """The arc, its ticks and the needle, drawn big and brought back down.
+
+        Returns the layer and the offset of its own centre inside it, so the
+        caller can paste it against the dial's centre without re-deriving the
+        padding.
+        """
+        S, pad = self.SS, 36
+        outer = R + th // 2 + pad
+        w, h = 2 * outer, outer + hub_r + pad
+        im = Image.new("RGBA", (w * S, h * S), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        cx, cy, rr = outer * S, outer * S, R * S
+        box = [cx - rr, cy - rr, cx + rr, cy + rr]
+        limit = 180.0 + 180.0 * max(0.0, min(1.0, sweep))
+
+        # The unlit track first, so the scale has a shape before it has
+        # colour — the same reason `gauge` draws an empty track and `steps`
+        # draws its rail before any node lands on it.
+        if sweep > 0:
+            d.arc(box, 180, 360, fill=(255, 255, 255, 30), width=th * S)
+        lo = 0.0
+        for _, upto, col in self.bands:
+            a0, a1 = 180.0 + 180.0 * lo, min(180.0 + 180.0 * upto, limit)
+            if a1 > a0:
+                d.arc(box, a0, a1, fill=_hex(col) + (255,), width=th * S)
+            lo = upto
+
+        # Ticks on the round quarters, not on the band edges. The index's own
+        # bands break at 25 / 50 / 55 / 75, and a tick at both 50 and 55 is
+        # two marks four pixels apart that the eye reads as a printing error.
+        # An instrument graduates its scale evenly and lets the colour say
+        # where the regions are.
+        r0, r1 = (R + th // 2 + 8) * S, (R + th // 2 + 24) * S
+        for e in self.TICKS:
+            if 180.0 + 180.0 * e > limit:
+                continue
+            a = math.radians(180.0 + 180.0 * e)
+            d.line([(cx + r0 * math.cos(a), cy + r0 * math.sin(a)),
+                    (cx + r1 * math.cos(a), cy + r1 * math.sin(a))],
+                   fill=self.brand.ink + (150,), width=3 * S)
+
+        if needle is not None:
+            a = math.radians(180.0 + 180.0 * max(0.0, min(1.0, needle)))
+            L = (R - th // 2 - 20) * S
+            tip = (cx + L * math.cos(a), cy + L * math.sin(a))
+            # Perpendicular at the hub, so the needle tapers rather than
+            # being a bar with a point stuck on it.
+            px, py = -math.sin(a), math.cos(a)
+            bw = self.NEEDLE_W * S
+            # **Ink, not the band's own colour.** `gauge` records this from
+            # the other direction: a marker filled with the colour of the
+            # thing it sits on is the least visible element on the frame, and
+            # the needle is the one element whose entire job is to say where.
+            d.polygon([tip, (cx + px * bw, cy + py * bw),
+                       (cx - px * bw, cy - py * bw)],
+                      fill=self.brand.ink + (255,))
+            d.ellipse([cx - hub_r * S, cy - hub_r * S,
+                       cx + hub_r * S, cy + hub_r * S],
+                      fill=self.brand.primary + (255,))
+            k = int(hub_r * 0.42) * S
+            d.ellipse([cx - k, cy - k, cx + k, cy + k],
+                      fill=self.brand.bg + (255,))
+
+        return im.resize((w, h), Image.LANCZOS), outer, outer
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        self.heading(out, self.title, f)
+        cx, cy, R, th, hub_r = self._geom()
+
+        e0 = self.due(0, 2 if self.value is not None else 1, f)
+        if e0 < 0:
+            return
+        sweep = self.span_p(0, f, lead=0.05, cap=1.7)
+
+        needle = None
+        travel = 0.0
+        if self.value is not None:
+            e1 = self.due(1, 2, f)
+            if e1 >= 0:
+                travel = self.span_p(1, f, lead=0.05, cap=1.5)
+                needle = self.value * travel
+
+        layer, ox, oy = self._vector(R, th, hub_r, sweep, needle)
+        out.paste(layer, (cx - ox, cy - oy), layer)
+
+        # --- type, at full resolution -------------------------------------
+        tick_font = _font(32 if not self.portrait else 36)
+        rt = R + th // 2 + 58
+        for e in self.TICKS:
+            txt = str(int(round(e * 100)))
+            if e > sweep:
+                continue
+            a = math.radians(180.0 + 180.0 * e)
+            tx, ty = cx + rt * math.cos(a), cy + rt * math.sin(a)
+            bb = d.textbbox((0, 0), txt, font=tick_font)
+            shadow_text(d, (tx - (bb[2] - bb[0]) / 2, ty - (bb[3] - bb[1]) / 2),
+                        txt, tick_font, self.brand.ink + (190,))
+
+        # The poles, under the two ends of the arc — "fear on one end, greed
+        # on the other" is a line this beat can say without narration.
+        if sweep > 0.98 and len(self.bands) >= 2:
+            pole = _font(34 if not self.portrait else 38)
+            ly, lx = cy + 30, cx - R - th // 2
+            shadow_text(d, (lx, ly), self.bands[0][0].upper(), pole,
+                        _hex(self.bands[0][2]))
+            rtxt = self.bands[-1][0].upper()
+            bb = d.textbbox((0, 0), rtxt, font=pole)
+            shadow_text(d, (cx + R + th // 2 - (bb[2] - bb[0]), ly), rtxt,
+                        pole, _hex(self.bands[-1][2]))
+
+        # The figure and its band name go **below the hub**, which is the one
+        # region of the frame a semicircular needle can never enter. The first
+        # cut set them inside the arc, where an instrument normally puts them,
+        # and the needle drew straight through the numeral on every reading
+        # near the middle of the scale — which is most of them. Geometry
+        # settles this, not taste: the needle sweeps 180..360 degrees, so
+        # everything under the hub is permanently clear.
+        if needle is not None and travel > 0:
+            big = _display(150 if not self.portrait else 132)
+            txt = str(int(round(self.value * 100 * travel)))
+            bb = d.textbbox((0, 0), txt, font=big)
+            fy = cy + (104 if not self.portrait else 118)
+            shadow_text(d, (cx - (bb[2] - bb[0]) / 2, fy), txt, big,
+                        self.brand.ink)
+            if self.label and travel > 0.92:
+                lf = _font(44 if not self.portrait else 48)
+                bb2 = d.textbbox((0, 0), self.label.upper(), font=lf)
+                shadow_text(d, (cx - (bb2[2] - bb2[0]) / 2,
+                                fy + (bb[3] - bb[1]) + 46),
+                            self.label.upper(), lf, self.brand.primary)
+
+
 BEATS = {
     "chapter": ChapterCard,
     "checklist": Checklist,
@@ -2066,6 +2289,7 @@ BEATS = {
     "steps": Steps,
     "logos": Logos,
     "gauge": Gauge,
+    "dial": Dial,
     "callout": Callout,
     "diagram": Diagram,
 }
@@ -2083,6 +2307,10 @@ _COUNT = {
     "steps": lambda p: len(p[0]),
     "logos": lambda p: len(p[0]),
     "gauge": lambda p: 2,
+    # A scale with no needle is one reveal, not two — see `Dial`. A script
+    # that describes the instrument rather than a reading on it gets a single
+    # caption chunk, and asking for two would shunt its scale a line late.
+    "dial": lambda p: 2 if len(p) > 1 and p[1] is not None else 1,
     "callout": lambda p: len(p[1]),
     "diagram": lambda p: len(p[0]),
 }

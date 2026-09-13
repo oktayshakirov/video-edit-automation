@@ -46,11 +46,23 @@ and a remembered version is a stale one.
    wait. An off-site topic is fine when asked for and never offered.
 3. **Script both together** from the chosen article. A session has no article
    and takes the session copy rules instead.
-4. **Build** - `projects/tinnitus-long/<name>.py` and
+4. **Decide what gets drawn, before writing a shot list.** This channel's
+   subject is **invisible** - there is no photograph of a phantom sound, of
+   gain, of habituation or of a spike - so a shot list built from footage
+   drifts to mood (somebody tired, somebody holding their head) every time.
+   Measured: `airpods-and-tinnitus` is 37 clips against 1 site image. List
+   the beats first and raise the graphic share; `diagram(loop=True)` is the
+   night loop this site's articles keep describing, `gauge` is decibels
+   against safe exposure, and `dial` is a severity or loudness scale.
+   **Budget a new beat when the library cannot draw the subject.** The clips
+   that remain are the *act* - headphones going in, a hand on a volume
+   control, somebody at a window - not a portrait of somebody suffering.
+   `docs/video/footage.md` and `docs/video/projects/tinnitus.md`.
+5. **Build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for a
    session).
-5. **Hand over and wait.** Re-cut as many times as the user asks.
-6. **On approval: commit, write `HANDOFF-PUBLISH.md`, and tell the user to open
+6. **Hand over and wait.** Re-cut as many times as the user asks.
+7. **On approval: commit, write `HANDOFF-PUBLISH.md`, and tell the user to open
    a fresh session for `/publish-video`.**
 
 ## This skill does not publish
@@ -70,4 +82,6 @@ audience, much of it distressed, and a confident sentence about a cure does real
 harm. The full statement of that rule, and what it means for a hook, is in
 `docs/video/projects/tinnitus.md` - read it before writing, not after a re-cut.
 
-Also standing: **no ear close-ups, in either format.**
+Also standing: **no ear close-ups, in either format** - and **the picture has
+to say the noun the narration says**, which on a channel whose subject cannot
+be photographed means drawing it rather than searching harder. See step 4.

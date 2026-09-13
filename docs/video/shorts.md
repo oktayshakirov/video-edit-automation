@@ -516,6 +516,13 @@ rather than assumed:
   1080 reads as a hairline. Use it in a short when the *limit* is the whole
   point of the section, not as a general-purpose figure - `stat` is still the
   better vertical beat for a number that stands alone.
+- **`dial` is the one that prefers portrait** (added 2026-09-13, see
+  `beats.md`). A radial scale is as tall as it is wide, so where `gauge`
+  wastes a 9:16 frame this one fills it, with the readout sitting under the
+  hub and the burned caption clearing it below. It is also the beat to reach
+  for when a Short's subject is an instrument or a graduated scale - which is
+  a thing a Short otherwise has no way to show at all, since the alternative
+  is a stock clip of somebody looking worried.
 - **`callout` is landscape only in practice.** In 9:16 there is no width for
   side gutters, so the labels fall back to a column below the image and the
   beat loses the clean side rails that are the whole point of the rebuild.

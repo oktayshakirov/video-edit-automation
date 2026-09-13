@@ -116,7 +116,16 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          label=None, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
-                        "diagram"):
+                        "diagram", "dial"):
+        # **`dial` joined this set 2026-09-13, and it is the first beat that
+        # prefers portrait.** A radial scale is as tall as it is wide, so
+        # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
+        # empty this one fills it, with the readout under the hub and the
+        # burned caption clearing it below. Its reveal count is not
+        # `len(payload[0])` — a scale drawn with no needle is one reveal and
+        # a scale with one is two — so it goes through `item_count` below
+        # rather than the node-count shortcut.
+        #
         # **`diagram` joined this set 2026-09-10.** Its portrait layout runs
         # the causal chain down the frame with the feedback arrow (`loop=True`)
         # returning up an inset left channel — see `longform/beats.py`. Reveal
@@ -285,7 +294,20 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     for sh, sent in zip(shots, sentences):
         if sh.graphic:
             starts = [captions[first + k].start for k in range(len(sent))]
-            n = len(sh.payload[0])
+            # **`item_count` knows the shapes `len(payload[0])` does not.**
+            # That shortcut holds for every list beat, where payload[0] is the
+            # items — and breaks on `dial`, whose reveal count depends on
+            # whether a needle was asked for (one for a bare scale, two for a
+            # scale plus a needle) rather than on the length of its band list.
+            #
+            # It also quietly corrects `chapter`, which has always been given
+            # `len(payload[0])` reveals — and whose `payload[0]` is a *string*,
+            # so a nine-character card asked for nine. Harmless, because
+            # `ChapterCard` settles as one block and never reads `reveals`,
+            # but it is the same class of bug as routing an unknown beat to
+            # the checklist: a number that means nothing, computed anyway.
+            from ..longform.beats import item_count
+            n = item_count(sh.graphic, sh.payload)
             # Options appear on the caption starts of their own sentence, so a
             # line arrives exactly as it is spoken. Even fractions of the shot
             # look synced until you watch it, and then every item is a beat

@@ -300,6 +300,25 @@ have, cannot be embedded as evergreen `VideoObject` content, carries per-video
 accuracy risk in a YMYL niche, and is the shape the platforms suppress hardest.
 News becomes a variant once the pipeline is proven, not the proving ground.
 
+## A topic whose nouns are abstractions has to be drawn, not filmed
+
+**From the `fear-greed-index` re-cut, and it is the sharper version of the
+rule below.** Half this channel's topics have no photographic referent at all
+— an index, a score, a supply, a validator, a fee. The shot list will drift to
+mood footage every time, because mood is the only thing a stock library has
+for an abstraction, and no amount of better searching fixes it.
+
+The lever is the **graphic share**, not the search. That cut runs eight drawn
+graphics and composed stills in twenty-six shots — against the four to nine
+`beats.md` measured across nineteen scripts — and the thing that made it
+possible was building the beat that could draw its own subject (`dial`).
+Budget a new beat for a topic the library cannot draw; it is cheaper than a
+second stock fetch and it is reusable forever after.
+
+The clips that remain should be **the act, not the emotion**: a hand on a lit
+phone, a thumb on a feed, a carriage of people each on a screen. Full
+reasoning, and the casting rule that falls out of it, in `footage.md`.
+
 ## An abstract is a backdrop. It cannot carry a shot.
 
 Cross-posted from the long form, where the full write-up lives. Told to fetch

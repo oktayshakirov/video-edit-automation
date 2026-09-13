@@ -523,6 +523,59 @@ listening — a commuter with headphones, someone putting an earbud in, a hand o
 a volume control. Those read faster and are pleasant to watch, which is the
 whole job of a shot nobody is reading.
 
+## This channel's subject is invisible, so it has to be drawn
+
+**The two sections above each found half of this rule, and the crypto side
+found the other half from scratch on `fear-greed-index` — where a cut was
+rejected outright for stock that had nothing to do with the script.** The
+general version is written up in `footage.md`; it lands harder here than
+anywhere else on either channel, so it is worth stating in this file too.
+
+**Tinnitus is a phantom sound. There is no photograph of it.** Neither is
+there one of gain, of habituation, of a spike, of masking, or of what a
+quiet room does to a tone nobody else can hear. When the noun cannot be
+photographed, a shot list built from stock will always drift to *mood* —
+somebody looking tired, somebody holding their head — because mood is the
+only thing a stock library has for an abstraction. That is why the two
+findings above exist: "the act rather than the place" and "the subject is a
+person listening" are both the same instinct, applied one topic at a time.
+
+**And it is measured, not a feeling.** `beats.md` counted the shipped
+scripts: `airpods-and-tinnitus` is **37 clips against 1 site image**,
+`why-does-tinnitus-spike` **24 against 1**. Drawn beats are four to nine
+shots out of thirty to forty-five across the whole library. Three quarters
+of every video on this channel is stock, under a subject stock cannot show.
+
+**The lever is the graphic share, not the search.** The crypto re-cut went to
+eight drawn graphics and composed stills in twenty-six shots and the
+difference was not subtle. This channel has the beats for it already:
+
+- **`diagram(loop=True)` is the tinnitus night loop**, and this file's own
+  articles describe it constantly — quieter room, more gain, louder tone,
+  more noticing. A list makes that *harder* to follow, because a list ends
+  and the mechanism does not.
+- **`gauge` was built for decibels against safe exposure**, which is the
+  commonest claim this site makes.
+- **`dial` (2026-09-13) is new and fits this channel directly**: a graduated
+  scale with named regions, which is what a severity ladder, a loudness
+  scale or a risk band actually is. It reads better in 9:16 than in 16:9,
+  so the Shorts can use it too. See `beats.md`.
+- **`callout` explains a photograph** rather than replacing one, which is
+  the beat for the three quarters of the runtime that is a still or a clip.
+
+**Budget a new beat when the library cannot draw the subject.** It is
+cheaper than a second stock fetch and it is reusable forever after — `dial`
+took one session and now serves both channels.
+
+**The casting corollary, which the user raised directly.** Shooting an
+abstract subject through hands, screens, objects and crowds rather than
+portraits also takes the casting question out of most slots — and that
+matters here because `footage.md` records that screening on `MAX_LUMA`
+against dark backdrops selects the same casting structurally, whatever the
+search query says, and that steering it with search terms was tried and
+does not work. Reach for a face when the sentence is genuinely about a
+person; otherwise reach for the hands, the headphones, the volume control.
+
 ## The rule that outranks every production consideration
 
 **No medical claims. Ever.** This is YMYL health content and the site's own copy

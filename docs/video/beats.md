@@ -655,6 +655,61 @@ replaces the weak `stat` uses rather than adding to them.
   does not go on a linear track by dividing one number by another. Place the
   ticks where the scale actually falls and put the real values in the labels.
 
+### `dial` — a graduated scale with named regions (2026-09-13)
+
+`payload: (bands, value, label, title)`, bands `[(name, upto, "#rrggbb"), ...]`
+where `upto` is each band's far edge as a fraction of the scale, ascending,
+ending at 1.0. `value` is 0..1 for a needle, or **`None` for a scale with no
+needle at all** — one reveal instead of two.
+
+**It is not `gauge` with more colours.** `gauge` draws one value against one
+*threshold* and its silhouette is a straight track with a flag on it; the
+question it answers is "which side of the line". This draws a scale with
+*named regions* and answers "which band is it in". Put five colours on a
+linear track and it stops reading as an instrument and starts reading as a
+stacked bar chart — which is what the first attempt at this looked like.
+
+**It was built because a video could not draw its own subject.** The Crypto
+Fear & Greed Index *is* a dial: the site publishes the scale, the five band
+names and their colours, and the first cut of that video had no way to show
+any of it, so it filmed people looking worried instead. That is the failure
+`footage.md` now writes up at length — an abstract topic has to be drawn, not
+searched for. Reusable well beyond it: a severity ladder, a risk register, a
+loudness scale.
+
+- **Radial is the point.** Every other beat here lays type in rows, so this is
+  the only round object in the set and can never be mistaken for a list. It is
+  also the one beat that reads *better* in portrait than landscape — a dial is
+  as tall as it is wide, where `gauge`'s horizontal track wastes a 9:16 frame.
+- **Two reveals, scale first and needle second**, so write two caption chunks
+  in that order — the same "say the point, then show the graphic" rule the
+  other beats run inside a single beat. A `value=None` dial takes one chunk.
+- **The readout sits below the hub, and that is geometry rather than taste.**
+  The first version put the figure inside the arc where a real instrument puts
+  it, and the needle drew straight through the numeral on every reading near
+  the middle of the scale — which is most of them. A semicircular needle
+  sweeps 180°–360°, so everything under the hub is permanently clear.
+- **Ticks go on the round quarters, not on the band edges.** This index's own
+  bands break at 25 / 50 / 55 / 75, and a tick at both 50 and 55 is two marks
+  four pixels apart that reads as a printing error. Graduate the scale evenly
+  and let the colour say where the regions are.
+- **The vector layer is supersampled; the type is not.** PIL antialiases
+  neither arcs nor polygons, and a 46px band with a stair-stepped edge at 1920
+  reads as a rendering fault — the same objection this repo makes to
+  whole-pixel motion. The arc, ticks and needle are drawn at 2x into an RGBA
+  layer and brought down with LANCZOS; the numerals go on afterwards at full
+  resolution through `shadow_text`.
+- **The needle is ink, never the band's colour.** `gauge` records this from
+  the other direction: the one element whose whole job is to say *where* was
+  the least visible thing on the frame until it stopped being the colour of
+  what it sits on.
+- **In a YMYL niche, `value=None` is a safety feature, not a fallback.** A
+  needle parked at a reading is a claim about that reading. A script that
+  describes the instrument rather than a number on it should draw no needle,
+  and a thumbnail should park it at the midpoint — a dial pinned into the red
+  on a thumbnail reads as "the market is fearful right now", which is exactly
+  the claim these channels never make.
+
 ### Vary the beats across the channel, not only within one video
 
 **Restating the silhouette rule at the unit it should always have used.**

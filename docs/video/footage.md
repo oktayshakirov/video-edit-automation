@@ -346,6 +346,69 @@ first-time use, not a repeat of anything. Re-check whether an old rejection
 still applies before re-applying it; a stale "cannot use this" is as much a
 bug as a stale "safe to reuse."
 
+## Shoot an abstract topic through hands, screens and crowds — not faces
+
+**This is the fix for the casting problem above, and it arrived from the
+other direction: as a note about relevance.** The first cut of
+`fear-greed-index` was rejected for stock that had nothing to do with the
+script — a fireworks festival under "plenty of people check it", a woman
+celebrating under string lights under the greed line, a metronome and three
+portraits under claims about *a number*. Every one of those clips was dark,
+on-palette, unused elsewhere and passed `audit_assets.py`. Screening was
+never going to catch it.
+
+**The fault is upstream of screening: some topics have no photographic
+referent at all.** The nouns in that script were "a number", "a score", "a
+scale" and "a feedback loop". A stock library has no picture of any of them,
+so a shot list built from stock will always drift to *mood* — somebody
+looking worried, somebody celebrating — because mood is the only thing stock
+has for an abstraction. This file's own "say the noun the narration says"
+cannot be satisfied by searching harder. It can only be satisfied by
+**drawing the noun** — which means the drawn-beat share has to go up, not the
+search budget. That cut went to eight graphics in twenty-six shots against
+the format's usual four to nine, and the thing that made it possible was
+building the one beat that could draw its subject (`dial`, see `beats.md`).
+
+**And the clips that remain should be the act, not the emotion.** What
+"checking a sentiment index" actually looks like is a hand on a lit phone, a
+thumb on a feed, a carriage full of people each on their own screen. Those
+are literal, they are on-palette almost by definition (a screen in the dark
+is a dark frame with one bright rectangle), and they need no face.
+
+**But check what is *on* the prop's screen, because that is a noun too.** The
+best-composed clip in that roster — a hand holding a lit phone against pure
+black — was pulled from the opening shot of both cuts once the frames were
+looked at: the phone is running a **photo editor**, sliders and a filmstrip
+and all, legible at full size. Under "one number claims to know the crypto
+market's mood" the brightest object in the frame was saying *photo app*. This
+is the same failure as the branded exchange homepage already documented above,
+arriving through a prop rather than through a screenshot: a screen in shot is
+read, not merely seen, and it either says the noun or contradicts it. **Prefer
+a clip whose screen is an indistinct glow** — a thumb over the edge of a
+phone, a feed scrolling too fast to identify — over a better composition whose
+screen says something else.
+
+**Which quietly solves the casting problem this file already documented.**
+The section above records that screening on `MAX_LUMA` against dark backdrops
+selects for darker-skinned actors structurally, and that every attempt to
+steer it with search terms failed — the filter does the casting, not the
+query. **The user's standing instruction is that the channel should not keep
+returning the same casting, and the reliable way to honour it is to stop
+casting at all in most slots.** A hand, a screen, a silhouette and a crowd
+carry an explainer perfectly well; they are usually the better picture for an
+abstract claim anyway. So:
+
+- **Default an abstract topic's clip roster to hands, screens, objects and
+  crowds.** Reach for a face only where the sentence is genuinely about a
+  person feeling something, and then cast it deliberately.
+- **Count the faces before writing the shot list**, the same way this file
+  already says to count the clips that are only atmosphere. If most of the
+  roster is portraits and the script is about a mechanism, the roster is
+  wrong regardless of who is in it.
+- **Look at the cast on the finished contact sheet.** That check stands from
+  the section above and is not replaced by this one — it is just needed far
+  less often once the roster is mostly hands and screens.
+
 ## An asset used in another video is not available to this one
 
 **The user's rejection of the proof-of-stake cut, and it is a channel-level
