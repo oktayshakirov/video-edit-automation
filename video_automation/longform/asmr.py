@@ -352,6 +352,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      minutes: float = 10.0,
                      bed: soundbed.Bed | None = None,
                      bed_files: tuple[Path, Path] | None = None,
+                     bed_file: Path | None = None, bed_file_skip: float = 0.0,
                      intro: list | None = None, outro: list | None = None,
                      voice: str = "luna",
                      intro_at: float = 3.0, outro_at: float = 4.5,
@@ -412,6 +413,12 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     `render_bed`, so the mix is identical; the trade is that the honest limit
     travels with them (little energy above 4 kHz, so a high whistling tinnitus
     is not well covered) and the copy must not contradict it.
+
+    **`bed_file` is a single already-mixed real recording** — a field or
+    studio ambience rather than a synthesised noise colour — trimmed to
+    `total` seconds starting `bed_file_skip` seconds in, then given the same
+    long fades and `loudnorm=I=-20` treatment the generated bed gets. Pass at
+    most one of `bed`, `bed_files` or `bed_file`.
     """
     workdir.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -446,6 +453,18 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
         # Fades off here — the long therapy fades below are the ones that apply.
         wav = short_asmr.render_bed(low, high, workdir / "bed.wav", total,
                                     fade_in=0.0, fade_out=0.0)
+    elif bed_file is not None:
+        if audio_mod.duration_of(bed_file) < total + bed_file_skip:
+            raise ValueError(
+                f"{bed_file.name} is too short: a {total:.0f}s piece needs "
+                f"{total + bed_file_skip:.0f}s of track after the "
+                f"{bed_file_skip:.0f}s skip")
+        wav = workdir / "bed.wav"
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-y", "-ss", f"{bed_file_skip:.3f}",
+             "-i", str(bed_file), "-t", f"{total:.3f}",
+             "-ar", "48000", "-ac", "2", str(wav)],
+            check=True, capture_output=True)
     else:
         wav = soundbed.write(workdir / "bed.wav", total, bed)
     # Long fades at both ends. A therapy bed that starts at full level is a

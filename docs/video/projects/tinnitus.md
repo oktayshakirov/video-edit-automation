@@ -638,6 +638,17 @@ generating it is better on the merits:
 masks.** That is how the original limitation was found, and it is the only thing
 standing between a description and an overclaim.
 
+**A third option, `bed_file`, plays a single already-mixed real recording**
+instead of `bed` (generated) or `bed_files` (the old two-track album layering)
+— `render_asmr_short` and `render_asmr_long` both take it, plus `bed_file_skip`
+to trim past a source's own lead-in. Built for `waterfall-478-breathing`, whose
+bed is one waterfall-plus-pads field recording rather than a noise colour. It
+gets the same `loudnorm`/fade treatment the other two paths get, so the
+sidechain duck against the voice behaves identically either way. **The honest
+limit still applies and is unmeasured by construction** — a fixed recording's
+frequency spread is whatever it is, not a spec, so run `band_energy()` on it
+before claiming any masking coverage, same as a generated bed.
+
 ## The picture is a seamless loop — and everything must divide it
 
 A 40-minute video is 72,000 frames of Python compositing. Instead one loop is

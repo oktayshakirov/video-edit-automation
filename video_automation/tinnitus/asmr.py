@@ -488,6 +488,7 @@ def mix_voice_over_bed(bed: Path, voice: Path, out: Path, duration: float,
 def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
                       low: Path | None = None, high: Path | None = None,
                       bed: soundbed.Bed | None = None,
+                      bed_file: Path | None = None, bed_file_skip: float = 0.0,
                       cycles: int = 3, inhale: float = 4.0,
                       hold: float = 0.0, exhale: float = 6.0,
                       voice: str = "luna",
@@ -508,13 +509,16 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
     block, on top of the ring. Two calls give both blocks natural caption ends
     and put the seam exactly where the breathing starts.
 
-    **Either `(low, high)` or `bed`, not both.** `(low, high)` layers the
-    brand's own album tracks via `render_bed` — the original short's sound,
-    kept for making a genuinely matching long cut of an already-published
-    short. Both tracks are gone from disk as of this writing, so a fresh short
-    needs `bed`, a `soundbed.Bed`, generated and loudness-matched the same way
-    `render_bed`'s output is (`loudnorm=I=-23`, the same fade lengths) so
-    `mix_voice_over_bed`'s sidechain behaves identically either way.
+    **Pass exactly one of `bed`, `bed_file` or `(low, high)`.** `(low, high)`
+    layers the brand's own album tracks via `render_bed` — the original
+    short's sound, kept for making a genuinely matching long cut of an
+    already-published short. Both tracks are gone from disk as of this
+    writing. `bed` is a generated `soundbed.Bed`. `bed_file` is a single
+    already-mixed real recording (a field or studio ambience, not a
+    synthesised noise colour) — trimmed to length from `bed_file_skip`
+    seconds in and put through the same `loudnorm=I=-23` and fade treatment
+    `render_bed`'s output gets, so `mix_voice_over_bed`'s sidechain behaves
+    identically across all three.
     """
     from ..core.vertical import render_text_png
     from ..core.voiceover import CAPTION_MAX_W
@@ -567,6 +571,17 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
 
     if bed is not None:
         raw = soundbed.write(workdir / "bed-raw.wav", total, bed)
+    elif bed_file is not None:
+        raw = workdir / "bed-raw.wav"
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-y", "-ss", f"{bed_file_skip:.3f}",
+             "-i", str(bed_file), "-t", f"{total:.3f}",
+             "-ar", "48000", "-ac", "2", str(raw)],
+            check=True, capture_output=True)
+    else:
+        raw = None
+
+    if raw is not None:
         bed_wav = workdir / "bed.wav"
         subprocess.run(
             ["ffmpeg", "-v", "error", "-y", "-i", str(raw),
@@ -577,7 +592,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
     elif low is not None and high is not None:
         bed_wav = render_bed(low, high, workdir / "bed.wav", total)
     else:
-        raise ValueError("pass either (low, high) or bed, not neither")
+        raise ValueError("pass one of bed, bed_file, or (low, high)")
     audio = mix_voice_over_bed(bed_wav, narration, workdir / "mix.wav", total)
 
     picture = render_visual(workdir / "picture.mp4", total, phases,
