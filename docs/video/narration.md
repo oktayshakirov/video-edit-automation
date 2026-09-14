@@ -125,7 +125,21 @@ and "transparency" shipped without "noise" and "mode" and both were flagged as
 confusing; the failure mode is identical anywhere a product has a two-word
 name and the script keeps one of them.
 
-### 5. A number that is spoken must also be seen
+### 5. An opener that is a complete sentence needs a period and a real gap, not a comma inside the same breath
+
+Two openers can look alike on the page and want opposite treatment. "i read a
+quote that said" is a fragment — it wants a comma and a gap under ~1.0s, so it
+flows straight into the quote as one breath. "i came across these words
+today" is a complete sentence on its own — it needs a period **and** a gap at
+or above ~1.0s, or the comma-plus-short-gap reads as still continuing even
+though a human eye reads a period on the page. The Teufelsberg cut shipped
+with `"...today,"` at `gap=0.55` and it read as the first half of one long
+sentence; fixed by ending it `"...today."` and raising the gap to `1.05`
+(2026-09-14). Check which kind of opener is on the page — a fragment or a
+finished thought — before setting either number; they are not a style choice,
+they are a pair.
+
+### 6. A number that is spoken must also be seen
 
 Not every figure earns a `stat` or a `bars` beat, and the ones that do not used
 to be said into the air and lost. `Shot(clip=..., note=("21M", "the whole supply, ever"))` draws a small figure
