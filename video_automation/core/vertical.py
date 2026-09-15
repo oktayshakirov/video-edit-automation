@@ -53,6 +53,19 @@ FONT_QUOTE = "/System/Library/Fonts/Supplemental/Iowan Old Style.ttc"
 FONT_QUOTE_INDEX = 2   # Italic
 FONT_QUOTE_SIZE = 44
 
+# Arial Black — trial face for the "box karaoke" caption style (a coloured
+# rounded-rect behind the active word, the common TikTok auto-caption look).
+# Bold and blocky where FONT_QUOTE is a light serif italic, because the box
+# itself is doing the accent work this time and wants a face that reads as
+# a meme caption up front. Not yet promoted past the one drone trial it was
+# built for — see `render_caption_karaoke`'s `box=` and `upper=`.
+FONT_KARAOKE_BOX = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
+FONT_KARAOKE_BOX_INDEX = 0
+# Floor for render_caption_karaoke's shrink-to-one-line search — small enough
+# to fit almost any scripted caption without ever wrapping, large enough to
+# stay legible on a phone.
+MIN_KARAOKE_SIZE = 22
+
 # TikTok and Shorts put their UI on the bottom band and right edge. The genre
 # sits type near 40% height, well clear of both, and keeps the block narrow.
 TEXT_MAX_W = 780
@@ -330,8 +343,21 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
                            y_frac: float = 0.70, stroke: int = 4,
                            max_w: int = TEXT_MAX_W, frame: Frame = VERTICAL,
                            accent: tuple[int, int, int, int] = (255, 255, 255, 255),
-                           grow: float = 1.08) -> Path:
+                           grow: float = 1.08, box: bool = False,
+                           box_pad: tuple[int, int] = (16, 10),
+                           box_radius: int = 18, upper: bool = False,
+                           single_line: bool = False) -> Path:
     """One caption frame with word `active` lifted in colour and scale.
+
+    `box=True` is a second, trial emphasis style: instead of colouring the hot
+    word's ink, a rounded rectangle in `accent` is drawn behind it (the word
+    itself stays white-on-black-stroke, like every other word) — the TikTok
+    auto-caption look of a coloured pill following the active word. The
+    rectangle is drawn onto a layer *behind* the text layer, never onto the
+    same one, so it can never paint over a neighbouring word's glyphs even
+    when its padding reaches into the inter-word gap. `upper` uppercases the
+    whole line first, which is the style this was built to pair with — see
+    `FONT_KARAOKE_BOX`.
 
     The device every short-form platform's own captions use: the whole phrase
     stays on screen and the word being spoken right now is picked out. It is
@@ -355,16 +381,42 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
     visibly touched its neighbours, since the inter-word space is a single
     space at caption size. The colour is doing most of the work anyway; the
     scale is there to stop the highlight reading as flat.
+
+    **`single_line=True` never wraps** — instead of `_wrap`, the base `size`
+    shrinks (down to `MIN_KARAOKE_SIZE`) until the *whole* line fits on one row
+    at `max_w`. Built for the stacked drone layout, where a second line
+    doubles the block height and the black band between the tiles (100px by
+    default) cannot absorb it — a wrapped caption there spills its second line
+    onto the footage above or below the band. Off by default: a caption
+    burned over full-bleed footage (crypto, tinnitus) has no such band and
+    wrapping to two lines is the existing, approved look there.
     """
+    if upper:
+        text = text.upper()
+
     font = _load_font(font_path, size, font_index)
+    if single_line:
+        probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+        while (size > MIN_KARAOKE_SIZE
+               and probe.textlength(text, font=font) > max_w):
+            size -= 1
+            font = _load_font(font_path, size, font_index)
+        lines = [text]
+    else:
+        probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+        lines = _wrap(probe, text, font, max_w)
     big = _load_font(font_path, max(size + 1, int(round(size * grow))),
                      font_index)
 
-    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
-    lines = _wrap(probe, text, font, max_w)
     line_h = int(size * 1.34)
     top = int(frame.h * y_frac) - line_h * len(lines) // 2
 
+    # Two layers, not one: the box has to sit *behind* every word's glyphs,
+    # including a neighbour's, and its padding can reach into the inter-word
+    # gap. Drawing both onto one image in word order would let the box paint
+    # over whichever neighbour was already drawn.
+    box_layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    bd = ImageDraw.Draw(box_layer)
     img = Image.new("RGBA", frame.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
@@ -378,7 +430,10 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
         x = (frame.w - (sum(widths) + space * (len(words) - 1))) / 2
         for w, adv in zip(words, widths):
             hot = wi == active
-            fill = accent if hot else (255, 255, 255, 255)
+            # `box` puts the emphasis on a rectangle instead of the ink, so
+            # the hot word stays white-on-black-stroke like every other word.
+            fill = (255, 255, 255, 255) if (hot and box) else \
+                (accent if hot else (255, 255, 255, 255))
             if hot:
                 # Repositioning a too-wide glyph run only moves the overhang
                 # from one side to the other - it cannot remove it, since the
@@ -404,13 +459,31 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
             # reserved, so the advance the next word starts from is unchanged.
             dx = (adv - d.textlength(w, font=f_use)) / 2
             dy = (size - f_use.size) / 2
+            if hot and box:
+                # The box has to centre on the glyphs actually drawn, not on
+                # the font's em-box: `d.text` anchors at the ascender line, and
+                # for all-caps text (no descenders) the ink sits well inside
+                # that box — using `size`/`f_use.size` as the box height left a
+                # dead gap above the letters and put the bottom edge past the
+                # baseline. `textbbox` with the same `stroke_width` gives the
+                # real rendered-ink rectangle, stroke included, so the box
+                # wraps exactly what is on screen.
+                pad_x, pad_y = box_pad
+                l, t, r, btm = d.textbbox((x + dx, y + dy), w, font=f_use,
+                                          stroke_width=stroke)
+                bd.rounded_rectangle(
+                    [l - pad_x, t - pad_y, r + pad_x, btm + pad_y],
+                    radius=box_radius, fill=accent)
             d.text((x + dx, y + dy), w, font=f_use, fill=fill,
                    stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
             x += adv + space
             wi += 1
         y += line_h
 
-    img.save(out)
+    out_img = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    out_img.alpha_composite(box_layer)
+    out_img.alpha_composite(img)
+    out_img.save(out)
     return out
 
 

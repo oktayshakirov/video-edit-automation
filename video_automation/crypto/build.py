@@ -19,7 +19,8 @@ from ..core.vertical import (add_caption_emoji, render_caption_karaoke,
                              render_text_png)
 from ..core.voiceover import (CAPTION_MAX_W, build_narration_aligned,
                               caption_window, profile_args)
-from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
+from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX,
+                             FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX)
 from .shots import (ChecklistShot, PhotoShot, Shot, caption_sprite, logo_mark,
                     plan_shots, render_shots, roam_anchors)
 
@@ -198,6 +199,18 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         mark: "Image.Image | None" = None,
                         roam: bool = False,
                         karaoke: bool = True,
+                        # The drone channel's trial box-karaoke style, ported
+                        # here so a future short can opt in — see
+                        # `core.vertical.render_caption_karaoke`'s `box=`/
+                        # `upper=` and `FONT_KARAOKE_BOX`. Both default off:
+                        # every shipped short still gets the coloured-word
+                        # highlight on Futura. `karaoke_box` also switches the
+                        # caption font from `FONT_CAPTION` to `FONT_KARAOKE_BOX`
+                        # for *every* caption in the short, karaoke'd or not —
+                        # a mixed-font short (Futura on a one-word caption,
+                        # Arial Black everywhere else) would read as a mistake.
+                        karaoke_box: bool = False,
+                        karaoke_upper: bool = False,
                         # Stills laid over the picture for a window — see
                         # `longform.overlay.ImageOverlay`. A vertical frame has
                         # room above the footage that a landscape one does not,
@@ -378,6 +391,13 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 
     line = caption_line(shots, y_frac, frame=frame)
 
+    # One caption font for the whole short, box style or not — a caption that
+    # falls through to the plain-PNG path (a set-piece word, an emoji line, or
+    # a single-word caption) has to match whatever the karaoke'd lines are
+    # using, or the short reads as two different videos stitched together.
+    cap_font_path = FONT_KARAOKE_BOX if karaoke_box else FONT_CAPTION
+    cap_font_index = FONT_KARAOKE_BOX_INDEX if karaoke_box else FONT_CAPTION_INDEX
+
     pngs, ci = [], 0
     for sh, sent in zip(shots, sentences):
         for _ in sent:
@@ -393,21 +413,25 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 pngs.append(None)
                 continue
             p = workdir / f"cap{len(pngs):02d}.png"
+            text = c.text.upper() if karaoke_upper else c.text
             # bg_luma is irrelevant here: stroke=4 selects the white-ink,
             # black-border treatment, the only one that survives type on a photo.
-            render_text_png(c.text, p, size=font_size, bg_luma=0.0,
-                            font_path=FONT_CAPTION, font_index=FONT_CAPTION_INDEX,
+            render_text_png(text, p, size=font_size, bg_luma=0.0,
+                            font_path=cap_font_path, font_index=cap_font_index,
                             y_frac=line, stroke=4, max_w=CAPTION_MAX_W,
                             frame=frame)
             if emoji and c.text in emoji:
-                add_caption_emoji(p, c.text, emoji[c.text], font_size,
-                                  line, FONT_CAPTION, FONT_CAPTION_INDEX,
+                add_caption_emoji(p, text, emoji[c.text], font_size,
+                                  line, cap_font_path, cap_font_index,
                                   frame=frame)
             pngs.append(p)
 
     if karaoke:
         sprites = _karaoke_sprites(pngs, captions, workdir, font_size, line,
-                                   frame, brand, emoji)
+                                   frame, brand, emoji,
+                                   font_path=cap_font_path,
+                                   font_index=cap_font_index,
+                                   box=karaoke_box, upper=karaoke_upper)
     else:
         sprites = [s for s in
                    (caption_sprite(p, *caption_window(c))
@@ -531,7 +555,10 @@ def _word_spans(text: str, start: float, end: float,
 
 def _karaoke_sprites(pngs, captions, workdir: Path, font_size: int,
                      line: float, frame: Frame, brand: Brand,
-                     emoji: "dict[str, str] | None"):
+                     emoji: "dict[str, str] | None",
+                     font_path: str = FONT_CAPTION,
+                     font_index: int = FONT_CAPTION_INDEX,
+                     box: bool = False, upper: bool = False):
     """Per-word caption sprites: the phrase held, the spoken word lit.
 
     Emits one sprite per *word* rather than per caption, each rendered from
@@ -542,6 +569,12 @@ def _karaoke_sprites(pngs, captions, workdir: Path, font_size: int,
     The plain PNG rendered upstream is reused as the sprite for anything with
     no words to light, and thrown away otherwise; rendering it first keeps the
     "is there a caption at all" decision in one place.
+
+    `font_path`/`font_index` default to this channel's usual Futura; the
+    caller passes `FONT_KARAOKE_BOX` alongside `box=True` for the drone
+    channel's trial pill style, so the two never drift apart (a box in Futura
+    or Arial Black with no box are not styles anyone asked for). `upper`
+    matches — see `render_crypto_short`'s `karaoke_box`/`karaoke_upper`.
     """
     from .shots import CAP_IN, CAP_OUT, caption_sprite
 
@@ -579,9 +612,9 @@ def _karaoke_sprites(pngs, captions, workdir: Path, font_size: int,
             wp = workdir / f"kar{i:03d}_{k:02d}.png"
             render_caption_karaoke(
                 c.text, wp, active=k, size=font_size,
-                font_path=FONT_CAPTION, font_index=FONT_CAPTION_INDEX,
+                font_path=font_path, font_index=font_index,
                 y_frac=line, stroke=4, max_w=CAPTION_MAX_W, frame=frame,
-                accent=brand.primary + (255,))
+                accent=brand.primary + (255,), box=box, upper=upper)
             # Only the caption's own first and last frames animate; the word
             # frames between them hard-cut, or the phrase pulses per syllable.
             s = caption_sprite(wp, a, b,

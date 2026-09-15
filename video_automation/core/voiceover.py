@@ -1212,8 +1212,12 @@ def render_narrated_stack(top: tuple,
                           sfx_gain: float = 0.22,
                           fps: int = 30,
                           karaoke: bool = True,
+                          karaoke_box: bool = False,
+                          karaoke_upper: bool = False,
                           accent: "tuple | Callable[[str], tuple | None] | str | None" = "auto",
                           gap: "float | list[float]" = GAP, tail: float = TAIL,
+                          hold_last_caption: bool = False,
+                          fade_out: float = 0.0,
                           ) -> tuple[Path, float]:
     """Two clips stacked into one frame, quote read on the band between them.
 
@@ -1257,6 +1261,27 @@ def render_narrated_stack(top: tuple,
     or `karaoke=False` to go back to one still PNG per caption. A set-piece
     word (its own `font_size`), a colour-inked word or an emoji caption always
     keep the single PNG — the karaoke renderer models none of those.
+
+    `karaoke_box` is a trial second style: a rounded rectangle in `accent`
+    behind the active word instead of colouring it (the TikTok auto-caption
+    look). `karaoke_upper` uppercases every karaoke'd caption to match — see
+    `render_caption_karaoke`'s `box=`/`upper=` and `FONT_KARAOKE_BOX`. Neither
+    flag touches the single-PNG path.
+
+    `hold_last_caption` and `fade_out` are a one-off pair for a cut that hands
+    off to something added after the fact — the user's own music or a VO drop
+    over the last few seconds. Both default off; nothing shipped moves.
+
+    * `hold_last_caption=True` keeps the final caption on screen from where it
+      would normally clear (`caption_window`'s `speech_end + CAPTION_GRACE`)
+      through to `total`, instead of leaving that stretch blank. For a
+      karaoke'd line this swaps to one plain, unhighlighted render of the
+      whole phrase — freezing the last word's highlight would read as stuck,
+      not held. A single-PNG caption's own layer is simply extended.
+    * `fade_out` is seconds of fade-to-black ending exactly at `total`. This
+      is the one place in the engine that adds one — every other caller's
+      `# no fade to black` comment still applies; a caller that wants the
+      loop-friendly ending leaves this at 0.
     """
     (src_a, start_a, box_a, slow_a) = (*top, 1.0)[:4]
     (src_b, start_b, box_b, slow_b) = (*bottom, 1.0)[:4]
@@ -1318,7 +1343,9 @@ def render_narrated_stack(top: tuple,
                 render_caption_karaoke(c.text, p, active=k, size=size,
                                        font_path=face, font_index=idx,
                                        y_frac=y_frac, stroke=stroke,
-                                       max_w=max_w, accent=acc)
+                                       max_w=max_w, accent=acc,
+                                       box=karaoke_box, upper=karaoke_upper,
+                                       single_line=True)
                 layers.append((p, a, b))
             continue
 
@@ -1329,6 +1356,33 @@ def render_narrated_stack(top: tuple,
         if char:
             add_caption_emoji(p, c.text, char, size, y_frac, face, idx)
         layers.append((p, cs, ce))
+
+    if hold_last_caption:
+        shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
+        if shown:
+            i, c = shown[-1]
+            _, ce = caption_window(c)
+            words = c.text.split()
+            size = font_size(c.text) if callable(font_size) else font_size
+            face = font_path(c.text) if callable(font_path) else font_path
+            idx = font_index(c.text) if callable(font_index) else font_index
+            word_ink = ink(c.text) if callable(ink) else ink
+            char = emoji(c.text) if emoji else None
+            if (karaoke and len(words) >= 2 and not char and not word_ink
+                    and size == FONT_QUOTE_SIZE):
+                # Freezing the last word's highlight would read as a stuck
+                # frame, not a held one — swap to the plain, unlit phrase.
+                p = workdir / f"cap{i:02d}_hold.png"
+                render_caption_karaoke(c.text, p, active=-1, size=size,
+                                       font_path=face, font_index=idx,
+                                       y_frac=y_frac, stroke=stroke,
+                                       max_w=max_w, accent=(255, 255, 255, 255),
+                                       box=False, upper=karaoke_upper,
+                                       single_line=True)
+                layers.append((p, ce, total))
+            elif layers:
+                p, s, _ = layers[-1]
+                layers[-1] = (p, s, total)
 
     xa, ya, wa, ha = box_a
     xb, yb, wb, hb = box_b
@@ -1345,7 +1399,12 @@ def render_narrated_stack(top: tuple,
     for n, (_, s, e) in enumerate(layers):
         chain.append(f"[v{n}][{n+2}:v]overlay=0:0:"
                      f"enable='between(t,{s:.3f},{e:.3f})'[v{n+1}]")
-    chain.append(f"[v{len(layers)}]null[vout]")   # no fade to black — see `render_short`
+    last = f"[v{len(layers)}]"
+    if fade_out > 0:
+        st = max(0.0, total - fade_out)
+        chain.append(f"{last}fade=t=out:st={st:.3f}:d={fade_out:.3f}[vout]")
+    else:
+        chain.append(f"{last}null[vout]")   # no fade to black — see `render_short`
 
     # Each tile is read for only as much source as its own stretch needs, so a
     # slowed clip is not asked for footage it does not have.

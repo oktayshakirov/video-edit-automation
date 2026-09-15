@@ -387,6 +387,40 @@ line genuinely needs the glyph, put it on the **last** caption of the piece,
 where the break has nothing after it to be inconsistent with — and never on a
 line in the first fifteen seconds.
 
+## A second karaoke style exists: a coloured box instead of a coloured word
+
+Trialled on the drone channel first (`berlin-column-believe-in-you`, 2026-09-16
+— see `projects/drone-short.md`), then ported here the same session so both
+channels can reach for it: `render_crypto_short(..., karaoke_box=True,
+karaoke_upper=True)` (and `render_tinnitus_short`, which forwards both
+straight through). Off by default — nothing shipped moves.
+
+Instead of colouring the active word's ink, a rounded rectangle in `brand.primary`
+is drawn behind it and the word itself stays white-on-black-stroke like every
+other word — the auto-caption look several TikTok templates use. `karaoke_upper`
+uppercases the whole line to match; the two are meant to travel together, not
+as independent toggles. `karaoke_box` also switches the caption font from
+`FONT_CAPTION` (Futura) to `FONT_KARAOKE_BOX` (Arial Black) for **every**
+caption in the short — including the ones that fall through to the plain-PNG
+path (a one-word caption, an emoji line) — because a short with Futura on one
+caption and Arial Black on the rest reads as two different videos cut
+together, not a deliberate choice.
+
+**Not yet approved on either channel** — it shipped once, on drone, and the
+user has not yet seen it on a photo/clip-driven short. Treat it the way any
+untried beat is treated: build it, show it, wait for a verdict before making
+it a default. See `core.vertical.render_caption_karaoke`'s `box=`/`upper=`
+for the mechanics, including why the box is drawn on a separate layer behind
+the text (so its padding can never paint over a neighbouring word).
+
+**This is unrelated to `single_line=True`**, the other flag that shipped
+alongside it. That one forces the whole karaoke'd line onto one row by
+shrinking the font instead of wrapping — built for the drone channel's
+stacked layout, where a second line overflows the black band between the
+tiles. Crypto and tinnitus captions burn over full-bleed footage with no such
+band, so wrapping to two lines is still the right, already-approved behaviour
+here; `single_line` defaults off and neither channel's build code sets it.
+
 ## A caption clears during the between-sentence pause
 
 **A short caption goes up with its first word and comes down just after the

@@ -271,6 +271,48 @@ Only `render_narrated_stack` karaokes so far. `render_narrated` and
 `render_narrated_cuts` still render one PNG per caption; wire the same way if a
 single-clip or sequential cut ever needs it.
 
+## A second karaoke style: a coloured box behind the word, not a coloured word
+
+Trialled on `berlin-column-believe-in-you` (2026-09-16), from a reference
+screenshot of a TikTok-style caption: a rounded pill in `accent` behind the
+active word instead of tinting its ink, on a bold all-caps face
+(`FONT_KARAOKE_BOX`, Arial Black) instead of the usual Iowan Old Style
+italic. `render_narrated_stack(..., karaoke_box=True, karaoke_upper=True)`;
+both default off, so every earlier cut is unaffected. User-approved on this
+one cut and since ported to crypto/tinnitus — see `shorts.md`'s own section,
+which carries the shared mechanics (why the box sits on a separate layer,
+the font/case pairing) so it is not repeated here.
+
+**This is also where `render_caption_karaoke` picked up `single_line=True`.**
+The first render wrapped a long caption to two lines and the second line
+spilled out of the black band (100px, less than two 44px lines). Rather than
+widen the band, the base font now shrinks until the whole line fits on one
+row — on by default for this call site, since the band-height problem is
+about the layout, not about the box style; a plain colour-word caption would
+have overflowed exactly the same way. `shorts.md` has the full note on why
+crypto/tinnitus leave this off.
+
+**`hold_last_caption` and `fade_out` are a one-off pair, not a new default.**
+The user wanted their own sound dropped in after "I believe in you," with
+that line held (unhighlighted, not cleared per the usual `caption_window`
+behaviour) while the picture fades to black — the opposite of this doc's own
+"no fade to black, a short should end on picture." Both default off;
+`berlin-column-believe-in-you.py` is the only script that sets them.
+
+**The boomerang fix for a clip shorter than the narration.** The first cut of
+this same short used a ~2.8x `slow` factor to stretch a 7s clip to a ~14-16s
+read, and the user's verdict was that it read as laggy. The fix was not a
+smaller `slow` — it was no `slow` at all: play the clip forward at native
+speed, then the same span reversed, also at native speed (`_build_boomerang`
+in the project script, one ffmpeg call — `trim` twice off the same input,
+`reverse` on the second, `concat`). Motion stays real in both directions, and
+the reverse half reads as the drone drifting back rather than a loop trick.
+**The trade-off:** a boomerang shows the entire clip in both directions, so
+the crop has to stay safe for the *whole* span, not just the fraction a slow
+factor would have consumed — this pushed `BOX_TOP` back from x=870 (safe only
+through ~6s) to x=800 (safe through the full ~7s). Reach for this whenever a
+narration outruns its footage instead of reaching for `slow` first.
+
 **All three clear the caption during the between-sentence pause** rather than
 holding it across the gap, and the caption boundary is pinned to where the
 voice actually stops and resumes — see *A caption clears during the
