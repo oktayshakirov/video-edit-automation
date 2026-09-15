@@ -1,94 +1,65 @@
-# Handoff → /publish-video
+# Handoff: noise-canceling headphones pair, ready for `/publish-video`
 
-**Built:** `crypto-exchanges-quiz` — thecrypto.wiki's **first quiz Short**
-(`/video-quiz crypto`, quiz #1 for the channel). Vertical only, no long form —
-the quiz format never has one.
-**Source article:** `understanding-crypto-exchanges` (already has its own
-long+short explainer pair — the article that taught the audience the
-mechanism this quiz tests).
-**Date:** 2026-09-15
-**Voice:** `otis` (bare `am_puck`, ENERGETIC chain) — the quiz format's fixed
-reader on both channels, not project-specific.
-**Approved by the user.** Built and shipped on the first render — no re-cut
-needed this session.
+Built and approved 2026-09-15. Open a fresh session and run `/publish-video`.
 
-## Files (Desktop)
+**Source article:** `noise-canceling-headphones-for-tinnitus`
+(tinnitushelp.me/blog/noise-canceling-headphones-for-tinnitus)
+**Channel:** Tinnitus Help · **Voice:** `mia` · **Music:** `night-drift`
 
-| what | path |
+## What was built
+
+A long + Short pair from one post. The angle is the article's own reversal:
+active noise control removes the outside sound tinnitus was competing with,
+which helps in a noisy place and can backfire in a silent one, because the
+brain turns its own gain up to fill the quiet. The fix is pairing the
+headphones with soft sound instead of total silence.
+
+### Long form (16:9) — 2:44
+
+| | |
 | --- | --- |
-| video (9:16) | `/Users/oktayshakirov/Desktop/quiz-crypto-exchanges.mp4` |
+| Video | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long.mp4` |
+| Thumbnail | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long-thumb.jpg` |
+| Captions | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long.srt` |
+| Metadata | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long.md` |
+| Script | `projects/tinnitus-long/noise-canceling-headphones-for-tinnitus.py` |
 
-Runtime **89.9s** (ffprobe-checked), 1080x1920, h264/aac.
+YouTube title: **Can Noise-Canceling Headphones Make Tinnitus Worse?**
+Seven chapters, first at 0:00 — the full list is in the `.md` sidecar, which
+also carries the description, tags and the medical disclaimer. Use it rather
+than re-deriving any of them.
 
-**No thumbnail, no SRT, no `.md` sidecar** — all three are format conventions,
-not omissions:
-- No thumbnail render: the quiz format's own picture is already four drawn
-  cards, so a generated headline plate would just restate the hook. Pull the
-  Reel cover from a frame of the finished render instead, same as every
-  other quiz Short (`docs/video/projects/quiz.md`, `docs/publish/instagram-facebook.md`).
-- No SRT: long-form only.
-- No `.md` metadata sidecar: also long-form only — the quiz has no chapters
-  to carry. Title/description material below is raw material, not
-  pre-written copy.
+### Short (9:16) — 44.7s
 
-## What this is
+| | |
+| --- | --- |
+| Video | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-short.mp4` |
+| Reel cover (Instagram, Facebook) | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-short-thumb.jpg` |
+| YouTube thumbnail | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-short-thumb-yt.jpg` |
+| Script | `projects/tinnitus-short/noise-canceling-headphones-for-tinnitus.py` |
 
-Three questions on CEX vs. DEX mechanics, each testing the same confusion
-from a different angle — who holds a deposit, how a trade gets matched, what
-happens when a CEX is hacked. Every wrong option is a real fact about the
-*other* kind of exchange, taken straight from the source article (order book,
-KYC and an intermediary are true CEX facts, offered as wrong answers to the
-DEX question; self-custody via smart contract is a true DEX fact, offered as
-a wrong answer to the CEX question) — so a viewer who half-remembers the
-article picks the wrong mechanism, not a made-up distractor.
+Opens on its title question, closes cold on the directive ("Never wear them
+into total silence - always leave a little sound on"), no engagement question.
 
-**No exchange is named anywhere in the script**, and no option has a
-direction — every question asks about mechanism ("what does custodial mean",
-"how does a trade clear with no company in the middle"), never which
-exchange to use or which is safer. This is the crypto channel's standing
-safety line (`docs/video/projects/crypto.md`, `docs/video/projects/quiz.md`),
-and it is easier to break in this format than in an explainer, so it is
-worth a second look before this goes out.
+## Notes for publishing
 
-**Outro is "How many did you get?" and stops** — no "tell me in the
-comments", per the format's standing rule.
+- **Both thumbnails share one source and one headline** ("Headphones on. /
+  Ringing louder?"), so the pair reads as a set. The source is the user's own
+  pick: pexels.com/photo/3757028.
+- **The long form carries the disclaimer** in its description credits; the
+  Short deliberately does not, per `narration.md`.
+- **No medical claims anywhere.** Nothing promises relief or a cure; the red
+  flags in the description are the article's own.
+- Nothing about this build is undecided. The working tree is clean and
+  pushed (`aa61a8d`).
 
-**Suggested title:** "Crypto Exchanges Quiz: CEX vs. DEX" or "How Well Do You
-Know Crypto Exchanges?" — Shorts titles are a curiosity hook, not a search
-query, so lean on whichever reads better in the Shorts feed. The on-screen
-title card itself says "Crypto Quiz: Exchanges Edition" and is not meant to
-double as the YouTube title.
+## Shipped with it (engine, already committed)
 
-**Description material:** the quiz is drawn from **[Crypto Exchanges
-Explained](https://thecrypto.wiki/posts/understanding-crypto-exchanges)** —
-link it. No financial-advice disclaimer is spoken in the video (the quiz
-format never carries one, no long form to inherit it from either), so if the
-channel's standard compliance line belongs in the description text, that is
-a judgement call for this step, not something scripted into the narration.
+Worth knowing only if something looks unfamiliar while publishing:
 
-## Engine fix shipped with this build (commit below)
-
-**`video_automation/crypto/build.py`'s `render_crypto_short` crashed on
-every quiz render, unconditionally**, with `ValueError: unknown beat 'quiz'`.
-Cause: the previous commit (`2f76089`, the fear-greed-index/`dial` build)
-replaced the old `n = len(sh.payload[0])` reveal-count shortcut with
-`item_count(sh.graphic, sh.payload)` for every shot carrying a `.graphic` —
-correct for every real beat, but the quiz format's shots carry
-`graphic="quiz"` as its own sentinel, not a beat `item_count` knows about,
-and its reveals/marks/cues are always precomputed in `quiz.build`'s own
-`plan()` closure before this code ever runs. `item_count` doesn't need to be
-taught a `"quiz"` case — this loop never needed to touch a quiz shot at all,
-so it now skips `sh.graphic == "quiz"` explicitly. This is the first time
-the quiz format has been rendered since that commit landed, so nothing
-shipped before this was affected — only this build hit it.
-
-No doc change: the fix removes the trap rather than describing it
-(`docs/video/README.md`'s own rule — a fixed bug is not documentation).
-
-## Repo state
-
-Committing now: the quiz project script, the `item_count` fix, and this
-handoff. Everything will be pushed to `origin/main` before this session
-ends.
-
-Nothing has been uploaded or posted anywhere yet.
+- The long form opens with a new **animated title sequence** at 0:08 —
+  `overlay.TitleOverlay`, on by `render_long(title_at=)`. This is the
+  treatment for both channels from now on; the old `Shot(payload=)` title
+  stamp is superseded.
+- `compare` now raises on `picture=`; thumbnail headlines accept a `\n` as a
+  hard row break; karaoke captions shrink an over-wide highlighted word.
