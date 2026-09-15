@@ -30,7 +30,7 @@ from ..crypto.shots import caption_sprite, render_shots
 from . import audio as audio_mod
 from .beats import Checklist, item_count, make_beat
 from .meta import Meta, write_srt
-from .overlay import ClipOverlay
+from .overlay import ClipOverlay, TitleOverlay
 from .plan import Section, flatten, lay_out, mark_times, reveal_times
 from .thumb import render_thumb
 
@@ -59,6 +59,16 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_crop_band: str = "middle",
                 thumb_shift: float = 0.0,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
+                # The title sequence. `title_at` is the second it starts and
+                # turns the whole thing on; `title` defaults to `meta.title`
+                # and `title_eyebrow` to the brand's own domain. See
+                # `overlay.TitleOverlay` — this supersedes putting the title in
+                # a `Shot(payload=)` statement, which is a different device
+                # doing a job it was never designed for.
+                title_at: float | None = None,
+                title: str | None = None,
+                title_hold: float = 5.0,
+                title_eyebrow: str | None = None,
                 sound: bool = True, fps: int = 30,
                 # Intermediates are deleted on success. See the note at the end
                 # of this function; set True while iterating on a cut.
@@ -187,7 +197,9 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         # a 16:9 video is watched in a player, not scrolled past.
         brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        overlays=_endcard(endcard, endcard_lead, total, frame))
+        overlays=(_endcard(endcard, endcard_lead, total, frame)
+                  + _title(title_at, title, title_hold, title_eyebrow,
+                           meta, brand, frame)))
 
     # --- sound -----------------------------------------------------------
     if sound:
@@ -268,6 +280,25 @@ def _endcard(path: "Path | None", lead: float, total: float,
     at = ((frame.w - w) // 2, int(frame.h * 0.60))
     return [ClipOverlay(Path(path), start, total, frame=frame, scale=0.42,
                         at=at, fade=0.5, crop=(0.46, 0.69, 0.91, 0.91))]
+
+
+def _title(at: "float | None", text: "str | None", hold: float,
+           eyebrow: "str | None", meta, brand, frame) -> list:
+    """The title sequence, if this build asked for one.
+
+    **Put it on the line that promises the payoff, not on frame one.** The
+    format's own rule about the title stamp is unchanged by the new treatment:
+    around eight seconds in, the video has already earned the first five
+    seconds with a fact, and the title arriving there reads as a title
+    sequence rather than as a slate the viewer has to sit through.
+    """
+    if at is None:
+        return []
+    line = text or (meta.title if meta is not None else None)
+    if not line:
+        raise ValueError("title_at was given but there is no title to draw - "
+                         "pass `title=` or a `meta` with one")
+    return [TitleOverlay(line, at, hold, brand, frame=frame, eyebrow=eyebrow)]
 
 
 def _cues(shots, total: float) -> list[tuple[float, str]]:

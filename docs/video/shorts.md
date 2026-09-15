@@ -331,6 +331,19 @@ opt out on a specific short.
   its neighbours, because the inter-word gap at caption size is a single space.
   The colour carries most of the "this word is live" signal; the scale only
   keeps the highlight from reading as flat.
+- **1.08 is not always small enough, and repositioning cannot fix it.** "Do
+  noise-canceling **headphones** actually help tinnitus?" shipped with
+  `headphones` fused to both neighbours - measured, its `grow`'d width
+  overhangs 13px a side against a 9px space at size 46, so even perfect
+  centring already eats the whole gap, and the 4px stroke on every glyph
+  closes what little was left. Sliding the oversized glyph run left or right
+  only moves the overhang from one side to the other; it cannot remove it,
+  because the glyph itself is not shrinking. The fix shrinks the *enlarged*
+  font for that one word, one point at a time, until its stroked width fits
+  inside `adv + (space - 2*stroke)` - so a long highlighted word still pops,
+  just not at the full 1.08 - and a short one keeps the full growth
+  untouched. Check any highlighted word over ~8 characters on a fresh script;
+  this is cheapest to catch on the render, not by eye in the editor.
 - **`CaptionSprite` needed per-sprite `fade_in`/`fade_out`.** Every sprite used
   to run the same 0.13s scale-and-fade entrance, which on a per-word caption
   re-fires every syllable and cross-dissolves the phrase against a

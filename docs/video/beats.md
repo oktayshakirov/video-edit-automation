@@ -93,6 +93,23 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
 - A checklist with every item ticked is a legitimate use — a procedure that ticks
   through. `satoshi-proof.py` uses it for the four verification steps.
 
+## `compare` has no picture column, and now refuses one
+
+**It raises on `picture=` as of the noise-canceling cut, where it shipped a
+right-hand column printed straight through a photograph** — the user's note
+was that the second column "is generated over the image and is super messy",
+and it was exactly that. Every other split-layout beat keeps its content in
+the left half and the photo in `pic_box` on the right; a comparison uses
+*both* halves by definition, so the two occupy the same pixels. Nothing
+warned, because `make_beat` passes `picture=` to every beat and this one
+simply drew both on top of each other.
+
+The fix is a `ValueError` in `Compare.__init__` rather than a silent drop: a
+photograph that was meant to be seen should fail loudly and get its own shot
+beside the beat, not disappear. This is the same shape as `callout` taking
+`photo=` instead of `picture=` — a beat that owns the whole frame cannot also
+take the split layout's column.
+
 ## A struck item has to explain itself
 
 **The user's note on the quantum cut: a lone ✗ in a list is confusing —

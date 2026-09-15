@@ -286,6 +286,18 @@ def _wrap_balanced(words: list[tuple[str, bool]], d: ImageDraw.ImageDraw,
         seg = widths[i:j]
         return sum(seg) + space * (len(seg) - 1) if seg else 0.0
 
+    # **Breaking after a full stop is much cheaper than breaking inside a
+    # phrase.** Minimum raggedness on its own only knows about slack, so on
+    # "Headphones on. Ringing louder?" it happily produced HEADPHONES / ON.
+    # RINGING / LOUDER? - even line lengths, and the sentence torn in half
+    # across two of the three rows. The user's note was that this keeps
+    # happening: "we are separating important parts of the text in new rows".
+    # A line that ends where the writing ends reads as one idea per row, so
+    # the DP gets a discount for landing there and only overrides it when the
+    # alternative is genuinely much more ragged.
+    BREAK_OK = (".", "?", "!", ":", ";", ",")
+    BREAK_BONUS = 0.28              # multiplier on that line's penalty
+
     INF = float("inf")
     cost = [0.0] + [INF] * n
     back = [0] * (n + 1)
@@ -310,6 +322,15 @@ def _wrap_balanced(words: list[tuple[str, bool]], d: ImageDraw.ImageDraw,
                 # this has to keep: a line's width is a hard limit, not
                 # something to trade off against raggedness.
                 continue
+            # The last line does not get the bonus: it ends where the text
+            # ends whatever happens, so discounting it would just bias every
+            # arrangement equally.
+            # Multi-word lines only. Discounting a line that is one short
+            # word ending in a full stop is how "ON." ended up alone on a row
+            # of its own - the bonus has to reward *finishing a phrase*, not
+            # merely owning the punctuation.
+            if j < n and j - i >= 2 and words[j - 1][0].endswith(BREAK_OK):
+                penalty *= BREAK_BONUS
             if cost[i] + penalty < cost[j]:
                 cost[j] = cost[i] + penalty
                 back[j] = i
@@ -351,7 +372,25 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     it leaves the words riding high in the plate.
     """
     d = ImageDraw.Draw(base)
-    words = _split(headline.upper())
+    # **A newline in the headline is a line break the layout may not move.**
+    # The punctuation discount in `_wrap_balanced` fixes the common case on
+    # its own, but it is a preference and a long enough phrase can still
+    # outvote it. This is the escape hatch for a headline whose rows are a
+    # deliberate decision rather than a wrapping outcome - write
+    # `"Headphones on.\nRinging [louder?]"` and those are the two rows.
+    segments = [_split(seg.upper()) for seg in headline.split("\n") if seg.strip()]
+    words = [w for seg in segments for w in seg]
+
+    # **A headline with its own rows gets a wider column than one that wraps
+    # itself.** The narrow column (0.46 of the frame) exists to force a
+    # free-flowing headline into many big short rows. When the rows are
+    # already chosen, that same column just makes the type tiny - "Headphones
+    # on." needs size 56 to fit 588px and the search never gets there. Widen
+    # to whatever the type area actually has, so a committed row can be set as
+    # large as it fits.
+    if len(segments) > 1:
+        col_w = max(col_w, min(base.width - x_text - margin,
+                               int(col_w * 1.38)))
 
     def orphan(lines) -> bool:
         # A lone word of three letters or fewer stranded on its own row - the
@@ -360,10 +399,23 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         return any(len(ln) == 1 and len(ln[0][0]) <= 3 for ln in lines)
 
     fallback = fallback_ok = None
-    for _ in range(30):
+    # A forced-row headline searches twice as far down. At an 8px step a
+    # 30-iteration search from 300 bottoms out at 68, which is larger than a
+    # two-word row needs, so the search gave up and fell back to the very
+    # arrangement it was told not to produce. Auto-wrapped headlines keep the
+    # old range on purpose: letting *them* reach those sizes would quietly
+    # re-lay-out every thumbnail already shipped, to no one's benefit.
+    for _ in range(60 if len(segments) > 1 else 30):
         font = ImageFont.truetype(FONT_DISPLAY, size)
         space = d.textlength(" ", font=font)
-        lines = _wrap_balanced(words, d, font, space, col_w)
+        # Each hard segment is wrapped on its own, so a forced break can
+        # never be crossed; a segment too wide for the column still wraps
+        # inside itself rather than overflowing, and the accept test below
+        # then keeps shrinking until it stops having to.
+        per_seg = [_wrap_balanced(seg, d, font, space, col_w)
+                   for seg in segments]
+        lines = [ln for seg in per_seg for ln in seg]
+        breaks_kept = all(len(seg) == 1 for seg in per_seg)
         line_h = int(size * leading)
         block = len(lines) * line_h
         fits = len(lines) <= max_lines and block < max_block
@@ -376,7 +428,8 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
             for _, t, _ in ln:
                 if t:
                     tag_lines.setdefault(t, set()).add(i)
-        runs_intact = all(len(v) == 1 for v in tag_lines.values())
+        runs_intact = (all(len(v) == 1 for v in tag_lines.values())
+                       and breaks_kept)
         if fits and fallback is None:
             fallback = (size, font, space, lines, line_h, block)
         if fits and runs_intact:

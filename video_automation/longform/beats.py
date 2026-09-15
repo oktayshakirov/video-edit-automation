@@ -657,6 +657,22 @@ class Compare(Beat):
     def __init__(self, left_title: str, left_items: list[str],
                  right_title: str, right_items: list[str],
                  name_columns: bool = False, **kw):
+        # **This beat has no picture column and cannot be given one.** Every
+        # other split-layout beat keeps its content in the left half and the
+        # photograph in `pic_box` on the right; a comparison uses *both*
+        # halves by definition, so the right column's headings and items print
+        # straight through the photograph. It rendered as a heading sitting on
+        # top of a picture with items crossing it - "super messy", and rightly
+        # so. Nothing raised, because `make_beat` passes `picture=` to every
+        # beat and this one simply drew both. Refuse it instead: put the
+        # picture on a neighbouring shot, where it is a shot rather than a
+        # collision.
+        if kw.get("picture") is not None:
+            raise ValueError(
+                "`compare` has no picture column - its right-hand column "
+                "occupies exactly the space `picture=` would draw into, and "
+                "the two print on top of each other. Give the photograph its "
+                "own shot beside the beat.")
         super().__init__(**kw)
         self.lt, self.li = left_title, left_items
         self.rt, self.ri = right_title, right_items

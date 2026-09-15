@@ -82,6 +82,43 @@ headline and change only the layout.
   either the score or the override — but note that **all three thumbnails so
   far ship overridden**, which says as much about the scorer as the pictures.
 
+### A row is a phrase - never split one idea across two rows
+
+**The user's standing note, and they flagged it as a repeat offence: "often
+we make this mistake ... we are separating important parts of the text in new
+rows".** `Headphones on. Ringing louder?` shipped as HEADPHONES / ON. RINGING
+/ LOUDER? - three tidy, evenly-ragged rows with both sentences torn in half.
+Minimum raggedness is doing exactly what it was asked to do; the problem is
+that it only knows about slack, and a reader does not read slack, they read
+phrases.
+
+Two things now push against it, and the first usually suffices:
+
+- **A line that ends where a phrase ends gets a discount** in
+  `_wrap_balanced` - a 0.28x multiplier on that line's penalty when its last
+  word ends in `. ? ! : ; ,`. **Multi-word lines only**: the first version
+  discounted any line ending in punctuation and promptly stranded `ON.` on a
+  row by itself, which is the same fault wearing a different hat. The bonus
+  is for *finishing a phrase*, not for owning the full stop.
+- **A newline in the headline is a break the layout may not move.** Write
+  `"Headphones on.\nRinging [louder?]"` and those are the rows. Each segment
+  wraps on its own so nothing can cross the break, and the size search keeps
+  shrinking until each segment sits on one line - the same mechanism that
+  already keeps an accent run whole.
+
+**Reach for the newline whenever the rows are a decision rather than an
+outcome**, which on a two-sentence headline is always. Two knock-on effects:
+
+- **A forced-row headline gets a wider column** (1.38x, capped at the type
+  area). The narrow 0.46-of-frame column exists to force a free-flowing
+  headline into many big short rows; when the rows are already chosen it only
+  makes the type small - `HEADPHONES ON.` needs size 56 to fit 588px.
+- **And it searches twice as far down** (60 steps, not 30). At an 8px step,
+  30 steps from 300 bottoms out at 68 - larger than a two-word row needs - so
+  the search gave up and fell back to the arrangement it was told to avoid.
+  Auto-wrapped headlines keep the old 30 deliberately: letting them reach
+  those sizes would quietly re-lay-out every thumbnail already shipped.
+
 ### Check three things on every thumbnail before shipping it
 
 The user's standing list, from reviewing the crypto-exchanges pair:

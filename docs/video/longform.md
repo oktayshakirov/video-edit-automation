@@ -224,10 +224,41 @@ the viewer into the section instead of annotating it. `Shot(clip=...,
 payload=("KICKER", "The line"))`; the kicker is optional and usually better
 empty.
 
-That also gives the format its **title stamp**: a clip whose statement is the
-video's own title. Put it on the line that promises the payoff — around eight
-seconds, not on the opening frame — so it costs none of the first five seconds
-while still functioning as a title sequence.
+## The title is `title_at=`, not a `payload` — and it animates
+
+**The title stamp used to be a clip whose `payload` statement was the video's
+own title, and that was the wrong device.** `payload` draws a 96px line
+centred inside a flat black band across the middle third of the frame. It is
+right for *a statement the footage illustrates* — the compliance line over
+rain on a window — and wrong for a title, which the user called "very ugly"
+on the noise-canceling cut and then asked for a modern animated one "for both
+tinnitus and crypto videos also in the future". Three separate faults: a
+hard-edged scrim band is a rectangle sitting *on* the picture rather than part
+of it, centred caps in Futura (a light wide geometric) is slideware, and
+nothing moves, so the one moment the video says what it is has no more weight
+than a caption.
+
+`render_long(title_at=8.5, title_hold=5.4)` draws `overlay.TitleOverlay`
+instead. `title` defaults to `meta.title` and the eyebrow to `brand.site`, so
+a build only has to say *when*. What it draws, and why each part is there, is
+in that class's docstring; the short version is a bottom-left lower third — a
+gradient scrim instead of a band, a brand-coloured accent bar that grows
+before any type, a letter-spaced eyebrow, and the title in **SF Pro Heavy**
+rising into view line by line behind a mask, all leaving together at the end.
+
+- **It is brand-agnostic by construction.** The only colour it uses is
+  `brand.primary`, so the same call gives tinnitus peach and crypto gold and
+  the two channels read as one family without either borrowing the other's
+  palette.
+- **Still around eight seconds, not frame one.** That rule is unchanged and it
+  is about the script, not the treatment: the opening five seconds belong to a
+  fact, and a title arriving on the line that promises the payoff reads as a
+  title sequence rather than as a slate.
+- **Drop the `payload` when you add it.** Running both puts two titles on the
+  same shot.
+
+`payload` itself is untouched and still correct for its own job — a statement
+the footage is illustrating, at one per minute (see below).
 
 **The opener has to earn the first thirty seconds.** Not a picture and straight
 into narration. The shape that works: cold-open on the claim, a hard number

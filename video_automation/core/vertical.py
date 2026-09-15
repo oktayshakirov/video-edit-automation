@@ -378,8 +378,28 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
         x = (frame.w - (sum(widths) + space * (len(words) - 1))) / 2
         for w, adv in zip(words, widths):
             hot = wi == active
-            f_use = big if hot else font
             fill = accent if hot else (255, 255, 255, 255)
+            if hot:
+                # Repositioning a too-wide glyph run only moves the overhang
+                # from one side to the other - it cannot remove it, since the
+                # glyph itself does not shrink. Measured on "headphones" at
+                # size 46: `grow`=1.08 gives a 13px overhang a side against a
+                # 9px space, so even perfect centring already eats the whole
+                # gap and touches the neighbour - and the stroke (drawn with
+                # its own `stroke_width` halo around every glyph) closes
+                # another `stroke` px from each side on top of that, so the
+                # fill boxes touching is not even the real threshold. Shrink
+                # the enlarged font for *this word* until its stroked box
+                # fits within the space either side, so a long word still
+                # pops but its outline never overlaps what is next to it; a
+                # short word keeps the full `grow`.
+                budget = adv + max(0.0, space - 2 * stroke)
+                f_use = big
+                while (f_use.size > size
+                       and d.textlength(w, font=f_use) > budget):
+                    f_use = _load_font(font_path, f_use.size - 1, font_index)
+            else:
+                f_use = font
             # Centre the (possibly larger) glyph run on the box the base font
             # reserved, so the advance the next word starts from is unchanged.
             dx = (adv - d.textlength(w, font=f_use)) / 2

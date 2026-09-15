@@ -346,6 +346,37 @@ first-time use, not a repeat of anything. Re-check whether an old rejection
 still applies before re-applying it; a stale "cannot use this" is as much a
 bug as a stale "safe to reuse."
 
+## When the subject *is* a photographable object, every shot has it in frame
+
+**The counterweight to the rule below, and the noise-canceling cut is where
+it was needed.** That file's whole subject is a *device*. Unlike gain,
+habituation or a spike, headphones can simply be photographed — and the first
+cut still came back with an airplane cabin, a woman in a dark bedroom, an old
+man in a chair and a pair of hands on a laptop. Every one of them was dark,
+on-palette, unused elsewhere and screened; every one was rejected, by
+timestamp, as irrelevant. The luma box cannot catch this any more than it
+catches a wrong-subject clip.
+
+So the brief for a device topic is one line: **headphones in every frame.**
+People wearing them, the object itself, the product in its case. The roster
+that shipped is six clips of people wearing headphones plus five stills, two
+of which are wireless earbuds lit on black — one of those in the brand's own
+peach, which is the closest this channel has come to a stock asset that looks
+commissioned.
+
+Two things that fell out of it and generalise:
+
+- **Ask what the noun of this video is before searching.** If it has a
+  photographable referent, "atmosphere that matches the mood" is not a
+  supporting layer, it is padding — and the user reads it as padding. If it
+  does not (a number, a loop, a phantom sound), the section below applies
+  instead and the answer is to *draw* it.
+- **One themed shot is a shot; three are a theme nobody asked for.** The
+  airplane cabin survived the re-cut precisely once, under the sentence that
+  says "the drone of a plane", for one sentence. The first cut had three
+  airplane shots and a long one, which is why it read as a video about
+  flying.
+
 ## Shoot an abstract topic through hands, screens and crowds — not faces
 
 **This is the fix for the casting problem above, and it arrived from the
