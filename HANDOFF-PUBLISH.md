@@ -1,115 +1,94 @@
 # Handoff → /publish-video
 
-**Built:** `waterfall-478-breathing` — a tinnitushelp.me sound-therapy
-session, long form (20 min) **and its own vertical Short** (Mode 2, not an
-article pair).
-**Source article:** none — off-site topic, `SOURCE_POST = None`.
-**Date:** 2026-09-14
-**Voice:** `luna` (`af_nicole` 0.90, SOFT chain) — the session-format default.
-Still `candidate`.
-**Approved by the user.** Built in this session, one re-cut round (the long
-form's intro narration slightly overran the ring-reveal timing; trimmed).
+**Built:** `crypto-exchanges-quiz` — thecrypto.wiki's **first quiz Short**
+(`/video-quiz crypto`, quiz #1 for the channel). Vertical only, no long form —
+the quiz format never has one.
+**Source article:** `understanding-crypto-exchanges` (already has its own
+long+short explainer pair — the article that taught the audience the
+mechanism this quiz tests).
+**Date:** 2026-09-15
+**Voice:** `otis` (bare `am_puck`, ENERGETIC chain) — the quiz format's fixed
+reader on both channels, not project-specific.
+**Approved by the user.** Built and shipped on the first render — no re-cut
+needed this session.
 
-## Files (all on the Desktop)
+## Files (Desktop)
 
-### Long form (YouTube)
 | what | path |
 | --- | --- |
-| video (16:9) | `/Users/oktayshakirov/Desktop/Waterfall + 4-7-8 Breathing for Tinnitus (20 Minutes).mp4` |
-| thumbnail (16:9) | `/Users/oktayshakirov/Desktop/Waterfall + 4-7-8 Breathing for Tinnitus (20 Minutes).jpg` |
+| video (9:16) | `/Users/oktayshakirov/Desktop/quiz-crypto-exchanges.mp4` |
 
-Runtime **exactly 20:00** (1200.0s, ffprobe-checked). 1920x1080, h264/aac.
+Runtime **89.9s** (ffprobe-checked), 1080x1920, h264/aac.
 
-### Short (YouTube Shorts / Instagram Reel / Facebook Reel / TikTok)
-| what | path |
-| --- | --- |
-| video (9:16) | `/Users/oktayshakirov/Desktop/Waterfall + 4-7-8 Breathing for Tinnitus (Short).mp4` |
-| thumbnail (9:16) | `/Users/oktayshakirov/Desktop/Waterfall + 4-7-8 Breathing for Tinnitus (Short).jpg` |
-
-Runtime **58.0s**, 1080x1920, h264/aac. Same pattern, bed and palette as the
-long form, same seed — built as its companion, not a trailer for it: 2 cycles
-of 4-7-8 (38s breathing block) instead of the long form's twenty.
-
-Neither file has an SRT or a `.md` metadata sidecar — sessions have no
-dialogue track worth captioning line-by-line, same precedent as every prior
-ASMR build. Title/description material below is raw material, not
-pre-written copy.
+**No thumbnail, no SRT, no `.md` sidecar** — all three are format conventions,
+not omissions:
+- No thumbnail render: the quiz format's own picture is already four drawn
+  cards, so a generated headline plate would just restate the hook. Pull the
+  Reel cover from a frame of the finished render instead, same as every
+  other quiz Short (`docs/video/projects/quiz.md`, `docs/publish/instagram-facebook.md`).
+- No SRT: long-form only.
+- No `.md` metadata sidecar: also long-form only — the quiz has no chapters
+  to carry. Title/description material below is raw material, not
+  pre-written copy.
 
 ## What this is
 
-A single already-mixed field recording — a waterfall with soft pads laid
-under it — instead of generated noise. Source file:
-`~/Desktop/waterfall-pads.mp3` (copied from the file the user attached this
-session; keep it on the Desktop, both scripts reference it by that path and
-need it to be re-runnable). Paired with **4-7-8 paced breathing** (inhale 4s,
-hold 7s, exhale 8s) — the same pattern as the existing
-`478-breathing-white-noise` pair, so a viewer who liked one recognises the
-pattern in the other, but a **fresh star-field seed and a teal/aqua palette**
-(not that pair's blue) so it reads as its own session on sight, not a re-skin.
+Three questions on CEX vs. DEX mechanics, each testing the same confusion
+from a different angle — who holds a deposit, how a trade gets matched, what
+happens when a CEX is hacked. Every wrong option is a real fact about the
+*other* kind of exchange, taken straight from the source article (order book,
+KYC and an intermediary are true CEX facts, offered as wrong answers to the
+DEX question; self-custody via smart contract is a true DEX fact, offered as
+a wrong answer to the CEX question) — so a viewer who half-remembers the
+article picks the wrong mechanism, not a made-up distractor.
 
-**The user's stated reason for this build**: the earlier 4-7-8 white-noise
-Short got 30k views on Facebook specifically (weaker elsewhere), and this is
-a second piece in the same format to build on that. Worth weighting Facebook
-in the Short's distribution/promotion if `/publish-video`'s workflow has any
-per-platform discretion.
+**No exchange is named anywhere in the script**, and no option has a
+direction — every question asks about mechanism ("what does custodial mean",
+"how does a trade clear with no company in the middle"), never which
+exchange to use or which is safer. This is the crypto channel's standing
+safety line (`docs/video/projects/crypto.md`, `docs/video/projects/quiz.md`),
+and it is easier to break in this format than in an explainer, so it is
+worth a second look before this goes out.
 
-Both formats end with no CTA — a piece built to lower arousal doesn't end by
-asking for something; the Short's outro just points at the full session on
-the channel, the long form's outro invites another round.
+**Outro is "How many did you get?" and stops** — no "tell me in the
+comments", per the format's standing rule.
 
-**Suggested title** (matches the filenames): "Waterfall + 4-7-8 Breathing for
-Tinnitus" (+ "(20 Minutes)" for the long form). "4-7-8 breathing" is a real
-search phrase; "waterfall sounds for tinnitus" / "waterfall white noise" is
-plausible but less established than "white noise" was — use judgement, or
-lean on the pattern name carrying the search intent. Same title angle for the
-Short is fine, or the Shorts-feed curiosity-hook convention if that reads
-better for that surface.
+**Suggested title:** "Crypto Exchanges Quiz: CEX vs. DEX" or "How Well Do You
+Know Crypto Exchanges?" — Shorts titles are a curiosity hook, not a search
+query, so lean on whichever reads better in the Shorts feed. The on-screen
+title card itself says "Crypto Quiz: Exchanges Edition" and is not meant to
+double as the YouTube title.
 
-**Angle for the description: partial masking.** Set the volume just below
-your tinnitus so you can still faintly hear it — burying it completely is
-what most people already do and what the site argues against
-(`brown-noise-vs-white-noise-for-tinnitus.mdx`).
+**Description material:** the quiz is drawn from **[Crypto Exchanges
+Explained](https://thecrypto.wiki/posts/understanding-crypto-exchanges)** —
+link it. No financial-advice disclaimer is spoken in the video (the quiz
+format never carries one, no long form to inherit it from either), so if the
+channel's standard compliance line belongs in the description text, that is
+a judgement call for this step, not something scripted into the narration.
 
-**No medical claims — this is a sound to listen to, not a treatment.** Never
-say it relieves, improves, or cures tinnitus. **Do not claim any specific
-frequency coverage** — unlike the generated beds, this one is a real
-recording and nobody has run `soundbed.band_energy()` on it (see the doc note
-added this session), so there is no measurement backing a claim like "covers
-high-pitched ringing". The copy in both scripts only ever says "just below
-your tinnitus", never a frequency range. If useful, the standard red-flag
-routing line: "If your tinnitus lasts more than a few weeks, is getting
-louder, is in one ear only, pulses with your heartbeat, or comes with
-dizziness or hearing loss, see a doctor." — fits the long-form description;
-use judgement on the Short (it reads more like the product itself than an
-article Short does, per the precedent on the white-noise pair's own handoff).
+## Engine fix shipped with this build (commit below)
 
-## Distribution
+**`video_automation/crypto/build.py`'s `render_crypto_short` crashed on
+every quiz render, unconditionally**, with `ValueError: unknown beat 'quiz'`.
+Cause: the previous commit (`2f76089`, the fear-greed-index/`dial` build)
+replaced the old `n = len(sh.payload[0])` reveal-count shortcut with
+`item_count(sh.graphic, sh.payload)` for every shot carrying a `.graphic` —
+correct for every real beat, but the quiz format's shots carry
+`graphic="quiz"` as its own sentinel, not a beat `item_count` knows about,
+and its reveals/marks/cues are always precomputed in `quiz.build`'s own
+`plan()` closure before this code ever runs. `item_count` doesn't need to be
+taught a `"quiz"` case — this loop never needed to touch a quiz shot at all,
+so it now skips `sh.graphic == "quiz"` explicitly. This is the first time
+the quiz format has been rendered since that commit landed, so nothing
+shipped before this was affected — only this build hit it.
 
-Long form to YouTube. Short to the full table (YouTube Shorts + IG Reel + FB
-Reel + TikTok) — see the Facebook note above for why this one in particular
-is worth pushing there.
-
-## Engine changes shipped with this build (commit `2693e58`)
-
-- `tinnitus/asmr.py` (`render_asmr_short`) and `longform/asmr.py`
-  (`render_asmr_long`): new `bed_file` (+ `bed_file_skip`) parameter — a
-  single already-mixed real recording, trimmed to length from the given
-  offset and given the same `loudnorm`/fade treatment the generated-bed and
-  `(low, high)`/`bed_files` paths already get. Pass exactly one of `bed`,
-  `bed_file`, or `(low, high)` / `bed_files`.
-- `docs/video/projects/tinnitus.md`: documented the new `bed_file` path and
-  its honest-limit caveat (run `band_energy()` before claiming coverage of
-  anything, same as a generated bed).
-- No changes to the visual engine — this session deliberately uses the
-  existing procedural nebula + breathing ring (no stock footage, no gradient
-  animation), per the documented rule that a cutting picture fights the
-  audio in this format. "Matching colours" is the `palette` parameter, not a
-  new visual mechanism.
+No doc change: the fix removes the trap rather than describing it
+(`docs/video/README.md`'s own rule — a fixed bug is not documentation).
 
 ## Repo state
 
-All code committed and pushed to `origin/main`:
-- `2693e58` — long + short build, `bed_file` engine support, doc update
-- this commit — handoff
+Committing now: the quiz project script, the `item_count` fix, and this
+handoff. Everything will be pushed to `origin/main` before this session
+ends.
 
 Nothing has been uploaded or posted anywhere yet.
