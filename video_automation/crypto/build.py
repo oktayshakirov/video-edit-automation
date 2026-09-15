@@ -292,7 +292,15 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 
     first = 0
     for sh, sent in zip(shots, sentences):
-        if sh.graphic:
+        # `quiz` is the quiz format's own graphic sentinel, not a beat in
+        # `longform.beats.BEATS` — its reveals, marks and cues are all
+        # precomputed once in `quiz.build.render_quiz_short`'s `plan()`
+        # closure and copied onto every shot before this ever runs, so
+        # nothing below applies. Routing it into `item_count` raised
+        # unconditionally, on every quiz render, the moment `item_count`
+        # replaced the old `len(sh.payload[0])` shortcut that quiz shots
+        # (harmlessly) also happened to satisfy.
+        if sh.graphic and sh.graphic != "quiz":
             starts = [captions[first + k].start for k in range(len(sent))]
             # **`item_count` knows the shapes `len(payload[0])` does not.**
             # That shortcut holds for every list beat, where payload[0] is the
