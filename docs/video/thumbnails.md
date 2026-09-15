@@ -369,6 +369,12 @@ space filled deliberately.** Two mechanisms, and both already existed:
   scale, so anything below 1.0 leaves the picture smaller than the frame rather
   than fitted. Compose the subject onto a 1080x1920 canvas once and let the
   thumbnail cover that exactly.
+- **And this is not a hypothetical - it shipped.** The noise-canceling
+  Short's cover was built with `zoom=0.78`, reasoning by analogy from
+  `render_thumb`'s `crop_zoom` (where under-1.0 is a real fit mode): the
+  result was black bars top and bottom, which the user caught. `zoom=1.0` is
+  the straight cover crop; go *above* 1.0 for more slack to place the
+  subject with `ax`/`at`, never below.
 
 The general rule, which is the same one the diagram slide arrived at from the
 other direction: **when a renderer has a cover mode and a fit mode with a

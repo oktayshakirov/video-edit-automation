@@ -121,13 +121,19 @@ def main() -> None:
 
     # Same source and headline as the long form. The newline is deliberate:
     # one sentence per row, rather than the wrap breaking them wherever the
-    # line lengths even out - see `thumbnails.md`. `zoom` under 1.0 pulls back
-    # off the cover crop so the headphones stay in frame, and `band="bottom"`
-    # keeps the type off her face.
+    # line lengths even out - see `thumbnails.md`. `zoom` below 1.0 shipped
+    # once here and was wrong: `render_short_thumb`'s `zoom` multiplies the
+    # *cover* scale (unlike `render_thumb`'s `crop_zoom`, which has a real fit
+    # mode under 1.0), so anything below 1.0 leaves the source smaller than
+    # the frame - black bars top and bottom, not a pulled-back crop. `zoom=1.0`
+    # is a straight cover crop; the source is landscape and much wider than
+    # 9:16, so it is height-constrained and `at` has no slack to move in.
+    # She tilts into frame with empty gradient above her, so `band="top"`
+    # puts the type there instead of over her face.
     thumb = render_short_thumb(
         out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
         "Headphones on.\nRinging [louder?]", image=THUMB_PHOTO, accent="red",
-        ax=0.58, zoom=0.78, band="bottom")
+        ax=0.5, zoom=1.0, band="top")
 
     # 16:9 for YouTube. She is shifted right so the type gets real black
     # rather than a scrim over the teal.
