@@ -415,10 +415,21 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         per_seg = [_wrap_balanced(seg, d, font, space, col_w)
                    for seg in segments]
         lines = [ln for seg in per_seg for ln in seg]
-        breaks_kept = all(len(seg) == 1 for seg in per_seg)
+        # Forced rows must each stay one line; a headline with no `\n` is a
+        # single segment that is *meant* to wrap, and holding it to one line
+        # shrank every auto-wrapped Short thumbnail to a single tiny row.
+        breaks_kept = (len(segments) == 1
+                       or all(len(seg) == 1 for seg in per_seg))
         line_h = int(size * leading)
         block = len(lines) * line_h
-        fits = len(lines) <= max_lines and block < max_block
+        # **A single word wider than the column cannot wrap**, and nothing
+        # used to check for it: "WHY AI WANTS BITCOIN [MINERS]" set BITCOIN
+        # at a size that ran straight off the right edge of the frame. Every
+        # row has to measure inside the column, or the size keeps shrinking.
+        widest = max((sum(w for _, _, w in ln) + space * (len(ln) - 1)
+                      for ln in lines), default=0)
+        fits = (len(lines) <= max_lines and block < max_block
+                and widest <= col_w)
         # Each accent *run* must stay whole on one line - one plate, one focal
         # point. With two accent colours the two runs may sit on different
         # lines ("WHITE NOISE" / "BROWN NOISE?"), so the test is per-tag, not

@@ -484,3 +484,23 @@ than the source and `INTER_LANCZOS4` otherwise, and both downscale sites call
 it. This is brand-agnostic - it fixes the crypto thumbnails too. **Never
 resample a shrink with `INTER_CUBIC`/`INTER_LINEAR`/`INTER_LANCZOS4` in this
 repo; they all skip the prefilter.**
+
+## The headline fitter had two bugs that hid each other (2026-09-16)
+
+Found on `miners-ai`, where "WHY AI WANTS BITCOIN [MINERS]" ran BITCOIN off
+the right edge of the landscape thumbnail and set the whole headline as one
+tiny row on the vertical one.
+
+- **`breaks_kept` held every segment to one line**, which is only right for a
+  headline with forced `\n` rows. An ordinary headline is one segment that is
+  *meant* to wrap, so no multi-row layout ever passed `runs_intact` - the
+  vertical search shrank until everything fit on one line, and the landscape
+  one fell through to `fallback`, the largest size that merely fit.
+- **`fits` never measured row width.** A single word wider than the column
+  cannot wrap, and `_wrap_balanced` lets it overflow by design, so that
+  fallback size was one where BITCOIN was wider than the column.
+
+Both are fixed in `_headline`. Re-rendering an older thumbnail will now lay it
+out differently (bigger, wrapped) - that is the intended layout it was never
+getting, not a regression. **Look at the thumbnail on every build**; neither
+fault raised anything.

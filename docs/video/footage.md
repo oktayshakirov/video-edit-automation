@@ -734,3 +734,14 @@ each deliberate: the one portrait of the subject as an open/close bookend, and
 a genuinely textural backdrop behind a drawn beat — but default to no backdrop
 (the brand background) rather than repeating a photo. Write the asset list out
 before building and count.
+
+## Pexels has no ASIC mining farm (2026-09-16)
+
+Fetched for `miners-ai`: "bitcoin mining farm", "cryptocurrency mining machines
+rows", "asic miner fans", "crypto mining warehouse" returned coins on a table,
+sticker piles, a whiteboard, a warehouse, a football crowd and a stairwell.
+Not one row of ASICs. **Draw the mining site** (`grid`, `compare`) and shoot
+the power around it - pylons, substations, night build sites - rather than
+fetching again. Two more folder names that lie:
+`hand-plugging-server-cable/4820377` is a **laptop** being plugged in, and
+`electrical-substation-night/7960548` grades to black under `VideoShot`'s dim.
