@@ -1,65 +1,59 @@
-# Handoff: noise-canceling headphones pair, ready for `/publish-video`
+# Handoff: Bitcoin miners for AI (crypto long + short pair)
 
-Built and approved 2026-09-15. Open a fresh session and run `/publish-video`.
+Built and committed 2026-09-16 (commit `190dc55`). Working tree is clean.
 
-**Source article:** `noise-canceling-headphones-for-tinnitus`
-(tinnitushelp.me/blog/noise-canceling-headphones-for-tinnitus)
-**Channel:** Tinnitus Help · **Voice:** `mia` · **Music:** `night-drift`
+## Source
 
-## What was built
+- Article: `why-wall-street-is-betting-big-on-bitcoin-miners-for-ai`
+- URL: https://thecrypto.wiki/posts/why-wall-street-is-betting-big-on-bitcoin-miners-for-ai
+- The angle keeps only the evergreen mechanism (why a mining site already has
+  what AI needs, the retrofit gap, the income comparison, the risk) and drops
+  the article's news framing (the researcher resignation, the hedge fund and
+  its named positions, the named mining stocks). No company, fund, ticker,
+  price or direction is named in either video.
 
-A long + Short pair from one post. The angle is the article's own reversal:
-active noise control removes the outside sound tinnitus was competing with,
-which helps in a noisy place and can backfire in a silent one, because the
-brain turns its own gain up to fill the quiet. The fix is pairing the
-headphones with soft sound instead of total silence.
+## Files, long form
 
-### Long form (16:9) — 2:44
+- Video: `~/Desktop/crypto-miners-ai-long.mp4` (3:00)
+- Thumbnail: `~/Desktop/crypto-miners-ai-long-thumb.jpg`
+- Captions: `~/Desktop/crypto-miners-ai-long.srt`
+- Metadata sidecar: `~/Desktop/crypto-miners-ai-long.md` (title, description,
+  chapters, tags, credits)
+- Script: `projects/crypto-long/miners-ai.py`
 
-| | |
-| --- | --- |
-| Video | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long.mp4` |
-| Thumbnail | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long-thumb.jpg` |
-| Captions | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long.srt` |
-| Metadata | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-long.md` |
-| Script | `projects/tinnitus-long/noise-canceling-headphones-for-tinnitus.py` |
+## Files, Short
 
-YouTube title: **Can Noise-Canceling Headphones Make Tinnitus Worse?**
-Seven chapters, first at 0:00 — the full list is in the `.md` sidecar, which
-also carries the description, tags and the medical disclaimer. Use it rather
-than re-deriving any of them.
+- Video: `~/Desktop/crypto-miners-ai-short.mp4` (43s)
+- Thumbnail: `~/Desktop/crypto-miners-ai-short-thumb.jpg` (regenerated after
+  approval with `band="top"` so the headline sits above the pylons instead of
+  over them - the script (`projects/crypto-short/miners-ai.py`) already has
+  this change, so re-running it reproduces the same thumbnail)
+- Script: `projects/crypto-short/miners-ai.py`
 
-### Short (9:16) — 44.7s
+## Anything still undecided
 
-| | |
-| --- | --- |
-| Video | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-short.mp4` |
-| Reel cover (Instagram, Facebook) | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-short-thumb.jpg` |
-| YouTube thumbnail | `/Users/oktayshakirov/Desktop/noise-canceling-headphones-for-tinnitus-short-thumb-yt.jpg` |
-| Script | `projects/tinnitus-short/noise-canceling-headphones-for-tinnitus.py` |
+Nothing outstanding. The user approved the pair as built, with one change
+(the Short's vertical thumbnail headline moved from `band="bottom"` to
+`band="top"`), which is already applied to both the committed script and the
+rendered thumbnail on the Desktop.
 
-Opens on its title question, closes cold on the directive ("Never wear them
-into total silence - always leave a little sound on"), no engagement question.
+Two things worth a look during the metadata/social pass, not blockers:
 
-## Notes for publishing
+- In the Short, the line "The substation is built" plays over a construction
+  crane clip, not a substation - it still reads as "site being built" but is
+  not a literal substation shot.
+- A trading-screen clip under "investors" shows a small on-screen exchange
+  label (Binance). It is illegible at short/thumbnail size but is present in
+  the frame.
 
-- **Both thumbnails share one source and one headline** ("Headphones on. /
-  Ringing louder?"), so the pair reads as a set. The source is the user's own
-  pick: pexels.com/photo/3757028.
-- **The long form carries the disclaimer** in its description credits; the
-  Short deliberately does not, per `narration.md`.
-- **No medical claims anywhere.** Nothing promises relief or a cure; the red
-  flags in the description are the article's own.
-- Nothing about this build is undecided. The working tree is clean and
-  pushed (`aa61a8d`).
+## Repo-side engine changes in this commit
 
-## Shipped with it (engine, already committed)
+Not part of this video's content, but shipped in the same commit and worth
+knowing about before touching any other thumbnail:
 
-Worth knowing only if something looks unfamiliar while publishing:
-
-- The long form opens with a new **animated title sequence** at 0:08 —
-  `overlay.TitleOverlay`, on by `render_long(title_at=)`. This is the
-  treatment for both channels from now on; the old `Shot(payload=)` title
-  stamp is superseded.
-- `compare` now raises on `picture=`; thumbnail headlines accept a `\n` as a
-  hard row break; karaoke captions shrink an over-wide highlighted word.
+- Fixed two bugs in `video_automation/longform/thumb.py`'s headline fitter
+  (see `docs/video/thumbnails.md`, "The headline fitter had two bugs that hid
+  each other"). Re-rendering an older thumbnail may now lay out differently
+  (bigger, properly wrapped) - that is the intended fix, not a regression.
+- New stock footage added to `assets/stock/videos/` and the manifest for this
+  pair (pylons, substations, night construction, racks, trading screens).
