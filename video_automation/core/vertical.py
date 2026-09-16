@@ -353,9 +353,16 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
     word's ink, a rounded rectangle in `accent` is drawn behind it (the word
     itself stays white-on-black-stroke, like every other word) — the TikTok
     auto-caption look of a coloured pill following the active word. The
-    rectangle is drawn onto a layer *behind* the text layer, never onto the
-    same one, so it can never paint over a neighbouring word's glyphs even
-    when its padding reaches into the inter-word gap. `upper` uppercases the
+    rectangle is drawn onto a layer *behind* the text layer, so a neighbour's
+    own glyphs always draw on top of it and are never hidden — but a pill wide
+    enough to reach the neighbour still reads as overlapping it, which is a
+    padding problem, not a layering one. `box_pad`'s x is clamped to the real
+    gap between the two words' *stroked* ink (`space - 2*stroke`, not the bare
+    `space`, since `stroke_width` on every word's own `d.text` already halos
+    past its glyph on both sides) — shipped once at the default `box_pad`
+    reaching visibly into "STAND"'s neighbours. `box` also skips `grow`
+    entirely: the box is already the emphasis, so enlarging the word too would
+    only spend more of that same tight gap for nothing. `upper` uppercases the
     whole line first, which is the style this was built to pair with — see
     `FONT_KARAOKE_BOX`.
 
@@ -434,7 +441,7 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
             # the hot word stays white-on-black-stroke like every other word.
             fill = (255, 255, 255, 255) if (hot and box) else \
                 (accent if hot else (255, 255, 255, 255))
-            if hot:
+            if hot and not box:
                 # Repositioning a too-wide glyph run only moves the overhang
                 # from one side to the other - it cannot remove it, since the
                 # glyph itself does not shrink. Measured on "headphones" at
@@ -454,6 +461,10 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
                        and d.textlength(w, font=f_use) > budget):
                     f_use = _load_font(font_path, f_use.size - 1, font_index)
             else:
+                # `box` skips the enlargement entirely — the box is already
+                # the emphasis, and `grow` would only spend more of the
+                # already-tight inter-word gap on an overhang the box does
+                # not need. Every word, hot or not, draws at the same size.
                 f_use = font
             # Centre the (possibly larger) glyph run on the box the base font
             # reserved, so the advance the next word starts from is unchanged.
@@ -469,6 +480,16 @@ def render_caption_karaoke(text: str, out: Path, active: int, size: int = 46,
                 # real rendered-ink rectangle, stroke included, so the box
                 # wraps exactly what is on screen.
                 pad_x, pad_y = box_pad
+                # `stroke_width` on every word's own `d.text` (not just the
+                # hot one) already draws a `stroke`-px halo past its plain
+                # advance on both sides, so the blank gap between two words'
+                # *visible ink* is `space - 2*stroke`, not `space` — measured
+                # at 15px space / stroke 5, that is 5px total, 2.5px a side.
+                # `box_pad` asked for was tuned by eye against a wide-open
+                # gap and reaches straight into the neighbour at that size;
+                # clamping to the real leftover keeps the pill inside its own
+                # word no matter how tight the font/stroke combination gets.
+                pad_x = max(1.0, min(pad_x, (space - 2 * stroke) / 2))
                 l, t, r, btm = d.textbbox((x + dx, y + dy), w, font=f_use,
                                           stroke_width=stroke)
                 bd.rounded_rectangle(
