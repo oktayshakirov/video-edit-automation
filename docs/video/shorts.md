@@ -409,9 +409,16 @@ together, not a deliberate choice.
 **Not yet approved on either channel** — it shipped once, on drone, and the
 user has not yet seen it on a photo/clip-driven short. Treat it the way any
 untried beat is treated: build it, show it, wait for a verdict before making
-it a default. See `core.vertical.render_caption_karaoke`'s `box=`/`upper=`
-for the mechanics, including why the box is drawn on a separate layer behind
-the text (so its padding can never paint over a neighbouring word).
+it a default. See `core.vertical.render_caption_karaoke`'s `box=`/`upper=` for
+the mechanics, including two things that are not obvious from a still-PNG
+review: the box sits on a separate layer behind the text, so a neighbour's own
+glyphs always draw on top of it and are never hidden outright — but a pill
+wide enough to *reach* the neighbour still reads as overlapping it, which is
+what shipped once on drone's "STAND" and is a padding problem, not a layering
+one. `box_pad`'s x is clamped to the real blank gap between two words'
+*stroked* ink (every word's own stroke halo already eats into the plain
+`space`), and `box=True` skips `grow` entirely, since enlarging the hot word
+on top of the pill only spent more of that same tight gap.
 
 **This is unrelated to `single_line=True`**, the other flag that shipped
 alongside it. That one forces the whole karaoke'd line onto one row by

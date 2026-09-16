@@ -283,6 +283,19 @@ one cut and since ported to crypto/tinnitus — see `shorts.md`'s own section,
 which carries the shared mechanics (why the box sits on a separate layer,
 the font/case pairing) so it is not repeated here.
 
+**Shipped once with the pill overlapping its neighbours** — "STAND" on this
+same cut, caught by the user from a frame grab, not from anything a still-PNG
+review would flag on its own. Two compounding causes, both in
+`render_caption_karaoke`: every word's own `d.text` already draws a
+`stroke`-px halo past its plain advance on both sides, so the genuinely blank
+gap between two words' *visible* ink is `space - 2*stroke`, not the bare
+`space` — 5px, not 15, at this style's stroke of 5; and `grow` was still
+enlarging the hot word before the box wrapped it, spending more of that same
+gap for an effect the box already provides. Fixed by clamping `box_pad`'s x
+to the real leftover and having `box=True` skip `grow` entirely — see the
+function's own docstring. `shorts.md`'s section already describes the fixed
+behaviour, not the bug, since the port happened after the fix.
+
 **This is also where `render_caption_karaoke` picked up `single_line=True`.**
 The first render wrapped a long caption to two lines and the second line
 spilled out of the black band (100px, less than two 44px lines). Rather than
