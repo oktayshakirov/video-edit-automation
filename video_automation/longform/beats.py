@@ -2294,6 +2294,165 @@ class Dial(Beat):
                             self.label.upper(), lf, self.brand.primary)
 
 
+class Split(Beat):
+    """One whole thing, divided into many equal claims on it.
+
+    **Built for real-world asset tokenization (2026-09-18), because the library
+    could not draw its central noun.** "A twelve-million-dollar building split
+    into a hundred and twenty thousand tokens" is a *division*, and nothing
+    else here shows one: `bars` shows proportions of a whole but never the
+    whole being cut, `grid` is a set of different things, and a stock clip of
+    a tower says "building" and nothing about who owns it. Reusable for any
+    fractional claim - shares of a fund, a supply divided among holders, a
+    royalty stream split by stake.
+
+    Two reveals, in this order:
+
+    0. **The whole.** A block outline draws round its perimeter against the
+       voice and fills dimly, with its name and value inside. "One building,
+       worth twelve million dollars."
+    1. **The split.** Grid lines draw across the block, then every cell lights
+       a small coin in a diagonal wave, and the part's label sets under it.
+       "Split into a hundred and twenty thousand tokens, a hundred dollars
+       each."
+
+    **The cell count is a picture, not the figure.** 160 cells stand in for
+    120,000; the real numbers are in the labels. Drawing the true count would
+    be a grey haze, which is the opposite of "many equal pieces".
+
+    Vector layer supersampled like `Dial` - the coins are small circles and
+    PIL does not antialias them.
+
+    payload: (whole, whole_note, part, part_note, title)
+    """
+
+    EMBLEM = False
+    SS = 2
+
+    def __init__(self, whole: str, whole_note: str = "", part: str = "",
+                 part_note: str = "", title: str = "", **kw):
+        super().__init__(**kw)
+        self.whole, self.whole_note = whole, whole_note
+        self.part, self.part_note = part, part_note
+        self.title = title
+
+    def _geom(self) -> tuple[int, int, int, int, int, int]:
+        """x, y, w, h of the block, and its cols, rows."""
+        fr = self.frame
+        if self.portrait:
+            w, h = 860, 860
+            return (fr.w - w) // 2, 560, w, h, 11, 11
+        w, h = 1080, 450
+        return (fr.w - w) // 2, 400, w, h, 20, 8
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        self.heading(out, self.title, f)
+        x, y, w, h, cols, rows = self._geom()
+        prim = self.brand.primary
+
+        e0 = self.due(0, 2, f)
+        if e0 < 0:
+            return
+        outline = self.span_p(0, f, lead=0.05, cap=1.4)
+        e1 = self.due(1, 2, f)
+        lines = self.span_p(1, f, lead=0.05, cap=1.2) if e1 >= 0 else 0.0
+        # The coin wave starts as the grid finishes and runs its own clock:
+        # it is a consequence of the split, not a thing the voice names.
+        wave = 0.0
+        if e1 >= 0 and self.reveals and len(self.reveals) > 1:
+            wave = max(0.0, (self.at(f) - self.reveals[1] - 0.9) / 1.3)
+
+        S = self.SS
+        layer = Image.new("RGBA", ((w + 20) * S, (h + 20) * S), (0, 0, 0, 0))
+        v = ImageDraw.Draw(layer)
+        o = 10 * S
+        W, H = w * S, h * S
+
+        # The fill arrives with the outline, dim, so the whole reads as one
+        # object before it is cut.
+        v.rectangle([o, o, o + W, o + H],
+                    fill=prim + (int(38 * min(1.0, outline * 1.4)),))
+        # Perimeter, drawn as one travelling line from the top-left corner.
+        per = [(o, o), (o + W, o), (o + W, o + H), (o, o + H), (o, o)]
+        partial(v, per, outline, prim + (255,), 5 * S)
+
+        if lines > 0:
+            # Verticals sweep down, horizontals sweep across, both on one clock.
+            for c in range(1, cols):
+                cx = o + W * c / cols
+                v.line([(cx, o), (cx, o + H * lines)],
+                       fill=prim + (150,), width=2 * S)
+            for r in range(1, rows):
+                cy = o + H * r / rows
+                v.line([(o, cy), (o + W * lines, cy)],
+                       fill=prim + (150,), width=2 * S)
+
+        if wave > 0:
+            cw, ch = W / cols, H / rows
+            rad = min(cw, ch) * 0.28
+            span = cols + rows - 2
+            for r in range(rows):
+                for c in range(cols):
+                    k = min(1.0, max(0.0, wave * 1.6 - 0.6 * (c + r) / span))
+                    if k <= 0:
+                        continue
+                    cx, cy = o + cw * (c + 0.5), o + ch * (r + 0.5)
+                    rr = rad * (0.6 + 0.4 * ease_out(k))
+                    v.ellipse([cx - rr, cy - rr, cx + rr, cy + rr],
+                              fill=prim + (int(230 * k),))
+
+        layer = layer.resize((w + 20, h + 20), Image.LANCZOS)
+        out.paste(layer, (x - 10, y - 10), layer)
+
+        # --- type -----------------------------------------------------------
+        # The whole's name sits centred inside the block until the coins
+        # reach the middle, then leaves - the object has become its parts.
+        name_f = _display(96 if self.portrait else 88)
+        note_f = _font(48 if self.portrait else 44)
+        fade = 1.0 - min(1.0, wave * 1.8)
+        a = int(255 * min(1.0, e0) * fade)
+        if a > 0:
+            bb = d.textbbox((0, 0), self.whole, font=name_f)
+            tw, th = bb[2] - bb[0], bb[3] - bb[1]
+            nb = d.textbbox((0, 0), self.whole_note, font=note_f)
+            block = th + (28 + nb[3] - nb[1] if self.whole_note else 0)
+            ty = y + (h - block) // 2 - bb[1]
+            shadow_text(d, (x + (w - tw) // 2, ty), self.whole, name_f,
+                        self.brand.ink + (a,), alpha=a)
+            if self.whole_note:
+                shadow_text(d, (x + (w - (nb[2] - nb[0])) // 2,
+                                ty + bb[3] + 28 - nb[1]),
+                            self.whole_note, note_f, prim + (a,), alpha=a)
+
+        # After the wave, the whole's name moves above the block in small
+        # type so the figure it was worth stays on screen beside the parts.
+        if wave > 0.4 and self.whole_note:
+            k = min(1.0, (wave - 0.4) * 2.0)
+            small = f"{self.whole}  ·  {self.whole_note}"
+            sb = d.textbbox((0, 0), small, font=note_f)
+            shadow_text(d, (x + (w - (sb[2] - sb[0])) // 2,
+                            y - 36 - (sb[3] - sb[1]) + int(RISE * (1 - k))),
+                        small, note_f, self.brand.ink + (int(220 * k),),
+                        alpha=int(255 * k))
+
+        if wave > 0.5 and self.part:
+            k = min(1.0, (wave - 0.5) * 2.0)
+            part_f = _display(80 if self.portrait else 72)
+            pb = d.textbbox((0, 0), self.part, font=part_f)
+            py = y + h + 40 + int(RISE * (1 - k))
+            shadow_text(d, (x + (w - (pb[2] - pb[0])) // 2, py - pb[1]),
+                        self.part, part_f, prim + (int(255 * k),),
+                        alpha=int(255 * k))
+            if self.part_note:
+                qb = d.textbbox((0, 0), self.part_note, font=note_f)
+                shadow_text(d, (x + (w - (qb[2] - qb[0])) // 2,
+                                py + (pb[3] - pb[1]) + 22 - qb[1]),
+                            self.part_note, note_f,
+                            self.brand.ink + (int(230 * k),),
+                            alpha=int(255 * k))
+
+
 BEATS = {
     "chapter": ChapterCard,
     "checklist": Checklist,
@@ -2308,6 +2467,7 @@ BEATS = {
     "dial": Dial,
     "callout": Callout,
     "diagram": Diagram,
+    "split": Split,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -2329,6 +2489,7 @@ _COUNT = {
     "dial": lambda p: 2 if len(p) > 1 and p[1] is not None else 1,
     "callout": lambda p: len(p[1]),
     "diagram": lambda p: len(p[0]),
+    "split": lambda p: 2,
 }
 
 
