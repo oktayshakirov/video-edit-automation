@@ -117,7 +117,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          label=None, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
-                        "diagram", "dial"):
+                        "diagram", "dial", "split"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds

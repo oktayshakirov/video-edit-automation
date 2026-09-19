@@ -1,6 +1,6 @@
 # The drawn beats
 
-The drawn-graphic library both formats share - `bars`, `grid`, `steps`,
+The drawn-graphic library both formats share - `bars`, `grid`, `steps`, `split`,
 `checklist`, `compare`, `logos`, `chapter`. Rendering quirks that cost a re-cut
 live in `troubleshooting.md`.
 
@@ -776,3 +776,24 @@ not travel. The rule of thumb: does the element have extent that fills in
   of the way up a 9:16 frame with nothing below it - and a drawn beat burns no
   caption there, so nothing else was ever going to fill it. Boxes stay the size
   their content needs and the *gaps* take up the slack.
+
+### `split` - one whole divided into many equal claims (2026-09-18)
+
+`payload: (whole, whole_note, part, part_note, title)`. Two reveals: **the
+whole first, the split second**, so two caption chunks in that order - "One
+building, worth twelve million dollars," / "cut into a hundred and twenty
+thousand tokens, a hundred dollars each."
+
+Built for `rwa-tokenization`, whose central noun is a *division* and which
+nothing else here could draw: `bars` shows parts of a whole but never the
+whole being cut, `grid` is a set of different things. The block's outline
+draws round against the voice, grid lines sweep across on the second phrase,
+then a coin lights in every cell in a diagonal wave, the whole's name lifts
+above the block and the part's label sets under it. Reusable for any
+fractional claim: fund shares, a supply split among holders, royalty stakes.
+
+- **The cell count is a picture, not the figure** - 160 cells (landscape
+  20x8, portrait 11x11) stand in for 120,000. The real numbers live in the
+  labels.
+- Portrait-safe, and whitelisted in `crypto/build.py`'s vertical set.
+- Vector layer supersampled like `dial`; the coins are small circles.
