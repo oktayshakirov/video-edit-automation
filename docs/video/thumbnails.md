@@ -107,7 +107,18 @@ Two things now push against it, and the first usually suffices:
   already keeps an accent run whole.
 
 **Reach for the newline whenever the rows are a decision rather than an
-outcome**, which on a two-sentence headline is always. Two knock-on effects:
+outcome**, which on a two-sentence headline is always.
+
+**Reach for it for phrase integrity too, not only for two sentences**
+(2026-09-20). The user's standing complaint is that the fitter "tries to use
+the whole row for the whole sentence" and tears phrases apart - their own
+example: `NEW TINNITUS.` / `WHAT DO YOU` / `DO FIRST` is right and `NEW` /
+`TINNITUS` / `WHAT DO YOU` / `DO FIRST` is wrong. The phrase-end discount in
+`_wrap_balanced` only knows about slack and punctuation, so it cannot see that
+"WHAT DO YOU" wants to stay together. **Write the rows.** Three short forced
+rows also set *larger* than two auto-wrapped ones, because every row clears
+the column early and the size search keeps climbing - which is the answer
+whenever the note is "make the type bigger". Two knock-on effects:
 
 - **A forced-row headline gets a wider column** (1.38x, capped at the type
   area). The narrow 0.46-of-frame column exists to force a free-flowing
@@ -198,6 +209,17 @@ a flat 0.80 crushed the dark portraits this selects for into near-black.
 
 ## Thumbnail: three checks, every time
 
+**`band` is decided by where the subject's head is, and it outranks a
+preference for the top.** Asked for type "in the top part",
+`new-tinnitus-what-to-do-first-week` still ships `band="bottom"`: its source
+is a head-and-hands portrait whose head occupies the top half of the 9:16
+crop, so a top band prints the headline across the face - check 1 below, the
+one the scorer treats as fatal - and `render_short_thumb` then crushes the
+band dark to keep the type readable, which buries the subject as well. The
+subject's own black t-shirt fills the lower third and is the best type ground
+in the frame. **State which way round it went and why**, because a bottom band
+looks like the default being ignored.
+
 1. **Text must not cover the face.** `render_short_thumb` defaults to
    `band="top"` because the Shorts player puts its chrome along the bottom, and
    that default is wrong the moment the subject's head is in the top half of the
@@ -251,6 +273,14 @@ losing, drop the face"* above, arriving from relevance rather than from a
 fought crop — and between them the rule is now general: **reach for a
 photograph of a person only when a person is the subject.** An object, a
 drawn beat or a texture is the better ground for everything else.
+
+**Choosing a different face means choosing it by eye, not by query**
+(2026-09-20). Told the channel keeps returning the same casting, five
+explicitly-worded searches were run - "blonde woman...", "caucasian man...",
+"asian woman...", "older man...", "woman red hair..." - and most results came
+back the same casting regardless, exactly as `footage.md` predicts. What
+worked was rendering a contact sheet of the candidates and picking one. Budget
+for that step rather than for a better search string.
 
 The second half is casting, and it is a real mechanism rather than a
 coincidence — `footage.md` records that screening on `MAX_LUMA` against dark

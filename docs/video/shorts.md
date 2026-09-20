@@ -229,6 +229,19 @@ and stock-footage-with-narration.
 
 ## Every short opens by asking its own title question
 
+**Exception, and it is about intonation rather than structure (2026-09-20).**
+Kokoro reads a question mark with a rising contour, and on
+`new-tinnitus-what-to-do-first-week` the user's note was that the opener
+"sounds like a question but would be better to sound as advice statement in
+this case". A how-to Short whose whole proposition is *do this tonight* is
+weakened by an opener that asks rather than tells. So the rule is really
+**name the subject and frame the payoff in line one** - a question is the
+usual way to do that and not the only one. `"Tinnitus just started. Tonight
+is the part you can actually change."` names the subject in three words and
+still leaves sentence two to answer. Keep the question for a Short whose
+proposition is a claim being tested ("Does silence make tinnitus worse?");
+reach for the statement when the piece is an instruction.
+
 **The user's standing instruction, from the silence pair.** A short that opens
 on the first line of its argument reads as random and confusing, and the
 reason is structural rather than stylistic: a Short arrives with **no title

@@ -29,6 +29,18 @@ auditing in every opener:
 | before a line that **answers** a question just asked | **0.70-0.90** | the gap is what makes it an answer rather than a continuation |
 | between two **halves of one argument** ("not X - it is Y") | **0.55-0.70** on the first half | too short and it is one breathless sentence; too long and they stop being a pair |
 
+
+
+**A gap the user asks for by name goes to 1.00, not to what the table says.**
+`RUN_BREAK_GAP` is 1.00 (`voice.md`): at or above it the gap is a real silence
+file in the concat and always happens, and below it `_pad_pause` can only top
+up a pause the model already left - so it drops silently where the model ran
+two sentences together. Measured on the `new-tinnitus-what-to-do-first-week`
+short: the pause in front of the answer was set to the table-correct 0.90 and
+the runtime barely moved; at 1.00 it moved half a second, which is the silence
+actually landing. **A gap under 1.00 is a preference; a gap at 1.00 is a
+promise.** Use the table for ordinary pacing and 1.00 for any pause the piece
+is depending on.
 **Read the section aloud with a stopwatch before setting the numbers.** Where
 you naturally stop, write the gap. Where you naturally run on, write 0.34. This
 takes two minutes per section and it is the single highest-value thing in this
