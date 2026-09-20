@@ -105,7 +105,10 @@ LEDGER = STOCK / "videos/blockchain-blocks-chain-digital-dark/34127877.mp4"  # L
 
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
-VOICE = "otis"                  # male, am_puck on the ENERGETIC chain. Candidate.
+VOICE = "mia"                   # the explainer reader (af_heart). Candidate.
+  # Repointed from `otis` on 2026-09-20: the male reader is off the
+  # explainer roster (see docs/video/projects/tinnitus.md). A re-render
+  # no longer reproduces the original audio.
 
 URL = "https://thecrypto.wiki/crypto-ogs/vitalik-buterin"
 

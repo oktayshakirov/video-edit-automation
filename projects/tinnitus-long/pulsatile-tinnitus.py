@@ -67,7 +67,10 @@ BREATHE = STOCK / "videos/man-breathing-deeply-eyes-closed-dark-room-calm"  # 54
 JOURNAL = STOCK / "videos/man-writing-in-journal-notebook-at-night-lamp-dark"  # 7062985 14s L48 S0
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
-VOICE = "otis"                     # the male article reader (bare am_puck, ENERGETIC)
+VOICE = "mia"                      # the explainer reader (af_heart)
+  # Repointed from `otis` on 2026-09-20: the male reader is off the
+  # explainer roster (see docs/video/projects/tinnitus.md). A re-render
+  # no longer reproduces the original audio.
 MUSIC = music.track("night-drift")  # the prepared track, shared with thecrypto.wiki
 
 URL = "https://tinnitushelp.me/blog/pulsatile-tinnitus-why-you-hear-your-heartbeat"

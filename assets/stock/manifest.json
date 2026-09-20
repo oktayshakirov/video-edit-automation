@@ -8614,6 +8614,94 @@
       "path": "photos/concert-crowd-silhouette-stage-lights-dark/5610120.jpg",
       "bytes": 1461671,
       "source": "https://www.pexels.com/photo/5610120/"
+    },
+    {
+      "id": "8638769",
+      "kind": "photo",
+      "query": "man in black shirt user picked",
+      "path": "photos/man-in-black-shirt-user-picked/8638769.jpg",
+      "bytes": 1321999,
+      "source": "https://www.pexels.com/photo/8638769/"
+    },
+    {
+      "id": "6943996",
+      "kind": "photo",
+      "query": "man sitting on edge of bed at night dark room",
+      "path": "photos/man-sitting-on-edge-of-bed-at-night-dark-room/6943996.jpg",
+      "bytes": 1227783,
+      "source": "https://www.pexels.com/photo/6943996/"
+    },
+    {
+      "id": "3069096",
+      "kind": "video",
+      "query": "ceiling fan spinning dark room night",
+      "path": "videos/ceiling-fan-spinning-dark-room-night/3069096.mp4",
+      "bytes": 9628906,
+      "source": "https://www.pexels.com/video/3069096/"
+    },
+    {
+      "id": "6944065",
+      "kind": "video",
+      "query": "closing curtains at night dark room",
+      "path": "videos/closing-curtains-at-night-dark-room/6944065.mp4",
+      "bytes": 7246948,
+      "source": "https://www.pexels.com/video/6944065/"
+    },
+    {
+      "id": "25951436",
+      "kind": "video",
+      "query": "hand switching off bedside lamp night",
+      "path": "videos/hand-switching-off-bedside-lamp-night/25951436.mp4",
+      "bytes": 15540594,
+      "source": "https://www.pexels.com/video/25951436/"
+    },
+    {
+      "id": "853772",
+      "kind": "video",
+      "query": "hand switching off bedside lamp night",
+      "path": "videos/hand-switching-off-bedside-lamp-night/853772.mp4",
+      "bytes": 5520567,
+      "source": "https://www.pexels.com/video/853772/"
+    },
+    {
+      "id": "5708839",
+      "kind": "video",
+      "query": "person relaxing headphones sofa evening dark",
+      "path": "videos/person-relaxing-headphones-sofa-evening-dark/5708839.mp4",
+      "bytes": 5151718,
+      "source": "https://www.pexels.com/video/5708839/"
+    },
+    {
+      "id": "38136563",
+      "kind": "video",
+      "query": "person sitting alone window night dark room",
+      "path": "videos/person-sitting-alone-window-night-dark-room/38136563.mp4",
+      "bytes": 1282839,
+      "source": "https://www.pexels.com/video/38136563/"
+    },
+    {
+      "id": "11956317",
+      "kind": "video",
+      "query": "quiet bedroom night window silence dark",
+      "path": "videos/quiet-bedroom-night-window-silence-dark/11956317.mp4",
+      "bytes": 5050063,
+      "source": "https://www.pexels.com/video/11956317/"
+    },
+    {
+      "id": "30285726",
+      "kind": "video",
+      "query": "sound machine nightstand dark bedroom ambient",
+      "path": "videos/sound-machine-nightstand-dark-bedroom-ambient/30285726.mp4",
+      "bytes": 10226489,
+      "source": "https://www.pexels.com/video/30285726/"
+    },
+    {
+      "id": "11839732",
+      "kind": "video",
+      "query": "walking quiet street early morning dark",
+      "path": "videos/walking-quiet-street-early-morning-dark/11839732.mp4",
+      "bytes": 6432651,
+      "source": "https://www.pexels.com/video/11839732/"
     }
   ]
 }

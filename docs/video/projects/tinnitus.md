@@ -9,10 +9,8 @@ article explainer (long + Short pair) and the sound-therapy session.
 families, and mixing them up costs a rewrite, not just a re-render.** Measured
 on one paragraph: the pitched-down family (`elias`) reads at 1.97 words/sec,
 the explainer default (`mia`) at 3.06. A script written for one and read by
-the other misses the runtime window by up to ninety seconds. `otis` (the male
-explainer voice, bare `am_puck` at speed 1.00) sits close to `mia` but reads
-a little slower and calmer. **Re-run the preflight after any voice change** —
-do not assume the shot list survives it.
+the other misses the runtime window by up to ninety seconds. **Re-run the
+preflight after any voice change** — do not assume the shot list survives it.
 Full roster and roles are in *Voice*, below.
 
 **`ivy` (bf_emma) was tried here and deleted from the roster entirely.** The
@@ -32,7 +30,7 @@ brand.** Always establish which before doing anything else:
 |---|---|---|
 | what it is | a post explained | a session to leave running |
 | runtime | 2:30–4:00 | 10–60 minutes |
-| voice | **`mia`** (female) or **`otis`** (male) | **`luna`**, intro only |
+| voice | **`mia`** (female) | **`luna`**, intro only |
 | module | `longform/build.py` | `longform/asmr.py` |
 | example | `projects/tinnitus-long/does-tinnitus-go-away.py` | see below |
 
@@ -344,11 +342,34 @@ which were rendered on now-retired profiles and were repointed at `mia` on
 2026-08-28 so they stay re-runnable — a re-cut of either would no longer
 reproduce the exact original audio.
 
-**Explainer male reader: `otis`.** Bare `am_puck` (C+ on hours of data, the
-steadiest American male) on the same `ENERGETIC` chain `mia` uses, at speed
-1.00. The counterpart to `mia` when a pair wants a male voice — first used on
-`pulsatile-tinnitus` (2026-09-02), chosen by the user by ear from a
-thirteen-voice demo. Also the quiz format's reader — see `projects/quiz.md`.
+**There is no male explainer voice, and `otis` is not to be offered as
+one** (2026-09-20). It read the `new-tinnitus-what-to-do-first-week` pair and
+the user's verdict was that it "reads the script very wrong — always starts
+with high tone and sounds excited but ends low", and that the female voice
+reads better. That is a prosody fault, not a mixing one: Kokoro has no
+prosody control (`voice.md`), so a voice whose sentence contour is wrong for
+exposition cannot be corrected by the chain, and every explainer sentence on
+this channel is exposition. **A male reader will be added later; until one is
+chosen by ear, every article pair reads in `mia`.**
+
+`otis` stays registered in `core/voices.py` because the quiz format defaults
+to it — **the user's explicit call on 2026-09-20, when the explainer roster
+was cleared: leave the quiz on `otis`.** It is not an oversight and it is not
+to be "tidied" away; the complaint was about exposition, and a quiz is short
+questions and option cards, where the high-open/low-close contour costs far
+less. It is also the voice two shipped pairs were rendered on — see *Voices that are off
+the explainer roster but still registered*, below. Do not select it for an
+explainer.
+
+### Voices that are off the explainer roster but still registered
+
+`otis` is off the roster for explainers (above) but is still the quiz
+format's reader and the voice two shipped pairs were rendered on, so the
+profile stays. `pulsatile-tinnitus` and `vitalik-ethereum` were repointed at
+`mia` on 2026-09-20 so a re-cut reproduces something the channel would
+actually ship — the same move `airpods-and-tinnitus` and `tinnitus-and-sleep`
+got, and with the same caveat: **a re-render of either no longer reproduces
+the original audio.**
 
 **`max` is not an article voice.** It was briefly listed as the male
 alternate here and that was wrong: it is a 60/40 `am_michael`/`af_nicole`

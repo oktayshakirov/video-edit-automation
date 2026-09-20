@@ -117,10 +117,12 @@ F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `gr
 
 ## Voice
 
-**`mia` (female) is the default** for both formats — every shipped crypto
-long+short pair uses it. **`otis` (male, bare `am_puck` on the ENERGETIC chain
-at speed 1.00) is the male reader**, the counterpart to `mia`, and also the
-quiz format's reader — see `projects/quiz.md`. `max` is **not** an article
+**`mia` (female) is the default** for both formats, and as of 2026-09-20
+it is the *only* explainer voice — **`otis` is off the roster and must not be
+offered for an article video.** The user's verdict on a full cut was that it
+reads exposition wrong: it opens high and excited and ends low. It stays
+registered because the quiz format defaults to it; a male reader will be
+added later. Full reasoning in `projects/tinnitus.md`. `max` is **not** an article
 voice — it is a drone blend that was briefly mislisted here and reads
 androgynous on a real script; see `voice.md` and
 `docs/video/projects/tinnitus.md`. All remain `candidate`, not `approved`,

@@ -23,7 +23,8 @@ the glyph, so a caption carrying one falls back to the single-PNG treatment and
 `Vitalik Buterin` -> `Veetalik Booterin`. `The DAO` is never spoken; the script
 says "a hack".
 
-**Voice: `otis`** (male, am_puck on the ENERGETIC chain), matching the long form.
+**Voice: `mia`**, matching the long form - repointed from `otis` on
+2026-09-20 when the male reader came off the explainer roster.
 The music bed is automatic - `render_crypto_short` defaults to `night-drift`.
 
 **The opening portrait is shown whole.** `aspect` is set to the source's own
@@ -72,7 +73,10 @@ TYPING = STOCK / "videos/hands-typing-keyboard-dark-close-up/34771078.mp4"      
 ROADS = STOCK / "videos/diverging-roads-highway-night/15510172.mp4"               # L15 split highway
 CROWD_LIGHTS = STOCK / "videos/audience-raising-hands-auditorium-dark/36499729.mp4"  # L33 arena
 
-VOICE = "otis"                  # male, am_puck. Matches the long form.
+VOICE = "mia"                   # the explainer reader. Matches the long form.
+  # Repointed from `otis` on 2026-09-20: the male reader is off the
+  # explainer roster (see docs/video/projects/tinnitus.md). A re-render
+  # no longer reproduces the original audio.
 
 # One tuple per sentence; each string is one caption. A chunk may be a
 # (caption, spoken) pair. The checklist beat needs one caption per item.

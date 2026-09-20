@@ -45,7 +45,10 @@ PHONE = STOCK / "videos/hand-holding-phone-booking-appointment-at-night-dark"
 THUMB_PHOTO = (STOCK / "photos"
                / "woman-holding-hands-on-her-chest" / "13419231.jpg")
 
-VOICE = "otis"                     # the male article reader (bare am_puck, ENERGETIC)
+VOICE = "mia"                      # the explainer reader (af_heart)
+  # Repointed from `otis` on 2026-09-20: the male reader is off the
+  # explainer roster (see docs/video/projects/tinnitus.md). A re-render
+  # no longer reproduces the original audio.
 MUSIC = music.track("night-drift")
 
 SENTENCES = [

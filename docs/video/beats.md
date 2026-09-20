@@ -362,6 +362,15 @@ there are fewer of them — but screen each on a frame, not in the editor.
 
 ## Screen an emoji against the card, not against your editor
 
+**Three more glyphs failed the same way on the tinnitus plum, 2026-09-20.**
+📢 (U+1F4E2) renders **silver-grey** and all but vanished inside a `diagram`
+node - it was replaced with 🔆 (U+1F506), which is orange and reads instantly.
+📵 and ⏰ both came back as muddy discs at `steps` icon size, and became 🚫
+(bright red) and 🌅 (bright orange). The pattern is now unmistakable: Apple's
+"object" glyphs are mostly grey plastic and its "symbol" glyphs are mostly
+saturated, so **prefer a symbol over an object whenever the idea allows it** -
+🚫 over 📵, 🔆 over 📢 - and check any new glyph on a rendered frame.
+
 **The plug glyph (U+1F50C) shipped into the proof-of-stake short and all but
 vanished.** It renders as a dark grey object, and on a near-black card at the
 size a `grid` icon gets, there was nothing to see. This is the same failure the
@@ -647,6 +656,14 @@ border**, roughly level with the thing it names. Nothing crosses the edge.
 - **Landscape only in practice.** Portrait drops to a plain vertical list
   under the image with leaders up to border dots - unambiguous but plain; in
   9:16 the real answer is `ImageOverlay` over moving footage, see `shorts.md`.
+- **The *photo* must be landscape too, not just the frame.** A portrait source
+  in a 16:9 `callout` is fitted to the frame's height, so it lands as a narrow
+  vertical stamp in the middle with the labels squeezed either side of it -
+  shipped once on `new-tinnitus-what-to-do-first-week` and obvious on the
+  frame. It was reasoned into on the theory that a tall photo leaves *more*
+  margin for the labels, which is true and is the wrong trade: the beat's
+  argument is the photograph, and shrinking it to buy gutter width guts the
+  thing being explained. Give it a landscape photo that fills the column.
 
 ### `gauge` - one value against a threshold
 
