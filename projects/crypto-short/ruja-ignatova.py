@@ -148,6 +148,7 @@ def main() -> None:
     out = Path.home() / "Desktop/crypto-ruja-ignatova-short.mp4"
     work = Path.home() / "Desktop/.crypto-ruja-short-work"
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
 
     # Vertical thumbnail. 2-word accent keeps it to two lines clear of her

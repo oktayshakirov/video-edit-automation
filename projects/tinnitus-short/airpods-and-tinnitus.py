@@ -219,6 +219,7 @@ def main() -> None:
     work = Path.home() / "Desktop/.tinnitus-airpods-short-work"
     path, total = render_tinnitus_short(SENTENCES, SHOTS, out, work,
                                         voice=VOICE, gap=GAPS,
+                                        karaoke_box=False, karaoke_upper=False,  # pre-box-default cut
                                         music=MUSIC, music_gain=MUSIC_GAIN)
 
     # Same source and same headline as the long form from this post - the

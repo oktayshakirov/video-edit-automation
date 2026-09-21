@@ -46,7 +46,7 @@ from pathlib import Path
 
 from . import voices
 from . import sfx as sfx_lib
-from .vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
+from .vertical import (FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX, FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
                        FONT_QUOTE, FONT_QUOTE_INDEX, FONT_QUOTE_SIZE,
                        OUT_H, OUT_W,
                        add_caption_emoji, dominant_accent,
@@ -1202,9 +1202,9 @@ def render_narrated_stack(top: tuple,
                           workdir: Path, voice: VoiceSpec = None,
                           mood: str = "melancholic", band: int = 100,
                           font_size: "int | Callable[[str], int]" = FONT_QUOTE_SIZE,
-                          font_path: "str | Callable[[str], str]" = FONT_QUOTE,
-                          font_index: "int | Callable[[str], int]" = FONT_QUOTE_INDEX,
-                          y_frac: float = 0.50, stroke: int = 4,
+                          font_path: "str | Callable[[str], str] | None" = None,
+                          font_index: "int | Callable[[str], int] | None" = None,
+                          y_frac: float = 0.50, stroke: "int | None" = None,
                           max_w: int = CAPTION_MAX_W,
                           ink: "Callable[[str], tuple[int,int,int,int] | None] | None" = None,
                           emoji: "Callable[[str], str | None] | None" = None,
@@ -1212,8 +1212,8 @@ def render_narrated_stack(top: tuple,
                           sfx_gain: float = 0.22,
                           fps: int = 30,
                           karaoke: bool = True,
-                          karaoke_box: bool = False,
-                          karaoke_upper: bool = False,
+                          karaoke_box: bool = True,
+                          karaoke_upper: bool = True,
                           accent: "tuple | Callable[[str], tuple | None] | str | None" = "auto",
                           gap: "float | list[float]" = GAP, tail: float = TAIL,
                           hold_last_caption: bool = False,
@@ -1262,7 +1262,7 @@ def render_narrated_stack(top: tuple,
     word (its own `font_size`), a colour-inked word or an emoji caption always
     keep the single PNG — the karaoke renderer models none of those.
 
-    `karaoke_box` is a trial second style: a rounded rectangle in `accent`
+    `karaoke_box` (default on since 2026-09-21) is a rounded rectangle in `accent`
     behind the active word instead of colouring it (the TikTok auto-caption
     look). `karaoke_upper` uppercases every karaoke'd caption to match — see
     `render_caption_karaoke`'s `box=`/`upper=` and `FONT_KARAOKE_BOX`. Neither
@@ -1283,6 +1283,14 @@ def render_narrated_stack(top: tuple,
       `# no fade to black` comment still applies; a caller that wants the
       loop-friendly ending leaves this at 0.
     """
+    # Box karaoke is the default since 2026-09-21; None picks its face/stroke
+    # (Arial Black, 5) or the older Iowan italic at 4 when the box is off.
+    if font_path is None:
+        font_path = FONT_KARAOKE_BOX if karaoke_box else FONT_QUOTE
+        font_index = FONT_KARAOKE_BOX_INDEX if karaoke_box else FONT_QUOTE_INDEX
+    if stroke is None:
+        stroke = 5 if karaoke_box else 4
+
     (src_a, start_a, box_a, slow_a) = (*top, 1.0)[:4]
     (src_b, start_b, box_b, slow_b) = (*bottom, 1.0)[:4]
     tile_w, tile_h = stack_tile_size(band)

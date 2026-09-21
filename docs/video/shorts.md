@@ -400,13 +400,16 @@ line genuinely needs the glyph, put it on the **last** caption of the piece,
 where the break has nothing after it to be inconsistent with — and never on a
 line in the first fifteen seconds.
 
-## A second karaoke style exists: a coloured box instead of a coloured word
+## Box karaoke is the default: a coloured box instead of a coloured word
 
 Trialled on the drone channel first (`berlin-column-believe-in-you`, 2026-09-16
 — see `projects/drone-short.md`), then ported here the same session so both
 channels can reach for it: `render_crypto_short(..., karaoke_box=True,
 karaoke_upper=True)` (and `render_tinnitus_short`, which forwards both
-straight through). Off by default — nothing shipped moves.
+straight through). **On by default since 2026-09-21** — the user's call, for
+every short with karaoke text on all three channels (crypto, tinnitus, drone).
+Every script approved before that date pins `karaoke_box=False,
+karaoke_upper=False` so a re-render of a locked cut does not change style.
 
 Instead of colouring the active word's ink, a rounded rectangle in `brand.primary`
 is drawn behind it and the word itself stays white-on-black-stroke like every
@@ -419,10 +422,7 @@ path (a one-word caption, an emoji line) — because a short with Futura on one
 caption and Arial Black on the rest reads as two different videos cut
 together, not a deliberate choice.
 
-**Not yet approved on either channel** — it shipped once, on drone, and the
-user has not yet seen it on a photo/clip-driven short. Treat it the way any
-untried beat is treated: build it, show it, wait for a verdict before making
-it a default. See `core.vertical.render_caption_karaoke`'s `box=`/`upper=` for
+See `core.vertical.render_caption_karaoke`'s `box=`/`upper=` for
 the mechanics, including two things that are not obvious from a still-PNG
 review: the box sits on a separate layer behind the text, so a neighbour's own
 glyphs always draw on top of it and are never hidden outright — but a pill

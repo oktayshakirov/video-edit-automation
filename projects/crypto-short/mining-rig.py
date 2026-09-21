@@ -189,6 +189,7 @@ def main() -> None:
     out = Path.home() / "Desktop/crypto-mining-rig-short.mp4"
     work = Path.home() / "Desktop/.crypto-mining-rig-short-work"
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
 
     # **Same source and same headline as the long form from this post** —

@@ -273,6 +273,12 @@ single-clip or sequential cut ever needs it.
 
 ## A second karaoke style: a coloured box behind the word, not a coloured word
 
+**Now the default on every short, all channels** (user's call, 2026-09-21,
+on Medicine or Poison). `render_narrated_stack` defaults `karaoke_box` and
+`karaoke_upper` on, and with `font_path`/`stroke` left unset picks Arial Black
+at stroke 5 (Iowan italic at 4 when the box is off). Earlier scripts pin the
+flags False so locked cuts re-render unchanged. See `shorts.md`.
+
 Trialled on `berlin-column-believe-in-you` (2026-09-16), from a reference
 screenshot of a TikTok-style caption: a rounded pill in `accent` behind the
 active word instead of tinting its ink, on a bold all-caps face

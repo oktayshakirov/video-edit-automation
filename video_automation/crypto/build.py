@@ -202,15 +202,15 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # The drone channel's trial box-karaoke style, ported
                         # here so a future short can opt in — see
                         # `core.vertical.render_caption_karaoke`'s `box=`/
-                        # `upper=` and `FONT_KARAOKE_BOX`. Both default off:
-                        # every shipped short still gets the coloured-word
-                        # highlight on Futura. `karaoke_box` also switches the
+                        # `upper=` and `FONT_KARAOKE_BOX`. Both default ON
+                        # since 2026-09-21 (user's call: box karaoke on every
+                        # short); scripts approved before that pin them False. `karaoke_box` also switches the
                         # caption font from `FONT_CAPTION` to `FONT_KARAOKE_BOX`
                         # for *every* caption in the short, karaoke'd or not —
                         # a mixed-font short (Futura on a one-word caption,
                         # Arial Black everywhere else) would read as a mistake.
-                        karaoke_box: bool = False,
-                        karaoke_upper: bool = False,
+                        karaoke_box: bool = True,
+                        karaoke_upper: bool = True,
                         # Stills laid over the picture for a window — see
                         # `longform.overlay.ImageOverlay`. A vertical frame has
                         # room above the footage that a landscape one does not,
