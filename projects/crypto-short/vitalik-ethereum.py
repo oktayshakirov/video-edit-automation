@@ -188,6 +188,7 @@ def main() -> None:
     out = Path.home() / "Desktop/crypto-vitalik-ethereum-short.mp4"
     work = Path.home() / "Desktop/.crypto-vitalik-short-work"
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
 
     # `size=126` keeps the headline inside the frame - 168 ran "ETHEREUM?" off

@@ -100,6 +100,7 @@ def main() -> None:
         sfx=lambda c: "whoosh" if c == "unfortunately," else None,
         sfx_gain=0.14,                  # slight, under the voice, not over it
         gap=[0.6, 0.6, 1.5, 0.6], tail=1.2,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
         **profile_args("leo"))
     print(f"{out}  {total_r:.2f}s")
 

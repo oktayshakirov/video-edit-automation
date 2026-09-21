@@ -82,6 +82,7 @@ def main() -> None:
         font_path=FONT_QUOTE, font_index=FONT_QUOTE_INDEX,
         font_size=lambda c: 88 if c == BIG else 44,
         gap=GAP, tail=TAIL,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
         **profile_args("leo"))
     print(f"{out}  {total_r:.2f}s")
 

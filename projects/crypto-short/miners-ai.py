@@ -110,6 +110,7 @@ def main() -> None:
     out = Path.home() / "Desktop/crypto-miners-ai-short.mp4"
     work = Path.home() / "Desktop/.crypto-miners-ai-short-work"
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
     # Same headline as the long form - a pair shares its thumbnail.

@@ -143,6 +143,7 @@ def main() -> None:
     out = Path.home() / "Desktop/crypto-rug-pull-short.mp4"
     work = Path.home() / "Desktop/.crypto-rug-pull-short-work"
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
 

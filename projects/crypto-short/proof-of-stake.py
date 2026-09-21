@@ -285,6 +285,7 @@ def main() -> None:
                              at=((VERTICAL.w - w) // 2,
                                  (VERTICAL.h - h) // 2))]
     out, total = render_crypto_short(SENTENCES, SHOTS, out, work,
+        karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS,
                                      music=MUSIC, music_gain=0.85,
                                      overlays=overlays)
