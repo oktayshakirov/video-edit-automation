@@ -327,6 +327,20 @@ The interrupt is just made of atmosphere rather than information. So:
   correctly identified the danger zone and then addressed the *picture*. The
   curve says the words were what people left over.
 
+**`render_long(..., hook="...")` opens on the redacted hook** — the same
+`HookOverlay` the Shorts use (see `shorts.md`, "The opening hook: a redacted
+headline"), centred on the frame at 24% of the height and 84px so a
+centred face stays visible in 16:9. The
+`[bracketed]` word stays hidden under animated static until the narration
+says it, with the same `hook_*` sound kit: a slam on the cut in, glitch
+blips on the tears, a reverse-cymbal swell into the reveal, a chime on it. For the sleep video that is `hook="Your tinnitus did not get
+[louder] tonight"` over the 2am room, with sentence one or two saying
+"louder" — the cold open's atmosphere then plays *under* an open question
+instead of in front of nothing. Same writing rules as the Shorts: a statement
+of the surprise, not the title; one word hidden; true, paid off, and never a
+hidden promise of relief. It is not the title stamp, which still lands on the
+promise around 8s.
+
 **Pull the curve before rewriting any opener.** An average retention figure
 says a video lost people; only the curve says at which sentence, and the two
 have pointed at different sentences every time they have been compared.

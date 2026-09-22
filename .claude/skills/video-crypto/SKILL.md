@@ -48,6 +48,11 @@ and a remembered version is a stale one.
    reusable forever. The clips that remain are the *act*: a hand on a lit
    phone, a thumb on a feed, a carriage of people on screens - not a
    portrait of somebody feeling something. `docs/video/footage.md`.
+   **Write the opening as one unit first:** the title question (sentence 1),
+   the redacted `hook="... [word] ..."` on screen, and sentence 2 - a partial
+   answer that *says the hidden word*, so it is revealed on the beat
+   (`shorts.md` "The opening hook: a redacted headline", `narration.md`
+   "Revised 2026-09-21"). Both the Short and the long form take `hook=`.
 4. **Build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over and wait.** Re-cut as many times as the user asks; that loop is

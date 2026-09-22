@@ -273,7 +273,104 @@ LEVELS = {
     # the file. If the bed is ever removed from this format, these come back
     # down — the pair only makes sense together.
     "clock": 0.70, "clock_final": 0.95,
+    # The hook kit. The slam is the one sound allowed to be the loudest thing
+    # in the first second; the glitches are texture and sit well under it.
+    "hook_slam": 1.10, "hook_glitch": 0.30, "hook_swell": 0.55,
+    "hook_pop": 0.80, "hook_swish": 0.45,
 }
+
+
+# --------------------------------------------------------------------------
+# The opening hook's own kit (2026-09-21). Designed as one set so the hit,
+# the glitches, the swell and the pop sound like one piece of sound design
+# rather than five utility cues. See `longform.overlay.HookOverlay`.
+# --------------------------------------------------------------------------
+
+def _bitcrush(x: np.ndarray, hold: int = 6, levels: int = 12) -> np.ndarray:
+    """Sample-and-hold plus quantising: the digital texture of a glitch."""
+    held = np.repeat(x[::hold], hold)[:len(x)]
+    return np.round(held * levels) / levels
+
+
+def hook_slam(sr: int = SR, dur: float = 0.95) -> np.ndarray:
+    """The cut in: an 808-style drop with a punch on the front and air on top.
+
+    The sub sweeps 110 -> 42 Hz, which reads as weight through a phone
+    speaker's harmonics and as a proper drop on headphones. The punch is
+    low-passed noise so it thuds rather than hisses.
+    """
+    from scipy.signal import butter, sosfilt
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    f = 42.0 + 68.0 * np.exp(-t / 0.09)
+    sub = np.sin(2 * np.pi * np.cumsum(f) / sr) * _env(n, sr, 0.002, 0.30)
+    rng = np.random.default_rng(31)
+    punch = sosfilt(butter(2, 2500, btype="low", fs=sr, output="sos"),
+                    rng.normal(0, 1, n)) * _env(n, sr, 0.0005, 0.035)
+    air = sosfilt(butter(2, 6000, btype="high", fs=sr, output="sos"),
+                  rng.normal(0, 1, n)) * _env(n, sr, 0.01, 0.25)
+    out = sub + punch * 0.9 + air * 0.12
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def hook_glitch(sr: int = SR, dur: float = 0.09) -> np.ndarray:
+    """A tiny digital blip for the headline tearing sideways. Short and
+    mid-high so it sits between the voice's syllables rather than on them."""
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    rng = np.random.default_rng(37)
+    sq = np.sign(np.sin(2 * np.pi * 1480.0 * t)) * 0.35
+    out = _bitcrush(sq + rng.normal(0, 1, n) * 0.6, hold=9, levels=6)
+    gate = (np.sin(2 * np.pi * 55.0 * t) > -0.2).astype(float)   # stutter
+    out = out * gate * _env(n, sr, 0.001, 0.035)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def hook_swell(sr: int = SR, dur: float = 1.0) -> np.ndarray:
+    """A reverse cymbal: bright noise swelling exponentially and cut dead at
+    the end, so the reveal lands in the gap the cut leaves."""
+    from scipy.signal import butter, sosfilt
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    rng = np.random.default_rng(41)
+    hiss = sosfilt(butter(2, 3200, btype="high", fs=sr, output="sos"),
+                   rng.normal(0, 1, n))
+    shimmer = sum(np.sin(2 * np.pi * f * t) * 0.12 for f in (4186.0, 5274.0, 6272.0))
+    env = (np.exp(4.2 * t / dur) - 1) / (np.exp(4.2) - 1)
+    out = (hiss + shimmer) * env
+    k = int(sr * 0.006)
+    out[-k:] *= np.linspace(1, 0, k)          # hard cut, no click
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def hook_pop(sr: int = SR, dur: float = 0.75) -> np.ndarray:
+    """The reveal: a 50 ms glitch resolving into a bright two-note chime.
+
+    E6 and B6, a fifth apart, each doubled a few cents sharp so the tone
+    shimmers instead of beeping; a soft thump underneath gives it body.
+    """
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    rng = np.random.default_rng(43)
+    g = int(sr * 0.05)
+    glitch = np.zeros(n)
+    glitch[:g] = _bitcrush(rng.normal(0, 1, g), hold=7, levels=5) * np.linspace(1, 0.2, g)
+    chime = np.zeros(n)
+    for f, a, dly in ((1318.5, 1.0, 0.035), (1975.5, 0.7, 0.075)):
+        k = int(sr * dly)
+        tt = t[:n - k]
+        tone = (np.sin(2 * np.pi * f * tt) + np.sin(2 * np.pi * f * 1.004 * tt)) * 0.5
+        chime[k:] += a * tone * _env(n - k, sr, 0.002, 0.22)
+    thump = np.sin(2 * np.pi * 92.0 * t) * _env(n, sr, 0.001, 0.06)
+    out = glitch * 0.45 + chime + thump * 0.6
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def hook_swish(sr: int = SR, dur: float = 0.38) -> np.ndarray:
+    """The exit: a short, light upward swish - a smaller cousin of `whoosh`."""
+    from scipy.signal import butter, sosfilt
+    out = sosfilt(butter(2, 700, btype="high", fs=sr, output="sos"), whoosh(sr, dur))
+    return out / (np.max(np.abs(out)) + 1e-9)
 
 
 def mix(track: Path, out: Path, cues: list[tuple[float, str]],
@@ -291,7 +388,10 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
               "riser": riser, "impact": impact, "reveal": reveal,
               "link": link, "loop_close": loop_close, "limit": limit,
-              "clock": clock, "clock_final": clock_final}
+              "clock": clock, "clock_final": clock_final,
+              "hook_slam": hook_slam, "hook_glitch": hook_glitch,
+              "hook_swell": hook_swell, "hook_pop": hook_pop,
+              "hook_swish": hook_swish}
 
     for at, kind in cues:
         clip = makers[kind](sr) * peak * gain * LEVELS.get(kind, 1.0)

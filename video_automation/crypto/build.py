@@ -217,6 +217,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # and a diagram in it is the one way to show an
                         # architecture without giving up the motion underneath.
                         overlays: "list | None" = None,
+                        # On-screen headline over the first seconds — see
+                        # `longform.overlay.HookOverlay` and shorts.md's "Put
+                        # the promise on frame zero". `[brackets]` accent words.
+                        hook: "str | None" = None,
+                        # Fallback reveal time when the redacted word is not
+                        # found in the narration. Normally the word is found
+                        # and revealed on the frame it is spoken.
+                        hook_until: float = 3.4,
                         logo_hold: float = 13.0,
                         # --- extension points, for a format this file does not
                         # know about. All three default to exactly what this
@@ -448,6 +456,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         if m is not None:
             anchors = roam_anchors(m, frame)
 
+    hook_ov = None
+    if hook:
+        from ..longform.overlay import HookOverlay
+        reveal = hook_reveal_time(hook, captions, fallback=hook_until)
+        hook_ov = HookOverlay(hook, reveal_at=reveal, frame=frame,
+                              accent=brand.primary)
+        overlays = [hook_ov, *(overlays or [])]
+
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
                            factory=(factory if factory is not None else
@@ -473,6 +489,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 if item[-1] is not None]
         if cues:
             track = sfx.mix(track, workdir / "track-sfx.wav", cues)
+
+    if sound and hook_ov is not None:
+        track = sfx.mix(track, workdir / "track-hook.wav", hook_ov.cues())
 
     # **The bed, sidechained under the voice** — the same path `render_long`
     # uses, so a long video and the Short from the same post sit on the same
@@ -515,6 +534,34 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 SPEAK_LAST = 0.95       # room left for the final option to actually be read
 MARK_TAIL = 0.30        # the tick is on screen this long before the dissolve
 MARK_STEP = 0.30        # between verdicts, when there is room for it
+
+
+def hook_reveal_time(hook: str, captions: list, fallback: float = 3.4,
+                     earliest: float = 1.2, latest: float = 7.0) -> float:
+    """When the narration says the hook's first `[bracketed]` word.
+
+    Finds the first caption word (from `earliest` on) matching it, ignoring
+    case and punctuation, and returns that word's start from `_word_spans`.
+    Falls back to `fallback` if the word is never spoken in the window - which
+    is a script note: the redacted word should be *said* in sentence 2.
+    """
+    import re
+    m = re.search(r"\[([^\]]+)\]", hook)
+    if not m:
+        return fallback
+    key = re.sub(r"[^a-z0-9]", "", m.group(1).split()[0].lower())
+    for c in captions:
+        for w, (t0, _t1) in zip(c.text.split(),
+                                 _word_spans(c.text, c.start, c.end, c.speech_end)):
+            if t0 >= earliest and re.sub(r"[^a-z0-9]", "", w.lower()) == key:
+                if t0 <= latest:
+                    return t0
+                print(f"hook: '{key}' is spoken at {t0:.1f}s, past {latest:.0f}s "
+                      f"- revealing at {fallback:.1f}s instead. Say it in sentence 2.")
+                return fallback
+    print(f"hook: '{key}' is never spoken after {earliest:.1f}s - revealing at "
+          f"{fallback:.1f}s. Put the hidden word in sentence 2.")
+    return fallback
 
 
 def _word_spans(text: str, start: float, end: float,
