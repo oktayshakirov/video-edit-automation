@@ -69,6 +69,12 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 title: str | None = None,
                 title_hold: float = 5.0,
                 title_eyebrow: str | None = None,
+                # The redacted opening hook - see `overlay.HookOverlay` and
+                # longform.md's "The first five seconds carry information".
+                # The `[bracketed]` word is hidden until the voice says it;
+                # `hook_until` is the fallback reveal if it is never said.
+                hook: str | None = None,
+                hook_until: float = 3.5,
                 sound: bool = True, fps: int = 30,
                 # Intermediates are deleted on success. See the note at the end
                 # of this function; set True while iterating on a cut.
@@ -186,6 +192,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     # A push keeps every pixel showing exactly one shot. 0.34 rather than the
     # shorts' 0.45 because a move that travels is legible in less time than a
     # fade that has to reach 50% before it reads as anything.
+    hook_ov = _hook(hook, hook_until, brand, frame, captions)
+
     picture = render_shots(
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
         frame=frame, transition="push", xfade=0.34,
@@ -199,12 +207,14 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
         overlays=(_endcard(endcard, endcard_lead, total, frame)
                   + _title(title_at, title, title_hold, title_eyebrow,
-                           meta, brand, frame)))
+                           meta, brand, frame)
+                  + hook_ov))
 
     # --- sound -----------------------------------------------------------
     if sound:
         track = sfx.mix(track, workdir / "track-sfx.wav",
-                        _cues(shots, total))
+                        _cues(shots, total)
+                        + [c for h in hook_ov for c in h.cues()])
 
     if music:
         if isinstance(music, str) and music in music_mod.PRESETS:
@@ -299,6 +309,17 @@ def _title(at: "float | None", text: "str | None", hold: float,
         raise ValueError("title_at was given but there is no title to draw - "
                          "pass `title=` or a `meta` with one")
     return [TitleOverlay(line, at, hold, brand, frame=frame, eyebrow=eyebrow)]
+
+
+def _hook(text: str | None, fallback: float, brand: Brand, frame,
+          captions: list) -> list:
+    if not text:
+        return []
+    from .overlay import HookOverlay
+    from ..crypto.build import hook_reveal_time
+    reveal = hook_reveal_time(text, captions, fallback=fallback)
+    return [HookOverlay(text, reveal_at=reveal, frame=frame,
+                        accent=brand.primary, size=84, max_lines=2)]
 
 
 def _cues(shots, total: float) -> list[tuple[float, str]]:

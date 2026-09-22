@@ -259,6 +259,89 @@ answer, never on another question - `narration.md`'s "A Short's ending loops;
 it does not ask" has the retention split. Asking again at the end ("what do
 you think?") is the long-form outro habit leaking into the wrong format.
 
+## The opening hook: a redacted headline — `hook=`
+
+**Added 2026-09-21. The first version (a static headline) was rejected the same
+day as "just a headline with very ugly font and styling on a frame", which was
+right.** This is the replacement. Every Short on both channels lost 13-27
+points at ~5s, and the curves put the cliff before sentence 2 had finished —
+so the fix has to work in the first second, work muted (most of Instagram, a
+lot of TikTok), and give the viewer a reason to still be there at five.
+
+```python
+render_tinnitus_short(SENTENCES, SHOTS, out, work, ...,
+                      hook="Quitting caffeine can make it [louder]")
+```
+
+The `[bracketed]` word is **hidden** — a bar of animated static in the brand's
+colours, the width of the word — and **revealed on the frame the narration
+says it**. `hook_reveal_time()` finds the word in the caption timings; the
+render prints a warning and falls back to `hook_until` (3.4s) if it is never
+spoken. Timeline (`longform/overlay.py`, `HookOverlay`):
+
+| time | picture | sound | the job |
+|---|---|---|---|
+| 0.00s | picture punches in 1.14→1.0; headline slams in with overshoot | `hook_slam` — an 808-style drop with a punch on top | pattern interrupt, in the window a swipe is decided |
+| 0.3s → word | hidden word: animated static + a light sweep + a slow pulse; every ~0.8s the headline **tears** (slice glitch + RGB split, 3 frames) | `hook_glitch` blip on each tear; `hook_swell` (reverse cymbal) over the last second, cut dead on the reveal | curiosity gap — the bar's width is a clue, the answer is seconds away |
+| word spoken | bar wipes off, word lands in the brand pill, small pop and shake | `hook_pop` — a glitch resolving into a two-note chime | the gap closes *at* the old 5s cliff |
+| +0.9s | headline slides up and out | `hook_swish` | clears the frame for the video |
+
+**Placement: centred.** Every line is centred and the block sits on the frame's
+vertical axis, its centre at 34% of the height — clear of the watermark above,
+of the platforms' right-hand button rail (from ~45% down) and of the caption
+line. A soft full-width dark band behind it (not a panel, not a top gradient)
+keeps it legible. (Revised the same day: the first placement was top-left and
+read as a corner label.) `centre_y=` moves it if a clip needs it.
+
+The five sounds are their own kit in `core/sfx.py` (`hook_*`), synthesised
+like everything else there and levelled so each sits within a few dB of the
+voice — felt, not a sound-effects reel. Measured on the test cut: nothing
+clips, the slam and pop peak around −3 to −4 dB against a −1 dB ceiling.
+
+Type is the karaoke captions' own — Arial Black, upper case, the brand pill —
+so it reads as part of the video, not a title bolted on. Nothing flashes on
+frame zero: that is the frame a paused feed shows.
+
+**Why this and not a bigger headline.** Three documented mechanisms, one per
+phase: the swipe is decided in about a second and only something *happening*
+stops it (pattern interrupt); an information gap the viewer can almost close is
+what they will wait for (Loewenstein; the "redacted detail" hook is a named
+short-form format); and a gap that closes on a sound and a pop is a small
+reward exactly where the audience used to leave.
+
+**How to write it** — the hook, sentence 1 and sentence 2 are one unit:
+
+- **Sentence 1 (voice)** is the title question, unchanged.
+- **The hook (screen)** is a 5-9 word *statement* of the surprising answer
+  with its key word hidden. Not the title again.
+- **Sentence 2 (voice)** is the partial answer from `narration.md`, and it
+  **must say the hidden word**, ideally 3.5-5s in. That spoken word is the
+  reveal cue — it is what makes the gap close on the beat.
+
+| title question (voice) | hook (screen) | sentence 2 must contain |
+|---|---|---|
+| Does caffeine make tinnitus worse? | Quitting caffeine can make it `[louder]` | "...make the ringing *louder*..." |
+| What's hidden in Bitcoin's first block? | Satoshi hid a `[newspaper headline]` inside Bitcoin | "A line from a *newspaper*..." |
+| Do noise-canceling headphones help? | In a silent room they can make it `[worse]` | "...in total silence they make it *worse*." |
+
+- **Hide one word or a two-word phrase** — the one that is the surprise. Hiding
+  a filler word ("it", "the") makes the gap meaningless.
+- **Guessable, not obvious.** If every viewer knows the word, there is no gap;
+  if nobody could, there is no pull.
+- **It must be true, and the video must pay it off.** A hidden word the video
+  never earns is clickbait. **On tinnitus, never hide a promise** — no
+  `[cure]`, `[relief]`, `[stop it]`.
+- **Pick an opening clip whose subject is not at 30-40% of the height.** The
+  headline is centred there, and a close-up's eyes usually are too — the
+  caffeine test cut lost the woman's eyes behind it. Use a clip whose subject
+  sits lower (hands, an object, a figure in a room), or shift the crop with
+  `clip_ay`, or the hook with `centre_y`.
+
+**This is an experiment (E1 in the `video-performance-review` ledger).**
+Judged on the ~5s drop and the half-gone second against the pre-hook cohort.
+If hooked Shorts still lose 13+ points at 5s, the cliff is about something
+else and this section should say so.
+
 ## A vertical cut must be cropped onto its subject
 
 **`Shot(clip_ax=, clip_ay=)`**, fractions of the leftover cover-crop slack

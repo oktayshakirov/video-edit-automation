@@ -415,20 +415,56 @@ hedge in front of it.
 deciding at roughly five seconds whether this video is going to tell them
 anything, and sentence 2 is the whole of the evidence they have.
 
-**The title-question opener (see above, and standing in every Short) is not the
-hook by itself - it is the setup for one.** The line that answers it, flips it, or
-names the thing has to be sentence 2. If the honest answer to the title question is
-"maybe" or "it's complicated," say the complicating fact plainly instead of
-signalling uncertainty - "Usually not - it's quitting it suddenly that backfires"
-lands as fast as a flat "It did not" and is just as true as "Maybe, but...". Any
-setup that has to run before the payoff (symptoms, mechanism, list of causes) goes
-*after* sentence 2-3, never before it - restructure the sentence order, not the
-content.
+### Revised 2026-09-21: sentence 2 answers *part* of it and opens a bigger question
 
-**A quick self-check while scripting:** read sentences 1-3 alone. If they do not
-already contain the one thing a scroller would repeat to a friend, the payoff is
-buried too deep - move it up, don't just trust that a good idea later in the script
-will be reached.
+The first version of this rule said "the line that answers it has to be
+sentence 2". **Every Short written to that rule still cliffs at ~5s**, and the
+curves say why - a *complete* answer in sentence 2 is also an exit:
+
+| Short | sentence 2 | half the audience gone by |
+|---|---|---|
+| Concert ringing | "Usually, yes - most of the time within three days." | **6.9s** |
+| Magnesium | "Nobody knows yet." | **6.7s** (21% avg) |
+| Fear & Greed index | "Yes - it is called the Fear and Greed Index..." | **7.0s** |
+| Caffeine (the hedge) | "Maybe - but quitting it suddenly..." | **6.3s** |
+| **Silence** | "You get somewhere quiet and the ringing gets louder." / "It did not." | never in the opening - decays smoothly from 190% |
+| **Pulsatile** | "That soft whooshing... has a name." | held 82% avg |
+
+The viewer asked the title question, got the answer, and left satisfied - the
+video did its job in five seconds and had nothing left to hold them with. A
+hedge fails the same way from the other side: no answer, no reason to stay.
+The two that held gave a **true, surprising partial answer that raises the
+question the rest of the video answers**: "it did not get louder" (so why does
+it sound louder?); "it has a name" (so what causes it, and is it dangerous?).
+
+**The rule now:** sentence 2 gives the viewer something *new* - a reversal, a
+name, a number - that is true on its own and **makes the full answer the
+thing they now want**. Not the verdict, and not a hedge.
+
+| instead of (closes the loop) | write (opens a bigger one) |
+|---|---|
+| "Usually, yes - within three days." | "Usually, yes. But the ringing is not the part that decides it." |
+| "Nobody knows yet." | "There is exactly one trial - and it did not test magnesium alone." |
+| "Yes - it is called the Fear and Greed Index." | "Yes - and it is built from five things you can check yourself." |
+| "Maybe, but quitting might be worse." | "Quitting it can make the ringing louder than the coffee ever did." |
+
+Two limits on this, both the channel's own rules applied here:
+
+- **Never a fake cliffhanger.** The partial answer must be a real fact from
+  the article, and the video must actually pay off the question it opens.
+  "You won't believe what happens next" is the same failure as the hedge,
+  and on the tinnitus channel it can shade into a promise of relief.
+- **Any setup still goes after sentence 2-3**, never before it -
+  restructure the sentence order, not the content.
+
+**Self-check while scripting:** read sentences 1-2 alone and ask two
+questions. *Did the viewer learn something they didn't know?* (If no, it is
+a hedge or a restatement.) *Is there now a question they want answered?* (If
+no, the video just ended at five seconds.) Both have to be yes.
+
+**Pair it with the on-screen hook** (`shorts.md`, "Put the promise on frame
+zero"): the screen shows the stake from frame zero while the voice asks the
+title question, so sentence 2 is confirming something already read.
 
 ## A tip needs a reason before it is a tip
 

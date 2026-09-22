@@ -46,6 +46,11 @@ and a remembered version is a stale one.
    wait. An off-site topic is fine when asked for and never offered.
 3. **Script both together** from the chosen article. A session has no article
    and takes the session copy rules instead.
+   **Write the opening as one unit first:** the title question (sentence 1),
+   the redacted `hook="... [word] ..."` on screen, and sentence 2 - a partial
+   answer that *says the hidden word*, so it is revealed on the beat
+   (`shorts.md` "The opening hook: a redacted headline", `narration.md`
+   "Revised 2026-09-21"). Both the Short and the long form take `hook=`.
 4. **Decide what gets drawn, before writing a shot list.** This channel's
    subject is **invisible** - there is no photograph of a phantom sound, of
    gain, of habituation or of a spike - so a shot list built from footage

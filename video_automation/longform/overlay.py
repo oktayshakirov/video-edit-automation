@@ -393,3 +393,285 @@ class TitleOverlay:
         out.alpha_composite(shadow, (0, 5))
         out.alpha_composite(layer)
         return out.convert("RGB")
+
+
+# --------------------------------------------------------------------------
+# The first-second hook: a redacted headline
+# --------------------------------------------------------------------------
+
+def _ease_out_back(x: float, k: float = 1.9) -> float:
+    x = min(max(x, 0.0), 1.0) - 1.0
+    return 1.0 + (k + 1.0) * x ** 3 + k * x ** 2
+
+
+def _ease_out(x: float) -> float:
+    x = min(max(x, 0.0), 1.0)
+    return 1.0 - (1.0 - x) ** 3
+
+
+class HookOverlay:
+    """The opening hook: a centred headline with its key word **redacted**,
+    revealed on the frame the voice says it.
+
+    Every Short on both channels lost 13-27 points at ~5s. A static headline
+    (the first version of this class) was rejected as a caption on a frame,
+    and the second, top-left version as badly placed. This one is centred on
+    the screen and built on three mechanisms, each with its own sound:
+
+    1. **Pattern interrupt, t=0.** The picture punches in (1.14 -> 1.0) and
+       the headline slams in with overshoot on `hook_slam`, an 808-style drop.
+    2. **Curiosity gap, t=0.3 -> reveal.** The `[bracketed]` word is a bar
+       the width of the word, full of animated static in the brand's tones.
+       Two or three times the headline *tears* - a horizontal slice glitch for
+       a few frames - on a `hook_glitch` blip, and a `hook_swell` (a reverse
+       cymbal) sucks up into the reveal. The bar's width is a clue; an open
+       question the viewer can almost close is what they wait for.
+    3. **The close lands on the cliff.** The bar wipes off on the frame the
+       narration says the word (`reveal_at`, from the caption timings), on
+       `hook_pop` - a glitch resolving into a two-note chime - with a pop and
+       a small shake. Written so the word is spoken at ~3.5-5s, the gap
+       closes exactly where the audience used to leave.
+
+    Then it holds `hold` seconds and leaves upward on `hook_swish`.
+
+    **Centred, not corner-anchored.** Every line is centred and the block
+    sits on the frame's vertical axis. In 9:16 its centre is at 34% of the
+    height: clear of the watermark above, of the platforms' right-hand
+    button rail (which starts around 45%) and of the caption line below. In
+    16:9 it sits higher (24%) so a centred face stays visible. A soft dark
+    band behind it - not a top-down gradient - keeps white type legible on
+    any footage.
+
+    Type is the karaoke captions' own - Arial Black, upper case, the brand's
+    pill behind the key word - so the hook reads as part of the video's
+    system. `cues()` returns the sound cues; the renderer mixes them.
+    """
+
+    PUNCH = 0.35      # camera punch-in duration
+    SLAM = 0.30       # headline entrance
+    WIPE = 0.20       # the bar wiping off
+    EXIT = 0.28
+    TEAR = 0.10       # one glitch tear
+
+    def __init__(self, text: str, reveal_at: float = 3.4,
+                 frame: Frame = LANDSCAPE,
+                 accent: tuple[int, int, int] = (229, 194, 0),
+                 ink_on_accent: tuple[int, int, int] = (14, 14, 14),
+                 centre_y: float | None = None, max_w: int | None = None,
+                 size: int = 92, max_lines: int = 3, hold: float = 0.9,
+                 punch: bool = True, upper: bool = True):
+        from PIL import ImageFont
+        from ..core.vertical import FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX
+
+        self.frame, self.punch = frame, punch
+        self.reveal_at = max(0.6, reveal_at)
+        self.exit_at = self.reveal_at + self.WIPE + hold
+        self.start, self.end = 0.0, self.exit_at + self.EXIT
+        vertical = frame.h > frame.w
+        max_w = max_w or (frame.w - 180 if vertical else int(frame.w * 0.62))
+        cy = frame.h * (centre_y if centre_y is not None else (0.34 if vertical else 0.24))
+
+        # Glitch tears while the word is hidden: every ~0.8s from 0.7s, and
+        # none in the last second, where the swell owns the sound.
+        self.glitches = [round(g, 2) for g in np.arange(0.7, self.reveal_at - 1.0, 0.8)]
+
+        words, acc = [], False
+        for raw in text.replace("[", " [ ").replace("]", " ] ").split():
+            if raw == "[":
+                acc = True
+            elif raw == "]":
+                acc = False
+            else:
+                words.append((raw.upper() if upper else raw, acc))
+        self.hidden = [w for w, a in words if a]
+
+        while True:
+            font = ImageFont.truetype(FONT_KARAOKE_BOX, size, index=FONT_KARAOKE_BOX_INDEX)
+            space = font.getlength(" ")
+            lines, cur, cur_w = [], [], 0.0
+            for w, a in words:
+                ww = font.getlength(w)
+                if cur and cur_w + space + ww > max_w:
+                    lines.append((cur, cur_w))
+                    cur, cur_w = [], 0.0
+                cur_w += (space if cur else 0) + ww
+                cur.append((w, a, ww))
+            if cur:
+                lines.append((cur, cur_w))
+            if len(lines) <= max_lines or size <= 56:
+                break
+            size -= 6
+
+        pad_x, pad_y = max(10, size // 7), max(4, size // 14)
+        lh = int(size * 1.22)
+        stroke = max(4, size // 14)
+        inner_w = int(max(w for _, w in lines))
+        block_w = inner_w + pad_x * 2 + stroke * 2 + 16
+        block_h = lh * len(lines) + pad_y * 2 + stroke * 2 + 8
+        oy = pad_y + stroke + 4
+
+        base = Image.new("RGBA", (block_w, block_h), (0, 0, 0, 0))
+        words_l = Image.new("RGBA", (block_w, block_h), (0, 0, 0, 0))
+        bars_l = Image.new("RGBA", (block_w, block_h), (0, 0, 0, 0))
+        reveal_l = Image.new("RGBA", (block_w, block_h), (0, 0, 0, 0))
+        dw, db, dr = (ImageDraw.Draw(words_l), ImageDraw.Draw(bars_l),
+                      ImageDraw.Draw(reveal_l))
+        self.bars: list[tuple[int, int, int, int]] = []
+        asc = font.getbbox("A")[1]
+        cap_h = font.getbbox("A")[3] - asc
+        radius = max(8, size // 7)
+        y = oy
+        for ln, ln_w in lines:
+            x = (block_w - ln_w) / 2          # centred line
+            for w, a, ww in ln:
+                if a:
+                    box = (int(x - pad_x), int(y + asc - pad_y * 2),
+                           int(x + ww + pad_x), int(y + asc + cap_h + pad_y * 2))
+                    self.bars.append(box)
+                    db.rounded_rectangle(box, radius=radius, fill=accent + (255,))
+                    dr.rounded_rectangle(box, radius=radius, fill=accent + (255,))
+                    dr.text((x, y), w, font=font, fill=ink_on_accent + (255,))
+                else:
+                    dw.text((x, y), w, font=font, fill=(255, 255, 255, 255),
+                            stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
+                x += ww + space
+            y += lh
+
+        shadow_src = Image.new("RGBA", (block_w, block_h), (0, 0, 0, 0))
+        shadow_src.alpha_composite(words_l)
+        shadow_src.alpha_composite(bars_l)
+        sh = shadow_src.split()[3].filter(ImageFilter.GaussianBlur(9))
+        shadow = Image.new("RGBA", (block_w, block_h), (0, 0, 0, 0))
+        shadow.putalpha(sh.point(lambda v: int(v * 0.65)))
+        base.alpha_composite(shadow, (0, 5))
+        base.alpha_composite(words_l)
+        self.base, self.bars_l, self.reveal_l = base, bars_l, reveal_l
+        self.block_w, self.block_h = block_w, block_h
+        self.accent = accent
+        self.left = (frame.w - block_w) // 2
+        self.top = int(cy - block_h / 2)
+
+        # A soft dark band behind the block, full width, fading out above and
+        # below - legibility without a panel and without darkening the frame.
+        spread = 150
+        band_h = block_h + spread * 2
+        yy = np.linspace(-1.0, 1.0, band_h)
+        core = block_h / band_h
+        a = np.clip((1 - np.abs(yy)) / max(1e-6, 1 - core), 0, 1) ** 1.3 * 125
+        self.band = Image.new("RGBA", (frame.w, band_h), (0, 0, 0, 255))
+        self.band.putalpha(Image.fromarray(np.repeat(a.astype(np.uint8)[:, None], frame.w, 1), "L"))
+        self.band_top = self.top - spread
+
+    def cues(self) -> list[tuple[float, str]]:
+        r = self.reveal_at
+        out = [(0.0, "hook_slam"), (r, "hook_pop"), (self.exit_at, "hook_swish")]
+        out += [(g, "hook_glitch") for g in self.glitches]
+        if r - 1.0 > 0.35:
+            out.append((r - 1.0, "hook_swell"))
+        return out
+
+    def _block(self, t: float) -> Image.Image:
+        blk = self.base.copy()
+        r = self.reveal_at
+        if t < r:
+            # Censored, not empty: animated static in the brand's tones inside
+            # each bar (re-rolled every other frame), a light sweep across it,
+            # and a slow breathing pulse.
+            bars = self.bars_l.copy()
+            rng = np.random.default_rng(int(t * 15))
+            acc = np.array(self.accent, dtype=np.float32)
+            pulse = 0.85 + 0.15 * np.sin(t * 2 * np.pi / 1.3)
+            arr = np.asarray(bars).copy()
+            phase = (t % 1.1) / 1.1
+            for x0, y0, x1, y1 in self.bars:
+                h, w = y1 - y0, x1 - x0
+                n = rng.random((h // 3 + 1, w // 3 + 1)).repeat(3, 0).repeat(3, 1)[:h, :w]
+                tone = acc * (0.45 + 0.55 * n[..., None]) * pulse
+                xs = np.arange(w)[None, :]
+                ys = np.arange(h)[:, None]
+                cx = -w * 0.4 + phase * w * 1.8
+                band = np.clip(1 - np.abs((xs - cx) + (ys - h / 2) * 0.6) / 26, 0, 1)
+                tone = tone + band[..., None] * 90
+                region = arr[y0:y1, x0:x1]
+                mask = region[..., 3:4] > 0
+                region[..., :3] = np.where(mask, np.clip(tone, 0, 255), region[..., :3])
+                arr[y0:y1, x0:x1] = region
+            blk.alpha_composite(Image.fromarray(arr, "RGBA"))
+        else:
+            p = _ease_out((t - r) / self.WIPE)
+            blk.alpha_composite(self.bars_l)
+            if p >= 1.0:
+                blk.alpha_composite(self.reveal_l)
+            else:
+                mask = Image.new("L", (self.block_w, self.block_h), 0)
+                md = ImageDraw.Draw(mask)
+                for x0, y0, x1, y1 in self.bars:
+                    md.rectangle((x0, y0, x0 + (x1 - x0) * p, y1), fill=255)
+                rv = self.reveal_l.copy()
+                rv.putalpha(Image.fromarray(np.minimum(np.asarray(rv.split()[3]), np.asarray(mask))))
+                blk.alpha_composite(rv)
+
+        # A glitch tear: slices of the block jump sideways for a few frames,
+        # with an RGB split, on the same tick as the `hook_glitch` blip.
+        for g in self.glitches:
+            if g <= t < g + self.TEAR:
+                rng = np.random.default_rng(int(g * 100) + int((t - g) * 60))
+                arr = np.asarray(blk).copy()
+                h = arr.shape[0]
+                for _ in range(3):
+                    y0 = int(rng.integers(0, max(1, h - 12)))
+                    y1 = min(h, y0 + int(rng.integers(8, max(9, h // 4))))
+                    arr[y0:y1] = np.roll(arr[y0:y1], int(rng.integers(-26, 27)), axis=1)
+                split = np.roll(arr[..., 0], 6, axis=1)
+                arr[..., 0] = np.maximum(arr[..., 0], split)
+                blk = Image.fromarray(arr, "RGBA")
+                break
+        return blk
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        W, H = self.frame.w, self.frame.h
+
+        if self.punch and t < self.PUNCH:
+            z = 1.14 - 0.14 * _ease_out(t / self.PUNCH)
+            cw, ch = int(W / z), int(H / z)
+            pic = pic.crop(((W - cw) // 2, (H - ch) // 2,
+                            (W - cw) // 2 + cw, (H - ch) // 2 + ch)).resize((W, H), Image.BILINEAR)
+
+        out = pic.convert("RGBA")
+
+        a, dy = 1.0, 0
+        if t >= self.exit_at:
+            q = _ease_out((t - self.exit_at) / self.EXIT)
+            a, dy = 1.0 - q, -int(70 * q)
+
+        band = self.band
+        if a < 1.0:
+            band = band.copy()
+            band.putalpha(band.split()[3].point(lambda v: int(v * a)))
+        out.alpha_composite(band, (0, max(0, self.band_top + dy)))
+
+        blk = self._block(t)
+        s = 1.0
+        if t < self.SLAM:
+            s = 1.12 - 0.12 * _ease_out_back(t / self.SLAM)
+        r = self.reveal_at + self.WIPE
+        if r <= t < r + 0.22:
+            s *= 1.0 + 0.05 * (1 - (t - r) / 0.22)
+        if abs(s - 1.0) > 1e-3:
+            nw, nh = int(self.block_w * s), int(self.block_h * s)
+            blk = blk.resize((nw, nh), Image.BILINEAR)
+        else:
+            nw, nh = self.block_w, self.block_h
+        jx = jy = 0
+        if self.reveal_at <= t < self.reveal_at + 0.25:
+            k = 1 - (t - self.reveal_at) / 0.25
+            jx = int(round(7 * k * np.sin(t * 90)))
+            jy = int(round(5 * k * np.cos(t * 70)))
+        if a < 1.0:
+            blk.putalpha(blk.split()[3].point(lambda v: int(v * a)))
+        x = (W - nw) // 2 + jx
+        y = self.top + (self.block_h - nh) // 2 + dy + jy
+        out.alpha_composite(blk, (max(0, x), max(0, y)))
+        return out.convert("RGB")
