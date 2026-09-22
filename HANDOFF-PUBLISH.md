@@ -1,42 +1,49 @@
-# Handoff: Satoshi Nakamoto (crypto long + short pair)
+# Handoff: Explain Tinnitus To Others (tinnitus long + short pair)
 
-Built and committed 2026-09-21. Working tree is clean.
+Built and committed 2026-09-22 (`be656fc`). The working tree is clean for this
+pair. The untracked `crypto-scams` files (`assets/crypto/scams/`,
+`projects/crypto-*/crypto-scams.py`) belong to a separate, unfinished build and
+are **not** part of this publish.
 
 ## Source
 
-- Article: `satoshi-nakamoto` (crypto OG bio, `content/crypto-ogs/satoshi-nakamoto.mdx`)
-- URL: https://thecrypto.wiki/crypto-ogs/satoshi-nakamoto
-- A different angle from the existing `satoshi-proof` video (which covers what
-  would count as proof). The long-form title is the search phrase "Who Is
-  Satoshi Nakamoto?"; the Short takes the genesis-block headline angle, so the
-  two do not compete for one results page.
+- Article: `explain-tinnitus-to-others`
+  (`tinnitus-blog/content/posts/explain-tinnitus-to-others.mdx`)
+- URL: https://tinnitushelp.me/blog/explain-tinnitus-to-others
+- The long-form title is the search phrase "How to Explain Tinnitus to
+  Family, Friends and Work". The Short takes the "someone who cannot hear it"
+  question angle, so the two do not compete for one results page.
 
 ## Files, long form
 
-- Video: `~/Desktop/crypto-satoshi-nakamoto-long.mp4` (2:58)
-- Thumbnail: `~/Desktop/crypto-satoshi-nakamoto-long-thumb.jpg`
-- Captions: `~/Desktop/crypto-satoshi-nakamoto-long.srt`
-- Metadata sidecar: `~/Desktop/crypto-satoshi-nakamoto-long.md` (title,
-  description, chapters, tags, credits)
-- Script: `projects/crypto-long/satoshi-nakamoto.py`
+- Video: `/Users/oktayshakirov/Desktop/explain-tinnitus-to-others-long.mp4` (2:56)
+- Thumbnail: `/Users/oktayshakirov/Desktop/explain-tinnitus-to-others-long-thumb.jpg`
+- Captions: `/Users/oktayshakirov/Desktop/explain-tinnitus-to-others-long.srt`
+- Metadata sidecar: `/Users/oktayshakirov/Desktop/explain-tinnitus-to-others-long.md`
+  (title, description, chapters, tags, credits with the medical disclaimer)
+- Script: `projects/tinnitus-long/explain-tinnitus-to-others.py`
 
 ## Files, Short
 
-- Video: `~/Desktop/crypto-satoshi-nakamoto-short.mp4` (43.9s)
-- Thumbnail: `~/Desktop/crypto-satoshi-nakamoto-short-thumb.jpg`
-- Script: `projects/crypto-short/satoshi-nakamoto.py`
-- Opening line, and the natural title: "What Is Hidden Inside Bitcoin's First
-  Block?" No sidecar, as with previous Shorts; the publish step writes its
-  description.
+- Video: `/Users/oktayshakirov/Desktop/explain-tinnitus-to-others-short.mp4` (47.1s)
+- Thumbnail: `/Users/oktayshakirov/Desktop/explain-tinnitus-to-others-short-thumb.jpg`
+- Script: `projects/tinnitus-short/explain-tinnitus-to-others.py`
+- Opening line, and the natural title: "How Do You Explain Tinnitus to
+  Someone Who Can't Hear It?" There is no sidecar, as with previous Shorts;
+  the publish step writes its description.
 
 ## Anything still undecided
 
-The user approved both renders as built on the first cut. Notes, none blocking:
+The user approved both renders as built. Notes, none of them blocking:
 
-- Both thumbnails use the site's stylised Satoshi image
-  (`posts/satoshi-nakamoto.jpg`) with "Who is Satoshi?". It is a site asset,
-  not a Commons photo, so there is no CC attribution block to add.
-- The long form carries the spoken and on-screen disclaimer; the Short
-  deliberately does not.
-- No price, no dollar value of the coins, no direction anywhere. The ~1M BTC
-  figure is presented as an estimate.
+- Voice `mia`, music `night-drift`, the same on both.
+- Both thumbnails use one Pexels photo (two people talking in a dim bar,
+  `photos/woman-talking-to-friend-evening-lamp-dark-portrait/6017586.jpg`)
+  with the headline "HOW DO YOU EXPLAIN [TINNITUS?]". The long-form thumbnail
+  on the Desktop was re-rendered on its own with the crop now saved in the
+  script; that file is the approved one.
+- This is the first tinnitus pair to ship with the redacted opening hook
+  (experiment E1 in the `video-performance-review` ledger). Judge it on the
+  drop at about 5 seconds.
+- Medical: the long form carries the disclaimer in its credits and puts the
+  red flags on screen. The Short deliberately has no disclaimer line.
