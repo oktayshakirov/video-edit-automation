@@ -224,7 +224,35 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # Fallback reveal time when the redacted word is not
                         # found in the narration. Normally the word is found
                         # and revealed on the frame it is spoken.
-                        hook_until: float = 3.4,
+                        hook_until: float = 3.0,
+                        # **The burned captions stand down while the hook is
+                        # on screen.** The hook block and the karaoke line are
+                        # independent layers and both used to run from frame
+                        # zero, so a Short opened with two blocks of type
+                        # saying the same sentence - one at 34% of the height,
+                        # one at 70% - plus the watermark, the static bar and
+                        # its tear. The user's note on the neck-tension pair
+                        # was that the captions under the hook are distracting
+                        # and too much is happening at once, and the long form
+                        # reads cleaner in its first seconds for exactly one
+                        # reason: it burns no captions at all, so its hook has
+                        # the frame to itself. The voice is already speaking
+                        # the line the hook is showing; printing it twice buys
+                        # nothing. Set False to put them back.
+                        hook_mutes_captions: bool = True,
+                        # **The closing statement, in the opener's own type.**
+                        # A Short used to land its last line on `ChapterCard`,
+                        # which is the long form's chapter slate: a hairline
+                        # rule over a flat brand panel, in the body face. Next
+                        # to an opener built from Arial Black, a dark band, a
+                        # brand pill and a slam it reads, in the user's words,
+                        # "very old and ugly" - the first and last thing a
+                        # viewer sees were drawn by two different videos. This
+                        # is the same `HookOverlay`, centred, held to the end
+                        # (`leave=False`) over real footage instead of a
+                        # panel, so the piece opens and closes in one voice.
+                        # `[brackets]` put the pill on the word that matters.
+                        outro: "str | None" = None,
                         logo_hold: float = 13.0,
                         # --- extension points, for a format this file does not
                         # know about. All three default to exactly what this
@@ -300,7 +328,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         **({} if precomputed is None else {"precomputed": precomputed}),
         **profile_args(voice))
 
-    plan_shots(shots, sentence_spans(sentences, captions))
+    spans = sentence_spans(sentences, captions)
+    plan_shots(shots, spans)
 
     # Close the inter-sentence gaps: a shot's span ends at its last caption, so
     # the silence after it belonged to no shot and `render_shots` fell through
@@ -463,6 +492,59 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         hook_ov = HookOverlay(hook, reveal_at=reveal, frame=frame,
                               accent=brand.primary)
         overlays = [hook_ov, *(overlays or [])]
+        if hook_mutes_captions:
+            # **Resume on a sentence boundary, never mid-sentence.** The first
+            # version filtered per sprite - `sp.start >= hook_ov.end` - and
+            # with karaoke every *word* is its own sprite, so a sentence that
+            # began under the hook came back for its last second or two: the
+            # viewer got the tail of a line whose beginning they never saw.
+            # The user's note: "then show them at the end of the sentence for
+            # a second... always start with the next sentence so we see the
+            # whole thing." So the boundary is the first sentence that starts
+            # after the hook has gone, and everything before it is muted
+            # whole.
+            resume = next((a for a, _ in spans if a >= hook_ov.end), None)
+            if resume is None:
+                resume = float("inf")      # the hook outlives the narration
+            kept = [sp for sp in sprites if sp.start >= resume - 1e-3]
+            dropped = len(sprites) - len(kept)
+            if dropped:
+                print(f"hook: {dropped} caption sprite(s) muted; captions "
+                      f"resume with the sentence at {resume:.1f}s "
+                      f"(hook clears at {hook_ov.end:.1f}s)")
+            sprites = kept
+
+    outro_ov = None
+    if outro:
+        from ..longform.overlay import HookOverlay
+        # It belongs to the last sentence: the card lands as that line starts
+        # and never leaves, so the final frame is the statement over moving
+        # footage. A Short that ends on an empty frame cannot loop into its
+        # own first frame, which is the whole retention argument for a cold
+        # close (`narration.md`).
+        # The card belongs to the whole last *sentence*, not to its final
+        # caption chunk - a closing line long enough to split into two chunks
+        # would otherwise burn its first half under the card. Same boundary
+        # rule as the hook.
+        at = max(0.0, spans[-1][0] - 0.15)
+        # The pill lands on the frame the voice says the word, exactly as the
+        # opener's does - searched inside the outro's own span, so an earlier
+        # mention of the same word cannot steal the cue. A fixed delay was
+        # tried first and drifts off the line by half a second either way.
+        rev = 0.0
+        if "[" in outro:
+            rev = max(0.35, hook_reveal_time(outro, captions, fallback=at + 1.2,
+                                             earliest=at, latest=1e9) - at)
+        outro_ov = HookOverlay(outro, frame=frame, accent=brand.primary,
+                               start_at=at, leave=False, reveal_at=rev,
+                               centre_y=0.5, punch=False, hold=0.0)
+        overlays = [*(overlays or []), outro_ov]
+        if hook_mutes_captions:
+            # Same rule as the hook: one statement on screen at a time, and
+            # the whole sentence goes, not the part that overlaps. The card
+            # *is* the closing line, so burning it underneath as well is the
+            # duplication the opener already dropped.
+            sprites = [sp for sp in sprites if sp.start < at]
 
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
@@ -490,8 +572,10 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         if cues:
             track = sfx.mix(track, workdir / "track-sfx.wav", cues)
 
-    if sound and hook_ov is not None:
-        track = sfx.mix(track, workdir / "track-hook.wav", hook_ov.cues())
+    if sound and (hook_ov is not None or outro_ov is not None):
+        cues = [c for ov in (hook_ov, outro_ov) if ov is not None
+                for c in ov.cues()]
+        track = sfx.mix(track, workdir / "track-hook.wav", cues)
 
     # **The bed, sidechained under the voice** — the same path `render_long`
     # uses, so a long video and the Short from the same post sit on the same
@@ -536,24 +620,47 @@ MARK_TAIL = 0.30        # the tick is on screen this long before the dissolve
 MARK_STEP = 0.30        # between verdicts, when there is room for it
 
 
-def hook_reveal_time(hook: str, captions: list, fallback: float = 3.4,
-                     earliest: float = 1.2, latest: float = 7.0) -> float:
+# Spoken numbers against written ones, so `[30 seconds]` still finds its
+# reveal when the narration's caption reads "thirty". Without this the match
+# fails silently and the bar wipes on the fallback instead of on the word -
+# which is invisible in review and obvious in the render.
+_NUMBER_WORDS = {
+    "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four",
+    "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine",
+    "10": "ten", "11": "eleven", "12": "twelve", "15": "fifteen",
+    "20": "twenty", "30": "thirty", "40": "forty", "50": "fifty",
+    "60": "sixty", "100": "hundred",
+}
+
+
+def hook_reveal_time(hook: str, captions: list, fallback: float = 3.0,
+                     earliest: float = 1.2, latest: float = 4.2) -> float:
     """When the narration says the hook's first `[bracketed]` word.
 
     Finds the first caption word (from `earliest` on) matching it, ignoring
     case and punctuation, and returns that word's start from `_word_spans`.
     Falls back to `fallback` if the word is never spoken in the window - which
     is a script note: the redacted word should be *said* in sentence 2.
+
+    **`latest` is 4.2s, down from 7.0.** The gap was supposed to close *at*
+    the ~5s cliff and in practice that is where the waiting became the thing
+    the viewer noticed: on the neck-tension Short the word landed at 5.3s and
+    the note back was that we are just waiting for a reveal. A curiosity gap
+    is a promise that something is coming, and three seconds is long enough
+    to make it - past that the opener is spending retention rather than
+    buying it. A word spoken later than this now reports and reveals on the
+    fallback, which is the writer's cue to move it earlier in sentence 2.
     """
     import re
     m = re.search(r"\[([^\]]+)\]", hook)
     if not m:
         return fallback
     key = re.sub(r"[^a-z0-9]", "", m.group(1).split()[0].lower())
+    keys = {key, _NUMBER_WORDS.get(key, key)}
     for c in captions:
         for w, (t0, _t1) in zip(c.text.split(),
                                  _word_spans(c.text, c.start, c.end, c.speech_end)):
-            if t0 >= earliest and re.sub(r"[^a-z0-9]", "", w.lower()) == key:
+            if t0 >= earliest and re.sub(r"[^a-z0-9]", "", w.lower()) in keys:
                 if t0 <= latest:
                     return t0
                 print(f"hook: '{key}' is spoken at {t0:.1f}s, past {latest:.0f}s "

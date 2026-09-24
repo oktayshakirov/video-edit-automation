@@ -453,52 +453,97 @@ class HookOverlay:
     EXIT = 0.28
     TEAR = 0.10       # one glitch tear
 
-    def __init__(self, text: str, reveal_at: float = 3.4,
-                 frame: Frame = LANDSCAPE,
+    def __init__(self, text: str, reveal_at: float = 3.0,
+                 frame: Frame = LANDSCAPE, start_at: float = 0.0,
+                 leave: bool = True,
                  accent: tuple[int, int, int] = (229, 194, 0),
                  ink_on_accent: tuple[int, int, int] = (14, 14, 14),
                  centre_y: float | None = None, max_w: int | None = None,
                  size: int = 92, max_lines: int = 3, hold: float = 0.9,
-                 punch: bool = True, upper: bool = True):
+                 punch: bool = True, upper: bool = True,
+                 statement_hold: float = 2.2):
         from PIL import ImageFont
         from ..core.vertical import FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX
 
         self.frame, self.punch = frame, punch
         self.reveal_at = max(0.6, reveal_at)
-        self.exit_at = self.reveal_at + self.WIPE + hold
-        self.start, self.end = 0.0, self.exit_at + self.EXIT
+        # **Statement mode: a hook with no `[brackets]` waits for nothing.**
+        # The redaction is worth its seconds only when the hidden token cannot
+        # be guessed from the rest of the line (`shorts.md`). When it can -
+        # every direction word this channel has hidden, `[up]`, `[louder]`,
+        # `[worse]` - the viewer fills it in within half a second and then
+        # waits for the video to catch up, which is what the user reported on
+        # the neck-tension pair. Writing the line without brackets keeps the
+        # slam, the band and the type and drops the bar, the static, the tear
+        # and the swell: the stake is on frame zero, muted, and the piece
+        # moves on.
+        self.redacted = "[" in text and "]" in text
+        if self.redacted:
+            self.exit_at = self.reveal_at + self.WIPE + hold
+        else:
+            self.exit_at = self.SLAM + statement_hold
+        # **`start_at` shifts the whole clock**, which is what lets the same
+        # object be an outro as well as an opener: `draw` and `cues` work in
+        # the overlay's own time and the renderer's `t` is offset once, here.
+        # `leave=False` holds the block to the end instead of sliding it off -
+        # a closing statement that exits has the video finishing on an empty
+        # frame, which is the opposite of a loop.
+        self.start_at, self.leave = start_at, leave
+        if not leave:
+            self.exit_at = 1e9
+        self.start = start_at
+        self.end = start_at + (self.exit_at + self.EXIT if leave else 1e9)
         vertical = frame.h > frame.w
         max_w = max_w or (frame.w - 180 if vertical else int(frame.w * 0.62))
         cy = frame.h * (centre_y if centre_y is not None else (0.34 if vertical else 0.24))
 
-        # Glitch tears while the word is hidden: every ~0.8s from 0.7s, and
-        # none in the last second, where the swell owns the sound.
-        self.glitches = [round(g, 2) for g in np.arange(0.7, self.reveal_at - 1.0, 0.8)]
+        # **One glitch tear, not a train of them.** This used to fire every
+        # ~0.8s from 0.7s, so a reveal at 5.3s drew four tears with a blip on
+        # each - and with the karaoke line running underneath, the opening
+        # seconds had more happening in them than the video did. One tear
+        # says the bar is unstable; four say the render is. It lands in the
+        # middle of the hidden window, clear of the slam and of the swell.
+        mid = (0.7 + max(0.7, self.reveal_at - 1.0)) / 2
+        self.glitches = ([round(mid, 2)]
+                         if self.redacted and self.reveal_at > 1.7 else [])
 
-        words, acc = [], False
+        words, acc, run = [], False, 0
         for raw in text.replace("[", " [ ").replace("]", " ] ").split():
             if raw == "[":
                 acc = True
+                run += 1
             elif raw == "]":
                 acc = False
             else:
-                words.append((raw.upper() if upper else raw, acc))
-        self.hidden = [w for w, a in words if a]
+                words.append((raw.upper() if upper else raw, acc,
+                              run if acc else 0))
+        self.hidden = [w for w, a, _ in words if a]
 
+        # **A redacted run must land whole on one line.** `[30 seconds]` wrapped
+        # across two rows draws as *two* bars, and after the wipe as two
+        # separate pills - so the one thing the frame is asking about reads as
+        # two things, and the bar's width stops being the clue it is supposed
+        # to be. It shipped that way on the neck-tension Short. Same rule the
+        # thumbnail layout already enforces on its accent runs (`thumb.py`,
+        # `runs_intact`); shrink until it holds, and stop at 56 either way.
         while True:
             font = ImageFont.truetype(FONT_KARAOKE_BOX, size, index=FONT_KARAOKE_BOX_INDEX)
             space = font.getlength(" ")
             lines, cur, cur_w = [], [], 0.0
-            for w, a in words:
+            runs: dict[int, set] = {}
+            for w, a, r in words:
                 ww = font.getlength(w)
                 if cur and cur_w + space + ww > max_w:
                     lines.append((cur, cur_w))
                     cur, cur_w = [], 0.0
                 cur_w += (space if cur else 0) + ww
                 cur.append((w, a, ww))
+                if r:
+                    runs.setdefault(r, set()).add(len(lines))
             if cur:
                 lines.append((cur, cur_w))
-            if len(lines) <= max_lines or size <= 56:
+            whole = all(len(v) == 1 for v in runs.values())
+            if (len(lines) <= max_lines and whole) or size <= 56:
                 break
             size -= 6
 
@@ -563,8 +608,21 @@ class HookOverlay:
         self.band_top = self.top - spread
 
     def cues(self) -> list[tuple[float, str]]:
+        return [(self.start_at + t, n) for t, n in self._cues()]
+
+    def _cues(self) -> list[tuple[float, str]]:
+        # Statement mode has nothing to resolve, so it carries the two cues
+        # that mark the block arriving and leaving - no pop, no swell, no
+        # blip. Five effects in three seconds is a sound-effects reel.
+        if not self.redacted:
+            out = [(0.0, "hook_slam")]
+            if self.leave:
+                out.append((self.exit_at, "hook_swish"))
+            return out
         r = self.reveal_at
-        out = [(0.0, "hook_slam"), (r, "hook_pop"), (self.exit_at, "hook_swish")]
+        out = [(0.0, "hook_slam"), (r, "hook_pop")]
+        if self.leave:
+            out.append((self.exit_at, "hook_swish"))
         out += [(g, "hook_glitch") for g in self.glitches]
         if r - 1.0 > 0.35:
             out.append((r - 1.0, "hook_swell"))
@@ -631,6 +689,7 @@ class HookOverlay:
     def draw(self, pic: Image.Image, t: float) -> Image.Image:
         if not (self.start <= t < self.end):
             return pic
+        t -= self.start_at          # overlay-local time from here down
         W, H = self.frame.w, self.frame.h
 
         if self.punch and t < self.PUNCH:
@@ -657,7 +716,7 @@ class HookOverlay:
         if t < self.SLAM:
             s = 1.12 - 0.12 * _ease_out_back(t / self.SLAM)
         r = self.reveal_at + self.WIPE
-        if r <= t < r + 0.22:
+        if self.redacted and r <= t < r + 0.22:
             s *= 1.0 + 0.05 * (1 - (t - r) / 0.22)
         if abs(s - 1.0) > 1e-3:
             nw, nh = int(self.block_w * s), int(self.block_h * s)
@@ -665,7 +724,7 @@ class HookOverlay:
         else:
             nw, nh = self.block_w, self.block_h
         jx = jy = 0
-        if self.reveal_at <= t < self.reveal_at + 0.25:
+        if self.redacted and self.reveal_at <= t < self.reveal_at + 0.25:
             k = 1 - (t - self.reveal_at) / 0.25
             jx = int(round(7 * k * np.sin(t * 90)))
             jy = int(round(5 * k * np.cos(t * 70)))

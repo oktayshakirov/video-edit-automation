@@ -309,6 +309,124 @@ what they will wait for (Loewenstein; the "redacted detail" hook is a named
 short-form format); and a gap that closes on a sound and a pop is a small
 reward exactly where the audience used to leave.
 
+### Revised 2026-09-24: two modes, and the gap closes by three seconds
+
+**The redaction is not the default any more, and the reason is the reveal
+nobody was waiting for.** The user's note on the neck-tension pair:
+*"we are waiting just to reveal the word up"*, plus *"the karaoke captions
+under it are distracting"* and *"too much happening in the beginning"*. Three
+separate faults, and only one of them was the mechanism.
+
+**1. Hide only what cannot be guessed.** Every hook this channel had shipped
+redacted a *direction word* - `[up]`, `[louder]`, `[worse]` - which is the
+most guessable class of word there is. Cover the bar on any of them and the
+sentence fills itself in, so there was never a gap: the viewer knew the word
+at half a second and then waited four more for the video to agree. The rule
+now has a test, and it takes five seconds to run:
+
+> **Cover the bar and read the line. If you can write the word in, it is not
+> a hook.**
+
+What passes: a **number**, a **count**, a **duration**, a **name**, a **body
+part**, a **mechanism**. What fails: any word the sentence's own grammar
+implies. `It takes [30 seconds] to find out` passes; `Your neck can turn the
+ringing [up]` does not.
+
+**2. Statement mode is the other half, and it is not a lesser hook.** A hook
+written with **no brackets at all** keeps the punch-in, the slam, the band and
+the type, and drops the bar, the static, the tear and the swell
+(`HookOverlay.redacted` is set from the text). Use it whenever the surprise is
+the *proposition* rather than a token inside it - which is most of the time on
+both channels. The stake is still on frame zero and still readable muted; the
+piece simply does not pretend to a gap it has not got. It clears at
+`SLAM + statement_hold` (2.2s) instead of waiting for a word.
+
+**Pick the mode before writing sentence 2**, because the two want different
+second sentences: redacted mode needs the token *said*, statement mode is free
+to go straight to the partial answer.
+
+**3. The gap closes by ~3s, not at 5.** `hook_reveal_time`'s `latest` is
+**4.2s** (was 7.0) and the fallback is **3.0s** (was 3.4). The old target was
+"land the reveal on the 5s cliff"; what that produced was an opener whose
+whole first act is a holding pattern. Three seconds is long enough to make a
+promise and short enough that the video is still moving. **Put the token in
+the first few words of sentence 2**, not at its end - on the neck-tension cut
+it sat five words in and landed at 5.3s.
+
+`[30 seconds]` matches a caption reading "thirty": `_NUMBER_WORDS` in
+`crypto/build.py` maps the common figures both ways, because a silent match
+failure reveals on the fallback and is invisible until you watch the render.
+
+**4. The captions stand down while the hook is up.**
+`render_crypto_short(..., hook_mutes_captions=True)`, the default. The hook
+block and the karaoke line are independent layers and both ran from frame
+zero, so a Short opened with two blocks of type saying the same sentence - one
+at 34% of the height, one at 70% - over the watermark, the static bar and its
+tears. **The long form's opener reads cleaner for exactly one reason: it burns
+no captions, so the hook has the frame to itself.** The voice is already
+saying the line the hook is showing.
+
+**The mute ends on a sentence boundary, and that is the whole rule.** The
+first version dropped sprites whose own `start` fell under the hook - and with
+karaoke every *word* is a sprite, so a sentence that began under the hook came
+back for its last second: the viewer read the tail of a line whose beginning
+they never saw, which looks like a bug rather than a choice. Captions now
+resume at **the first sentence that starts after the hook has gone**
+(`sentence_spans`), so every burned line is seen whole. The outro takes the
+same boundary: it attaches to the last *sentence*, not to its final caption
+chunk, or a closing line long enough to split would burn its first half under
+the card.
+
+**5. One tear, not four.** The glitch fired every ~0.8s, so a late reveal drew
+four of them with a blip on each. One tear reads as the bar being unstable;
+four read as the render being broken. Statement mode draws none, and carries
+two sound cues instead of five.
+
+**How to judge it:** the two modes are separate cohorts in the E1 ledger. A
+statement-mode win and a redacted-mode loss average into "no effect", which is
+the one result that would teach us nothing.
+
+### The outro is the opener's twin — `outro=`, added 2026-09-24
+
+**A Short used to close on a `chapter` card and open on the hook, and they
+were drawn by two different videos.** `ChapterCard` is the long form's chapter
+slate: a hairline rule over a flat brand panel, set in the body face, with no
+motion and no sound. Against an opener built from Arial Black, a dark band, a
+brand pill and a slam, the user's verdict on the closing card was **"very old
+and ugly"** — and the first and last thing a viewer sees are the two frames
+that decide whether the piece reads as made or as generated.
+
+```python
+render_tinnitus_short(..., hook="It takes [30 seconds] to find out",
+                      outro="Your neck is not the cause. It might be the [volume].")
+```
+
+It is the **same `HookOverlay`**, which is the point — one type system, one
+band, one pill, one slam, top and tail:
+
+- **It rides over footage, not a panel.** The last sentence keeps its clip, so
+  the video ends on a moving picture with the statement over it. A flat card is
+  a full stop; this is the piece still running as it says its last line.
+- **`leave=False`: it never slides off.** The closing statement holds to the
+  final frame. A Short that ends on an empty frame cannot loop into its own
+  first frame, which is the whole retention argument behind the cold close
+  (`narration.md`, "A Short's ending loops; it does not ask").
+- **`[brackets]` put the pill on the payoff word**, and the reveal is timed to
+  the frame the voice says it — searched inside the outro's own span, so an
+  earlier mention of the same word cannot steal the cue. A fixed delay was
+  tried first and drifts half a second either way.
+- **The captions mute under it**, same rule as the hook: the card *is* the
+  closing line, so burning it underneath is the duplication the opener
+  already dropped.
+- **No punch-in and no swish.** Both belong to an arrival; the outro is
+  already there.
+
+Written with no brackets it is a plain statement in the same type — the
+outro's version of statement mode.
+
+**The card still has its uses in long form**, where a chapter slate is a
+chapter slate. This replaces it only as a Short's closing statement.
+
 **How to write it** — the hook, sentence 1 and sentence 2 are one unit:
 
 - **Sentence 1 (voice)** is the title question, unchanged.
@@ -341,6 +459,36 @@ reward exactly where the audience used to leave.
 Judged on the ~5s drop and the half-gone second against the pre-hook cohort.
 If hooked Shorts still lose 13+ points at 5s, the cliff is about something
 else and this section should say so.
+
+## Cast a Short from close and medium shots — a wide becomes background
+
+**The rule above says to crop onto the subject; this one says some clips have
+no crop that works.** A 9:16 cut keeps about **32% of a landscape source's
+width**, so a wide shot whose subject occupies a third of the frame arrives as
+a frame of wall. The neck-tension Short's first cut opened on three of them
+and the user's note was that the opening clips are irrelevant and "cropping
+the main part and showing the empty part" — a silhouette in the bottom corner
+with four seconds of lit wall beside it, and a top-down keyboard whose hands
+sat outside the crop. Every one had been approved on a landscape contact sheet
+with the crop band drawn on it, which shows *where* the band lands and not how
+little is inside it.
+
+**Preview the actual 9:16 crop before writing the shot**, not the landscape
+frame with a rectangle on it: take the frame, crop `h*9/16` at the shot's
+`clip_ax`, scale it to a phone-sized tile and look at that. Six of eight
+candidates failed this check on the re-cut and none of the failures was
+visible on the landscape sheet.
+
+**So prefer a close or a medium shot** — hands filling the frame, a person
+from the chest up, an object — and treat a wide as a long-form picture. The
+one exception is a wide whose subject is *centred and lit*, like a figure
+walking under a street lamp, where the middle third is the whole composition.
+
+**Only the first shot has to clear the hook band.** The hook leaves by ~4s, so
+shot one needs its subject away from 34% of the height and nothing after it
+does. That is a much smaller constraint than it looks, and it is the reason
+the opening slot should be the tightest shot in the cut rather than the most
+atmospheric.
 
 ## A vertical cut must be cropped onto its subject
 

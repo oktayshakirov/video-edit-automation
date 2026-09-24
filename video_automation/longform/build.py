@@ -74,7 +74,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # The `[bracketed]` word is hidden until the voice says it;
                 # `hook_until` is the fallback reveal if it is never said.
                 hook: str | None = None,
-                hook_until: float = 3.5,
+                hook_until: float = 3.0,
                 sound: bool = True, fps: int = 30,
                 # Intermediates are deleted on success. See the note at the end
                 # of this function; set True while iterating on a cut.
