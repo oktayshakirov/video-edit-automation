@@ -74,6 +74,9 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # The `[bracketed]` word is hidden until the voice says it;
                 # `hook_until` is the fallback reveal if it is never said.
                 hook: str | None = None,
+                # An opener variant from `longform.openers`; takes precedence
+                # over `hook=`. See docs/video/longform.md.
+                opener=None,
                 hook_until: float = 3.0,
                 sound: bool = True, fps: int = 30,
                 # Intermediates are deleted on success. See the note at the end
@@ -192,7 +195,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     # A push keeps every pixel showing exactly one shot. 0.34 rather than the
     # shorts' 0.45 because a move that travels is legible in less time than a
     # fade that has to reach 50% before it reads as anything.
-    hook_ov = _hook(hook, hook_until, brand, frame, captions)
+    hook_ov = ([opener.build(frame, brand, captions)] if opener is not None
+               else _hook(hook, hook_until, brand, frame, captions))
 
     picture = render_shots(
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,

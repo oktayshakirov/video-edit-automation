@@ -346,6 +346,10 @@ something unguessable or drop the brackets and run as a statement over the
 paid off, and never a hidden promise of relief. It is not the title stamp, which still lands on the
 promise around 8s.
 
+**The opener variants work here too** - `render_long(..., opener=Stamp(...))`,
+same classes and same rules as `shorts.md`'s "Choosing the opener", laid out
+for 16:9 (higher on the frame, wider measure). `hook=` stays the default.
+
 **Pull the curve before rewriting any opener.** An average retention figure
 says a video lost people; only the curve says at which sentence, and the two
 have pointed at different sentences every time they have been compared.

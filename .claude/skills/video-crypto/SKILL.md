@@ -53,6 +53,11 @@ and a remembered version is a stale one.
    answer that *says the hidden word*, so it is revealed on the beat
    (`shorts.md` "The opening hook: a redacted headline", `narration.md`
    "Revised 2026-09-21"). Both the Short and the long form take `hook=`.
+   **Pick the opener deliberately** - the redacted `hook=` is the default,
+   and `longform.openers` has Counter / Stamp / Split / Search / Flash for a
+   number, a belief, a comparison, a search phrase or a picture payoff.
+   Read the last three scripts on this channel and do not repeat the same
+   one three times running (`shorts.md`, "Choosing the opener").
 4. **Build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over and wait.** Re-cut as many times as the user asks; that loop is
