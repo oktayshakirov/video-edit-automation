@@ -221,6 +221,11 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # `longform.overlay.HookOverlay` and shorts.md's "Put
                         # the promise on frame zero". `[brackets]` accent words.
                         hook: "str | None" = None,
+                        # An opener variant from `longform.openers` (Counter,
+                        # Stamp, Split, Search, Flash). Takes precedence over
+                        # `hook=`; see docs/video/shorts.md "Choosing the
+                        # opener" for which topic wants which.
+                        opener=None,
                         # Fallback reveal time when the redacted word is not
                         # found in the narration. Normally the word is found
                         # and revealed on the frame it is spoken.
@@ -486,12 +491,20 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             anchors = roam_anchors(m, frame)
 
     hook_ov = None
-    if hook:
+    if opener is not None:
+        # An opener variant (`longform.openers`) stands in for the redacted
+        # hook and behaves identically from here on - same `.draw`, `.cues()`
+        # and `.end`, so the caption muting and the sound mix below need no
+        # special case.
+        hook_ov = opener.build(frame, brand, captions)
+        overlays = [hook_ov, *(overlays or [])]
+    elif hook:
         from ..longform.overlay import HookOverlay
         reveal = hook_reveal_time(hook, captions, fallback=hook_until)
         hook_ov = HookOverlay(hook, reveal_at=reveal, frame=frame,
                               accent=brand.primary)
         overlays = [hook_ov, *(overlays or [])]
+    if hook_ov is not None:
         if hook_mutes_captions:
             # **Resume on a sentence boundary, never mid-sentence.** The first
             # version filtered per sprite - `sp.start >= hook_ov.end` - and

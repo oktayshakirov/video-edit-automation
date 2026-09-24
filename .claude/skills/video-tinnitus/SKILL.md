@@ -51,6 +51,12 @@ and a remembered version is a stale one.
    answer that *says the hidden word*, so it is revealed on the beat
    (`shorts.md` "The opening hook: a redacted headline", `narration.md`
    "Revised 2026-09-21"). Both the Short and the long form take `hook=`.
+   **Pick the opener deliberately** - the redacted `hook=` is the default,
+   and `longform.openers` has Counter / Stamp / Split / Search / Flash for a
+   number, a belief, a comparison, a search phrase or a picture payoff.
+   Read the last three scripts on this channel and do not repeat the same
+   one three times running (`shorts.md`, "Choosing the opener"). A verdict
+   stamp here is about a claim, never about an outcome.
 4. **Decide what gets drawn, before writing a shot list.** This channel's
    subject is **invisible** - there is no photograph of a phantom sound, of
    gain, of habituation or of a spike - so a shot list built from footage

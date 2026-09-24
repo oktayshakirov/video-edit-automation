@@ -490,6 +490,67 @@ does. That is a much smaller constraint than it looks, and it is the reason
 the opening slot should be the tightest shot in the cut rather than the most
 atmospheric.
 
+## Choosing the opener
+
+**Five variants, one per shape of topic** (`longform/openers.py`), plus the
+redacted hook (`hook=`) which stays the default and the control. They share
+the hook's language - Arial Black upper case, the brand pill, the camera
+punch-in, the `hook_*` kit - so the channel still reads as one thing while
+the first two seconds differ. Added 2026-09-24, after the user asked for
+variety so every video does not open identically.
+
+```python
+from video_automation.longform.openers import Counter, Stamp, Split, Search, Flash
+
+render_tinnitus_short(SENTENCES, SHOTS, out, work, ...,
+                      opener=Stamp("Silence is the best thing for your ears",
+                                   "MYTH", at_word="myth"))
+```
+
+| opener | pick it when | lands on |
+| --- | --- | --- |
+| `hook="... [word] ..."` | **default** - nothing below clearly fits | the hidden word being spoken |
+| `Counter(final, caption)` | the payoff **is** a number or a scale | the figure, spinning then slamming to a stop |
+| `Stamp(quote, verdict)` | the topic is a **belief** to overturn or confirm | the verdict stamping across, below the quote |
+| `Split(left, right, question)` | a **comparison** | nothing, unless `winner=` - the question stays open |
+| `Search(query)` | the title already **is** what someone types | the last keystroke; no answer is shown |
+| `Flash(image, line)` | the payoff is a striking **picture** later in the cut | the rewind, then the line |
+
+**`at_word=` is how a beat lands on the voice**, exactly as the redacted hook
+reveals on its own word: the renderer finds when that word is spoken and puts
+the landing on that frame. Write sentence 2 so the word is said at ~3.5-5s.
+Without it the beat falls back to 2.6s and the render prints a warning.
+
+Rules that apply to all of them:
+
+- **Rotate.** Read the last three scripts on that channel before choosing; the
+  same opener three videos running is the template look this exists to avoid.
+  The beat-silhouette rule, applied to the first two seconds.
+- **The opener is not the title.** It states the stake, the number, the belief
+  or the question - never the video's own title reworded.
+- **It must be true and the video must pay it off.** A number that is not in
+  the article, a verdict the cut never argues, a flash of a picture that never
+  returns: all the same fault as a hidden word that is never revealed.
+- **`Search` shows the question only.** No autocomplete answer, no result - the
+  user's call, 2026-09-24, and it is the "complete answer in sentence 2"
+  mistake in picture form: answer it on screen at 2s and the viewer has what
+  they came for.
+- **`Split` does not answer itself.** Leave `winner` unset unless the
+  narration names a winner in the opening seconds; the comparison is the open
+  loop.
+- **On tinnitus, a `Stamp` verdict is about a claim, never an outcome.**
+  "MYTH" over "silence is best" is a claim. "TRUE" over "it never goes away"
+  is a prognosis, and this channel does not give those. Verdict colour is
+  automatic from the word (`NEGATIVE` / `POSITIVE` in `openers.py`), with
+  `tone=` to override.
+- **`Flash` is the expensive one.** It spends a second of the first two on a
+  picture the viewer cannot read yet, so use it only when that picture is
+  striking on its own, and pass a real asset - a site image, a rendered beat,
+  a frame from the footage.
+
+Tag which opener a video used when it is published, so the fortnightly review
+can compare them rather than lumping them together (`video-performance-review`).
+
 ## A vertical cut must be cropped onto its subject
 
 **`Shot(clip_ax=, clip_ay=)`**, fractions of the leftover cover-crop slack
