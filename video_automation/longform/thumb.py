@@ -62,6 +62,12 @@ W, H = 1280, 720                # what YouTube wants; also under the 2MB limit
 # published as a pair and should look like one.
 FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
 
+# The floor of the headline size search. Below this the type is too small to
+# read in a feed anyway, so a search that has got this far has failed and
+# should take its best fitting arrangement rather than keep shrinking - see
+# `_headline`, where going past zero used to raise out of `truetype`.
+MIN_HEADLINE = 40
+
 # Vibrant accents, deliberately **not** the brand palette. thecrypto.wiki's gold
 # and tinnitushelp.me's peach are both low-contrast against their own dark
 # imagery — fine inside a video where they read as the house colour, wrong on a
@@ -392,11 +398,22 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         col_w = max(col_w, min(base.width - x_text - margin,
                                int(col_w * 1.38)))
 
-    def orphan(lines) -> bool:
+    def orphan(per_seg) -> bool:
         # A lone word of three letters or fewer stranded on its own row - the
         # exact "IN" on its own line" complaint. Bigger words are legitimate
         # single-word lines; connectors this short read as a layout mistake.
-        return any(len(ln) == 1 and len(ln[0][0]) <= 3 for ln in lines)
+        #
+        # **A forced row is never an orphan**, and reading this off the flat
+        # line list was a real crash rather than a cosmetic fault. A row the
+        # author wrote with `\n` ("THE\n30-SECOND\n[NECK TEST]") is a
+        # decision, not a wrapping outcome, so no size could ever satisfy the
+        # test: the search ran all sixty iterations, `size` went negative, and
+        # `ImageFont.truetype` raised "font size must be greater than 0" after
+        # the MP4 had already rendered. Only a segment that actually *wrapped*
+        # can strand a word, so the test now runs per segment and skips any
+        # segment that produced a single line.
+        return any(len(ln) == 1 and len(ln[0][0]) <= 3
+                   for seg in per_seg if len(seg) > 1 for ln in seg)
 
     fallback = fallback_ok = None
     # A forced-row headline searches twice as far down. At an 8px step a
@@ -406,6 +423,12 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     # old range on purpose: letting *them* reach those sizes would quietly
     # re-lay-out every thumbnail already shipped, to no one's benefit.
     for _ in range(60 if len(segments) > 1 else 30):
+        # **Never build a font at or below zero.** The loop counts iterations,
+        # not sizes, so a search that never accepts an arrangement walks the
+        # size straight through zero into `truetype`. Stopping at the floor
+        # hands the fallback below a real layout instead of a traceback.
+        if size < MIN_HEADLINE:
+            break
         font = ImageFont.truetype(FONT_DISPLAY, size)
         space = d.textlength(" ", font=font)
         # Each hard segment is wrapped on its own, so a forced break can
@@ -452,7 +475,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
             # stranded "IN" alone: nothing forced a look at a slightly smaller
             # size where it pairs with the next word. Keep shrinking past a
             # "fits" size while a short word is still stuck on its own row.
-            if not orphan(lines):
+            if not orphan(per_seg):
                 break
         size -= 8
     else:
@@ -460,6 +483,13 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         # size that still satisfied the one-accent-line rule over the largest
         # size that merely fit at all - a slightly smaller, well-paired
         # headline beats a maximal one with a stray word on it.
+        chosen = fallback_ok or fallback
+        if chosen is not None:
+            size, font, space, lines, line_h, block = chosen
+    if size < MIN_HEADLINE:
+        # Bailed out at the floor rather than by exhausting the iterations.
+        # Same preference as the `else` above; without this the caller would
+        # paint whatever the last sub-floor pass happened to leave behind.
         chosen = fallback_ok or fallback
         if chosen is not None:
             size, font, space, lines, line_h, block = chosen

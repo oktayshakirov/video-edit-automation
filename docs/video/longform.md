@@ -333,12 +333,17 @@ headline"), centred on the frame at 24% of the height and 84px so a
 centred face stays visible in 16:9. The
 `[bracketed]` word stays hidden under animated static until the narration
 says it, with the same `hook_*` sound kit: a slam on the cut in, glitch
-blips on the tears, a reverse-cymbal swell into the reveal, a chime on it. For the sleep video that is `hook="Your tinnitus did not get
-[louder] tonight"` over the 2am room, with sentence one or two saying
-"louder" — the cold open's atmosphere then plays *under* an open question
-instead of in front of nothing. Same writing rules as the Shorts: a statement
-of the surprise, not the title; one word hidden; true, paid off, and never a
-hidden promise of relief. It is not the title stamp, which still lands on the
+blips on the tear, a reverse-cymbal swell into the reveal, a chime on it.
+Same writing rules as the Shorts, and **that now includes which mode to use**
+— see `shorts.md`, "Revised 2026-09-24: two modes". A hook written with no
+brackets is a statement and waits for nothing, which is the right choice
+whenever the surprise is the proposition rather than a token in it. The sleep
+video's `hook="Your tinnitus did not get [louder] tonight"` is the example
+this file used to give and it now **fails the cover-the-bar test** — the
+sentence hands you "louder" — so as a redaction it should either hide
+something unguessable or drop the brackets and run as a statement over the
+2am room. Whichever mode: a statement of the surprise, not the title; true,
+paid off, and never a hidden promise of relief. It is not the title stamp, which still lands on the
 promise around 8s.
 
 **Pull the curve before rewriting any opener.** An average retention figure
