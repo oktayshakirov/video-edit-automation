@@ -84,7 +84,7 @@ a platform from the run.
 
 1. **The long first, then the short.** The short's description links to the long,
    so the long needs an id before the short is uploaded.
-2. **YouTube, via `youtube-audit`.** Dry run, then `--apply`.
+2. **YouTube, via `video-views-audit`.** Dry run, then `--apply`.
 3. **Start the tunnel once and keep it up for both.** Both the short's Reels and
    the long's native Facebook upload need a public URL, so serve the render
    folder and open one tunnel rather than one per video. Stop it after step 4.

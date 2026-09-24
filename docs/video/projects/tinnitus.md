@@ -58,7 +58,7 @@ Write the title as the phrase someone searches - "why is tinnitus worse at
 night", "does tinnitus go away", "white noise vs brown noise for tinnitus" - on
 a different angle from the Short. Same medical rule as everywhere: describe what
 the video is, promise no relief, fix or cure. Full reasoning in the
-`youtube-audit` skill.
+`video-views-audit` skill.
 
 Built: `projects/tinnitus-long/does-tinnitus-go-away.py` and
 `projects/tinnitus-long/gaming-and-tinnitus.py`.

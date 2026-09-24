@@ -272,7 +272,7 @@ video looped. **Every Short that closes cold, with no question, is the one
 that loops; every Short that closes by asking the viewer something stays
 under 100% even when it did well.**
 
-**Confirmed against the curves, 2026-09-11** (`youtube-audit`'s `retention`
+**Confirmed against the curves, 2026-09-11** (`video-views-audit`'s `retention`
 command), which is what turns this from a correlation across averages into a
 visible mechanism. Two Shorts of near-identical length:
 
@@ -387,7 +387,7 @@ Sources: [vidIQ](https://vidiq.com/blog/post/write-youtube-video-script/),
 ## The payoff belongs in sentence two, not behind a setup
 
 **Diagnosed from a real channel gap, not a style guide - and then confirmed
-against the actual retention curve** (`youtube-audit`'s `retention` command,
+against the actual retention curve** (`video-views-audit`'s `retention` command,
 2026-09-11). The caffeine-and-tinnitus Short opened on the title question, then
 spent sentences 2-3 hedging and building the withdrawal-symptoms case before
 sentence 4 revealed the actual point (withdrawal fakes the caffeine-culprit

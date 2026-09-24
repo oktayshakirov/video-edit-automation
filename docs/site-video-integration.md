@@ -374,7 +374,7 @@ or four sessions.
   and page coverage was never a ranking input to begin with. `alsoOn` remains
   supported and stays empty. One video, one post: its own.
 - **Put the article link first in every YouTube description.** It is currently
-  after the hook. `/youtube-audit`'s `set` command can rewrite the existing seven
+  after the hook. `/video-views-audit`'s `set` command can rewrite the existing seven
   in one pass.
 - **Count video plays.** Both sites already have a views API
   (`pages/api/views/[type]/[slug]`). A `videos` type reusing it gives real data

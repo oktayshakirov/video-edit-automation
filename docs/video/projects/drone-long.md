@@ -145,7 +145,7 @@ live as-is, and the drone channel has a settled format that it then fails to mat
 (Berlin, 2026-09-01, shipped with a three-line description and had to be rewritten
 against the channel template at publish time.)
 
-The format is owned by the `youtube-audit` skill and enforced there; reproduce it
+The format is owned by the `video-views-audit` skill and enforced there; reproduce it
 in the handoff so the publish session pastes rather than re-derives:
 
 - **Title:** `{Hook} - {City}, {Country} in 4K by Drone`, under 60 characters,

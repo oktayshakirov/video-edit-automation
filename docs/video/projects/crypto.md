@@ -284,7 +284,7 @@ crypto exchanges work", "what is a validator", "proof of stake vs proof of
 work". Shorts and long-form rank on separate systems and are judged per video,
 so the Short is not the problem - the non-searchable title is. Still no
 financial advice in the title: a mechanism question, never a price or a
-direction. Full reasoning in the `youtube-audit` skill.
+direction. Full reasoning in the `video-views-audit` skill.
 
 ## Decisions already taken
 

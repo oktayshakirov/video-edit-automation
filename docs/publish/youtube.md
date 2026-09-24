@@ -1,7 +1,7 @@
 # YouTube
 
 Both formats go here, and the long form goes first so the Short's description
-can link to it. Driven by the `youtube-audit` skill, which owns the quota
+can link to it. Driven by the `video-views-audit` skill, which owns the quota
 arithmetic and the metadata rules.
 
 ## YouTube
@@ -12,7 +12,7 @@ cd ~/Coding/youtube-audit && npx tsx src/cli.ts upload \
   --title "..." --description-file meta.md --tags "a,b" --privacy unlisted
 ```
 
-Dry run without `--apply`, exactly like `set`. See the `youtube-audit` skill for
+Dry run without `--apply`, exactly like `set`. See the `video-views-audit` skill for
 the quota arithmetic, the em dash rule the tool now enforces, and why
 `--related` cannot set Studio's "Related video" field.
 
@@ -63,7 +63,7 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   Spotify, Apple Music, YouTube Music, Amazon Music, Deezer), never an
   invented blog slug.
 - **Put `#shorts` at the end of a Short's title.** Settled as the metadata
-  baseline in the `youtube-audit` skill on 2026-08-23 after the one Short that
+  baseline in the `video-views-audit` skill on 2026-08-23 after the one Short that
   already had it was also the channel's best performer to date - one data
   point, adopted because it costs nothing, not because it was measured. Build
   it into the title at upload time rather than leaving it for a later audit
