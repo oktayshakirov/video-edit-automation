@@ -527,8 +527,24 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
                 j += 1
             x0 = xs[k]
             x1 = xs[j - 1] + line[j - 1][2]
-            plates.append([x0 - pad_x, base_y - cap_h - pad_v,
-                           x1 + pad_x, base_y + pad_v, tag])
+            # **A plate may not close the gap to a bare word beside it.**
+            # `pad_x` is added outside the run's ink, and the inter-word
+            # `space` at these sizes is routinely smaller than two pads - so
+            # an accent run with a plain word in front of it ("IS NOT A
+            # [PERSON]") drew its left edge a couple of pixels from that
+            # word's last glyph and the two read as touching. Flagged on the
+            # whale pair, 2026-09-25. Clamp each side to whatever leaves a
+            # real run of background, rather than shifting the run right -
+            # the line's width is already measured and moving a word would
+            # break the centring and the fit the size search just proved.
+            # A run at the start or end of a line keeps the full padding;
+            # there is nothing there to collide with.
+            min_gap = max(10, int(size * 0.09))
+            lpad = pad_x if k == 0 else min(pad_x, max(0, space - min_gap))
+            rpad = (pad_x if j >= len(line)
+                    else min(pad_x, max(0, space - min_gap)))
+            plates.append([x0 - lpad, base_y - cap_h - pad_v,
+                           x1 + rpad, base_y + pad_v, tag])
             k = j
         for (word, tag, _), gx in zip(line, xs):
             glyphs.append((gx, yy, word, tag))
