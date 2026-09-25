@@ -812,5 +812,16 @@ fractional claim: fund shares, a supply split among holders, royalty stakes.
 - **The cell count is a picture, not the figure** - 160 cells (landscape
   20x8, portrait 11x11) stand in for 120,000. The real numbers live in the
   labels.
+- **`whole` and `part` are about 15 characters, and the beat now raises
+  past that** (2026-09-25). Both are set in the display face at 80px
+  portrait / 72px landscape and drawn *centred with no wrap and no fit*,
+  so an over-long one runs off both edges of the frame - unclipped,
+  unraised, and invisible until the render is looked at. "MILLIONS OF
+  CUSTOMERS" measures 1176px against a 1080px portrait frame and shipped
+  into a cut that way. The shipped payloads that work are 14-15
+  characters (`120,000 TOKENS`, `~20,000 REWARDS`, `CUSTOMER CLAIMS`).
+  The check runs in `__init__` rather than at draw time, so the script
+  fails in a second instead of twelve minutes into a render - same guard
+  `bars` already carries for an over-wide value.
 - Portrait-safe, and whitelisted in `crypto/build.py`'s vertical set.
 - Vector layer supersampled like `dial`; the coins are small circles.

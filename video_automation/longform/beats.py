@@ -2336,6 +2336,29 @@ class Split(Beat):
         self.part, self.part_note = part, part_note
         self.title = title
 
+        # **Raise on a name too wide for the frame**, the same guard `Bars`
+        # carries for an over-long value. `whole` and `part` are set in the
+        # display face at 80px (portrait) / 72px and are drawn *centred with
+        # no wrap and no fit*, so an over-long one runs off both edges of the
+        # frame - unclipped, unraised and invisible until the render is
+        # looked at. "MILLIONS OF CUSTOMERS" measures 1176px against a 1080px
+        # portrait frame and shipped into a cut that way (crypto-whale,
+        # 2026-09-24); the shipped payloads that work are 14-15 characters.
+        # Checked here rather than at draw time so the script fails in a
+        # second instead of twelve minutes into a render.
+        from PIL import Image as _Im, ImageDraw as _Dr
+        d = _Dr.Draw(_Im.new("RGB", (10, 10)))
+        for label, name in ((self.whole, "whole"), (self.part, "part")):
+            if not label:
+                continue
+            f = _display(80 if self.frame.h > self.frame.w else 72)
+            w = d.textlength(label, font=f)
+            if w > self.frame.w - 2 * 40:
+                raise ValueError(
+                    f"split {name}={label!r} is {w:.0f}px wide and the frame "
+                    f"is {self.frame.w}px - it will draw off both edges. "
+                    f"Shorten it to about 15 characters.")
+
     def _geom(self) -> tuple[int, int, int, int, int, int]:
         """x, y, w, h of the block, and its cols, rows."""
         fr = self.frame

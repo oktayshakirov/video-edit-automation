@@ -534,3 +534,53 @@ Both are fixed in `_headline`. Re-rendering an older thumbnail will now lay it
 out differently (bigger, wrapped) - that is the intended layout it was never
 getting, not a regression. **Look at the thumbnail on every build**; neither
 fault raised anything.
+
+## An accent plate may not close the gap to the word in front of it (2026-09-25)
+
+**Found on the whale pair, and it is a layout bug rather than a taste call.**
+The plate is drawn from the run's ink outward by `pad_x` (18px), but the
+inter-word `space` the size search settles on is routinely *smaller than two
+pads* — so an accent run with a plain word in front of it drew its left edge
+within a couple of pixels of that word's last glyph. `IS NOT A [PERSON]`
+shipped with the `A` apparently welded to the yellow box, which is what the
+user saw.
+
+`_headline` now clamps each side of a plate to whatever leaves a real run of
+background (`min_gap = max(10, size * 0.09)`), and **only where there is a
+neighbour to collide with** — a run at the start or end of a line keeps the
+full padding. It clamps rather than shifting the run right, because the
+line's width has already been measured and moving a word would break both the
+centring and the fit the size search just proved.
+
+**The cheaper fix is usually the wording**: get the accent onto a line of its
+own and the collision cannot happen. Both are worth having — the clamp
+catches the case nobody checked, the line break makes the plate look
+deliberate.
+
+## `render_short_thumb` wants short forced rows and a raised `size` (2026-09-25)
+
+**The vertical twin of the landscape "forced rows set larger" finding, and it
+had not been written down.** The whale Short's thumbnail shipped as two
+full-width rows at the default `size=168` and read as small type in a big
+frame. The reason is the same one the landscape section gives: **the size
+search is capped by the longest row, not by the height.** Two rows across the
+full width means two long rows, so the search bottoms out early and the
+remaining vertical space is simply never used.
+
+So when the note is "make it bigger" on a vertical thumbnail:
+
+- **Write four short rows, not two long ones** — `"The biggest\nwhale\nis
+  not a\n[person]"`. Each row clears the column early and the search keeps
+  climbing.
+- **Raise `size` as well**, to 240 rather than the 168 default; it is the
+  starting point of a downward search, so a low start caps the result even
+  when the rows would allow more.
+- **Keep the rows phrase-shaped.** `IS NOT` / `A PERSON` tears the phrase and
+  puts the plate against a stray `A`; `IS NOT A` / `PERSON` does neither.
+
+Note the asymmetry with the landscape renderer, and it is real: there a
+*forced-row* headline gets the wider column and a free-flowing one gets the
+narrow column that forces big rows, so on the long form the answer to "make
+it bigger" is usually to **remove** the newlines. On the vertical one the
+column is full-width either way, so the answer is to **add** them. The whale
+pair does both and the two thumbnails end up with the same four-row shape.
