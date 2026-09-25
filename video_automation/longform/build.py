@@ -216,9 +216,17 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
 
     # --- sound -----------------------------------------------------------
     if sound:
+        # **The kit comes from the brand, not from the caller.** Which sounds a
+        # site uses is a property of that site's audience - tinnitushelp.me's
+        # viewers frequently have hyperacusis, so that kit has no slam, no
+        # glitch and no bitcrushing in it (see `core/sfx.py`, `KITS`). Making
+        # it an argument would mean every script had to remember; making it the
+        # brand's means a script cannot get it wrong. `KITS["crypto"]` is
+        # empty, so thecrypto.wiki renders exactly as it always did.
         track = sfx.mix(track, workdir / "track-sfx.wav",
                         _cues(shots, total)
-                        + [c for h in hook_ov for c in h.cues()])
+                        + [c for h in hook_ov for c in h.cues()],
+                        kit=brand.name)
 
     if music:
         if isinstance(music, str) and music in music_mod.PRESETS:

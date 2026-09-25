@@ -473,3 +473,72 @@ the same clock.
 against some other figure was always the wrong beat for `stat`; there just was
 not a right one. See `beats.md` for its two-reveal order, which is the "say the
 point, then show the graphic" rule operating inside one beat.
+
+## The cut is punctuation: choosing a transition (2026-09-25)
+
+`render_shots` had two moves since the shorts were built — a dissolve, and the
+`push` long form opted into. Both are good and neither says anything, so every
+cut in a three-minute video was the same gesture and the cut stopped being
+punctuation. `core/transitions.py` is a small vocabulary chosen by **the
+relationship between the two shots**, the same way `openers.py` chooses by the
+shape of the topic.
+
+| mode | the cut it is for | length |
+|---|---|---|
+| `dissolve` | a topic change. Two photographs only. | 0.60 |
+| `push` | the default — still on the same argument | 0.34 |
+| `whip` | into a chapter card. A turn should feel like one. | 0.22 |
+| `glitch` | a contradiction: the claim, then what breaks it | 0.18 |
+| `flash` | a reveal — the number, the verdict, the payoff | 0.20 |
+| `wipe` | a comparison. The band crossing *is* the "versus". | 0.40 |
+| `punch` | escalation: same subject, closer in | 0.26 |
+
+**Take the length from `transitions.XF`, not from one global `xfade`.** A whip
+has to be fast to read as a whip and a dissolve has to be slow to read as one
+at all; 0.34 for the whole video is wrong for five of the seven.
+
+**Every mode except `dissolve` is safe between two drawn beats.** The existing
+rule — beats cut, they do not dissolve, because cross-fading two sets of type
+reads as a rendering fault — is a rule about *dissolves*. The others keep each
+pixel showing exactly one shot, or show neither.
+
+`transitions.cues(shots)` returns the sound each move wants, in `sfx.mix`'s own
+shape, to be concatenated with `build._cues`. **`push` and `dissolve` are
+deliberately silent**: a sound on every cut in a three-minute video is worse
+than a sound on none.
+
+`push` routes through the module and is byte-identical to the inline code it
+replaced — verified frame by frame across the whole 0..1 range before the
+change landed, because the shorts are reproducible against a baseline.
+
+## The navigation layer
+
+Chapters existed twice already — `Section` renders a `ChapterCard`, and
+`meta.py` writes the timestamps YouTube turns into a scrubber — and neither
+tells the viewer *while they are watching* where they are. `longform/chrome.py`
+adds two things, both tiny:
+
+- **`ProgressBar`** — a 5px rule along the bottom, ticked at each chapter
+  boundary, faded in after the hook so the opening is uncontested.
+- **`ChapterCount`** — "3 of 5" under a card's title, at 60% of the accent.
+  Not a numeral *on* the title: `ChapterCard` bans that, and is right, because
+  a numbered agenda tells the viewer they are being lectured. "3 of 5" is a
+  different statement — it says how much is left.
+
+**The argument against them is real.** A progress bar tells a viewer at 0:20
+that there are two and a half minutes to go, and some will leave because of
+it. The counter-argument is that an unmarked middle gives them no reason to
+stay either, and the retention curves in `docs/video/projects/` keep measuring
+the drop in exactly that dead middle. It is an A/B question: both are
+overlays, so dropping them changes nothing else.
+
+## The regression reel
+
+`projects/demo/format-upgrades.py` renders two 16:9 clips that exercise the
+five full-width beats, all five new moves, both sound kits and the chrome.
+**It has no narration** — every timing is hand-set, so it costs no TTS and can
+be re-rendered as often as a change to any of them needs checking. That is the
+only way it differs from a real build; in production every `reveals` value
+comes from `build_narration_aligned`.
+
+    PYTHONPATH=. .venv/bin/python projects/demo/format-upgrades.py

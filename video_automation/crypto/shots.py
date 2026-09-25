@@ -42,6 +42,7 @@ from ..core.draw import shadow_text
 from ..core.draw import partial as _partial
 from ..core.draw import subpixel as _subpixel
 from ..core.frame import VERTICAL, Frame
+from ..core import transitions
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 
 # thecrypto.wiki's palette, from the site's `config/theme.json`.
@@ -747,23 +748,24 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
             incoming = prepared[idx + 1].draw(nf)
             mode = transition if s.transition is None else s.transition
             p = 1.0 - left / xf
-            if mode == "push":
+            if mode == "dissolve":
+                pic = Image.blend(pic, incoming, p)
+            else:
                 # **A push, not a dissolve.** A cross-dissolve necessarily shows
                 # both shots at once, and for a third of a second the outgoing
-                # shot's type sits on top of the incoming picture — which is
+                # shot's type sits on top of the incoming picture - which is
                 # what a viewer reads as a mistake rather than as a transition.
                 # Sliding one frame out as the other comes in keeps every pixel
                 # showing exactly one shot, and still reads as a deliberate
                 # move. Eased at both ends, because a linear slide reads as a
                 # scroll rather than a cut.
-                e = p * p * (3 - 2 * p)
-                dx = int(round(frame.w * e))
-                canvas = Image.new("RGB", frame.size, (0, 0, 0))
-                canvas.paste(pic, (-dx, 0))
-                canvas.paste(incoming, (frame.w - dx, 0))
-                pic = canvas
-            else:
-                pic = Image.blend(pic, incoming, p)
+                #
+                # The other moves - whip, glitch, flash, wipe, punch - are
+                # chosen per shot by what the cut *means*; see
+                # `core/transitions.py`. `push` routes through the same
+                # module and is the identical code it always was, so shipped
+                # videos render unchanged.
+                pic = transitions.apply(mode, pic, incoming, p, frame, brand)
 
         pic = pic.convert("RGBA")
         for sprite in (captions or ()):

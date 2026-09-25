@@ -115,6 +115,10 @@ All synthesized, all in `core/sfx.py`, all cued from the shot list by
 | `loop_close` | a `diagram`'s feedback arrow closing the cycle, once, near the shot end |
 | `limit` | a `gauge` marker crossing its threshold — fired at the crossing, not the reveal |
 | `clock` / `clock_final` | one per second under a quiz countdown, the last a fourth up |
+| `sweep` | under a `chart` or `spectrum` line drawing itself — a bed, not an event |
+| `drop` | a `map` pin landing, pitch bending down as it falls |
+| `count` | a digit rolling in a counting `stat` — almost pure transient |
+| `whoosh` / `hook_glitch` / `hook_pop` / `hook_swish` / `impact` | a transition, picked by its mode — see `core/transitions.py` |
 
 `LEVELS` sets each against the narration peak, and one gain for all of them
 cannot work: a transition has to be heard over the bed, an item tick has to sit
@@ -198,3 +202,32 @@ second, and a synthesised voice over silence sounds like a voice memo.
 
 The generated presets are retired here too; see *Music: the generated presets
 are retired* above.
+
+
+## One kit per site (2026-09-25)
+
+`sfx.mix(..., kit=...)` remaps cue names before they are rendered and scales
+the whole set by `KIT_GAIN`. A script and a beat both still ask for `impact`;
+each channel decides what that is.
+
+**No script passes it.** Both builders take it from `brand.name`, because
+which sounds a site uses is a property of that site's audience and not a
+decision worth making per video - making it an argument would mean every
+script had to remember, and one that forgot would ship the wrong kit silently.
+
+**This is an audience decision, not a style one.** thecrypto.wiki's viewer is
+watching a market explainer, where a bitcrushed slam is the genre's own
+punctuation. tinnitushelp.me's viewer has a hearing condition and a meaningful
+share of them have hyperacusis — a transient that slams is actively unpleasant
+for exactly the people the channel exists for. So the tinnitus kit has **no
+slam, no glitch and no bitcrushing anywhere in it**: `hook_slam` becomes
+`hook_swell`, `hook_glitch` becomes a `reveal` tick, `hook_pop` becomes `link`,
+`impact` becomes `loop_close`, and the whole kit sits at 0.72 of the crypto
+levels.
+
+`whoosh` is deliberately left alone. It is broadband noise sweeping rather than
+a transient, it is the one transition sound that is fine for this audience, and
+softening it would leave the channel with no transition sound at all.
+
+**`kit=None` is byte-identical to what `mix` did before kits existed**, which
+is what keeps every shipped video reproducible.

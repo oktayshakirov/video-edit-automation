@@ -25,12 +25,12 @@ only what this build touches:
 | Before anything | `docs/video/projects/tinnitus.md` - which product, the voice roster, and the medical limits |
 | Before writing a word | `docs/video/narration.md` |
 | How the synthesiser behaves | `docs/video/voice.md` |
-| The long form | `docs/video/longform.md` |
+| The long form | `docs/video/longform.md` - includes the transition vocabulary and the progress chrome |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
 | Choosing and screening footage | `docs/video/footage.md` |
 | Type and layout on screen | `docs/video/design.md` |
-| Music and sound | `docs/video/audio.md` |
+| Music and sound | `docs/video/audio.md` - this channel's sound kit is automatic: no slam, no glitch, no bitcrush |
 | A session's bed and loop | `docs/video/projects/tinnitus.md` |
 | Both thumbnails | `docs/video/thumbnails.md` |
 | Something rendered wrong | `docs/video/troubleshooting.md` |
@@ -69,6 +69,15 @@ and a remembered version is a stale one.
    that remain are the *act* - headphones going in, a hand on a volume
    control, somebody at a window - not a portrait of somebody suffering.
    `docs/video/footage.md` and `docs/video/projects/tinnitus.md`.
+   **Two of the five full-width beats (2026-09-25) were built for this
+   channel.** `spectrum` draws the notch `core/soundbed.py` actually cuts -
+   reach for it before describing this site's own audio over a photograph -
+   and `anatomy` fires callouts onto a drawing, which is the beat to use when
+   the script names a *part* (the cochlea, the hair cells, the jaw joint).
+   `anatomy` wants a real illustration passed as `picture=`; its drawn
+   fallback is scaffolding, not a finished graphic. `timeline` and `chart`
+   are available too. All five are full width, which is the point - they
+   break the left-column silhouette the tally in `beats.md` warns about.
 5. **Build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for a
    session).
