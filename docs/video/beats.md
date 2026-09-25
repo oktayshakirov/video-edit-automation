@@ -11,7 +11,8 @@ against the 3–5 photographs a post actually has. Beats are not decoration here
 they are the majority of the runtime.
 
 `chapter` · `checklist` · `stat` · `compare` · `quote` · `bars` · `grid` ·
-`steps` — in `longform/beats.py`. The first six share a content column left and
+`steps` · `timeline` · `chart` · `map` · `anatomy` · `spectrum` — in
+`longform/beats.py`. The first six share a content column left and
 a picture column right; `grid` and `steps` span the full width. Video clips
 (`Shot(clip=...)`) and the end-screen sting are the two things that are not
 beats; see `longform/clip.py` and `longform/overlay.py`.
@@ -825,3 +826,62 @@ fractional claim: fund shares, a supply split among holders, royalty stakes.
   `bars` already carries for an over-wide value.
 - Portrait-safe, and whitelisted in `crypto/build.py`'s vertical set.
 - Vector layer supersampled like `dial`; the coins are small circles.
+
+
+## Five full-width shapes, added 2026-09-25
+
+The same measurement that asked for `gauge`, `callout` and `diagram` asked for
+these, and it asked louder: the tally above is three beats carrying eighty-two
+of the shipped slots, and **all three set type in a left column with a ragged
+right edge**. A different typeface or accent changes nothing about that. Only
+the silhouette does.
+
+So none of these five has a left column. Each is full width, and each shows
+one thing the fourteen before them cannot:
+
+| beat | the shape | what nothing else could show |
+|---|---|---|
+| `timeline` | a dated axis | *when*, and the distance between whens |
+| `chart` | a line drawing itself | a trajectory, and where it turned |
+| `map` | pins dropping on a plate | where, and how clustered |
+| `anatomy` | callouts onto a drawing | which *part* of a thing is meant |
+| `spectrum` | a live frequency plot | a sound |
+
+- **`timeline` is not `steps` with dates on it, and the difference is the
+  spacing.** `steps` puts its nodes at even intervals because a procedure has
+  no duration between its steps; a history does. Nodes here are placed from
+  the year parsed out of each date, so 2009→2010 sits tight and 2010→2017 is a
+  long gap, and a cluster looks like a cluster. Labels alternate above and
+  below the axis, because two dates in the same decade would otherwise set
+  their labels on top of each other. The date string is **printed verbatim**
+  and only parsed for placement, so "March 2020" and "1st century" both work.
+- **`chart` has no y-axis numbers, deliberately.** A chart with numbers up the
+  side is a claim about magnitude that dates the video the day it is uploaded;
+  a chart with a shape is a claim about behaviour, which does not. If the
+  script needs the figure, that is a `stat`. The `marker` is the beat's actual
+  payload — the line is context, and the marked moment on its own second
+  reveal is the point the sentence is making.
+- **`map` is a schematic and must stay one.** No coastlines, no borders, no
+  projection: an accurate world map at 1920 is either unreadable or a
+  licensing question. Positions are fractions of the plate, placed by eye.
+  **The pin's point is its anchor** — the first build drew the teardrop
+  downward from the position, so every tip landed 34px below the thing it
+  marked and sat outside its own ring. The apex is at `py`, the body stacks
+  above it, the ring is concentric with the apex.
+  `map` is also the thinnest of the five: four pins on an empty plate is not
+  much more than a list with coordinates. Use it when *clustering* is the
+  point, not merely when places are named.
+- **`anatomy` wants a real drawing.** With `picture=` it annotates the
+  supplied illustration; with none it falls back to a drawn cochlea — three
+  arcs and a spiral — which is honest about being a diagram but reads as an
+  abstract spiral more than as an ear. Treat the fallback as scaffolding and
+  supply the asset.
+- **`spectrum` is the one beat that shows what this repo generates.**
+  `core/soundbed.py` already cuts a notch in real noise; a tinnitus video that
+  says "the notch is cut around your own tone" over a stock photograph is
+  describing its own audio track without showing it. The curve is synthesized
+  rather than analysed — analysing the bed would tie a render to an audio file
+  and gain nothing a viewer can see — and it **moves on every frame**, because
+  the one thing everybody knows about a frequency plot is that it dances.
+  Unlike `chart`, its x axis *is* labelled: 4 kHz is 4 kHz forever, and it is
+  the number the viewer came for.

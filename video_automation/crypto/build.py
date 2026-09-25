@@ -573,7 +573,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     if sound and cues is not None:
         cue_list = cues(shots)
         if cue_list:
-            track = sfx.mix(track, workdir / "track-sfx.wav", cue_list)
+            track = sfx.mix(track, workdir / "track-sfx.wav", cue_list,
+                            kit=brand.name)
     elif sound:
         # The verdict is the item's **last** element whatever the beat: a
         # checklist row is `(text, ok)` and a logo tile is `(slug, label, ok)`,
@@ -583,12 +584,16 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 for t, item in zip(sh.marks, sh.payload[0])
                 if item[-1] is not None]
         if cues:
-            track = sfx.mix(track, workdir / "track-sfx.wav", cues)
+            track = sfx.mix(track, workdir / "track-sfx.wav", cues,
+                            kit=brand.name)
 
     if sound and (hook_ov is not None or outro_ov is not None):
         cues = [c for ov in (hook_ov, outro_ov) if ov is not None
                 for c in ov.cues()]
-        track = sfx.mix(track, workdir / "track-hook.wav", cues)
+        # The hook is where the kits differ most: thecrypto.wiki's opener slams
+        # and glitches, and tinnitushelp.me's must not. See `core/sfx.py`.
+        track = sfx.mix(track, workdir / "track-hook.wav", cues,
+                        kit=brand.name)
 
     # **The bed, sidechained under the voice** — the same path `render_long`
     # uses, so a long video and the Short from the same post sit on the same

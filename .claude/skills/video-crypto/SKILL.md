@@ -21,7 +21,7 @@ only what this build touches:
 | --- | --- |
 | Before writing a word | `docs/video/narration.md`, `docs/video/projects/crypto.md` |
 | How the synthesiser behaves | `docs/video/voice.md` |
-| The long form | `docs/video/longform.md` |
+| The long form | `docs/video/longform.md` - includes the transition vocabulary and the progress chrome |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
 | Choosing and screening footage | `docs/video/footage.md` |
@@ -48,6 +48,13 @@ and a remembered version is a stale one.
    reusable forever. The clips that remain are the *act*: a hand on a lit
    phone, a thumb on a feed, a carriage of people on screens - not a
    portrait of somebody feeling something. `docs/video/footage.md`.
+   **Three of the five full-width beats (2026-09-25) were built for this
+   channel.** `chart` is a line drawing itself with the turn marked - the
+   trajectory beat `bars` could never be - `timeline` spaces dated events by
+   their real distance in time rather than evenly like `steps`, and `map` is
+   for regulation and domicile when *clustering* is the point rather than
+   merely when countries are named. All three are full width, which is the
+   point: the tally in `beats.md` is three beats sharing one silhouette.
    **Write the opening as one unit first:** the title question (sentence 1),
    the redacted `hook="... [word] ..."` on screen, and sentence 2 - a partial
    answer that *says the hidden word*, so it is revealed on the beat
