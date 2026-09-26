@@ -108,7 +108,7 @@ All synthesized, all in `core/sfx.py`, all cued from the shot list by
 |---|---|
 | `riser` | 0.75s before a chapter card — says a cut is coming |
 | `impact` | on the card — the riser's full stop |
-| `whoosh` | cutting *out* of a card, covering the return to content |
+| `whoosh` | cutting *out* of a card, covering the return to content - **suppressed when the card carries a transition that brings its own sound**, or the two fire 0.14s apart as a flam |
 | `reveal` | an item arriving on a `checklist`, `compare`, `stat`, `quote`, `logos`, `callout` or `gauge` |
 | `cross` / `tick` | a checklist verdict landing, and a quiz card's |
 | `link` | a `diagram` connector landing on its box — "and therefore" |

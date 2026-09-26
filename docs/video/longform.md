@@ -502,8 +502,11 @@ rule — beats cut, they do not dissolve, because cross-fading two sets of type
 reads as a rendering fault — is a rule about *dissolves*. The others keep each
 pixel showing exactly one shot, or show neither.
 
-`transitions.cues(shots)` returns the sound each move wants, in `sfx.mix`'s own
-shape, to be concatenated with `build._cues`. **`push` and `dissolve` are
+`render_long` concatenates `transitions.cues(shots)` into the mix itself, so a
+script that sets `transition=` gets the sound with the picture and cannot ship
+a move that is silent by accident. Where a cue would collide with one `_cues`
+already fires - a chapter card's exit whoosh against a `whip`'s - **the
+transition wins**, because its cue is timed to the move it is covering. **`push` and `dissolve` are
 deliberately silent**: a sound on every cut in a three-minute video is worse
 than a sound on none.
 
@@ -517,6 +520,12 @@ Chapters existed twice already — `Section` renders a `ChapterCard`, and
 `meta.py` writes the timestamps YouTube turns into a scrubber — and neither
 tells the viewer *while they are watching* where they are. `longform/chrome.py`
 adds two things, both tiny:
+
+Both are built by `build._chrome` from what `lay_out` already returned, not by
+the scripts: add a section and the extra tick and the recounted cards come for
+free. `render_long(chrome_nav=False)` turns the pair off, which is how the A/B
+gets run. A video with fewer than two chapters gets no bar - a progress rule
+with no ticks in it says nothing about structure.
 
 - **`ProgressBar`** — a 5px rule along the bottom, ticked at each chapter
   boundary, faded in after the hook so the opening is uncontested.
