@@ -34,10 +34,21 @@ retried: re-running Publish Facebook Video re-uploads the video to the Page.
 Its form fields are `title, hook, youtubeUrl` at
 `/form/share-video-telegram-{crypto,tinnitus}`.
 
-Use the standalone when the inline branch did not fire, or - the case worth
-planning for - when you deliberately hold the announcement until the user has
-flipped the video to Public in Studio. Omitting `youtubeUrl` on the Facebook
-run skips the branch cleanly, which is what the IF gate is for.
+**Prefer the standalone, and do not wait for the video to be public.** The
+user's instruction, 2026-09-26: "no need to wait for me to make it public, it
+can be shared always unlisted". An unlisted video plays for anyone with the
+link, and `i.ytimg.com/vi/<id>/maxresdefault.jpg` serves for one too (verified
+200, 102 KB on `9RsZalv6zC8`), so the photo card renders normally. Holding the
+announcement bought nothing but a step left hanging on the user. **This
+replaces the advice that used to sit here**, which called holding it back until
+Studio said Public "the case worth planning for".
+
+So the announcement is part of the run. Omitting `youtubeUrl` on the Facebook
+run skips the inline branch cleanly - which is what the IF gate is for - and
+the standalone posts it afterwards. That is the better order regardless,
+because the inline branch cannot be retried: re-running Publish Facebook Video
+re-uploads the video to the Page. Use the standalone by default, and when the
+inline branch did not fire.
 
 - **`Telegram Post` carries `onError: continueRegularOutput`**, same argument
   as `FB Set Reel Cover`: the Facebook video is already live by then, so a

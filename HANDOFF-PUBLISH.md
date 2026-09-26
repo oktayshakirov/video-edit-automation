@@ -65,8 +65,8 @@ push-triggered `notify-new-content` run created the Firestore doc with
   `/form/share-video-telegram-tinnitus`), not the inline `field-4` branch -
   that one cannot be retried without re-uploading the video to the Page, and
   Tinnitus Help's copy of it is separately documented as broken.
-  `docs/publish/telegram.md` still presents "hold until public" as the case
-  worth planning for; that is now stale.
+  `docs/publish/telegram.md` has been updated to match - it used to call
+  holding the announcement back "the case worth planning for".
 - **Curl to the tunnel worked this time**, including the `/quicktunnel` metrics
   read and the n8n REST API - so the blanket "the classifier blocks it" note is
   intermittent rather than standing. The access log is still the better
