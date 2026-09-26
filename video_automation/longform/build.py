@@ -19,6 +19,7 @@ from pathlib import Path
 
 from ..core import music as music_mod
 from ..core import sfx
+from ..core import transitions
 from ..core.brand import Brand
 from ..core.frame import LANDSCAPE, Frame
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX,
@@ -28,6 +29,7 @@ from ..core.voiceover import (CAPTION_MAX_W, build_narration_aligned,
 from ..crypto.build import sentence_spans
 from ..crypto.shots import caption_sprite, render_shots
 from . import audio as audio_mod
+from . import chrome as chrome_mod
 from .beats import Checklist, item_count, make_beat
 from .meta import Meta, write_srt
 from .overlay import ClipOverlay, TitleOverlay
@@ -58,6 +60,11 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_crop_zoom: float = 1.0,
                 thumb_crop_band: str = "middle",
                 thumb_shift: float = 0.0,
+                # The navigation layer: a ticked progress bar along the
+                # bottom and "3 of 5" under each chapter card. On by default -
+                # see `longform/chrome.py` for the argument both ways, and set
+                # it False to run the A/B against a video without it.
+                chrome_nav: bool = True,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 # The title sequence. `title_at` is the second it starts and
                 # turns the whole thing on; `title` defaults to `meta.title`
@@ -212,6 +219,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         overlays=(_endcard(endcard, endcard_lead, total, frame)
                   + _title(title_at, title, title_hold, title_eyebrow,
                            meta, brand, frame)
+                  + _chrome(chrome_nav, chapters, shots, total, brand, frame)
                   + hook_ov))
 
     # --- sound -----------------------------------------------------------
@@ -225,6 +233,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         # empty, so thecrypto.wiki renders exactly as it always did.
         track = sfx.mix(track, workdir / "track-sfx.wav",
                         _cues(shots, total)
+                        + transitions.cues(shots)
                         + [c for h in hook_ov for c in h.cues()],
                         kit=brand.name)
 
@@ -280,6 +289,33 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         shutil.rmtree(workdir, ignore_errors=True)
 
     return made
+
+
+def _chrome(on: bool, chapters: list[tuple[float, str]], shots, total: float,
+            brand: Brand, frame: Frame) -> list:
+    """The progress bar and the per-card "n of N", or nothing.
+
+    Built here rather than in the scripts because it is derived entirely from
+    what `lay_out` already returned: a script that adds a section gets the
+    extra tick and the recounted cards for free, and one that reorders them
+    cannot get the pair out of step.
+
+    A video with fewer than the two chapters `meta.MIN_CHAPTERS` expects gets
+    no bar at all - a progress rule with no ticks in it is a plain wipe across
+    the bottom of the frame that says nothing about structure.
+    """
+    if not on or len(chapters) < 2:
+        return []
+    out = [chrome_mod.ProgressBar([t for t, _ in chapters], total, brand,
+                                  frame)]
+    # The counter belongs to the *cards*, not to the chapter list: the opening
+    # section takes `card=False` (see `longform.md`), so its chapter entry has
+    # no card on screen to annotate.
+    cards = [sh for sh in shots if sh.graphic == "chapter"]
+    out += [chrome_mod.ChapterCount(i + 1, len(cards), sh.start, sh.hold,
+                                    brand, frame)
+            for i, sh in enumerate(cards)]
+    return out
 
 
 def _endcard(path: "Path | None", lead: float, total: float,
@@ -355,9 +391,15 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             # scheduled negative on an opening card.
             cues.append((max(0.0, sh.start - RISER_LEAD), "riser"))
             cues.append((sh.start, "impact"))
-            # And a whoosh on the way out, covering the cut back to content.
+            # And a whoosh on the way out, covering the cut back to content —
+            # **unless the shot carries a transition that brings its own
+            # sound.** A card leaving on a `whip` would otherwise fire this
+            # whoosh at `end - 0.18` and the whip's at `end - 0.32`: two of
+            # the same sound 0.14s apart, which is a flam rather than a
+            # transition. The transition owns the cut when one is set, because
+            # its cue is timed to the move it is actually covering.
             end = sh.start + sh.hold
-            if end < total - 0.4:
+            if end < total - 0.4 and sh.transition not in transitions.CUES:
                 cues.append((end - 0.18, "whoosh"))
         elif sh.graphic == "diagram":
             # Each node lands with its connector, so one cue per reveal marks
