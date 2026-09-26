@@ -876,6 +876,25 @@ one thing the fourteen before them cannot:
   arcs and a spiral — which is honest about being a diagram but reads as an
   abstract spiral more than as an ear. Treat the fallback as scaffolding and
   supply the asset.
+- **`picture=` did not actually work until 2026-09-26, and nothing raised.**
+  `Beat.draw` paints `picture=` into the split layout's *right* column
+  (`PIC_X`), while `Anatomy.content` anchored its callouts to a box in the
+  middle of the frame. A caller who supplied an illustration got the
+  photograph over on the right and four leader lines pointing into empty
+  space — no error, and invisible until the frame is looked at. `Anatomy`
+  now takes the keyword before the base sees it and lays the panel out
+  itself, exactly as `callout` does for the same collision: fitted rather
+  than cover-cropped, dimmed to 0.62, with a brand hairline. **The payload's
+  x/y are fractions of the photograph**, not of the frame, so they can be
+  read off a decile grid on the source file and used as measured.
+- **A dark head in profile is a legitimate "drawing" for this beat.** The TMJ
+  pair supplies a near-black profile photograph rather than an illustration:
+  every part a tinnitus script names — the joint in front of the ear canal,
+  the masseter, the temporalis — is placeable on it, while Pexels' anatomical
+  skull models are bright classroom props that cut against both brands, and
+  its dentures tray is worse. Screen the candidate as a *photograph* (the
+  stock box), then check the coordinates on a rendered frame: two percent out
+  puts the dot on the cheekbone instead of the joint.
 - **`spectrum` is the one beat that shows what this repo generates.**
   `core/soundbed.py` already cuts a notch in real noise; a tinnitus video that
   says "the notch is cut around your own tone" over a stock photograph is

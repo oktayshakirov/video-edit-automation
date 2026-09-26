@@ -2807,26 +2807,53 @@ class Anatomy(Beat):
     existing `callout` beat annotates a photograph; this differs in that the
     subject is *drawn*, so there is something worth pointing at.
 
-    The drawing is a caller-supplied image with a transparent or dark ground
-    (`picture=`), or, with none, the schematic ear this class draws itself -
-    three nested arcs and a spiral, which is enough to read as a cochlea at
-    1920 and is honest about being a diagram rather than pretending to be an
+    The drawing is a caller-supplied image with a dark ground (`picture=`),
+    or, with none, the schematic ear this class draws itself - three nested
+    arcs and a spiral, which is enough to read as a cochlea at 1920 and is
+    honest about being a diagram rather than pretending to be an
     illustration.
+
+    **The picture is drawn by this beat, into its own centred box** - which
+    is what the paragraph above always claimed and what the code did not do.
+    `Beat.draw` paints `picture=` into the split layout's *right column*
+    (`PIC_X`), so a caller who supplied one got the photograph over on the
+    right and four leader lines pointing into empty space in the middle. The
+    fix is the same one `callout` already makes for the same collision: take
+    the keyword before the base sees it, and lay the panel out here.
+    Fitted, never cover-cropped - a crop slides the subject out from under
+    coordinates that were read off the source.
 
     Each callout is a leader line that *travels* from the part to its label,
     on the span of the clause naming it. A label that appears with its line
     already drawn is the thing the whole library's second rule exists to stop.
 
     payload: (parts, title) where parts is [(label, x, y, side), ...],
-    x/y fractions of the drawing box and side "l"/"r".
+    x/y fractions of **the picture** (or of the drawing box, with none) and
+    side "l"/"r".
     """
 
     EMBLEM = False
+    DIM = 0.62                  # the panel sits under the type, not beside it
+    BOX_W = 0.52                # fraction of frame width, against 0.34 drawn
 
     def __init__(self, parts: list, title: str = "", **kw):
+        # Same collision `callout` records: `make_beat` hands `picture=` to
+        # every beat for the split layout, and this beat needs it centred.
+        src = kw.pop("picture", None)
         super().__init__(**kw)
         self.parts = [(str(l), float(x), float(y), s) for l, x, y, s in parts]
         self.title = title
+        self.panel = None
+        if src is not None and Path(src).exists():
+            im = Image.open(src).convert("RGB")
+            fr = self.frame
+            box_w = int(fr.w * self.BOX_W)
+            box_h = fr.h - (self.head_y + 126) - 120
+            k = min(box_w / im.width, box_h / im.height, fr.max_upscale)
+            self.pw, self.ph = int(im.width * k), int(im.height * k)
+            self.panel = (np.asarray(im.resize((self.pw, self.ph),
+                                               Image.LANCZOS))
+                          * self.DIM).astype(np.uint8)
 
     def _schematic(self, out: Image.Image, box: tuple, e: float) -> None:
         """A drawn cochlea: nested arcs and a spiral. Deliberately a diagram."""
@@ -2858,9 +2885,19 @@ class Anatomy(Beat):
         # The drawing sits centred, with the callout labels in the margins
         # either side - which is the silhouette this beat is for. Nothing in
         # the library puts its subject in the middle.
-        bw = int(fr.w * 0.34)
-        box = ((fr.w - bw) // 2, top + 30, (fr.w + bw) // 2, fr.h - 120)
-        if self.pic is None:
+        if self.panel is not None:
+            # The coordinate space is the photograph itself, not the box it
+            # sits in: the fractions were read off the source file.
+            px0 = (fr.w - self.pw) // 2
+            py0 = top + 30 + max(0, (fr.h - 120 - (top + 30) - self.ph) // 2)
+            out.paste(Image.fromarray(self.panel), (px0, py0))
+            box = (px0, py0, px0 + self.pw, py0 + self.ph)
+            d0 = ImageDraw.Draw(out, "RGBA")
+            d0.rectangle([box[0], box[1], box[2] - 1, box[3] - 1],
+                         outline=br.primary + (110,), width=2)
+        else:
+            bw = int(fr.w * 0.34)
+            box = ((fr.w - bw) // 2, top + 30, (fr.w + bw) // 2, fr.h - 120)
             self._schematic(out, box, self.open_p(f, 1.2))
 
         d = ImageDraw.Draw(out, "RGBA")
