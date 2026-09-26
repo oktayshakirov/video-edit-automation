@@ -1,83 +1,72 @@
-# Handoff: the crypto whale pair
+# Handoff: TMJ and tinnitus, long + Short
 
-Built 2026-09-24/25, approved 2026-09-25. Committed as `aa220f3` and pushed to
-`main`; the working tree was clean before this file was written.
+Built 2026-09-26 by `/video-tinnitus`. Committed as `6385a11`, pushed to
+`main`. The working tree is clean apart from
+`projects/drone-short/burgas-what-my-drone-sees.py`, which was already
+untracked before this session and is nothing to do with this pair.
 
-**Open a fresh session and run `/publish-video`.** That skill owns the whole
-upload sequence — which file goes where, the metadata pass, the site registry
-entry, the social posts and their order. Nothing about publishing is decided
-here.
+**Source article:** `tmj-and-tinnitus-the-jaw-connection`
+(https://tinnitushelp.me/blog/tmj-and-tinnitus-the-jaw-connection)
 
-## Source
+**Channel:** tinnitushelp.me. Voice `mia`, music `night-drift`.
 
-One article, both videos, written in one pass:
+## The files
 
-- **Slug:** `what-is-a-crypto-whale`
-- **Post:** `~/Coding/crypto-wiki/content/posts/what-is-a-crypto-whale.mdx`
-- **URL:** https://thecrypto.wiki/posts/what-is-a-crypto-whale
-
-`SOURCE_POST` is set in both build scripts, so `tools/topics.py crypto` will
-see the article as covered.
-
-## Files
-
-### Long form — 16:9, 3:01
+### Long form, 16:9, 3:38
 
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/crypto-whale-long.mp4` |
-| thumbnail | `/Users/oktayshakirov/Desktop/crypto-whale-long-thumb.jpg` |
-| captions | `/Users/oktayshakirov/Desktop/crypto-whale-long.srt` |
-| **sidecar** | `/Users/oktayshakirov/Desktop/crypto-whale-long.md` |
-| build script | `projects/crypto-long/crypto-whale.py` |
+| video | `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-long.mp4` |
+| thumbnail | `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-long-thumb.jpg` |
+| captions | `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-long.srt` |
+| metadata | `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-long.md` |
 
-**The sidecar carries the title, description, chapters and tags — use it, do
-not re-derive them.** It was regenerated on 2026-09-25 after a credits line
-changed, so it is current.
+Title, description, chapters, tags and the medical disclaimer are all in the
+`.md` sidecar - take them from there rather than re-deriving them. YouTube
+title is **Can TMJ Cause Tinnitus?**, which is the search phrase the whole
+cut is aimed at.
 
-- **YouTube title:** `What Is a Crypto Whale? How Big Wallets Actually Work`
-- **Chapters:** 0:00 / 0:24 / 1:00 / 1:29 / 1:59 / 2:32 — six, first at zero,
-  all well clear of the 10s minimum. No violations were reported.
-
-### Short — 9:16, 46.1s
+### Short, 9:16, 45.1s
 
 | what | path |
 | --- | --- |
-| video | `/Users/oktayshakirov/Desktop/crypto-whale-short.mp4` |
-| thumbnail | `/Users/oktayshakirov/Desktop/crypto-whale-short-thumb.jpg` |
-| build script | `projects/crypto-short/crypto-whale.py` |
+| video | `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-short.mp4` |
+| thumbnail | `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-short-thumb.jpg` |
 
-**There is no `.md` sidecar for the Short** — this engine does not write one.
-Its own title question is **"Who Is the Biggest Bitcoin Whale?"**, and the
-line the video closes on is *"The biggest whale is not a person. It is a
-warehouse."*
+The Short has no sidecar (the format does not write one). Its own title
+question is **Can your jaw change your tinnitus?** and the description should
+carry the same article URL as the long form.
 
-Both thumbnails share a headline (`THE BIGGEST WHALE IS NOT A **PERSON**`) and
-the same photograph, so the pair reads as a set in a feed.
+Build scripts: `projects/tinnitus-long/tmj-and-tinnitus.py` and
+`projects/tinnitus-short/tmj-and-tinnitus.py`, both with
+`SOURCE_POST = "tmj-and-tinnitus-the-jaw-connection"`.
 
-## Things the publish step should know
+## Worth knowing before publishing
 
-- **No financial advice, and it was built to that line.** Neither video names
-  a price, a level, a direction, or any exchange as safe, unsafe or worth
-  using. The custody point is made about exchanges as a *category*. The long
-  form speaks and shows the compliance line at ~2:52; the Short deliberately
-  carries none, which is this channel's standing rule for Shorts.
-- **Nothing in either cut dates.** Every figure is structural — the 1,000 BTC
-  and 10,000 ETH thresholds, the 21,000,000 cap — and the one dated number
-  (19.7M mined) is spoken with its year attached. No corporate treasury
-  figure is used.
-- **Credits, already in the sidecar:** footage and the thumbnail photograph
-  are Pexels (Pexels licence, no attribution required); music is oosongoo via
-  Pixabay. The thumbnail photograph is Pexels 15836295 by Adrien Daurenjou and
-  is committed at `assets/crypto/whale/nyc-skyscrapers.jpg`.
-- **Tag the opener when logging this for the fortnightly review.** The Short
-  is the **first video on this channel to use an opener variant** — `Stamp`
-  rather than the redacted `hook=` — so it belongs in its own cohort in the
-  E1 ledger rather than lumped in with the hooked Shorts.
+- **Both halves open on a search bar**, with different queries so they are not
+  competing for one results page: "can tmj cause tinnitus" on the long form,
+  "why does my tinnitus change" on the Short. If the experiments ledger is
+  being kept, tag both as `Search` openers, not `hook=`.
+- **The Short closes cold on a directive** - "Teeth apart. Check again in an
+  hour." - drawn in the opener's own type and held to the final frame.
+- **The thumbnail source is the user's own pick** (Pexels 10648949), shared by
+  both aspects with the same headline. It is a landscape file, so the vertical
+  crop lands on the eye, cheek and jawline rather than the whole face; that is
+  the known cost of a landscape source on a 9:16 thumbnail and it was
+  accepted.
+- **Nothing in either cut diagnoses or promises relief.** The strongest claim
+  is "part of its volume", and the red flags (sudden hearing loss, a pulsing
+  sound, a locked jaw or severe pain after a head injury, ear pain or fluid
+  with a fever) are spoken, drawn on screen and routed to a doctor. The
+  disclaimer in the sidecar's credits block must ship with the description.
 
-## Nothing is undecided
+## Still undecided
 
-The user reviewed both cuts, approved the videos as they are, and asked only
-for the thumbnails to be redone — bigger type, the spacing fixed and a
-different photograph. That was done and re-approved. There are no outstanding
-re-cuts and no open questions.
+Nothing blocking. One judgement call the user may want revisited later: the
+long form's closing section comes back to the jaw through a different shot
+rather than re-using its own opening clip as a bookend, because the reuse
+budget spent that second use on the Short.
+
+## Next
+
+Open a fresh session and run `/publish-video`.
