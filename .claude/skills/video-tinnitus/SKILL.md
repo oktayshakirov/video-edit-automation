@@ -83,15 +83,19 @@ copies that disagreed with each other.
    are the *act* - headphones going in, a hand on a volume control, somebody
    at a window - never a portrait of somebody suffering.
 
-   Two of the five full-width beats were built for this channel: **`spectrum`**
-   draws the notch `core/soundbed.py` actually cuts, so reach for it before
-   describing this site's own audio over a photograph; **`anatomy`** fires
-   callouts onto a drawing, which is the beat for when the script names a
-   *part* - the cochlea, the hair cells, the jaw joint. `anatomy` wants a real
-   illustration passed as `picture=`; its drawn fallback is scaffolding, not a
-   finished graphic. `timeline` and `chart` are available too.
-   `docs/video/footage.md`, `docs/video/beats.md` and
+   **`spectrum`** is the beat built for this channel: it draws the notch
+   `core/soundbed.py` actually cuts, so reach for it before describing this
+   site's own audio over a photograph. `timeline` and `chart` are available
+   too. `docs/video/footage.md`, `docs/video/beats.md` and
    `docs/video/projects/tinnitus.md`.
+
+   **Do not reach for `anatomy`.** It needs a real, accurate picture of the
+   part being named, and one rarely exists for this channel's subjects - the
+   drawn fallback it used to carry was tried four times and cut. It stays in
+   the library for `tmj-and-tinnitus`, which has a head in profile worth
+   pointing at, and that is the bar: a picture where the parts are genuinely
+   visible. Without one, say it in the narration and put a `clip` or a
+   `diagram` under it.
 5. **Preflight, then build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for
    a session).
