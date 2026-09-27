@@ -30,7 +30,7 @@ only what this build touches:
 | Drawn graphics | `docs/video/beats.md` |
 | Choosing and screening footage | `docs/video/footage.md` |
 | Type and layout on screen | `docs/video/design.md` |
-| Music and sound | `docs/video/audio.md` - this channel's sound kit is automatic: no slam, no glitch, no bitcrush |
+| Music and sound | `docs/video/audio.md` - the softer body kit is automatic; **the opener keeps its slam** |
 | A session's bed and loop | `docs/video/projects/tinnitus.md` |
 | Both thumbnails | `docs/video/thumbnails.md` |
 | Something rendered wrong | `docs/video/troubleshooting.md` |

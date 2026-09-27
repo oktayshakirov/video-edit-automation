@@ -1,10 +1,32 @@
-# Approved stages
+# Approved stages — the drone edits
 
-One row per edit signed off. Long-form metrics come straight from the `build`
-output; short-form rows record the parameters the render was approved at, since
-those are what reproduce it.
+One row per edit signed off, with the parameters that reproduce it. Return to
+any stage with `git checkout <tag>`.
 
-Return to any stage with `git checkout <tag>`.
+**This file is the drone channel's record, and only that.** It was written
+when drone footage was the whole repo, and for those edits it is still kept:
+the location sections below cover 23 approved cuts across seven projects, and
+a drone edit is exactly the thing that needs this. Its inputs are a folder of
+footage, a music track and forty tuning parameters, none of which survive in
+the project file once the next edit overwrites them.
+
+**The article videos deliberately stopped using it**, and the counts are the
+honest way to say so: 10 rows here against 74 built videos, with
+tinnitushelp.me's long form never getting a section at all. That is not a
+backlog to clear - the per-render parameters those rows would have held were
+never recorded anywhere, so they cannot be reconstructed now.
+
+What replaced it is better suited to that half of the repo. An article video
+is reproduced by its own project file, which is committed and carries the
+whole shot list; what is worth keeping from a build is the *lesson*, and the
+policy in `README.md` sends that to the narrowest doc that covers it -
+`docs/video/projects/crypto.md`, `docs/video/projects/tinnitus.md`, or the
+rule file it belongs to. Look there, and at `git log`, for why a cut is the
+way it is.
+
+The three article sections immediately below are left as they are: they are a
+true record of the first build of each format, and the notes in them are still
+the only account of decisions that are now load-bearing.
 
 ## Crypto Wiki — long form
 

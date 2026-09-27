@@ -1,4 +1,15 @@
-# Handoff — state as of 2026-08-19 (corrected)
+# Handoff — a snapshot from 2026-08-19, kept for two things
+
+> **This is not a description of the current repo.** It is the handoff written
+> the day the long-form format arrived, and the engine has moved a long way
+> since. It is kept because two things in it are written down nowhere else:
+> the FCPXML traps, and the account of the two post-upload mistakes and how
+> they were corrected. Read it for those.
+>
+> For what the repo does now: `docs/video/README.md` and `git log`. For a
+> build waiting to be published: `HANDOFF-PUBLISH.md`.
+
+## What it said on the day
 
 Written immediately after the previous entry in this file turned out to
 describe a mistake as if it were a decision.
