@@ -58,6 +58,26 @@ or `SOURCE_POST = None` for an off-site topic.
 Run `tools/audit_assets.py` before rendering. Outputs go to the Desktop; they
 are uploads, not repo artifacts.
 
+**Preflight a long form before you render it.** `clip.py` raises on the
+*first* shot whose footage cannot fill its slot, and it raises from inside
+`render_long` - after the narration has been synthesised. A cut with four
+tight slots therefore costs four full runs to find four problems, each of
+them knowable the moment the timeline existed. Preflight walks the timeline
+once and reports **every** slot, plus the runtime and the chapter list:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m video_automation.longform.preflight \
+    projects/tinnitus-long/<name>.py
+```
+
+Read the `margin` column, not the shortfall: `clip.py` reports `want / src_len`
+against the clip's *whole* length and ignores `clip_at`, so a shot 9 seconds
+into an 11 second clip claims it needs "0.93x slow motion" when what it has is
+2.2 seconds for a 10.4 second slot. The number looks survivable and is not.
+
+It shares the narration cache with the render, so the build that follows a
+preflight does not synthesise the script a second time.
+
 Each video produces:
 
 | File | Needed by |
@@ -87,7 +107,9 @@ Only once the user says they are happy:
 
 1. **Commit everything** - the project scripts, any engine changes, and any doc
    updates the run produced. The working tree must be clean before publishing
-   starts.
+   starts. Run `.venv/bin/python -m pytest tests -q` if the run touched the
+   engine; it is about five seconds and it covers the things that cannot be
+   seen by watching the render.
 2. **Write the handoff** to `HANDOFF-PUBLISH.md` at the repo root: what was
    built, the absolute path of every file, the source article slug, and anything
    still undecided. `/publish-video` reads this.

@@ -29,6 +29,7 @@ only what this build touches:
 | Music and sound | `docs/video/audio.md` |
 | Both thumbnails | `docs/video/thumbnails.md` |
 | Something rendered wrong | `docs/video/troubleshooting.md` |
+| Before rendering a long form | **preflight it** - `workflow.md`, step 3 |
 
 Do not work from memory of these rules. They are edited as the engine changes,
 and a remembered version is a stale one.
@@ -65,7 +66,12 @@ and a remembered version is a stale one.
    number, a belief, a comparison, a search phrase or a picture payoff.
    Read the last three scripts on this channel and do not repeat the same
    one three times running (`shorts.md`, "Choosing the opener").
-4. **Build both** - `projects/crypto-long/<name>.py` and
+4. **Preflight, then build both.** A long form's clip slots are checkable
+   before a single second of speech is synthesised, and `clip.py` otherwise
+   raises on one slot at a time from inside the render - four tight slots,
+   four full runs. `PYTHONPATH=. .venv/bin/python -m
+   video_automation.longform.preflight projects/crypto-long/<name>.py`, then
+   `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over and wait.** Re-cut as many times as the user asks; that loop is
    the normal case.
