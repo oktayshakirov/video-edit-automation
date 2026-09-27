@@ -37,7 +37,11 @@ rather than a prediction, changing engine cannot desynchronise the captions.
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 from collections.abc import Callable
@@ -748,6 +752,103 @@ def _force_pad(audio, at: float, want: float,
     return out, cut / sr
 
 
+# --------------------------------------------------------------------------
+# The narration cache.
+#
+# `workflow.md` step 4 says re-cut as many times as it takes, and calls that
+# loop the normal case rather than a failure. It is right, and it is also the
+# most expensive thing in the build: almost every re-cut changes the shot list,
+# the beats or a transition, and not one word of the script - but `render_long`
+# deletes its workdir on success, so the next run re-synthesises narration that
+# is byte-for-byte the same text in the same voice.
+#
+# Kokoro is local and unlimited, so this was never a bill. It is wall-clock in
+# the one loop the user actually sits through.
+#
+# The key is every input that can change a sample: the sentences, the voice,
+# the mood, the per-sentence gaps, the tail, the run-break threshold, the
+# chunk padding, the backend, and the model file's own identity - a swapped
+# checkpoint has to miss, or the cache would serve the old voice forever.
+# --------------------------------------------------------------------------
+
+NARRATION_CACHE = Path(
+    os.environ.get("VIDEO_AUTOMATION_NARRATION_CACHE",
+                   Path.home() / ".cache/video-automation/narration"))
+
+
+def _model_ident() -> str:
+    """What the current backend would sound like, as a string.
+
+    Size and mtime rather than a hash of ~300MB of weights: the file is
+    replaced wholesale when it is replaced at all, and reading it on every
+    build to prove it has not changed would cost more than the synthesis this
+    is here to skip.
+    """
+    f = KOKORO_DIR / "kokoro-v1.0.onnx"
+    if TTS_BACKEND == "kokoro" and f.exists():
+        st = f.stat()
+        return f"kokoro:{st.st_size}:{int(st.st_mtime)}"
+    return TTS_BACKEND
+
+
+def _narration_key(sentences, voice, mood, gaps, tail, run_break,
+                   chunk_pad) -> str:
+    payload = json.dumps({
+        # Tuples become lists through JSON, which is exactly what we want:
+        # a (caption, spoken) pair and a two-item list are the same input.
+        "sentences": sentences,
+        "voice": voice,
+        "mood": mood,
+        "gaps": gaps,
+        "tail": tail,
+        "run_break": run_break,
+        # JSON keys are strings; the values are what matter and the order is
+        # fixed by sort_keys.
+        "chunk_pad": chunk_pad or {},
+        "model": _model_ident(),
+        "v": 1,                        # bump to invalidate every entry
+    }, sort_keys=True, default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
+
+
+def _cache_load(key: str, workdir: Path):
+    """A hit, copied into `workdir` under the name the caller expects."""
+    wav, meta = NARRATION_CACHE / f"{key}.wav", NARRATION_CACHE / f"{key}.json"
+    if not (wav.exists() and meta.exists()):
+        return None
+    try:
+        d = json.loads(meta.read_text(encoding="utf-8"))
+        track = workdir / "narration.wav"
+        workdir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(wav, track)
+        caps = [Caption(c["text"], c["start"], c["end"], c["speech_end"])
+                for c in d["captions"]]
+    except (OSError, KeyError, ValueError, json.JSONDecodeError):
+        # A half-written or hand-edited entry must never fail a build; the
+        # worst case for a miss is the synthesis we were going to do anyway.
+        return None
+    print(f"narration: cache hit ({len(caps)} captions, {d['total']:.2f}s) "
+          f"- delete {NARRATION_CACHE}/{key}.* to force a re-synthesis")
+    return track, caps, float(d["total"])
+
+
+def _cache_store(key: str, track: Path, captions, total: float) -> None:
+    try:
+        NARRATION_CACHE.mkdir(parents=True, exist_ok=True)
+        # Write beside the target and rename, so an interrupted build cannot
+        # leave a truncated wav that later reads as a hit.
+        tmp = NARRATION_CACHE / f"{key}.wav.part"
+        shutil.copyfile(track, tmp)
+        tmp.replace(NARRATION_CACHE / f"{key}.wav")
+        (NARRATION_CACHE / f"{key}.json").write_text(json.dumps({
+            "total": total,
+            "captions": [{"text": c.text, "start": c.start, "end": c.end,
+                          "speech_end": c.speech_end} for c in captions],
+        }), encoding="utf-8")
+    except OSError:
+        pass                    # a cache that cannot be written is not an error
+
+
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
                             voice: VoiceSpec = None,
                             mood: str = "melancholic",
@@ -826,6 +927,27 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     if len(gaps) != len(sentences):
         raise ValueError(f"gap list must have one entry per sentence "
                          f"({len(sentences)}), got {len(gaps)}")
+    # **The cache is keyed on the expanded `gaps`, not the `gap` argument**, so
+    # `gap=0.8` and `gap=[0.8, 0.8, 0.8]` are one entry rather than two.
+    # `precomputed` bypasses it entirely: its values are raw audio arrays the
+    # caller built by some other means, and nothing here can prove two of them
+    # are the same.
+    # **`cache_key`, not `key`.** This function already uses `key` as the loop
+    # variable when it shifts `stop_at` / `resume` after a forced pad, and the
+    # first version of this cache named its hash `key` too. The loop clobbered
+    # it with a chunk index, so entries were written as `2.wav` - a name two
+    # unrelated scripts would both compute, which means one video being served
+    # another's narration. Found because a parallel build stored 49s of a
+    # different script under that name.
+    cache_key = None
+    if precomputed is None and not os.environ.get(
+            "VIDEO_AUTOMATION_NO_NARRATION_CACHE"):
+        cache_key = _narration_key(sentences, voice, mood, gaps, tail,
+                                   run_break, chunk_pad)
+        hit = _cache_load(cache_key, workdir)
+        if hit is not None:
+            return hit
+
     captions: list[Caption] = []
     pieces: list[Path] = []
     t = 0.0
@@ -1005,7 +1127,10 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
         a.end = b.start
     if captions:
         captions[-1].end += tail
-    return track, captions, t + tail
+    total = t + tail
+    if cache_key is not None:
+        _cache_store(cache_key, track, captions, total)
+    return track, captions, total
 
 
 def render_narrated(src: Path, out: Path, start: float,

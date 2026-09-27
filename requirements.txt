@@ -22,3 +22,7 @@ Pillow==12.3.0             # text rendering for vertical exports (this ffmpeg
 # madmom deliberately NOT used. Its downbeat RNN is more accurate in general, but it
 # is pinned to old numpy/Cython and does not build on Python 3.13. For 4/4 produced
 # music the downbeat phase is recoverable by low-band onset voting (see music.py).
+
+# Tests. Nothing in tests/ renders, synthesises or reaches the network - the
+# suite runs in a few seconds, which is the only reason it gets run at all.
+pytest>=8

@@ -34,6 +34,7 @@ only what this build touches:
 | A session's bed and loop | `docs/video/projects/tinnitus.md` |
 | Both thumbnails | `docs/video/thumbnails.md` |
 | Something rendered wrong | `docs/video/troubleshooting.md` |
+| Before rendering a long form | **preflight it** - `workflow.md`, step 3 |
 
 Do not work from memory of these rules. They are edited as the engine changes,
 and a remembered version is a stale one.
@@ -78,7 +79,12 @@ and a remembered version is a stale one.
    fallback is scaffolding, not a finished graphic. `timeline` and `chart`
    are available too. All five are full width, which is the point - they
    break the left-column silhouette the tally in `beats.md` warns about.
-5. **Build** - `projects/tinnitus-long/<name>.py` and
+5. **Preflight, then build.** A long form's clip slots are checkable before
+   a single second of speech is synthesised, and `clip.py` otherwise raises on
+   one slot at a time from inside the render - four tight slots, four full
+   runs. `PYTHONPATH=. .venv/bin/python -m
+   video_automation.longform.preflight projects/tinnitus-long/<name>.py`, then
+   `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for a
    session).
 6. **Hand over and wait.** Re-cut as many times as the user asks.

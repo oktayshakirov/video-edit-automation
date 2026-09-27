@@ -389,3 +389,44 @@ and a fast loop is a different reason with a different answer.
 `render_narrated_cuts`; the chain now ends `null[vout]`. A fade spends the last
 half-second telling the viewer it is over, which is the opposite of what a
 looping short wants — the loop point should land on picture.
+
+## The narration cache
+
+`build_narration_aligned` caches its result, keyed on everything that can
+change a sample: the sentences, the voice, the mood, the expanded per-sentence
+gaps, the tail, the run-break threshold, the chunk padding, the backend, and
+the model file's own size and mtime. A hit copies the wav into the caller's
+workdir and returns the same captions and the same total, so a re-cut that
+changed only the shot list is instant instead of re-synthesising a script that
+did not change.
+
+**This is for the re-cut loop, which `workflow.md` calls the normal case.**
+`render_long` deletes its workdir on success, so before this every re-cut paid
+for the whole narration again. Kokoro is local, so it was never a bill - it was
+the wall-clock in the one loop that gets run over and over. `preflight` shares
+the cache with the render, so preflighting a cut costs the synthesis once and
+the build that follows it costs none.
+
+Entries live in `~/.cache/video-automation/narration` and are named by a
+32-character hex digest. Anything else in there was written by a broken
+version and should be deleted.
+
+- `VIDEO_AUTOMATION_NO_NARRATION_CACHE=1` disables it for a run.
+- `VIDEO_AUTOMATION_NARRATION_CACHE=<dir>` moves it.
+- Bump `"v"` in `_narration_key` to invalidate every entry at once - do that
+  whenever a change to the *post-chain* alters the audio without altering any
+  of the inputs above.
+
+**A miss is free and a false hit ships the wrong audio**, so the key errs
+toward missing: a `precomputed` call bypasses the cache entirely, because its
+values are raw audio arrays the caller built by other means and nothing here
+can prove two of them are the same.
+
+**The name of the hash matters.** `build_narration_aligned` already uses `key`
+as a loop variable when it shifts `stop_at` / `resume` after a forced pad. The
+first version of this cache named its hash `key` too; the loop clobbered it
+with a chunk index and wrote an entry called `2.wav` - a name two unrelated
+scripts would both compute, which means one video being served another's
+narration. It surfaced only because a parallel build stored 49 seconds of a
+different script under it. The variable is `cache_key`, and
+`tests/test_narration_cache.py` asserts it stays that way.
