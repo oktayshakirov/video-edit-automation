@@ -3,10 +3,25 @@ opencv-python==4.11.0.86   # Lucas-Kanade tracking, RANSAC affine fit, HSV/Lapla
 numpy==2.2.6               # medians/percentiles over per-frame metric arrays
 librosa==0.11.0            # beat tracking, onset strength, RMS, bar-synced segmentation
 jinja2==3.1.6              # FCPXML templating
-kokoro-onnx                # Kokoro-82M, Apache 2.0, local and unlimited. The
+# **The three TTS pins are the voice, and they are exact on purpose.**
+# Recreating the venv from an unpinned `kokoro-onnx` resolved 0.5.0 -> 0.6.1,
+# which swapped `phonemizer-fork` for plain `phonemizer` and moved onnxruntime
+# 1.28 -> 1.30. The same script then synthesised 20ms longer with different
+# audio bytes - a quiet change to the voice every shipped video was made in,
+# and to the caption times cut against it. Caught by re-synthesising a script
+# whose narration was still in the cache from the old environment.
+#
+# Change these deliberately or not at all. If you do change them, re-render one
+# shipped cut and listen before committing.
+kokoro-onnx==0.5.0         # Kokoro-82M, Apache 2.0, local and unlimited. The
                            # ONNX build, not the PyTorch one: that pulls spacy,
                            # which has no 3.13 wheels and fails to build.
                            # Model files (~350MB) live in ~/.local/share/kokoro.
+onnxruntime==1.28.0        # what 0.5.0 was measured against
+phonemizer-fork==3.3.2     # kokoro-onnx 0.5.0's own G2P. It installs a module
+                           # *named* `phonemizer`, so the two cannot coexist -
+                           # `pip uninstall phonemizer` takes the fork's module
+                           # with it and every synthesis raises ImportError.
 edge-tts                   # free Microsoft neural voices, no API key. Fallback
                            # for when a networked voice is wanted; not default
                            # because it is a network call and can be throttled.
@@ -22,6 +37,14 @@ Pillow==12.3.0             # text rendering for vertical exports (this ffmpeg
 # madmom deliberately NOT used. Its downbeat RNN is more accurate in general, but it
 # is pinned to old numpy/Cython and does not build on Python 3.13. For 4/4 produced
 # music the downbeat phase is recoverable by low-band onset voting (see music.py).
+
+# Imported directly by `core/voiceover.py` (reading and writing the narration
+# wav) and by the noise beds, but never declared - both arrived only as
+# librosa's own dependencies. That worked by luck of librosa's tree, and a
+# librosa release that drops either one would break the build with an
+# ImportError in a module that has imported it for months.
+soundfile==0.14.0
+scipy==1.18.0
 
 # Tests. Nothing in tests/ renders, synthesises or reaches the network - the
 # suite runs in a few seconds, which is the only reason it gets run at all.
