@@ -880,6 +880,21 @@ one thing the fourteen before them cannot:
   travels. Still a diagram and not an illustration — flat line work, no
   shading — which is the honest register for a drawn beat.
 
+  **The pinna is the recognition cue, and it took three tries to learn that.**
+  Version one was concentric arcs and a spiral; version two added a canal and
+  an ossicle chain but kept a plain arc for the outer ear and was still called
+  confusing. A viewer who sees an ear shape reads everything downstream of it
+  as ear anatomy; a viewer who does not is looking at abstract geometry
+  however correct the rest is. So the flap is drawn as a real pinna — helix
+  and antihelix — and everything else hangs off that.
+
+  **Anything a script never points at is a liability.** The semicircular
+  canals and the tragus were both drawn, both anatomically correct, and both
+  cut: the canals read as a plant growing out of the picture and collided with
+  the stirrup, and the tragus read as a stray mark. What is left is one
+  continuous chain from the pinna to the nerve — exactly the parts a tinnitus
+  script names, and nothing else. Resist adding to it.
+
   **Take the coordinates from `Anatomy.LANDMARKS`**, not from a screenshot:
   `LANDMARKS["cochlea"]` is where the coil actually is. With a `picture=` the
   fractions are of that image instead, and a real anatomical illustration is
