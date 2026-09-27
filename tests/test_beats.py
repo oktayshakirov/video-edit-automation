@@ -150,3 +150,66 @@ def test_chart_marker_changes_the_reveal_count():
     caption timing shunted a line late."""
     assert item_count("chart", ([1, 2, 3], "t", 1, "n")) == 2
     assert item_count("chart", ([1, 2, 3], "t", None, "")) == 1
+
+
+# --- the package surface ---------------------------------------------------
+#
+# `beats` was one 3,124-line module until 2026-09-27. Splitting it into
+# families changed no pixel, but it did turn one import site into seven, and
+# the way that breaks later is quiet: a beat gets added to a family module and
+# never reaches `BEATS`, or a helper stops being re-exported and some caller
+# three modules away fails at render time rather than at import.
+
+def test_every_beat_class_is_registered():
+    """A class defined in a family module but missing from `BEATS` is a beat
+    nobody can reach from a shot list."""
+    import importlib
+    import inspect
+
+    from video_automation.longform import beats as pkg
+    from video_automation.longform.beats.base import Beat
+
+    defined = set()
+    for fam in ("column", "wide", "scale", "plot", "annotate"):
+        mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
+        for obj in vars(mod).values():
+            # `obj.__module__` filters out the names each family imports from
+            # a sibling's parent - only classes actually defined here count.
+            if (inspect.isclass(obj) and issubclass(obj, Beat)
+                    and obj is not Beat and obj.__module__ == mod.__name__):
+                defined.add(obj)
+
+    missing = defined - set(pkg.BEATS.values())
+    assert not missing, ("defined but not in BEATS: "
+                         f"{sorted(c.__name__ for c in missing)}")
+    # And the other way: a registry entry pointing at nothing real.
+    assert set(pkg.BEATS.values()) == defined
+
+
+@pytest.mark.parametrize("name", [
+    # what the rest of the repo imports from here, by name. Each one was a
+    # working import before the split and has to stay one.
+    "Beat", "BEATS", "item_count", "make_beat", "Checklist",
+    "DRAW", "POP", "RISE", "_font", "_display", "_mark_bottom",
+    "_round_corners", "_smooth", "_unit", "_hex",
+])
+def test_the_old_module_surface_is_still_importable(name):
+    from video_automation.longform import beats as pkg
+    assert hasattr(pkg, name), f"{name} is no longer importable from beats"
+
+
+def test_no_family_module_imports_another():
+    """The families are siblings; shared code goes in `base`. A family
+    importing a family is the first step back to one 3,000-line file."""
+    from pathlib import Path
+
+    import video_automation.longform.beats as pkg
+
+    fams = ["column", "wide", "scale", "plot", "annotate"]
+    root = Path(pkg.__file__).parent
+    for fam in fams:
+        src = (root / f"{fam}.py").read_text()
+        for other in fams:
+            if other != fam:
+                assert f"from .{other} import" not in src, \
+                    f"{fam}.py imports {other}.py - put the shared part in base.py"
