@@ -387,7 +387,7 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     is what keeps the shipped videos reproducible.
     """
     sub = KITS.get(kit or "", {})
-    gain *= KIT_GAIN.get(kit or "", 1.0)
+    kit_gain = KIT_GAIN.get(kit or "", 1.0)
     import soundfile as sf
 
     audio, sr = sf.read(str(track), always_2d=True, dtype="float32")
@@ -401,8 +401,13 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
               "hook_swish": hook_swish, **_MAKERS_EXTRA}
 
     for at, kind in cues:
-        kind = sub.get(kind, kind)
-        clip = makers[kind](sr) * peak * gain * LEVELS.get(kind, 1.0)
+        # An exempt cue takes neither the remap nor the kit's level - the
+        # opener is the same sound on both channels. See `KIT_EXEMPT`.
+        if kind in KIT_EXEMPT:
+            g = gain
+        else:
+            kind, g = sub.get(kind, kind), gain * kit_gain
+        clip = makers[kind](sr) * peak * g * LEVELS.get(kind, 1.0)
         i = int(at * sr)
         if i < 0:
             continue
@@ -498,9 +503,6 @@ _MAKERS_EXTRA = {"sweep": sweep, "drop": drop, "count": count}
 KITS = {
     "crypto": {},                       # the shipped sound, unchanged
     "tinnitus": {
-        "hook_slam": "hook_swell",
-        "hook_glitch": "reveal",
-        "hook_pop": "link",
         "impact": "loop_close",
         "drop": "link",
         # A whoosh is broadband noise sweeping - it is the one transition
@@ -511,3 +513,21 @@ KITS = {
 
 # The whole kit's level against the shipped default, per site.
 KIT_GAIN = {"crypto": 1.0, "tinnitus": 0.72}
+
+# **The opening hook is exempt from the kit, on every channel.** The first
+# version of this softened the hook too - the slam became a swell, the glitch
+# became a reveal tick, and the whole thing came down to 0.72 - on the
+# reasoning that a hearing-sensitive audience should not be hit with a
+# transient. The user's call is that the opener is the wrong place to spend
+# that: a Short lives or dies in its first second, and an opener that does not
+# grab is an opener nobody hears the soft middle of either.
+#
+# So the hook kit passes through untouched and at full level on both sites,
+# and the softening applies to everything after it - the chapter impacts, the
+# map pins, the body cues. That is the part a viewer sits inside for three
+# minutes, and it is where the difference actually accumulates.
+#
+# `hook_swish` and `hook_swell` are in here as themselves: they were never
+# remapped, but a future kit must not quietly capture them either.
+KIT_EXEMPT = frozenset({"hook_slam", "hook_glitch", "hook_pop", "hook_swish",
+                        "hook_swell"})

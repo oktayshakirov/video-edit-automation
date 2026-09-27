@@ -218,12 +218,19 @@ script had to remember, and one that forgot would ship the wrong kit silently.
 **This is an audience decision, not a style one.** thecrypto.wiki's viewer is
 watching a market explainer, where a bitcrushed slam is the genre's own
 punctuation. tinnitushelp.me's viewer has a hearing condition and a meaningful
-share of them have hyperacusis — a transient that slams is actively unpleasant
-for exactly the people the channel exists for. So the tinnitus kit has **no
-slam, no glitch and no bitcrushing anywhere in it**: `hook_slam` becomes
-`hook_swell`, `hook_glitch` becomes a `reveal` tick, `hook_pop` becomes `link`,
-`impact` becomes `loop_close`, and the whole kit sits at 0.72 of the crypto
-levels.
+share of them have hyperacusis, so a transient that slams is unpleasant for
+exactly the people the channel exists for. The tinnitus kit therefore softens
+the *body*: `impact` becomes `loop_close`, `drop` becomes `link`, and
+everything the kit touches sits at 0.72 of the crypto levels.
+
+**The opening hook is exempt, on both channels.** The first version of this
+softened the hook too and it was the wrong trade — the user's call, and it is
+right: a Short lives or dies in its first second, and an opener that does not
+grab is an opener nobody hears the soft middle of either. `hook_slam`,
+`hook_glitch`, `hook_pop`, `hook_swish` and `hook_swell` pass through
+unremapped and at full level whatever the kit, which is what `KIT_EXEMPT` is.
+The softening applies to the three minutes after it, which is where the
+difference actually accumulates.
 
 `whoosh` is deliberately left alone. It is broadband noise sweeping rather than
 a transient, it is the one transition sound that is fine for this audience, and

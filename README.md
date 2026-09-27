@@ -19,8 +19,18 @@ is encoded.
 
 ## Picking up where the last session left off
 
-See [HANDOFF.md](HANDOFF.md) — current state, open items, and the FCPXML traps
-that are expensive to rediscover.
+**Start at [docs/video/README.md](docs/video/README.md) and `git log`.** The
+build rules are edited as the engine changes, so they are the only description
+of the current state that cannot go stale without somebody noticing.
+
+- **A build waiting to be published** is [HANDOFF-PUBLISH.md](HANDOFF-PUBLISH.md),
+  rewritten by every run. That one is current by construction.
+- **Why a rule exists** is the narrowest doc that covers it — `docs/video/`
+  for the engine, `docs/video/projects/<site>.md` for a channel's own limits.
+- [HANDOFF.md](HANDOFF.md) is **a snapshot from 2026-08-19**, not a live
+  document. It is kept because its FCPXML traps and its account of the
+  post-upload corrections are expensive to rediscover and are written down
+  nowhere else. Read it for those; do not read it for what the repo does now.
 
 ## Status
 
@@ -114,13 +124,17 @@ video_automation/
   tinnitus/         the vertical format for the second site, plus ASMR
   longform/         the 16:9 format, shared by both sites: beats, plan, build
 projects/           one directory per site AND format — see projects/README.md
-  crypto-short/  crypto-long/  tinnitus-short/  tinnitus-long/  drone-long/
-.claude/skills/     four skills — symlink into ~/.claude/skills/
+  crypto-short/  crypto-long/  tinnitus-short/  tinnitus-long/
+  drone-short/  drone-long/  quiz-crypto/  quiz-tinnitus/  demo/
+.claude/skills/     the build, publish and audit skills — symlink into
+                    ~/.claude/skills/
 docs/video/         every build rule, once — start at docs/video/README.md
 assets/
   brand/            wordmarks, looping backgrounds, the music library
   stock/            Pexels cache; bytes gitignored, manifest.json is not
-CHANGELOG.md        approved stages and their metrics
+tests/              what can be checked without rendering — a few seconds
+CHANGELOG.md        approved drone stages and their metrics; the article
+                    videos record their lessons in docs/video/ instead
 ```
 
 **The format is in the project directory's name.** `crypto/` and `crypto-long/`
