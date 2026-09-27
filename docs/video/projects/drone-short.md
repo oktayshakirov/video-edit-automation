@@ -279,6 +279,25 @@ on Medicine or Poison). `render_narrated_stack` defaults `karaoke_box` and
 at stroke 5 (Iowan italic at 4 when the box is off). Earlier scripts pin the
 flags False so locked cuts re-render unchanged. See `shorts.md`.
 
+**Both styles stay live — this is a per-cut choice, not a migration**
+(settled 2026-09-27). The box is the default because it suits most cuts, but
+the user's standing note is that a deep or melancholic quote often reads better
+in the older treatment: the Iowan Old Style italic, mixed case, the spoken word
+tinted rather than boxed. A pill in a saturated accent is loud, and loud fights
+a quiet line. So on a reflective quote, reach for:
+
+```python
+render_narrated_stack(..., karaoke_box=False, karaoke_upper=False)
+```
+
+Leave `font_path` and `stroke` unset so the auto-pick gives you the italic at
+stroke 4 — passing Arial Black with the box off gets you the worst of both.
+Everything else is unchanged: the word still lights and lifts (`grow=1.08`,
+which only `box=True` suppresses), and `accent="auto"` still pulls the colour
+from the footage. Motivational and punchy stays on the box; deep and slow gets
+the ink. Offer the choice when the quote's tone makes it a real question rather
+than defaulting silently.
+
 Trialled on `berlin-column-believe-in-you` (2026-09-16), from a reference
 screenshot of a TikTok-style caption: a rounded pill in `accent` behind the
 active word instead of tinting its ink, on a bold all-caps face
