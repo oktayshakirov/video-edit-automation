@@ -79,6 +79,7 @@ from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import Shot
+from video_automation.longform.openers import Search
 from video_automation.longform.thumb import render_short_thumb
 
 # No `posts/` article - the source is the crypto-og bio.
@@ -122,7 +123,7 @@ SENTENCES = [
     # The partial answer: true, new, and it opens the bigger question rather
     # than closing the loop.
     ("It can.",
-     "And nothing about the coin itself has to change for that to happen."),
+     "And nothing about the coin itself has to change."),
 
     ("People call it the Musk effect.",
      "But the mechanism is not the man."),
@@ -130,11 +131,21 @@ SENTENCES = [
     ("A price is only the last offer somebody actually filled.",),
 
     # The diagram's own sentence - one chunk per node, plus a trailing
-    # reaction chunk, which claims no reveal slot.
+    # reaction chunk, which claims no reveal slot. **Three nodes, not four:**
+    # the `chart` below needed room and a Short has a hard ceiling, so the
+    # node the narration could afford to lose went rather than a gap.
     ("A post reaches millions of people at once.",
-     "A few of them buy inside the same few minutes.",
      "They take the cheapest offers, one after another.",
-     "Nobody had to believe anything - they only had to arrive together."),
+     "And the number everybody sees moves.",
+     "Nobody had to believe anything."),
+
+    # The chart's own sentence. **Two chunks, in reveal order:** the line
+    # draws across the first, the marker lands on the second. No hinge
+    # sentence in front of it - the diagram's last chunk already hands off
+    # ("the number moves" -> "and then"), which is the case `shorts.md` says
+    # to check for before spending a sentence on a lead-in.
+    ("And then it drains away again, over days.",
+     "That spike is the post. Nothing about the coin changed."),
 
     # Hinge into the checklist. Its own sentence, because a leading hinge
     # inside the beat's span eats reveal zero.
@@ -146,7 +157,7 @@ SENTENCES = [
     ("The supply.",
      "The code.",
      "What the coin can actually do.",
-     "How many people were watching at once - that is the only thing that moved."),
+     "How many people were watching - the only thing that moved."),
 
     # Cold close. It answers the opening question instead of re-asking it, so
     # the viewer's last thought and first thought are the same thought.
@@ -176,11 +187,22 @@ SHOTS = [
     # gateline, which is the noun the sentence says.
     Shot(clip=GATES, clip_at=9.5, clip_ax=0.40),
     Shot(graphic="diagram", backdrop=BEATGROUND,
-         payload=([("A post lands", "millions read it in one minute"),
-                   ("They arrive together", "inside the same few minutes"),
+         payload=([("A post lands", "millions read it at once"),
                    ("The queue empties", "the cheapest offers go first"),
                    ("The number moves", "and everybody sees it")],
                   "WHAT A POST ACTUALLY DOES", False)),
+    # **The long form's attention curve, in portrait.** Same series and same
+    # marker, so the pair makes one claim about behaviour rather than two.
+    # `chart` had no portrait layout until this pair asked for one: it now
+    # pins its plot box to 0.66 of its width and centres it, because filling a
+    # 9:16 band turns the same climb into a wall. It plots **attention, not
+    # price** - and carries no y-axis numbers by design, which is what keeps a
+    # shape claim from becoming a magnitude claim.
+    Shot(graphic="chart", backdrop=BEATGROUND,
+         payload=([0.05, 0.05, 0.06, 0.05, 0.07, 0.62, 1.00, 0.84,
+                   0.63, 0.47, 0.36, 0.28, 0.23, 0.19, 0.16, 0.14,
+                   0.12, 0.10, 0.09, 0.08],
+                  "ATTENTION AFTER ONE POST", 6, "the post")),
     Shot(clip=STADIUM, clip_at=1.0, clip_ax=0.50),
     Shot(graphic="checklist", backdrop=BEATGROUND,
          payload=([("The supply", False),
@@ -191,9 +213,10 @@ SHOTS = [
     Shot(clip=CASCADE, clip_at=0.5, clip_ax=0.50),
 ]
 
-# 2.20 on the checklist buys the silence its verdicts land in; 1.30 on the
-# diagram gives four nodes room to be read.
-GAPS = [0.70, 0.90, 0.85, 0.90, 1.30, 0.70, 2.20, 1.30]
+# 2.20 on the checklist buys the silence its verdicts land in; 1.20 lets the
+# three diagram nodes be read and 1.40 gives the chart's line time to travel
+# before the marker drops.
+GAPS = [0.70, 0.90, 0.85, 0.85, 1.20, 1.40, 0.70, 2.20, 1.30]
 
 
 def main() -> None:
@@ -203,10 +226,31 @@ def main() -> None:
         SENTENCES, SHOTS, out, work,
         voice=VOICE, gap=GAPS,
         music=MUSIC, music_gain=0.85,
-        # Statement mode: no brackets. The surprise is the proposition, and
-        # any word worth hiding here is handed to you by the sentence's own
-        # grammar - the cover-the-bar test in `shorts.md`.
-        hook="A post is not a purchase",
+        # **`Search`, matching the long form.** Both halves of the pair now
+        # open the same way, which is the same argument the shared thumbnail
+        # makes: a viewer who sees both should recognise the second.
+        #
+        # **The query is shorter here, and that is arithmetic rather than a
+        # different idea.** `Search` types at 0.085s a character and then
+        # holds, so the long form's 40-character query runs 3.7s of typing and
+        # 4.9s in total - a tenth of a 47s Short spent watching a search bar,
+        # against `shorts.md`'s "the gap closes by ~3s". At 23 characters this
+        # lands at ~3.2s and is still a phrase somebody actually types.
+        opener=Search("elon musk crypto price"),
+        # **The mute is off, and that is specific to this opener.** It exists
+        # so a redacted `hook=` and the karaoke line do not burn the same
+        # sentence twice - but `Search` shows a *query*, not the spoken line,
+        # so there is nothing to duplicate. Left on, the first sentence that
+        # starts after the opener clears is sentence 2, so captions did not
+        # appear until **7.0s**: the entire decision window silent on a muted
+        # feed. The two layers do not collide either - the search bar sits at
+        # 34% of the height and the caption line at ~80%.
+        hook_mutes_captions=False,
+        # ...but the outro's mute stays on: that card *is* the closing line,
+        # so a caption under it is the same sentence twice. These were one
+        # flag until this build turned the first off and silently lost the
+        # second.
+        outro_mutes_captions=True,
         outro="A post is not a purchase. It only changes [who shows up].")
     # A pair shares its thumbnail. Four short forced rows and a raised size:
     # the size search is capped by the longest row, so short rows clear the

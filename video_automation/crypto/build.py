@@ -117,7 +117,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          label=None, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
-                        "diagram", "dial", "split"):
+                        "diagram", "dial", "split", "chart"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -126,6 +126,17 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # `len(payload[0])` — a scale drawn with no needle is one reveal and
         # a scale with one is two — so it goes through `item_count` below
         # rather than the node-count shortcut.
+        #
+        # **`chart` joined this set 2026-09-27**, and it was the first of the
+        # five full-width beats to be asked for in 9:16. It needed one change
+        # (`Chart.content`): portrait pins the plot box to 0.66 of its width
+        # and centres it, because the landscape geometry fills the band and a
+        # 1080x1300 plot box turns the same series into a wall and a cliff.
+        # Its reveal count is 1 or 2 depending on whether a `marker` was
+        # given, which `item_count` already knew — so nothing below needed
+        # touching. `timeline`, `map`, `anatomy` and `spectrum` are still
+        # landscape-only: none has been asked for in a Short yet and none
+        # should be whitelisted until it is, and looked at on a frame.
         #
         # **`diagram` joined this set 2026-09-10.** Its portrait layout runs
         # the causal chain down the frame with the feedback arrow (`loop=True`)
@@ -245,6 +256,26 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # the line the hook is showing; printing it twice buys
                         # nothing. Set False to put them back.
                         hook_mutes_captions: bool = True,
+                        # **The outro's mute is a separate decision from the
+                        # opener's, and it was one flag until 2026-09-27.**
+                        # Both mutes exist to stop one statement being burned
+                        # twice, but only the *hook* is guaranteed to be
+                        # showing the spoken line. An `opener=` is not: a
+                        # `Search` bar shows a query, a `Counter` shows a
+                        # figure, a `Stamp` shows a belief and a verdict -
+                        # none of which the narration is reading aloud, so
+                        # there is nothing to duplicate and muting only costs
+                        # the opening seconds their captions. The outro card,
+                        # by contrast, *is* the closing line, always.
+                        #
+                        # Found on the `musk-effect` Short, which turned the
+                        # hook mute off for a `Search` opener and silently
+                        # lost the outro's too - so the last four seconds
+                        # burned "A POST IS NOT A PURCHASE" under a card
+                        # already saying it. `None` means "follow
+                        # `hook_mutes_captions`", so every script written
+                        # before this is byte-identical.
+                        outro_mutes_captions: bool | None = None,
                         # **The closing statement, in the opener's own type.**
                         # A Short used to land its last line on `ChapterCard`,
                         # which is the long form's chapter slate: a hairline
@@ -552,7 +583,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                                start_at=at, leave=False, reveal_at=rev,
                                centre_y=0.5, punch=False, hold=0.0)
         overlays = [*(overlays or []), outro_ov]
-        if hook_mutes_captions:
+        mute_outro = (hook_mutes_captions if outro_mutes_captions is None
+                      else outro_mutes_captions)
+        if mute_outro:
             # Same rule as the hook: one statement on screen at a time, and
             # the whole sentence goes, not the part that overlaps. The card
             # *is* the closing line, so burning it underneath as well is the

@@ -893,3 +893,69 @@ rather than assumed:
 The rule the vertical format already had applies unchanged: **two drawn beats
 in one short must not share a silhouette.** With twelve shapes now there is no
 excuse for a second `checklist`.
+
+## `chart` transfers to 9:16, with a fixed plot box (2026-09-27)
+
+**The first of the five full-width beats (`beats.md`, 2026-09-25) to be asked
+for in a Short**, and it needed one change before it could be whitelisted in
+`crypto/build.py`.
+
+The landscape geometry fills the band the heading leaves: `y1 = h - 0.16h`,
+`y0 = top + 40`. In 16:9 that is a plot box wider than it is tall, which is
+the shape a trajectory wants. In 9:16 the same code gives roughly **1080 wide
+by 1300 tall**, and the series stops reading as itself — the climb becomes a
+near-vertical wall and the decay becomes a cliff. That is not a cosmetic
+problem: `chart`'s whole contract is that it makes a claim about *behaviour*
+rather than magnitude, and a box that steep changes the behaviour it shows.
+
+So in portrait the box is pinned to **0.66 of its own width** and centred in
+whatever the heading leaves. The shape is then the same shape the long form
+draws, which is what lets a pair use the same series in both cuts and make one
+claim rather than two. The slack goes above and below, where a drawn beat
+burns no caption anyway.
+
+**Landscape is untouched** — the branch is guarded on `fr.h > fr.w`, so every
+shipped 16:9 render is byte-identical.
+
+Two things that needed no work: `item_count` already returns 1 or 2 for a
+`chart` depending on whether a `marker` was given, so the reveal sizing was
+correct as soon as it was routed; and the marker's note already flips to the
+left of the dot past `0.62` of the width, which is what stops it running off a
+1080px frame.
+
+**`timeline`, `map`, `anatomy` and `spectrum` are still landscape-only.** None
+has been asked for in a Short. Do not whitelist one until it is, and until its
+portrait layout has been looked at on a rendered frame — `chart` looked fine
+in the abstract and was wrong by 1.5:1 on the frame.
+
+## The opener's caption mute and the outro's are two decisions, not one
+
+**They were a single `hook_mutes_captions` flag until 2026-09-27, and the
+`musk-effect` Short is where that bit.** Both mutes exist for the same stated
+reason — one statement on screen at a time, never the same sentence burned
+twice — but the reason only actually holds for one of them.
+
+- **A redacted `hook=` is showing the spoken line**, so a caption under it is
+  the duplication the flag was written against. Mute it.
+- **An `opener=` usually is not.** `Search` shows a query, `Counter` a figure,
+  `Stamp` a belief and a verdict, `Split` two options. The narration is not
+  reading any of those aloud, so there is nothing to duplicate — and muting
+  costs the opening seconds their captions, which is the worst place in a
+  Short to have none. That cut ran a `Search` opener with the mute on and
+  **captions did not appear until 7.0s**: captions resume at the first
+  sentence starting after the opener clears, and with a 3.3s opener that was
+  sentence 3. The entire decision window, silent, on a feed most people watch
+  muted.
+- **The outro card always is the closing line**, so its mute always applies.
+
+Turning the flag off for the opener therefore turned it off for the outro too,
+and the last four seconds burned "A POST IS NOT A PURCHASE" underneath a card
+already saying it. `render_crypto_short` now takes **`outro_mutes_captions`**,
+defaulting to `None`, which means "follow `hook_mutes_captions`" — so every
+script written before this is unchanged, and a cut with a non-hook opener
+passes `hook_mutes_captions=False, outro_mutes_captions=True`.
+
+**The general shape, worth more than the flag:** two behaviours sharing one
+switch because they shared a *rationale* is fine right up until the rationale
+stops applying to one of them. The tell here was that the flag's own docstring
+justified it entirely in terms of the hook, and openers were added later.

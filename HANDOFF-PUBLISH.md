@@ -20,7 +20,7 @@ will not mark any post as covered — that is correct, not a bug.
 | Long SRT | `/Users/oktayshakirov/Desktop/musk-effect-long.srt` |
 | Long thumbnail (1280x720) | `/Users/oktayshakirov/Desktop/musk-effect-long-thumb.jpg` |
 | Long metadata sidecar | `/Users/oktayshakirov/Desktop/musk-effect-long.md` |
-| Short MP4 (47.1s) | `/Users/oktayshakirov/Desktop/musk-effect-short.mp4` |
+| Short MP4 (49.5s) | `/Users/oktayshakirov/Desktop/musk-effect-short.mp4` |
 | Short thumbnail (1080x1920) | `/Users/oktayshakirov/Desktop/musk-effect-short-thumb.jpg` |
 
 Build scripts: `projects/crypto-long/musk-effect.py`,
@@ -79,6 +79,23 @@ avoiding, in a YMYL niche. Keep captions mechanism-shaped.
    explicit `crop_at`/`crop_zoom`, which bypasses `_layout` entirely, so any
    remembered "busiest-case score" warning from an earlier render does not
    apply to the shipped files.
+
+## The Short was re-cut after the first hand-off
+
+Two changes, both at the user's request, and both already rendered into the
+file above:
+
+- **It opens on `Search`, matching the long form**, instead of the
+  statement-mode hook. The query is shorter than the long form's ("elon musk
+  crypto price") because `Search` types at 0.085s a character: the long
+  form's 40-character query runs 4.9s in total, which is a tenth of a Short.
+- **The long form's attention curve is now in the Short too**, same series and
+  same marker, so the pair makes one claim rather than two. This needed a
+  portrait layout for `chart` and a whitelist entry; both are in the same
+  commit and written up in `docs/video/shorts.md`.
+
+The diagram lost a node and four sentences were tightened to keep the runtime
+under the 50s ceiling. Runtime went 47.1s -> 49.5s.
 
 ## What changed during the build, for the record
 
