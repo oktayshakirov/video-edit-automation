@@ -659,108 +659,189 @@ class Anatomy(Beat):
     # the parts a script points at line up with what is drawn. **These are the
     # x/y a `parts` entry should use when no `picture=` is supplied** - they
     # are listed here rather than left to be measured off a screenshot.
+    # The fallback drawing's own coordinate system: fractions of the box, so
+    # the parts a script points at line up with what is drawn. **These are the
+    # x/y a `parts` entry should use when no `picture=` is supplied.**
     LANDMARKS = {
-        "canal": (0.20, 0.42),
-        "eardrum": (0.42, 0.46),
-        "ossicles": (0.54, 0.34),
-        "cochlea": (0.70, 0.56),
-        "nerve": (0.88, 0.70),
+        "pinna": (0.09, 0.40),
+        "canal": (0.25, 0.50),
+        "eardrum": (0.40, 0.52),
+        "ossicles": (0.50, 0.36),
+        "cochlea": (0.70, 0.64),
+        "nerve": (0.89, 0.76),
     }
 
+    @staticmethod
+    def _bez(pts: list, n: int = 48) -> list:
+        """Sample a cubic Bezier. Four control points in, a polyline out.
+
+        `partial` travels polylines, so every curve in the drawing has to be
+        one - and an ear is all curves. Chained end to end these give a
+        continuous outline the reveal clock can draw on.
+        """
+        (x0, y0), (x1, y1), (x2, y2), (x3, y3) = pts
+        out = []
+        for i in range(n + 1):
+            t = i / n
+            u = 1 - t
+            out.append((u * u * u * x0 + 3 * u * u * t * x1
+                        + 3 * u * t * t * x2 + t * t * t * x3,
+                        u * u * u * y0 + 3 * u * u * t * y1
+                        + 3 * u * t * t * y2 + t * t * t * y3))
+        return out
+
     def _schematic(self, out: Image.Image, box: tuple, e: float) -> None:
-        """A drawn ear: canal, drum, ossicles, cochlea, nerve.
+        """A line drawing of an ear, in the order sound travels through it.
 
-        **The first version was three arcs and a spiral**, and the note on it
-        was that it reads as an abstract spiral rather than as an ear - which
-        is fatal for a beat whose whole job is to point at a *part* and have
-        the viewer know which part is meant. A spiral with "the eardrum"
-        pointing at one of its arcs teaches nothing.
+        **Three versions were rejected before this one**, and the notes on
+        them are the whole design rationale:
 
-        This is still deliberately a diagram and not an illustration: flat
-        line work in the brand accent, no shading, no attempt at tissue. What
-        it adds is that each labelled part is a distinct shape in the right
-        place relative to the others - the canal runs in from the left, the
-        drum closes it, the ossicles bridge the gap, the cochlea coils, the
-        nerve leaves it. That is the anatomy a tinnitus explainer actually
-        needs, and it is the level a viewer can follow at 1920 in four
-        seconds.
+        1. Three concentric arcs and a spiral. Read as an abstract spiral.
+        2. A canal and an ossicle chain added, but a plain arc for the outer
+           ear. Still "confusing" - because the arc was not an ear.
+        3. A proper pinna, plus the semicircular canals for context. The
+           canals read as a plant growing out of the picture and collided
+           with the stirrup.
 
-        Everything travels on `e`, so the drawing assembles in the order the
-        sound does - which is the order the narration describes it in.
+        Two lessons, both worth keeping. **The pinna is the recognition cue**:
+        a viewer who sees an ear shape reads everything downstream of it as
+        ear anatomy, and a viewer who does not is looking at abstract geometry
+        however correct the rest is. And **anything a script never points at
+        is a liability** - the semicircular canals and the tragus were both
+        drawn, both anatomically right, and both cut for reading as noise.
+
+        What is left is one continuous chain: pinna, canal, eardrum, ossicles,
+        oval window, cochlea, nerve - exactly the parts a tinnitus script
+        names, and nothing else. Everything travels on `e` in anatomical
+        order, so the drawing builds the way the narration walks it, and line
+        weight carries the hierarchy: the parts pointed at are heavier than
+        the scaffolding.
         """
         x0, y0, x1, y1 = box
         w, h = x1 - x0, y1 - y0
         d = ImageDraw.Draw(out, "RGBA")
         col = self.brand.primary
-        ink = col + (210,)
 
-        def at(fx, fy):
+        def P(fx, fy):
             return (x0 + w * fx, y0 + h * fy)
 
+        def curve(*fracs, n=48):
+            return self._bez([P(*f) for f in fracs], n)
+
         def phase(a, b):
-            """`e` remapped to the window [a, b], so parts arrive in order."""
             return max(0.0, min(1.0, (e - a) / (b - a)))
 
-        # 1. The pinna and the canal, drawn first because sound arrives here.
-        p1 = phase(0.0, 0.34)
-        pinna = []
-        for i in range(60):
-            q = i / 59
-            ang = math.pi * (0.62 + 1.06 * q)        # an open C, facing right
-            pinna.append((x0 + w * 0.17 + math.cos(ang) * w * 0.115,
-                          y0 + h * 0.42 + math.sin(ang) * h * 0.20))
-        partial(d, pinna, p1, ink, 6)
+        # --- 1. the pinna -------------------------------------------------
+        # **A C opening toward the head, not a closed oval and not a hook.**
+        # The canal runs right, into the skull, so the flap's rim is on the
+        # left and its opening faces right - that is the view every textbook
+        # cross-section uses. The first attempt at this curled the rim back on
+        # itself at the lobe and read as a question mark.
+        #
+        # Three strokes do the whole job: the outer rim from the top round to
+        # the lobe, an inner ridge parallel to it, and the little flap at the
+        # opening. Any more detail is lost at this size.
+        p1 = phase(0.0, 0.30)
+        helix = (curve((0.168, 0.212), (0.098, 0.192), (0.040, 0.272), (0.038, 0.382))
+                 + curve((0.036, 0.482), (0.056, 0.592), (0.104, 0.648), (0.104, 0.648))
+                 + curve((0.104, 0.648), (0.136, 0.692), (0.168, 0.662), (0.170, 0.606)))
+        partial(d, helix, p1, col + (230,), 7)
 
-        canal_top = [at(0.20, 0.355), at(0.30, 0.365), at(0.42, 0.395)]
-        canal_bot = [at(0.20, 0.485), at(0.30, 0.480), at(0.42, 0.465)]
-        partial(d, canal_top, p1, col + (170,), 5)
-        partial(d, canal_bot, p1, col + (170,), 5)
+        # The antihelix: an inner ridge echoing the rim. This is the single
+        # line that stops the pinna reading as a plain crescent.
+        p1b = phase(0.10, 0.34)
+        anti = (curve((0.152, 0.298), (0.100, 0.312), (0.078, 0.398), (0.086, 0.470))
+                + curve((0.086, 0.470), (0.094, 0.540), (0.126, 0.576), (0.156, 0.574)))
+        partial(d, anti, p1b, col + (145,), 5)
 
-        # 2. The eardrum: the membrane that closes the canal, drawn as a taut
-        #    line across it rather than as a disc, because that is what it is.
-        p2 = phase(0.28, 0.50)
-        if p2 > 0:
-            a, b = at(0.42, 0.385), at(0.44, 0.475)
-            partial(d, [a, b], p2, col + (235,), 7)
+        # **No tragus.** It was drawn, it is correct, and at this size it read
+        # as a stray mark floating between the flap and the canal - the third
+        # element cut for reading as noise rather than as anatomy. The concha
+        # is instead shown by the canal walls running back to meet the ridge,
+        # which is the same information and one fewer disconnected stroke.
 
-        # 3. The ossicles: three linked bones bridging drum to cochlea. Discs
-        #    on a path, because the chain is the point and their shapes are
-        #    not - a hammer, an anvil and a stirrup drawn accurately at this
-        #    size are three indistinguishable blobs.
-        p3 = phase(0.44, 0.68)
-        chain = [at(0.46, 0.40), at(0.53, 0.325), at(0.60, 0.385),
-                 at(0.645, 0.455)]
-        partial(d, chain, p3, col + (190,), 4)
-        for i, pt in enumerate(chain[:3]):
-            q = max(0.0, min(1.0, p3 * 3 - i))
+        # --- 2. the canal ---------------------------------------------------
+        # A tube, not a line: two walls converging slightly toward the drum.
+        p2 = phase(0.26, 0.48)
+        partial(d, curve((0.108, 0.412), (0.210, 0.428), (0.310, 0.450),
+                         (0.392, 0.468)), p2, col + (190,), 6)
+        partial(d, curve((0.104, 0.548), (0.210, 0.550), (0.310, 0.556),
+                         (0.392, 0.570)), p2, col + (190,), 6)
+
+        # --- 3. the eardrum --------------------------------------------------
+        # The membrane closing the canal, set at its real oblique angle.
+        p3 = phase(0.42, 0.58)
+        partial(d, [P(0.392, 0.462), P(0.400, 0.578)], p3, col + (245,), 8)
+
+        # --- 4. the ossicles --------------------------------------------------
+        # Hammer, anvil, stirrup. Drawn as a jointed chain with a stirrup ring
+        # at the far end - the ring is what makes it read as three linked
+        # bones rather than as a zigzag.
+        p4 = phase(0.52, 0.72)
+        chain = [P(0.405, 0.470), P(0.452, 0.380), P(0.508, 0.352),
+                 P(0.545, 0.412)]
+        partial(d, chain, p4, col + (215,), 6)
+        for i, pt in enumerate(chain[1:3]):
+            q = max(0.0, min(1.0, p4 * 2.4 - i * 0.7))
             if q <= 0:
                 continue
-            r = 9 * ease_out(q)
+            r = 8 * ease_out(q)
             d.ellipse([pt[0] - r, pt[1] - r, pt[0] + r, pt[1] + r],
-                      fill=col + (int(225 * q),))
+                      fill=col + (int(230 * q),))
+        if p4 > 0.8:
+            q = (p4 - 0.8) / 0.2
+            cx, cy = P(0.556, 0.432)
+            rx, ry = w * 0.016, h * 0.026
+            d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry],
+                      outline=col + (int(215 * q),), width=5)
 
-        # 4. The cochlea: the coil, which is where the hair cells are and so
-        #    where this channel's subject actually lives.
-        p4 = phase(0.58, 0.88)
-        ccx, ccy = at(0.72, 0.56)
-        rr = min(w, h) * 0.20
-        coil = []
-        for i in range(220):
-            q = i / 219
-            ang = -math.pi * 0.5 + q * 2.45 * 2 * math.pi
-            r = rr * (1.0 - 0.70 * q)
-            coil.append((ccx + r * math.cos(ang), ccy + r * math.sin(ang) * 0.94))
-        partial(d, coil, p4, ink, 7)
+        # **The semicircular canals are deliberately not drawn.** Two versions
+        # of them were tried, on the theory that three loops make a viewer
+        # read the right-hand side as an inner ear. Both read as a plant
+        # growing out of the picture, and the second collided with the
+        # stirrup. They are balance organs, no tinnitus script points at one,
+        # and the beat's whole job is that a viewer knows which part is meant
+        # - so they were costing the thing they were supposed to buy. Left
+        # out, the drawing is a single chain from the pinna to the nerve,
+        # which is exactly what the narration walks.
 
-        # 5. The auditory nerve, leaving the coil for the brain. It exits the
-        #    frame deliberately: the video is about what happens before here.
-        p5 = phase(0.80, 1.0)
-        nerve = [at(0.80, 0.63), at(0.88, 0.70), at(0.97, 0.74)]
-        partial(d, nerve, p5, col + (175,), 6)
-        if p5 > 0.6:
-            # Two strands, so it reads as a bundle rather than as a wire.
-            partial(d, [at(0.80, 0.665), at(0.88, 0.735), at(0.96, 0.775)],
-                    (p5 - 0.6) / 0.4, col + (120,), 4)
+        # --- 6. the cochlea ----------------------------------------------------
+        # A snail, wound outward from the apex, so it reads as a shell with a
+        # mouth rather than as a flat spiral. The tube thickens as it unwinds,
+        # which is both true and what sells the shape.
+        # The oval window: the short link from the stirrup into the coil. It
+        # is two pixels of drawing and it is what turns a chain that stops in
+        # mid-air into one continuous path from the pinna to the nerve.
+        p6a = phase(0.66, 0.78)
+        partial(d, [P(0.570, 0.444), P(0.596, 0.492)], p6a, col + (200,), 5)
+
+        p6 = phase(0.72, 0.94)
+        ccx, ccy = P(0.715, 0.620)
+        rr = min(w, h) * 0.175
+        coil, weights = [], []
+        for i in range(240):
+            q = i / 239
+            ang = math.pi * 0.55 + q * 2.65 * 2 * math.pi
+            r = rr * (0.16 + 0.84 * q)
+            coil.append((ccx + r * math.cos(ang), ccy + r * math.sin(ang) * 0.96))
+            weights.append(3 + 5 * q)
+        # Drawn in graded segments rather than one `partial`, so the tube can
+        # thicken; each segment is its own travelled polyline.
+        n = max(2, int(len(coil) * p6))
+        step = 12
+        for i in range(0, n - 1, step):
+            seg = coil[i:min(n, i + step + 1)]
+            if len(seg) > 1:
+                d.line(seg, fill=col + (235,), width=int(weights[i]),
+                       joint="curve")
+
+        # --- 7. the auditory nerve ----------------------------------------------
+        # Leaving the coil's base for the brain, as a bundle of strands.
+        p7 = phase(0.86, 1.0)
+        for off, a in ((0.000, 185), (0.030, 135), (0.060, 95)):
+            partial(d, curve((0.782, 0.700 + off), (0.838, 0.744 + off),
+                             (0.898, 0.774 + off), (0.975, 0.786 + off), n=24),
+                    p7, col + (a,), 5)
 
     ROW = 62                    # the least vertical space two labels need
 
