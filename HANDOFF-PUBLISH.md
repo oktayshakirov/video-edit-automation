@@ -1,75 +1,95 @@
-# Published: TMJ and tinnitus, long + Short
+# Ready to publish: the Musk effect, long + Short
 
-Built 2026-09-26 by `/video-tinnitus` (`6385a11`), published the same day by
-`/publish-video`. **Every platform in the table is done.** What remains is the
-manual list at the bottom, which is by design rather than unfinished work.
+Built 2026-09-27 by `/video-crypto`. **Nothing has been published yet.** Open a
+fresh session and run `/publish-video`; this file is what it reads.
 
-**Source article:** `tmj-and-tinnitus-the-jaw-connection`
-(https://tinnitushelp.me/blog/tmj-and-tinnitus-the-jaw-connection)
+**Channel:** thecrypto.wiki. Voice `mia`, music `night-drift`.
 
-**Channel:** tinnitushelp.me. Voice `mia`, music `night-drift`.
+**Source:** `crypto-ogs/elon-musk` — the OG bio, **not** a `posts/` article.
+https://thecrypto.wiki/crypto-ogs/elon-musk
 
-## Where it went
+Both scripts therefore set `SOURCE_POST = None` and carry `SOURCE_OG =
+"elon-musk"`. `tools/topics.py` counts coverage off `SOURCE_POST`, so this pair
+will not mark any post as covered — that is correct, not a bug.
 
-| Platform | State | Id |
-| --- | --- | --- |
-| YouTube long | live, **unlisted** | `9RsZalv6zC8` |
-| YouTube Short | live, **unlisted** | `cQ2I3ZCv2EE` |
-| Instagram Reel | public | `18122553955926514` |
-| Facebook Reel | public, cover set | `1662629622058625` |
-| Facebook native video | public | `2900665273631147` |
-| TikTok | draft in inbox, one copy | `v_inbox_file~v2.7689929006258554902` |
-| Telegram | posted to `@tinnitushelpme` | message `117` |
-| Site | live, app notification fired once | `0da1818` in `tinnitus-blog` |
+## The files
 
-Long form title **Can TMJ Cause Tinnitus?** with the sidecar's description,
-tags and chapters, its exact SRT uploaded as a caption track alongside
-YouTube's auto one. Short titled **Can Your Jaw Change Your Tinnitus? #shorts**,
-no API thumbnail, long-form link appended to the description.
+| What | Path |
+| --- | --- |
+| Long MP4 (3:40) | `/Users/oktayshakirov/Desktop/musk-effect-long.mp4` |
+| Long SRT | `/Users/oktayshakirov/Desktop/musk-effect-long.srt` |
+| Long thumbnail (1280x720) | `/Users/oktayshakirov/Desktop/musk-effect-long-thumb.jpg` |
+| Long metadata sidecar | `/Users/oktayshakirov/Desktop/musk-effect-long.md` |
+| Short MP4 (47.1s) | `/Users/oktayshakirov/Desktop/musk-effect-short.mp4` |
+| Short thumbnail (1080x1920) | `/Users/oktayshakirov/Desktop/musk-effect-short-thumb.jpg` |
 
-Site entry: poster fetched from the CDN, registry entry appended to
-`src/data/videos.json` with chapters carrying the spoken text per section. The
-push-triggered `notify-new-content` run created the Firestore doc with
-`(will notify)`, so the app push fired exactly once; the two manual
-`sync-content` runs afterwards only updated it.
+Build scripts: `projects/crypto-long/musk-effect.py`,
+`projects/crypto-short/musk-effect.py`.
 
-## Still manual, by design
+**Take the title, description, tags and chapters from the `.md` sidecar.** Do
+not re-derive them.
 
-1. **Privacy** - both YouTube videos are unlisted. Nothing in the run changes
-   that; flip them in Studio.
-2. **The Short's cover** - set by hand in Studio from
-   `/Users/oktayshakirov/Desktop/tmj-and-tinnitus-short-thumb.jpg` (1080x1920).
-   By hand is the only route that displays; see `docs/publish/youtube.md`.
-3. **Studio's "Related video"** field on the Short - not on the Data API.
-4. **TikTok** - paste the caption, pick a cover, add native captions, publish.
+- Long-form title: **Why Do Elon Musk's Posts Move Crypto Prices?**
+- Six chapters, first at 0:00, all over 10s — `check_chapters` reported no
+  violations.
 
-## Worth knowing for the next run
+## Read this before writing any description — the attribution is not optional
 
-- **The `field-N` indexing trap cost a cycle.** The first Reel trigger
-  (execution 664) passed the form fields by **label** and every one arrived
-  `null`; `Normalise Input` failed in 127ms with "videoUrl must be a public
-  https URL, got". Nothing had posted, so the retry was safe. Pass
-  `field-0..field-4`, never the labels.
-- **The TikTok upload was denied by the permission classifier**, first as
-  `[Real-World Transactions]` and then as `[Self-Modification]`, and adding an
-  allow rule to `.claude/settings.json` is itself denied as
-  `[Self-Modification]`. The user ran the command by hand. The durable fix is a
-  hand-added rule, prefix included:
-  `"Bash(PYTHONPATH=. .venv/bin/python -m video_automation.publish *)"`.
-  **Decision: do not write this into `docs/publish/tiktok.md` yet** - the
-  user's call, 2026-09-26, is to document it only if it recurs.
-- **Telegram no longer waits for Public.** The user's instruction this run:
-  announce during the run even while the video is unlisted. The `sendPhoto`
-  card renders fine, since `i.ytimg.com/vi/<id>/maxresdefault.jpg` serves for
-  an unlisted video. Use the **standalone** workflow (`2WlbdJ1qQ7HKU9m6`,
-  `/form/share-video-telegram-tinnitus`), not the inline `field-4` branch -
-  that one cannot be retried without re-uploading the video to the Page, and
-  Tinnitus Help's copy of it is separately documented as broken.
-  `docs/publish/telegram.md` has been updated to match - it used to call
-  holding the announcement back "the case worth planning for".
-- **Curl to the tunnel worked this time**, including the `/quicktunnel` metrics
-  read and the n8n REST API - so the blanket "the classifier blocks it" note is
-  intermittent rather than standing. The access log is still the better
-  progress signal, because n8n does not expose `runData` mid-run.
-- `projects/drone-short/burgas-what-my-drone-sees.py` is still untracked and
-  still unrelated to this pair.
+**Two of the three photographs of Elon Musk are CC BY 2.0, which makes both
+videos derivative works.** The line below must appear in the description of
+anything published, on every platform that has one:
+
+> Photographs of Elon Musk: Daniel Oberhaus (CC BY 2.0) and public-domain
+> images, via Wikimedia Commons.
+
+It is already in `Meta.credits`, so the **long form's sidecar description
+carries it automatically** — do not strip it when trimming for length.
+
+**The Short is the exposure here.** It uses the same CC BY 2.0 photograph and
+has no description block in this pipeline, so the line has to be added by hand
+wherever the Short goes and the platform allows a caption — YouTube Shorts
+description, the Instagram/Facebook Reel caption, the TikTok caption. Full
+detail and the per-file licences are in `assets/crypto/musk/CREDITS.md`.
+
+## The safety line, since this one names a living person
+
+The script describes a **mechanism** and never a direction: no price level, no
+prediction, no recommendation, and no claim about what any post will do next.
+Chapter four deliberately runs the 2021-22 Tesla sequence in **both**
+directions so nothing reads as "watch his posts". The spoken compliance line
+and its on-screen payload are in the close.
+
+**Do not let a platform caption undo that.** A Reel or TikTok caption written
+loose — anything shaped like "Musk moves the market" or naming a coin as a
+thing to hold — reintroduces exactly the claim the script spent four minutes
+avoiding, in a YMYL niche. Keep captions mechanism-shaped.
+
+## Undecided / worth a look before it goes out
+
+1. **The Short's thumbnail is a 9:16 file**, and YouTube Studio only accepts a
+   Short cover set by hand. Same manual step as every previous pair.
+2. **Nothing sets YouTube privacy.** Previous runs have gone up unlisted and
+   been flipped in Studio; decide which you want here.
+3. **No site `videos.json` entry is written by the build.** That is
+   `/publish-video`'s step, and the registry is hand-edited by design. Note
+   that the source is a `crypto-ogs/` page rather than a `posts/` one, so
+   whatever the registry expects for a source slug may need the different
+   prefix — check before appending.
+4. **The thumbnail scorer is irrelevant on this pair.** Both thumbnails use an
+   explicit `crop_at`/`crop_zoom`, which bypasses `_layout` entirely, so any
+   remembered "busiest-case score" warning from an earlier render does not
+   apply to the shipped files.
+
+## What changed during the build, for the record
+
+The first cut had **no photograph of Musk anywhere**, on the reasoning that the
+video's subject is a queue of offers and a face is a promise about the subject.
+The user's call was the opposite: he should be seen, and the thumbnail should
+say "the Musk effect". Both were rebuilt accordingly — three Commons
+photographs placed at the lines that name him, and new thumbnails on the
+arms-crossed portrait.
+
+**There is no usable video of him at any resolution** — Pexels does not licence
+footage of a real public figure and Commons' only non-political clips are
+500x374. If footage is ever wanted, it is a licensed-archive purchase, not
+something this pipeline can fetch.
