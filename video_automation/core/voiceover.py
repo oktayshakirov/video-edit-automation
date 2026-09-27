@@ -776,6 +776,12 @@ NARRATION_CACHE = Path(
                    Path.home() / ".cache/video-automation/narration"))
 
 
+# The packages that decide what a synthesis sounds like. The weights are only
+# half of it: the G2P front end chooses the phonemes and the runtime does the
+# arithmetic, so a version change in either moves the audio.
+_VOICE_PACKAGES = ("kokoro-onnx", "phonemizer-fork", "onnxruntime")
+
+
 def _model_ident() -> str:
     """What the current backend would sound like, as a string.
 
@@ -783,12 +789,32 @@ def _model_ident() -> str:
     replaced wholesale when it is replaced at all, and reading it on every
     build to prove it has not changed would cost more than the synthesis this
     is here to skip.
+
+    **The installed versions are part of the answer, not trivia.** Recreating
+    the venv from an unpinned `kokoro-onnx` moved it 0.5.0 -> 0.6.1 and
+    swapped `phonemizer-fork` for plain `phonemizer`; the same script then
+    synthesised 20ms longer with different audio bytes, while the `.onnx` file
+    on disk had not changed at all. Keying on the weights alone would have
+    served the old environment's cached narration to the new one - the exact
+    false hit this cache must never produce. `requirements.txt` pins all three
+    now, and this makes a change to any of them a miss rather than a lie.
     """
+    if TTS_BACKEND != "kokoro":
+        return TTS_BACKEND
+
+    from importlib.metadata import PackageNotFoundError, version
+    parts = []
+    for name in _VOICE_PACKAGES:
+        try:
+            parts.append(f"{name}={version(name)}")
+        except PackageNotFoundError:
+            parts.append(f"{name}=absent")
+
     f = KOKORO_DIR / "kokoro-v1.0.onnx"
-    if TTS_BACKEND == "kokoro" and f.exists():
+    if f.exists():
         st = f.stat()
-        return f"kokoro:{st.st_size}:{int(st.st_mtime)}"
-    return TTS_BACKEND
+        parts.append(f"weights={st.st_size}:{int(st.st_mtime)}")
+    return "kokoro:" + ",".join(parts)
 
 
 def _narration_key(sentences, voice, mood, gaps, tail, run_break,
