@@ -77,6 +77,28 @@ def test_the_model_identity_is_in_the_key():
     assert ident == vo._model_ident()
 
 
+def test_the_voice_packages_are_in_the_model_identity():
+    """**The regression.** Recreating the venv moved `kokoro-onnx` 0.5.0 ->
+    0.6.1 and swapped `phonemizer-fork` for plain `phonemizer`; the same
+    script then synthesised 20ms longer with different audio, while the
+    `.onnx` file on disk was untouched. Keyed on the weights alone, the cache
+    would have served the old environment's narration to the new one.
+    """
+    ident = vo._model_ident()
+    for name in vo._VOICE_PACKAGES:
+        assert f"{name}=" in ident, f"{name} missing from {ident}"
+    # And the weights are still in there - the packages are an addition, not
+    # a replacement.
+    assert "weights=" in ident
+
+
+def test_a_voice_package_change_changes_the_key(monkeypatch):
+    """The same script under a different TTS stack is a different entry."""
+    real = key()
+    monkeypatch.setattr(vo, "_model_ident", lambda: "kokoro:pretend-upgraded")
+    assert key() != real
+
+
 def test_a_corrupt_entry_is_a_miss_not_a_crash(tmp_path, monkeypatch):
     """A half-written or hand-edited entry must never fail a build."""
     monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
