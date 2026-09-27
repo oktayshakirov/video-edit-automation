@@ -12,16 +12,34 @@ them together is what stops the Short from being a trailer for the long one.
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
 `PYTHONPATH=.`. **Source site:** `~/Coding/crypto-wiki`.
 
-## Read these, in this order
+## What this channel is
 
-The steps live in `docs/video/workflow.md` - read it first, every run. Then read
-only what this build touches:
+Read this before the steps, because it is what the steps are in service of.
+**thecrypto.wiki's subject is an abstraction and its audience is sceptical.**
+A whale, a fee, a score, a supply, a custodian - none of these has a
+photograph, and every one of them has a confident wrong explanation already in
+circulation. So the video's job is to show a *mechanism* and to be the version
+that does not overclaim.
+
+That has three consequences, and they are what separate this channel from
+tinnitushelp.me rather than any difference in the run:
+
+- **The pictures are drawn, not found.** Stock has no photograph of an
+  abstraction, so a shot list built from footage drifts to mood every time -
+  and has been rejected for exactly that. Beats carry the argument here.
+- **The register is cool, not warm.** The viewer is deciding whether to trust
+  you. Precision is the persuasion; enthusiasm reads as a pitch.
+- **The sound is hard.** The full kit, the bitcrushed slam, the glitch. This
+  is the genre's own punctuation and the channel keeps it.
+
+## Read these, in this order
 
 | Step | Read |
 | --- | --- |
+| **The run, every step** | **`docs/video/workflow.md`** - read it first, every run |
 | Before writing a word | `docs/video/narration.md`, `docs/video/projects/crypto.md` |
 | How the synthesiser behaves | `docs/video/voice.md` |
-| The long form | `docs/video/longform.md` - includes the transition vocabulary and the progress chrome |
+| The long form | `docs/video/longform.md` - shape, chapters, transitions, chrome |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
 | Choosing and screening footage | `docs/video/footage.md` |
@@ -29,72 +47,49 @@ only what this build touches:
 | Music and sound | `docs/video/audio.md` |
 | Both thumbnails | `docs/video/thumbnails.md` |
 | Something rendered wrong | `docs/video/troubleshooting.md` |
-| Before rendering a long form | **preflight it** - `workflow.md`, step 3 |
 
 Do not work from memory of these rules. They are edited as the engine changes,
 and a remembered version is a stale one.
 
 ## The run
 
-1. **Suggest, do not pick.** `python3 tools/topics.py crypto`. Offer three to
-   five candidates with a reason each, then stop and wait for the user to
-   choose. An off-site topic is fine when asked for and never offered.
+**`workflow.md` is the procedure and it is not repeated here.** What follows is
+only what is this channel's own - restating the shared steps is how the publish
+sequence drifted into four copies that disagreed.
+
+1. **Suggest, do not pick** - `python3 tools/topics.py crypto`.
 2. **Script both together** from the chosen article.
-3. **Decide what gets drawn, before writing a shot list.** Read the script's
-   nouns back. Most topics here are abstractions - a number, a score, a
-   supply, a fee - and **stock has no photograph of an abstraction**, so a
-   shot list built from footage drifts to mood every time and gets rejected
-   for it. List the beats first, and **budget a new beat when the library
-   cannot draw the subject** - that is cheaper than a second stock fetch and
-   reusable forever. The clips that remain are the *act*: a hand on a lit
-   phone, a thumb on a feed, a carriage of people on screens - not a
-   portrait of somebody feeling something. `docs/video/footage.md`.
-   **Three of the five full-width beats (2026-09-25) were built for this
-   channel.** `chart` is a line drawing itself with the turn marked - the
-   trajectory beat `bars` could never be - `timeline` spaces dated events by
-   their real distance in time rather than evenly like `steps`, and `map` is
-   for regulation and domicile when *clustering* is the point rather than
-   merely when countries are named. All three are full width, which is the
-   point: the tally in `beats.md` is three beats sharing one silhouette.
-   **Write the opening as one unit first:** the title question (sentence 1),
-   the redacted `hook="... [word] ..."` on screen, and sentence 2 - a partial
-   answer that *says the hidden word*, so it is revealed on the beat
-   (`shorts.md` "The opening hook: a redacted headline", `narration.md`
-   "Revised 2026-09-21"). Both the Short and the long form take `hook=`.
-   **Pick the opener deliberately** - the redacted `hook=` is the default,
-   and `longform.openers` has Counter / Stamp / Split / Search / Flash for a
-   number, a belief, a comparison, a search phrase or a picture payoff.
-   Read the last three scripts on this channel and do not repeat the same
-   one three times running (`shorts.md`, "Choosing the opener").
-4. **Preflight, then build both.** A long form's clip slots are checkable
-   before a single second of speech is synthesised, and `clip.py` otherwise
-   raises on one slot at a time from inside the render - four tight slots,
-   four full runs. `PYTHONPATH=. .venv/bin/python -m
-   video_automation.longform.preflight projects/crypto-long/<name>.py`, then
-   `projects/crypto-long/<name>.py` and
+3. **Decide what gets drawn, before writing a shot list.** This is the step
+   that matters most here. Read the script's nouns back: most of them are
+   abstractions, and **stock has no photograph of an abstraction**. List the
+   beats first, and **budget a new beat when the library cannot draw the
+   subject** - that is cheaper than a second stock fetch and reusable forever.
+   The clips that remain are the *act*: a hand on a lit phone, a thumb on a
+   feed, a carriage of people on screens - never a portrait of somebody
+   feeling something.
+
+   Three of the five full-width beats were built for this channel: **`chart`**
+   is a line drawing itself with the turn marked, the trajectory `bars` could
+   never show; **`timeline`** spaces dated events by their real distance in
+   time rather than evenly like `steps`; **`map`** is regulation and domicile
+   when *clustering* is the point, not merely when countries are named.
+   `docs/video/footage.md` and `docs/video/beats.md`.
+4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
-5. **Hand over and wait.** Re-cut as many times as the user asks; that loop is
-   the normal case.
-6. **On approval: commit, write `HANDOFF-PUBLISH.md`, and tell the user to open
-   a fresh session for `/publish-video`.**
-
-## This skill does not publish
-
-Everything about getting a render out - which file goes to which platform, the
-metadata pass, the site registry entry, the social posts and their order - is
-`/publish-video`'s, and it is the only copy. That sequence used to be duplicated
-into every build skill; the copies drifted, disagreed about what a Short gets,
-and cost a registry entry that had to be reverted and a social post that could
-not be un-sent.
-
-Do not describe upload steps, pre-empt them, or re-derive them from memory.
+5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
+   steps 4 and 5.
 
 ## The line that outranks everything else
 
 **No financial advice, ever.** A script describes a *mechanism* and never a
 direction: it names no price level, predicts nothing, rates no platform, and
-recommends buying or selling nothing. This is a YMYL niche and the constraint is
-not negotiable by a good hook. Full detail in `docs/video/projects/crypto.md`.
+recommends buying or selling nothing. This is a YMYL niche and the constraint
+is not negotiable by a good hook. Full detail in
+`docs/video/projects/crypto.md`.
+
+It reaches into the opener too. A verdict stamp here judges a *claim* - "this
+is how people say it works, and it does not" - never an outcome, an asset or a
+platform.
 
 Also standing: **the picture has to say the noun the narration says** - and
 when the noun is an abstraction, that means drawing it rather than searching
