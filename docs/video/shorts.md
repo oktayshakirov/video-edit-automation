@@ -703,6 +703,12 @@ every short with karaoke text on all three channels (crypto, tinnitus, drone).
 Every script approved before that date pins `karaoke_box=False,
 karaoke_upper=False` so a re-render of a locked cut does not change style.
 
+**Both flags off is still a live style, not just a compatibility pin** — on the
+drone quote shorts the user picks between them per cut, since the pill is loud
+and a reflective quote often wants the tinted word and the serif italic instead.
+`projects/drone-short.md` carries that call; the same toggles work here if a
+crypto or tinnitus short ever wants the quieter look.
+
 Instead of colouring the active word's ink, a rounded rectangle in `brand.primary`
 is drawn behind it and the word itself stays white-on-black-stroke like every
 other word — the auto-caption look several TikTok templates use. `karaoke_upper`
