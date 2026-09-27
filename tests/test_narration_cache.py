@@ -162,3 +162,59 @@ def test_the_cache_key_is_not_shadowed_by_a_loop_variable():
     # that is fine, and this test is what keeps the two names apart.
     assert "for key in stop_at" in body
     assert "_cache_store(key," not in body
+
+
+# --- eviction --------------------------------------------------------------
+#
+# A long form's narration is 30-40MB of wav and every re-cut that changes a
+# word stores another. Nothing else would ever delete one, in a directory
+# nobody looks at.
+
+def _entry(d, key, size, mtime):
+    (d / f"{key}.wav").write_bytes(b"\0" * size)
+    (d / f"{key}.json").write_text('{"total": 1.0, "captions": []}')
+    for suffix in (".wav", ".json"):
+        import os
+        os.utime(d / f"{key}{suffix}", (mtime, mtime))
+
+
+def test_prune_is_a_no_op_under_the_cap(tmp_path, monkeypatch):
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
+    _entry(tmp_path, "a" * 32, 1000, 1000)
+    assert vo._prune(limit=10_000) == 0
+    assert (tmp_path / f"{'a' * 32}.wav").exists()
+
+
+def test_prune_evicts_least_recently_used_first(tmp_path, monkeypatch):
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
+    _entry(tmp_path, "a" * 32, 1000, 3000)      # newest
+    _entry(tmp_path, "b" * 32, 1000, 2000)
+    _entry(tmp_path, "c" * 32, 1000, 1000)      # oldest
+
+    # Room for roughly two entries (each is 1000 + a small json).
+    vo._prune(limit=2200)
+
+    assert (tmp_path / f"{'a' * 32}.wav").exists()
+    assert (tmp_path / f"{'b' * 32}.wav").exists()
+    assert not (tmp_path / f"{'c' * 32}.wav").exists()
+    # The metadata goes with it - a stranded .json is a hit on missing audio.
+    assert not (tmp_path / f"{'c' * 32}.json").exists()
+
+
+def test_a_hit_makes_an_entry_recently_used(tmp_path, monkeypatch):
+    """Eviction is by last *use*, not by age: the script being re-cut all
+    afternoon has to survive, however old the entry is."""
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
+    _entry(tmp_path, "a" * 32, 1000, 3000)
+    _entry(tmp_path, "o" * 32, 1000, 1000)      # oldest, but about to be used
+
+    assert vo._cache_load("o" * 32, tmp_path / "work") is not None
+    vo._prune(limit=2200)
+
+    assert (tmp_path / f"{'o' * 32}.wav").exists(), "a touched entry was evicted"
+
+
+def test_prune_survives_a_stranded_json(tmp_path, monkeypatch):
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
+    (tmp_path / f"{'d' * 32}.json").write_text("{}")
+    assert vo._prune(limit=0) == 0               # no wav, nothing to free

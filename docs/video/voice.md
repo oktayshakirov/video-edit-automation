@@ -411,8 +411,20 @@ Entries live in `~/.cache/video-automation/narration` and are named by a
 32-character hex digest. Anything else in there was written by a broken
 version and should be deleted.
 
+**It evicts itself.** A long form's narration is 30-40MB of wav and every
+re-cut that changes a word stores another, so left alone the directory would
+grow for as long as the channel does, somewhere nobody looks. The cap is 2GB -
+roughly the last fifty narrations, far more than a re-cut loop reaches back
+for - and pruning runs after a store, because that is the only moment the
+directory can have grown.
+
+Eviction is by last **use**, not by age: a hit touches its entry on the way
+past, so the script being re-cut all afternoon stays hot however old it is and
+the one built last month goes first.
+
 - `VIDEO_AUTOMATION_NO_NARRATION_CACHE=1` disables it for a run.
 - `VIDEO_AUTOMATION_NARRATION_CACHE=<dir>` moves it.
+- `VIDEO_AUTOMATION_NARRATION_CACHE_MAX=<bytes>` changes the cap.
 - Bump `"v"` in `_narration_key` to invalidate every entry at once - do that
   whenever a change to the *post-chain* alters the audio without altering any
   of the inputs above.

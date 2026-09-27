@@ -871,11 +871,28 @@ one thing the fourteen before them cannot:
   `map` is also the thinnest of the five: four pins on an empty plate is not
   much more than a list with coordinates. Use it when *clustering* is the
   point, not merely when places are named.
-- **`anatomy` wants a real drawing.** With `picture=` it annotates the
-  supplied illustration; with none it falls back to a drawn cochlea — three
-  arcs and a spiral — which is honest about being a diagram but reads as an
-  abstract spiral more than as an ear. Treat the fallback as scaffolding and
-  supply the asset.
+- **`anatomy` draws a real ear when given nothing.** The first fallback was
+  three arcs and a spiral, and the note on it was that it reads as an abstract
+  spiral rather than as an ear — fatal for a beat whose whole job is to point
+  at a *part* and have the viewer know which one. It now draws the pinna, the
+  canal, the eardrum, the ossicle chain, the cochlea and the auditory nerve,
+  each a distinct shape in the right place, assembling in the order sound
+  travels. Still a diagram and not an illustration — flat line work, no
+  shading — which is the honest register for a drawn beat.
+
+  **Take the coordinates from `Anatomy.LANDMARKS`**, not from a screenshot:
+  `LANDMARKS["cochlea"]` is where the coil actually is. With a `picture=` the
+  fractions are of that image instead, and a real anatomical illustration is
+  still the better input where one is licensed — Wikimedia Commons, with the
+  line in `CREDITS.md` (`footage.md`).
+- **Labels on one side are spread apart, and the leader dog-legs to reach
+  them.** The parts of an ear are stacked within a few percent of each other —
+  the eardrum sits 4% of the box below the canal it closes — so two labels set
+  at their own parts' heights overlap at 38px type. `_label_rows` pushes any
+  pair closer than 62px around their midpoint, in screen order, and the leader
+  steps to the label's row on the way out. This is the map pin's bug one level
+  up: a thing drawn at the coordinate it refers to without asking what is
+  already there.
 - **`picture=` did not actually work until 2026-09-26, and nothing raised.**
   `Beat.draw` paints `picture=` into the split layout's *right* column
   (`PIC_X`), while `Anatomy.content` anchored its callouts to a box in the

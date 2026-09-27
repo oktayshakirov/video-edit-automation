@@ -603,10 +603,15 @@ class Anatomy(Beat):
     subject is *drawn*, so there is something worth pointing at.
 
     The drawing is a caller-supplied image with a dark ground (`picture=`),
-    or, with none, the schematic ear this class draws itself - three nested
-    arcs and a spiral, which is enough to read as a cochlea at 1920 and is
-    honest about being a diagram rather than pretending to be an
-    illustration.
+    or, with none, the schematic ear this class draws itself - pinna, canal,
+    eardrum, ossicles, cochlea and auditory nerve, each a distinct shape in
+    the right place relative to the others, assembling in the order sound
+    travels. It is deliberately a diagram and not an illustration: flat line
+    work in the brand accent, no shading, no tissue.
+
+    **Use `LANDMARKS` for the fallback's coordinates** rather than measuring
+    them off a screenshot - `Anatomy.LANDMARKS["cochlea"]` is where the coil
+    actually is. With a `picture=`, the fractions are of that image instead.
 
     **The picture is drawn by this beat, into its own centred box** - which
     is what the paragraph above always claimed and what the code did not do.
@@ -650,28 +655,153 @@ class Anatomy(Beat):
                                                Image.LANCZOS))
                           * self.DIM).astype(np.uint8)
 
+    # The fallback drawing's own coordinate system: fractions of the box, so
+    # the parts a script points at line up with what is drawn. **These are the
+    # x/y a `parts` entry should use when no `picture=` is supplied** - they
+    # are listed here rather than left to be measured off a screenshot.
+    LANDMARKS = {
+        "canal": (0.20, 0.42),
+        "eardrum": (0.42, 0.46),
+        "ossicles": (0.54, 0.34),
+        "cochlea": (0.70, 0.56),
+        "nerve": (0.88, 0.70),
+    }
+
     def _schematic(self, out: Image.Image, box: tuple, e: float) -> None:
-        """A drawn cochlea: nested arcs and a spiral. Deliberately a diagram."""
+        """A drawn ear: canal, drum, ossicles, cochlea, nerve.
+
+        **The first version was three arcs and a spiral**, and the note on it
+        was that it reads as an abstract spiral rather than as an ear - which
+        is fatal for a beat whose whole job is to point at a *part* and have
+        the viewer know which part is meant. A spiral with "the eardrum"
+        pointing at one of its arcs teaches nothing.
+
+        This is still deliberately a diagram and not an illustration: flat
+        line work in the brand accent, no shading, no attempt at tissue. What
+        it adds is that each labelled part is a distinct shape in the right
+        place relative to the others - the canal runs in from the left, the
+        drum closes it, the ossicles bridge the gap, the cochlea coils, the
+        nerve leaves it. That is the anatomy a tinnitus explainer actually
+        needs, and it is the level a viewer can follow at 1920 in four
+        seconds.
+
+        Everything travels on `e`, so the drawing assembles in the order the
+        sound does - which is the order the narration describes it in.
+        """
         x0, y0, x1, y1 = box
-        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        w, h = x1 - x0, y1 - y0
         d = ImageDraw.Draw(out, "RGBA")
-        r0 = min(x1 - x0, y1 - y0) * 0.42
+        col = self.brand.primary
+        ink = col + (210,)
 
-        # The spiral, drawn as a polyline so `partial` can travel it.
-        pts = []
-        turns = 2.6
-        for i in range(260):
-            q = i / 259
-            ang = -math.pi / 2 + q * turns * 2 * math.pi
-            r = r0 * (1.0 - 0.72 * q)
-            pts.append((cx + r * math.cos(ang), cy + r * math.sin(ang) * 0.92))
-        partial(d, pts, e, self.brand.primary + (190,), 7)
+        def at(fx, fy):
+            return (x0 + w * fx, y0 + h * fy)
 
-        # Two outer arcs standing in for the canal and the drum.
-        for rf, span, a in ((1.34, 150, 90), (1.62, 110, 60)):
-            r = r0 * rf
-            d.arc([cx - r, cy - r, cx + r, cy + r], 120, 120 + span * e,
-                  fill=self.brand.primary + (a,), width=5)
+        def phase(a, b):
+            """`e` remapped to the window [a, b], so parts arrive in order."""
+            return max(0.0, min(1.0, (e - a) / (b - a)))
+
+        # 1. The pinna and the canal, drawn first because sound arrives here.
+        p1 = phase(0.0, 0.34)
+        pinna = []
+        for i in range(60):
+            q = i / 59
+            ang = math.pi * (0.62 + 1.06 * q)        # an open C, facing right
+            pinna.append((x0 + w * 0.17 + math.cos(ang) * w * 0.115,
+                          y0 + h * 0.42 + math.sin(ang) * h * 0.20))
+        partial(d, pinna, p1, ink, 6)
+
+        canal_top = [at(0.20, 0.355), at(0.30, 0.365), at(0.42, 0.395)]
+        canal_bot = [at(0.20, 0.485), at(0.30, 0.480), at(0.42, 0.465)]
+        partial(d, canal_top, p1, col + (170,), 5)
+        partial(d, canal_bot, p1, col + (170,), 5)
+
+        # 2. The eardrum: the membrane that closes the canal, drawn as a taut
+        #    line across it rather than as a disc, because that is what it is.
+        p2 = phase(0.28, 0.50)
+        if p2 > 0:
+            a, b = at(0.42, 0.385), at(0.44, 0.475)
+            partial(d, [a, b], p2, col + (235,), 7)
+
+        # 3. The ossicles: three linked bones bridging drum to cochlea. Discs
+        #    on a path, because the chain is the point and their shapes are
+        #    not - a hammer, an anvil and a stirrup drawn accurately at this
+        #    size are three indistinguishable blobs.
+        p3 = phase(0.44, 0.68)
+        chain = [at(0.46, 0.40), at(0.53, 0.325), at(0.60, 0.385),
+                 at(0.645, 0.455)]
+        partial(d, chain, p3, col + (190,), 4)
+        for i, pt in enumerate(chain[:3]):
+            q = max(0.0, min(1.0, p3 * 3 - i))
+            if q <= 0:
+                continue
+            r = 9 * ease_out(q)
+            d.ellipse([pt[0] - r, pt[1] - r, pt[0] + r, pt[1] + r],
+                      fill=col + (int(225 * q),))
+
+        # 4. The cochlea: the coil, which is where the hair cells are and so
+        #    where this channel's subject actually lives.
+        p4 = phase(0.58, 0.88)
+        ccx, ccy = at(0.72, 0.56)
+        rr = min(w, h) * 0.20
+        coil = []
+        for i in range(220):
+            q = i / 219
+            ang = -math.pi * 0.5 + q * 2.45 * 2 * math.pi
+            r = rr * (1.0 - 0.70 * q)
+            coil.append((ccx + r * math.cos(ang), ccy + r * math.sin(ang) * 0.94))
+        partial(d, coil, p4, ink, 7)
+
+        # 5. The auditory nerve, leaving the coil for the brain. It exits the
+        #    frame deliberately: the video is about what happens before here.
+        p5 = phase(0.80, 1.0)
+        nerve = [at(0.80, 0.63), at(0.88, 0.70), at(0.97, 0.74)]
+        partial(d, nerve, p5, col + (175,), 6)
+        if p5 > 0.6:
+            # Two strands, so it reads as a bundle rather than as a wire.
+            partial(d, [at(0.80, 0.665), at(0.88, 0.735), at(0.96, 0.775)],
+                    (p5 - 0.6) / 0.4, col + (120,), 4)
+
+    ROW = 62                    # the least vertical space two labels need
+
+    def _label_rows(self, box: tuple) -> list[float]:
+        """A y for every label, spread so no two on the same side collide.
+
+        Each label wants to sit at its own part's height and most of them can.
+        Where two on one side are closer than `ROW`, they are pushed apart
+        around their midpoint - in part order, so the pair still reads top to
+        bottom the way the narration names them.
+
+        This is the same bug the map pin had, one level up: a thing drawn at
+        the coordinate it refers to, without asking what else is already
+        there. Anatomy makes it certain rather than likely, because the parts
+        of an ear genuinely are stacked within a few percent of each other.
+        """
+        y0, h = box[1], box[3] - box[1]
+        rows = [y0 + h * fy for _, _, fy, _ in self.parts]
+
+        for side in ("l", "r"):
+            idx = [i for i, pt in enumerate(self.parts) if pt[3] == side]
+            # Solve in screen order, not part order: pushing the *upper* label
+            # up is only correct if it is actually the upper one.
+            idx.sort(key=lambda i: rows[i])
+            for a_i, b_i in zip(idx, idx[1:]):
+                gap = rows[b_i] - rows[a_i]
+                if gap >= self.ROW:
+                    continue
+                push = (self.ROW - gap) / 2
+                rows[a_i] -= push
+                rows[b_i] += push
+            # Keep the whole column inside the box even after pushing.
+            if idx:
+                lo, hi = min(rows[i] for i in idx), max(rows[i] for i in idx)
+                if lo < y0:
+                    for i in idx:
+                        rows[i] += y0 - lo
+                elif hi > box[3]:
+                    for i in idx:
+                        rows[i] -= hi - box[3]
+        return rows
 
     def content(self, out: Image.Image, f: float) -> None:
         fr, br = self.frame, self.brand
@@ -691,12 +821,13 @@ class Anatomy(Beat):
             d0.rectangle([box[0], box[1], box[2] - 1, box[3] - 1],
                          outline=br.primary + (110,), width=2)
         else:
-            bw = int(fr.w * 0.34)
+            bw = int(fr.w * 0.42)
             box = ((fr.w - bw) // 2, top + 30, (fr.w + bw) // 2, fr.h - 120)
             self._schematic(out, box, self.open_p(f, 1.2))
 
         d = ImageDraw.Draw(out, "RGBA")
         label_font = _font(38)
+        label_y = self._label_rows(box)
         for i, (label, fx, fy, side) in enumerate(self.parts):
             p = self.due(i, len(self.parts), f)
             if p < 0:
@@ -704,14 +835,22 @@ class Anatomy(Beat):
             a = int(255 * min(1.0, p))
             px = box[0] + (box[2] - box[0]) * fx
             py = box[1] + (box[3] - box[1]) * fy
+            ly = label_y[i]
 
             # The leader travels on the clause's own span, elbowed rather than
             # diagonal: a right-angled leader reads as an annotation, a
             # diagonal one reads as an arrow pointing somewhere.
+            #
+            # **The elbow steps to the label's row, which is not always the
+            # part's own height.** The eardrum sits 4% of the box below the
+            # canal it closes - anatomically correct and, at 38px type, two
+            # labels overlapping each other. `_label_rows` spreads them; the
+            # leader's dog-leg is what keeps each one attached to the right
+            # part while it does.
             out_x = self.margin + 300 if side == "l" else fr.w - self.margin - 300
-            elbow = (out_x + (90 if side == "l" else -90), py)
+            knee = out_x + (90 if side == "l" else -90)
             travel = self.span_p(i, f, cap=1.4)
-            partial(d, [(px, py), elbow, (out_x, py)], travel,
+            partial(d, [(px, py), (knee, py), (knee, ly), (out_x, ly)], travel,
                     br.primary + (a,), 3)
 
             d.ellipse([px - 8, py - 8, px + 8, py + 8], fill=br.primary + (a,))
@@ -719,7 +858,7 @@ class Anatomy(Beat):
                 la = int(a * min(1.0, (travel - 0.86) / 0.14))
                 anchor = "rs" if side == "l" else "ls"
                 dx = -16 if side == "l" else 16
-                d.text((out_x + dx, py + 12), label, font=label_font,
+                d.text((out_x + dx, ly + 12), label, font=label_font,
                        fill=br.ink + (la,), anchor=anchor)
 
 
