@@ -44,6 +44,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -775,6 +776,18 @@ NARRATION_CACHE = Path(
     os.environ.get("VIDEO_AUTOMATION_NARRATION_CACHE",
                    Path.home() / ".cache/video-automation/narration"))
 
+# **A cap, because nothing else would ever delete one of these.** A long form's
+# narration is 30-40MB of wav and every re-cut that changes a word stores
+# another; left alone this directory grows for as long as the channel does, in
+# a place nobody looks. 2GB holds roughly the last fifty narrations, which is
+# far more than a re-cut loop ever reaches back for.
+#
+# Eviction is by last *use*, not by age: `_cache_load` touches an entry on the
+# way past, so the script being re-cut all afternoon stays hot however old it
+# is, and the one built last month goes first.
+NARRATION_CACHE_MAX = int(os.environ.get(
+    "VIDEO_AUTOMATION_NARRATION_CACHE_MAX", 2 * 1024 ** 3))
+
 
 # The packages that decide what a synthesis sounds like. The weights are only
 # half of it: the G2P front end chooses the phonemes and the runtime does the
@@ -853,6 +866,14 @@ def _cache_load(key: str, workdir: Path):
         # A half-written or hand-edited entry must never fail a build; the
         # worst case for a miss is the synthesis we were going to do anyway.
         return None
+    # Mark it as recently used, so `_prune` evicts the entries nobody is
+    # coming back to rather than simply the oldest ones.
+    try:
+        now = time.time()
+        os.utime(wav, (now, now))
+        os.utime(meta, (now, now))
+    except OSError:
+        pass
     print(f"narration: cache hit ({len(caps)} captions, {d['total']:.2f}s) "
           f"- delete {NARRATION_CACHE}/{key}.* to force a re-synthesis")
     return track, caps, float(d["total"])
@@ -871,8 +892,49 @@ def _cache_store(key: str, track: Path, captions, total: float) -> None:
             "captions": [{"text": c.text, "start": c.start, "end": c.end,
                           "speech_end": c.speech_end} for c in captions],
         }), encoding="utf-8")
+        _prune()
     except OSError:
         pass                    # a cache that cannot be written is not an error
+
+
+def _prune(limit: int | None = None) -> int:
+    """Evict least-recently-used entries until the cache is under the cap.
+
+    Returns the number of bytes freed. Runs after a store rather than on a
+    schedule: the only moment the directory can have grown is the moment
+    something was added to it, and a build is already doing file work then.
+    """
+    limit = NARRATION_CACHE_MAX if limit is None else limit
+    try:
+        wavs = sorted(NARRATION_CACHE.glob("*.wav"),
+                      key=lambda f: f.stat().st_mtime, reverse=True)
+    except OSError:
+        return 0
+
+    freed, total = 0, 0
+    for wav in wavs:
+        meta = wav.with_suffix(".json")
+        try:
+            size = wav.stat().st_size + (meta.stat().st_size
+                                         if meta.exists() else 0)
+        except OSError:
+            continue
+        total += size
+        if total <= limit:
+            continue
+        # Past the cap: this entry and everything older than it goes. The wav
+        # is unlinked first - a surviving .json with no audio is a miss, which
+        # is safe, where the reverse would be a hit on a file that is gone.
+        try:
+            wav.unlink()
+            meta.unlink(missing_ok=True)
+            freed += size
+        except OSError:
+            pass
+    if freed:
+        print(f"narration: pruned {freed / 1024 ** 2:.0f}MB of cache "
+              f"(cap {limit / 1024 ** 3:.1f}GB, least recently used first)")
+    return freed
 
 
 def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
