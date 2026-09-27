@@ -2627,6 +2627,24 @@ class Chart(Beat):
         x0, x1 = self.margin, fr.w - self.margin
         y1 = fr.h - int(fr.h * 0.16)
         y0 = top + 40
+        if fr.h > fr.w:
+            # **Portrait: fix the plot box and centre it, rather than letting
+            # it fill the band.** A 9:16 frame leaves ~1300px of height against
+            # a 1080px width, so the landscape geometry draws a chart half
+            # again taller than it is wide — and a trajectory read on a box
+            # that shape stops reading as a trajectory at all: the same climb
+            # becomes a near-vertical wall and the drain becomes a cliff, which
+            # is a different claim about behaviour from the one the series
+            # makes. The box is pinned to 0.66 of its own width (a little
+            # flatter than 3:2) and centred in whatever the heading leaves, so
+            # the *shape* is the same shape the long form draws. The slack goes
+            # above and below, where a drawn beat burns no caption anyway.
+            #
+            # Landscape is untouched — `fr.h > fr.w` is false there, so every
+            # shipped 16:9 render is byte-identical.
+            ph = min(y1 - y0, int((x1 - x0) * 0.66))
+            mid = (y0 + y1) / 2
+            y0, y1 = int(mid - ph / 2), int(mid + ph / 2)
         lo, hi = min(self.series), max(self.series)
         rng = (hi - lo) or 1.0
         pts = [(x0 + (x1 - x0) * i / (len(self.series) - 1),
