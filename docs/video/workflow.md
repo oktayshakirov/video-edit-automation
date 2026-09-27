@@ -4,6 +4,16 @@ Identical for every project. What changes per project is the source site, the
 voice and the safety rules - not these steps. `/video-drone` skips step 1 and
 usually builds one format instead of a pair.
 
+**A shared run is not a shared channel.** These are the mechanics - suggest,
+script, build, review, hand off - and they are here so the two build skills
+cannot drift apart on the parts that were never supposed to differ. Everything
+that gives a channel its own voice stays in its own skill and its own project
+doc: what the subject *is*, what a picture of it looks like, which beats carry
+it, what may never be said, and what the opener is allowed to claim. A
+thecrypto.wiki explainer and a tinnitushelp.me explainer should not be
+mistakable for each other, and following the same five steps is not what would
+make them so.
+
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
 `PYTHONPATH=.`.
 
@@ -48,6 +58,22 @@ written in one pass.** They are not the same video at two lengths:
 Writing them together is what stops the Short from being a trailer for the long
 one. Read `narration.md` before writing a line of either, and the project doc
 for what may and may not be said.
+
+**Write the opening as one unit, first.** The title question (sentence 1), the
+redacted `hook="... [word] ..."` on screen, and sentence 2 - a partial answer
+that *says the hidden word*, so it is revealed on the beat. Both the Short and
+the long form take `hook=`. See `shorts.md`, "The opening hook: a redacted
+headline", and `narration.md`, "Revised 2026-09-21".
+
+**Pick the opener deliberately.** The redacted `hook=` is the default and the
+control; `longform.openers` has Counter / Stamp / Split / Search / Flash for a
+number, a belief, a comparison, a search phrase or a picture payoff. Choose by
+the *shape of the topic*, not by taste. Read the last three scripts on that
+channel and do not use the same opener three times running (`shorts.md`,
+"Choosing the opener"). **What a given opener is allowed to assert is the
+channel's business** - a verdict stamp means something different on a market
+explainer than on a health video - so check the project doc before reaching
+for one.
 
 ## 3. Build
 
@@ -120,3 +146,11 @@ renders, re-cuts and screenshots, and publishing is the irreversible half - a
 Reel and a Telegram post cannot be un-sent. It gets a clean context by design.
 Committing first is what makes the seam safe: the fresh session can read the
 repo instead of trusting a summary.
+
+**And it does not describe publishing either.** Which file goes to which
+platform, the metadata pass, the site registry entry, the social posts and
+their order are all `/publish-video`'s, and it is the only copy. That sequence
+used to be duplicated into every build skill; the copies drifted, disagreed
+about what a Short gets, and cost a registry entry that had to be reverted and
+a social post that could not be un-sent. Do not restate those steps, pre-empt
+them, or re-derive them from memory.
