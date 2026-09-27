@@ -105,7 +105,7 @@ roster and roles are in *Voice*, below; the pace-mismatch measurement is in
 
 **Drawn beats now sit on the brand background, not a drifting grid** — see the
 long-form skill for `core/backdrop.py`. Nothing to pass per shot; `Brand`
-carries it. It matters here because the shorts share `longform/beats.py`, so
+carries it. It matters here because the shorts share `longform/beats/`, so
 the vertical beats changed too, and the square 512px asset is what makes one
 background serve both aspects.
 

@@ -12,7 +12,7 @@ they are the majority of the runtime.
 
 `chapter` · `checklist` · `stat` · `compare` · `quote` · `bars` · `grid` ·
 `steps` · `timeline` · `chart` · `map` · `anatomy` · `spectrum` — in
-`longform/beats.py`. The first six share a content column left and
+`longform/beats/`. The first six share a content column left and
 a picture column right; `grid` and `steps` span the full width. Video clips
 (`Shot(clip=...)`) and the end-screen sting are the two things that are not
 beats; see `longform/clip.py` and `longform/overlay.py`.
@@ -904,3 +904,36 @@ one thing the fourteen before them cannot:
   the one thing everybody knows about a frequency plot is that it dances.
   Unlike `chart`, its x axis *is* labelled: 4 kHz is 4 kHz forever, and it is
   the number the viewer came for.
+
+
+## Where a beat lives (2026-09-27)
+
+`beats.py` was one 3,124-line module and is now a package. **The split changed
+no pixel** - all 19 beats were rendered on both brands, in both frames, at four
+points through each, and all 304 frames hash identically to the monolith's. It
+is ergonomics only: the file was the largest in the repo by a factor of two,
+and every new beat had to be threaded into the middle of it by hand.
+
+The families are by **silhouette**, which is the axis this file already says
+is the one that matters:
+
+| module | the shape | beats |
+| --- | --- | --- |
+| `base.py` | `Beat` itself, the constants, the shared helpers | - |
+| `column.py` | content column left, picture right | `chapter` `checklist` `stat` `compare` `quote` |
+| `wide.py` | full-frame layouts | `grid` `logos` `steps` `split` |
+| `scale.py` | a magnitude against a scale | `bars` `gauge` `dial` |
+| `plot.py` | a curve against an axis | `timeline` `chart` `spectrum` |
+| `annotate.py` | things pointed at | `callout` `diagram` `map` `anatomy` |
+
+Everything the old module exported is re-exported from the package, so
+`from .beats import Checklist, item_count, make_beat` still means exactly what
+it did.
+
+**Adding a beat.** Put the class in the family whose silhouette it shares,
+register it in `BEATS` and `_COUNT` in `__init__.py`, and give it a payload in
+`tests/test_beats.py`. The tests fail if you miss any of the three: one checks
+every payload has a beat and every beat a payload, one checks every class
+defined in a family is registered, and one checks no family imports another -
+shared code goes in `base.py`, because a family importing a family is the
+first step back to one 3,000-line file.
