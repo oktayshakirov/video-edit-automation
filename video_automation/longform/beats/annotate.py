@@ -644,16 +644,27 @@ class Anatomy(Beat):
         self.parts = [(str(l), float(x), float(y), s) for l, x, y, s in parts]
         self.title = title
         self.panel = None
+        self.cutout = False
         if src is not None and Path(src).exists():
-            im = Image.open(src).convert("RGB")
+            im = Image.open(src)
+            # **A cut-out illustration keeps its alpha and its brightness.**
+            # `DIM` exists to push a *photograph* back behind the type; a line
+            # drawing on a transparent ground has no ground to push back, and
+            # at 0.62 it goes muddy against the backdrop it is supposed to sit
+            # on. So the dim applies only to the opaque case, which is the one
+            # it was measured for.
+            self.cutout = im.mode in ("RGBA", "LA") or "transparency" in im.info
+            im = im.convert("RGBA" if self.cutout else "RGB")
             fr = self.frame
             box_w = int(fr.w * self.BOX_W)
             box_h = fr.h - (self.head_y + 126) - 120
             k = min(box_w / im.width, box_h / im.height, fr.max_upscale)
             self.pw, self.ph = int(im.width * k), int(im.height * k)
-            self.panel = (np.asarray(im.resize((self.pw, self.ph),
-                                               Image.LANCZOS))
-                          * self.DIM).astype(np.uint8)
+            small = im.resize((self.pw, self.ph), Image.LANCZOS)
+            if self.cutout:
+                self.panel = small
+            else:
+                self.panel = (np.asarray(small) * self.DIM).astype(np.uint8)
 
     # The fallback drawing's own coordinate system: fractions of the box, so
     # the parts a script points at line up with what is drawn. **These are the
@@ -896,11 +907,20 @@ class Anatomy(Beat):
             # sits in: the fractions were read off the source file.
             px0 = (fr.w - self.pw) // 2
             py0 = top + 30 + max(0, (fr.h - 120 - (top + 30) - self.ph) // 2)
-            out.paste(Image.fromarray(self.panel), (px0, py0))
+            if self.cutout:
+                # Composited, not pasted: the backdrop shows through, which is
+                # the whole point of supplying a cut-out.
+                out.paste(self.panel, (px0, py0), self.panel)
+            else:
+                out.paste(Image.fromarray(self.panel), (px0, py0))
             box = (px0, py0, px0 + self.pw, py0 + self.ph)
-            d0 = ImageDraw.Draw(out, "RGBA")
-            d0.rectangle([box[0], box[1], box[2] - 1, box[3] - 1],
-                         outline=br.primary + (110,), width=2)
+            # **A hairline frames a photograph, not a cut-out.** A rectangle
+            # drawn round a shape on a transparent ground boxes in empty
+            # backdrop and reads as a stray border.
+            if not self.cutout:
+                d0 = ImageDraw.Draw(out, "RGBA")
+                d0.rectangle([box[0], box[1], box[2] - 1, box[3] - 1],
+                             outline=br.primary + (110,), width=2)
         else:
             bw = int(fr.w * 0.42)
             box = ((fr.w - bw) // 2, top + 30, (fr.w + bw) // 2, fr.h - 120)
