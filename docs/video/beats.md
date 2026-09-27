@@ -844,7 +844,7 @@ one thing the fourteen before them cannot:
 | `timeline` | a dated axis | *when*, and the distance between whens |
 | `chart` | a line drawing itself | a trajectory, and where it turned |
 | `map` | pins dropping on a plate | where, and how clustered |
-| `anatomy` | callouts onto a drawing | which *part* of a thing is meant |
+| `anatomy` | callouts onto a centred picture | which *part* of a thing is meant |
 | `spectrum` | a live frequency plot | a sound |
 
 - **`timeline` is not `steps` with dates on it, and the difference is the
@@ -871,35 +871,21 @@ one thing the fourteen before them cannot:
   `map` is also the thinnest of the five: four pins on an empty plate is not
   much more than a list with coordinates. Use it when *clustering* is the
   point, not merely when places are named.
-- **`anatomy` draws a real ear when given nothing.** The first fallback was
-  three arcs and a spiral, and the note on it was that it reads as an abstract
-  spiral rather than as an ear — fatal for a beat whose whole job is to point
-  at a *part* and have the viewer know which one. It now draws the pinna, the
-  canal, the eardrum, the ossicle chain, the cochlea and the auditory nerve,
-  each a distinct shape in the right place, assembling in the order sound
-  travels. Still a diagram and not an illustration — flat line work, no
-  shading — which is the honest register for a drawn beat.
+- **`anatomy` requires a picture and has no fallback.** It drew a schematic
+  ear when given none; that drawing went through four versions and was cut on
+  the verdict that it was still hard to read and not accurate enough to earn
+  its place. The general form of that verdict is the rule: **a beat whose
+  whole job is that the viewer knows which part is meant cannot be built on a
+  diagram they have to decode first.** It raises now rather than drawing
+  something nobody asked for.
 
-  **The pinna is the recognition cue, and it took three tries to learn that.**
-  Version one was concentric arcs and a spiral; version two added a canal and
-  an ossicle chain but kept a plain arc for the outer ear and was still called
-  confusing. A viewer who sees an ear shape reads everything downstream of it
-  as ear anatomy; a viewer who does not is looking at abstract geometry
-  however correct the rest is. So the flap is drawn as a real pinna — helix
-  and antihelix — and everything else hangs off that.
-
-  **Anything a script never points at is a liability.** The semicircular
-  canals and the tragus were both drawn, both anatomically correct, and both
-  cut: the canals read as a plant growing out of the picture and collided with
-  the stirrup, and the tragus read as a stray mark. What is left is one
-  continuous chain from the pinna to the nerve — exactly the parts a tinnitus
-  script names, and nothing else. Resist adding to it.
-
-  **Take the coordinates from `Anatomy.LANDMARKS`**, not from a screenshot:
-  `LANDMARKS["cochlea"]` is where the coil actually is. With a `picture=` the
-  fractions are of that image instead, and a real anatomical illustration is
-  still the better input where one is licensed — Wikimedia Commons, with the
-  line in `CREDITS.md` (`footage.md`).
+  The bar for using it at all is a picture where the parts are genuinely
+  visible - `tinnitus-long/tmj-and-tinnitus` is the shipped case, a head in
+  profile with the jaw joint, the ear canal, the masseter and the temporalis
+  called out. Without a picture like that, say it in the narration and put a
+  `clip` or a `diagram` under it. An RGBA cut-out is composited at full
+  strength with no frame; an opaque photograph is dimmed to 0.62 and framed,
+  which is what that treatment was measured for.
 - **Labels on one side are spread apart, and the leader dog-legs to reach
   them.** The parts of an ear are stacked within a few percent of each other —
   the eardrum sits 4% of the box below the canal it closes — so two labels set

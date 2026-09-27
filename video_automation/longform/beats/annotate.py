@@ -594,24 +594,27 @@ class Map(Beat):
 
 
 class Anatomy(Beat):
-    """Callouts onto a drawing, fired one per spoken clause.
+    """Callouts onto a centred picture, fired one per spoken clause.
 
-    The tinnitus channel's subject is a **part of a thing** - the cochlea, the
-    auditory nerve, the jaw joint - and it has been carrying that on stock
-    photographs of people looking uncomfortable, which show none of it. The
-    existing `callout` beat annotates a photograph; this differs in that the
-    subject is *drawn*, so there is something worth pointing at.
+    The tinnitus channel's subject is often a **part of a thing** - the jaw
+    joint, the muscles around it, the ear canal - and it had been carrying
+    that on stock photographs of people looking uncomfortable, which show
+    none of it. `callout` annotates a photograph at the edges; this puts the
+    subject in the middle of the frame and points into it, which is the
+    silhouette nothing else in the library has.
 
-    The drawing is a caller-supplied image with a dark ground (`picture=`),
-    or, with none, the schematic ear this class draws itself - pinna, canal,
-    eardrum, ossicles, cochlea and auditory nerve, each a distinct shape in
-    the right place relative to the others, assembling in the order sound
-    travels. It is deliberately a diagram and not an illustration: flat line
-    work in the brand accent, no shading, no tissue.
+    **`picture=` is required and there is no drawn fallback.** There was one -
+    a schematic ear - and it went through four versions before the verdict
+    that it was still hard to read and not accurate enough to earn its place.
+    That verdict is right, and the general form of it is worth keeping: a beat
+    whose entire job is that the viewer knows which part is meant cannot be
+    built on a diagram they have to decode first. Supply a real illustration
+    or a real photograph, or use a different beat.
 
-    **Use `LANDMARKS` for the fallback's coordinates** rather than measuring
-    them off a screenshot - `Anatomy.LANDMARKS["cochlea"]` is where the coil
-    actually is. With a `picture=`, the fractions are of that image instead.
+    The shipped use is `tinnitus-long/tmj-and-tinnitus`: a head in profile on
+    a near-black ground, with the jaw joint, the ear canal, the masseter and
+    the temporalis called out. That is the shape this beat is for - a picture
+    where the parts are genuinely visible and the script names them.
 
     **The picture is drawn by this beat, into its own centred box** - which
     is what the paragraph above always claimed and what the code did not do.
@@ -628,13 +631,13 @@ class Anatomy(Beat):
     already drawn is the thing the whole library's second rule exists to stop.
 
     payload: (parts, title) where parts is [(label, x, y, side), ...],
-    x/y fractions of **the picture** (or of the drawing box, with none) and
-    side "l"/"r".
+    x/y fractions of **the picture** and side "l"/"r".
     """
 
     EMBLEM = False
     DIM = 0.62                  # the panel sits under the type, not beside it
-    BOX_W = 0.52                # fraction of frame width, against 0.34 drawn
+    BOX_W = 0.52                # fraction of frame width
+    ROW = 62                    # the least vertical space two labels need
 
     def __init__(self, parts: list, title: str = "", **kw):
         # Same collision `callout` records: `make_beat` hands `picture=` to
@@ -645,216 +648,41 @@ class Anatomy(Beat):
         self.title = title
         self.panel = None
         self.cutout = False
-        if src is not None and Path(src).exists():
-            im = Image.open(src)
-            # **A cut-out illustration keeps its alpha and its brightness.**
-            # `DIM` exists to push a *photograph* back behind the type; a line
-            # drawing on a transparent ground has no ground to push back, and
-            # at 0.62 it goes muddy against the backdrop it is supposed to sit
-            # on. So the dim applies only to the opaque case, which is the one
-            # it was measured for.
-            self.cutout = im.mode in ("RGBA", "LA") or "transparency" in im.info
-            im = im.convert("RGBA" if self.cutout else "RGB")
-            fr = self.frame
-            box_w = int(fr.w * self.BOX_W)
-            box_h = fr.h - (self.head_y + 126) - 120
-            k = min(box_w / im.width, box_h / im.height, fr.max_upscale)
-            self.pw, self.ph = int(im.width * k), int(im.height * k)
-            small = im.resize((self.pw, self.ph), Image.LANCZOS)
-            if self.cutout:
-                self.panel = small
-            else:
-                self.panel = (np.asarray(small) * self.DIM).astype(np.uint8)
-
-    # The fallback drawing's own coordinate system: fractions of the box, so
-    # the parts a script points at line up with what is drawn. **These are the
-    # x/y a `parts` entry should use when no `picture=` is supplied** - they
-    # are listed here rather than left to be measured off a screenshot.
-    # The fallback drawing's own coordinate system: fractions of the box, so
-    # the parts a script points at line up with what is drawn. **These are the
-    # x/y a `parts` entry should use when no `picture=` is supplied.**
-    LANDMARKS = {
-        "pinna": (0.09, 0.40),
-        "canal": (0.25, 0.50),
-        "eardrum": (0.40, 0.52),
-        "ossicles": (0.50, 0.36),
-        "cochlea": (0.70, 0.64),
-        "nerve": (0.89, 0.76),
-    }
-
-    @staticmethod
-    def _bez(pts: list, n: int = 48) -> list:
-        """Sample a cubic Bezier. Four control points in, a polyline out.
-
-        `partial` travels polylines, so every curve in the drawing has to be
-        one - and an ear is all curves. Chained end to end these give a
-        continuous outline the reveal clock can draw on.
-        """
-        (x0, y0), (x1, y1), (x2, y2), (x3, y3) = pts
-        out = []
-        for i in range(n + 1):
-            t = i / n
-            u = 1 - t
-            out.append((u * u * u * x0 + 3 * u * u * t * x1
-                        + 3 * u * t * t * x2 + t * t * t * x3,
-                        u * u * u * y0 + 3 * u * u * t * y1
-                        + 3 * u * t * t * y2 + t * t * t * y3))
-        return out
-
-    def _schematic(self, out: Image.Image, box: tuple, e: float) -> None:
-        """A line drawing of an ear, in the order sound travels through it.
-
-        **Three versions were rejected before this one**, and the notes on
-        them are the whole design rationale:
-
-        1. Three concentric arcs and a spiral. Read as an abstract spiral.
-        2. A canal and an ossicle chain added, but a plain arc for the outer
-           ear. Still "confusing" - because the arc was not an ear.
-        3. A proper pinna, plus the semicircular canals for context. The
-           canals read as a plant growing out of the picture and collided
-           with the stirrup.
-
-        Two lessons, both worth keeping. **The pinna is the recognition cue**:
-        a viewer who sees an ear shape reads everything downstream of it as
-        ear anatomy, and a viewer who does not is looking at abstract geometry
-        however correct the rest is. And **anything a script never points at
-        is a liability** - the semicircular canals and the tragus were both
-        drawn, both anatomically right, and both cut for reading as noise.
-
-        What is left is one continuous chain: pinna, canal, eardrum, ossicles,
-        oval window, cochlea, nerve - exactly the parts a tinnitus script
-        names, and nothing else. Everything travels on `e` in anatomical
-        order, so the drawing builds the way the narration walks it, and line
-        weight carries the hierarchy: the parts pointed at are heavier than
-        the scaffolding.
-        """
-        x0, y0, x1, y1 = box
-        w, h = x1 - x0, y1 - y0
-        d = ImageDraw.Draw(out, "RGBA")
-        col = self.brand.primary
-
-        def P(fx, fy):
-            return (x0 + w * fx, y0 + h * fy)
-
-        def curve(*fracs, n=48):
-            return self._bez([P(*f) for f in fracs], n)
-
-        def phase(a, b):
-            return max(0.0, min(1.0, (e - a) / (b - a)))
-
-        # --- 1. the pinna -------------------------------------------------
-        # **A C opening toward the head, not a closed oval and not a hook.**
-        # The canal runs right, into the skull, so the flap's rim is on the
-        # left and its opening faces right - that is the view every textbook
-        # cross-section uses. The first attempt at this curled the rim back on
-        # itself at the lobe and read as a question mark.
-        #
-        # Three strokes do the whole job: the outer rim from the top round to
-        # the lobe, an inner ridge parallel to it, and the little flap at the
-        # opening. Any more detail is lost at this size.
-        p1 = phase(0.0, 0.30)
-        helix = (curve((0.168, 0.212), (0.098, 0.192), (0.040, 0.272), (0.038, 0.382))
-                 + curve((0.036, 0.482), (0.056, 0.592), (0.104, 0.648), (0.104, 0.648))
-                 + curve((0.104, 0.648), (0.136, 0.692), (0.168, 0.662), (0.170, 0.606)))
-        partial(d, helix, p1, col + (230,), 7)
-
-        # The antihelix: an inner ridge echoing the rim. This is the single
-        # line that stops the pinna reading as a plain crescent.
-        p1b = phase(0.10, 0.34)
-        anti = (curve((0.152, 0.298), (0.100, 0.312), (0.078, 0.398), (0.086, 0.470))
-                + curve((0.086, 0.470), (0.094, 0.540), (0.126, 0.576), (0.156, 0.574)))
-        partial(d, anti, p1b, col + (145,), 5)
-
-        # **No tragus.** It was drawn, it is correct, and at this size it read
-        # as a stray mark floating between the flap and the canal - the third
-        # element cut for reading as noise rather than as anatomy. The concha
-        # is instead shown by the canal walls running back to meet the ridge,
-        # which is the same information and one fewer disconnected stroke.
-
-        # --- 2. the canal ---------------------------------------------------
-        # A tube, not a line: two walls converging slightly toward the drum.
-        p2 = phase(0.26, 0.48)
-        partial(d, curve((0.108, 0.412), (0.210, 0.428), (0.310, 0.450),
-                         (0.392, 0.468)), p2, col + (190,), 6)
-        partial(d, curve((0.104, 0.548), (0.210, 0.550), (0.310, 0.556),
-                         (0.392, 0.570)), p2, col + (190,), 6)
-
-        # --- 3. the eardrum --------------------------------------------------
-        # The membrane closing the canal, set at its real oblique angle.
-        p3 = phase(0.42, 0.58)
-        partial(d, [P(0.392, 0.462), P(0.400, 0.578)], p3, col + (245,), 8)
-
-        # --- 4. the ossicles --------------------------------------------------
-        # Hammer, anvil, stirrup. Drawn as a jointed chain with a stirrup ring
-        # at the far end - the ring is what makes it read as three linked
-        # bones rather than as a zigzag.
-        p4 = phase(0.52, 0.72)
-        chain = [P(0.405, 0.470), P(0.452, 0.380), P(0.508, 0.352),
-                 P(0.545, 0.412)]
-        partial(d, chain, p4, col + (215,), 6)
-        for i, pt in enumerate(chain[1:3]):
-            q = max(0.0, min(1.0, p4 * 2.4 - i * 0.7))
-            if q <= 0:
-                continue
-            r = 8 * ease_out(q)
-            d.ellipse([pt[0] - r, pt[1] - r, pt[0] + r, pt[1] + r],
-                      fill=col + (int(230 * q),))
-        if p4 > 0.8:
-            q = (p4 - 0.8) / 0.2
-            cx, cy = P(0.556, 0.432)
-            rx, ry = w * 0.016, h * 0.026
-            d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry],
-                      outline=col + (int(215 * q),), width=5)
-
-        # **The semicircular canals are deliberately not drawn.** Two versions
-        # of them were tried, on the theory that three loops make a viewer
-        # read the right-hand side as an inner ear. Both read as a plant
-        # growing out of the picture, and the second collided with the
-        # stirrup. They are balance organs, no tinnitus script points at one,
-        # and the beat's whole job is that a viewer knows which part is meant
-        # - so they were costing the thing they were supposed to buy. Left
-        # out, the drawing is a single chain from the pinna to the nerve,
-        # which is exactly what the narration walks.
-
-        # --- 6. the cochlea ----------------------------------------------------
-        # A snail, wound outward from the apex, so it reads as a shell with a
-        # mouth rather than as a flat spiral. The tube thickens as it unwinds,
-        # which is both true and what sells the shape.
-        # The oval window: the short link from the stirrup into the coil. It
-        # is two pixels of drawing and it is what turns a chain that stops in
-        # mid-air into one continuous path from the pinna to the nerve.
-        p6a = phase(0.66, 0.78)
-        partial(d, [P(0.570, 0.444), P(0.596, 0.492)], p6a, col + (200,), 5)
-
-        p6 = phase(0.72, 0.94)
-        ccx, ccy = P(0.715, 0.620)
-        rr = min(w, h) * 0.175
-        coil, weights = [], []
-        for i in range(240):
-            q = i / 239
-            ang = math.pi * 0.55 + q * 2.65 * 2 * math.pi
-            r = rr * (0.16 + 0.84 * q)
-            coil.append((ccx + r * math.cos(ang), ccy + r * math.sin(ang) * 0.96))
-            weights.append(3 + 5 * q)
-        # Drawn in graded segments rather than one `partial`, so the tube can
-        # thicken; each segment is its own travelled polyline.
-        n = max(2, int(len(coil) * p6))
-        step = 12
-        for i in range(0, n - 1, step):
-            seg = coil[i:min(n, i + step + 1)]
-            if len(seg) > 1:
-                d.line(seg, fill=col + (235,), width=int(weights[i]),
-                       joint="curve")
-
-        # --- 7. the auditory nerve ----------------------------------------------
-        # Leaving the coil's base for the brain, as a bundle of strands.
-        p7 = phase(0.86, 1.0)
-        for off, a in ((0.000, 185), (0.030, 135), (0.060, 95)):
-            partial(d, curve((0.782, 0.700 + off), (0.838, 0.744 + off),
-                             (0.898, 0.774 + off), (0.975, 0.786 + off), n=24),
-                    p7, col + (a,), 5)
-
-    ROW = 62                    # the least vertical space two labels need
+        # **A picture is required.** This beat used to fall back to a drawn ear
+        # when given none. Four versions of that drawing were made and the
+        # user's verdict on the last one was that it is still hard to read and
+        # not accurate enough to be worth it - which is the right call: a beat
+        # whose whole job is that the viewer knows which part is meant cannot
+        # be built on a diagram they have to decode first. It raises now
+        # rather than drawing something nobody asked for, the same way
+        # `callout` raises on a missing photo.
+        if src is None:
+            raise ValueError(
+                "anatomy needs picture=<image>. There is no drawn fallback - "
+                "supply an illustration or a photograph of the subject, or "
+                "use `callout` if what you have is a photograph with nothing "
+                "to explain about its parts.")
+        if not Path(src).exists():
+            raise FileNotFoundError(f"anatomy picture not found: {src}")
+        im = Image.open(src)
+        # **A cut-out illustration keeps its alpha and its brightness.**
+        # `DIM` exists to push a *photograph* back behind the type; a line
+        # drawing on a transparent ground has no ground to push back, and
+        # at 0.62 it goes muddy against the backdrop it is supposed to sit
+        # on. So the dim applies only to the opaque case, which is the one
+        # it was measured for.
+        self.cutout = im.mode in ("RGBA", "LA") or "transparency" in im.info
+        im = im.convert("RGBA" if self.cutout else "RGB")
+        fr = self.frame
+        box_w = int(fr.w * self.BOX_W)
+        box_h = fr.h - (self.head_y + 126) - 120
+        k = min(box_w / im.width, box_h / im.height, fr.max_upscale)
+        self.pw, self.ph = int(im.width * k), int(im.height * k)
+        small = im.resize((self.pw, self.ph), Image.LANCZOS)
+        if self.cutout:
+            self.panel = small
+        else:
+            self.panel = (np.asarray(small) * self.DIM).astype(np.uint8)
 
     def _label_rows(self, box: tuple) -> list[float]:
         """A y for every label, spread so no two on the same side collide.
@@ -867,7 +695,8 @@ class Anatomy(Beat):
         This is the same bug the map pin had, one level up: a thing drawn at
         the coordinate it refers to, without asking what else is already
         there. Anatomy makes it certain rather than likely, because the parts
-        of an ear genuinely are stacked within a few percent of each other.
+        a script points at are usually clustered - four features of one jaw
+        sit within a few percent of each other.
         """
         y0, h = box[1], box[3] - box[1]
         rows = [y0 + h * fy for _, _, fy, _ in self.parts]
@@ -902,29 +731,24 @@ class Anatomy(Beat):
         # The drawing sits centred, with the callout labels in the margins
         # either side - which is the silhouette this beat is for. Nothing in
         # the library puts its subject in the middle.
-        if self.panel is not None:
-            # The coordinate space is the photograph itself, not the box it
-            # sits in: the fractions were read off the source file.
-            px0 = (fr.w - self.pw) // 2
-            py0 = top + 30 + max(0, (fr.h - 120 - (top + 30) - self.ph) // 2)
-            if self.cutout:
-                # Composited, not pasted: the backdrop shows through, which is
-                # the whole point of supplying a cut-out.
-                out.paste(self.panel, (px0, py0), self.panel)
-            else:
-                out.paste(Image.fromarray(self.panel), (px0, py0))
-            box = (px0, py0, px0 + self.pw, py0 + self.ph)
-            # **A hairline frames a photograph, not a cut-out.** A rectangle
-            # drawn round a shape on a transparent ground boxes in empty
-            # backdrop and reads as a stray border.
-            if not self.cutout:
-                d0 = ImageDraw.Draw(out, "RGBA")
-                d0.rectangle([box[0], box[1], box[2] - 1, box[3] - 1],
-                             outline=br.primary + (110,), width=2)
+        # The coordinate space is the photograph itself, not the box it
+        # sits in: the fractions were read off the source file.
+        px0 = (fr.w - self.pw) // 2
+        py0 = top + 30 + max(0, (fr.h - 120 - (top + 30) - self.ph) // 2)
+        if self.cutout:
+            # Composited, not pasted: the backdrop shows through, which is
+            # the whole point of supplying a cut-out.
+            out.paste(self.panel, (px0, py0), self.panel)
         else:
-            bw = int(fr.w * 0.42)
-            box = ((fr.w - bw) // 2, top + 30, (fr.w + bw) // 2, fr.h - 120)
-            self._schematic(out, box, self.open_p(f, 1.2))
+            out.paste(Image.fromarray(self.panel), (px0, py0))
+        box = (px0, py0, px0 + self.pw, py0 + self.ph)
+        # **A hairline frames a photograph, not a cut-out.** A rectangle
+        # drawn round a shape on a transparent ground boxes in empty
+        # backdrop and reads as a stray border.
+        if not self.cutout:
+            d0 = ImageDraw.Draw(out, "RGBA")
+            d0.rectangle([box[0], box[1], box[2] - 1, box[3] - 1],
+                         outline=br.primary + (110,), width=2)
 
         d = ImageDraw.Draw(out, "RGBA")
         label_font = _font(38)

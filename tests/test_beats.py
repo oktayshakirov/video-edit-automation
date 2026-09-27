@@ -65,8 +65,11 @@ PAYLOADS = {
     "chart": ([12, 26, 58, 77, 64], "THE SHAPE", 3, "the turn"),
     "map": ([("Switzerland", 0.5, 0.34), ("Singapore", 0.76, 0.62)],
             "WHERE THE RULES ARE"),
-    "anatomy": ([("The cochlea", 0.48, 0.52, "r"),
-                 ("The hair cells", 0.3, 0.66, "l")], "WHERE SOUND IS MADE"),
+    # `anatomy` requires a picture, but unlike `callout` it takes it as the
+    # `picture=` keyword `Shot` already carries - so the payload is just the
+    # parts and the title, exactly as a project script writes it.
+    "anatomy": ([("The jaw joint", 0.65, 0.45, "l"),
+                 ("Your ear canal", 0.70, 0.42, "r")], "THE NEIGHBOURHOOD"),
     "spectrum": ((3400, 5200), "NOTCHED AUDIO", "cut around your tone", "notch"),
 }
 
@@ -88,6 +91,11 @@ def _payload(name):
     return tuple(PHOTO if v == "<photo>" else v for v in PAYLOADS[name])
 
 
+# Beats whose picture is the `picture=` keyword rather than part of the
+# payload. `callout` takes its photo positionally; `anatomy` does not.
+PICTURE_KW = {"anatomy"}
+
+
 def _build(name, brand, frame):
     n = item_count(name, _payload(name))
     hold = 9.0
@@ -95,8 +103,11 @@ def _build(name, brand, frame):
     # `due`, `span_p` and `marked` all read.
     reveals = [0.9 + i * 1.5 for i in range(n)] or None
     marks = [r + 0.6 for r in reveals] if reveals else None
-    return BEATS[name](*_payload(name), brand=brand, frame=frame,
-                       reveals=reveals, marks=marks, start=0.0, hold=hold)
+    payload = _payload(name)
+    extra = {"picture": PHOTO} if name in PICTURE_KW else {}
+    return BEATS[name](*payload, brand=brand, frame=frame,
+                       reveals=reveals, marks=marks, start=0.0, hold=hold,
+                       **extra)
 
 
 @pytest.mark.parametrize("name", sorted(PAYLOADS))

@@ -3,8 +3,9 @@
 Two 16:9 clips, one per site, that exist so the additions can be *seen* without
 building a whole video around them - the regression reel for this vocabulary:
 
-* five beat shapes - `timeline`, `chart`, `map`, `anatomy`, `spectrum`
-  (`longform/beats.py`)
+* the full-width beat shapes - `timeline`, `chart`, `map`, `spectrum`
+  (`longform/beats/`). `anatomy` is not in the reel: it requires a real
+  picture, and the reel deliberately ships no assets of its own.
 * five new shot-to-shot moves - whip, glitch, flash, wipe, punch
   (`core/transitions.py`)
 * the navigation chrome - a ticked progress bar and "2 of 5"
@@ -119,13 +120,6 @@ CRYPTO_ITEMS = [
 # ---------------------------------------------------------------------------
 
 TINNITUS_ITEMS = [
-    ("chapter", label("Callouts on a drawing", "anatomy"), "whip", CARD),
-    ("anatomy", ([("The ear canal", 0.86, 0.22, "r"),
-                  ("The eardrum", 0.72, 0.40, "l"),
-                  ("The cochlea", 0.48, 0.52, "r"),
-                  ("The hair cells", 0.30, 0.66, "l")],
-                 "WHERE THE SOUND IS MADE"), "flash", BEAT),
-
     ("chapter", label("The sound, made visible", "spectrum"), "whip", CARD),
     ("spectrum", ((3400, 5200), "NOTCHED AUDIO",
                   "the notch, cut around your own tone", "notch"),
