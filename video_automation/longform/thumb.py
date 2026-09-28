@@ -765,7 +765,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
 def render_session_thumb(out: Path, brand: Brand, minutes: int,
                          headline: str, pattern: str | None = None,
                          accent: str = "cyan", seed: int = 7,
-                         size: int = 104,
+                         size: int = 104, emoji: str | None = None,
                          palette: tuple | None = None) -> Path:
     """Thumbnail for a sound-therapy session: nebula, ring, duration, spec.
 
@@ -778,6 +778,15 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     same `palette` the video was rendered with — `(bg_deep, nebula_a,
     nebula_b, ring)` — so the thumbnail is a picture of this video's colour
     too, not the app's default purple/peach.
+
+    **`emoji` sets one character above the headline**, through
+    `vertical.emoji_image`, which is the same bitmap-strike handling the
+    captions use — a colour emoji cannot be drawn with `d.text` at an
+    arbitrary size. It goes *above* the block rather than inline: the headline
+    is auto-shrunk to fit a fixed column, so an inline emoji would either
+    change the wrap or land on a line of its own anyway. One character, and
+    only when it names the sound (a cat for a purr session); a session
+    thumbnail's quiet is the thing this format sells.
     """
     from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 
@@ -849,8 +858,17 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
         size -= 8
 
     line_h = int(size * 1.10)
-    block = len(lines) * line_h + (int(size * 1.05) if pattern else 0)
+    em_h = int(size * 1.15) if emoji else 0
+    em_gap = int(size * 0.20) if emoji else 0
+    block = (len(lines) * line_h + (int(size * 1.05) if pattern else 0)
+             + em_h + em_gap)
     y = (H - block) // 2
+    if emoji:
+        from ..core.vertical import emoji_image
+        glyph = emoji_image(emoji, em_h)
+        base.alpha_composite(glyph, (margin, y))
+        d = ImageDraw.Draw(base)
+        y += em_h + em_gap
     for line in lines:
         x = margin
         for word, ww in line:
@@ -882,7 +900,7 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
 def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
                                headline: str, pattern: str | None = None,
                                accent: str = "cyan", seed: int = 7,
-                               size: int = 88,
+                               size: int = 88, emoji: str | None = None,
                                palette: tuple | None = None) -> Path:
     """A 9:16 companion to `render_session_thumb`, for a session's own Short.
 
@@ -900,7 +918,8 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
     same nebula, same ring, just reflowed.
 
     `palette` matches `render_session_thumb`'s — pass the same one the video
-    and its landscape thumbnail used.
+    and its landscape thumbnail used, and so does `emoji`, centred here rather
+    than ranged left.
     """
     from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 
@@ -966,6 +985,13 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
 
     line_h = int(size * 1.10)
     y = int(VH * 0.07)
+    if emoji:
+        from ..core.vertical import emoji_image
+        em_h = int(size * 1.15)
+        glyph = emoji_image(emoji, em_h)
+        base.alpha_composite(glyph, ((VW - glyph.width) // 2, y))
+        d = ImageDraw.Draw(base)
+        y += em_h + int(size * 0.20)
     for line in lines:
         lw = sum(ww for _, ww in line) + space * (len(line) - 1)
         x = (VW - lw) / 2
