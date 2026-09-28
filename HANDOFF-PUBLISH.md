@@ -1,112 +1,112 @@
-# Ready to publish: the Musk effect, long + Short
+# Ready to publish: cat purr comfort session, long + Short
 
-Built 2026-09-27 by `/video-crypto`. **Nothing has been published yet.** Open a
-fresh session and run `/publish-video`; this file is what it reads.
+Built 2026-09-28 by `/video-tinnitus`. **Nothing has been published yet.** Open
+a fresh session and run `/publish-video`; this file is what it reads.
 
-**Channel:** thecrypto.wiki. Voice `mia`, music `night-drift`.
+**Channel:** tinnitushelp.me. Voice `luna` (session intro only), no music.
 
-**Source:** `crypto-ogs/elon-musk` — the OG bio, **not** a `posts/` article.
-https://thecrypto.wiki/crypto-ogs/elon-musk
-
-Both scripts therefore set `SOURCE_POST = None` and carry `SOURCE_OG =
-"elon-musk"`. `tools/topics.py` counts coverage off `SOURCE_POST`, so this pair
-will not mark any post as covered — that is correct, not a bug.
+**Source:** off-site. Both scripts set `SOURCE_POST = None`, so `tools/topics.py`
+will not mark any post as covered — that is correct, not a bug. The related zen
+page is `zen/cat-purr-sounds`, which is the registry target below, **not** a
+`posts/` article.
 
 ## The files
 
 | What | Path |
 | --- | --- |
-| Long MP4 (3:40) | `/Users/oktayshakirov/Desktop/musk-effect-long.mp4` |
-| Long SRT | `/Users/oktayshakirov/Desktop/musk-effect-long.srt` |
-| Long thumbnail (1280x720) | `/Users/oktayshakirov/Desktop/musk-effect-long-thumb.jpg` |
-| Long metadata sidecar | `/Users/oktayshakirov/Desktop/musk-effect-long.md` |
-| Short MP4 (49.5s) | `/Users/oktayshakirov/Desktop/musk-effect-short.mp4` |
-| Short thumbnail (1080x1920) | `/Users/oktayshakirov/Desktop/musk-effect-short-thumb.jpg` |
+| Long MP4 (20:00, 1920x1080) | `/Users/oktayshakirov/Desktop/Cat Purring for Tinnitus and Calm (20 Minutes).mp4` |
+| Long thumbnail (1280x720) | `/Users/oktayshakirov/Desktop/Cat Purring for Tinnitus and Calm (20 Minutes).jpg` |
+| Short MP4 (57.8s, 1080x1920) | `/Users/oktayshakirov/Desktop/Cat Purring for Tinnitus and Calm (Short).mp4` |
+| Short thumbnail (1080x1920) | `/Users/oktayshakirov/Desktop/Cat Purring for Tinnitus and Calm (Short).jpg` |
 
-Build scripts: `projects/crypto-long/musk-effect.py`,
-`projects/crypto-short/musk-effect.py`.
+Build scripts: `projects/tinnitus-long/cat-purr-comfort-20min.py`,
+`projects/tinnitus-short/cat-purr-comfort-short.py`.
+Source recording: `/Users/oktayshakirov/Desktop/1.wav` (10:00, the user's own).
 
-**Take the title, description, tags and chapters from the `.md` sidecar.** Do
-not re-derive them.
+**There is no `.srt` and no `.md` sidecar.** Sessions do not produce them —
+`render_asmr_long` is not the article path. The metadata below *is* the sidecar
+for this pair; take the title, description and tags from here.
 
-- Long-form title: **Why Do Elon Musk's Posts Move Crypto Prices?**
-- Six chapters, first at 0:00, all over 10s — `check_chapters` reported no
-  violations.
+## Metadata
 
-## Read this before writing any description — the attribution is not optional
+**Long form**
 
-**Two of the three photographs of Elon Musk are CC BY 2.0, which makes both
-videos derivative works.** The line below must appear in the description of
-anything published, on every platform that has one:
+- **Title:** `Cat Purring Sounds for Tinnitus and Calm (20 Minutes)`
+- **Description:**
 
-> Photographs of Elon Musk: Daniel Oberhaus (CC BY 2.0) and public-domain
-> images, via Wikimedia Commons.
+      Twenty minutes of cat purring with a breathing circle to follow, four
+      seconds in and six seconds out.
 
-It is already in `Meta.credits`, so the **long form's sidecar description
-carries it automatically** — do not strip it when trimming for length.
+      An honest note before you start: a purr is very low sound. This
+      recording sits around 27 Hz, with 85% of its energy below 200 Hz and
+      almost none above 1 kHz, so it will not cover a high ringing or hiss
+      the way white or pink noise can. It is not here to mask your tinnitus.
+      It is here for company, and for something steady to breathe along with.
 
-**The Short is the exposure here.** It uses the same CC BY 2.0 photograph and
-has no description block in this pipeline, so the line has to be added by hand
-wherever the Short goes and the platform allows a caption — YouTube Shorts
-description, the Instagram/Facebook Reel caption, the TikTok caption. Full
-detail and the per-file licences are in `assets/crypto/musk/CREDITS.md`.
+      Keep the volume low and comfortable. It should feel nearby, not on top
+      of you.
 
-## The safety line, since this one names a living person
+      More sounds and sessions: https://www.tinnitushelp.me/zen/cat-purr-sounds
 
-The script describes a **mechanism** and never a direction: no price level, no
-prediction, no recommendation, and no claim about what any post will do next.
-Chapter four deliberately runs the 2021-22 Tesla sequence in **both**
-directions so nothing reads as "watch his posts". The spoken compliance line
-and its on-screen payload are in the close.
+      This is a sound to listen to, not a treatment. Nothing here diagnoses
+      anything or promises relief.
 
-**Do not let a platform caption undo that.** A Reel or TikTok caption written
-loose — anything shaped like "Musk moves the market" or naming a coin as a
-thing to hold — reintroduces exactly the claim the script spent four minutes
-avoiding, in a YMYL niche. Keep captions mechanism-shaped.
+- **Tags:** cat purr, purring sounds, tinnitus, sound therapy, relaxing sounds,
+  sleep sounds, breathing exercise, calm, asmr
+- **Chapters:** none. A session is one continuous piece and chapter marks would
+  invite skipping through it.
 
-## Undecided / worth a look before it goes out
+**Short**
 
-1. **The Short's thumbnail is a 9:16 file**, and YouTube Studio only accepts a
-   Short cover set by hand. Same manual step as every previous pair.
-2. **Nothing sets YouTube privacy.** Previous runs have gone up unlisted and
-   been flipped in Studio; decide which you want here.
-3. **No site `videos.json` entry is written by the build.** That is
-   `/publish-video`'s step, and the registry is hand-edited by design. Note
-   that the source is a `crypto-ogs/` page rather than a `posts/` one, so
-   whatever the registry expects for a source slug may need the different
-   prefix — check before appending.
-4. **The thumbnail scorer is irrelevant on this pair.** Both thumbnails use an
-   explicit `crop_at`/`crop_zoom`, which bypasses `_layout` entirely, so any
-   remembered "busiest-case score" warning from an earlier render does not
-   apply to the shipped files.
+- **Title:** `Cat Purring for Calm 🐱 (It Will Not Mask Your Tinnitus)`
+- **Description:** short version of the above, keeping the honest limit and the
+  zen URL. **The Short's CTA is the app, not the blog** — the project doc is
+  explicit that app install is the far better conversion from short-form.
 
-## The Short was re-cut after the first hand-off
+## What is new here, and what it constrains
 
-Two changes, both at the user's request, and both already rendered into the
-file above:
+**This is the channel's first comfort session, not a masking session.** It is a
+new class and the reasoning is committed in `docs/video/projects/tinnitus.md`.
+Two things follow for publishing:
 
-- **It opens on `Search`, matching the long form**, instead of the
-  statement-mode hook. The query is shorter than the long form's ("elon musk
-  crypto price") because `Search` types at 0.085s a character: the long
-  form's 40-character query runs 4.9s in total, which is a tenth of a Short.
-- **The long form's attention curve is now in the Short too**, same series and
-  same marker, so the pair makes one claim rather than two. This needed a
-  portrait layout for `chart` and a whitelist entry; both are in the same
-  commit and written up in `docs/video/shorts.md`.
+1. **Do not write masking into any caption, title or social post.** Measured
+   `band_energy` on the recording: 85.3% below 200 Hz, 14.0% in 200 Hz–1 kHz,
+   **0.67% in 1–4 kHz**, 0.03% in 4–8 kHz. The video itself says in its third
+   intro card that it will not cover a ringing, and copy that contradicts it is
+   worse than copy that omits it.
+2. **The site's own `zen/cat-purr-sounds` page does call purrs masking**, which
+   this recording does not support. **Unresolved, and the user's call** — the
+   page and this video currently disagree in public. Raise it, do not silently
+   edit the page as part of publishing.
 
-The diagram lost a node and four sentences were tightened to keep the runtime
-under the 50s ceiling. Runtime went 47.1s -> 49.5s.
+Engine changes shipped with it (commit `e06f0cc`, pushed): `soundbed.tile` /
+`seam_drop`, `render_asmr_long(bed_file_loop=...)`, and an `emoji` argument on
+both session thumbnails.
 
-## What changed during the build, for the record
+## Registry entry
 
-The first cut had **no photograph of Musk anywhere**, on the reasoning that the
-video's subject is a queue of offers and a face is a promise about the subject.
-The user's call was the opposite: he should be seen, and the thumbnail should
-say "the Musk effect". Both were rebuilt accordingly — three Commons
-photographs placed at the lines that name him, and new thumbnails on the
-arms-crossed portrait.
+A session, so it takes `kind: "session"` and a **zen** target, like
+`masking-breathing-5min` does — not a `blog` target:
 
-**There is no usable video of him at any resolution** — Pexels does not licence
-footage of a real public figure and Commons' only non-political clips are
-500x374. If footage is ever wanted, it is a licensed-archive purchase, not
-something this pipeline can fetch.
+```json
+{
+  "slug": "cat-purr-comfort-20min",
+  "kind": "session",
+  "title": "Cat Purring Sounds for Tinnitus and Calm (20 Minutes)",
+  "label": "Comfort session",
+  "description": "Twenty minutes of cat purring with a breathing circle to follow, four seconds in and six seconds out. A purr is too low to cover a ringing tinnitus, so this one is for company rather than masking.",
+  "duration": "PT20M",
+  "seconds": 1200,
+  "target": { "type": "zen", "slug": "cat-purr-sounds" },
+  "alsoOn": [],
+  "placement": "auto"
+}
+```
+
+`id`, `uploadDate` and `poster` are filled in by the publish step as usual.
+
+## Still undecided
+
+- Whether to correct the masking language on `zen/cat-purr-sounds`.
+- Whether the Short's CTA points at the app listing or at the zen page. The
+  project doc favours the app; the user has not said for this pair.
