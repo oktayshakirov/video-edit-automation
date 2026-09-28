@@ -728,16 +728,24 @@ describes an adjustment that does nothing when there is no energy in the band.
 So that piece is a **comfort session** instead, and the class is worth reusing
 for rain, fire or a fan:
 
-- **It says what it will not do, early.** `cat-purr-comfort-20min.py` puts the
-  limit in the third intro card, inside the first fifteen seconds. Somebody who
-  came looking for masking should find out then, not after twenty minutes.
+- **It makes no masking claim, and it does not make a denial either.** The
+  first cut opened its third card with "it will not cover your tinnitus" —
+  accurate, and a negative in the first fifteen seconds of a piece whose whole
+  job is to settle someone. **Not claiming masking and denying masking are
+  different things, and only the first is required.** State the good case
+  positively instead (deep, resonant, rhythmic, a sound of comfort and
+  contentment: the album description's own ground, all of it true of the
+  recording) and leave the claim unmade. The honesty requirement is met by
+  omission.
 - **The breathing block stays.** Lowering arousal is the thing such a video can
   honestly claim, so it keeps a pattern — but an unnamed one (4-in/6-out), not
   a named technique like 4-7-8. A comfort piece invites breathing; it does not
   teach.
 - **The site can be wrong and the measurement still wins.** `zen/cat-purr-sounds`
-  describes purrs as masking tinnitus. This recording does not support that.
-  Run `band_energy` on the file, not on the page.
+  describes purrs as having a "natural masking effect". This recording does not
+  support that. Take the page's *positive* material — the comfort, the rhythm,
+  the sense of safety — and leave its masking sentence behind. Run
+  `band_energy` on the file, not on the page.
 
 ### `bed_file_loop`, and when a recording may be tiled
 

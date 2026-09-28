@@ -9,11 +9,20 @@ the video is allowed to be:
   1–4 kHz, 0.03% in 4–8 kHz.** Fundamental 27 Hz with amplitude modulation at
   27 Hz, which is a domestic purr exactly where the literature puts one. That
   is *less* reach than the old album tracks had, so this bed covers almost
-  nothing in the band tinnitus actually occupies. **The channel's usual "set it
-  just below your tinnitus" angle is meaningless here and the copy does not use
-  it.** The site's own `zen/cat-purr-sounds` page does describe purrs as
-  masking; this recording does not support that, and the measurement wins over
-  the page. The intro says outright that it will not cover a high ringing.
+  nothing in the band tinnitus actually occupies. **So no line in this video
+  claims masking** — not the channel's usual "set it just below your tinnitus",
+  and not the "natural masking effect" the site's own `zen/cat-purr-sounds`
+  page describes, which this recording does not support. The measurement wins
+  over the page.
+
+  **The copy says this positively rather than by disclaimer, at the user's
+  direction.** An earlier cut opened the third card with "it will not cover
+  your tinnitus", which is accurate and is also a negative in the first fifteen
+  seconds of a piece meant to settle someone. It is gone. What replaced it is
+  the album description's own ground — deep, resonant, rhythmic, a sound of
+  comfort and contentment — which is true of the recording and needs no
+  masking claim to stand up. **Not claiming masking and denying masking are
+  different things, and only the first is required.**
 * **The source is 600s and the piece is 1200s.** `bed_file` refuses a source
   shorter than the runtime, on purpose, because a trimmed recording has no
   seam. So this is the first build of **`bed_file_loop=True`**, which
@@ -33,8 +42,14 @@ the video can actually claim.
   = 1200s exactly. 1110 is 37 whole loops, which is the constraint
   `render_asmr_long` raises on.
 * **A 60s intro, the longest on the channel** — the user's brief allowed up to
-  a minute, and a session whose premise is counterintuitive ("this will not
-  mask anything") needs the room to say so and still arrive somewhere warm.
+  a minute, and a session that introduces a sound on its own terms, rather
+  than by what it masks, needs the room to make that case and still arrive
+  somewhere warm.
+* **No negative statements anywhere in the copy.** Standing rule for this
+  piece: the audience is distressed and the format is a comfort session, so
+  the script never tells the listener what the sound will fail to do. The
+  honesty requirement is met by omission — nothing overclaims — rather than by
+  a denial.
 * **The last card announces the circle before it arrives** ("in a moment a
   circle will appear"). `intro_at` and `reveal` put a deliberate gap between
   the final card and the ring's entrance, and in review that gap read as the
@@ -49,7 +64,7 @@ the video can actually claim.
   teal and violet sessions. The thumbnail accent is cyan for the same reason
   the waterfall's was orange: a cool number on a warm field.
 * **No medical claims, and no cure implied.** It names the sound, says what it
-  will not do, and says how to set the level.
+  does, and says how to set the level.
 
     PYTHONPATH=. .venv/bin/python projects/tinnitus-long/cat-purr-comfort-20min.py
 """
@@ -87,15 +102,15 @@ PALETTE = ((16, 10, 6), (128, 74, 24), (244, 206, 150), (250, 228, 190))
 # first fifteen seconds, not after twenty minutes.
 INTRO = [
     ("Twenty minutes of cat purring.",),
-    ("A purr sits remarkably low.",
-     "Around twenty-seven hertz, steady and rhythmic.",),
-    ("It will not cover your tinnitus.",
-     "There is almost no high sound in a purr,",
-     "so a ringing or a hiss will still be there.",),
-    ("It is here for company instead.",
-     "Something warm in the room with you.",),
-    ("Keep the volume low and comfortable.",
-     "It should feel nearby, not on top of you.",),
+    ("Deep, resonant and rhythmic.",
+     "Around twenty-seven hertz, steady and unhurried.",),
+    ("A purr is a sound of comfort and contentment,",
+     "and people have always found it settling.",),
+    ("Let it fill the room around you.",
+     "Let your attention rest on it,",
+     "the way it rests on rain.",),
+    ("Keep the volume low and comfortable,",
+     "quiet enough to sit in the background.",),
     ("In a moment a circle will appear.",
      "Follow it, and let your breathing settle:",
      "four counts in, six counts out.",),
