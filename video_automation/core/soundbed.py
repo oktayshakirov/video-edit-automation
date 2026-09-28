@@ -162,3 +162,98 @@ def band_energy(x: np.ndarray, sr: int = SR) -> dict[str, float]:
     return {"<200": band(0, 200), "200-1k": band(200, 1000),
             "1k-4k": band(1000, 4000), "4k-8k": band(4000, 8000),
             ">8k": band(8000, sr / 2)}
+
+
+def tile(src: Path, out: Path, duration: float, xfade: float = 8.0,
+         skip: float = 0.0, sr: int = SR) -> Path:
+    """Extend a real recording to any length by crossfading it onto itself.
+
+    **The exception to this module's own rule, and it is narrow.** Everything
+    above argues for generating a bed precisely because a looped track has a
+    seam every few minutes, and `render_asmr_long`'s `bed_file` path therefore
+    refuses a source shorter than the finished piece. That is right for a
+    recording chosen for what it masks. It is wrong for one chosen for what it
+    *is* — a ten-minute purr cannot be synthesised, and "then the session is
+    ten minutes" lets the length of a source file decide the shape of the
+    product.
+
+    So: tile it, and make the seam cheaper than the alternative rather than
+    pretending it is free. Each repeat is laid `xfade` seconds over the tail of
+    the one before it with an **equal-power** (cosine) crossfade, not a linear
+    one. Linear is what sounds like a dip: two decorrelated signals at 0.5 gain
+    sum to about -3 dB of power, so a linear fade audibly ducks in the middle,
+    which on a bed is the one artefact a listener notices. `cos/sin` gains hold
+    summed power flat across the splice.
+
+    The honest limits, both of which travel with the result:
+
+    * **The seam is quieter than a cut, not absent.** Measure it with
+      `seam_drop()` before shipping a new source, the way the picture loop's
+      splice is measured rather than asserted.
+    * **A recording's frequency spread is still whatever it is.** Tiling
+      changes the length and nothing else, so `band_energy()` governs the copy
+      exactly as it does for `bed_file`. Making a bed longer never makes it
+      cover more.
+
+    `skip` trims the source's own lead-in first. Raises if what remains is
+    shorter than `2 * xfade`, since a repeat has to be longer than the overlap
+    it is spliced with.
+    """
+    import soundfile as sf
+
+    x, in_sr = sf.read(str(src), dtype="float32", always_2d=True)
+    if in_sr != sr:
+        raise ValueError(
+            f"{src.name} is {in_sr} Hz but the bed is written at {sr} Hz — "
+            f"resample it first (the caller's ffmpeg step does this)")
+    x = x[int(skip * sr):]
+    n_x, n_f = len(x), int(xfade * sr)
+    if n_x < 2 * n_f:
+        raise ValueError(
+            f"{src.name} leaves {n_x / sr:.1f}s after a {skip:.1f}s skip, "
+            f"which is less than two {xfade:.1f}s crossfades — lower xfade")
+
+    want = int(duration * sr)
+    if n_x >= want:                      # long enough already, no seam at all
+        buf = x[:want]
+    else:
+        # Equal-power gains. `hold` is the part of a repeat that plays alone;
+        # each added repeat therefore contributes `n_x - n_f` new samples.
+        t = np.linspace(0.0, np.pi / 2, n_f, endpoint=False, dtype=np.float32)
+        fade_in, fade_out = np.sin(t)[:, None], np.cos(t)[:, None]
+        buf = np.zeros((want + n_x, x.shape[1]), dtype=np.float32)
+        buf[:n_x] = x
+        pos = n_x - n_f
+        while pos + n_f < want:
+            nxt = x.copy()
+            nxt[:n_f] *= fade_in
+            buf[pos:pos + n_f] *= fade_out
+            buf[pos:pos + n_x] += nxt
+            pos += n_x - n_f
+        buf = buf[:want]
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(str(out), buf, sr)
+    return out
+
+
+def seam_drop(x: np.ndarray, seam: float, xfade: float, sr: int = SR,
+              win: float = 0.25) -> dict[str, float]:
+    """How much power `tile()`'s crossfade actually loses, in dB.
+
+    The picture loop is defended by a measurement (mean frame difference across
+    the splice, 1.038, versus 1.348 for an ordinary step) rather than by the
+    claim that it is seamless. This is the audio equivalent, and it is the
+    thing to run on a new source: RMS through the middle of the crossfade
+    against RMS of `win` seconds well before it. `drop_db` near 0 is what
+    equal-power gains are for; anything past about -1.5 dB is audible as a dip
+    and wants a longer `xfade` or a different source.
+    """
+    mono = x.mean(axis=1) if x.ndim > 1 else x
+    rms = lambda a: float(np.sqrt(np.mean(a.astype(np.float64) ** 2)) or 1e-12)
+    mid = int((seam + xfade / 2) * sr)
+    half = int(win * sr / 2)
+    at_seam = rms(mono[mid - half:mid + half])
+    before = rms(mono[max(mid - int(4 * xfade * sr), 0):][:2 * half])
+    return {"seam_rms": at_seam, "plain_rms": before,
+            "drop_db": 20.0 * np.log10(at_seam / before)}

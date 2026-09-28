@@ -353,6 +353,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      bed: soundbed.Bed | None = None,
                      bed_files: tuple[Path, Path] | None = None,
                      bed_file: Path | None = None, bed_file_skip: float = 0.0,
+                     bed_file_loop: bool = False, bed_file_xfade: float = 8.0,
                      intro: list | None = None, outro: list | None = None,
                      voice: str = "luna",
                      intro_at: float = 3.0, outro_at: float = 4.5,
@@ -419,6 +420,18 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     `total` seconds starting `bed_file_skip` seconds in, then given the same
     long fades and `loudnorm=I=-20` treatment the generated bed gets. Pass at
     most one of `bed`, `bed_files` or `bed_file`.
+
+    **`bed_file_loop` lifts the rule that a `bed_file` must be at least as
+    long as the piece**, crossfading the recording onto itself to length via
+    `soundbed.tile` instead of raising. It is off by default and should stay
+    off for anything chosen for what it masks: a trimmed recording has no seam
+    and a tiled one has a cheap seam, so the default should keep costing
+    nothing. Turn it on when the recording is the *subject* rather than the
+    coverage — a ten-minute purr is not a noise colour and cannot be
+    synthesised, and without this the length of a source file decides the
+    length of the product. `bed_file_xfade` is the overlap; `soundbed.tile`
+    explains why it is equal-power and `soundbed.seam_drop` is how to check a
+    new source before shipping it.
     """
     workdir.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -454,17 +467,32 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
         wav = short_asmr.render_bed(low, high, workdir / "bed.wav", total,
                                     fade_in=0.0, fade_out=0.0)
     elif bed_file is not None:
-        if audio_mod.duration_of(bed_file) < total + bed_file_skip:
+        have = audio_mod.duration_of(bed_file)
+        if have < total + bed_file_skip and not bed_file_loop:
             raise ValueError(
                 f"{bed_file.name} is too short: a {total:.0f}s piece needs "
                 f"{total + bed_file_skip:.0f}s of track after the "
-                f"{bed_file_skip:.0f}s skip")
+                f"{bed_file_skip:.0f}s skip — or pass bed_file_loop=True to "
+                f"crossfade it to length (see soundbed.tile)")
         wav = workdir / "bed.wav"
-        subprocess.run(
-            ["ffmpeg", "-v", "error", "-y", "-ss", f"{bed_file_skip:.3f}",
-             "-i", str(bed_file), "-t", f"{total:.3f}",
-             "-ar", "48000", "-ac", "2", str(wav)],
-            check=True, capture_output=True)
+        if bed_file_loop:
+            # Decode whole, at the bed's own rate, then tile in numpy. ffmpeg's
+            # own `acrossfade` would need one filter stage per repeat, and the
+            # seam has to be measurable afterwards (`soundbed.seam_drop`),
+            # which means having the samples.
+            decoded = workdir / "bed-src.wav"
+            subprocess.run(
+                ["ffmpeg", "-v", "error", "-y", "-i", str(bed_file),
+                 "-ar", str(soundbed.SR), "-ac", "2", str(decoded)],
+                check=True, capture_output=True)
+            soundbed.tile(decoded, wav, total, xfade=bed_file_xfade,
+                          skip=bed_file_skip, sr=soundbed.SR)
+        else:
+            subprocess.run(
+                ["ffmpeg", "-v", "error", "-y", "-ss", f"{bed_file_skip:.3f}",
+                 "-i", str(bed_file), "-t", f"{total:.3f}",
+                 "-ar", "48000", "-ac", "2", str(wav)],
+                check=True, capture_output=True)
     else:
         wav = soundbed.write(workdir / "bed.wav", total, bed)
     # Long fades at both ends. A therapy bed that starts at full level is a

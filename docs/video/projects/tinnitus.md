@@ -715,6 +715,50 @@ sound completely is what most people do and what the post argues against.
 Same medical rule as mode 1, and it bites harder here because a session looks
 like a treatment. It is a sound to listen to. Say that.
 
+### A comfort session is not a masking session
+
+**`band_energy` decides which of the two a bed can be, and the answer is not
+always "masking".** The cat-purr recording measured 85.3% below 200 Hz, 0.67%
+in 1–4 kHz and 0.03% in 4–8 kHz — a 27 Hz fundamental with 27 Hz amplitude
+modulation, which is a purr exactly where the literature puts one, and *less*
+reach than the old album tracks had. Partial masking is the channel's angle
+and it is meaningless for a bed like that: "set it just below your tinnitus"
+describes an adjustment that does nothing when there is no energy in the band.
+
+So that piece is a **comfort session** instead, and the class is worth reusing
+for rain, fire or a fan:
+
+- **It says what it will not do, early.** `cat-purr-comfort-20min.py` puts the
+  limit in the third intro card, inside the first fifteen seconds. Somebody who
+  came looking for masking should find out then, not after twenty minutes.
+- **The breathing block stays.** Lowering arousal is the thing such a video can
+  honestly claim, so it keeps a pattern — but an unnamed one (4-in/6-out), not
+  a named technique like 4-7-8. A comfort piece invites breathing; it does not
+  teach.
+- **The site can be wrong and the measurement still wins.** `zen/cat-purr-sounds`
+  describes purrs as masking tinnitus. This recording does not support that.
+  Run `band_energy` on the file, not on the page.
+
+### `bed_file_loop`, and when a recording may be tiled
+
+`bed_file` refuses a source shorter than the finished piece, and that default
+is right: a trimmed recording has no seam. But it also lets the length of a
+source file decide the length of the product, which is wrong when the recording
+is the *subject* rather than the coverage — a ten-minute purr cannot be
+synthesised the way a noise colour can.
+
+**`bed_file_loop=True` crossfades the recording onto itself** via
+`soundbed.tile`, equal-power rather than linear because two decorrelated
+signals at 0.5 gain sum to about -3 dB and a linear fade audibly ducks in the
+middle. Measured on the shipped 20-minute purr mix with `soundbed.seam_drop`:
+**-0.13 dB on the bare bed, -0.24 dB after `loudnorm`** — inaudible, and the
+number is the point. Run `seam_drop` on a new source rather than asserting the
+seam is fine, the same way the picture loop's splice is measured.
+
+**Tiling changes the length and nothing else.** `band_energy` governs the copy
+exactly as it does for a trimmed `bed_file`; making a bed longer never makes it
+cover more.
+
 ---
 
 ## The audio bed — layer both files
