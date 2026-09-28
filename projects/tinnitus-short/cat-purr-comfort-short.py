@@ -10,12 +10,17 @@ and a Short is under a minute, so the plain `bed_file` path trims it and there
 is no seam at all here. The tiling exists for the 20-minute cut; see that file
 for the measurement.
 
-**The measured limit travels with the recording, and it is the whole angle.**
+**The measured limit travels with the recording and governs what may be said.**
 `band_energy` on this purr: 85.3% below 200 Hz, 0.67% in 1–4 kHz. It covers
 almost nothing in the band tinnitus occupies, so this is a **comfort** session
-rather than a masking one, and the Short says so in its second card instead of
-running the channel's usual "set it just below your tinnitus" line, which would
-be meaningless for this bed.
+rather than a masking one, and **no line here claims masking** — not the
+channel's usual "set it just below your tinnitus", which would be meaningless
+for this bed.
+
+**It does not deny masking either.** Both formats state the good case
+positively (deep, steady, rhythmic; comfort and contentment) and leave the
+claim unmade, which is the whole of the honesty requirement. A comfort session
+does not open by telling a distressed listener what the sound will fail to do.
 
 * **`cycles=3`** at a 10s cycle — a 30s breathing block, which leaves room for
   the two intro cards and one closing line inside a ~55-60s Short.
@@ -46,9 +51,9 @@ PALETTE = ((16, 10, 6), (128, 74, 24), (244, 206, 150), (250, 228, 190))
 # masking should be told inside the first ten seconds, not kept for the ring.
 INTRO = [
     ("Cat purring, around twenty-seven hertz.",
-     "Low, steady, and rhythmic.",),
-    ("It will not cover a ringing tinnitus.",
-     "It is here for company. Keep it quiet.",),
+     "Deep, steady and rhythmic.",),
+    ("A sound of comfort and contentment.",
+     "Keep it quiet, and let it settle around you.",),
     ("Follow the circle:",
      "four counts in, six counts out.",),
 ]
