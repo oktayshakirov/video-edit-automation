@@ -159,7 +159,7 @@ def stack_tile_size(band: int = 100) -> tuple[int, int]:
     return OUT_W, (OUT_H - band) // 2
 
 
-def pick_crop_tile(proxy: Path, tile_w: int, tile_h: int,
+def pick_crop_tile(proxy: Path, tile_w: int, tile_h: int, zoom: float = 1.0,
                    src_w: int = 3840, src_h: int = 2160) -> tuple[int, int, int, int]:
     """Place a window of an arbitrary aspect ratio — for a stacked-layout tile.
 
@@ -168,8 +168,19 @@ def pick_crop_tile(proxy: Path, tile_w: int, tile_h: int,
     and shorter than a 9:16 crop, so it keeps far more of the sensor width —
     enough that a `lateral` move can survive here where it would exit a 28%
     9:16 window.
+
+    `zoom` means what it means in `pick_crop` — 1.0 is full sensor height,
+    higher is closer — and **it is the vertical search that it buys, not the
+    magnification.** At the default tile aspect a 4K frame gives crop_w 2564,
+    comfortably inside 3840, so crop_h pins to the full 2160 and the search has
+    no vertical freedom at all: every tile comes back at y=0 whatever is in the
+    shot. That is correct for footage framed tight to the horizon and wrong for
+    a wide landscape, where it spends the tile on sky exactly as the full-height
+    9:16 window did before `pick_crop` learned to search y. Reach for ~1.45 on
+    an open landscape; at that value the window is 1490 lines *downscaled* into
+    a 910-line tile, so nothing is upscaled and the tile is if anything sharper.
     """
-    crop_h = src_h
+    crop_h = int(round(min(src_h, src_h / zoom)))
     crop_w = min(int(round(crop_h * tile_w / tile_h)), src_w)
     if crop_w == src_w:
         crop_h = min(int(round(crop_w * tile_h / tile_w)), src_h)

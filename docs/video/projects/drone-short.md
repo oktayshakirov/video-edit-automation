@@ -1,10 +1,28 @@
 # Project: drone, vertical
 
-A 9:16 MP4 rendered headless with ffmpeg - quote text or narration over a crop
-of a graded select. This shares the vertical engine with the article projects,
-so read `shorts.md` and, when there is narration, `narration.md` and `voice.md`.
+A 9:16 MP4 rendered headless with ffmpeg. This shares the vertical engine with
+the article projects, so read `shorts.md` and, when there is narration,
+`narration.md` and `voice.md`.
 
 The long-form FCPXML edit is a different engine - see `drone-long.md`.
+
+## Two short formats, and they are not interchangeable
+
+**Ask which one before building.** Most of this document is about the first;
+the second has its own section and its own rules.
+
+| | **quote short** | **POV short** |
+|---|---|---|
+| what it is | a written line over a graded select, silent or narrated | "what i see" on the controller, then "what my drone sees" |
+| the hook | the line | the gap between the two pictures |
+| voice | `leo`, or silent | silent, always |
+| text | the quote, 44px, the whole point | two labels, 34-42px, nearly incidental |
+| built with | `render_narrated*` / `render_short` | its own ffmpeg chain per project script |
+
+They answer the channel's "every short needs an angle" rule in opposite ways.
+The quote short **says** something over the footage; the POV short says nothing
+and lets the cut do it. Do not merge them — a quote over a POV cut gives the
+viewer two things to read and no reason to rewatch either.
 
 ## TikTok and YouTube are not one audience
 
@@ -99,6 +117,17 @@ together and put the type across the join, which worked but made the type
 fight two moving pictures at once. The band gives it ground of its own and
 reads as a deliberate frame rather than a crop artifact.
 
+**`pick_crop_tile` takes a `zoom`, and on open landscape it needs one.** Added
+on the Vienna POV cut. At the default tile aspect a 4K frame gives crop_w 2564,
+comfortably inside 3840, so crop_h pins to the full 2160 and the search has **no
+vertical freedom at all** — every tile comes back at `y=0` whatever is in the
+shot, and on a wide landscape that is most of a tile spent on sky. It is exactly
+the failure `pick_crop` was given a vertical search to fix; the tile version
+simply never got one, because every clip stacked before Vienna was framed tight
+to the horizon and `y=0` happened to be right. Reach for ~1.45 on an open
+landscape. Nothing is upscaled at that value — 1490 lines going into a 910-line
+tile — so it costs no sharpness.
+
 **The band is 100px, down from the 140 Sunset Sea Stack approved.** Trimmed on
 Golden Girl / 100 Rejections — the user asked for a shorter strip twice and
 then to make it the default. Karaoke words and an 88px set-piece word still
@@ -108,6 +137,15 @@ come out odd and x264 refuses the encode.
 
 **Never use "rotate your phone".** It spends the one second that decides
 retention on an instruction. Cropping and stacking both perform; friction does not.
+
+**Tested once as a closing tag and dropped.** The first Burgas POV cut argued
+the rule only bites in the *opening* second and ran a keyed rotate-phone
+animation at the end, as a pointer to a landscape version. The user's verdict on
+seeing it was to cut it, so the rule stands whole rather than gaining an
+exception. Two things are worth keeping from the attempt if it ever comes back:
+key a black-background graphic with `lumakey=0.04:0.16:0`, which holds the glyph
+antialiasing that a `colorkey` chews off the edges, and put a blurred dark copy
+of the graphic underneath it or white line art vanishes against sunlit water.
 
 ## Building one
 
@@ -497,6 +535,130 @@ rendering, not after.
 headroom at `start=1.0` on a 17.5s clip. The render maps with `-shortest`, so
 a video shorter than the audio truncates silently. Always ffprobe.
 
+## The POV format — "what i see" / "what my drone sees"
+
+**Approved, and the channel's numbers liked the first one.** Two cuts exist:
+`burgas-what-my-drone-sees.py` and `vienna-what-my-drone-sees.py`. The second
+is the fuller reference; read it first.
+
+The shape:
+
+1. **what i see** — a phone clip of the RC controller in hand, the live feed
+   running on its screen. Full bleed, label small and centre-ish.
+2. **what my drone sees** — the same place from the air. One shot, or two cut
+   in sequence.
+
+**The controller shot is the format, not the setup.** Frame one already
+contains the reveal in miniature — the drone's view as a postage stamp on a
+screen someone is holding — and that is what buys the second beat. A POV cut
+that opens on anything else is a different video.
+
+**Lead the air half with the shot that is on the controller's screen**, when
+the footage allows it. The Vienna cut opens the reveal on the Donauinsel, which
+the viewer has just seen as a thumbnail in beat one, and saves the skyscrapers
+for after. The cut lands because the first thing it hands over is the thing it
+already promised; anything the viewer has not been shown works better second.
+
+**Silent, always, and with no audio track at all.** `-an`, not a silent track —
+TikTok then treats a trending sound as the only audio, and the user lays their
+own music under the YouTube copy by hand. There is no narration in this format
+and adding one would spend the trending-sound lever on an AI voice reading two
+labels.
+
+**Runtime lands at 14-16s** across both cuts, which is the channel's best band
+anyway. The user sets it against a track they have already picked, so treat
+`TARGET_TOTAL` as given and let one shot absorb the remainder rather than
+trimming everything proportionally. **Report the cut points**, not just the
+runtime — "cuts at 2.31s and 8.51s" is what the user needs to line music up
+against, and it is the thing they ask for next if it is missing.
+
+**A short controller clip is boomeranged, never looped.** Both sources so far
+ran 2-6s, too short for a beat. Forward, then the same span reversed: the join
+is continuous because the reverse starts on the frame the forward pass ended
+on, where a hard loop puts a jump cut in the one place this format cannot
+afford one. An even number of passes ends where it began. This is the same
+trick `drone-short.md` already carried for a clip too short for its narration,
+reached from the other direction. `POV_SPEED` 1.8 and `DRONE_SPEED` 2.0 are the
+approved values; the air half wants speed or it reads as a postcard.
+
+**The labels are small and stay out of the way.** 34px on the air shots, 42px
+on the controller — the bigger of the two, because a controller filling the
+frame gives type far more to fight than open water does. White ink, and
+`bg_luma` pinned to 0 rather than sampled: it is the only control over the
+halo, and at a sampled value above 0.62 the halo turns white too and erases
+white type. Lowercase, and the wording does not change — it is a format, not a
+caption.
+
+**`y_frac` per beat, not one number for the cut.** 0.50 is right over open
+footage and wrong over the controller, where dead centre is the C/N/S switch
+and the screen bezel; 0.62 is the one clean band in that frame, the open sky of
+the feed on the controller's own screen. The air label clears a few seconds in
+and the footage runs on unlabelled — that silence is the shot doing the talking,
+and it is what the loop returns to.
+
+**Expect to hand-set the air crops, and check them at both ends of the span.**
+`pick_crop` scores texture, and on both Vienna clips the densest texture was not
+the subject: it put the island down the left edge and filled the frame with far
+skyline, and on the skyscrapers it chose dense housing and lost the DC Towers
+out of frame entirely — the `Hills Monument` failure in *Do not*, twice in one
+build. A centred subject is most of why a POV reveal works in 9:16, so measure
+where the subject actually sits and set `x` yourself. Then check the box at the
+**end** of the span too: these are push-ins, and eleven seconds of source at 2x
+is enough for a subject to walk out of a box that framed it at the in-point.
+
+## Grade from the measurement, not from the look
+
+**Raw drone footage off this aircraft ships flat, and the user notices.** The
+verdict on the first Vienna cut was "very faded, not sure if its missing
+shadows or is underexposed". Half right, and the half that was wrong would have
+made it worse: `signalstats` said both clips averaged *brighter* than mid
+(YAVG 145 and 138, YMAX 247 and 237). Raising exposure was the obvious move and
+the wrong one.
+
+**Measure before grading.** One ffmpeg call:
+
+```bash
+ffmpeg -v error -ss 35 -t 0.2 -i clip.mp4 \
+  -vf "signalstats,metadata=print:file=-" -f null - 2>/dev/null | \
+  grep -E "YLOW|YAVG|SATAVG"
+```
+
+Read three numbers:
+
+| reading | healthy | what it means when it is off |
+|---|---|---|
+| `YLOW` | near 16 | at 58-61 the blacks are lifted — the "missing shadows", and what makes haze read as a veil over the whole frame |
+| `YAVG` | 100-140 | this is the exposure question, and it is usually **not** the problem |
+| `SATAVG` | 30-60 | at 10-22 the footage is desaturated, which is most of what "faded" actually means |
+
+The fix is a black-point pull plus saturation:
+`colorlevels=rimin=B:gimin=B:bimin=B,eq=saturation=S:contrast=C`, after the
+downscale so `unsharp` works on shipping pixels rather than 4K detail the scale
+is about to throw away.
+
+**Grade each clip to its own numbers.** Approved values from the Vienna cut,
+which are three different grades in one 14-second video:
+
+| clip | before (YLOW / SATAVG) | grade (black / sat / contrast) |
+|---|---|---|
+| Donauinsel, 4K drone, `tv` | 58 / 15.3 | 0.12 / 1.32 / 1.08 |
+| Skyscrapers, 4K drone, `tv` | 61 / 21.6 | 0.10 / 1.22 / 1.06 |
+| controller, iPhone, `pc` | 31 / 10.1 | 0.03 / 1.45 / 1.08 |
+
+**The phone clip needed close to the opposite treatment**, which is the whole
+argument for measuring. It is full-range (`pc`/`yuvj420p`), its shadows were
+never lifted, and the 0.10-0.12 that rescued the drone clips would have crushed
+the grass and the controller body flat. What it shared was the saturation
+problem, worse than either — hence the smallest black move and the biggest
+saturation lift in the cut.
+
+**Both ends have a tell that says stop.** Too much black and the tree canopy
+loses its internal detail; too much saturation and a neutral grey object starts
+taking a colour cast off whatever is around it — the controller body going warm
+off the grass was what capped that clip at 1.45. `unsharp=5:5:0.9:5:5:0` is for
+the haze, not for resolution; none of this footage is soft, and pushing it
+further only finds artifacts along hard edges like tower sides.
+
 ## One clip vs. two stacked
 
 **Stacked is the default for a narrated quote with two clips.** Use
@@ -522,6 +684,14 @@ when the user explicitly asks for one clip after another.
   and report the **ffprobed** runtime, not the one the builder returned.
 - Ship pure scenery with no angle — it measurably does not work here.
 - Redesign either text template; both were iterated against real references.
+- **Grade by eye without measuring first.** "Faded" is usually lifted blacks
+  plus low saturation, not underexposure, and the correction for the one is the
+  opposite of the correction for the other. See *Grade from the measurement*.
+- **Reuse one grade across clips.** Even two shots from the same aircraft in
+  the same hour measure differently; a phone clip in the same cut is a different
+  colour range entirely.
+- **Put a quote on a POV cut, or labels on a quote short.** They are two
+  formats, not one with options. See *Two short formats*.
 - **Trust `pick_crop` without looking at it.** On Hills Monument it chose x=24 —
   dense city texture on the far left outscored the hill, and the monument was cut
   out of frame entirely. Any clip with a lone subject against busy ground will
