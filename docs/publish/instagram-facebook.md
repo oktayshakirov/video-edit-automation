@@ -313,3 +313,43 @@ be re-made. What is *not* recoverable from our side is the Facebook video id of
 an older post - `Summary` reports it at publish time and we have never stored
 it, so a backfill of the videos published before 2026-10-02 has to list each
 Page's videos and match on title.
+
+### The backfill, done 2026-10-02
+
+**All 39 native Page videos across both Pages now carry their real cover**, so
+this is history rather than a pending job. What it took, in case it is ever
+needed again:
+
+1. **List each Page's videos.** `GET /me/videos?fields=id,title,description,
+   created_time` with the HTTP Request node's own pagination
+   (`responseContainsNextURL`, `nextURL` from `$response.body.paging.next`).
+   38 on the crypto Page, 45 on tinnitus. **A Code node cannot do this** -
+   `this.helpers.httpRequestWithAuthentication` is not reachable there and the
+   workflow just errors, so the credential has to be used from an HTTP Request
+   node.
+2. **Match on `title`, and only titled videos are native videos.** A Reel has no
+   `title` - its caption is the `description` - so the titled subset *is* the
+   native-video subset. 17 of the 38 crypto Page videos were titled, and all 17
+   matched a registry entry exactly; the same for 22 of 45 on tinnitus. No title
+   matched two videos.
+3. **Covers come from `i.ytimg.com/vi/<id>/maxresdefault.jpg`**, which resolved
+   for all 38 - no `sddefault`/`hqdefault` fallback was needed, though the script
+   checked for one.
+
+**Two long forms are deliberately not in that count.** `rug-pull` and
+`what-is-a-crypto-whale` have no native Page video at all - they reached the
+crypto Page only as Reels, whose covers the Reel workflow already sets. A
+registry entry is not evidence that a video was posted to the Page.
+
+**The four tinnitus sound sessions are in it.** They are `kind: "session"`, not
+`"long"`, but they are native Page videos with titles and registry entries, so
+they were included. Filtering a backfill on `kind === "long"` would silently
+skip them.
+
+**The verification, for all 38:** mean absolute pixel difference against the
+exact image sent was **0.00** on every one - Facebook serves back the bytes it
+received, so there is no re-encode noise to allow for when the comparison source
+is the same `maxresdefault.jpg` that was uploaded. The 0.35 recorded above came
+from comparing against the local Desktop jpeg, which is a different encode of
+the same picture. Either way the contrast with an auto-extracted frame (68.7) is
+not close.
