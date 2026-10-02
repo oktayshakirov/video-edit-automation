@@ -274,3 +274,42 @@ in the request" failure described at the end of `telegram.md`. All four
 references are now pinned to `$('Normalise Input').item.json`. The standalone
 workflow was never affected and is still the one to prefer, for the retry
 reason given there.
+
+### How to verify a Page video's cover, since every success response lies
+
+**Verified end to end on `1512459030720842` (the `first-bitcoin-transaction`
+long form) on 2026-10-02.** The route that works, and the only one that proves
+anything:
+
+1. `POST /{video_id}/thumbnails?is_preferred=true` with the image as multipart
+   `source` returns `{"success": true}`. **That response is worth nothing** - it
+   is the same shape `thumbnails.set` returns on YouTube in every row of the
+   matrix in `youtube.md`, including the rows where the cover ends up blank.
+2. `GET /{video_id}/thumbnails?fields=id,uri,is_preferred,width,height` lists
+   every thumbnail Facebook holds. A freshly published long form has about a
+   dozen, all auto-extracted frames, and exactly one should come back
+   `is_preferred: true` afterwards.
+3. **The `width` and `height` in that listing are also wrong.** Ours reported
+   `1920x1080` for an image that is `1280x720`; the auto-extracted frames
+   genuinely are `1920x1080`, so the field cannot even be used to tell them
+   apart. Download the preferred entry's `uri` and measure the file.
+4. **Then compare the pixels.** Mean absolute difference against the thumbnail
+   we uploaded was **0.35**, which is jpeg re-encoding noise - the same order as
+   the 1.1 measured when `fetch_video_poster` replaced the locally composited
+   poster. An auto-extracted frame scored **68.7** against the same image, so
+   the two outcomes are not close and there is no judgement call to make.
+
+Steps 2 to 4 need the Page credential, which lives encrypted in n8n. The way to
+borrow it without touching a live workflow is a throwaway workflow - webhook ->
+HTTP Request with `nodeCredentialType: facebookGraphApi` -> Code to summarise -
+created through the REST API, activated, called once, then deactivated and
+deleted. **Never add a test node to the real publish workflow to do this**; an
+accidental run of that workflow re-uploads the video to the Page.
+
+**A cover set this way is applied to an already-published video.** So the fix
+above is also the backfill: any Page video can be given its real cover later
+from `i.ytimg.com/vi/<id>/maxresdefault.jpg`, and nothing about the post has to
+be re-made. What is *not* recoverable from our side is the Facebook video id of
+an older post - `Summary` reports it at publish time and we have never stored
+it, so a backfill of the videos published before 2026-10-02 has to list each
+Page's videos and match on title.
