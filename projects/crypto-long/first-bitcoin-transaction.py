@@ -205,7 +205,13 @@ SECTIONS = [
             # sentence three, around 10s, where the reveal would have fallen
             # back and the bar come off with nobody saying anything. Naming
             # the subject in sentence one is `narration.md`'s rule anyway.
-            ("Ten bitcoins once moved to a cryptographer called Hal Finney.",),
+            # `Finney` phonemizes to `fˈɪni` - correct on paper and wrong in
+            # the mouth. The user picked `Finnee` (`fˈɪniː`) off a synthesised
+            # A/B. The respelling is in the **spoken** half only, so the
+            # caption and the SRT still read correctly, and the hook keys on
+            # "Hal", which does not change.
+            (("Ten bitcoins once moved to a cryptographer called Hal Finney.",
+              "Ten bitcoins once moved to a cryptographer called Hal Finnee."),),
             ("It was the twelfth of January, two thousand nine.",
              "The first time Bitcoin had ever been used to pay anybody."),
             ("Three days after the software existed at all.",),
@@ -247,7 +253,8 @@ SECTIONS = [
         sentences=[
             ("The software was released on the ninth of January, "
              "two thousand nine.",),
-            ("Finney downloaded it the same day.",
+            (("Finney downloaded it the same day.",
+              "Finnee downloaded it the same day."),
              "He was the first person other than its creator known to run it."),
             ("His computer started mining, and it found block seventy-eight.",),
             # The reversal this chapter exists for. 0.95 in front of it,
@@ -278,6 +285,8 @@ SECTIONS = [
     # --- who he was ---------------------------------------------------------
     Section(
         title="So who was Hal Finney?",
+        # The card reads correctly; the voice gets the respelling.
+        spoken_title="So who was Hal Finnee?",
         sentences=[
             ("He was a cryptographer, and he had been one for a long time.",),
             # `Caltech` phonemizes as `kˈɔltɛk` - "cawl-tek". `Caltek` returns
@@ -343,8 +352,10 @@ SECTIONS = [
              "And a file can be copied."),
             ("Spend the same coin twice, and nobody can tell "
              "which payment was the real one.",),
-            ("In two thousand four, Finney built the closest "
-             "anyone had come to solving it.",),
+            ((("In two thousand four, Finney built the closest "
+               "anyone had come to solving it."),
+              ("In two thousand four, Finnee built the closest "
+               "anyone had come to solving it.")),),
             ("He called it reusable proof of work.",
              "You spent real computing time to make a token, "
              "and then you could pass that token on."),
@@ -400,7 +411,8 @@ SECTIONS = [
         spoken_title="So what did those ten coins actually prove?",
         sentences=[
             ("Which brings us back to the twelfth of January.",),
-            ("Satoshi Nakamoto sent ten bitcoins, and Finney received them.",),
+            (("Satoshi Nakamoto sent ten bitcoins, and Finney received them.",
+              "Satoshi Nakamoto sent ten bitcoins, and Finnee received them."),),
             # `count=False`: a block height counting up from zero shows 43 and
             # 112 on the way, and a paused frame would read as a fact.
             ("It is written down in block one hundred and seventy.",),

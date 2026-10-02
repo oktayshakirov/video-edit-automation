@@ -136,7 +136,11 @@ SENTENCES = [
     # It is still a partial answer in `narration.md`'s sense: it names him and
     # opens the bigger question (so what did he build, and why did it fail?)
     # rather than handing over the verdict.
-    ("Hal Finney.",
+    # `Finney` phonemizes to `fˈɪni` - correct on paper and wrong in the
+    # mouth. `Finnee` returns `fˈɪniː`, the user's pick off a synthesised
+    # A/B. Spoken half only: the caption and the burned karaoke line still
+    # read "Hal Finney", and the hook keys on "Hal" either way.
+    (("Hal Finney.", "Hal Finnee."),
      "A cryptographer who had already built digital money of his own."),
 
     ("Five years before Bitcoin existed.",
