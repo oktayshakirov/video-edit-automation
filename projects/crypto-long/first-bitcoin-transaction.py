@@ -116,31 +116,65 @@ SOURCE_POST = None
 SOURCE_OG = "hal-finney"
 
 V = STOCK / "videos"
+P = STOCK / "photos"
 ROOT = _P(__file__).resolve().parents[2]
 BRAND = ROOT / "assets/brand"
 
 # Luma/saturation across the whole clip, then read off a labelled contact
 # sheet. Durations matter: the long ones carry the paragraphs, the short ones
 # the single-line sentences, and anything under ~14s is a one-use clip.
-LEDGER = V / "old-ledger-book-handwriting-candle-dark/11530055.mp4"      # 21s, L33-36 S26, hands over a handwritten ledger by candlelight
-ROOM = V / "old-ledger-book-handwriting-candle-dark/10425839.mp4"        # 11s, L21-23 S21, a closed book and a candle in a dark room
-CHAIN = V / "chain-links-metal-heavy-dark/12797959.mp4"                  # 40s, L16-18 S5, heavy rusted chain links
-BRIDGE = V / "bridge-lights-at-night-long-exposure/30153497.mp4"         # 15s, L2 S0, a line of lamps receding into black over water
-WEB = V / "spider-web-with-dew-dark/27175163.mp4"                        # 16s, L29-44 S0, a web and its spider, monochrome
-CANDLE = V / "candle-flame-flickering-darkness/12550702.mp4"             # 19s, L2 S2, one candle on black
-EMBERS = V / "embers-glowing-in-a-fire-close-up-dark/13220869.mp4"       # 22s, L3-4 S5, embers breathing in a dark grate
-MATCH = V / "match-striking-flame-dark/4061849.mp4"                      # 26s, L3-28 S28, a match struck and burning down
-SPARKS = V / "sparks-rising-from-fire-at-night/12298312.mp4"             # 15s, L7-11 S8, orange sparks rising on black
+# **The roster is tech-first, and that is a re-cut** (2026-10-02). The first
+# pass was candles, fog, star trails, the moon, a spider web and a lighthouse -
+# every clip screened, every clip on-palette, and the user's verdict was that
+# the footage is irrelevant to the topic. It was: the nouns in this script are
+# a computer, software, code, a ledger, a register, a machine and a payment,
+# and none of those is a candle. **Relevance now outranks palette purity** -
+# `footage.md`'s own "a slightly bright correct picture beats a perfectly
+# graded wrong one", applied to the whole roster rather than to one slot.
+#
+# Luma/saturation across the whole clip, then read off a labelled contact
+# sheet. The sheet is what did the work again: a "server room" that is wine
+# barrels, a "vintage computer room" that is a party with red cups, a CRT
+# whose legible text reads VACCINE IS READY, a "binary code" that is Matrix
+# rain, and an "encryption" clip that is a man in a Guy Fawkes mask at a
+# Password Decryptor - which is the hooded-hacker cliche `thumbnails.md`
+# already rejects for answering a question this video never asks.
+CODE = V / "old-computer-terminal-green-text/9566431.mp4"                # 37s, L0-2 S2, C source scrolling on pure black
+SYNTAX = V / "source-code-scrolling-on-black-screen/853919.mp4"          # 15s, L22-23 S5, syntax-highlighted code, shallow focus
+CRTROOM = V / "computer-monitor-glow-on-face-dark/8720759.mp4"           # 40s, L30-34 S27, someone working in a room of old CRTs
+TAPE = V / "mainframe-computer-tape-drive-reels/8382683.mp4"             # 28s, L48-64 S11, a reel-to-reel tape deck turning
+KEYS = V / "fingers-on-mechanical-keyboard-dark/7534237.mp4"             # 16s, L43-51 S23, hands on a lit keyboard
+PHONE = V / "old-telephone-handset-dark/33464310.mp4"                    # 15s, L11-58 S0, a rotary telephone in near-darkness
+GLASSES = V / "computer-screen-reflected-in-glasses/8311536.mp4"         # 14s, L40-41 S27, a screen reflected in someone's glasses
+DESK = V / "programmer-coding-at-night-screen/34268782.mp4"              # 13s, L37-41 S55, one laptop lit in a dark room
+LAPTOP = V / "programmer-coding-at-night-screen/13522169.mp4"            # 12s, L56 S23, a laptop of code beside a warm lamp
+TYPING = V / "person-typing-laptop-dark-room-night/34771081.mp4"         # 12s, L19-25 S7, hands typing in near-darkness
+SCREENCODE = V / "encryption-security-digital-lock-screen/33187808.mp4"  # 12s, L14-17 S18, code on a screen, out of focus
+TERMUI = V / "encryption-security-digital-lock-screen/6963744.mp4"       # 12s, L47-48 S22, a dense terminal readout
+CHIP = V / "cpu-processor-chip-macro/11041433.mp4"                       # 11s, L16-29 S0, circuit traces lighting up
+COUNTER = V / "digital-numbers-counter-changing-dark/33504957.mp4"       # 11s, L8-21 S22, numerals forming out of gold particles
+
 COIN = V / "coin-spinning-on-dark-table/35996676.mp4"                    # 9s,  L7 S0, a coin spinning and settling
-GRID = V / "city-lights-from-above-at-night/9709111.mp4"                 # 12s, L38-39 S22, a lit street grid from above
-CITY = V / "city-lights-from-above-at-night/8978968.mp4"                 # 36s, L7 S4, a dark city from high above
-SNOW = V / "snow-falling-at-night-street-lamp/6527134.mp4"               # 33s, L24 S21, snow falling past a street lamp
-FOG = V / "fog-rolling-through-dark-forest-night/4999957.mp4"            # 23s, L16-27 S4, fog over a dark treeline
-MOON = V / "satellite-dish-at-night-sky/36492194.mp4"                    # 30s, L8 S3, the moon (the folder name lies)
-STARS = V / "stars-night-sky-timelapse-dark/38788509.mp4"                # 17s, L14-19 S16, star trails circling
-BEACON = V / "lighthouse-beacon-rotating-at-night/4814151.mp4"           # 20s, L27 S36, a lighthouse and its beam
-CANOPY = V / "dark-forest-canopy-looking-up-night/27437296.mp4"          # 16s, L14-15 S20, a star field through branches
-RAIN = V / "rain-on-dark-asphalt-street-night/3638386.mp4"               # 8s,  L42-44 S28, a wet street under amber lamps
+GRID = V / "city-lights-from-above-at-night/9709111.mp4"                 # 12s, L38-39 S22, a lit grid of streets from above
+RAIN = V / "rain-on-dark-asphalt-street-night/3638386.mp4"               # 8s,  L42-44 S28, a wet street (the compliance line only)
+
+# **Bitcoin itself, as stills** (2026-10-02, the user's call). The rusted
+# chain, the hands over an old ledger and the reel-to-reel tape deck are gone:
+# each was a *metaphor* for the noun rather than the noun, which is the same
+# fault as the candles one step less obvious. These are photographs rather
+# than clips, which is what was asked for and also what the format wants here
+# - every one is 6000px+, so it bleeds off all four edges of a 1920 frame with
+# no upscale and no fitted panel, and a still can fill a slot of any length.
+#
+# **Every still is used once** (`footage.md`), so there is one per slot and no
+# second crops. Three candidates were rejected on their subject rather than
+# their numbers: two had a live candlestick price chart behind the coins, and
+# one spelled TRADING in scrabble tiles - this channel shows no chart, no
+# ticker and no instruction to trade, ever.
+BTC_ONE = P / "single-gold-bitcoin-dark-background/20534452.jpg"         # 6102x4068, L12 S17, one coin upright, two lying, on black
+BTC_THREE = P / "physical-bitcoin-coin-on-dark-surface/20534490.jpg"     # 6240x4160, L16 S23, three gold coins on black
+BTC_SCATTER = P / "bitcoin-on-dark-table/8370773.jpg"                    # 6160x4107, L24 S16, coins scattered across dark wood
+BTC_TRIO = P / "physical-bitcoin-coin-on-dark-surface/38710818.jpg"      # 8640x5760, L76 S26, three large coins, lit
 
 # The only free photograph of him that exists, and it is of a teenager.
 # Public domain, Daily News-Post staff photo, via Wikimedia Commons.
@@ -165,11 +199,16 @@ SECTIONS = [
         title="Ten coins, worth nothing",
         card=False,
         sentences=[
-            ("On the twelfth of January, two thousand nine, "
-             "ten bitcoins moved from one computer to another.",),
-            ("It was the first time Bitcoin had ever been used to pay anybody.",
-             "Three days after the software existed at all."),
-            ("The man who received them was called Hal Finney.",),
+            # **His name is in sentence one now, and that is the hook's
+            # doing.** `hook_reveal_time` wants the bracketed word spoken
+            # between 1.2s and 4.2s; the old opening put "Hal Finney" in
+            # sentence three, around 10s, where the reveal would have fallen
+            # back and the bar come off with nobody saying anything. Naming
+            # the subject in sentence one is `narration.md`'s rule anyway.
+            ("Ten bitcoins once moved to a cryptographer called Hal Finney.",),
+            ("It was the twelfth of January, two thousand nine.",
+             "The first time Bitcoin had ever been used to pay anybody."),
+            ("Three days after the software existed at all.",),
             # The planted fact. Stated here, drawn on the timeline in chapter
             # three, and not explained until chapter four.
             ("And five years earlier, he had built digital money of his own.",
@@ -181,15 +220,22 @@ SECTIONS = [
              "exactly what he was looking at."),
         ],
         shots=[
-            # Open on motion, and on the literal noun: a coin. 9s source, so
+            # Open on motion and on the literal noun: a coin. 9s source, so
             # this is its only use in either file.
             Shot(clip=COIN, clip_at=0.5),
-            Shot(clip=CHAIN, clip_at=2.0),
-            # "The man who received them" - hands over a ledger. There is no
-            # photograph of him, so a pair of hands carries the person.
-            Shot(clip=LEDGER, clip_at=2.0),
-            Shot(clip=CANDLE, clip_at=1.0),
-            Shot(clip=CITY, clip_at=2.0),
+            # "a cryptographer" / the first payment - a person reading a
+            # screen. There is no photograph of adult Hal Finney, so nobody
+            # stands in for him; the picture says *somebody at a terminal*.
+            Shot(clip=GLASSES, clip_at=1.0),
+            # "after the software existed at all" - the software, literally.
+            Shot(clip=CODE, clip_at=2.0),
+            # "he had built digital money of his own" - one lit machine.
+            Shot(clip=DESK, clip_at=1.0),
+            # "you will know what those ten coins actually proved" - a figure
+            # assembling itself. Not the CRT room: that clip opens chapter
+            # three four clip-slots later, and `audit_assets.py` wants repeats
+            # five apart so a return does not read as a repeat.
+            Shot(clip=COUNTER, clip_at=1.0),
         ],
         gaps=[0.95, 0.80, 0.75, 0.90, 0.85],
     ),
@@ -213,12 +259,18 @@ SECTIONS = [
              "that could make money and had never moved any.",),
         ],
         shots=[
-            Shot(clip=SNOW, clip_at=3.0),
+            Shot(clip=SYNTAX, clip_at=1.0),
             None,
-            Shot(clip=SPARKS, clip_at=1.0),
-            Shot(clip=MATCH, clip_at=2.0),
-            Shot(clip=LEDGER, clip_at=12.0),
-            Shot(clip=FOG, clip_at=2.0),
+            # "his computer started mining" - a processor doing work.
+            Shot(clip=CHIP, clip_at=1.0),
+            Shot(clip=TERMUI, clip_at=1.0),
+            # "mining creates new coins" - the coins, as a photograph.
+            # **This also splits a 12.6s hold.** The ledger clip ran across
+            # both of these sentences, which is half again the ~8s ceiling
+            # `footage.md` sets; two stills give each sentence its own
+            # picture and fix the hold at the same time.
+            Shot(image=BTC_SCATTER, zoom=1.08, pan=(0.02, 0.0)),
+            Shot(image=BTC_ONE, zoom=1.10, pan=(-0.02, 0.0)),
         ],
         gaps=[0.60, 0.80, 0.85, 0.95, 0.75, 0.90],
     ),
@@ -250,15 +302,27 @@ SECTIONS = [
              "Two thousand four. He builds digital cash of his own.",
              "Two thousand nine. He receives the first Bitcoin payment "
              "ever sent.",
+             # **"A.L.S." is read as "of-a DOT el ess".** espeak turns the
+             # full stops into the word "dot" once the initialism sits inside
+             # a sentence - `He dies of A.L.S.` phonemizes to
+             # `hiː dˈaɪz əvə dˈɑːt ˌɛlˈɛs`, which is the glitch the user
+             # heard. The disease's full name phonemizes cleanly and is the
+             # better line anyway; the card still reads "Dies of ALS".
              ("Two thousand fourteen. He dies of ALS.",
-              "Two thousand fourteen. He dies of A.L.S.")),
+              "Two thousand fourteen. "
+              "He dies of amyotrophic lateral sclerosis.")),
         ],
         shots=[
-            Shot(clip=STARS, clip_at=1.0),
-            Shot(clip=MOON, clip_at=2.0),
+            Shot(clip=CRTROOM, clip_at=18.0),
             None,
-            Shot(clip=BEACON, clip_at=1.0),
-            Shot(clip=CANOPY, clip_at=1.0),
+            # "P G P, the encryption that made private email possible" -
+            # code on a screen, deliberately out of focus so no stray string
+            # is legible enough to say the wrong noun.
+            Shot(clip=SCREENCODE, clip_at=1.0),
+            # The cypherpunk mailing lists, before the web - a rotary phone
+            # is the picture of that era's wire.
+            Shot(clip=PHONE, clip_at=1.0),
+            None,
             Shot(graphic="timeline", backdrop=BEATGROUND,
                  payload=([("1979", "Leaves Caltech"),
                            ("2004", "Builds his own digital cash"),
@@ -297,12 +361,20 @@ SECTIONS = [
              "Trust it, or the money does not work."),
         ],
         shots=[
-            Shot(clip=FOG, clip_at=12.0),
+            Shot(clip=CODE, clip_at=20.0),
             None,
-            Shot(clip=EMBERS, clip_at=10.0),
-            Shot(clip=ROOM, clip_at=1.0),
-            Shot(clip=SNOW, clip_at=16.0),
-            Shot(clip=WEB, clip_at=1.0),
+            # "spend the same coin twice" - a counter, which is the thing a
+            # double spend breaks.
+            Shot(clip=COUNTER, clip_at=3.0),
+            Shot(clip=LAPTOP, clip_at=1.0),
+            # **Not a hold.** Holding LAPTOP through this sentence made a
+            # 12.7s slot on a 12s clip - preflight caught it, and an 8.5s+
+            # hold is over the limit anyway. The slot is 7.8s, so it needs a
+            # clip with 8s of headroom left: CHIP is 11s and came up exactly
+            # 0.0s short at a second position. A terminal mid-computation is
+            # the better picture for "proof of work" anyway.
+            Shot(clip=TERMUI, clip_at=3.0),
+            Shot(clip=TYPING, clip_at=1.0),
             Shot(graphic="steps", backdrop=BEATGROUND,
                  # `steps` takes a flat list of strings. A two-tuple is read
                  # as `(text, emoji)` and raises in `emoji_image`; `grid` is
@@ -312,9 +384,12 @@ SECTIONS = [
                            "Check it against a register",
                            "One machine keeps that register"],
                           "EVERY TIME IT CHANGED HANDS")),
-            Shot(clip=STARS, clip_at=8.0),
-            # One flame in the dark, under "it was still one machine".
-            Shot(clip=CANDLE, clip_at=9.0),
+            Shot(clip=SYNTAX, clip_at=6.0),
+            # "but it was still one machine" - one lit laptop in a dark room.
+            # 4.0 rather than 1.0 because the opening chapter now takes this
+            # clip's head, and two uses on the same frame read as one shot
+            # repeated rather than as a return.
+            Shot(clip=DESK, clip_at=4.0),
         ],
         gaps=[0.85, 0.70, 0.90, 0.85, 0.80, 0.95, 2.10, 0.85, 0.95],
     ),
@@ -341,11 +416,18 @@ SECTIONS = [
              "and what he was sent.",),
         ],
         shots=[
-            Shot(clip=MOON, clip_at=15.0),
-            Shot(clip=BRIDGE, clip_at=1.0),
-            Shot(graphic="stat", backdrop=BEATGROUND,
+            Shot(clip=PHONE, clip_at=7.0),
+            Shot(clip=KEYS, clip_at=1.0),
+            # **His photograph, a second time.** Wikidata confirms the 1972
+            # newspaper shot is the only free image of him that exists, so
+            # "more pictures of him" means using the one there is twice, in
+            # the two beats that have a picture column. `footage.md` sanctions
+            # exactly this for a subject with a single portrait - two crops,
+            # spaced a minute apart, read as a bookend rather than a repeat.
+            Shot(graphic="stat", backdrop=BEATGROUND, picture=FINNEY,
                  payload=("BLOCK 170", "THE FIRST PAYMENT",
                           "ten coins, from one person to another", False)),
+            # "every computer on the network" - a grid of lit nodes.
             Shot(clip=GRID, clip_at=1.0),
             Shot(graphic="steps", backdrop=BEATGROUND,
                  # **Three nodes against the four above, deliberately.**
@@ -356,7 +438,14 @@ SECTIONS = [
                            "Every computer checks it",
                            "It goes in a ledger nobody owns"],
                           "THE SAME THING, WITHOUT THE MIDDLE")),
-            Shot(clip=CHAIN, clip_at=20.0),
+            # "nothing in that chain is a machine you have to trust" - a room
+            # of machines with no single one in charge. Not the rusted iron
+            # chain that used to sit here: the metaphor was the problem, since
+            # a blockchain is not a chain anyone can photograph. The circuit
+            # clip was the first replacement and preflight refused it - the
+            # slot runs 8.8s and an 11s source has 7.8s left at a second
+            # position.
+            Shot(clip=CRTROOM, clip_at=28.0),
             None,
         ],
         gaps=[0.75, 0.85, 1.20, 0.95, 1.90, 0.95, 0.90],
@@ -380,9 +469,17 @@ SECTIONS = [
              "that morning, would you have known what you were holding?",),
         ],
         shots=[
-            Shot(clip=WEB, clip_at=7.0),
-            Shot(clip=SPARKS, clip_at=6.0),
-            Shot(clip=MATCH, clip_at=16.0),
+            # Not CHAIN and not KEYS here: both are used in the chapter
+            # immediately above and `audit_assets.py` wants repeats at least
+            # five slots apart, which is the rule that stops a re-use reading
+            # as the video running out of pictures.
+            # "the ten coins were worth nothing" - the coins.
+            Shot(image=BTC_TRIO, zoom=1.08, pan=(0.02, 0.01)),
+            Shot(clip=TYPING, clip_at=4.0),
+            # "he had spent five years building the version that still needed
+            # a middle" - his own machine, lit, a minute after the chapter
+            # that explained it. Not KEYS: that is four clip-slots back.
+            Shot(clip=LAPTOP, clip_at=3.0),
             None,
             # The one picture of him, in the picture column where a square
             # L146 source is a downscale and reads as an inset rather than a
@@ -394,7 +491,11 @@ SECTIONS = [
             # The compliance line runs over a quiet frame, never a person.
             Shot(clip=RAIN, clip_at=0.0,
                  payload=("", "This is not financial advice.")),
-            Shot(clip=BEACON, clip_at=10.0),
+            # The outro question runs ~8.6s. A still fills a slot of any
+            # length, which is the other reason the bitcoin photographs earn
+            # their place here - and closing on the coin the whole video is
+            # about is a better last frame than any of the clips.
+            Shot(image=BTC_THREE, zoom=1.12, pan=(-0.02, 0.0)),
         ],
         gaps=[0.85, 0.95, 0.90, 0.90, 1.60, 1.10, 2.30],
     ),
@@ -453,7 +554,16 @@ def main() -> None:
         # and they were worth [nothing]" is handed to you by the grammar.
         # Rotation: the last three long-forms ran Search, Search and a
         # redacted hook, so this is neither.
-        hook="Ten coins moved, and they were worth nothing at all",
+        # **The redaction is his name** (the user's call, 2026-10-02). A name
+        # is one of the classes `shorts.md`'s cover-the-bar test passes - "the
+        # first bitcoin ever sent went to ___" cannot be filled in from the
+        # sentence's own grammar, which is exactly what the direction-word
+        # redactions this channel used to write could not manage.
+        # `hook_reveal_time` matches on the *first* bracketed word, so the cue
+        # is "Hal", and it has to be spoken between 1.2s and 4.2s - which is
+        # why sentence one was rewritten to name him rather than opening on
+        # the date.
+        hook="The first bitcoin ever sent went to [Hal Finney]",
         thumb_headline="Who got the first [bitcoin?]",
         thumb_image=THUMB,
         thumb_accent="yellow",

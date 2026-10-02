@@ -88,19 +88,29 @@ SOURCE_POST = None
 SOURCE_OG = "hal-finney"
 
 V = STOCK / "videos"
+P = STOCK / "photos"
 ROOT = _P(__file__).resolve().parents[2]
 BRAND = ROOT / "assets/brand"
 
 # Screened across their length, then looked at on a labelled contact sheet.
 # The trailing comment is the luma/saturation range over the whole clip.
-EMBERS = V / "embers-glowing-in-a-fire-close-up-dark/13220869.mp4"       # 22s, L3-4 S5, embers breathing in a dark grate
-LIT = V / "candle-being-lit-in-the-dark-close-up/5767251.mp4"            # 31s, L2 S1, one candle burning on pure black
-ROOM = V / "old-ledger-book-handwriting-candle-dark/10425839.mp4"        # 11s, L21-23 S21, a closed book and a candle in a dark room
-GRID = V / "city-lights-from-above-at-night/9709111.mp4"                 # 12s, L38-39 S22, a lit street grid from above
-CANOPY = V / "dark-forest-canopy-looking-up-night/27437296.mp4"          # 16s, L14-15 S20, a star field through branches
-BRIDGE = V / "bridge-lights-at-night-long-exposure/30153497.mp4"         # 15s, L2 S0, a line of lamps receding into black
-COIN = V / "coin-spinning-on-dark-table/35996676.mp4"                   # 9s,  L7 S0, a coin spinning and settling
-CITY = V / "city-lights-from-above-at-night/8978968.mp4"                 # 36s, L7 S4, a dark city from high above
+# **Tech-first roster, and that is a re-cut** (2026-10-02). The first pass was
+# embers, candles, a star canopy and a lighthouse - all screened, all
+# on-palette, all irrelevant to a script whose nouns are a computer, a token,
+# a register and a machine. Relevance now outranks palette purity. Screened
+# across their length, then read off a labelled contact sheet.
+CODE = V / "old-computer-terminal-green-text/9566431.mp4"                # 37s, L0-2 S2, C source scrolling on pure black
+KEYS = V / "fingers-on-mechanical-keyboard-dark/7534237.mp4"             # 16s, L43-51 S23, hands on a lit keyboard
+GLASSES = V / "computer-screen-reflected-in-glasses/8311536.mp4"         # 14s, L40-41 S27, a screen reflected in someone's glasses
+DESK = V / "programmer-coding-at-night-screen/34268782.mp4"              # 13s, L37-41 S55, one laptop lit in a dark room
+TYPING = V / "person-typing-laptop-dark-room-night/34771081.mp4"         # 12s, L19-25 S7, hands typing in near-darkness
+CHIP = V / "cpu-processor-chip-macro/11041433.mp4"                       # 11s, L16-29 S0, circuit traces lighting up
+
+# Bitcoin itself, as a still. The hands-over-an-old-ledger clip that used to
+# sit here was a metaphor for the noun rather than the noun; this is 8640px,
+# so it never upscales. Every still is used once, so the long form has its own.
+BTC = P / "single-gold-bitcoin-dark-background/29968440.jpg"             # 8256x5504, L36 S33, one large gold bitcoin on black
+GRID = V / "city-lights-from-above-at-night/9709111.mp4"                # 12s, L38-39 S22, a lit grid of streets from above
 
 # The only free photograph of him that exists: aged 16, holding up a sheet of
 # hand-lettered mathematics. Public domain, Daily News-Post staff photo, via
@@ -119,16 +129,17 @@ SENTENCES = [
     # seconds into an answer somebody is waiting for.
     ("Who received the very first bitcoin ever sent?",),
 
-    # The partial answer, and it carries the hook's hidden token as its
-    # **first word**. Written "A cryptographer who, five years earlier..."
-    # the token landed at 4.4s, past `hook_reveal_time`'s 4.2s ceiling, and
-    # the render fell back to revealing at 3.0s on nothing - the bar came off
-    # before the voice got there. Fronting it also pulls the caption mute in,
-    # since captions resume at the first sentence starting after the hook
-    # clears.
-    ("Five years earlier, he had built digital money of his own.",),
+    # **His name is the reveal, so it is the first thing sentence two says.**
+    # `hook_reveal_time` matches the hook's first bracketed word - "Hal" - and
+    # wants it spoken between 1.2s and 4.2s. Sentence one ends around 3.3s, so
+    # putting the name at word one lands the reveal immediately after it.
+    # It is still a partial answer in `narration.md`'s sense: it names him and
+    # opens the bigger question (so what did he build, and why did it fail?)
+    # rather than handing over the verdict.
+    ("Hal Finney.",
+     "A cryptographer who had already built digital money of his own."),
 
-    ("His name was Hal Finney.",
+    ("Five years before Bitcoin existed.",
      "And his version worked."),
 
     ("You spent real computing time to make a token,",
@@ -161,28 +172,41 @@ SENTENCES = [
 ]
 
 SHOTS = [
-    # **The opening slot clears the hook band.** The headline sits centred at
-    # 34% of the height, and a candle's flame lands almost exactly there - so
-    # the single-candle clip, which is the obvious opener for "the first one",
-    # waits until shot two. The embers sit in the lower half and the frame is
-    # black where the band goes.
-    Shot(clip=EMBERS, clip_at=2.0, clip_ax=0.50),
+    # **The opener was re-cast on the real 9:16 crop, twice.** Code on black
+    # is the right *subject* for this video and the wrong opening *frame*:
+    # the source's text is sparse and the centre third catches almost none of
+    # it, so the first render opened on a near-black frame - the single worst
+    # place in a Short to have one. The circuit traces fill the crop, are
+    # white-on-black so they stay on palette, and are darkest at 34% of the
+    # height, which is exactly where the hook band lands.
+    Shot(clip=CHIP, clip_at=1.0, clip_ax=0.50),
+    # **"Hal Finney" gets the person, not the coin** - swapped after watching
+    # the render. The coin shot was here and the name now sits on a 4.7s
+    # sentence, over which that clip settles and dims to near-black: the
+    # frame where the viewer hears his name was the darkest in the cut. A
+    # person reading a screen is also the better picture for the sentence.
+    # No photograph of adult Hal Finney exists, so nobody stands in for him.
+    Shot(clip=GLASSES, clip_at=1.0, clip_ax=0.50),
     # **The pair shares a picture here rather than at frame one.**
     # `shorts.md` wants the two cuts to open on the same image so a viewer who
     # sees both recognises the second - but the long form opens on this coin,
     # and a 9s source has exactly one usable position, so sharing it at frame
     # one would spend the Short's opening slot on a clip that cannot also
-    # clear the hook band. It lands on sentence two instead, which is the
-    # nearest slot that keeps both rules.
-    # **`clip_ax=0.91`, measured on the real 9:16 crop rather than the
-    # landscape frame.** The coin sits at ~0.78 of the source width and the
-    # lamp lighting it at ~0.29, so the centred default takes the empty table
-    # between them: the first render of this shot was a black frame. 0.19
-    # gives the bare lamp, which reads as a lightbulb and not as a coin.
-    Shot(clip=COIN, clip_at=0.5, clip_ax=0.91),
-    Shot(clip=ROOM, clip_at=2.5, clip_ax=0.45),
-    Shot(clip=GRID, clip_at=3.0, clip_ax=0.50),
-    Shot(clip=CANOPY, clip_at=8.0, clip_ax=0.50),
+    # clear the hook band.
+    # "Five years before Bitcoin existed" - the coin itself, as a still.
+    # **The spinning-coin clip was here and came out near-black**: it settles
+    # and dims across its own length, and this sentence runs 3.5s, so most of
+    # it played over an almost empty frame. A photograph holds its light.
+    # `aspect` is the source's own ratio, so the crop is a no-op and the
+    # picture is letterboxed into the blurred fill rather than cut into.
+    Shot(image=BTC, aspect=8256 / 5504, zoom=1.08),
+    # "you spent real computing time to make a token" - hands doing the work.
+    Shot(clip=KEYS, clip_at=8.0, clip_ax=0.50),
+    # 4.0, not 1.0: at the head of the clip the 9:16 crop is a near-black
+    # frame with one dim hand in the corner. The hands are properly lit and
+    # on the keys from ~4s, and 4.0 is as late as the 8s-headroom rule allows
+    # on a 12s source.
+    Shot(clip=TYPING, clip_at=4.0, clip_ax=0.50),
     Shot(graphic="steps", backdrop=BEATGROUND,
          # **`steps` takes a flat list of strings, not (label, note) pairs.**
          # A two-tuple is read as `(text, emoji)` and the second element is
@@ -194,20 +218,23 @@ SHOTS = [
                    "Check it against a register",
                    "One machine keeps that register"],
                   "EVERY TIME IT MOVED")),
-    # One flame in the dark, under "trust that machine". The only use of
-    # this clip in either file, which is what the single-machine line wants.
-    Shot(clip=LIT, clip_at=1.0, clip_ax=0.50),
+    # "trust that machine" - one laptop lit in a dark room.
+    Shot(clip=DESK, clip_at=1.0, clip_ax=0.50),
     # **`chapter`, not `stat`, and that is a code fact rather than a choice.**
     # `stat` has no portrait layout - `crypto/build.py` refuses it outright,
     # along with `quote` and `compare`, because all three lay a content column
-    # beside a picture column at 1920. (`shorts.md` calls `stat` "the better
-    # vertical beat for a number that stands alone", which is wrong about this
-    # engine; noted for the doc pass.) A full-screen statement is the right
+    # beside a picture column at 1920. A full-screen statement is the right
     # vertical treatment for the one number anyway, and it is a completely
     # different silhouette from the track above it.
     Shot(graphic="chapter", payload=("TEN COINS. BLOCK 170.",)),
-    Shot(clip=BRIDGE, clip_at=6.0, clip_ax=0.50),
-    Shot(clip=CITY, clip_at=12.0, clip_ax=0.50),
+    # "no machine in the middle" - a grid of lit nodes with no centre.
+    # **Not a second bitcoin still:** `footage.md` allows each still exactly
+    # one use across the pair, and the long form spends the other four.
+    Shot(clip=GRID, clip_at=3.0, clip_ax=0.50),
+    # The outro card carries the closing line, so the frame under it wants to
+    # be uncluttered - which is the one slot where this clip's sparseness is
+    # the right property rather than the wrong one.
+    Shot(clip=CODE, clip_at=25.0, clip_ax=0.50),
 ]
 
 # 2.10 on the steps sentence buys the silence its four nodes are read in;
@@ -225,7 +252,12 @@ def main() -> None:
         # The hidden token is a duration, which passes the cover-the-bar test:
         # the sentence's own grammar does not hand it to you. Sentence 2 says
         # it five words in.
-        hook="He built digital money [five years] before Bitcoin",
+        # **The redaction is his name** (the user's call, 2026-10-02). A name
+        # passes `shorts.md`'s cover-the-bar test outright: "the first bitcoin
+        # ever sent went to ___" cannot be filled in from the sentence's own
+        # grammar. `hook_reveal_time` keys on the first bracketed word, "Hal",
+        # which sentence two now says at word one.
+        hook="The first bitcoin ever sent went to [Hal Finney]",
         # A redacted hook *is* showing the spoken line, so a caption under it
         # burns the same sentence twice - mute it. The outro card is the
         # closing line, so its mute applies too; both follow the default here

@@ -204,12 +204,15 @@ class Stat(Beat):
     """
 
     COUNT = 0.75                # how long a numeric value takes to count up
+    VALUE_PX = 200              # the value's size when it fits the column
+    VALUE_MIN = 96              # ...and the floor it will shrink to to fit
     EMBLEM = True
 
     def __init__(self, value: str, label: str = "", note: str = "",
                  count: bool = True, **kw):
         super().__init__(**kw)
         self.value, self.label, self.note = value, label, note
+        self._px: int | None = None     # fitted lazily, once, in `_value_px`
         # A value that is *mostly* digits counts up; one that is a word does
         # not. Splitting on that rather than on a flag means a script never has
         # to think about it — "1.1M" animates, "YES / NO" holds.
@@ -255,6 +258,30 @@ class Stat(Beat):
         s = f"{n:,.{dp}f}" if group else f"{n:.{dp}f}"
         return f"{pre}{s}{post}"
 
+    def _value_px(self, d: ImageDraw.ImageDraw, w: int) -> int:
+        """The largest size at which the value fits the content column.
+
+        **The value was drawn at a flat 200px and nothing checked the width**,
+        so a long one ran straight out of its column and into the picture
+        beside it — `BLOCK 170` with a portrait in the picture column, caught
+        on `first-bitcoin-transaction` (2026-10-02). Every other beat that
+        sets type across a fixed box already measures it; this one did not,
+        and the overflow is silent because a `Beat` draws into the whole frame
+        and the picture column is painted first.
+
+        **Measured on the final value, not the current frame's**, and cached:
+        a counting number is narrower on its way up, so fitting per frame
+        would shrink the type and grow it again while the figure climbs —
+        a resize animation nobody asked for on top of the count.
+        """
+        if self._px is None:
+            size = self.VALUE_PX
+            while size > self.VALUE_MIN and d.textlength(
+                    self.value, font=_font(size)) > w:
+                size -= 4
+            self._px = size
+        return self._px
+
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out)
         x, w = self.col
@@ -268,14 +295,14 @@ class Stat(Beat):
         # sprites use. A linear scale-in reads as a zoom; one that passes its
         # mark and comes back reads as being placed.
         scale = 0.92 + 0.08 * e + 0.03 * math.sin(math.pi * e)
-        big = _font(max(12, int(200 * scale)))
+        big = _font(max(12, int(self._value_px(d, w) * scale)))
         shadow_text(d, (x, y + int(round(RISE * 2 * (1.0 - e)))),
                     self._value(f), big, self.brand.primary,
                     blur=12, drop=(5, 7))
 
         if self.note:
             note_font = _font(46)
-            ny = y + int(200 * 1.25)
+            ny = y + int(self._value_px(d, w) * 1.25)
             for ln in wrap(d, self.note, note_font, w):
                 shadow_text(d, (x, ny), ln, note_font, self.brand.ink)
                 ny += int(46 * 1.34)

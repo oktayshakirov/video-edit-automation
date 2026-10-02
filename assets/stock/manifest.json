@@ -24238,6 +24238,110 @@
       "path": "photos/drummer-playing-dark-portrait/8132957.jpg",
       "bytes": 3940357,
       "source": "https://www.pexels.com/photo/8132957/"
+    },
+    {
+      "id": "8720759",
+      "kind": "video",
+      "query": "computer monitor glow on face dark",
+      "path": "videos/computer-monitor-glow-on-face-dark/8720759.mp4",
+      "bytes": 23135331,
+      "source": "https://www.pexels.com/video/8720759/"
+    },
+    {
+      "id": "8311536",
+      "kind": "video",
+      "query": "computer screen reflected in glasses",
+      "path": "videos/computer-screen-reflected-in-glasses/8311536.mp4",
+      "bytes": 3711860,
+      "source": "https://www.pexels.com/video/8311536/"
+    },
+    {
+      "id": "11041433",
+      "kind": "video",
+      "query": "cpu processor chip macro",
+      "path": "videos/cpu-processor-chip-macro/11041433.mp4",
+      "bytes": 4067639,
+      "source": "https://www.pexels.com/video/11041433/"
+    },
+    {
+      "id": "33504957",
+      "kind": "video",
+      "query": "digital numbers counter changing dark",
+      "path": "videos/digital-numbers-counter-changing-dark/33504957.mp4",
+      "bytes": 14485126,
+      "source": "https://www.pexels.com/video/33504957/"
+    },
+    {
+      "id": "33187808",
+      "kind": "video",
+      "query": "encryption security digital lock screen",
+      "path": "videos/encryption-security-digital-lock-screen/33187808.mp4",
+      "bytes": 3373537,
+      "source": "https://www.pexels.com/video/33187808/"
+    },
+    {
+      "id": "7534237",
+      "kind": "video",
+      "query": "fingers on mechanical keyboard dark",
+      "path": "videos/fingers-on-mechanical-keyboard-dark/7534237.mp4",
+      "bytes": 8000431,
+      "source": "https://www.pexels.com/video/7534237/"
+    },
+    {
+      "id": "8382683",
+      "kind": "video",
+      "query": "mainframe computer tape drive reels",
+      "path": "videos/mainframe-computer-tape-drive-reels/8382683.mp4",
+      "bytes": 10836668,
+      "source": "https://www.pexels.com/video/8382683/"
+    },
+    {
+      "id": "9566431",
+      "kind": "video",
+      "query": "old computer terminal green text",
+      "path": "videos/old-computer-terminal-green-text/9566431.mp4",
+      "bytes": 3356471,
+      "source": "https://www.pexels.com/video/9566431/"
+    },
+    {
+      "id": "33464310",
+      "kind": "video",
+      "query": "old telephone handset dark",
+      "path": "videos/old-telephone-handset-dark/33464310.mp4",
+      "bytes": 6401951,
+      "source": "https://www.pexels.com/video/33464310/"
+    },
+    {
+      "id": "34268782",
+      "kind": "video",
+      "query": "programmer coding at night screen",
+      "path": "videos/programmer-coding-at-night-screen/34268782.mp4",
+      "bytes": 4107325,
+      "source": "https://www.pexels.com/video/34268782/"
+    },
+    {
+      "id": "8370773",
+      "kind": "photo",
+      "query": "bitcoin on dark table",
+      "path": "photos/bitcoin-on-dark-table/8370773.jpg",
+      "bytes": 2037514,
+      "source": "https://www.pexels.com/photo/8370773/"
+    },
+    {
+      "id": "20534490",
+      "kind": "photo",
+      "query": "physical bitcoin coin on dark surface",
+      "path": "photos/physical-bitcoin-coin-on-dark-surface/20534490.jpg",
+      "bytes": 2063940,
+      "source": "https://www.pexels.com/photo/20534490/"
+    },
+    {
+      "id": "29968440",
+      "kind": "photo",
+      "query": "single gold bitcoin dark background",
+      "path": "photos/single-gold-bitcoin-dark-background/29968440.jpg",
+      "bytes": 2941853,
+      "source": "https://www.pexels.com/photo/29968440/"
     }
   ]
 }
