@@ -440,6 +440,42 @@ abstract claim anyway. So:
   the section above and is not replaced by this one — it is just needed far
   less often once the roster is mostly hands and screens.
 
+### The hands and screens have to be the *subject's* hands and screens (2026-10-02)
+
+**The rule above is right and it has a hole, and `first-bitcoin-transaction`
+fell straight through it.** That cut's nouns are a computer, software, code, a
+ledger, a register, a machine and a payment — all abstractions by the test in
+the section above — so the roster was built as "dark texture that is not a
+face": candles, embers, fog, star trails, the moon, a spider web, a
+lighthouse, snow. Every clip screened inside the luma box, every clip was
+unused elsewhere, every clip was on-palette, `audit_assets.py` passed, and the
+user's verdict was that the footage is irrelevant to the topic. It was.
+
+**"Not a face" is not the same instruction as "not the subject".** A
+candle is as generic under "one machine keeps the register" as a stock
+portrait would be — it is mood footage that happens to have no person in it,
+which is the original failure wearing a different coat. What the rule actually
+wants is **the act, in the subject's own world**: for a computing topic that
+is source code scrolling, a processor, a terminal mid-computation, hands on a
+keyboard, a screen reflected in somebody's glasses, a reel of tape. Those are
+literal, they need no face, and they are usually darker than a candle anyway.
+
+- **Name the subject's domain before writing a single query**, and search
+  inside it. "Dark night texture" is not a domain; computing, medicine,
+  hardware, street are.
+- **Relevance outranks palette.** This file already says a slightly bright
+  *correct* picture beats a perfectly graded wrong one; that was written about
+  one slot and it governs the whole roster. The re-cut kept a teal-ish
+  programmer's desk and a slightly bright tape deck, and both read better than
+  the perfectly-graded candle they replaced.
+- **The palette rejects still stand where they are about legibility**, not
+  about mood: rainbow RGB keycaps, Matrix rain, a green-lit UI with a legible
+  brand, and the hooded Guy Fawkes "hacker" are all out on their own merits.
+- **The test, and it takes one pass:** read the shot list beside the sentence
+  list and ask of each pair *what is this a picture of?* If the honest answer
+  is "night" rather than the sentence's noun, the roster is wrong however well
+  it screened.
+
 ## An asset used in another video is not available to this one
 
 **The user's rejection of the proof-of-stake cut, and it is a channel-level
