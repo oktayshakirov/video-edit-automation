@@ -221,3 +221,56 @@ believing a run is the one you started.
   five minutes and is not generous - do not lower it.
 - `FB Reel Upload` authenticates by query string rather than the documented
   header. Verified working on both Pages; see the note in `publish-content`.
+
+## The native Page video's cover
+
+**`thumb_url` on `/me/videos` does nothing, and every long form published
+before 2026-10-02 went up with an auto-picked frame.** The Graph API's
+`/videos` edge has no URL-based thumbnail parameter; it accepts the query
+string and ignores it. The fix, added to both Publish Facebook Video workflows
+on 2026-10-02, is the pair `FB Fetch Cover` -> `FB Set Video Cover`, which
+mirrors the Reel's working pair exactly: fetch the image as binary, then POST
+it multipart to `/{video_id}/thumbnails?is_preferred=true`.
+
+**The access log of the publish tunnel is what proved it, and nothing else
+could have.** On the `first-bitcoin-transaction` run the `http.server` log
+recorded exactly one GET for the long form's thumbnail - the pre-flight
+verification curl - while the long mp4 was fetched twice and the short's mp4
+and cover three times each for the two Reel legs. Facebook never asked for the
+image. The `Publish Video` response body is `{"id": "..."}` and nothing more,
+the execution was green, and `Summary` reported no cover field, so **neither
+the API response nor the execution status nor the Page's own appearance can
+tell you this went wrong.** Compare the matrix in `youtube.md`: an artifact's
+appearance says nothing about how it got there.
+
+- **Both new nodes carry `onError: continueRegularOutput`**, same argument as
+  `FB Set Reel Cover` and `Telegram Post`: they run *after* the video is live on
+  the Page, so a failure there must degrade to "no cover" rather than to a red
+  execution that invites a re-run - and re-running Publish Facebook Video
+  **re-uploads the whole video to the Page**. `Summary` now reports
+  `facebookCoverSet`; read it, because these are the one part of the run that is
+  allowed to fail quietly.
+- **The cover is read from `127.0.0.1:8765`, not through the tunnel.**
+  `Normalise Input` now derives `coverFetchUrl` with the same `localise()`
+  helper the Reel uses, for the same reason: this machine's resolver does not
+  resolve `*.trycloudflare.com` at all, so n8n fetching the public tunnel URL
+  fails outright. It falls back to `posterUrl` -
+  `i.ytimg.com/vi/<id>/maxresdefault.jpg` - when no `thumbUrl` was passed, which
+  is also what makes a missing cover recoverable later.
+- **A cover lost at publish time is never actually lost.** YouTube keeps the
+  exact image we uploaded at `i.ytimg.com/vi/<id>/maxresdefault.jpg`, public and
+  permanent, and `videos.json` carries every long form's id - so any Page video
+  can be given its real cover afterwards by POSTing that URL's bytes to
+  `/{video_id}/thumbnails`. The only missing link is the Facebook video id,
+  which is reported in `Summary` at publish time and is otherwise recoverable by
+  listing the Page's videos and matching on title.
+
+**One latent bug found while fixing this, and fixed with it.** `Telegram Post`
+read `$json.title`, `$json.hook`, `$json.youtubeUrl` and `$json.posterUrl`, but
+`$json` at that node is whatever ran before the IF - `Publish Video`'s
+`{id}`, never `Normalise Input`. So the inline Telegram branch could only ever
+have sent an empty `file`, which is exactly the "Bad Request: there is no photo
+in the request" failure described at the end of `telegram.md`. All four
+references are now pinned to `$('Normalise Input').item.json`. The standalone
+workflow was never affected and is still the one to prefer, for the retry
+reason given there.
