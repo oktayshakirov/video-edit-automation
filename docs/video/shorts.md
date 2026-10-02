@@ -879,8 +879,18 @@ rather than assumed:
   frame is the wrong way round by nature and leaves the lower third empty; it
   is legible and on-brand, and the track thickens to 46px because 34 across
   1080 reads as a hairline. Use it in a short when the *limit* is the whole
-  point of the section, not as a general-purpose figure - `stat` is still the
-  better vertical beat for a number that stands alone.
+  point of the section, not as a general-purpose figure.
+
+  **This used to end "- `stat` is still the better vertical beat for a number
+  that stands alone", and that was wrong about this engine** (caught on the
+  `first-bitcoin-transaction` pair, 2026-10-02). `stat` has **no portrait
+  layout at all**: `crypto/build.py` refuses it by name, along with `quote`
+  and `compare`, because all three lay a content column beside a picture
+  column at 1920. A Short that wants one number on screen uses **`chapter`** -
+  a full-screen statement, which is the vertical treatment for a figure that
+  stands alone ("TEN COINS. BLOCK 170."). The failure is loud rather than
+  silent, so it costs a render and not a cut; it is written down here because
+  it cost one anyway.
 - **`dial` is the one that prefers portrait** (added 2026-09-13, see
   `beats.md`). A radial scale is as tall as it is wide, so where `gauge`
   wastes a 9:16 frame this one fills it, with the readout sitting under the
@@ -934,7 +944,50 @@ has been asked for in a Short. Do not whitelist one until it is, and until its
 portrait layout has been looked at on a rendered frame — `chart` looked fine
 in the abstract and was wrong by 1.5:1 on the frame.
 
-## The opener's caption mute and the outro's are two decisions, not one
+## Captions never run under an opener (2026-10-02)
+
+**The user's standing rule, and it replaces the split decision recorded
+below.** On `tinnitus-in-musicians` the Short ran a `Stamp` opener with
+`hook_mutes_captions=False` - which is what the 2026-09-27 note told it to do
+- and the verdict was that the karaoke captions must not be on screen while an
+opener is up, on this Short or any other. **The burned line starts at the
+first sentence after the opener has gone, always, whichever opener it is.**
+
+So every Short passes `hook_mutes_captions=True` (the default), including the
+ones with a `Counter`, `Stamp`, `Split`, `Search` or `Flash` opener, and the
+outro card keeps its own mute as before.
+
+The reasoning that argued the other way is still true as far as it goes and is
+kept below, because it names a real cost: with a 3.3s opener the first burned
+caption can arrive at 7s, which is most of a Short's decision window with no
+type on the lower third. **That cost is accepted.** The opener is itself large
+type carrying the stake, so the frame is not bare - what it is not carrying is
+two blocks of type at once, which is the whole point of the rule.
+
+### A segment that explains itself needs no captions (2026-10-02)
+
+**The other half of the same instruction, and it generalises past the
+opener.** The user's note on `tinnitus-in-musicians`: list the musicians the
+way the long form does, with the band on the card, and no karaoke captions
+over that part - "we dont have to always show captions in the shorts, the
+exception is when we have a special segment which is self explanatory".
+
+A **drawn beat already does this** and has since the format was built
+(`build.py` suppresses captions on any shot with a `graphic`), which is the
+cheapest way to honour the rule: if a stretch of a Short would read better
+without a burned line, the question to ask is usually *should this be a beat*
+rather than *should I switch the captions off*. Three cards reading
+"Pete Townshend / The Who" need no second copy of those words along the
+bottom of the frame.
+
+What is new is the permission. The default is still captions on - a Short is
+watched muted and the burned line is how most of it is read - but **a segment
+whose own type says the thing may run without them**, and the two already
+built are the drawn beat and the opener. Do not reach for it to cover footage
+that happens to be pretty; the test is whether the words on screen are
+*already the sentence*.
+
+### The older, narrower rule it replaces
 
 **They were a single `hook_mutes_captions` flag until 2026-09-27, and the
 `musk-effect` Short is where that bit.** Both mutes exist for the same stated
