@@ -466,6 +466,44 @@ no, the video just ended at five seconds.) Both have to be yes.
 zero"): the screen shows the stake from frame zero while the voice asks the
 title question, so sentence 2 is confirming something already read.
 
+### Sharpened 2026-10-01: a task holds better than a reveal
+
+The strongest form of "opens a bigger question" is not a reveal at all - it is
+**a task the viewer performs on their own body**. Two Shorts two days apart,
+same channel, same topic family, same format, both carrying the frame-zero
+hook, settled this:
+
+| Short | sentence 2 | avg % | half gone | last frame |
+|---|---|---|---|---|
+| **Jaw** `cQ2I3ZCv2EE` | "Quick check - are your teeth touching right now?" | **81.5** | **28.8s** | **47.5%** |
+| Neck `mOZWcTkxEA4` | "30 seconds is enough to find out - and for a lot of people, the answer is yes." | 51.5 | 9.4s | 29.3% |
+
+Neck hands over the verdict at ~6-8s and the curve bleeds straight through
+that sentence: -12.2 at 6.3s, -7.3 at 7.2s, -7.3 at 8.1s, -9.8 at 9.4s. Jaw
+withholds it, asks for an action instead, and **recovers after the 5s dip to a
+flat 100-102% plateau from 7.7s** while viewers check their own jaw. Jaw's
+81.5% is the channel's second-best Short ever, behind only Silence.
+
+**The rule: sentence 2 hands over a task, not a verdict.** A viewer doing
+something cannot scroll, and the answer they came for is now the reward for
+staying rather than the reason to leave. Prefer, in order:
+
+1. **A task on their own body** - "are your teeth touching right now?", "turn
+   your head and listen". Best retention, and it only works when the topic has
+   a real self-check in the article; do not invent one.
+2. **A reversal, a name or a number** - the 2026-09-21 rule above. Use when
+   there is nothing to check.
+3. Never the verdict, never a hedge.
+
+Both limits above still apply: the task must be real and the video must pay
+off the question it opened. On tinnitus a self-check is a check, never a
+treatment - "if the ringing shifts, your jaw is part of its volume" is a
+description; "do this to stop the ringing" is a promise and is out.
+
+**Still unsettled:** the ~5s drop survives both (jaw -10.0, neck -7.3), though
+at roughly half the pre-hook depth of -13 to -27. Two videos is direction, not
+proof - a third post-hook Short reproducing the jaw plateau would settle it.
+
 ## A tip needs a reason before it is a tip
 
 The first cut went straight from the custody beat into "turn on two-factor,

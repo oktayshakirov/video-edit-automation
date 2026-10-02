@@ -41,6 +41,18 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
   the two are not in tension: a numbered agenda tells the viewer they are being
   lectured, a numbered sequence *is* the content.
 
+  **`steps` takes a flat list of strings, and it is the one beat in this
+  family that does not take `(label, note)` pairs.** `grid` does, `diagram`
+  does, `timeline` does, `callout` does - so writing a `steps` payload as
+  pairs is the obvious mistake, and it was made twice in one run
+  (`first-bitcoin-transaction`, 2026-10-02). A two-tuple there is read as
+  `(text, emoji)` and the second element goes straight to `emoji_image`,
+  which raises `emoji 'real computing time, spent' rendered empty - not in
+  the font`. The message names the *payload* rather than the beat, which is
+  what makes it slow to read. **A step has no second line at all**, so each
+  node has to say the whole thing itself - and if the content genuinely
+  needs a sub-line, the beat wanted was `grid`.
+
 - **`logos` is the beat for named brands, and it is not optional when the
   script names them.** thecrypto.wiki owns 27 exchange cards in
   `public/images/exchanges/` — full-bleed brand tiles, not transparent icons —
