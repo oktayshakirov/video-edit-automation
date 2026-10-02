@@ -4,7 +4,8 @@
       "Bash(python3 -m http.server *)",
       "Bash(cloudflared tunnel *)",
       "Bash(pkill -f cloudflared*)",
-      "Bash(pkill -f http.server*)"
+      "Bash(pkill -f http.server*)",
+      "Bash(PYTHONPATH=. .venv/bin/python -m video_automation.publish *)"
     ]
   }
 }
