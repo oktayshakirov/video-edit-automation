@@ -121,8 +121,13 @@ wait ~6s, scroll to 400, wait, then to the bottom a few times. Each
   output that looks like cookie or query-string data.
 - The `web_profile_info` API is blocked; do not bother.
 - **A run of reels at exactly 0 plays means distribution has stopped**, not low
-  interest. Ask the user to check Settings -> Account Status in the app; the
-  web cannot see it.
+  interest. Account Status is worth a look but do not expect it to explain
+  anything - see "Instagram is dead on both accounts" below, where every row
+  was green and the zeros were real.
+- **Captions come from `og:description`**, not the page JSON: fetch
+  `/reel/<id>/` and read `property="og:description"`. It carries the full
+  caption plus the like and comment counts, which is the cheapest way to check
+  engagement against reach.
 
 ## Facebook - the videos tab, not the reels tab
 
@@ -658,3 +663,144 @@ irreversible and is not what this tool is for.
 `youtube.upload` stays in `FORBIDDEN_SCOPES` even though the tool uploads: force-ssl
 already grants upload, so requesting it too would widen nothing and only lengthen the
 consent screen. Do not "fix" that apparent contradiction.
+
+## Instagram is dead on both accounts - settled 2026-10-01, do not re-litigate
+
+Both Instagram accounts have no distribution. Tinnitus has been at **exactly 0
+plays on every reel since 2026-09-14**; crypto is on the identical curve about
+ten days behind (401, 396, 202 at launch, then 1-7, and its newest already 0).
+This was investigated exhaustively over 2026-09-28 to 10-01. **Report the
+numbers on future audits, but do not re-open the diagnosis and do not propose
+any of the fixes below again** - each was ruled out with evidence, not
+assumption.
+
+**Ruled out, with the evidence:**
+
+| Suspect | Why it is not the cause |
+| --- | --- |
+| Account penalty / shadowban | Account Status all green, including **"Limits to your reach"**. The one orange row, Monetization, is the generic "need an established presence / enough followers" text every small account sees - it governs earnings, never reach. |
+| Links in IG captions | Live captions pulled via `og:description` are clean - a hook, two sentences, 4-5 tags, no URLs. The 2026-09-01 no-links rule is being followed. |
+| The watermark | Present since the first August builds (`core/brand.py`), and on the reels that got 194/211/232. It did not change on 09-14. Instagram's watermark demotion targets *other platforms'* logos anyway, and demotes rather than zeroing. |
+| The bio link | Also a constant through the good weeks. |
+| The n8n workflow / Graph API | `publish_reel.json` changed on 08-24, 09-01, 09-22 - nothing at the cutoff. And Meta documents no down-ranking for API-published content; a Hootsuite controlled experiment had scheduled posts *beating* native (8.19% vs 6.44%). |
+| The render itself | The same file, same workflow run, same day, takes **227-274 views on Facebook Reels**. |
+| Manual native posting | **The decisive test.** The user posted three reels by hand, no captions, 2026-09-29. Still 0 after 48 hours. This kills the entire publish-path class of explanation. |
+
+**What it actually is.** Instagram's audition system gives each Reel a small
+non-follower test pool and expands only on watch time and sends. The August
+trial push returned ~0.5% engagement (211 plays -> 1 like, 232 -> 1, 100 -> 0),
+so the pool shrank to nothing. With 2 followers (tinnitus) and 15 (crypto)
+there is no follower floor to catch the fall, which is why it reaches literal
+zero rather than a low number. TikTok's guaranteed ~250/~770 test batch and
+Facebook's real follower base are floors Instagram simply does not have.
+
+**The decision, 2026-10-01: keep publishing and stop measuring against it.**
+`/publish-video` is unchanged - it costs nothing to keep posting, and an
+account can be re-auditioned at any time. Note the zeros in the numbers and
+move on.
+
+**Do not propose, on any future audit:**
+
+- **Re-uploading existing reels.** Duplicate content, and the iOS Simulator
+  cannot run Instagram at all (no App Store, device-only binaries).
+- **Facebook -> Instagram crossposting.** Meta's docs are explicit: *"You can
+  only crosspost Reels to Facebook Pages."* It does not exist. The supported
+  direction is Instagram -> Facebook, and enabling it would collide with the
+  Facebook leg that `/publish-video` already runs - the one that works.
+- **Combined crosspost view counts** ("Crossposted Reels Views", added
+  2026-03) as a fix. It is a reporting metric, not reach; the public grid count
+  stays 0 and it would only hide the problem.
+- **Caption rewrites for sends** while reach is 0. Sends per reach is the right
+  lever and Mosseri weights it 3-5x likes, but it converts impressions, and
+  there are none. Sequenced after distribution exists, not before.
+
+**If Instagram is ever wanted as a real channel again**, the only lever with
+evidence behind it is a fresh account - a new account reliably gets a trial
+push, which is the only distribution these accounts ever had. The current ones
+hold no equity worth protecting (2 and 15 followers). That is a strategy call
+for the user, not a technical fix.
+
+**Trial Reels is the thing to watch for.** `trial_params` /
+`share_mode=TRIAL_REELS_SHARE_TO_FOLLOWERS_IF_LIKED` is in the official
+Instagram publishing API and publishes to non-followers first, graduating to
+followers if it performs within 72 hours - exactly the right tool here. It is
+gated at **1,000+ followers**, so it is unreachable today. Re-check it if
+either account ever clears that bar.
+
+### The Instagram workflow for reference
+
+`/publish-video` runs `publish_reel.json` strictly sequentially - **Instagram
+first, then Facebook, as two separate uploads of the same file**:
+
+```
+Normalise Input -> IG Create Container -> Wait for Encoding -> IG Container
+Status -> Encoded? -> IG Publish -> FB Reel Start -> FB Fetch Video ->
+FB Reel Upload -> FB Reel Finish -> FB Fetch Cover -> FB Set Reel Cover
+```
+
+There is no crossposting in it and none available to add. Because the chain is
+sequential, **a failure on the Instagram leg means Facebook never publishes** -
+worth checking first if a Facebook reel ever goes missing.
+
+## Snapshot 2026-10-01
+
+| | YouTube | TikTok | Instagram | Facebook |
+| --- | --- | --- | --- | --- |
+| **Tinnitus** | 2,904 views, 9 subs | 8 followers, ~250/~770 every upload | 2 followers, **0 since 09-14** | 64 followers |
+| **Crypto** | 1,381 views, 4 subs | 8 followers, same batches | 15 followers, 1-7 and falling | 447 followers |
+
+- **Facebook Reels came alive** and nobody had noticed - 7-74 views at the
+  09-21 snapshot, now **227-274** on tinnitus (jaw 227, neck 274, first-week
+  250) and 205 on crypto's Musk reel. Facebook long-form holds at 150-210.
+  This is the channel with momentum; check it first next time.
+- **YouTube is compounding quietly**: tinnitus 2,050 -> 2,904 views and 6 -> 9
+  subs in ten days, crypto 984 -> 1,381. Shorts land 100-335 routinely now,
+  against 9-55 in late August.
+- **TikTok is unchanged and will stay unchanged** - 26 and 30 uploads in, every
+  single one still lands in a ~250 or ~770 test batch. Nothing has broken past
+  ~800 on a 2026 upload. A video clearing 1,000 remains the first real signal.
+- **Not yet read: the retention curves on the first `hook=` Shorts** (tinnitus
+  jaw 09-26 and neck 09-24, 132 and 202 views). The frame-zero hook shipped
+  2026-09-21 and this is the first cohort carrying it. Pull these before
+  judging whether the hook fixed the ~5s cliff.
+
+### The frame-zero hook works, and sentence two decides the rest - 2026-10-01
+
+First read on the two Shorts carrying the `hook=` that shipped 2026-09-21.
+Both beat the entire pre-hook cohort, and the gap between them is the cleanest
+natural experiment these channels have produced: same channel, same topic
+family, same format, same hook, two days apart.
+
+| | views | avg % | opens | half gone | last frame |
+| --- | --- | --- | --- | --- | --- |
+| **Jaw** `cQ2I3ZCv2EE` (post-hook) | 134 | **81.5** | **140%** | **28.8s** | **47.5%** |
+| **Neck** `mOZWcTkxEA4` (post-hook) | 202 | 51.5 | 127% | 9.4s | 29.3% |
+| Waterfall (pre-hook) | 335 | 36.0 | 118% | 8.3s | 18.4% |
+| Noise-canceling (pre-hook) | 220 | 44.3 | 122% | 9.4s | 17.4% |
+| Concert (pre-hook) | 295 | 30.1 | 106% | 6.9s | 6.2% |
+| Magnesium (pre-hook) | 137 | 21.3 | 104% | 6.7s | 4.3% |
+
+- **The hook is doing its job.** Both post-hook Shorts open above the pre-hook
+  band (104-122%) and both end far above it. Jaw's 81.5% average is the
+  channel's second-best Short ever, behind only Silence (118%), and the first
+  since Silence to hold its audience *and* get distribution.
+- **The ~5s cliff is halved, not cured.** Both still drop at 5.0s (jaw -10.0,
+  neck -7.3 then -7.3) against -13 to -27 pre-hook. Do not report the cliff as
+  fixed.
+- **Sentence two is what separates them.** Neck's S2 ends "and for a lot of
+  people, the answer is yes" - it hands over the verdict at ~6-8s, and the
+  curve bleeds straight through that sentence (-12.2 at 6.3s, -7.3 at 7.2s,
+  -7.3 at 8.1s, -9.8 at 9.4s). Jaw's S2 is "Quick check - are your teeth
+  touching right now?", withholds the verdict, and the curve **recovers to a
+  flat 100-102% plateau from 7.7s** while viewers check their own jaw.
+
+**The rule this confirms and sharpens.** The 2026-09-21 revision ("a partial
+answer that opens a bigger question") is right, and the mechanism is now
+visible: **sentence two should hand over a task, not a verdict.** The strongest
+form is a task the viewer performs on their own body - it turns a watcher into
+a participant, and participants do not scroll. `tmj-and-tinnitus.py:93` called
+this in a comment before the data existed; the data agrees.
+
+Next audit: check whether a third post-hook Short reproduces the jaw plateau,
+and whether any of them finally moves the ~5s drop. Two videos is direction,
+not proof.
