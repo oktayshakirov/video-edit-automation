@@ -61,10 +61,12 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_crop_band: str = "middle",
                 thumb_shift: float = 0.0,
                 # The navigation layer: a ticked progress bar along the
-                # bottom and "3 of 5" under each chapter card. On by default -
-                # see `longform/chrome.py` for the argument both ways, and set
-                # it False to run the A/B against a video without it.
-                chrome_nav: bool = True,
+                # bottom and "3 of 5" under each chapter card. **Off since
+                # 2026-10-02, by the user's call** - the bar along the bottom
+                # was not wanted on these videos, and the A/B `chrome.py`
+                # argues for is settled by that rather than by a curve. Pass
+                # True to put it back on one video.
+                chrome_nav: bool = False,
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 # The title sequence. `title_at` is the second it starts and
                 # turns the whole thing on; `title` defaults to `meta.title`

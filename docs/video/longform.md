@@ -514,32 +514,26 @@ than a sound on none.
 replaced — verified frame by frame across the whole 0..1 range before the
 change landed, because the shorts are reproducible against a baseline.
 
-## The navigation layer
+## The navigation layer is off, and that is the user's call (2026-10-02)
 
-Chapters existed twice already — `Section` renders a `ChapterCard`, and
-`meta.py` writes the timestamps YouTube turns into a scrubber — and neither
-tells the viewer *while they are watching* where they are. `longform/chrome.py`
-adds two things, both tiny:
+**`render_long(chrome_nav=...)` now defaults to `False`.** The ticked
+progress rule along the bottom of the frame was not wanted - the user's note
+on `tinnitus-in-musicians`: do not put the chapter lines along the bottom for
+the timeline, on this video or on future ones. `chrome_nav=False` drops the
+bar and the "3 of 5" counter together; nothing else in the frame changes, and
+a re-render of an older script now simply comes back without them.
 
-Both are built by `build._chrome` from what `lay_out` already returned, not by
-the scripts: add a section and the extra tick and the recounted cards come for
-free. `render_long(chrome_nav=False)` turns the pair off, which is how the A/B
-gets run. A video with fewer than two chapters gets no bar - a progress rule
-with no ticks in it says nothing about structure.
+**This settles the A/B rather than running it.** `longform/chrome.py` argues
+the case both ways at length and that argument is still worth reading before
+anyone proposes bringing the bar back - but a design the user does not want
+is not a question for a retention curve. The module stays, and
+`chrome_nav=True` still turns both pieces on for one video.
 
-- **`ProgressBar`** — a 5px rule along the bottom, ticked at each chapter
-  boundary, faded in after the hook so the opening is uncontested.
-- **`ChapterCount`** — "3 of 5" under a card's title, at 60% of the accent.
-  Not a numeral *on* the title: `ChapterCard` bans that, and is right, because
-  a numbered agenda tells the viewer they are being lectured. "3 of 5" is a
-  different statement — it says how much is left.
+What it drew, for anyone reading the old scripts:
 
-**The argument against them is real.** A progress bar tells a viewer at 0:20
-that there are two and a half minutes to go, and some will leave because of
-it. The counter-argument is that an unmarked middle gives them no reason to
-stay either, and the retention curves in `docs/video/projects/` keep measuring
-the drop in exactly that dead middle. It is an A/B question: both are
-overlays, so dropping them changes nothing else.
+- **`ProgressBar`** - a 5px rule along the bottom, ticked at each chapter
+  boundary, faded in after the hook.
+- **`ChapterCount`** - "3 of 5" under a card's title, at 60% of the accent.
 
 ## The regression reel
 
