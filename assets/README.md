@@ -10,6 +10,30 @@ re-deriving them by hand is exactly the step that gets lost between videos.
 > a deliberate call; check it against the pack's licence if the repo ever
 > matters commercially.
 
+## The stock cache is pruned, not hoarded
+
+Everything above is committed. `stock/` is the opposite: the bytes are
+gitignored and re-fetchable by id from `stock/manifest.json`, which is what
+makes a build reproducible. That cache reached **26 GB** — because screening
+works by pulling a dozen candidates per slot and cutting one, so every video
+leaves its rejects behind, and the same Pexels id gets cached again under each
+query slug that returns it.
+
+The rule now: **the cache holds what a project file actually cuts** - resolved
+out of every `projects/**/*.py` on disk, committed or not.
+
+```bash
+.venv/bin/python tools/prune_stock.py            # report
+.venv/bin/python tools/prune_stock.py --apply    # delete the rest
+```
+
+The first prune kept 525 files (4.2 GB) and dropped 3375 (23.5 GB). What is
+lost is only the bytes of rejected candidates — the *verdicts* survive in
+`docs/video/footage.md`, which is what actually stops a clip being re-screened.
+A pruned reject can come back on the next fetch; it costs an API call, not a
+re-screen, and `docs/video/footage.md` is where you check before screening it
+again.
+
 ## Location pin
 
 | file | what |

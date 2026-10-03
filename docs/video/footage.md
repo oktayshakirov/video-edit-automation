@@ -236,6 +236,40 @@ made the repetition worse while looking like a fix. **Treat a candidate whose
 id is within a few hundred of a clip already in the cut as the same clip
 until a contact sheet proves otherwise.**
 
+## The cache is pruned to what the cuts use
+
+Screening is what makes the cache grow: a dozen candidates per slot, one cut,
+the rest left on disk — and the same Pexels id cached again under every query
+slug that returned it (`10241357` sat under four padlock folders). It reached
+**26 GB**, 24 GB of it video, which is not a sane thing to carry on a laptop
+for footage that is re-fetchable by id.
+
+So the cache now holds **only what a project file on disk actually cuts** -
+every `projects/**/*.py`, committed or not:
+
+```bash
+.venv/bin/python tools/prune_stock.py            # report
+.venv/bin/python tools/prune_stock.py --apply    # delete the rest
+```
+
+525 files / 4.2 GB kept, 3375 / 23.5 GB dropped on the first run. Two
+consequences for the way you work:
+
+* **Record the verdict here, in the tables below, the same day you screen.**
+  That was always the instruction; it is now the *only* copy. A reject whose
+  bytes are gone and whose verdict was never written down will be screened
+  again from scratch.
+* **A missing file is a real error, not a cache miss.** `prune_stock.py`
+  exits non-zero and names any path a project cuts that is not on disk. If
+  that fires, re-fetch it by id from `manifest.json` — do not quietly swap in
+  another clip, because the committed project is the record of what the
+  published video was cut from.
+
+Run the prune after a video ships, once the shot list is written into its
+project file. Running it *during* a build deletes the pool you are still
+screening - the candidates on the contact sheet are not pinned anywhere yet, so
+nothing protects them.
+
 ## A clip already in the cache has *not* been screened. Sheet everything.
 
 **This is the rule the myths re-cut broke while writing the rule above it.**
@@ -493,9 +527,11 @@ the channel recycling a pool of about fifteen files:
 
 That is precisely the templated sameness `docs/long-form-strategy.md` says
 gets a channel suppressed, and it arrived through the back door of a rule
-written for a different purpose. **The cache exists so a rejected clip is not
-re-fetched and so a build is reproducible — not as the shot list's shopping
-list.**
+written for a different purpose. **The cache exists so a build is reproducible
+and so a rejected clip is not re-screened — not as the shot list's shopping
+list.** Note the wording: *re-screened*, not *re-fetched*. The bytes of a
+reject are no longer kept (see "The cache is pruned" below); the verdict in
+this doc is what saves the work.
 
 So, before writing a shot list: **inventory what the other videos already
 use, and treat those files as unavailable.** One command does it — grep

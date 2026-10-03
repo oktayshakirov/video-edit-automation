@@ -106,6 +106,26 @@ a platform from the run.
    form first, the Short a day or two later - but that is their call and
    changes nothing this skill does; do not add a pause for it.
 
+## After the run - prune the stock cache
+
+Once the project file is committed and the video is up, the screening pool it
+left behind is dead weight. The cache reached 26 GB this way before anyone
+looked.
+
+```bash
+cd ~/Coding/video-edit-automation
+.venv/bin/python tools/prune_stock.py            # report
+.venv/bin/python tools/prune_stock.py --apply    # delete the rest
+```
+
+It keeps every file a committed project cuts and drops the rest; the dropped
+bytes are re-fetchable by Pexels id from `assets/stock/manifest.json`. Two
+conditions: the shot list must already be **written into the project file** (it
+reads the files on disk, committed or not - a clip chosen but not yet pinned in
+a `.py` is a clip it deletes), and if it exits non-zero naming a missing path,
+re-fetch that id rather than swapping in another clip.
+The reasoning is in `docs/video/footage.md`.
+
 ## Gates
 
 The whole sequence runs on one "upload". These do not:
