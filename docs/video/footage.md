@@ -817,3 +817,15 @@ the power around it - pylons, substations, night build sites - rather than
 fetching again. Two more folder names that lie:
 `hand-plugging-server-cable/4820377` is a **laptop** being plugged in, and
 `electrical-substation-night/7960548` grades to black under `VideoShot`'s dim.
+
+### A metaphor for the noun is not the noun, again - and do not drown a crypto video in coins (2026-10-06)
+
+`market-cap` repeated the Finney fault: a rusted chain, a padlocked door and
+warehouse crates for "locked supply", all cut by the user. It also ran ten coin
+clips in one video, and a coin under every line stopped saying anything. Cap
+coin footage at a handful of shots, each under a line that is about a coin.
+What replaced them: **a concrete analogy the narration actually says** (a
+pizza cut into more slices for price vs market cap), money changing hands
+where a trade sets the price, and the people and paperwork behind a vesting
+schedule. If the script has no analogy, write one; it is cheaper than a
+third fetch.

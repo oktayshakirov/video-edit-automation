@@ -361,3 +361,13 @@ is wanted for the ask. Every other slot wants a thing a viewer can name.
 - Use an image under ~750px wide, or an infographic at any size.
 - Ship a Commons-sourced portrait without its `CREDITS.md` block in the
   description. Two of the four Saylor photographs are share-alike.
+
+## On a price topic, overturn the belief people act on
+
+The first `market-cap` cut stamped "a low price means a small coin". The user's
+note: what people actually connect a cheap coin with is easy profit - a quick
+jump. So the opener and a whole chapter now answer *that* belief, as
+arithmetic: doubling a 5-cent and a $50 coin takes the same extra $50M; one
+dollar across 500 trillion coins is ~5x the world economy. That stays inside
+the no-advice line because it says what a move would *mean*, never whether one
+happens. Find the belief the viewer acts on, not the definitional one.
