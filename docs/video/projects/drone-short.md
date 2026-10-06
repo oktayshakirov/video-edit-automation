@@ -572,14 +572,27 @@ trimming everything proportionally. **Report the cut points**, not just the
 runtime — "cuts at 2.31s and 8.51s" is what the user needs to line music up
 against, and it is the thing they ask for next if it is missing.
 
-**A short controller clip is boomeranged, never looped.** Both sources so far
-ran 2-6s, too short for a beat. Forward, then the same span reversed: the join
-is continuous because the reverse starts on the frame the forward pass ended
-on, where a hard loop puts a jump cut in the one place this format cannot
-afford one. An even number of passes ends where it began. This is the same
+**Boomerang a Live Photo, never real video.** Burgas and Vienna both
+boomeranged beat one and the rule was written as if it were about length. It
+is not — it is about the source. Both were **Live Photos**: a second or two of
+frames with nowhere else to go, so the beat had to be made out of the span
+twice. When the controller clip is an actual video, as on Golden Girl, it has
+a real forward direction and a boomerang reads as a stutter; take the usable
+window and play it straight. Check what the source is before reaching for the
+machinery.
+
+When it *is* a Live Photo: forward, then the same span reversed, never a hard
+loop — the join is continuous because the reverse starts on the frame the
+forward pass ended on, where a loop puts a jump cut in the one place this
+format cannot afford one. An even number of passes ends where it began. Same
 trick `drone-short.md` already carried for a clip too short for its narration,
-reached from the other direction. `POV_SPEED` 1.8 and `DRONE_SPEED` 2.0 are the
-approved values; the air half wants speed or it reads as a postcard.
+reached from the other direction.
+
+`POV_SPEED` 1.8 and `DRONE_SPEED` 2.0 are the approved values **for footage
+that is not already fast**. A hyperlapse is already the speed-up; Golden Girl
+runs its air half at 1.0 because 2x would have left 3.5 seconds and strobed
+the traffic trails. The air half wants speed or it reads as a postcard, but
+check what the clip already has before adding any.
 
 **The labels are small and stay out of the way.** 34px on the air shots, 42px
 on the controller — the bigger of the two, because a controller filling the
@@ -636,6 +649,18 @@ The fix is a black-point pull plus saturation:
 downscale so `unsharp` works on shipping pixels rather than 4K detail the scale
 is about to throw away.
 
+**A night shot may want no grade at all, and SATAVG will not tell you.** The
+rule above is daylight's. On Golden Girl's night hyperlapse SATAVG read 21.6 —
+inside the band that says lift it — and the user's verdict on a 1.30 lift was
+that it oversaturated. The reading is an average over a frame that is mostly
+dark sky, so it understates what the lit parts already carry, and the colour
+in a night frame is concentrated in a few objects rather than spread: lifting
+it loads the gold, the sodium lights and the tail-light trails instead of
+warming the picture. **Measure, then look at the lit areas, and on night
+footage expect the answer to be less than the number suggests — often none.**
+Sharpen comes off with it; there is no haze to cut and it only finds the noise
+in the sky.
+
 **Grade each clip to its own numbers.** Approved values from the Vienna cut,
 which are three different grades in one 14-second video:
 
@@ -687,6 +712,11 @@ when the user explicitly asks for one clip after another.
 - **Grade by eye without measuring first.** "Faded" is usually lifted blacks
   plus low saturation, not underexposure, and the correction for the one is the
   opposite of the correction for the other. See *Grade from the measurement*.
+- **Grade a night shot to the daylight numbers.** SATAVG under-reads on a
+  frame that is mostly dark sky, and the lift lands on the few lit objects.
+  See *Grade from the measurement*.
+- **Boomerang a controller clip that is real video.** The boomerang is for a
+  Live Photo. See *A short controller clip*.
 - **Reuse one grade across clips.** Even two shots from the same aircraft in
   the same hour measure differently; a phone clip in the same cut is a different
   colour range entirely.
