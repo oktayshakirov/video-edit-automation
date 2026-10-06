@@ -1018,3 +1018,11 @@ passes `hook_mutes_captions=False, outro_mutes_captions=True`.
 switch because they shared a *rationale* is fine right up until the rationale
 stops applying to one of them. The tell here was that the flag's own docstring
 justified it entirely in terms of the hook, and openers were added later.
+
+## `Split` collides with its own labels in 9:16 (2026-10-06)
+
+The divider runs down the middle of the frame and the labels sit either side
+of it, so a label that wraps ("A 5 CENT COIN" went to four rows) runs into the
+line and the VS disc. The user's note on `market-cap` was to drop it for the
+long form's `Stamp`. Until the layout is fixed, keep `Split` labels to one
+short word or figure a side, or pick `Stamp` when the topic is a belief.

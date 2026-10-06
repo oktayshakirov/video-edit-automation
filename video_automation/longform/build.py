@@ -335,9 +335,12 @@ def _endcard(path: "Path | None", lead: float, total: float,
     # Measured on the asset: the artwork sits in a stable box at x 0.48-0.89,
     # y 0.71-0.89 of the source, on pure black. Cropped to it and placed in the
     # lower middle — clear of the upper-left watermark and of the corners where
-    # YouTube stacks its own end-screen cards.
+    # YouTube stacks its own end-screen cards. **0.72, not 0.60:** the
+    # outro's compliance `payload` band fills the middle third (to ~0.67), and
+    # at 0.60 the sting sat inside it, behind the disclaimer (market-cap,
+    # 2026-10-06). The cropped sting is ~0.21 of the height, so it ends ~0.93.
     w = int(frame.w * 0.42)
-    at = ((frame.w - w) // 2, int(frame.h * 0.60))
+    at = ((frame.w - w) // 2, int(frame.h * 0.72))
     return [ClipOverlay(Path(path), start, total, frame=frame, scale=0.42,
                         at=at, fade=0.5, crop=(0.46, 0.69, 0.91, 0.91))]
 

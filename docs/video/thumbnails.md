@@ -584,3 +584,13 @@ narrow column that forces big rows, so on the long form the answer to "make
 it bigger" is usually to **remove** the newlines. On the vertical one the
 column is full-width either way, so the answer is to **add** them. The whale
 pair does both and the two thumbnails end up with the same four-row shape.
+
+## A user-supplied image, headline on one row (2026-10-06)
+
+When the user hands over the thumbnail image, use it as given and put the
+headline where they say. `render_thumb`'s narrow column cannot set one row, so
+`market-cap` calls the shared `_headline` directly (`max_lines=1`, `band=
+"top"`) from a `thumbs()` helper in the project file - same type, plate and
+shadow, rebuildable with `--thumb`. The 9:16 cover keeps the words but takes
+two rows; one row across 1080px is unreadable at feed size. Record the image's
+origin in that asset folder's `CREDITS.md`.

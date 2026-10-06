@@ -77,7 +77,12 @@ sequence drifted into four copies that disagreed.
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
-   steps 4 and 5.
+   steps 4 and 5. Before a re-cut, measure the draft against the channel's
+   best-performing recent pair (words, sentences, holds, roster) - that is
+   what found the `market-cap` gaps.
+6. **Leave the skill better.** Record every lesson the run produced in the
+   narrowest doc, a few lines each, in the same commit. Short and specific
+   beats long and general.
 
 ## The line that outranks everything else
 

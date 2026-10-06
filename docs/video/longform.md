@@ -545,3 +545,24 @@ only way it differs from a real build; in production every `reveals` value
 comes from `build_narration_aligned`.
 
     PYTHONPATH=. .venv/bin/python projects/demo/format-upgrades.py
+
+## The end-screen sting sits below the disclaimer band (2026-10-06)
+
+`_endcard` placed the sting at 0.60 of the height, inside the outro's
+compliance `payload` band (the middle third), so the subscribe button showed
+through behind "This is not financial advice." on every long form. It now sits
+at 0.72. Videos rendered before this keep the overlap until re-rendered.
+
+## A `Stamp` quote has about 28 characters on one 16:9 row
+
+"A cheap coin has more room to grow" wrapped and stranded GROW alone on the
+second row. Write the belief short - "A cheap coin can grow more" - or check
+the frame.
+
+## Benchmark a re-cut against the pair that is working
+
+`market-cap`'s first cut ran 3:21 on 511 words and the user pointed at
+`first-bitcoin-transaction`, which was performing. Measured side by side
+(words, sentences, holds, beats, what the roster shows) the gap was plain:
+~620 words in ~40 sentences, six `None` holds, and footage that was the
+subject's own world. Run that comparison before re-cutting, not after.
