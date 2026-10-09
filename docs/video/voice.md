@@ -153,6 +153,14 @@ correct `iːθˈɪɹiəm`. The phoneme rule was being applied only to words that
 that looks like an ordinary English word is exactly where this hides.** Respell
 in the spoken half of a `(caption, spoken)` pair.
 
+**Surnames from the celebrities pair (2026-10-09):** `Nimoy` reads
+`nˈɪmɔɪ` (NIM-oy) - respell `Neemoy`; `Streisand` reads `stɹˈeɪsænd`
+(STRAY-sand) - respell `Strysand`; `Ulrich` reads UL-ritch - respell
+`Ulrick`; `Gallagher` reads GAL-uh-ger - respell `Gallaher`; `will.i.am` - say
+`Will I Am`. **`habituated` has no respelling that
+works** - six tried, every one wrong on the stress or the vowel - so say "used
+to it" and keep the word on screen only.
+
 ## Ethereum, and checking a brand name you think you know
 
 `Ethereum` phonemizes to `ˌiːθɚɹˈiːəm` — "ee-thuh-REE-um", stress on the wrong

@@ -291,7 +291,10 @@ vertical axis, its centre at 34% of the height — clear of the watermark above,
 of the platforms' right-hand button rail (from ~45% down) and of the caption
 line. A soft full-width dark band behind it (not a panel, not a top gradient)
 keeps it legible. (Revised the same day: the first placement was top-left and
-read as a corner label.) `centre_y=` moves it if a clip needs it.
+read as a corner label.) `render_crypto_short(hook_centre_y=)` moves it
+(added 2026-10-09; it was documented here and never passed through) - the
+celebrities Short opens on a portrait still with both faces at 25-45% of the
+height, which no crop can move, and sets 0.68.
 
 The five sounds are their own kit in `core/sfx.py` (`hook_*`), synthesised
 like everything else there and levelled so each sits within a few dB of the
@@ -547,6 +550,12 @@ Rules that apply to all of them:
   picture the viewer cannot read yet, so use it only when that picture is
   striking on its own, and pass a real asset - a site image, a rendered beat,
   a frame from the footage.
+  **And only when the payoff stays withheld.** Its chip says "LATER IN THIS
+  VIDEO", so a narration that names the flashed thing in sentence two spoils
+  the tease five seconds in - the user's note on `celebrities-with-tinnitus`
+  (2026-10-09), which flashed Kirk and Spock and then said "Kirk and Spock got
+  theirs on the same day". If the picture *is* the subject being named up
+  front, it is not a `Flash`; reach for `Search` or the hook.
 
 Tag which opener a video used when it is published, so the fortnightly review
 can compare them rather than lumping them together (`video-performance-review`).
