@@ -241,6 +241,12 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # found in the narration. Normally the word is found
                         # and revealed on the frame it is spoken.
                         hook_until: float = 3.0,
+                        # Where the hook block sits, as a fraction of the
+                        # frame height. `None` keeps `HookOverlay`'s own 0.34,
+                        # so every shipped Short is unchanged. For an opening
+                        # shot whose faces sit at 30-40% of the height - a
+                        # portrait still, which no `clip_ay` can move.
+                        hook_centre_y: float | None = None,
                         # **The burned captions stand down while the hook is
                         # on screen.** The hook block and the karaoke line are
                         # independent layers and both used to run from frame
@@ -533,7 +539,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         from ..longform.overlay import HookOverlay
         reveal = hook_reveal_time(hook, captions, fallback=hook_until)
         hook_ov = HookOverlay(hook, reveal_at=reveal, frame=frame,
-                              accent=brand.primary)
+                              accent=brand.primary, centre_y=hook_centre_y)
         overlays = [hook_ov, *(overlays or [])]
     if hook_ov is not None:
         if hook_mutes_captions:

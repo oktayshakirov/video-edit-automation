@@ -829,3 +829,48 @@ pizza cut into more slices for price vs market cap), money changing hands
 where a trade sets the price, and the people and paperwork behind a vesting
 schedule. If the script has no analogy, write one; it is cheaper than a
 third fetch.
+
+## Real people: Commons photos, and the article's claims are checked first (2026-10-09)
+
+`celebrities-with-tinnitus` was the first tinnitus pair built on named people,
+at the user's request for real names and real photos. The route is the Ruja
+one (`assets/crypto/ruja-ignatova/CREDITS.md`): Wikimedia Commons, public
+domain or CC BY / BY-SA, one `CREDITS.md` per subject folder and the
+attribution block in `Meta.credits`. 1960s network publicity stills (NBC's
+*Star Trek* portraits) are public domain on Commons and are the strongest
+picture this channel has had - instantly recognisable, on the noun.
+
+- **Check every claim about a person before scripting it.** The article
+  hedged half its own entries ("reportedly", "if accurate"), and one was
+  plainly wrong against the sources (Streisand "around age seven"; Walters
+  interview and memoir say nine / sixth grade). Unverifiable entries are cut,
+  not softened. The checked list lives in that video's `CREDITS.md`.
+- **A portrait still in a 16:9 slot is a picture-column photo**, exactly as
+  "A portrait or square photograph must never fill a 16:9 frame" says; crop a
+  wide copy (`kirk-spock-1968-wide.jpg`) for the `callout` and the `Flash`.
+- **On a video about named people, the default picture is the person.** The
+  first cut filled the Shatner and Streisand sections with stock mood (a
+  phone, a man in headphones, a woman at a window, a child at a desk) and the
+  user cut all of it as irrelevant. Commons had four more landscape photos of
+  the two of them; a real photograph beats a clip that is only near the line.
+- **A stranger's face under a line about a named person reads as that
+  person.** The headphones close-up under "he found sound therapy" was swapped
+  for a record spinning in the Short, where the face filled the frame.
+
+Verdicts from the same fetch, so they are not re-screened:
+
+| clip | verdict |
+| --- | --- |
+| `special-effects-explosion-film-set/17807763` | a fireball on black for ~3s, then smoke, then **black** - give it a short sentence only |
+| `special-effects-explosion-film-set/38630739`, `7901284`, `pyrotechnics-explosion-night/*` | fireworks, not an explosion |
+| `old-film-projector-dark/3223854` | a frame of film in the gate; reads as a flat brown rectangle at 16:9 |
+| `child-classroom-window/*` | every result L118-203, a bright empty classroom; `old-school-desk-dark/11025486` (a child writing, from above) is the dark answer |
+| `banjo-playing-close-up/*` | no banjo: an electric guitar, a bass, a mandolin, two people on a balcony |
+| `acoustic-guitar-playing-dark/15348445`, `15348446` | the same shoot as the musicians cut's `15348443` |
+| `paparazzi-camera-flashes-red-carpet/12987890` | a white flare, no subject |
+| `hands-holding-phone-dark-room/6414098` | a legible messaging app |
+| `hands-holding-phone-dark-room/6611941` | **cut on review**: the "glow" is a blank white rectangle at full frame, and it says nothing. "Prefer an indistinct glow" (above) is not a licence for a white screen |
+| `person-putting-on-headphones-night/7047263` | **cut on review**: reads as a gamer, not as anybody's sound therapy |
+| `woman-looking-out-window-night/5976560` | **cut on review**: mood, under a line about a named man |
+| `old-school-desk-dark/11025486` | **cut on review**: a child at a desk does not read as Streisand's classroom - a photograph of her did the job |
+| `therapist-counseling-session-hands/*` | every result L90-151; `7200765` (hands and a notebook) is the least bright and was used once, for the word "counselling" |
