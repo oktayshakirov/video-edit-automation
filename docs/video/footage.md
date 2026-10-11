@@ -874,3 +874,52 @@ Verdicts from the same fetch, so they are not re-screened:
 | `woman-looking-out-window-night/5976560` | **cut on review**: mood, under a line about a named man |
 | `old-school-desk-dark/11025486` | **cut on review**: a child at a desk does not read as Streisand's classroom - a photograph of her did the job |
 | `therapist-counseling-session-hands/*` | every result L90-151; `7200765` (hands and a notebook) is the least bright and was used once, for the word "counselling" |
+
+## The halving fetch: verdicts (2026-10-10)
+
+`bitcoin-halving` was the first crypto pair since the cache prune to find
+**every** cached clip already cut by another video - the whole roster was
+fetched fresh. The sheet's own `USED` flag is not enough to trust: it missed
+`7140928` (a server rack in five projects) because the id sits under four
+query folders. **`grep -rl <id> projects/` each pick before writing it in.**
+
+| clip | verdict |
+| --- | --- |
+| `wall-calendar-pages-flipping/*` | none is a calendar: an animated icon, two books, a page edge |
+| `marking-date-on-calendar/9057559`, `9057678` | **kept**: a red marker circling a date. L155-169 and the noun; same shoot, so a minute apart |
+| `gold-nuggets-in-hand/7667296`, `7684711` | **cannabis**, not gold |
+| `gold-panning-river/*` | every pan is bright green plastic |
+| `wooden-blocks-stacking/*` | bright nurseries and children - not "a block" |
+| `graphics-card-mining-rig/5466792` | a branded RGB card (GALAX, GEFORCE RTX) |
+| `gold-bars-stack/38963084`, `39562740` | a live candlestick chart behind the coins (same fault as `38905685`) |
+| `knife-cutting-in-half/*` | fruit on a bright board - "half" as a cooking clip reads as a joke |
+| `command-line-terminal-screen/35071678` | a Windows "Command Prompt" banner, legible |
+| `computer-screen-code-close-up-dark/6346228`, `command-line-terminal-screen/6804121` | green-tinted code, Matrix-adjacent |
+| `rain-on-window-night/34977302` | a teal-lit building, green cast |
+| `mining-machines-warehouse/*`, `gold-ore-rock/*` | open-cast mines in daylight, L95-150, a blue sky in every frame |
+| `gold-mine-tunnel/31752063`, `gold-mine-miner-digging/38994407` | kept for the first cut, **cut on review**: physical mining reads as ore, not bitcoin - see below |
+| `power-plant-at-night/7628844` | **kept**: stacks and steam at night, L37-39 |
+
+**Physical mining is not bitcoin mining (2026-10-11).** The first halving cut
+put a tunnel excavator and a man digging rock under the "gold mine" analogy
+and the 10.5M line, and the user cut both: a viewer reads them as the video
+being about mining ore. A mining *analogy* still needs bitcoin-mining
+footage under it, so the line became "a pay cut every four years, however
+good the miner's machines get" over an open rig. The re-fetch confirmed the
+2026-09-16 finding above: `bitcoin mining rig`, `asic miner`, `cryptocurrency
+mining farm` and `bitcoin miner machine` returned whiteboards
+(`8370038`, `8370150`), sticker piles (`8370044`), an oil pump (`26172739`),
+quarries and bucket-wheel excavators (`27676678`, `30911532`-`3`,
+`35650007`, `9310130`), branded RGB cards (`5467289`) and an Ethereum coin
+over Matrix rain (`10243081`). What survived: `mining-rig-fans/5467579`
+(inside an open rig, L65-71) and `bitcoin-miner-machine/8369987` (bitcoin
+stacks of falling height, L73).
+
+**A crowd is not "the claim you hear" (2026-10-11).** `crowd-of-people-night-city/36899602`
+(a packed street market) ran under "It is the claim you hear most, every
+four years" and the user cut it as a random street, unrelated. The line's
+noun is a claim being *read*, so it became `man-reading-newspaper-dark/9564066`
+(a newspaper turned in a dark bar, L47-55). Rejected in the same fetch:
+`10238038` and `6279142` (a legible Instagram feed), `35888104` (a legible
+Spanish news article), `7263305` / `6602246` (bright), `6414098` (a messaging
+app, already on record).

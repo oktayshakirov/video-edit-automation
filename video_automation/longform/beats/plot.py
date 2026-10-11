@@ -14,6 +14,16 @@ from PIL import Image, ImageDraw
 from ...core.draw import ease_out, partial, wrap
 from .base import Beat, _font
 
+
+def _dense(pts: list, step: float = 6.0) -> list:
+    """Points every `step` px along a polyline, so a box test cannot slip
+    between two vertices that sit either side of it."""
+    out = []
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+        n = max(1, int(math.hypot(bx - ax, by - ay) / step))
+        out += [(ax + (bx - ax) * k / n, ay + (by - ay) * k / n) for k in range(n)]
+    return out + pts[-1:]
+
 class Timeline(Beat):
     """Dated events along a horizontal axis, **spaced by their real dates**.
 
@@ -230,7 +240,20 @@ class Chart(Beat):
             # the right edge - a note clipped by the frame is worse than none.
             anchor = "ls" if mx < fr.w * 0.62 else "rs"
             dx = 34 if anchor == "ls" else -34
-            d.text((mx + dx, my - 34), self.note, font=nf,
+            # **Above the marker, unless the line itself runs through that
+            # spot.** A marker on a plateau (a supply curve flattening out)
+            # has the rest of the line level with it, and the note printed
+            # straight over it. Test the note's box against the line and
+            # drop it below the marker only when they meet - a peak or a
+            # step up with clear air above keeps the old placement.
+            ty = my - 34
+            l, t, r, b = d.textbbox((mx + dx, ty), self.note, font=nf,
+                                    anchor=anchor)
+            hit = any(l - 4 <= px <= r + 4 and t - 8 <= py <= b + 8
+                      for px, py in _dense(pts))
+            if hit:
+                ty = my + 34 + (b - t)
+            d.text((mx + dx, ty), self.note, font=nf,
                    fill=br.ink + (a,), anchor=anchor)
 
 
