@@ -1035,3 +1035,20 @@ of it, so a label that wraps ("A 5 CENT COIN" went to four rows) runs into the
 line and the VS disc. The user's note on `market-cap` was to drop it for the
 long form's `Stamp`. Until the layout is fixed, keep `Split` labels to one
 short word or figure a side, or pick `Stamp` when the topic is a belief.
+
+## `enter_word` holds an opener back until the voice says it (2026-10-11)
+
+Every opener slams in on frame one and runs until `at_word`. On the halving
+Short that was a `Counter` spinning for six seconds under a title question
+it had nothing to do with ("why was half of all bitcoin mined...") before
+landing on 2140. The user's note: wait until the voice mentions the last
+bitcoin, then show the reveal. `Counter(..., at_word="2140",
+enter_word="last")` now enters on "the last one" and spins for the two
+seconds until "2140". The opener draws on its own clock from that point, so
+it keeps the full punch-in and slam; the sentence spoken before it keeps its
+captions, because nothing is on screen yet.
+
+**Reach for it whenever sentence 1 is the title question and the opener's
+payoff belongs to sentence 2.** A spin under an unrelated line reads as the
+video waiting, which is the same fault the redacted hook's `latest` exists
+to prevent. (`Flash` draws on its own clock and refuses it.)

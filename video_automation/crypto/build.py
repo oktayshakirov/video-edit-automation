@@ -556,7 +556,12 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             resume = next((a for a, _ in spans if a >= hook_ov.end), None)
             if resume is None:
                 resume = float("inf")      # the hook outlives the narration
-            kept = [sp for sp in sprites if sp.start >= resume - 1e-3]
+            # A sentence that is over before a late-entering opener
+            # (`enter_word`) keeps its captions - nothing is on screen yet.
+            before = [(a, b) for a, b in spans
+                      if b <= getattr(hook_ov, "start", 0.0) + 1e-3]
+            kept = [sp for sp in sprites if sp.start >= resume - 1e-3
+                    or any(a - 1e-3 <= sp.start < b for a, b in before)]
             dropped = len(sprites) - len(kept)
             if dropped:
                 print(f"hook: {dropped} caption sprite(s) muted; captions "

@@ -90,8 +90,10 @@ class _Opener:
     punch: bool = True
 
     def __init__(self, *, at_word: str | None = None, at: float | None = None,
-                 hold: float = 0.9, punch: bool = True):
+                 hold: float = 0.9, punch: bool = True,
+                 enter_word: str | None = None):
         self.at_word, self.at_fixed, self.hold, self.punch = at_word, at, hold, punch
+        self.enter_word = enter_word
         self.frame: Frame = VERTICAL
         self.accent = (229, 194, 0)
         self.built = False
@@ -105,8 +107,25 @@ class _Opener:
         self.land = (self.at_fixed if self.at_fixed is not None
                      else word_time(self.at_word, captions, fallback)
                      if self.at_word else fallback)
+        # **`enter_word` holds the whole opener back until the voice says
+        # it** (2026-10-11). By default it slams in on frame one and spins
+        # until `at_word`; on the halving Short that was a counter spinning
+        # for six seconds over a title question it had nothing to do with,
+        # and the user's note was to wait for "the last one" and only then
+        # run the reveal. Everything below is drawn in the opener's own
+        # clock, shifted by `start`, so a late entrance still gets the full
+        # punch-in, slam and spin.
+        enter = (word_time(self.enter_word, captions, 0.0, earliest=0.0)
+                 if self.enter_word else 0.0)
+        if enter and type(self).draw is not _Opener.draw:
+            raise ValueError(f"{type(self).__name__} draws on its own clock "
+                             "and cannot take enter_word")
+        self.land = max(self.land - enter, self.SLAM + 0.6)
         self.exit_at = self.land + self.hold
-        self.start, self.end = 0.0, self.exit_at + self.EXIT
+        self.start, self.end = enter, enter + self.exit_at + self.EXIT
+        if enter:
+            local = self.cues
+            self.cues = lambda: [(t + enter, n) for t, n in local()]
         self._layout()
         self.built = True
         return self
@@ -140,6 +159,7 @@ class _Opener:
     def draw(self, pic: Image.Image, t: float) -> Image.Image:
         if not (self.start <= t < self.end):
             return pic
+        t -= self.start
         W, H = self.frame.w, self.frame.h
         if self.punch and t < self.PUNCH:
             z = 1.14 - 0.14 * _ease_out(t / self.PUNCH)

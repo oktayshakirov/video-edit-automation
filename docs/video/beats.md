@@ -967,3 +967,14 @@ every payload has a beat and every beat a payload, one checks every class
 defined in a family is registered, and one checks no family imports another -
 shared code goes in `base.py`, because a family importing a family is the
 first step back to one 3,000-line file.
+
+## A `chart` note drops below a marker on a plateau (2026-10-10)
+
+The note always sat 34px above its marker, which is right for a peak (the
+musk post) or a step with clear air above it (the market-cap unlock). The
+halving Short marks a supply curve where it has already flattened, so the
+rest of the line runs level with the marker and printed straight through
+"19 of every 20 already mined". `Chart` now tests the note's box against
+the line (densified, so it cannot slip between vertices) and moves it under
+the marker only when they meet. Both shipped charts measured clear and draw
+exactly as before.
