@@ -470,8 +470,9 @@ title question, so sentence 2 is confirming something already read.
 
 The strongest form of "opens a bigger question" is not a reveal at all - it is
 **a task the viewer performs on their own body**. Two Shorts two days apart,
-same channel, same topic family, same format, both carrying the frame-zero
-hook, settled this:
+same channel, same topic family, same format, settled this. (They did not
+share an opener: jaw used `Search` and neck the redacted hook. The
+2026-10-11 cohort below shows the opener does not matter here.)
 
 | Short | sentence 2 | avg % | half gone | last frame |
 |---|---|---|---|---|
@@ -492,7 +493,9 @@ staying rather than the reason to leave. Prefer, in order:
    your head and listen". Best retention, and it only works when the topic has
    a real self-check in the article; do not invent one.
 2. **A reversal, a name or a number** - the 2026-09-21 rule above. Use when
-   there is nothing to check.
+   there is nothing to check. It must name the *kind* of answer and keep the
+   answer itself back - see "Confirmed 2026-10-11" below. A name or number
+   that *is* the answer is a verdict.
 3. Never the verdict, never a hedge.
 
 Both limits above still apply: the task must be real and the video must pay
@@ -503,6 +506,55 @@ description; "do this to stop the ringing" is a promise and is out.
 **Still unsettled:** the ~5s drop survives both (jaw -10.0, neck -7.3), though
 at roughly half the pre-hook depth of -13 to -27. Two videos is direction, not
 proof - a third post-hook Short reproducing the jaw plateau would settle it.
+
+### Confirmed 2026-10-11: a name or a number can still be the verdict
+
+Eleven Shorts with curves now, across both channels and four opener types.
+They split cleanly into two groups by one question about sentence 2: **could
+the viewer leave now and say the answer to the title question?**
+
+| sentence 2 | the viewer can answer the title? | drop 4-7s | half gone |
+|---|---|---|---|
+| Scams: "Almost always one of two things," | no - which two? | -10.5 | 11.6s |
+| First block: "A line from a newspaper's front page." | no - which line? | -16.7 | 17.2s |
+| Whale: "Not a person." | no - then what? | -16.7 | 18.3s |
+| Explain: "The version that works ends with a request" | no - what request? | -21.6 | 15.8s |
+| Jaw: "Quick check - are your teeth touching?" | no - a task | -24.4 | 28.8s |
+| Musk: "It can." | **yes** | -33.3 | 11.0s |
+| Neck: "...the answer is yes." | **yes** | -36.6 | 9.5s |
+| Star Trek: "One explosion did, on set in 1967" | **yes** | -40.4 | 8.8s |
+| Musicians: "...about forty-three percent of them." | **yes** (restates the title) | -40.7 | 9.3s |
+| First tx: "Hal Finney." | **yes** | -41.5 | 7.1s |
+| Market cap: "Not because of its price." then a definition | muddled, then a lecture | -45.2 | 8.0s |
+
+The "yes" group performs the same as the pre-hook cohort (half gone 6.7-9.4s).
+The redacted hook, `Search` and `Stamp` each appear in both groups, so **the
+opener does not rescue a verdict, and a withheld answer works without one**.
+First block had no opener at all.
+
+"Hal Finney." is a name and "forty-three percent" is a number, so both passed
+option 2 above, and both are the answer to the title question. Option 2 now
+reads: **a reversal, a name or a number that names the *kind* of answer and
+keeps back the answer itself**. "A line from a newspaper", not the headline.
+"One of two things", not the two things. "Not a person", not "an exchange".
+
+**Self-check, replacing the two questions above with one:** cover everything
+after sentence 2 and try to answer the title question from sentences 1-2. If
+you can, rewrite sentence 2. Examples of the fix:
+
+| verdict (cliffs) | keeps it back (holds) |
+|---|---|
+| "Hal Finney." | "A cryptographer who had built his own digital money five years earlier." |
+| "One explosion did, on set in 1967." | "It was not years of loud sets. It was one second." |
+
+**A yes/no title question is the trap.** Three of the six verdicts (Musk,
+Neck, Star Trek) answer a yes/no title, where any natural sentence 2 is
+"yes". Either title the Short as a how or why question, or let sentence 2
+skip the yes and open the how. A yes the viewer can infer is still a yes.
+
+Reach is a separate matter. The four highest-reach Shorts in this cohort are
+all in the "yes" group, because reach comes from the title and topic. Keep the
+title that gets the click and fix sentence 2 so the click stays.
 
 ## A tip needs a reason before it is a tip
 
