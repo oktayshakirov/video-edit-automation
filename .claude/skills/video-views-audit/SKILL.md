@@ -149,9 +149,11 @@ From the 2026-09-21 review - re-check rather than assume, but start here:
 - **Facebook is the long-form platform.** The same long-forms take ~145-200
   views there against 0-13 on YouTube, and a sound session reached ~29k.
   Crypto's Facebook page has 447 followers against 4 YouTube subscribers.
-- **TikTok is the biggest Shorts platform** and every upload lands at almost
-  exactly **~250 or ~770 plays** - its test batches. Nothing has escaped them
-  yet, so a video clearing ~1,000 is the first real signal and worth studying.
+- **TikTok is the biggest Shorts platform** and every *pipeline* upload lands
+  at almost exactly **~250 or ~770 plays** - its test batches. None has
+  escaped them, so a pipeline video clearing ~1,000 is the first real signal.
+  The pre-pipeline clips from February to April 2026 *did* escape (see
+  "Audit 2026-10-11"), so the ceiling is not the account.
 - **Instagram tinnitus went to 0 plays** from 2026-09-14 with account status
   clear. Zero is a distribution stop, not weak content.
 - **Every YouTube Short loses 13-27 points at ~5s**, which is what the opening
@@ -757,8 +759,9 @@ worth checking first if a Facebook reel ever goes missing.
   subs in ten days, crypto 984 -> 1,381. Shorts land 100-335 routinely now,
   against 9-55 in late August.
 - **TikTok is unchanged and will stay unchanged** - 26 and 30 uploads in, every
-  single one still lands in a ~250 or ~770 test batch. Nothing has broken past
-  ~800 on a 2026 upload. A video clearing 1,000 remains the first real signal.
+  single one still lands in a ~250 or ~770 test batch. No *pipeline* upload
+  has broken past ~800. (Corrected 2026-10-11: four hand-made clips from
+  February to April 2026 did, reaching 1,379-1,984. This note had missed them.)
 - **Not yet read: the retention curves on the first `hook=` Shorts** (tinnitus
   jaw 09-26 and neck 09-24, 132 and 202 views). The frame-zero hook shipped
   2026-09-21 and this is the first cohort carrying it. Pull these before
@@ -769,7 +772,11 @@ worth checking first if a Facebook reel ever goes missing.
 First read on the two Shorts carrying the `hook=` that shipped 2026-09-21.
 Both beat the entire pre-hook cohort, and the gap between them is the cleanest
 natural experiment these channels have produced: same channel, same topic
-family, same format, same hook, two days apart.
+family, same format, same hook, two days apart. *(Corrected 2026-10-11: not
+the same hook. Jaw shipped with the `Search` opener
+(`tmj-and-tinnitus.py:83`), and only neck had the redacted `hook=`. The
+sentence-two finding still holds, and the 10-11 cohort confirms it with every
+opener type on both sides.)*
 
 | | views | avg % | opens | half gone | last frame |
 | --- | --- | --- | --- | --- | --- |
@@ -804,3 +811,164 @@ this in a comment before the data existed; the data agrees.
 Next audit: check whether a third post-hook Short reproduces the jaw plateau,
 and whether any of them finally moves the ~5s drop. Two videos is direction,
 not proof.
+
+## Audit 2026-10-11
+
+| | YouTube | TikTok | Instagram | Facebook |
+| --- | --- | --- | --- | --- |
+| **Tinnitus** | **3,855** views (2,904 on 10-01), 10 subs | 8 followers, ~250/~770 every upload | 0-1 on every reel since 09-14 | 70 followers |
+| **Crypto** | **2,259** views (1,381 on 10-01), 4 subs | 8 followers, same batches | 0-15 | 445 followers |
+| **Drone** | 34,207 lifetime, 218 subs | - | - | - |
+
+YouTube added roughly 900 views per channel in ten days, about as many as each
+channel earned in its first five weeks. **The Star Trek Short
+(`pE6fE_4NCKc`) passed 511 views in two days**, the most for any tinnitus
+Short. The reach came from the title, which names a celebrity: its retention
+is average.
+
+### Sentence two decides retention, and the opener does not - 11 curves
+
+Every post-09-21 Short with a curve, sorted by what sentence 2 does. "Drop" is
+the sum of changes from 4s to 7s. "Half gone" is the second the curve falls to
+half its opening value.
+
+| Short | opener | sentence 2 | views | avg % | drop 4-7s | half gone | last |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| C Scams `v7IfgCC5bEQ` | hook | "Almost always one of two things," | 113 | 47 | **-10.5** | 11.6s | 18% |
+| C First block `07YvlC1QKDM` | none | "A line from a newspaper's front page." | 133 | 58 | -16.7 | 17.2s | 27% |
+| C Whale `gHygTz3GYEU` | Stamp | "Not a person. It is an exchange - and almost none of those coins are its own." | 95 | 61 | -16.7 | 18.3s | 11% |
+| T Explain `ZkFtRhRwXic` | hook | "The version that works ends with a request" | 127 | 47 | -21.6 | 15.8s | 8% |
+| T Jaw `cQ2I3ZCv2EE` | Search | "Quick check - are your teeth touching?" | 135 | **81** | -24.4 | **28.8s** | **46%** |
+| C Musk `Q1w4mD52jEc` | Search | "It can." | 173 | 42 | -33.3 | 11.0s | 17% |
+| T Neck `mOZWcTkxEA4` | hook | "...the answer is yes." | 202 | 52 | -36.6 | 9.5s | 29% |
+| T Star Trek `pE6fE_4NCKc` | hook | "One explosion did, on set in 1967..." | **511** | 46 | -40.4 | 8.8s | 15% |
+| T Musicians `HYbeNNreBD0` | Counter | "...about forty-three percent of them." | 135 | 43 | -40.7 | 9.3s | 24% |
+| C First tx `PcI9fAr1xoE` | hook | "Hal Finney." | 258 | 29 | -41.5 | **7.1s** | 11% |
+| C Market cap `NdNwNUUy9R8` | Stamp | "Not because of its price." + a definition | 204 | 25 | **-45.2** | 8.0s | 7% |
+
+- **The two groups do not overlap.** When sentence 2 keeps the answer back
+  (a category without the item, a task) or plainly overturns the title's
+  assumption (Whale), the 4-7s drop is -10 to -24 and half the audience stays
+  to 11.6-28.8s. When sentence 2 answers plainly or confirms, the drop is -33
+  to -45 and half are gone by 7.1-11.0s. That is **the same as the pre-hook
+  cohort (6.7-9.4s)**. *(Corrected the same day: the first read quoted only
+  the first clause of each sentence and filed Whale as "keeps it back". Its
+  full sentence 2 does name the answer, an exchange, as a reversal.)*
+- **The opener is not what separates them.** The redacted hook, Search and
+  Stamp each appear in both groups. First block had no opener at all and
+  still holds. **So the improvement credited to the hook on 10-01 was mostly
+  sentence two.** E1 is not failed, but on this evidence it is not the active
+  ingredient.
+- **The "a name or a number" clause in `narration.md` let verdicts back in.**
+  "Hal Finney." is a name and "forty-three percent" is a number, so both
+  passed the 10-01 rule, and both are the answer to their title question.
+  The test: **after sentence 2, could the viewer leave and say the answer to
+  the title question?** If no, it holds. If yes, it holds only as a plain
+  reversal of the title's assumption with the next question open (Whale).
+  A plain or confirming answer is a verdict. Market cap tried a reversal
+  that never said what it was, and cliffed hardest. Written into
+  `narration.md` "Confirmed 2026-10-11". **Root cause:** the hook's hidden
+  word or the opener's `at_word=` was the answer itself (`[Hal Finney]`,
+  `[explosion]`, `[30 seconds]`, "forty-three"), so sentence 2 had to say
+  it. Now gated in `workflow.md` step 2 by `tools/opening_check.py`.
+- **Reach and retention are unrelated in this cohort.** The four
+  highest-reach Shorts (Star Trek 511, First tx 258, Market cap 204, Neck 202)
+  are all in the verdict group. Reach comes from the title and topic. A
+  named person, or a question people already ask, gets the click.
+- Bitcoin halving (`HSUtPLAJlcg`, Counter opener) reached 284 views on its
+  first day. It has no curve yet; read it next audit. Its sentence 2, "And the
+  last one is not due until 2140.", keeps the answer back, so the prediction
+  is that it holds.
+
+### The crypto long-form title rule works
+
+`pajYNop1eHI` "What Was the First Bitcoin Transaction?" has 163 YouTube views,
+the most for any crypto long-form on YouTube. It opens at 93% and keeps about
+40% to the end. The title is the query people actually search, as
+"Same-day near-identical pairs" asks. That makes two cases, with tinnitus's
+"How to Sleep With Tinnitus" (160). The other new crypto long-forms are at
+4-11 views.
+
+### Facebook - pass or fail, like TikTok
+
+- **Facebook distribution is pass-or-fail too.** Reels and long-forms land at
+  **~150-360** or at **~7-70**, rarely in between. Musicians failed both
+  (reel 18, long 10). Neck long reached 363, the most for any tinnitus
+  long-form there.
+- **Crypto Facebook long-form has lost its floor.** Through 09-21 every crypto
+  long took 145-285. Since then: Scams 15, First tx 27, Market cap 36,
+  against Musk 215. Followers are flat at 445. Watch it next audit and do
+  not explain it yet. Three failures is not a cause.
+- **The ~29k all-time video is "4-7-8 Breathing + White Noise for Tinnitus
+  (20 Minutes)"**, the long-form from 09-05. The same video has 128 on
+  YouTube.
+
+### TikTok - only the pre-pipeline clips escaped the batches
+
+Pipeline uploads still land at 250/770 (tinnitus 09-22 268, 09-24 272,
+09-26 795, 09-28 754, 10-02 791, 10-09 265; crypto 09-22 252, 09-25 251,
+**09-27 548**, 10-02 764, 10-06 251). Musk's 548 is the first result between
+the two batches. **But the hand-made clips from early 2026 did escape**:
+tinnitus 02-05 1,933 (10s), 02-23 1,922 (18s), 04-10 1,984 (59s, #zen),
+04-27 1,379 (58s, #zen), and crypto 04-13 1,935 (9s). Their like rate is
+higher too: tinnitus 60 and 82 likes, against 2-13 on pipeline uploads.
+Most of the tinnitus ones are zen and sound clips.
+
+**Sound-therapy content is the cross-platform outlier for tinnitus.** It
+holds the Facebook all-time top (29k), the TikTok tops (~1.9k), and one of
+the best YouTube tinnitus longs (128). Nothing else has escaped the floor on
+two platforms. Treat this as a lead to test, not a rule. The obvious test is
+a 30-60s sound-bed cut from an existing 20-minute session, posted as a
+TikTok.
+
+### Instagram
+
+Unchanged, and reported per the 10-01 decision with no re-diagnosis:
+tinnitus 0-1 on every reel since 09-14, crypto 0-22 (latest 15 and 13).
+
+### Drone - thumbnail A/B test started 2026-10-11
+
+**On 2026-10-11 the user started a Studio Test & Compare on a new thumbnail
+format for every drone long-form video.** The next audit's first drone
+question is whether it improved anything.
+
+- **During the test, do not write thumbnails, and do not write titles to the
+  drone long-forms through the API.** A live Test & Compare blocked API title
+  writes before (`UPDATE_TITLE_NOT_ALLOWED_DURING_TEST_AND_COMPARE`), and a
+  thumbnail write could cut into the test. If a description fix is needed,
+  send only the description.
+- **Berlin (`zjCQxJcJGN4`) is part of the test**, so the channel no longer
+  has an untouched control. That ends the control role it held since
+  2026-08-21.
+- **The result has to come from two sources.** Studio declares a winner by
+  watch-time share, and the API cannot read it, so ask the user for each
+  video's verdict. The API can measure view velocity before and after: pull
+  `analytics --no-shorts --public-only --since 2026-01-01` for 10-12 to 10-25
+  and compare it to the baseline below. During the test only part of the
+  impressions get the new thumbnail, so the clean comparison is the 14 days
+  *after* the winners are applied.
+
+Baseline, YouTube views per window (no new drone long-form since 09-01):
+
+| video | lifetime | 09-13..10-10 (28d) | 09-27..10-10 (14d) | 10-04..10-10 (7d) |
+| --- | --- | --- | --- | --- |
+| Berlin Golden Hour `ZvOtv_NDRws` | 233 | 134 | 47 | 14 |
+| Akra & Arkutino `8cqQ6N692SA` | 78 | 20 | 3 | 0 |
+| Chengene Skele `WCoo39Mv4HE` | 119 | 24 | 4 | 2 |
+| Nessebar `QJr3OLXAEG0` | 206 | 25 | 8 | 3 |
+| Plovdiv `t6rwIf5q_gY` | 257 | 65 | 27 | 12 |
+| Donauinsel `2lTYxIm0l8M` | 109 | 7 | 5 | 2 |
+| Burgas `Y5S9n7a4ar8` | 2,001 | 177 | 42 | 25 |
+| Sozopol & Sinemorets `JrUYqyG4xuo` | 252 | 9 | 6 | 2 |
+| Flying Over Berlin `zjCQxJcJGN4` | 1,025 | 113 | 36 | 12 |
+| **all 9** | **4,280** | **574** | **178 (12.7/day)** | **72 (10.3/day)** |
+
+Average view duration in the 28-day window: 0:18-2:55, typically ~1:10-1:45.
+If the new thumbnails bring in viewers who leave faster, that shows here
+before it shows in the view count.
+
+**Drone Shorts, for context:** the POV format ("Drone POV" 1,295, "Man vs
+Drone POV" 796 and 301, "Human vs Drone POV" 32) is outdrawing Quote of the
+Day (15-652 in September). The POV titles are bare (`title-short`,
+`desc-empty`, `few-tags`). This is not part of the test and can be fixed
+separately.

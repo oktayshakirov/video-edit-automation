@@ -97,3 +97,45 @@ Baseline for everything below: `history/2026-09-21.md`.
 - **Note:** this deliberately makes E1's cohort less uniform. Keep the
   redacted hook as the default so it stays the control.
 - **Status:** not yet shipped.
+
+---
+
+## Status 2026-10-11 (from the video-views-audit run)
+
+- **E1 (redacted hook): not the active ingredient.** Five hooked Shorts with
+  curves: Scams and Explain hold (half gone 11.6s, 15.8s), and Neck, Star Trek
+  and First tx do not (9.5s, 8.8s, 7.1s). The fail condition (4+ hooked,
+  drop ≥13 and half gone <9s) is met by 2 of 5, so E1 has not failed. But
+  the hook alone has no effect. What it gets depends on sentence 2.
+- **E2 (sentence 2): confirmed, with a tighter definition.** Across 11 curves
+  and four opener types, every Short whose sentence 2 answers the title
+  question plainly or confirms it sits at half gone 7.1-11.0s, the same as
+  pre-hook. Every one that keeps the answer back, or plainly overturns the
+  title (Whale), sits at 11.6-28.8s. No overlap.
+  `narration.md` "Confirmed 2026-10-11" records it, and `workflow.md` step 2
+  now gates it with `tools/opening_check.py`. Watch whether Shorts built
+  after this date stay in the holding group.
+- **E5 (opener variants): no opener effect can be read yet.** Search (Jaw
+  holds, Musk does not), Stamp (Whale holds, Market cap does not) and Counter
+  (Musicians does not, Halving has no curve) each split along the
+  sentence-2 line. To judge an opener, compare it only within the group that
+  keeps the answer back.
+- **E4 (search-question titles): holding.** YouTube views roughly +900 a
+  channel in ten days.
+
+## E6 - Drone long-form thumbnail A/B (Studio Test & Compare)
+
+- **Started:** 2026-10-11, by the user in Studio, on every drone long-form
+  video. Berlin (`zjCQxJcJGN4`) is included, so there is no untouched control.
+- **Change:** a new thumbnail format against the current one.
+- **Judged by:** (1) Studio's per-video winner (watch-time share), which
+  only the user can read. (2) YouTube views per day across the 9 videos
+  after the winners are applied, against the baseline: 178 views in 14 days
+  (12.7/day), 72 in the last 7 (10.3/day). The per-video baseline table is
+  in `video-views-audit` "Audit 2026-10-11". (3) Average view duration: it
+  must not fall.
+- **Fails if:** Studio picks the old thumbnail on most videos, or views per
+  day after the switch are no higher than ~13/day with view duration down.
+- **Constraint:** no API title or thumbnail writes on drone long-forms while
+  the test runs.
+- **Status:** running.
