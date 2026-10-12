@@ -33,6 +33,11 @@ when the data will exist. Answered checks move into that run's snapshot.
   the tinnitus outlier on Facebook (29k) and on pre-pipeline TikTok (~1.9k).
   If the user builds a 30-60s cut for TikTok, open it as an experiment with a
   fail line of "lands in the 250/770 batch like the rest".
+  **2026-10-12: the user's focus until ~11-12 is publishing more sound
+  sessions.** Next run: count the sessions published since 10-12 and their
+  views per platform (Facebook first), against the 29k outlier. Once a few
+  are live, it is worth testing translated titles on half of them (see
+  "Parked: localization").
 
 ---
 
@@ -104,6 +109,27 @@ when the data will exist. Answered checks move into that run's snapshot.
 - **TikTok caps at ~770** on every video so far — nothing has escaped the test
   batches. E1 is the first change aimed at the first-second behaviour TikTok
   scores on.
+- **Parked 2026-10-12: localization (other languages).** The user deferred it:
+  too much work for the result at current channel size. Dubbing multiplies
+  existing reach (YouTube: ~25% of watch time from dub tracks on channels that
+  use them), so on a channel with 4-6 subscribers it adds next to nothing.
+  **Re-raise it when any of these holds:** a YouTube channel passes ~1k
+  subscribers; a long-form video passes ~5k views; Studio's geography report
+  shows 15%+ of a channel's views from non-English countries; or sound
+  sessions become a regular format (they have no speech, so they would only
+  need a translated title and description, and that is the cheapest test).
+  What was found on 2026-10-12:
+  - **Automatable:** translated title and description (Data API
+    `localizations`; `youtube-audit/src/edit.ts` already sets
+    `defaultLanguage`), translated captions (`captions.insert`, from the SRT
+    every build already writes), and the dub audio itself (Kokoro has ES, FR,
+    HI, IT, PT-BR, JA voices).
+  - **Studio only, by hand:** uploading the dub track (Languages → Add dub)
+    and per-language thumbnails. Both need Advanced features. An existing
+    YouTube auto-dub has to be deleted before our own can go up in that
+    language.
+  - **Order to test in:** metadata only, then captions, then audio. Crypto
+    long-form → ES + PT. Localize thumbnails only where they carry text.
 
 ## E5 — Opener variants (rotation)
 
