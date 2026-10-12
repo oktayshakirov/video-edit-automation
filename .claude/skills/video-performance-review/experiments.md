@@ -7,6 +7,33 @@ entry, mark it failed or retired and say why.
 
 Baseline for everything below: `history/2026-09-21.md`.
 
+## Open checks - read these first, every run
+
+Rewritten at the end of each run (step 9). Each says what to read and from
+when the data will exist. Answered checks move into that run's snapshot.
+
+*Set 2026-10-11:*
+
+- **E6, drone thumbnail test.** Ask the user for Studio's per-video winner
+  and whether the test has ended. After winners apply, compare 14 days of
+  views and average view duration against `history/2026-10-11.md`. Not
+  readable before ~10-25.
+- **Bitcoin halving Short `HSUtPLAJlcg`, the first prediction from the
+  sentence-2 rule.** Its sentence 2 keeps the answer back, so it should hold
+  (half gone past ~12s). Its curve exists once it passes ~60 views; it had 284
+  on day one.
+- **Gate compliance.** Run `tools/opening_check.py` on every Short built
+  after 2026-10-12 and check its handover carried the output. A Short that
+  skipped the gate is a compliance finding, not a rule finding.
+- **Crypto Facebook long-form.** Scams 15, First tx 27, Market cap 36 against
+  145-285 before 09-22. Watch the next two (halving first). If they also land
+  under ~70, compare the passing and failing publish runs: cover frame,
+  caption, posting time, and whether n8n finished.
+- **Sound beds outside YouTube** (proposed 10-11, not started). Sessions are
+  the tinnitus outlier on Facebook (29k) and on pre-pipeline TikTok (~1.9k).
+  If the user builds a 30-60s cut for TikTok, open it as an experiment with a
+  fail line of "lands in the 250/770 batch like the rest".
+
 ---
 
 ## E1 — The redacted opening hook
@@ -132,7 +159,7 @@ Baseline for everything below: `history/2026-09-21.md`.
   only the user can read. (2) YouTube views per day across the 9 videos
   after the winners are applied, against the baseline: 178 views in 14 days
   (12.7/day), 72 in the last 7 (10.3/day). The per-video baseline table is
-  in `video-views-audit` "Audit 2026-10-11". (3) Average view duration: it
+  in `history/2026-10-11.md`. (3) Average view duration: it
   must not fall.
 - **Fails if:** Studio picks the old thumbnail on most videos, or views per
   day after the switch are no higher than ~13/day with view duration down.
