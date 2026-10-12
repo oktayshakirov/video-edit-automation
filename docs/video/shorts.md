@@ -275,7 +275,11 @@ render_tinnitus_short(SENTENCES, SHOTS, out, work, ...,
 
 The `[bracketed]` word is **hidden** — a bar of animated static in the brand's
 colours, the width of the word — and **revealed on the frame the narration
-says it**. `hook_reveal_time()` finds the word in the caption timings; the
+says it**. **Never hide the answer to the title question** (2026-10-11): the
+narration has to say the word at ~3.5-5s, so a hidden answer puts the verdict
+in sentence 2. `[Hal Finney]`, `[explosion]` and `[30 seconds]` all cliffed;
+`[two things]` and `[request]` held. `tools/opening_check.py` prints the
+word next to sentence 2 (`workflow.md`, step 2). `hook_reveal_time()` finds the word in the caption timings; the
 render prints a warning and falls back to `hook_until` (3.4s) if it is never
 spoken. Timeline (`longform/overlay.py`, `HookOverlay`):
 

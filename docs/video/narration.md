@@ -493,9 +493,10 @@ staying rather than the reason to leave. Prefer, in order:
    your head and listen". Best retention, and it only works when the topic has
    a real self-check in the article; do not invent one.
 2. **A reversal, a name or a number** - the 2026-09-21 rule above. Use when
-   there is nothing to check. It must name the *kind* of answer and keep the
-   answer itself back - see "Confirmed 2026-10-11" below. A name or number
-   that *is* the answer is a verdict.
+   there is nothing to check. It must either name the *kind* of answer and
+   keep the answer itself back, or overturn the title's assumption plainly -
+   see "Confirmed 2026-10-11" below. A name or number that *is* the answer is
+   a verdict.
 3. Never the verdict, never a hedge.
 
 Both limits above still apply: the task must be real and the video must pay
@@ -507,54 +508,81 @@ description; "do this to stop the ringing" is a promise and is out.
 at roughly half the pre-hook depth of -13 to -27. Two videos is direction, not
 proof - a third post-hook Short reproducing the jaw plateau would settle it.
 
-### Confirmed 2026-10-11: a name or a number can still be the verdict
+### Confirmed 2026-10-11: a plain or confirming answer is the verdict
 
 Eleven Shorts with curves now, across both channels and four opener types.
-They split cleanly into two groups by one question about sentence 2: **could
-the viewer leave now and say the answer to the title question?**
+Ten of them split on one question about sentence 2: **could the viewer leave
+now and say the answer to the title question?** The eleventh, Whale, answers
+it and still holds, and that exception shows where the line actually falls.
 
-| sentence 2 | the viewer can answer the title? | drop 4-7s | half gone |
+| sentence 2 (whole entry) | the viewer can answer the title? | drop 4-7s | half gone |
 |---|---|---|---|
-| Scams: "Almost always one of two things," | no - which two? | -10.5 | 11.6s |
+| Scams: "Almost always one of two things, whatever the story in front of it." | no - which two? | -10.5 | 11.6s |
 | First block: "A line from a newspaper's front page." | no - which line? | -16.7 | 17.2s |
-| Whale: "Not a person." | no - then what? | -16.7 | 18.3s |
-| Explain: "The version that works ends with a request" | no - what request? | -21.6 | 15.8s |
-| Jaw: "Quick check - are your teeth touching?" | no - a task | -24.4 | 28.8s |
-| Musk: "It can." | **yes** | -33.3 | 11.0s |
-| Neck: "...the answer is yes." | **yes** | -36.6 | 9.5s |
-| Star Trek: "One explosion did, on set in 1967" | **yes** | -40.4 | 8.8s |
-| Musicians: "...about forty-three percent of them." | **yes** (restates the title) | -40.7 | 9.3s |
-| First tx: "Hal Finney." | **yes** | -41.5 | 7.1s |
-| Market cap: "Not because of its price." then a definition | muddled, then a lecture | -45.2 | 8.0s |
+| Whale: "Not a person. It is an exchange - and almost none of those coins are its own." | yes, but it **overturns** the title and opens "whose, then?" | -16.7 | 18.3s |
+| Explain: "The version that works ends with a request, not a description." | no - what request? | -21.6 | 15.8s |
+| Jaw: "Quick check - are your teeth touching right now?" | no - a task | -24.4 | 28.8s |
+| Musk: "It can. And nothing about the coin itself has to change." | **yes, confirmed** | -33.3 | 11.0s |
+| Neck: "...and for a lot of people, the answer is yes." | **yes, confirmed** | -36.6 | 9.5s |
+| Star Trek: "One explosion did, on set in 1967, and it hit them in opposite ears." | **yes, confirmed** | -40.4 | 8.8s |
+| Musicians: "Pooled across sixty-seven studies, about forty-three percent of them." | **yes** - restates the title | -40.7 | 9.3s |
+| First tx: "Hal Finney. A cryptographer who had already built digital money of his own." | **yes, plainly** | -41.5 | 7.1s |
+| Market cap: "Not because of its price. The price is only half of the sum." | a muddled reversal | -45.2 | 8.0s |
 
-The "yes" group performs the same as the pre-hook cohort (half gone 6.7-9.4s).
-The redacted hook, `Search` and `Stamp` each appear in both groups, so **the
-opener does not rescue a verdict, and a withheld answer works without one**.
-First block had no opener at all.
+The confirmed and plain answers perform the same as the pre-hook cohort (half
+gone 6.7-9.4s). The redacted hook, `Search` and `Stamp` each appear on both
+sides, so **the opener does not rescue a verdict, and a withheld answer works
+without one**. First block had no opener at all.
 
-"Hal Finney." is a name and "forty-three percent" is a number, so both passed
-option 2 above, and both are the answer to the title question. Option 2 now
-reads: **a reversal, a name or a number that names the *kind* of answer and
-keeps back the answer itself**. "A line from a newspaper", not the headline.
-"One of two things", not the two things. "Not a person", not "an exchange".
+**Two ways sentence 2 holds, and nothing else:**
 
-**Self-check, replacing the two questions above with one:** cover everything
-after sentence 2 and try to answer the title question from sentences 1-2. If
-you can, rewrite sentence 2. Examples of the fix:
+1. **It keeps the answer back.** It names the *kind* of answer and withholds
+   the answer itself: "a line from a newspaper", not the headline; "one of two
+   things", not the two things. Or it hands over a task (Jaw).
+2. **It overturns what the title assumed, plainly, and opens the next
+   question in the same sentence.** Whale: the title assumes a person, sentence
+   2 says "not a person - an exchange, and the coins are not even its own".
+   "Silence" did the same in August. This only works when the reversal is
+   clean: Market cap tried it with "Not because of its price", which does not
+   say what the reversal *is*, and cliffed hardest of all eleven.
+
+A **plain answer** ("Hal Finney.") or a **confirming one** ("It can.", "the
+answer is yes", "One explosion did") is the verdict, whatever form it takes.
+"Hal Finney" is a name and "forty-three percent" is a number, so both passed
+option 2 above - which is why option 2 now carries the caveat.
+
+**The hidden word is usually the cause.** The redacted hook and `at_word=`
+land on a word that sentence 2 must say at ~3.5-5s. When that word *is* the
+answer - `[Hal Finney]`, `[explosion]`, `[30 seconds]`, at_word "forty-three"
+- the opener forces the verdict into sentence 2. Hide the *kind* of answer
+("Every crypto scam asks for [two things]"), or a word from the reversal
+("The biggest whale is [not a person]"), never the answer itself.
+
+**Self-check, replacing the two questions above:** cover everything after
+sentence 2 and try to answer the title question from sentences 1-2. If you
+cannot, good. If you can, the answer must be a plain-worded reversal with the
+next question already open; otherwise rewrite sentence 2. Run it against the
+file, not from memory - `tools/opening_check.py` prints the opening and flags
+the shapes that cliffed (`workflow.md`, step 2):
+
+```bash
+PYTHONPATH=. .venv/bin/python tools/opening_check.py projects/crypto-short/<name>.py
+```
 
 | verdict (cliffs) | keeps it back (holds) |
 |---|---|
 | "Hal Finney." | "A cryptographer who had built his own digital money five years earlier." |
 | "One explosion did, on set in 1967." | "It was not years of loud sets. It was one second." |
 
-**A yes/no title question is the trap.** Three of the six verdicts (Musk,
-Neck, Star Trek) answer a yes/no title, where any natural sentence 2 is
-"yes". Either title the Short as a how or why question, or let sentence 2
-skip the yes and open the how. A yes the viewer can infer is still a yes.
+**A yes/no title question is the trap.** Three of the verdicts (Musk, Neck,
+Star Trek) answer a yes/no title, where any natural sentence 2 is "yes".
+Either title the Short as a how or why question, or let sentence 2 skip the
+yes and open the how. A yes the viewer can infer is still a yes - unless the
+honest answer is *no*, in which case it is a reversal and rule 2 applies.
 
 Reach is a separate matter. The four highest-reach Shorts in this cohort are
-all in the "yes" group, because reach comes from the title and topic. Keep the
-title that gets the click and fix sentence 2 so the click stays.
+all verdicts, because reach comes from the title and topic. Keep the title
+that gets the click and fix sentence 2 so the click stays.
 
 ## A tip needs a reason before it is a tip
 

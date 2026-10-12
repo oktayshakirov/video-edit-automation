@@ -65,6 +65,29 @@ that *says the hidden word*, so it is revealed on the beat. Both the Short and
 the long form take `hook=`. See `shorts.md`, "The opening hook: a redacted
 headline", and `narration.md`, "Revised 2026-09-21".
 
+**The hidden word is never the answer to the title question.** Sentence 2
+has to say it, so if `[Hal Finney]` is hidden, "Hal Finney." is sentence 2
+and the viewer has what they came for at five seconds. Hide the *kind* of
+answer (`[two things]`, `[a request]`) or a word from a plain reversal of
+the title's assumption. The same goes for an opener's `at_word=`. See
+`narration.md`, "Confirmed 2026-10-11".
+
+**Gate: run the opening check on the Short before preflight or build, and
+put its output in the script handover.**
+
+```bash
+PYTHONPATH=. .venv/bin/python tools/opening_check.py projects/<project>-short/<name>.py
+```
+
+It prints the title question, sentence 2, the opener and the word it lands
+on, and flags the shapes that cliffed every time they shipped. Then answer
+its last question in one line in the handover: *can the title question be
+answered from sentences 1-2, and if so, is that answer a plain reversal with
+the next question already open?* If the answer is "yes, and it confirms" or
+"yes, plainly", rewrite sentence 2 before building - not after a re-cut.
+The rule lived in `narration.md` for ten days and four Shorts still broke
+it, because it was checked from memory rather than against the file.
+
 **Pick the opener deliberately.** The redacted `hook=` is the default and the
 control; `longform.openers` has Counter / Stamp / Split / Search / Flash for a
 number, a belief, a comparison, a search phrase or a picture payoff. Choose by
