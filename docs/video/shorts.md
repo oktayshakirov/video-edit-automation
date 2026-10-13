@@ -1066,3 +1066,21 @@ captions, because nothing is on screen yet.
 payoff belongs to sentence 2.** A spin under an unrelated line reads as the
 video waiting, which is the same fault the redacted hook's `latest` exists
 to prevent. (`Flash` draws on its own clock and refuses it.)
+
+## A Short that is only the twist is a sum, not a story (2026-10-13)
+
+`bear-market-in-crypto`'s first Short did the long form's twist and nothing
+else - a 40% jump after an 80% fall is still 72% down, and the climb back
+gets steeper - which is what `workflow.md` asks for. The user found it
+confusing and hard to follow, and asked for the long form's opener instead:
+the search, stocks against crypto, the history, whether we are in one, what
+causes it. **Their rule: Shorts should be generally easier to follow.**
+
+The single-move rule assumed the move needs no setup. Arithmetic does: heard
+once, with no definition in front of it, it is a sum the viewer holds in
+their head while the next number arrives. **Before choosing the move, ask
+whether someone who has never heard of the subject can follow it from
+sentence 1.** If the move is a calculation, or a reversal of a definition
+the viewer does not have yet, build the Short as the plain answer in the
+order a viewer would ask it - one drawn beat per question (`bars` how deep,
+`diagram` why, `steps` how to tell) - and leave the twist to the long form.

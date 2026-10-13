@@ -46,7 +46,8 @@ written in one pass.** They are not the same video at two lengths:
 - The **long form** walks the mechanism and earns its conclusion. See
   `longform.md`.
 - The **Short** does the single move the long form spends three chapters setting
-  up, and opens by asking its own title question. See `shorts.md`.
+  up, and opens by asking its own title question. See `shorts.md` - and its
+  2026-10-13 section for when the move needs setup the viewer does not have.
 - The **long-form YouTube title must be a phrase people type into YouTube
   search** - "how to X", "why does X", "what is X", "X vs Y" where both are
   searched. Never the Short's curiosity hook reworded. The Short is pushed by

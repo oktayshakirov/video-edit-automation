@@ -371,3 +371,13 @@ arithmetic: doubling a 5-cent and a $50 coin takes the same extra $50M; one
 dollar across 500 trillion coins is ~5x the world economy. That stays inside
 the no-advice line because it says what a move would *mean*, never whether one
 happens. Find the belief the viewer acts on, not the definitional one.
+
+## "Are we in one right now?" gets a check, not a verdict (2026-10-13)
+
+The user asked the bear-market Short to cover whether we are in a bear
+market now. It is a real question people type, and a statement about where
+the market is today is a call on direction - and stale within weeks. So the
+Short asks it and hands over the article's own test as a `steps` procedure
+(how far below the last peak, whether every high is lower than the last,
+months not weeks) for the viewer to run. Any "is it X now?" topic - a bull
+market, a bubble, an altcoin season - takes the same shape.
