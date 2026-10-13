@@ -11,7 +11,10 @@ build reproducible**, so anything pulled must land in the manifest. It was found
 75 files short, including tinnitus assets from earlier sessions; an unmanifested
 file is unrecoverable the day its photographer deletes it. (`stock.manifest()`
 writes a different, thinner schema than the file on disk actually uses — extend
-the existing JSON, do not call it and clobber the richer one.)
+the existing JSON, do not call it and clobber the richer one.) Write it back
+with `json.dumps(m, indent=2)` plus a newline and nothing else:
+`ensure_ascii=False` or another indent re-formats all 25,000 lines, and the
+diff hides the twenty entries you added.
 
 **This reverses the short skills' "never reach for a stock API" rule, and the
 reversal is arithmetic rather than taste.** A three-minute video needs ~30 shots
@@ -923,6 +926,45 @@ noun is a claim being *read*, so it became `man-reading-newspaper-dark/9564066`
 `10238038` and `6279142` (a legible Instagram feed), `35888104` (a legible
 Spanish news article), `7263305` / `6602246` (bright), `6414098` (a messaging
 app, already on record).
+
+## The bear-market fetch: verdicts (2026-10-12)
+
+**On a market topic, every market query returns a live chart.** `bull and
+bear statue`, `stock exchange building night`, `stock exchange trading
+floor`, `bitcoin dark` and `trader at night` came back as candlestick
+screens or a stock heatmap in all but a handful of results - 25 of 30
+clips, and the rest bright. The no-chart rule above therefore decides the
+roster before screening does. What says "the stock market" without a price
+on it is the exchange's own facade (`new-york-stock-exchange/4319342`,
+bright, one use); what says "crypto" is a coin.
+
+| clip | verdict |
+| --- | --- |
+| `bull-and-bear-statue/*`, `stock-exchange-*/*`, `bitcoin-dark/*`, `trader-at-night/*`, `new-york-stock-exchange/38267971`, `38711950`, `39083610` | live candlestick charts or a heatmap - every one |
+| `bitcoin-coin-rotating/38858929` | a bitcoin in front of a blurred red-green chart (same fault as `38905685`) |
+| `new-york-stock-exchange/7580271` | a tablet held up reading "STOCK MARKET" - slideware |
+| `wall-street-sign/*` | a dog mural, a one-way sign, graffiti, a voting sign; `39104013` (Trinity / Liberty) is 5s |
+| `dominoes-falling-slow-motion/*` | popcorn, a tennis ball, nuts - no dominoes |
+| `dominoes-falling-chain/8102758`, `8102761`, `8102764` | white dominoes on a white table, L146-202 |
+| `dominoes-falling/9760001` | **kept**: a hand tips a row of dominoes on a dark table, L50-56; `9760002` is the same shoot (setting them up) |
+| `dominoes-falling/5921005` | **kept**: red dominoes fall toward the lens with a man blurred behind - from ~11s his face is out of focus |
+| `circuit-breaker-electrical-panel/*` | L80-114, cluttered panels; `6520278` is the halving's `6520448` shoot |
+| `red-emergency-stop-button/4285873` | **kept**: STOP pressed on a tape deck, L54-65, 7s |
+| `calculator-hands-close-up/*`, `signing-contract-pen-close-up/*` | white desks, L91-207 - except `8439245` (a hand signing a form, L78-100, **kept**) |
+| `counting-dollar-bills-hands/*`, `money-falling-slow-motion/*` | bright wood or saturated, L78-204 - except `4524511` (hands counting bills on black, L51-58, **kept**); `hundred-dollar-bills-close-up/5651774`, `5651780` are the `5651771` shoot |
+| `people-on-subway-using-phones/*` | bright carriages L63-122; `7251007` is L44-50 until ~20s, then L113 |
+| `credit-card-in-hand-dark/7534262`, `7534264` | the `7534328` / `7534329` shoot (rwa, whale) |
+| `gold-coin-spinning-dark/19428465` | a plain coin, not a bitcoin |
+| `laptop-screen-glow-dark-room/4565731` | a green-screen laptop |
+| `rain-on-window-night/5930874` | L42 at the start, L105 by mid-clip |
+| `climbing-stairs-at-night/*` | bright or magenta-lit - except `15814666` (worn stone steps, L49-54, **kept**) |
+| `treadmill-running-dark-gym/15112689` | **kept**: feet running on a treadmill in a dark gym, L34 |
+| `photos/brown-bear-dark-background/33037033` | **kept** for the thumbnail: a bear's head out of pure black, 9504px, L22 |
+| `bitcoin-coin-rotating/7450203` | **cut after the first render**: a silver bitcoin in macro on a white sweep. L76-87 on the mean, but the 9:16 crop is all coin face and white ground and it glared off the frame |
+| `bitcoin-coin-rotating/7634144` | **kept**: a bitcoin spinning down flat. Before ~3s it is a grey blur crossing the 9:16 crop; from 4s it is a gold coin in focus, low in the frame |
+| `gold-bitcoin-black-background/8370146` | **kept**: one gold bitcoin standing on a dark table, centred, L23-38 - the 9:16 crop keeps all of it |
+| `gold-bitcoin-black-background/8369965` | **kept**: a heap of coins on dark blue, a bitcoin under a magnifying glass, L63-68 |
+| `gold-bitcoin-black-background/8369977`, `bitcoin-coin-on-dark-table/*` | the same bitcoin-on-wood shoot as the halving's `8369987`, bright wood, L75-133 |
 
 ## The stress-meter fetch: verdicts (2026-10-12)
 

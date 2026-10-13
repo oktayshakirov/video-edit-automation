@@ -157,3 +157,21 @@ reconstructed from the stretched value later.** Searching forward through
 the pre-stretch boundary; it was recovering the *post*-stretch one, because
 that is what `.start` on the following object always was regardless of when
 you look.
+
+## Exit 137 with nothing in the log is two renders sharing 16 GB (2026-10-12)
+
+A long-form render died at its picture pass with exit code 137 (SIGKILL),
+no traceback and a half-written `picture.mp4` in the work folder. Nothing
+in the script was wrong. Another session was rendering a long form in the
+same repo at the same time, and a thumbnail sweep on a 9504px photo ran
+alongside both; one long form is about 1.5 GB and climbing, and macOS
+kills the larger process when memory runs out.
+
+Check before starting a render, and wait rather than race:
+
+```bash
+pgrep -fl "projects/"
+```
+
+A Short is light enough to run beside one long form. Two long forms are
+not, and neither is a long form plus a sweep over a full-size stock photo.
