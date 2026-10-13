@@ -750,6 +750,18 @@ loudness scale.
   the other direction: the one element whose whole job is to say *where* was
   the least visible thing on the frame until it stopped being the colour of
   what it sits on.
+- **`top` is the payload's fifth element, and a self-rating needs it**
+  (2026-10-12). The dial was built for a 0-100 index and printed 25 / 50 / 75
+  round the arc and "80" under the hub whatever the scale meant. A 0-10
+  rating passes `10`: the marks stay on the quarters and only whole numbers
+  get a numeral, so it reads 0 / 5 / 10 and "8".
+- **Two collisions the first tinnitus dial found, both fixed in the beat.**
+  The readout's label was placed off the numeral's *height* rather than its
+  ink, and the display face's top offset put the label inside the bottom of
+  a 150px figure. And in portrait a kicker longer than a few words runs past
+  the centre line into the "5" over the arc, so a titled portrait dial now
+  drops until that numeral clears the heading. Re-rendering the fear-greed
+  pair moves both.
 - **In a YMYL niche, `value=None` is a safety feature, not a fallback.** A
   needle parked at a reading is a claim about that reading. A script that
   describes the instrument rather than a number on it should draw no needle,

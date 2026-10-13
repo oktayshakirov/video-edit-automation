@@ -923,3 +923,30 @@ noun is a claim being *read*, so it became `man-reading-newspaper-dark/9564066`
 `10238038` and `6279142` (a legible Instagram feed), `35888104` (a legible
 Spanish news article), `7263305` / `6602246` (bright), `6414098` (a messaging
 app, already on record).
+
+## The stress-meter fetch: verdicts (2026-10-12)
+
+`your-tinnitus-as-stressometer` found the tinnitus cache in the same state the
+halving pair found crypto's: **every cached clip is cut by another video**, so
+the whole roster was fetched fresh (122 clips over three rounds). The subject
+cannot be photographed, so the queries were for the act around it - a hand at
+a keyboard, a pen in a journal, a meter's needle, a walk - and the meter itself
+is the drawn `dial`.
+
+| clip | verdict |
+| --- | --- |
+| `megaphone-dark/*` | every result bright: a teal studio with flowers, a man in a mask, a woman cheering. The article's megaphone line was rewritten rather than refetched |
+| `clenched-fist-hand-tension/*`, `hand-clenching-fist-dark-background/*` | grey studio hand signs (OK, peace, a black glove) - no tension in any of them |
+| `fingers-tapping-desk-nervous/*`, `office-meeting-tense-dark/*` | bright desks; an interrogation scene with a tattooed man; a green murk |
+| `smoke-alarm-ceiling/*`, `smoke-detector-beeping/*` | an emergency-exit sign, a woman stretching in bed, incense, UV-lit banknotes. No smoke alarm. `burnt-toast-toaster-smoke/4571351` (toast pops smoking at ~7.5s) carries the metaphor instead |
+| `vu-meter-needle-analog-audio/14232785` | **kept**: two amber VU meters on a rack, L25 - but **4.1s**, one slot only. `3958754` is a saturated orange close-up (S171), `2442236` a white meter (L178), `30921165` green LED bars |
+| `pressure-gauge-needle/5637839` | **kept**: a gauge in a hand, needle swinging. `barometer-needle/*` is a pine tree, a record player and a Cyrillic-lettered scale |
+| `person-writing-journal-night-lamp/39425735`, `39425736` | **kept**: a hand writing by a warm lamp. Same shoot as the magnesium pair's `39425737`, which is a close face - nothing in these frames repeats it |
+| `hands-typing-laptop-keyboard-night-dark/15872811` | **kept**, 7.1s: a hand at a purple-lit keyboard. **In 9:16 only `clip_ax=0.20` works** - 0.30 is keyboard bokeh, 0.0 the back of a hand. `6346224` is green-lit; `34771070` is the shoot of `34771078`, in six projects |
+| `hand-holding-phone-dark-night/15763477` | hands holding a phone **in rubble**, war-like footage on the screen |
+| `hands-on-belly-deep-breathing/9465177` | a sheened midriff - reads as a stomach ache or a fitness ad. `8795165` (a man breathing, hand on chest) **kept** |
+| `person-sleeping-peacefully-bed-dark/6941199` | **kept** for the opposite of its query: at 4-7s she is awake beside a clock reading 1:28 |
+| `deer-alert-ears-forest/*` | a deer with its ears up is the literal picture of "on alert", but green and bright, and it needs an analogy the article does not make |
+| `hand-writing-in-notebook-pen-dark/11025442` | **kept** for "give it a number": figures going into an exercise book. Reads a little like homework |
+| `red-warning-light-flashing-dark/3882891` | **kept**: a level crossing's red lights. `3350820` is police blue-and-red; `3134591` a legible EXIT sign |
+| `candle-flame-dark-close/7033615` | **kept**: one flame on black, the quiet ground for the red-flag label |

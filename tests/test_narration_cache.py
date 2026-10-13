@@ -24,6 +24,19 @@ import pytest
 
 from video_automation.core import voiceover as vo
 
+
+def _wav(path: Path, seconds: float, size: int | None = None) -> Path:
+    """A real PCM wav of `seconds`, optionally padded out to about `size`
+    bytes - the eviction tests are about bytes, the guard about length."""
+    import wave
+    frames = max(1, ((size or 0) - 44) // 2) if size else int(8000 * seconds)
+    with wave.open(str(path), "wb") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(max(1, round(frames / seconds)))
+        f.writeframes(b"\0\0" * frames)
+    return path
+
 SENT = [["A whale is a holder", "big enough to move a market."],
         ["But a wallet never tells you who is behind it."]]
 GAPS = [0.8, 0.8]
@@ -115,8 +128,7 @@ def test_a_missing_entry_is_a_miss(tmp_path, monkeypatch):
 
 def test_store_then_load_round_trips(tmp_path, monkeypatch):
     monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
-    src = tmp_path / "narration.wav"
-    src.write_bytes(b"RIFF....WAVEfmt ")
+    src = _wav(tmp_path / "narration.wav", 4.8)
     caps = [vo.Caption("A whale is a holder", 0.0, 1.8, 1.6),
             vo.Caption("big enough to move a market.", 1.8, 3.9, 3.7)]
 
@@ -137,10 +149,53 @@ def test_store_then_load_round_trips(tmp_path, monkeypatch):
 
 def test_a_store_leaves_no_partial_file(tmp_path, monkeypatch):
     monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
-    src = tmp_path / "n.wav"
-    src.write_bytes(b"x" * 64)
+    src = _wav(tmp_path / "n.wav", 1.0)
     vo._cache_store("b" * 32, src, [], 1.0)
+    assert (tmp_path / f"{'b' * 32}.wav").exists()
     assert not list(tmp_path.glob("*.part"))
+
+
+# --- the length guard ------------------------------------------------------
+
+def test_a_track_that_disagrees_with_its_captions_is_not_stored(tmp_path,
+                                                                monkeypatch):
+    """The store side: 218s of audio for 210s of captions is another build's
+    wav, and caching it would serve it to every later render of this script."""
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path / "cache")
+    src = _wav(tmp_path / "narration.wav", 218.25)
+    vo._cache_store("e" * 32, src, [], 210.39)
+    assert not (tmp_path / "cache" / f"{'e' * 32}.wav").exists()
+
+
+def test_a_poisoned_entry_is_a_miss_and_is_evicted(tmp_path, monkeypatch):
+    """**The regression.** The load side, for an entry stored before the
+    guard existed: the key is right, the audio is not. A miss, and gone."""
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
+    k = "f" * 32
+    _wav(tmp_path / f"{k}.wav", 218.25)
+    (tmp_path / f"{k}.json").write_text(json.dumps(
+        {"total": 210.39, "captions": []}))
+    assert vo._cache_load(k, tmp_path / "work") is None
+    assert not (tmp_path / f"{k}.wav").exists()
+    assert not (tmp_path / f"{k}.json").exists()
+
+
+def test_a_length_within_a_frame_is_a_hit(tmp_path, monkeypatch):
+    """Healthy entries agree with `total` to the millisecond; the tolerance
+    must not turn rounding into a miss."""
+    monkeypatch.setattr(vo, "NARRATION_CACHE", tmp_path)
+    k = "9" * 32
+    _wav(tmp_path / f"{k}.wav", 50.1395)
+    (tmp_path / f"{k}.json").write_text(json.dumps(
+        {"total": 50.139, "captions": []}))
+    assert vo._cache_load(k, tmp_path / "work") is not None
+
+
+def test_preflight_has_no_shared_default_workdir():
+    """The fixed `/tmp/preflight` is how two builds shared run files."""
+    src = (Path(vo.__file__).parents[1] / "longform/preflight.py").read_text()
+    assert '"/tmp/preflight"' not in src
+    assert "mkdtemp(" in src
 
 
 def test_the_cache_key_is_not_shadowed_by_a_loop_variable():
@@ -171,7 +226,7 @@ def test_the_cache_key_is_not_shadowed_by_a_loop_variable():
 # nobody looks at.
 
 def _entry(d, key, size, mtime):
-    (d / f"{key}.wav").write_bytes(b"\0" * size)
+    _wav(d / f"{key}.wav", 1.0, size)
     (d / f"{key}.json").write_text('{"total": 1.0, "captions": []}')
     for suffix in (".wav", ".json"):
         import os

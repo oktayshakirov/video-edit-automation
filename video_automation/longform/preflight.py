@@ -94,13 +94,29 @@ def main() -> None:
     ap.add_argument("project", type=Path, help="a projects/*.py build script")
     ap.add_argument("--voice", default=None,
                     help="defaults to the project's own VOICE")
-    ap.add_argument("--workdir", type=Path, default=Path("/tmp/preflight"))
+    # **Never a fixed path.** It was `/tmp/preflight`, shared by every build
+    # on the machine: two preflights at once overwrote each other's run files
+    # and one script's narration was cached under the other's key (see
+    # `CACHE_LENGTH_TOLERANCE` in `core/voiceover.py`). A fresh directory per
+    # run, named after the script so a leftover one is recognisable.
+    ap.add_argument("--workdir", type=Path, default=None)
     args = ap.parse_args()
 
     mod = load(args.project)
     voice = args.voice or getattr(mod, "VOICE", "mia")
+    own = args.workdir is None
+    if own:
+        import tempfile
+        args.workdir = Path(tempfile.mkdtemp(
+            prefix=f"preflight-{args.project.stem}-"))
     args.workdir.mkdir(parents=True, exist_ok=True)
-    raise SystemExit(1 if report(mod.SECTIONS, voice, args.workdir) else 0)
+    try:
+        bad = report(mod.SECTIONS, voice, args.workdir)
+    finally:
+        if own:                 # 40MB of wav per run; the cache keeps a copy
+            import shutil
+            shutil.rmtree(args.workdir, ignore_errors=True)
+    raise SystemExit(1 if bad else 0)
 
 
 if __name__ == "__main__":

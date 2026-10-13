@@ -1040,6 +1040,16 @@ line and the VS disc. The user's note on `market-cap` was to drop it for the
 long form's `Stamp`. Until the layout is fixed, keep `Split` labels to one
 short word or figure a side, or pick `Stamp` when the topic is a belief.
 
+**There is no divider any more, and the two sides sit level with the VS
+disc (2026-10-13).** On `your-tinnitus-as-stressometer` the line first ran
+straight through the question ("SAME EARS?"), which had happened on earlier
+Splits too; shortening it left the disc hanging low on a line with both
+labels floating above it. The user's call: drop the line, the disc is the
+divider. Each label's cap height now centres on the disc, a two-word label
+centring its whole block, and the question sits under the disc. Nothing to
+pass per video, in either aspect; labels can still collide with the disc if
+they are long, as above.
+
 ## `enter_word` holds an opener back until the voice says it (2026-10-11)
 
 Every opener slams in on frame one and runs until `at_word`. On the halving

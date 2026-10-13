@@ -133,7 +133,7 @@ def test_beat_renders_on_both_brands(name):
 # turns its track ninety degrees, `logos` lays a 2x2 - and that path has no
 # coverage at all from the landscape cases above.
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
-            "timeline", "chart", "map", "spectrum"]
+            "timeline", "chart", "map", "spectrum", "dial", "diagram"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -153,6 +153,18 @@ def test_item_count_is_stable(name):
 def test_item_count_rejects_an_unknown_beat():
     with pytest.raises(ValueError, match="unknown beat"):
         item_count("nonesuch", ())
+
+
+def test_dial_top_relabels_the_scale():
+    """A 0-10 self-rating must not print the 0-100 index's numerals. The marks
+    stay on the quarters; only the quarters that are whole numbers of `top`
+    get a numeral, and the payload's fifth element is what sets it."""
+    bands = [("Quiet", 0.4, "#ffdab9"), ("Loud", 1.0, "#e76f51")]
+    ten = BEATS["dial"](bands, 0.8, "a deadline", "T", 10, brand=TINNITUS)
+    assert ten.tick_labels() == [(0.0, "0"), (0.5, "5"), (1.0, "10")]
+    hundred = BEATS["dial"](bands, 0.8, "", "T", brand=TINNITUS)
+    assert [t for _, t in hundred.tick_labels()] == ["0", "25", "50", "75", "100"]
+    assert item_count("dial", (bands, 0.8, "a deadline", "T", 10)) == 2
 
 
 def test_chart_marker_changes_the_reveal_count():

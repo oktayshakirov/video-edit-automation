@@ -442,6 +442,19 @@ toward missing: a `precomputed` call bypasses the cache entirely, because its
 values are raw audio arrays the caller built by other means and nothing here
 can prove two of them are the same.
 
+**A right key can still hold the wrong audio, so the length is checked
+(2026-10-13).** `preflight` defaulted to a fixed `/tmp/preflight`, and two
+sessions preflighting at once overwrote each other's run files mid-synthesis.
+The entry stored under `your-tinnitus-as-stressometer`'s key held
+`bear-market-in-crypto`'s narration (218.25s of audio for 210.39s of
+captions), and the render that hit it shipped the crypto voice under the
+tinnitus picture. Two fixes: preflight now makes its own directory per run,
+and `_cache_store` / `_cache_load` both refuse a wav whose header length
+disagrees with the stored `total` by more than 0.05s - every healthy entry
+agrees to the millisecond - and the load side evicts it. **Never point two
+builds at one workdir**, and if parallel renders are running, give each its
+own.
+
 **The name of the hash matters.** `build_narration_aligned` already uses `key`
 as a loop variable when it shifts `stop_at` / `resume` after a forced pad. The
 first version of this cache named its hash `key` too; the loop clobbered it
