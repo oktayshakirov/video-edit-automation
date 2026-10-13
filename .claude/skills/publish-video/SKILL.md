@@ -126,6 +126,23 @@ a `.py` is a clip it deletes), and if it exits non-zero naming a missing path,
 re-fetch that id rather than swapping in another clip.
 The reasoning is in `docs/video/footage.md`.
 
+**Then everything else the run leaves behind.** The user's instruction,
+2026-10-14: don't keep files that won't be used again on the laptop.
+
+```bash
+.venv/bin/python tools/prune_work.py --apply     # stale render work folders
+```
+
+That drops every `~/Desktop/.<name>-work` / `.work-<name>` folder and leftover
+preflight directory not touched in 3 days. On 2026-10-14 they held 6.5 GB of intermediates
+from failed renders and from drone and glitch builds, which never clean up after
+themselves. An active re-cut touches its folder every run, so it is kept. Also
+delete the publish tunnel's staging copies, and close any `.claude/worktrees/*`
+checkout that a site or automation repo is left with **when its branch has no
+commits missing from `main` and no uncommitted changes**; ask before touching
+one that does. The `.srt` and `.md` sidecars on the Desktop stay - see
+`docs/video/projects/crypto.md`.
+
 ## Gates
 
 The whole sequence runs on one "upload". These do not:
