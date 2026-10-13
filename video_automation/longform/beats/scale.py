@@ -332,13 +332,22 @@ class Dial(Beat):
     numerals go on afterwards at full resolution through `shadow_text`, so
     they keep the crispness every other beat's type has.
 
-    payload: (bands, value, label, title)
+    **`top` is what the far end of the scale reads, and it is 100 by default.**
+    The Fear & Greed Index runs to 100; a self-rating runs to 10, and a 0-10
+    dial printing 25 / 50 / 75 round its arc and "80" under the hub is a scale
+    the narration never named (`your-tinnitus-as-stressometer`, 2026-10-12).
+    The tick *marks* stay on the quarters; a quarter that does not land on a
+    whole number of `top` keeps its mark and loses its numeral, so a 0-10 dial
+    reads 0 / 5 / 10 with two unlabelled minor ticks between.
+
+    payload: (bands, value, label, title, top)
       bands  [(name, upto, "#rrggbb"), ...] — `upto` is the band's far edge as
              a fraction of the scale, ascending, ending at 1.0. The first and
              last names are drawn under the arc's ends as the poles.
       value  0.0..1.0, or None for a scale with no needle
       label  what the needle position is called, under the figure
       title  the beat's kicker
+      top    what the far end of the scale reads (100)
     """
 
     EMBLEM = False
@@ -347,11 +356,21 @@ class Dial(Beat):
     TICKS = (0.0, 0.25, 0.5, 0.75, 1.0)
 
     def __init__(self, bands: list, value: float | None = None,
-                 label: str = "", title: str = "", **kw):
+                 label: str = "", title: str = "", top: int = 100, **kw):
         super().__init__(**kw)
         self.bands = [(str(b[0]), float(b[1]), b[2]) for b in bands]
         self.value = None if value is None else float(value)
         self.label, self.title = label, title
+        self.top = int(top)
+
+    def tick_labels(self) -> list[tuple[float, str]]:
+        """The quarters that land on a whole number of `top`, and their text."""
+        out = []
+        for e in self.TICKS:
+            v = e * self.top
+            if abs(v - round(v)) < 1e-6:
+                out.append((e, str(int(round(v)))))
+        return out
 
     def _geom(self) -> tuple[int, int, int, int, int]:
         """cx, cy, radius, band thickness, hub radius."""
@@ -429,8 +448,15 @@ class Dial(Beat):
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
-        self.heading(out, self.title, f)
+        below = self.heading(out, self.title, f)
         cx, cy, R, th, hub_r = self._geom()
+        # **In portrait the top numeral can land on the heading.** The kicker
+        # runs from the left margin past the centre line once it is longer
+        # than a few words, and the "5" over the top of the arc sits at the
+        # centre - "HOW LOUD IS IT RIGHT NOW?" printed straight through it.
+        # Landscape keeps the kicker in the left column, clear of the arc.
+        if self.portrait and self.title:
+            cy = max(cy, below + R + th // 2 + 58 + 30)
 
         e0 = self.due(0, 2 if self.value is not None else 1, f)
         if e0 < 0:
@@ -451,8 +477,7 @@ class Dial(Beat):
         # --- type, at full resolution -------------------------------------
         tick_font = _font(32 if not self.portrait else 36)
         rt = R + th // 2 + 58
-        for e in self.TICKS:
-            txt = str(int(round(e * 100)))
+        for e, txt in self.tick_labels():
             if e > sweep:
                 continue
             a = math.radians(180.0 + 180.0 * e)
@@ -482,7 +507,7 @@ class Dial(Beat):
         # everything under the hub is permanently clear.
         if needle is not None and travel > 0:
             big = _display(150 if not self.portrait else 132)
-            txt = str(int(round(self.value * 100 * travel)))
+            txt = str(int(round(self.value * self.top * travel)))
             bb = d.textbbox((0, 0), txt, font=big)
             fy = cy + (104 if not self.portrait else 118)
             shadow_text(d, (cx - (bb[2] - bb[0]) / 2, fy), txt, big,
@@ -490,8 +515,11 @@ class Dial(Beat):
             if self.label and travel > 0.92:
                 lf = _font(44 if not self.portrait else 48)
                 bb2 = d.textbbox((0, 0), self.label.upper(), font=lf)
+                # Off the numeral's measured ink, not its height: the display
+                # face carries a large top offset, so `fy + height` landed the
+                # label inside the bottom of the figure at 150px.
                 shadow_text(d, (cx - (bb2[2] - bb2[0]) / 2,
-                                fy + (bb[3] - bb[1]) + 46),
+                                fy + bb[3] + 28 - bb2[1]),
                             self.label.upper(), lf, self.brand.primary)
 
 

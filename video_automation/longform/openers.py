@@ -341,14 +341,30 @@ class Stamp(_Opener):
 
 
 class Split(_Opener):
-    """Two options, a divider, and a question that stays open.
+    """Two options either side of a VS disc, and a question that stays open.
 
     For comparisons. The verdict is **not** given here - it lands later, on
     `at_word`, when the narration names the winner, which is what keeps the
     opener from answering its own question in two seconds (the fault the
     sentence-2 rule records). Pass `winner="left"` or `"right"` with the word
     that names it; omit both to leave it open for the whole video.
+
+    **No divider, and the two sides sit level with the VS disc** (the user's
+    call on `your-tinnitus-as-stressometer`, 2026-10-13). The first layout
+    ran a line 250px either side of the centre with the labels 170px above
+    it and the question at +200, so the line struck through the question;
+    shortening the line fixed that and left the disc hanging low on it, with
+    the labels floating above both. The disc is the divider. Each label's
+    cap height is now centred on the disc's centre, a multi-word label
+    centring its whole block there, and the question sits `Q_GAP` under the
+    disc. The band grows to cover it.
     """
+
+    DISC_R = 74             # the VS disc, before its pulse
+    LABEL_SIZE = 64
+    LABEL_LH = 78           # line pitch of a label that wraps to two words
+    Q_GAP = 48              # disc edge to the question's cap height
+    Q_SIZE = 54
 
     def __init__(self, left: str, right: str, question: str = "",
                  *, winner: str | None = None, **kw):
@@ -358,7 +374,10 @@ class Split(_Opener):
 
     def _layout(self):
         super()._layout()
-        self.block_h = 460
+        # Symmetric about the centre, sized to the lower edge of the question
+        # so the band's solid core covers it.
+        q_bottom = self.DISC_R + self.Q_GAP + int(self.Q_SIZE * 1.22)
+        self.block_h = 2 * q_bottom + 20
 
     def cues(self):
         c = [(0.0, "hook_slam"), (0.25, "hook_swish"), (0.45, "hook_swish"),
@@ -373,16 +392,19 @@ class Split(_Opener):
         d = ImageDraw.Draw(lay)
         k = _ease_out(min(1.0, t / 0.45))
         cy = self.centre
-        d.line((W / 2, cy - 250 * k, W / 2, cy + 250 * k),
-               fill=(255, 255, 255, 200), width=5)
-        f = _font(64)
+        f = _font(self.LABEL_SIZE)
+        asc = f.getbbox("A")[1]
+        cap = f.getbbox("A")[3] - asc
         for label, side in ((self.left, -1), (self.right, 1)):
             won = (self.winner == ("left" if side < 0 else "right")
                    and t >= self.land)
-            for i, word in enumerate(label.split()):
+            words = label.split()
+            # The block's cap-height middle on the disc's centre.
+            top = cy - asc - cap / 2 - (len(words) - 1) * self.LABEL_LH / 2
+            for i, word in enumerate(words):
                 w = d.textlength(word, font=f)
                 x = W / 2 + side * (W / 4) - w / 2 + side * (1 - k) * 260
-                y = cy - 170 + i * 78
+                y = top + i * self.LABEL_LH
                 if won:
                     pad = 16
                     asc = f.getbbox("A")[1]
@@ -396,12 +418,14 @@ class Split(_Opener):
                            stroke_width=5, stroke_fill=(0, 0, 0, 255))
         fv = _font(56)
         vw = d.textlength("VS", font=fv)
-        r = int(74 * (1.0 + 0.05 * np.sin(t * 5)))
+        r = int(self.DISC_R * (1.0 + 0.05 * np.sin(t * 5)))
         d.ellipse((W / 2 - r, cy - r, W / 2 + r, cy + r), fill=(14, 14, 14, 235),
                   outline=self.accent + (255,), width=6)
         d.text((W / 2 - vw / 2, cy - 32), "VS", font=fv, fill=self.accent + (255,))
         if self.question:
-            self._lines(lay, [self.question.upper()], cy + 200, 54)
+            lh = int(self.Q_SIZE * 1.22)
+            self._lines(lay, [self.question.upper()],
+                        cy + self.DISC_R + self.Q_GAP + lh / 2, self.Q_SIZE)
         return lay
 
 

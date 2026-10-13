@@ -850,6 +850,32 @@ def _narration_key(sentences, voice, mood, gaps, tail, run_break,
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
 
 
+# **The wav must be as long as its own captions say, or it is someone else's.**
+# Two builds on one machine synthesised into the same workdir - `preflight`
+# defaulted to a fixed `/tmp/preflight` - and each overwrote the other's run
+# files mid-build, so one script's captions were stored over another script's
+# audio. The key was right, the entry was wrong, and the render shipped
+# `bear-market-in-crypto`'s narration under `your-tinnitus-as-stressometer`'s
+# picture (2026-10-13). Every healthy entry agrees with its `total` to the
+# millisecond; that one was 218.25s against 210.39. So both ends check.
+CACHE_LENGTH_TOLERANCE = 0.05
+
+
+def _wav_seconds(path: Path) -> float | None:
+    """A PCM wav's length from its header, or None if it is not one."""
+    import wave
+    try:
+        with wave.open(str(path)) as f:
+            return f.getnframes() / float(f.getframerate())
+    except (wave.Error, EOFError, OSError, ZeroDivisionError):
+        return None
+
+
+def _length_agrees(path: Path, total: float) -> bool:
+    secs = _wav_seconds(path)
+    return secs is not None and abs(secs - total) <= CACHE_LENGTH_TOLERANCE
+
+
 def _cache_load(key: str, workdir: Path):
     """A hit, copied into `workdir` under the name the caller expects."""
     wav, meta = NARRATION_CACHE / f"{key}.wav", NARRATION_CACHE / f"{key}.json"
@@ -857,6 +883,15 @@ def _cache_load(key: str, workdir: Path):
         return None
     try:
         d = json.loads(meta.read_text(encoding="utf-8"))
+        if not _length_agrees(wav, float(d["total"])):
+            # Evicted rather than skipped: a poisoned entry left in place is
+            # one a later build with a weaker check would trust.
+            print(f"narration: cache entry {key} is {_wav_seconds(wav)}s of "
+                  f"audio for {d['total']:.2f}s of captions - evicted, "
+                  f"re-synthesising")
+            wav.unlink(missing_ok=True)
+            meta.unlink(missing_ok=True)
+            return None
         track = workdir / "narration.wav"
         workdir.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(wav, track)
@@ -880,6 +915,11 @@ def _cache_load(key: str, workdir: Path):
 
 
 def _cache_store(key: str, track: Path, captions, total: float) -> None:
+    if not _length_agrees(track, total):
+        print(f"narration: not caching - the track is {_wav_seconds(track)}s "
+              f"for {total:.2f}s of captions; is another build writing to "
+              f"{track.parent}?")
+        return
     try:
         NARRATION_CACHE.mkdir(parents=True, exist_ok=True)
         # Write beside the target and rename, so an interrupted build cannot
