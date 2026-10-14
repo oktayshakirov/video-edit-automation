@@ -4,6 +4,14 @@ The 2-4 minute explainer: shape, chapters, timing, the opener and the outro.
 Shared by crypto and tinnitus. Drone long form is a different engine entirely -
 see `projects/drone-long.md`.
 
+**Audio that already exists is not this engine** (settled 2026-10-14).
+`render_long` synthesises its own narration and lays the timeline out from it,
+so it cannot be pointed at a finished track. A still plus karaoke captions over
+delivered audio - the audiobook sample - is `longform/readalong.py`, and
+`projects/tinnitus-long/shut-up-tinnitus-sample.py` is the worked example.
+Its alignment only works on Kokoro audio, since the references are
+synthesised in the same voice.
+
 ## The shape
 
 | | value | why |

@@ -305,23 +305,28 @@ def voice_style(voice=None):
     return voice
 
 
-def _synth_raw(text: str, voice, mood: str) -> "np.ndarray":
+def _synth_raw(text: str, voice, mood: str,
+               speed: float | None = None) -> "np.ndarray":
     """Kokoro samples at KOKORO_SR, trimmed of the padding it adds.
 
     Alignment-only path, so it stays on the kokoro backend rather than going
-    through `synth_phrase`'s file round-trip and post-processing.
+    through `synth_phrase`'s file round-trip and post-processing. `speed`
+    overrides the mood's, for audio this repo did not synthesise (the
+    audiobook's narrator runs at its own speed).
     """
     import librosa
     import numpy as np                                          # noqa: F401
-    audio, _ = _kokoro().create(text, voice=voice_style(voice),
-                                speed=KOKORO_MOODS.get(mood, KOKORO_SPEED),
+    if speed is None:
+        speed = KOKORO_MOODS.get(mood, KOKORO_SPEED)
+    audio, _ = _kokoro().create(text, voice=voice_style(voice), speed=speed,
                                 lang="en-us")
     trimmed, _ = librosa.effects.trim(audio.astype("float32"), top_db=TRIM_DB)
     return trimmed
 
 
 def align_chunks(sentence_audio: "np.ndarray", chunks: list[str],
-                 voice: VoiceSpec = None, mood: str = "melancholic") -> list[float]:
+                 voice: VoiceSpec = None, mood: str = "melancholic",
+                 speed: float | None = None) -> list[float]:
     """End time of each caption chunk within a naturally-spoken sentence.
 
     Synthesises each chunk alone as a timing reference, concatenates them, and
@@ -340,7 +345,7 @@ def align_chunks(sentence_audio: "np.ndarray", chunks: list[str],
 
     ref_parts, bounds, t = [], [], 0.0
     for c in chunks:
-        a = _synth_raw(c, voice, mood)
+        a = _synth_raw(c, voice, mood, speed)
         ref_parts.append(a)
         t += len(a) / KOKORO_SR
         bounds.append(t)
