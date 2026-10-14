@@ -1454,6 +1454,22 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
     return out, total, cuts
 
 
+def _shake(s: float) -> tuple[str, str]:
+    """A "triggered" jolt: ~14px jitter on landing, decaying to a ~2px tremble.
+    Two unrelated frequencies per axis so the path never reads as a loop.
+    Vertical travel is kept smaller than horizontal so a set-piece word stays
+    inside the 100px band."""
+    d = f"(t-{s:.3f})"
+    env = f"(2+12*exp(-5*{d}))"
+    x = f"{env}*(sin(2*PI*23*{d})*0.7+sin(2*PI*37*{d})*0.3)"
+    y = f"0.45*{env}*(sin(2*PI*29*{d}+1.3)*0.7+sin(2*PI*41*{d})*0.3)"
+    return x, y
+
+
+# name -> (start) -> (x expr, y expr) for overlay, offsets of a full-frame PNG.
+CAPTION_EFFECTS = {"shake": _shake}
+
+
 def render_narrated_stack(top: tuple,
                           bottom: tuple,
                           out: Path, sentences: list[list[Phrase]],
@@ -1470,12 +1486,13 @@ def render_narrated_stack(top: tuple,
                           sfx_gain: float = 0.22,
                           fps: int = 30,
                           karaoke: bool = True,
-                          karaoke_box: bool = True,
-                          karaoke_upper: bool = True,
+                          karaoke_box: bool = False,
+                          karaoke_upper: bool = False,
                           accent: "tuple | Callable[[str], tuple | None] | str | None" = "auto",
                           gap: "float | list[float]" = GAP, tail: float = TAIL,
                           hold_last_caption: bool = False,
                           fade_out: float = 0.0,
+                          effect: "Callable[[str], str | None] | None" = None,
                           ) -> tuple[Path, float]:
     """Two clips stacked into one frame, quote read on the band between them.
 
@@ -1520,11 +1537,18 @@ def render_narrated_stack(top: tuple,
     word (its own `font_size`), a colour-inked word or an emoji caption always
     keep the single PNG — the karaoke renderer models none of those.
 
-    `karaoke_box` (default on since 2026-09-21) is a rounded rectangle in `accent`
+    `karaoke_box` (default on 2026-09-21, back off 2026-10-15 by the user's
+    call on You Are the Problem; ink is the drone default again) is a rounded rectangle in `accent`
     behind the active word instead of colouring it (the TikTok auto-caption
     look). `karaoke_upper` uppercases every karaoke'd caption to match — see
     `render_caption_karaoke`'s `box=`/`upper=` and `FONT_KARAOKE_BOX`. Neither
     flag touches the single-PNG path.
+
+    `effect` is a `(caption)->name|None` callable for the punchline word's
+    motion, matched to the line's vibe. Only single-PNG captions (a set-piece
+    word) take one; a karaoke'd line ignores it. Names live in
+    `CAPTION_EFFECTS` — `"shake"` is the "triggered" jolt: a hard jitter that
+    decays into a small tremble for as long as the word holds.
 
     `hold_last_caption` and `fade_out` are a one-off pair for a cut that hands
     off to something added after the fact — the user's own music or a VO drop
@@ -1541,7 +1565,7 @@ def render_narrated_stack(top: tuple,
       `# no fade to black` comment still applies; a caller that wants the
       loop-friendly ending leaves this at 0.
     """
-    # Box karaoke is the default since 2026-09-21; None picks its face/stroke
+    # Ink karaoke is the default again since 2026-10-15; None picks its face/stroke
     # (Arial Black, 5) or the older Iowan italic at 4 when the box is off.
     if font_path is None:
         font_path = FONT_KARAOKE_BOX if karaoke_box else FONT_QUOTE
@@ -1584,7 +1608,7 @@ def render_narrated_stack(top: tuple,
 
     # (png, start, end) — one per caption normally, one per *word* where the
     # caption is karaoke'd.
-    layers: list[tuple[Path, float, float]] = []
+    layers: list[tuple[Path, float, float, str | None]] = []
     for i, c in enumerate(captions):
         if not c.text.strip():
             continue
@@ -1612,7 +1636,7 @@ def render_narrated_stack(top: tuple,
                                        max_w=max_w, accent=acc,
                                        box=karaoke_box, upper=karaoke_upper,
                                        single_line=True)
-                layers.append((p, a, b))
+                layers.append((p, a, b, None))
             continue
 
         p = workdir / f"cap{i:02d}.png"
@@ -1621,7 +1645,7 @@ def render_narrated_stack(top: tuple,
                         max_w=max_w, ink=word_ink)
         if char:
             add_caption_emoji(p, c.text, char, size, y_frac, face, idx)
-        layers.append((p, cs, ce))
+        layers.append((p, cs, ce, effect(c.text) if effect else None))
 
     if hold_last_caption:
         shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
@@ -1645,10 +1669,10 @@ def render_narrated_stack(top: tuple,
                                        max_w=max_w, accent=(255, 255, 255, 255),
                                        box=False, upper=karaoke_upper,
                                        single_line=True)
-                layers.append((p, ce, total))
+                layers.append((p, ce, total, None))
             elif layers:
-                p, s, _ = layers[-1]
-                layers[-1] = (p, s, total)
+                p, s, _, fx = layers[-1]
+                layers[-1] = (p, s, total, fx)
 
     xa, ya, wa, ha = box_a
     xb, yb, wb, hb = box_b
@@ -1662,8 +1686,13 @@ def render_narrated_stack(top: tuple,
         f"color=c=black:s={tile_w}x{band}:r={fps}:d={total:.3f}[band]",
         "[top][band][bot]vstack=inputs=3[v0]",
     ]
-    for n, (_, s, e) in enumerate(layers):
-        chain.append(f"[v{n}][{n+2}:v]overlay=0:0:"
+    for n, (_, s, e, fx) in enumerate(layers):
+        if fx:
+            x, y = CAPTION_EFFECTS[fx](s)
+            pos = f"x='{x}':y='{y}':eval=frame:"
+        else:
+            pos = "0:0:"
+        chain.append(f"[v{n}][{n+2}:v]overlay={pos}"
                      f"enable='between(t,{s:.3f},{e:.3f})'[v{n+1}]")
     last = f"[v{len(layers)}]"
     if fade_out > 0:
@@ -1677,7 +1706,7 @@ def render_narrated_stack(top: tuple,
     cmd = ["ffmpeg", "-v", "error", "-y",
            "-ss", f"{start_a}", "-t", f"{total / slow_a:.3f}", "-i", str(src_a),
            "-ss", f"{start_b}", "-t", f"{total / slow_b:.3f}", "-i", str(src_b)]
-    for p, _, _ in layers:
+    for p, *_ in layers:
         cmd += ["-i", str(p)]
     cmd += ["-i", str(track), "-filter_complex", ";".join(chain),
             "-map", "[vout]", "-map", f"{len(layers)+2}:a",

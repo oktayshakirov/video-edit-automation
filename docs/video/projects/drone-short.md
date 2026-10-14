@@ -311,6 +311,15 @@ single-clip or sequential cut ever needs it.
 
 ## A second karaoke style: a coloured box behind the word, not a coloured word
 
+**Ink is the drone default again** (user's call, 2026-10-15, on You Are the
+Problem: "use the other karaoke font effect, it should be default").
+`render_narrated_stack` now defaults `karaoke_box` and `karaoke_upper` off, so
+an unset call gets the Iowan italic, mixed case, the spoken word tinted. The
+box is still one flag away, and `medicine-or-poison.py` pins it on so the cut
+approved while box was the default re-renders unchanged. This is the drone
+stack only; the crypto and tinnitus builders keep their own box default.
+The paragraphs below are the history of how the box got here.
+
 **Now the default on every short, all channels** (user's call, 2026-09-21,
 on Medicine or Poison). `render_narrated_stack` defaults `karaoke_box` and
 `karaoke_upper` on, and with `font_path`/`stroke` left unset picks Arial Black
@@ -394,6 +403,26 @@ holding it across the gap, and the caption boundary is pinned to where the
 voice actually stops and resumes — see *A caption clears during the
 between-sentence pause* in `shorts.md`. That fix is in the shared builder, so
 the crypto and tinnitus shorts got it at the same time.
+
+## The punchline word gets a motion that matches the line
+
+**The user's standing ask (2026-10-15, You Are the Problem):** when a quote has
+a set-piece punchline word, give it an effect that fits the vibe.
+`render_narrated_stack(..., effect=lambda c: "shake" if c == BIG else None)`;
+names live in `CAPTION_EFFECTS` in `voiceover.py`. Only a single-PNG caption
+takes one. So far:
+
+- `"shake"` - the "triggered" jolt, for a sarcastic or angry turn: ~14px
+  jitter on landing decaying to a ~2px tremble, vertical travel at under half
+  the horizontal so the word stays inside the band.
+
+Add a new name there for a different mood (a slow drift for a melancholic
+turn, a pop for a happy one) rather than reusing shake everywhere.
+
+**A set-piece word must stay inside the 100px band.** Lowercase at 88px in the
+Iowan italic hangs a descender (`p`, `g`, `y`) past the band's bottom edge;
+STUPID went to caps at 80px for exactly this. Measure the PNG's alpha bbox
+against y 910-1010 before rendering, and leave room for any effect's travel.
 
 ## Text — two templates, pick by whether there is narration
 

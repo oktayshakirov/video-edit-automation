@@ -67,7 +67,9 @@ def main() -> None:
     out, total = render_narrated_stack(
         (top_src, 0.0, boxes[0]), (bot_src, 0.0, boxes[1]),
         OUT, SENTENCES, WORK,
-        gap=GAP, tail=TAIL, **profile_args("leo"))
+        gap=GAP, tail=TAIL,
+        karaoke_box=True, karaoke_upper=True,  # approved while box was the default
+        **profile_args("leo"))
     print(f"{out}  {total:.2f}s")
 
 

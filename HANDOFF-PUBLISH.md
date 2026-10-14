@@ -1,4 +1,46 @@
-# Handoff: shut-up-tinnitus-sample (long form only)
+# Handoff: you-are-the-problem (drone quote Short)
+
+Approved by the user 2026-10-15. Channel: drone. **Nothing has been published
+yet.**
+
+A 9:16 stacked quote Short: Sunset 6 (sun going down over Grunewald) on top,
+Teufelsberg 2 (the radar domes at sunset) below, with the line read by `leo`
+on the black band between them. A sarcastic motivational quote, said straight
+with no "i read a quote" opener:
+
+> everything bad in your life happens for a reason. and the reason is that you
+> are STUPID and make bad decisions. you are the problem.
+
+Ink karaoke captions (Iowan italic), "STUPID" as an 80px set-piece word with a
+shake. Footage ungraded, as the user asked.
+
+**No source article** - it is an off-site line, so there is no slug.
+
+## Files
+
+| What | Path |
+| --- | --- |
+| Video (11.91s, ffprobed, 1080x1920, narration only) | `/Users/oktayshakirov/Desktop/you-are-the-problem.mp4` |
+
+Script: `projects/drone-short/you-are-the-problem.py`. No thumbnail, SRT or
+metadata sidecar - this engine does not write one.
+
+## Still open - decide during publishing
+
+- **Title, caption and tags are not written yet.** The line itself is the
+  hook; nothing has been drafted or agreed.
+- **Audio.** The render carries the narration only. Whether music goes under it
+  before upload has not been discussed.
+
+---
+
+# Also pending from the previous build session
+
+The handoff below was already in this file, uncommitted to any publish, when
+the Short above was approved. Kept rather than overwritten - check with the
+user whether it has gone out yet.
+
+## Handoff: shut-up-tinnitus-sample (long form only)
 
 Approved by the user 2026-10-14. Channel: tinnitushelp.me. **Nothing has been
 published yet.**
