@@ -38,7 +38,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from ..core import soundbed
+from ..core import looks, soundbed
 from ..core.brand import Brand
 from ..core.voiceover import build_narration_aligned, profile_args
 from . import audio as audio_mod
@@ -141,13 +141,45 @@ def _centred(draw: ImageDraw.ImageDraw, text: str, cx: int, y: int,
               fill=(255, 255, 255, 235))
 
 
+def _background(frame: Frame, loop: float, seed: int, palette: tuple | None,
+                look: str | None, pattern: tuple[float, float, float]):
+    """`(look, None)` for a look, `(None, nebula canvas)` otherwise."""
+    if look is not None:
+        return looks.make(look, frame.w, frame.h, loop, pattern), None
+    pad = 260
+    cw, ch = frame.w + pad, frame.h + pad
+    if palette is not None:
+        bg_deep, nebula_a, nebula_b, _ = palette
+        return None, nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
+    return None, nebula_canvas(cw, ch, seed)
+
+
+def _ring_tint(palette: tuple | None, look: "looks.Look | None") -> tuple:
+    """An explicit palette wins, then the look's own tint, then the app's."""
+    if palette is not None:
+        return palette[3]
+    if look is not None:
+        return look.ring
+    return short_asmr.RING
+
+
+def _bg_frame(look, canvas, t: float, loop: float, cw: int, ch: int,
+              frame: Frame) -> Image.Image:
+    """The background at `t` on the shared clock — a look, or the drift."""
+    if look is not None:
+        return Image.fromarray(look.at(t))
+    bx, by = _drift(t, loop, cw, ch, frame)      # closes exactly at `loop`
+    return Image.fromarray(subpixel(canvas, bx, by, frame.w, frame.h))
+
+
 def render_loop(out: Path, brand: Brand, loop: float = 60.0,
                 frame: Frame = LANDSCAPE, fps: int = 30, seed: int = 7,
                 r_min: int = 150, r_max: int = 330,
                 inhale: float = INHALE, hold: float = HOLD,
                 exhale: float = EXHALE,
                 palette: tuple | None = None,
-                logo_w: int | None = None) -> Path:
+                logo_w: int | None = None,
+                look: "str | type | None" = None) -> Path:
     """One seamless loop of picture: drifting nebula, breathing ring, mark.
 
     `loop` must be a whole number of `inhale + hold + exhale` cycles or the
@@ -160,6 +192,11 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
     defaults — the app's palette — so every session rendered before this
     parameter existed is unchanged. Pass an alternate so a session reads as a
     different video on sight, not just a different seed's cloud layout.
+
+    **`look` replaces the nebula with a `core.looks` picture**: a `Look`
+    subclass (a video's own, from `tinnitus.session_looks`) or a shelf name.
+    It is built with `period=loop`, so it closes on the same frame the ring
+    does; the ring takes the look's own tint unless `palette` says otherwise.
     """
     breath = inhale + hold + exhale
     if abs(loop / breath - round(loop / breath)) > 1e-6:
@@ -169,13 +206,9 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
 
     pad = 260
     cw, ch = frame.w + pad, frame.h + pad
-    if palette is not None:
-        bg_deep, nebula_a, nebula_b, ring = palette
-        canvas = nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
-        sprite = _ring_sprite(r_max, ring)
-    else:
-        canvas = nebula_canvas(cw, ch, seed)
-        sprite = _ring_sprite(r_max)
+    bg_look, canvas = _background(frame, loop, seed, palette, look,
+                                  (inhale, hold, exhale))
+    sprite = _ring_sprite(r_max, _ring_tint(palette, bg_look))
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
 
     # Type scaled off the ring, so the label and count keep the proportions the
@@ -204,8 +237,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
     cx, cy = frame.w // 2, frame.h // 2
     for i in range(n):
         t = i / fps
-        bx, by = _drift(t, loop, cw, ch, frame)      # closes exactly at `loop`
-        img = Image.fromarray(subpixel(canvas, bx, by, frame.w, frame.h))
+        img = _bg_frame(bg_look, canvas, t, loop, cw, ch, frame)
 
         r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale)
         # `2r + 80`, the short's sizing, not `r / r_max * sprite.width`. The
@@ -239,7 +271,10 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
                    r_max: int = 330, reveal: float = 3.0,
                    caption_at: float = 0.0,
                    palette: tuple | None = None,
-                   logo_w: int | None = None) -> Path:
+                   logo_w: int | None = None,
+                   look: "str | type | None" = None,
+                   inhale: float = INHALE, hold: float = HOLD,
+                   exhale: float = EXHALE) -> Path:
     """The intro or the outro: instruction cards, and the ring's entrance.
 
     **The intro does not open on the circle.** A breathing ring is an
@@ -266,13 +301,9 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
 
     pad = 260
     cw, ch = frame.w + pad, frame.h + pad
-    if palette is not None:
-        bg_deep, nebula_a, nebula_b, ring = palette
-        canvas = nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
-        sprite = _ring_sprite(r_max, ring)
-    else:
-        canvas = nebula_canvas(cw, ch, seed)
-        sprite = _ring_sprite(r_max)
+    bg_look, canvas = _background(frame, loop, seed, palette, look,
+                                  (inhale, hold, exhale))
+    sprite = _ring_sprite(r_max, _ring_tint(palette, bg_look))
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
 
     text_size = 68
@@ -299,9 +330,7 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
         # body's first frame, forward through the outro from the same angle the
         # body ended on.
         t = (u - length) if kind == "intro" else u
-        bx, by = _drift(t, loop, cw, ch, frame)
-        img = Image.fromarray(
-            subpixel(canvas, bx, by, frame.w, frame.h)).convert("RGBA")
+        img = _bg_frame(bg_look, canvas, t, loop, cw, ch, frame).convert("RGBA")
 
         # The ring's entrance, or its exit. Eased on the same cosine the breath
         # uses, so it reads as the same object rather than a transition effect
@@ -364,6 +393,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      inhale: float = INHALE, hold: float = HOLD,
                      exhale: float = EXHALE,
                      palette: tuple | None = None,
+                     look: "str | type | None" = None,
                      keep_work: bool = False,
                      frame: Frame = LANDSCAPE) -> dict:
     """A full sound-therapy video: looped picture, generated bed, long fades.
@@ -385,6 +415,10 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     consistent colour. `None` (the default) keeps the app's own purple/peach,
     which is what every session built before this parameter existed still
     gets.
+
+    **`look` swaps the nebula for a `core.looks` picture** (a `Look` subclass
+    or a shelf name) in the loop and both bookends, on the same clock, so the
+    cuts carry straight through.
 
     **The picture is three segments, not one.** `intro_len` seconds of
     instruction cards with no ring, then `total - intro_len - outro_len`
@@ -450,7 +484,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                           frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max,
                           inhale=inhale, hold=hold, exhale=exhale,
-                          palette=palette)
+                          palette=palette, look=look)
 
     if bed_files is not None:
         low, high = bed_files
@@ -563,11 +597,13 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     head = render_bookend(workdir / "intro.mp4", brand, intro_len, intro_caps,
                           "intro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
-                          caption_at=intro_at, palette=palette)
+                          caption_at=intro_at, palette=palette,
+                          look=look, inhale=inhale, hold=hold, exhale=exhale)
     tail = render_bookend(workdir / "outro.mp4", brand, outro_len, outro_caps,
                           "outro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
-                          caption_at=outro_at, palette=palette)
+                          caption_at=outro_at, palette=palette,
+                          look=look, inhale=inhale, hold=hold, exhale=exhale)
 
     # The body, as its own file — `-stream_loop` and the concat demuxer cannot
     # be combined in one pass, and re-encoding the loop N times to stitch it
