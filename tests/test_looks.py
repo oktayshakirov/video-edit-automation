@@ -70,5 +70,5 @@ def test_fern_breath_refuses_a_period_the_breath_does_not_divide():
 
 
 def test_an_unknown_look_names_the_shelf():
-    with pytest.raises(ValueError, match="canopy-fog"):
+    with pytest.raises(ValueError, match="cascade-still"):
         looks.make("jungle", 320, 180, 57.0)

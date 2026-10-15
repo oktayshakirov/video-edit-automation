@@ -62,24 +62,29 @@ class Phase:
     label: str
     start: float
     end: float
-    kind: str                   # "inhale" | "hold" | "exhale"
+    kind: str                   # "inhale" | "hold" | "exhale" | "rest"
 
 
 def breathing_phases(start: float, cycles: int, inhale: float,
-                     hold: float, exhale: float) -> list[Phase]:
+                     hold: float, exhale: float,
+                     rest: float = 0.0) -> list[Phase]:
     """Lay out a paced-breathing block.
 
     The default elsewhere in wellness content is box breathing (4-4-4-4). This
     uses a longer exhale than inhale, which is the pattern paced-breathing
     guidance generally favours — and it also happens to fit a short better,
     because the slow half is the half the viewer is watching the ring shrink.
+
+    `rest` is a second hold after the exhale (kind "rest", ring at `r_min`,
+    still labelled "hold"), which is what box breathing needs. 0 skips it.
     """
     phases: list[Phase] = []
     t = start
     for _ in range(cycles):
         for label, dur, kind in (("inhale", inhale, "inhale"),
                                  ("hold", hold, "hold"),
-                                 ("exhale", exhale, "exhale")):
+                                 ("exhale", exhale, "exhale"),
+                                 ("hold", rest, "rest")):
             if dur > 0:
                 phases.append(Phase(label, t, t + dur, kind))
                 t += dur
@@ -105,6 +110,8 @@ def ring_radius(phases: list[Phase], t: float,
                 r = r_min + (r_max - r_min) * _ease(f)
             elif p.kind == "exhale":
                 r = r_max - (r_max - r_min) * _ease(f)
+            elif p.kind == "rest":
+                r = r_min
             else:
                 r = r_max
             return r, p.label, p.end - t
@@ -515,6 +522,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
                       bed_file: Path | None = None, bed_file_skip: float = 0.0,
                       cycles: int = 3, inhale: float = 4.0,
                       hold: float = 0.0, exhale: float = 6.0,
+                      rest: float = 0.0,
                       voice: str = "luna",
                       end_card: str | None = None, end_card_hold: float = 3.0,
                       emoji: dict[str, str] | None = None,
@@ -561,8 +569,9 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
         [list(s) for s in outro], workdir / "outro", gap=gap,
         tail=end_card_hold if end_card else 1.2, **args)
 
-    phases = breathing_phases(lead_in + a_total, cycles, inhale, hold, exhale)
-    breath = cycles * (inhale + hold + exhale)
+    phases = breathing_phases(lead_in + a_total, cycles, inhale, hold, exhale,
+                              rest)
+    breath = cycles * (inhale + hold + exhale + rest)
     total = lead_in + a_total + breath + b_total
 
     captions = [(c.text, lead_in + c.start, lead_in + c.end) for c in a_caps]

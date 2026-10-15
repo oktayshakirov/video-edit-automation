@@ -710,10 +710,12 @@ fresh in its own style. So:
   looks are made from (`Mist`, `Fireflies`, `orbit`, `vignette`, `cover`,
   `fbm`, `ease`). Start a new look there.
 - **The shelf (`looks.SHELF`) holds looks built and approved but not yet
-  used** — `canopy-fog`, `cascade-still`, `fern-breath`, left over from the
-  2026-10-15 test round. A video may take one instead of building fresh.
+  used** — `cascade-still` and `fern-breath`, left over from the 2026-10-15
+  test round. A video may take one instead of building fresh. (`canopy-fog`
+  went to `forest-chorus-box-breathing`.)
 - **A used look moves off the shelf into that video's own module** under
-  `tinnitus/session_looks/` (`jungle_waterfall_478.py` holds `NightFronds`),
+  `tinnitus/session_looks/` (`jungle_waterfall_478.py` holds `NightFronds`,
+  `forest_chorus_box.py` holds `CanopyFog`),
   and the project files import the class. The shelf then never offers it
   again, and the video that used it still re-renders. Never import another
   video's look.
@@ -730,6 +732,30 @@ join on `jungle-waterfall-478` was 0.81 against a 0.43 in-loop maximum, which
 looks like a seam and is not: the ring's label changes at every cycle boundary
 and the encoder restarts on a keyframe there. With the centre masked the join
 was 0.34 against an in-loop maximum of 0.37.
+
+### Vary the pattern and the instructions, not just the sound
+
+Sessions up to `jungle-waterfall-478` were all 4-in/6-out or 4-7-8 with the
+same "set it just below your tinnitus, then follow the circle" intro, so a
+returning viewer heard the same video over a new bed. The user asked for
+variation (2026-10-15), and `forest-chorus-box-breathing` is the first:
+
+- **Box breathing (4-4-4-4) needs a hold after the exhale**, so both
+  renderers take **`rest=`**: the ring sits at `r_min` and reads "hold", like
+  the first hold. It counts toward the cycle, so `loop` must divide
+  `inhale + hold + exhale + rest`. Default 0, every shipped session unchanged
+  (`tests/test_breath.py`).
+- **The level instruction can come from the other direction** - start low and
+  bring it up until the tinnitus starts to blend in - and still be partial
+  masking. Same angle, fresh words.
+- **A pattern with holds gets a way out of them** ("if a hold feels like too
+  much, let it go and just breathe"). Holding the breath is the part an
+  anxious listener is most likely to fight, and an instruction they cannot
+  follow is a reason to leave.
+
+Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
+(white noise, both waterfalls), box (forest chorus). Pick one off this list's
+tail, or a new one, rather than the last session's.
 
 ## The intro
 
