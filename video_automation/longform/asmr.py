@@ -57,6 +57,7 @@ from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 # different pattern (box breathing, 4-7-8, resonance breathing).
 INHALE, EXHALE = 4.0, 6.0
 HOLD = 0.0
+REST = 0.0
 BREATH = INHALE + EXHALE
 
 
@@ -66,7 +67,7 @@ def _ease(x: float) -> float:
 
 def _breath(t: float, r_min: float, r_max: float,
            inhale: float = INHALE, hold: float = HOLD,
-           exhale: float = EXHALE) -> tuple[float, str, int]:
+           exhale: float = EXHALE, rest: float = REST) -> tuple[float, str, int]:
     """Radius, label and seconds remaining at `t`, closing exactly at one cycle.
 
     The label and the count are not decoration — they are what makes this a
@@ -84,8 +85,12 @@ def _breath(t: float, r_min: float, r_max: float,
     edge case the short never hits and this does, because the loop starts at
     t=0, which is exactly a phase boundary, so frame one of every repetition
     would flash a number the pattern does not contain.
+
+    `rest` is a second hold after the exhale, ring pinned at `r_min` and
+    labelled "hold" like the first — the fourth side of box breathing
+    (4-4-4-4). 0 (the default) skips it, so nothing built before it changes.
     """
-    breath = inhale + hold + exhale
+    breath = inhale + hold + exhale + rest
     p = t % breath
     if p < inhale:
         r = r_min + (r_max - r_min) * _ease(p / inhale)
@@ -94,9 +99,11 @@ def _breath(t: float, r_min: float, r_max: float,
     if p < inhale + hold:
         left = inhale + hold - p
         return r_max, "hold", max(1, math.ceil(left))
-    r = r_max - (r_max - r_min) * _ease((p - inhale - hold) / exhale)
-    left = breath - p
-    return r, "exhale", max(1, math.ceil(left))
+    if p < inhale + hold + exhale:
+        r = r_max - (r_max - r_min) * _ease((p - inhale - hold) / exhale)
+        left = inhale + hold + exhale - p
+        return r, "exhale", max(1, math.ceil(left))
+    return r_min, "hold", max(1, math.ceil(breath - p))
 
 
 def _drift(t: float, loop: float, cw: int, ch: int,
@@ -176,7 +183,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
                 frame: Frame = LANDSCAPE, fps: int = 30, seed: int = 7,
                 r_min: int = 150, r_max: int = 330,
                 inhale: float = INHALE, hold: float = HOLD,
-                exhale: float = EXHALE,
+                exhale: float = EXHALE, rest: float = REST,
                 palette: tuple | None = None,
                 logo_w: int | None = None,
                 look: "str | type | None" = None) -> Path:
@@ -198,7 +205,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
     It is built with `period=loop`, so it closes on the same frame the ring
     does; the ring takes the look's own tint unless `palette` says otherwise.
     """
-    breath = inhale + hold + exhale
+    breath = inhale + hold + exhale + rest
     if abs(loop / breath - round(loop / breath)) > 1e-6:
         raise ValueError(
             f"loop={loop}s is {loop / breath:.2f} breathing cycles — it must be "
@@ -239,7 +246,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
         t = i / fps
         img = _bg_frame(bg_look, canvas, t, loop, cw, ch, frame)
 
-        r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale)
+        r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale, rest)
         # `2r + 80`, the short's sizing, not `r / r_max * sprite.width`. The
         # sprite is the circle plus a fixed glow margin; scaling the whole
         # sprite by the radius ratio shrinks the glow too, so the hairline
@@ -391,7 +398,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      loop: float = 60.0, fps: int = 30, seed: int = 7,
                      fade: float = 6.0, r_min: int = 150, r_max: int = 330,
                      inhale: float = INHALE, hold: float = HOLD,
-                     exhale: float = EXHALE,
+                     exhale: float = EXHALE, rest: float = REST,
                      palette: tuple | None = None,
                      look: "str | type | None" = None,
                      keep_work: bool = False,
@@ -408,7 +415,8 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     `inhale + hold + exhale` cycles, same as `render_loop`; picking a pattern
     means picking a `loop` (and a `minutes`) that divides evenly by it — 4-7-8
     is a 19s cycle, so `loop=57` (three cycles) is the natural choice, not the
-    60s that suits 4-in/6-out.
+    60s that suits 4-in/6-out. `rest` adds a hold after the exhale (box
+    breathing is `4, 4, 4, rest=4`, a 16s cycle) and counts toward the cycle.
 
     **`palette` is `(bg_deep, nebula_a, nebula_b, ring)`**, forwarded to both
     `render_loop` and `render_bookend` so the body and the bookends are one
@@ -470,7 +478,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     workdir.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
     total = minutes * 60.0
-    breath = inhale + hold + exhale
+    breath = inhale + hold + exhale + rest
     bed = bed or soundbed.Bed(colour="pink", breathe=0.10,
                               breathe_period=breath)
 
@@ -483,7 +491,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     picture = render_loop(workdir / "loop.mp4", brand, loop=loop,
                           frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max,
-                          inhale=inhale, hold=hold, exhale=exhale,
+                          inhale=inhale, hold=hold, exhale=exhale, rest=rest,
                           palette=palette, look=look)
 
     if bed_files is not None:
