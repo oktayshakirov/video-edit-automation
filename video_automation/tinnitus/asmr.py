@@ -286,6 +286,7 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
                   brand_float: float = 9.0, brand_period: float = 5.5,
                   brand_roam: bool = False, brand_hold: float = 13.0,
                   palette: tuple | None = None,
+                  look: "str | type | None" = None, look_period: float = 60.0,
                   font_path: str = FONT_CAPTION,
                   font_index: int = FONT_CAPTION_INDEX) -> Path:
     """Drifting nebula with the breathing ring, straight into ffmpeg.
@@ -301,10 +302,29 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
     `palette` is `(bg_deep, nebula_a, nebula_b, ring)`, the same shape
     `longform.asmr.render_loop` takes — pass the long-form session's own
     palette so its Short is the same colour, not the app's default purple.
+
+    `look` replaces the nebula with a `core.looks` picture (a `Look` subclass
+    or a shelf name). Pass the long form's look and its `loop` as
+    `look_period` so the Short is the same picture. The look's clock starts with the first breath rather than the
+    video, so a look that moves with the breath (`fern-breath`) stays in step
+    with the ring.
     """
     pad_x, pad_y = 220, 320
     cw, ch = OUT_W + pad_x, OUT_H + pad_y
-    if palette is not None:
+    bg_look, canvas = None, None
+    if look is not None:
+        from ..core import looks
+        first = {}
+        for p in phases:                 # one cycle's spans, read back
+            if p.kind in first:
+                break
+            first[p.kind] = p.end - p.start
+        pattern = (first.get("inhale", 0.0), first.get("hold", 0.0),
+                   first.get("exhale", 0.0))
+        bg_look = looks.make(look, OUT_W, OUT_H, look_period, pattern)
+        sprite = _ring_sprite(r_max, palette[3] if palette else bg_look.ring)
+        look_t0 = phases[0].start if phases else 0.0
+    elif palette is not None:
         bg_deep, nebula_a, nebula_b, ring = palette
         canvas = nebula_canvas(cw, ch, seed, bg_deep, nebula_a, nebula_b)
         sprite = _ring_sprite(r_max, ring)
@@ -348,20 +368,24 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
 
     for i in range(n):
         t = i / fps
-        # Subpixel translation, and it has to be subpixel. The drift is slow by
-        # design — tens of pixels per second — so an integer crop jumps a whole
-        # pixel every few frames and holds still in between. That reads as
-        # judder, which is exactly the wrong quality for a piece whose purpose
-        # is to lower arousal. warpAffine at INTER_LINEAR costs a few ms a
-        # frame and the motion goes glassy. Two axes on different periods, so
-        # the drift never visibly repeats inside a minute.
-        fx = pad_x * (0.5 + 0.5 * math.sin(t / 19.0))
-        fy = pad_y * (0.5 + 0.5 * math.sin(t / 29.0 + 1.1))
-        ix, iy = int(fx), int(fy)
-        m = np.float32([[1, 0, ix - fx], [0, 1, iy - fy]])
-        frame = Image.fromarray(cv2.warpAffine(
-            canvas[iy:iy + OUT_H + 1, ix:ix + OUT_W + 1], m, (OUT_W, OUT_H),
-            flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE))
+        if bg_look is not None:
+            frame = Image.fromarray(bg_look.at(t - look_t0))
+        else:
+            # Subpixel translation, and it has to be subpixel. The drift is
+            # slow by design — tens of pixels per second — so an integer crop
+            # jumps a whole pixel every few frames and holds still in between.
+            # That reads as judder, which is exactly the wrong quality for a
+            # piece whose purpose is to lower arousal. warpAffine at
+            # INTER_LINEAR costs a few ms a frame and the motion goes glassy.
+            # Two axes on different periods, so the drift never visibly
+            # repeats inside a minute.
+            fx = pad_x * (0.5 + 0.5 * math.sin(t / 19.0))
+            fy = pad_y * (0.5 + 0.5 * math.sin(t / 29.0 + 1.1))
+            ix, iy = int(fx), int(fy)
+            m = np.float32([[1, 0, ix - fx], [0, 1, iy - fy]])
+            frame = Image.fromarray(cv2.warpAffine(
+                canvas[iy:iy + OUT_H + 1, ix:ix + OUT_W + 1], m, (OUT_W, OUT_H),
+                flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE))
 
         r, label, left = ring_radius(phases, t, r_min, r_max)
         if label or brand is not None:
@@ -499,6 +523,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
                       fps: int = 30, seed: int = 7,
                       roam: bool = False, logo_hold: float = 13.0,
                       palette: tuple | None = None,
+                      look: "str | type | None" = None, look_period: float = 60.0,
                       keep_work: bool = False) -> tuple[Path, float]:
     """Narration, breathing block, bed and picture into one vertical MP4.
 
@@ -519,6 +544,9 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
     seconds in and put through the same `loudnorm=I=-23` and fade treatment
     `render_bed`'s output gets, so `mix_voice_over_bed`'s sidechain behaves
     identically across all three.
+
+    `look`/`look_period` swap the nebula for a `core.looks` picture; see
+    `render_visual`. Pass the long form's `look` and `loop`.
     """
     from ..core.vertical import render_text_png
     from ..core.voiceover import CAPTION_MAX_W
@@ -598,7 +626,8 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
     picture = render_visual(workdir / "picture.mp4", total, phases,
                             fps=fps, seed=seed,
                             brand_roam=roam, brand_hold=logo_hold,
-                            palette=palette)
+                            palette=palette, look=look,
+                            look_period=look_period)
 
     pngs = []
     for i, (text, _, _) in enumerate(captions):

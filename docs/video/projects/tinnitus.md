@@ -694,6 +694,43 @@ an ordinary frame. Re-measure if any of the three periods change.
 one thing a listener would notice repeating never does. Loop what nobody watches
 closely; generate what they are listening to.
 
+### Looks: every session gets its own, used once
+
+Every session up to `waterfall-478-breathing` was the nebula in a different
+colour, so the channel's sessions read as one video re-tinted. **`look=` on
+`render_asmr_long`, `render_asmr_short` and both session thumbnails** swaps the
+whole picture for a `core.looks.Look`.
+
+**A look is used by exactly one video, then retired** — the user's call,
+2026-10-15. What carries from session to session is the *format*, not the
+picture: each new session (rain, fireplace, jungle, ...) gets a look built
+fresh in its own style. So:
+
+- **The format lives in `core/looks.py`**: the `Look` contract and the pieces
+  looks are made from (`Mist`, `Fireflies`, `orbit`, `vignette`, `cover`,
+  `fbm`, `ease`). Start a new look there.
+- **The shelf (`looks.SHELF`) holds looks built and approved but not yet
+  used** — `canopy-fog`, `cascade-still`, `fern-breath`, left over from the
+  2026-10-15 test round. A video may take one instead of building fresh.
+- **A used look moves off the shelf into that video's own module** under
+  `tinnitus/session_looks/` (`jungle_waterfall_478.py` holds `NightFronds`),
+  and the project files import the class. The shelf then never offers it
+  again, and the video that used it still re-renders. Never import another
+  video's look.
+
+The nebula's rules apply, and `tests/test_looks.py` holds every look to them,
+shelf and used alike: a look is built at `period=loop` and closes on it
+exactly, it accepts negative `t` because the bookends run the clock below
+zero, and the Short takes the same look at the long form's `loop` so the pair
+match. The photo and footage looks read the Pexels cache, which is not in git;
+the ids are in the module docstring.
+
+**Measure a join with the ring masked out.** The full-frame step at a loop
+join on `jungle-waterfall-478` was 0.81 against a 0.43 in-loop maximum, which
+looks like a seam and is not: the ring's label changes at every cycle boundary
+and the encoder restarts on a keyframe there. With the centre masked the join
+was 0.34 against an in-loop maximum of 0.37.
+
 ## The intro
 
 Thirty seconds of `luna` at the front, then nothing. A forty-minute noise
@@ -714,6 +751,20 @@ sound completely is what most people do and what the post argues against.
 
 Same medical rule as mode 1, and it bites harder here because a session looks
 like a treatment. It is a sound to listen to. Say that.
+
+### The Short's outro asks for a save
+
+**A session Short ends on "If this helped, save it for the next time you need
+it." — not on "there's a full twenty-minute version on the channel".** The
+long version only goes to YouTube; on TikTok and Instagram that line points at
+nothing. The user's call, 2026-10-15. Shipped Shorts before
+`jungle-waterfall-478` kept the old line and their scripts are left as built.
+
+This is not the article-Short rule ("Do not close on 'save this'", above)
+reversed. An article Short argues for something to do tonight, so a save is
+the wrong action; a session is something to come back to, so a save is
+exactly the right one. Keep it to that one line, with "if this helped" rather
+than a claim that it will, and nothing after it.
 
 ### A comfort session is not a masking session
 
@@ -762,6 +813,17 @@ middle. Measured on the shipped 20-minute purr mix with `soundbed.seam_drop`:
 **-0.13 dB on the bare bed, -0.24 dB after `loudnorm`** — inaudible, and the
 number is the point. Run `seam_drop` on a new source rather than asserting the
 seam is fine, the same way the picture loop's splice is measured.
+
+**`seam_drop` compares against a quarter-second 32 seconds earlier, so on a
+bed whose level wanders it can cry wolf.** The waterfall-and-birdsong
+recording (`jungle-waterfall-478`) read -2.8 dB at every seam, past the
+-1.5 dB line, and the crossfade was fine: through the overlap the tiled bed sat
+within 0.2 dB of what the two pieces predict (`cos² · tail + sin² · head`
+power, 1s windows). The recording simply has a quiet patch four seconds in,
+which is where the first seam's midpoint lands. When `seam_drop` fails on a
+recording whose 10s RMS swings by a few dB, check against that prediction
+before lengthening `xfade`. Also trim the source's own fade-in and fade-out
+before tiling, or each seam inherits them.
 
 **Tiling changes the length and nothing else.** `band_energy` governs the copy
 exactly as it does for a trimmed `bed_file`; making a bed longer never makes it

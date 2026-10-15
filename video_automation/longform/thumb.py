@@ -766,7 +766,8 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
                          headline: str, pattern: str | None = None,
                          accent: str = "cyan", seed: int = 7,
                          size: int = 104, emoji: str | None = None,
-                         palette: tuple | None = None) -> Path:
+                         palette: tuple | None = None,
+                         look: "str | type | None" = None) -> Path:
     """Thumbnail for a sound-therapy session: nebula, ring, duration, spec.
 
     `headline` is two or three words, no brackets — the accent here is the
@@ -793,13 +794,21 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     # Generated a good deal larger and downsampled. The nebula's stars are
     # single pixels; rendering at 1280 wide and saving as JPEG turns them into
     # mush, where rendering at 2x and resizing keeps them as points.
-    if palette is not None:
-        bg_deep, nebula_a, nebula_b, ring_color = palette
-        canvas = nebula_canvas(W * 2, H * 2, seed, bg_deep, nebula_a, nebula_b)
+    if look is not None:
+        # A `core.looks` picture instead of the nebula, frame t=0 — the
+        # thumbnail is a still of the same picture the video opens on.
+        from ..core import looks
+        bg = looks.make(look, W, H, 60.0)
+        ring_color = palette[3] if palette is not None else bg.ring
+        base = bg.still().convert("RGB")
     else:
-        ring_color = None
-        canvas = nebula_canvas(W * 2, H * 2, seed)
-    base = Image.fromarray(canvas).resize((W, H), Image.LANCZOS).convert("RGB")
+        if palette is not None:
+            bg_deep, nebula_a, nebula_b, ring_color = palette
+            canvas = nebula_canvas(W * 2, H * 2, seed, bg_deep, nebula_a, nebula_b)
+        else:
+            ring_color = None
+            canvas = nebula_canvas(W * 2, H * 2, seed)
+        base = Image.fromarray(canvas).resize((W, H), Image.LANCZOS).convert("RGB")
     # Lift it. In the video the nebula is a backdrop nobody looks at directly;
     # in a grid it is competing, and the same pixels read as an empty black box.
     base = ImageEnhance.Brightness(base).enhance(1.22)
@@ -901,7 +910,8 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
                                headline: str, pattern: str | None = None,
                                accent: str = "cyan", seed: int = 7,
                                size: int = 88, emoji: str | None = None,
-                               palette: tuple | None = None) -> Path:
+                               palette: tuple | None = None,
+                               look: "str | type | None" = None) -> Path:
     """A 9:16 companion to `render_session_thumb`, for a session's own Short.
 
     Same materials, reflowed — the nebula at this seed, the ring-and-count
@@ -923,13 +933,21 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
     """
     from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 
-    if palette is not None:
-        bg_deep, nebula_a, nebula_b, ring_color = palette
-        canvas = nebula_canvas(VW * 2, VH * 2, seed, bg_deep, nebula_a, nebula_b)
+    if look is not None:
+        # A `core.looks` picture instead of the nebula, frame t=0 — the
+        # thumbnail is a still of the same picture the video opens on.
+        from ..core import looks
+        bg = looks.make(look, VW, VH, 60.0)
+        ring_color = palette[3] if palette is not None else bg.ring
+        base = bg.still().convert("RGB")
     else:
-        ring_color = None
-        canvas = nebula_canvas(VW * 2, VH * 2, seed)
-    base = Image.fromarray(canvas).resize((VW, VH), Image.LANCZOS).convert("RGB")
+        if palette is not None:
+            bg_deep, nebula_a, nebula_b, ring_color = palette
+            canvas = nebula_canvas(VW * 2, VH * 2, seed, bg_deep, nebula_a, nebula_b)
+        else:
+            ring_color = None
+            canvas = nebula_canvas(VW * 2, VH * 2, seed)
+        base = Image.fromarray(canvas).resize((VW, VH), Image.LANCZOS).convert("RGB")
     base = ImageEnhance.Brightness(base).enhance(1.22)
 
     # Scrim over the top band, where the headline sits now — the landscape
