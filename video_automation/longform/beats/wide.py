@@ -733,3 +733,194 @@ class Split(Beat):
                             alpha=int(255 * k))
 
 
+
+
+class Replicate(Beat):
+    """One job, done again by every computer in a network.
+
+    **Built for `decentralized-ai-can-ai-run-on-the-blockchain` (2026-10-16),
+    because the library could not draw the noun every blockchain topic rests
+    on.** "Every computer in the network repeats every step and checks the
+    others" is *replication*, and nothing here shows it: `split` cuts one
+    whole into parts (the opposite claim), `grid` is a set of different
+    things, and a server room says "data centre" and nothing about copies.
+    Reusable for consensus, for "every node checks every transaction", for
+    every miner hashing the same block.
+
+    Two reveals, in this order:
+
+    0. **The job.** A card draws round its edge against the voice, its name
+       and note set inside, and a progress bar along its foot fills once -
+       one computer doing the work.
+    1. **The copies.** A stem drops from the card, a grid of node tiles
+       lights in a wave outward from under it, and then **every tile's bar
+       fills in lockstep** - the same work, at the same moment, everywhere.
+       The lockstep is the whole argument: tiles that each filled on their
+       own clock would read as a network sharing the job out, which is what
+       a blockchain does *not* do. The copies' label sets under the grid.
+
+    **The tile count is a picture, not the figure** - 48 tiles stand in for
+    thousands, exactly as `split`'s 160 cells stand in for 120,000. The real
+    number lives in `copies`.
+
+    payload: (job, job_note, copies, copies_note, title)
+    """
+
+    EMBLEM = False
+    SS = 2
+
+    def __init__(self, job: str, job_note: str = "", copies: str = "",
+                 copies_note: str = "", title: str = "", **kw):
+        super().__init__(**kw)
+        self.job, self.job_note = job, job_note
+        self.copies, self.copies_note = copies, copies_note
+        self.title = title
+        # Same guard as `Split`: the names are display-face, centred, unwrapped.
+        from PIL import Image as _Im, ImageDraw as _Dr
+        d = _Dr.Draw(_Im.new("RGB", (10, 10)))
+        card_w = self._geom()[0][2]
+        for label, name, size, room in (
+                (self.job, "job", self._job_size(), card_w - 60),
+                (self.copies, "copies", self._copies_size(), self.frame.w - 80)):
+            if label:
+                w = d.textlength(label, font=_display(size))
+                if w > room:
+                    raise ValueError(
+                        f"replicate {name}={label!r} is {w:.0f}px wide and has "
+                        f"{room}px - it will draw off the card. Shorten it.")
+
+    def _job_size(self) -> int:
+        return 64 if self.portrait else 60
+
+    def _copies_size(self) -> int:
+        return 72 if self.portrait else 64
+
+    def _geom(self) -> tuple:
+        """card (x, y, w, h), grid (x, y, w, h), cols, rows."""
+        fr = self.frame
+        if self.portrait:
+            cw, ch = 860, 230
+            cx, cy = (fr.w - cw) // 2, 470
+            gw, gh = 860, 620
+            return (cx, cy, cw, ch), ((fr.w - gw) // 2, 860, gw, gh), 6, 8
+        cw, ch = 820, 190
+        cx, cy = (fr.w - cw) // 2, 300
+        gw, gh = 1320, 300
+        return (cx, cy, cw, ch), ((fr.w - gw) // 2, 600, gw, gh), 12, 4
+
+    @staticmethod
+    def _bar(v: ImageDraw.ImageDraw, x: float, y: float, w: float, h: float,
+             p: float, prim: tuple, a: int) -> None:
+        v.rounded_rectangle([x, y, x + w, y + h], radius=h / 2,
+                            fill=prim + (int(a * 0.22),))
+        if p > 0:
+            v.rounded_rectangle([x, y, x + max(h, w * p), y + h], radius=h / 2,
+                                fill=prim + (a,))
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        self.heading(out, self.title, f)
+        (cx, cy, cw, ch), (gx, gy, gw, gh), cols, rows = self._geom()
+        prim = self.brand.primary
+        t = self.at(f)
+        rv = self.reveals or [self.start, self.start + self.hold * 0.45]
+
+        e0 = self.due(0, 2, f)
+        if e0 < 0:
+            return
+        outline = self.span_p(0, f, lead=0.05, cap=1.0)
+        # The one computer's bar fills on its own clock, after the card is up.
+        p0 = _ease_io((t - rv[0] - 0.5) / 1.4)
+
+        e1 = self.due(1, 2, f)
+        stem = self.span_p(1, f, lead=0.05, cap=0.45) if e1 >= 0 else 0.0
+        wave = max(0.0, (t - rv[1] - 0.35) / 1.0) if e1 >= 0 else 0.0
+        # Every copy's bar runs one clock - the lockstep is the point.
+        p1 = _ease_io((t - rv[1] - 1.45) / 1.4) if e1 >= 0 else 0.0
+
+        S = self.SS
+        pad = 12
+        X0, Y0 = min(cx, gx) - pad, cy - pad
+        X1, Y1 = max(cx + cw, gx + gw) + pad, gy + gh + pad
+        layer = Image.new("RGBA", ((X1 - X0) * S, (Y1 - Y0) * S), (0, 0, 0, 0))
+        v = ImageDraw.Draw(layer)
+
+        def L(x, y):
+            return ((x - X0) * S, (y - Y0) * S)
+
+        # --- the job card ---------------------------------------------------
+        a0, b0 = L(cx, cy), L(cx + cw, cy + ch)
+        v.rectangle([a0, b0], fill=prim + (int(34 * min(1.0, outline * 1.4)),))
+        per = [a0, (b0[0], a0[1]), b0, (a0[0], b0[1]), a0]
+        partial(v, per, outline, prim + (255,), 5 * S)
+        bx, by = L(cx + 46, cy + ch - 46)
+        self._bar(v, bx, by, (cw - 92) * S, 14 * S, p0, prim,
+                  int(255 * min(1.0, max(0.0, e0))))
+
+        # --- the stem, then the copies ---------------------------------------
+        if stem > 0:
+            sx = cx + cw / 2
+            v.line([L(sx, cy + ch), L(sx, cy + ch + (gy - 26 - cy - ch) * stem)],
+                   fill=prim + (200,), width=4 * S)
+        tw = (gw - (cols - 1) * 18) / cols
+        th = (gh - (rows - 1) * 18) / rows
+        if wave > 0:
+            # Outward from the tile under the stem, so the copies read as
+            # coming *from* the job rather than being laid out beside it.
+            mx, my = (cols - 1) / 2, 0.0
+            far = ((cols / 2) ** 2 + rows ** 2) ** 0.5
+            for r in range(rows):
+                for c in range(cols):
+                    dist = ((c - mx) ** 2 + (r - my) ** 2) ** 0.5 / far
+                    k = min(1.0, max(0.0, (wave - 0.75 * dist) / 0.25))
+                    if k <= 0:
+                        continue
+                    x = gx + c * (tw + 18)
+                    y = gy + r * (th + 18) + RISE * (1 - ease_out(k)) * 0.6
+                    a = int(255 * k)
+                    v.rounded_rectangle([L(x, y), L(x + tw, y + th)],
+                                        radius=10 * S,
+                                        fill=prim + (int(30 * k),),
+                                        outline=prim + (int(a * 0.85),),
+                                        width=3 * S)
+                    bh = max(6, th * 0.16)
+                    bxx, byy = L(x + tw * 0.16, y + th - bh - th * 0.22)
+                    self._bar(v, bxx, byy, tw * 0.68 * S, bh * S, p1, prim, a)
+
+        layer = layer.resize((X1 - X0, Y1 - Y0), Image.LANCZOS)
+        out.paste(layer, (X0, Y0), layer)
+
+        # --- type -------------------------------------------------------------
+        a = int(255 * min(1.0, max(0.0, e0)))
+        name_f = _display(self._job_size())
+        note_f = _font(44 if self.portrait else 40)
+        nb = d.textbbox((0, 0), self.job, font=name_f)
+        qb = d.textbbox((0, 0), self.job_note, font=note_f) if self.job_note else None
+        block = (nb[3] - nb[1]) + ((qb[3] - qb[1]) + 18 if qb else 0)
+        top = cy + (ch - 46 - block) // 2 + 6
+        shadow_text(d, (cx + (cw - (nb[2] - nb[0])) // 2, top - nb[1]),
+                    self.job, name_f, self.brand.ink + (a,), alpha=a)
+        if qb:
+            shadow_text(d, (cx + (cw - (qb[2] - qb[0])) // 2,
+                            top + (nb[3] - nb[1]) + 18 - qb[1]),
+                        self.job_note, note_f, prim + (a,), alpha=a)
+
+        if wave > 0.8 and self.copies:
+            k = min(1.0, (wave - 0.8) * 2.5)
+            ak = int(255 * k)
+            cf = _display(self._copies_size())
+            pb = d.textbbox((0, 0), self.copies, font=cf)
+            py = gy + gh + (44 if self.portrait else 34) + int(RISE * (1 - k))
+            shadow_text(d, ((self.frame.w - (pb[2] - pb[0])) // 2, py - pb[1]),
+                        self.copies, cf, prim + (ak,), alpha=ak)
+            if self.copies_note:
+                rb = d.textbbox((0, 0), self.copies_note, font=note_f)
+                shadow_text(d, ((self.frame.w - (rb[2] - rb[0])) // 2,
+                                py + (pb[3] - pb[1]) + 20 - rb[1]),
+                            self.copies_note, note_f,
+                            self.brand.ink + (int(230 * k),), alpha=ak)
+
+
+def _ease_io(p: float) -> float:
+    p = min(1.0, max(0.0, p))
+    return p * p * (3.0 - 2.0 * p)
