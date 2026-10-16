@@ -65,6 +65,21 @@ Drone uses neither the drawn beats nor the site photos and stock shelf, so
    handoff is the only description carrier. See "Metadata for the handoff" in
    `docs/video/projects/drone-long.md`; a stub description ships as-is.
 
+## HDR: the colour trap
+
+When an iPhone clip (HLG) shares a cut with drone footage (SDR), **convert the
+drone clips with `video_automation/core/hdr.py`** (`write_sdr_to_hlg_cube`
+then `lut3d`, SDR white ~400 nits). **Do not copy Spree's `eq`
+saturation 0.66 / gamma 1.20 trim**: it was matched on an SDR tone map, and on
+the HDR phone the user actually watches on it drains the colour, which then
+gets "fixed" by grading into neon. Akra lost six renders to it.
+
+**Judge HLG colour on `hlg_display`, never by eye on extracted stills or a
+`scale_vt` tone map** - both hide what an HDR screen shows. The drone clips
+need no grade after the exact conversion; if one looks off, the conversion is
+wrong, not the footage. Details under the POV section of `drone-short.md`;
+`projects/drone-short/akra-what-my-drone-sees.py` is the reference.
+
 ## This skill does not publish
 
 Everything about getting a render out is `/publish-video`'s, and it is the only

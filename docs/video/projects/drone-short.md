@@ -648,16 +648,18 @@ where the subject actually sits and set `x` yourself. Then check the box at the
 **end** of the span too: these are push-ins, and eleven seconds of source at 2x
 is enough for a subject to walk out of a box that framed it at the in-point.
 
-**An HLG controller clip: tone-map it to SDR, do not lift the drone into
-HLG.** Spree shipped HLG, converting its SDR drone clips up with a matched
-pre-trim. On Akra (`akra-what-my-drone-sees.py`) the same conversion drained
-an ungraded drone clip on the user's phone, and grading against the drain
-overshot into a neon sky — six renders of grading the conversion rather than
-the footage. The fix: `scale_vt` tone-maps the iPhone clip to BT.709 once,
-the file is plain SDR, and the drone clips go through with crop and scale
-only, measuring within a few points of their source. Untonemapped stills of
-an HLG render are no judge of its colour; check on the phone or tone-map the
-check.
+**An HLG controller clip: convert the drone clips with `core/hdr.py`, not
+Spree's trim.** Spree lifts SDR into HLG with `eq` saturation 0.66 / gamma
+1.20, matched by tone-mapping the render back to SDR. That is an SDR screen's
+view; on the HDR phone the user watches on, the trim stays in, and modelled on
+a 1000-nit HLG display it takes Coast 2's saturation from 0.80 to 0.66. Akra
+spent six renders grading against it. `write_sdr_to_hlg_cube` bakes an exact
+display-light conversion (SDR white at a chosen nits, 400 on Akra) for
+`lut3d`; the drone clips then need no grade and measure within a point of
+their source on `hlg_display`. **Check HLG renders on `hlg_display`, never on
+a `scale_vt` tone map or an untonemapped still.** If HDR is not wanted, the
+other clean route is SDR out with the controller tone-mapped by `scale_vt`
+(Akra render seven, `-noautorotate`, download as `p010le`).
 
 **Never track a crop with an integer box.** A 9:16 crop drifting 40-50 px/s
 lands on even pixels only, steps 2, 2, 0, and reads as lag (Akra, two rounds).
