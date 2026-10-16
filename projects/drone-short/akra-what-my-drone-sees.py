@@ -1,6 +1,7 @@
 """Akra What My Drone Sees — the POV/reveal format at Akra Castle, Sozopol.
 
-Built on `spree-what-my-drone-sees.py`, but delivered in SDR — see *Colour*.
+Built on `spree-what-my-drone-sees.py`. HLG out, like Spree, but with an
+exact SDR-to-HLG conversion — see *Colour*.
 Cut to a TikTok sound the user supplied, every cut on one of its strong hits
 (~2.527s apart); see `HITS`.
 
@@ -14,30 +15,35 @@ Cut to a TikTok sound the user supplied, every cut on one of its strong hits
 The user's brief: first 4s of the controller, then parts of the other three
 sped up, 15-20s overall. Revised on review: every shot at normal speed.
 
-## Colour: SDR out, drone clips untouched
+## Colour: HLG out, drone clips converted exactly
 
-**The first six renders were HLG, like Spree, and the HLG step was the bug.**
-The controller is iPhone HLG, so the file was HLG and the SDR drone clips were
-lifted into it with Spree's matched conversion (`eq` saturation 0.66, gamma
-1.20, 709 to 2020 primaries). On the user's phone that conversion did not give
-back the source: an ungraded clip came out drained ("missing colours"), and
-grading against the drain overshot into a neon cyan sky and orange cliffs on
-Coast 2. Every grading round was correcting the conversion, not the footage.
-The untonemapped stills used for checking hid all of it.
+**The first six renders were HLG with Spree's conversion, and it was the
+bug.** Spree lifts SDR into HLG with a pre-trim (`eq` saturation 0.66, gamma
+1.20) matched by tone-mapping the result back to SDR with `scale_vt`. That is
+what an SDR screen shows. The user watches on an HDR phone, which shows the
+HLG as it is, and there the trim stays in: modelled on a 1000-nit HLG
+display, Coast 2's display-light saturation went 0.80 to 0.66 — "missing
+colours". Grading against that overshot into a neon sky and orange cliffs.
 
-**The fix runs the other way.** The controller clip is tone-mapped down to SDR
-BT.709 once, with VideoToolbox (`scale_vt`, the same tone map an iPhone or Mac
-applies on an SDR screen), and the file is plain 8-bit 709. The drone clips
-are 709 already, so they go through with **no colour conversion and no
-grade** — crop and scale only, and they look exactly as they came off the
-drone.
+**Render seven went SDR** — controller tone-mapped with `scale_vt`, drone
+clips untouched — and fixed the colour, but gave up the HDR.
 
-The tone-mapped controller measures YLOW 45-60 / SATAVG 14-22 against the
-drone shots' ~40-56 / 13-29, so it takes a small saturation lift to sit with
-them; see `POV_GRADE`.
+**This one is HLG with an exact conversion** (`video_automation/core/hdr.py`):
+BT.1886 decode, SDR white at `DRONE_WHITE` nits, 709 to 2020 primaries,
+inverse HLG OOTF and OETF, baked to a 65-point .cube for `lut3d`. On the same
+display model Coast 2 comes out at 0.798 saturation against 0.800 in the
+source, at the source's brightness. The drone clips get no grade.
 
-`scale_vt` wants the clip un-rotated (`-noautorotate`, then `transpose=1` for
-the iPhone's -90) and downloads as `p010le`; `nv12` is refused.
+**`DRONE_WHITE` is 400 nits.** The old conversion put drone midtones at about
+the brightness of a 260-nit white and highlights near 1000; 400 keeps the
+brightness the user had seen (mean 83 nits on Coast 2 against the old 93)
+without pushing the sky into the peak. The iPhone clip runs brighter, ~180
+nits mean, which is the phone's HDR look; raise `DRONE_WHITE` to close the gap.
+
+The controller clip stays native HLG with the grade the user approved in
+round two. Labels: the drone label goes through the LUT with the picture, so
+its white lands at `DRONE_WHITE`; the controller label is dimmed to the same
+HLG signal.
 
 ## Motion
 
@@ -54,6 +60,7 @@ drone clips show each frame twice, which adds no judder of its own.
 import subprocess
 from pathlib import Path
 
+from video_automation.core.hdr import hlg_signal_of_white, write_sdr_to_hlg_cube
 from video_automation.core.vertical import OUT_H, OUT_W, render_text_png
 
 SOURCE_POST = None                      # off-site: a format piece, no article
@@ -68,9 +75,11 @@ FPS = 60
 CROP_W = 1215                           # 9:16 out of a 2160-line frame
 
 POV_SPAN = 4.0                          # first 4s, real video, played straight
-POV_GRADE = "eq=saturation=1.30:contrast=1.04"   # after the tone map
-TONEMAP = ("scale_vt=w=1920:h=1080:color_matrix=bt709:color_primaries=bt709:"
-           "color_transfer=bt709,hwdownload,format=p010le,transpose=1")
+POV_GRADE = "eq=contrast=1.25:brightness=-0.08:gamma=0.95:saturation=1.5"
+
+DRONE_WHITE = 400                       # nits SDR white lands at in the HLG file
+HLG_PARAMS = ("setparams=color_primaries=bt2020:color_trc=arib-std-b67:"
+              "colorspace=bt2020nc:range=tv")
 
 # The track: strong hits every ~2.527s. The bed starts AUDIO_IN so the first
 # cut (end of the controller beat) lands on the 17.871 hit, and every later
@@ -96,10 +105,12 @@ DRONE_LABEL_OUT = 2.5
 LABEL_POV = "what i see"
 LABEL_DRONE = "what my drone sees"
 
-SDR_TAGS = ["-color_primaries", "bt709", "-color_trc", "bt709",
-            "-colorspace", "bt709", "-color_range", "tv"]
-X264 = ["-c:v", "libx264", "-crf", "16", "-preset", "slow",
-        "-profile:v", "high", "-pix_fmt", "yuv420p"]
+HLG_TAGS = ["-color_primaries", "bt2020", "-color_trc", "arib-std-b67",
+            "-colorspace", "bt2020nc", "-color_range", "tv"]
+X265 = ["-c:v", "libx265", "-crf", "18", "-preset", "slow", "-tag:v", "hvc1",
+        "-pix_fmt", "yuv420p10le",
+        "-x265-params", "log-level=error:colorprim=bt2020:"
+                        "transfer=arib-std-b67:colormatrix=bt2020nc:range=limited"]
 
 
 def _run(cmd: list[str]) -> None:
@@ -116,26 +127,26 @@ def _probe(path: Path) -> float:
 
 def _encode(dst: Path, inputs: list[str], vf: str, frames: int) -> Path:
     _run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", vf,
-          "-map", "[o]", "-frames:v", str(frames), "-an", *X264, *SDR_TAGS,
+          "-map", "[o]", "-frames:v", str(frames), "-an", *X265, *HLG_TAGS,
           str(dst)])
     return dst
 
 
 def _segment_pov(dst: Path, label: Path, frames: int) -> Path:
-    """Beat one: the first POV_SPAN seconds, tone-mapped to SDR, labelled."""
-    vf = (f"[0:v]{TONEMAP},scale={OUT_W}:{OUT_H}:flags=lanczos,"
-          f"format=yuv420p,{POV_GRADE},"
-          f"setpts=PTS-STARTPTS,fps={FPS},setsar=1[v];"
-          f"[v][1:v]overlay=0:0,format=yuv420p[o]")
-    return _encode(dst, ["-noautorotate", "-hwaccel", "videotoolbox",
-                         "-hwaccel_output_format", "videotoolbox_vld",
-                         "-t", f"{POV_SPAN}", "-i", str(POV), "-i", str(label)],
+    """Beat one, native HLG: the first POV_SPAN seconds, graded, labelled."""
+    k = hlg_signal_of_white(DRONE_WHITE)
+    vf = (f"[0:v]scale={OUT_W}:{OUT_H}:flags=lanczos,{POV_GRADE},"
+          f"setpts=PTS-STARTPTS,fps={FPS},format=yuv420p10le,setsar=1[v];"
+          f"[1:v]format=rgba,colorchannelmixer=rr={k}:gg={k}:bb={k}[l];"
+          f"[v][l]overlay=0:0:format=yuv420p10,format=yuv420p10le,"
+          f"{HLG_PARAMS}[o]")
+    return _encode(dst, ["-t", f"{POV_SPAN}", "-i", str(POV), "-i", str(label)],
                    vf, frames)
 
 
 def _segment_drone(dst: Path, shot: tuple, frames: int,
-                   label: Path | None) -> Path:
-    """A drone shot: fixed crop and scale, nothing else, optional label."""
+                   label: Path | None, cube: Path) -> Path:
+    """A drone shot: fixed crop and scale, optional label, exact SDR to HLG."""
     name, start, x = shot
     chain = (f"[0:v]crop={CROP_W}:2160:{x}:0,scale={OUT_W}:{OUT_H}:flags=lanczos,"
              f"setpts=PTS-STARTPTS,fps={FPS},setsar=1")
@@ -145,7 +156,9 @@ def _segment_drone(dst: Path, shot: tuple, frames: int,
         extra = ["-i", str(label)]
     else:
         vf, extra = chain, []
-    vf += ",format=yuv420p[o]"
+    vf += (f",format=rgb48le,lut3d=file='{cube}':interp=tetrahedral,"
+           f"scale=out_color_matrix=bt2020:out_range=tv,format=yuv420p10le,"
+           f"{HLG_PARAMS}[o]")
     return _encode(dst, ["-ss", f"{start}", "-t", f"{frames / FPS + 0.5}",
                          "-i", str(AKRA / name), *extra], vf, frames)
 
@@ -160,12 +173,15 @@ def main() -> None:
                                 size=DRONE_LABEL_SIZE, y_frac=DRONE_LABEL_Y,
                                 bg_luma=LABEL_LUMA)
 
+    cube = write_sdr_to_hlg_cube(WORK / f"sdr-to-hlg-{DRONE_WHITE}.cube",
+                                 DRONE_WHITE)
+
     marks = [round((h - AUDIO_IN) * FPS) for h in HITS]
     frames = [marks[0]] + [b - a for a, b in zip(marks, marks[1:])]
     parts = [_segment_pov(WORK / "a.mp4", pov_png, frames[0])]
     for i, (shot, n) in enumerate(zip(SHOTS, frames[1:])):
         parts.append(_segment_drone(WORK / f"{'bcd'[i]}.mp4", shot, n,
-                                    drone_png if i == 0 else None))
+                                    drone_png if i == 0 else None, cube))
 
     listing = WORK / "concat.txt"
     listing.write_text("".join(f"file '{p}'\n" for p in parts))
