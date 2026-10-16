@@ -173,5 +173,12 @@ Check before starting a render, and wait rather than race:
 pgrep -fl "projects/"
 ```
 
-A Short is light enough to run beside one long form. Two long forms are
-not, and neither is a long form plus a sweep over a full-size stock photo.
+~~A Short is light enough to run beside one long form.~~ **It is not
+(2026-10-16):** `decentralized-ai`'s long form was killed with 137 while its
+Short rendered alongside it, and the Short finished fine - so the long form
+is the one macOS picks. Render the long form alone. Two long forms are not
+safe either, nor a long form plus a sweep over a full-size stock photo.
+
+**The log is empty because Python buffered it.** A render killed with 137
+never flushes stdout, so a redirected log holds nothing but the shell's
+exit line. Run renders with `python -u` when the output goes to a file.

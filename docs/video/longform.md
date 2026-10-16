@@ -574,3 +574,14 @@ the frame.
 (words, sentences, holds, beats, what the roster shows) the gap was plain:
 ~620 words in ~40 sentences, six `None` holds, and footage that was the
 subject's own world. Run that comparison before re-cutting, not after.
+
+## A 16:9 hook word can live in sentence 1 (2026-10-16)
+
+`hook_reveal_time`'s 4.2s latest applies to long form too, and a long
+form's opening sentence is usually the full claim - `decentralized-ai` put
+`[hundreds]` in sentence 2 and it was spoken at 5.1s, so the reveal fell
+back to 3.0s and beat the voice. The render prints the warning; read it on
+the first pass. The fix that kept the writing was to lead with the number:
+"One word from your AI would fill hundreds of blocks." reveals at ~2s, and
+sentence 2 draws the conclusion. The Short's sentence-1-is-the-title rule
+does not bind a long form.

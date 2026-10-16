@@ -429,7 +429,7 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
                 travel = min(1.5, max(0.5, (sh.start + sh.hold - r1) - 0.16))
                 cues.append((r1 + 0.05 + travel * (float(thr) / frac), "limit"))
         elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
-                            "callout"):
+                            "callout", "replicate"):
             for t in (sh.reveals or [])[:8]:
                 cues.append((t, "reveal"))
         if sh.graphic in ("checklist", "logos") and sh.marks:

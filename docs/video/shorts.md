@@ -1084,3 +1084,10 @@ sentence 1.** If the move is a calculation, or a reversal of a definition
 the viewer does not have yet, build the Short as the plain answer in the
 order a viewer would ask it - one drawn beat per question (`bars` how deep,
 `diagram` why, `steps` how to tell) - and leave the twist to the long form.
+
+## `replicate` is portrait-safe (2026-10-16)
+
+Whitelisted in `crypto/build.py` with the other vertical beats. Its portrait
+layout stacks the job card at y=470 over a 6x8 node grid that ends near
+y=1480, the copies label under it - the lower ~400px stay empty, which is
+where the platform's own title and description overlay sits anyway.

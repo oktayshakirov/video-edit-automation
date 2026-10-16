@@ -990,3 +990,27 @@ rest of the line runs level with the marker and printed straight through
 the line (densified, so it cannot slip between vertices) and moves it under
 the marker only when they meet. Both shipped charts measured clear and draw
 exactly as before.
+
+## `replicate` - one job, done again by every computer (2026-10-16)
+
+`payload: (job, job_note, copies, copies_note, title)`, two reveals: **the
+job first, the copies second**, so two caption chunks in that order - "Send
+it one job," / "and every computer on the network does the same math,
+again." A card draws round its edge and its bar fills once; a stem drops, a
+grid of node tiles lights outward from under it, and then **every tile's bar
+fills on one clock**.
+
+Built for `decentralized-ai`, whose central noun - every node repeating
+every step - nothing here could draw: `split` is the opposite claim (one
+whole cut into parts), `grid` is different things, and a server room says
+"data centre". **The lockstep is the argument.** Bars filling on their own
+clocks would read as a network sharing the work out, which is exactly what a
+blockchain does not do. Reach for it on consensus, mining, "every node
+checks every transaction".
+
+- 48 tiles stand in for thousands (12x4 landscape, 6x8 portrait); the real
+  count lives in `copies`, like `split`'s cells.
+- `job` and `copies` are display-face and unwrapped, and `__init__` raises
+  past the card / frame width, the same guard `split` carries.
+- Portrait-safe and whitelisted in `crypto/build.py`; cues as `reveal`.
+- A finished still makes a concept thumbnail (`reveals=[0, 0.2]`, `f=1.0`).

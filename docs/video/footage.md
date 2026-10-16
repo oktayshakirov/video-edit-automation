@@ -992,3 +992,47 @@ is the drawn `dial`.
 | `hand-writing-in-notebook-pen-dark/11025442` | **kept** for "give it a number": figures going into an exercise book. Reads a little like homework |
 | `red-warning-light-flashing-dark/3882891` | **kept**: a level crossing's red lights. `3350820` is police blue-and-red; `3134591` a legible EXIT sign |
 | `candle-flame-dark-close/7033615` | **kept**: one flame on black, the quiet ground for the red-flag label |
+
+## The decentralized-AI fetch: verdicts (2026-10-16)
+
+The noun is computation, so every query went inside computing. **Most of
+the obvious server footage is already cut** - `7140928`, `7140931`,
+`1085656` (also S121, a blue cable wall), `5028622`, `7140937`, `8212370`,
+`34771078`, `6755170`, `6754818`, `6754824` all sit in other projects, and
+`34279733` is the shoot of the halving's `34279721`.
+
+| clip | verdict |
+| --- | --- |
+| `graphics-card-close-up-dark/5466792`, `5467289` | GALAX / GEFORCE RTX branding, RGB (on record) |
+| `graphics-card-close-up-dark/3147349` | **kept**: a GPU fan in a lit case, L48 but S60 purple - the noun, so relevance won |
+| `graphics-card-installing-computer/34821018` | a white RGB showcase build, L104-122 |
+| `hands-typing-keyboard-dark/5495784`, `5495845` | **kept**: hands at a laptop in the dark (L17) and from above (L48) - one shoot, kept apart |
+| `rows-of-computers-office-night/36036749` | **kept**: a backlit keyboard, L7-11 |
+| `rows-of-computers-office-night/6258096` | a legible shopping site |
+| `circuit-board-close-up-dark/6755158` | **kept**: one processor die on dark stone, L19-36 |
+| `circuit-board-close-up-dark/6754820` | **kept**: a gold-orange board, L71 |
+| `computer-chip-macro/7609195`, `6208729`, `6754822` | bright teal / green boards, L78-88, an Arduino logo |
+| `cpu-processor-installing/11537353` | **kept**: fingers seating a CPU, L89-94 |
+| `cpu-processor-installing/12611453` | an AMD-branded chip in a hand |
+| `motherboard-assembling/9373207` | **kept**: hands on a motherboard, teal-lit, L100-109 |
+| `supercomputer/32386520` | **kept**: a corridor between racks, L44-54 - the only fresh rack shot |
+| `supercomputer/34719182` | a saturated blue voxel animation, S72-82 |
+| `data-center-aisle/*` | every result a warehouse or a supermarket |
+| `data-center-corridor-servers/38496190`, `server-rack-lights-dark/38496193`, `gpu-server-installing/38496192` | **kept** (two of them): a hand at drive enclosures, L61-101 - "storage" |
+| `neural-network-visualization/37101560` | **kept**: a gold fibre network, L30-73 - "the model" |
+| `neural-network-visualization/34992913`, `34994032` | **kept**: red/white ball-and-stick nodes, L21 - one look, so far apart |
+| `neural-network-visualization/37104472`, `34996641` | magenta / saturated blue |
+| `stopwatch-close-up/9944842` | **kept**: a red LED digit counting down to 0, L29 - a challenge window |
+| `stopwatch-close-up/*` others, `hourglass-sand-dark/*` | a chess clock on white, a collage animation, teal-pink hourglasses L71-141 |
+| `stack-of-coins-dark/5253412` | **kept**: coins across a dark table, L25-41 |
+| `coin-slot-dropping-coin/5305003` | **kept**: coins dropping and scattering on stone, L90 |
+| `bank-vault-door/39060937` | **kept**: a key turned in a steel locker, L42-47 after 2s |
+| `bank-vault-door/5849613`, `5849641` | cartoon "DEPOSIT" / "SAVINGS" animations |
+| `padlock-closing-dark/4889026` | **kept**: a shackle close up, L43 |
+| `ink-drop-in-water-dark/7565451` | **kept**: teal ink clouding dark water, L20-34 - "poisoned" |
+| `ink-drop-in-water-dark/7565969`, `18333375` | the same on white, L128-210 |
+| `smartphone-typing-message-night/39494839` | **kept**: a thumb on a phone keyboard, L31-38, no legible message |
+| `artificial-intelligence-chatbot-typing/*`, `robot-hand/*` | toy robots and prosthetic hands on white - "AI" as a cliché, not the act |
+| `judge-gavel/6101367`, `6101337` | the `6101343` shoot (bitcoin-price, ruja) |
+| `magnifying-glass-document/*`, `signing-contract-pen/*`, `stamp-approved-document/*`, `inspector-checking-quality/*`, `calculator-hands-dark/*`, `abacus-close-up/*` | bright desks, stamp albums, toddlers, hi-vis inspectors - L70-210 |
+| `graphics-card-fan-spinning-black/33830775` | **kept**: a slow particle vortex, L10 - the one abstract |
