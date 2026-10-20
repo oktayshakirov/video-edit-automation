@@ -734,3 +734,125 @@ class HookOverlay:
         y = self.top + (self.block_h - nh) // 2 + dy + jy
         out.alpha_composite(blk, (max(0, x), max(0, y)))
         return out.convert("RGB")
+
+
+# --------------------------------------------------------------------------
+# Insets - a real reference laid over a shot (2026-10-20)
+# --------------------------------------------------------------------------
+
+class InsetOverlay:
+    """A still laid over one shot: a logo bug, a press still, a ticker card.
+
+    Built for the GTA 6 pair, where the user's note on the first cut was that
+    an all-stock video about a real game "gets boring and monotone" and needs
+    real references to the thing it is about. `Shot(image=)` already makes a
+    real still the whole shot; this is the other half - **the real thing
+    sitting on top of the footage**, so a stock clip of a palm avenue reads
+    as Leonida because the GTA VI mark is in its corner.
+
+    `Shot(inset=(path, where[, scale]))` asks for one, and `render_shots`
+    builds it from the shot's own span, so it can never outlive its line.
+
+    - **An RGBA source composites on its alpha**, with a soft shadow and no
+      frame: a logo is not a photograph and a box round it reads as a
+      sticker. An opaque source gets the brand hairline and a shadow, the
+      `ImageOverlay` panel treatment.
+    - **It arrives**: 0.30s fade while rising 18px, eased; 0.25s fade out.
+      A snap reads as a render fault, the same finding as the captions'.
+    - `where` is a corner (`tl` `tr` `bl` `br`), `left` / `right` (centred
+      vertically), or `top` (centred, clear of the 9:16 watermark).
+      `tl` collides with the watermark in both frames; it is there for
+      completeness, not use.
+    """
+
+    RISE, FADE_IN, FADE_OUT = 18, 0.30, 0.25
+
+    def __init__(self, path, start: float, end: float, frame: Frame = LANDSCAPE,
+                 where: str = "tr", scale: float = 0.16, brand=None):
+        self.start, self.end, self.frame = start, end, frame
+        src = path if isinstance(path, Image.Image) else Image.open(path)
+        src = src.convert("RGBA")
+        bbox = src.split()[-1].getbbox()
+        if bbox:
+            src = src.crop(bbox)
+        w = max(1, int(frame.w * scale))
+        h = max(1, int(round(src.height * w / src.width)))
+        im = src.resize((w, h), Image.LANCZOS)
+        opaque = im.split()[-1].getextrema()[0] >= 250
+        if opaque:
+            accent = tuple(brand.primary) if brand is not None else (229, 194, 0)
+            d = ImageDraw.Draw(im)
+            d.rectangle([0, 0, w - 1, h - 1], outline=accent + (255,), width=3)
+        pad = 40
+        alpha = im.split()[-1]
+        shadow = Image.new("RGBA", (w + 2 * pad, h + 2 * pad), (0, 0, 0, 0))
+        sm = Image.new("L", shadow.size, 0)
+        sm.paste(alpha.point(lambda v: int(v * 0.70)), (pad + 6, pad + 10))
+        shadow.putalpha(sm.filter(ImageFilter.GaussianBlur(16)))
+        shadow.alpha_composite(im, (pad, pad))
+        self.im, self.pad = shadow, pad
+
+        m = int(frame.w * (0.045 if frame.w >= frame.h else 0.06))
+        top = frame.logo_at[1] + 150 if frame.h > frame.w else m
+        x = {"tl": m, "bl": m, "left": m, "tr": frame.w - m - w,
+             "br": frame.w - m - w, "right": frame.w - m - w,
+             "top": (frame.w - w) // 2}[where]
+        y = {"tl": top, "tr": top, "top": top,
+             "bl": frame.h - m - h, "br": frame.h - m - h,
+             "left": (frame.h - h) // 2, "right": (frame.h - h) // 2}[where]
+        self.at = (x - pad, y - pad)
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        p = min(1.0, (t - self.start) / self.FADE_IN)
+        a = min(p, max(0.0, (self.end - t) / self.FADE_OUT))
+        if a <= 0:
+            return pic
+        e = 1 - (1 - p) ** 3
+        dy = int(round(self.RISE * (1 - e)))
+        im = self.im
+        if a < 1.0:
+            im = im.copy()
+            im.putalpha(im.split()[-1].point(lambda v: int(v * a)))
+        base = pic.convert("RGBA")
+        base.alpha_composite(im, (self.at[0], self.at[1] + dy))
+        return base.convert("RGB")
+
+
+def ticker_card(name: str, line: str, sub: str, brand, out: Path,
+                width: int = 760) -> Path:
+    """A drawn token card - coin disc, ticker, two plain lines - for a coin
+    the video names but whose logo cannot be verified.
+
+    The GTA 6 leak coin exists under a dozen copycat contracts, so any logo
+    pulled from a DEX page might be the wrong token, and showing it would
+    point the viewer at a live scam. The name and the dates are verified;
+    the card shows exactly those and nothing else.
+    """
+    from ..core.vertical import FONT_CAPTION, FONT_KARAOKE_BOX
+    from PIL import ImageFont
+
+    h = 230
+    im = Image.new("RGBA", (width, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    gold = tuple(brand.primary)
+    d.rounded_rectangle([0, 0, width - 1, h - 1], 26, fill=(20, 20, 20, 238),
+                        outline=gold + (255,), width=3)
+    r = 70
+    cx, cy = 40 + r, h // 2
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=gold + (255,))
+    d.ellipse([cx - r + 10, cy - r + 10, cx + r - 10, cy + r - 10],
+              outline=(23, 23, 23, 255), width=4)
+    fk = ImageFont.truetype(FONT_KARAOKE_BOX, 64)
+    d.text((cx, cy + 2), name[:1].upper(), font=fk, fill=(23, 23, 23, 255),
+           anchor="mm")
+    x = cx + r + 34
+    ft = ImageFont.truetype(FONT_KARAOKE_BOX, 54)
+    fs = ImageFont.truetype(FONT_CAPTION, 34)
+    d.text((x, 40), "$" + name.upper(), font=ft, fill=(255, 255, 255, 255))
+    d.text((x, 118), line, font=fs, fill=gold + (255,))
+    d.text((x, 162), sub, font=fs, fill=(205, 205, 205, 255))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    im.save(out)
+    return out

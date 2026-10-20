@@ -302,6 +302,16 @@ have, cannot be embedded as evergreen `VideoObject` content, carries per-video
 accuracy risk in a YMYL niche, and is the shape the platforms suppress hardest.
 News becomes a variant once the pipeline is proven, not the proving ground.
 
+## A topic about a real thing shows the real thing (2026-10-20)
+
+The other half of the rule below. When the subject *is* a real, named
+thing - GTA VI, an exchange's app, a scam coin, a court case - fetch its
+official art, screenshots and logo first, and put them under the lines that
+name it (`Shot(image=)`) or over the stock (`Shot(inset=)`). An all-stock
+cut of a real game was the user's "boring and monotone". Never a token logo
+that cannot be tied to the right contract: draw a `ticker_card`. Sources
+and mechanics in `footage.md`, "When the subject is a real thing".
+
 ## A topic whose nouns are abstractions has to be drawn, not filmed
 
 **From the `fear-greed-index` re-cut, and it is the sharper version of the

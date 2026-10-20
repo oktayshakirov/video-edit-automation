@@ -1036,3 +1036,94 @@ the obvious server footage is already cut** - `7140928`, `7140931`,
 | `judge-gavel/6101367`, `6101337` | the `6101343` shoot (bitcoin-price, ruja) |
 | `magnifying-glass-document/*`, `signing-contract-pen/*`, `stamp-approved-document/*`, `inspector-checking-quality/*`, `calculator-hands-dark/*`, `abacus-close-up/*` | bright desks, stamp albums, toddlers, hi-vis inspectors - L70-210 |
 | `graphics-card-fan-spinning-black/33830775` | **kept**: a slow particle vortex, L10 - the one abstract |
+
+## The GTA 6 fetch: verdicts (2026-10-20)
+
+**No game footage, ever.** The trailers are Rockstar's pictures, so the
+world is what the game parodies - Miami at night, palms, cars, planes - and
+the act of the scam (phones, a laptop at night, cash). Every plane query
+comes back bright sky: L115-176 for `aerobatic plane smoke`, `small plane
+flying`, `stunt plane`, `plane flying dusk`, `skydiver sunset`. The one
+usable stunt clip is grey-sky L65, kept because it is the noun.
+
+| clip | verdict |
+| --- | --- |
+| `miami-night-neon/19109600`, `6345160`, `19109601` | **kept**: towers at night, the skyline over the bay, an aerial - one shoot for the first and last, kept apart |
+| `miami-night-neon/36032432` | a legible DINER sign, 5s |
+| `palm-trees-neon-night/40175608`, `29139475`, `4441056` | **kept**: a purple palm avenue (the thumbnail), a palm street from above, palms on a dark beach |
+| `palm-trees-neon-night/40305028` | a funfair carousel |
+| `ocean-drive-miami-night/15270404` | **kept**: an empty highway at night, L13 |
+| `ocean-drive-miami-night/3770584`, `8554258` | L114-138 daylight |
+| `sports-car-night-city/13795978`, `13795917` | **kept**: headlights at night, badges too small to read |
+| `sports-car-night-city/14228183` | a BMW i8 roundel, front and centre |
+| `airshow-night/13066176` | **kept**: three stunt planes trailing smoke, L65 - the trailer's plane |
+| `stunt-plane/33698741` | a national display team in tricolour smoke on blue, L115 |
+| `airplane-flying-sunset-silhouette/7196522` | **kept**: a tiny plane over a red sunset, L41 |
+| `airplane-flying-sunset-silhouette/10675969` | a wing from a window - an airliner, not a stunt plane |
+| `airshow-night/34398861` | fireworks, desaturated grey |
+| `red-flare-smoke-night/34067500` | **kept**: a pink flare in a street crowd, S62 - the trailer's flare, so relevance won |
+| `red-flare-smoke-night/34067369` | the same crowd, more smoke than subject |
+| `playing-video-game-controller-dark/16628557` | **kept**: hands on a gamepad, close |
+| `playing-video-game-controller-dark/7667876` | a retro console on a desk, no hands |
+| `hands-gamepad-close-up/8127818` | **kept**: a gamepad in blue light |
+| `hands-gamepad-close-up/7988047` | a red retro pad on green |
+| `watching-tv-dark-room/6901290` | **kept**: two people laughing at a screen in the dark |
+| `watching-tv-dark-room/6951594` | a woman in a bed, bright warm room |
+| `scrolling-phone-dark/13358555` | **kept**: a hand on a phone against black, screen unreadable |
+| `phone-screen-hands-night/14513394`, `28828935` | **kept**: a thumb scrolling; a list in two hands, unreadable |
+| `phone-screen-hands-night/5617952` | a legible chat keyboard |
+| `laptop-screen-dark-room/7272375`, `36392511` | **kept**: hands at a laptop in the dark; a figure at a desk of screens |
+| `counting-cash-hands-dark/6266425` | **kept**: dollars counted at a desk, L56 |
+| `counting-cash-hands-dark/34579096` | already cut twice elsewhere |
+| `gaming-pc-setup-dark/30470983`, `10620285` | **kept**: a red-fan gaming PC; a player at a PC at night |
+| `gaming-pc-setup-dark/7914801`, `gaming-headset-dark-room/10620277` | RGB keyboard, 6s; `10620285`'s shoot |
+| `ocean-waves-night/40200251` | **kept**: dark purple surf from above - the one abstract |
+| `rain-on-window-night/34977302` | teal window, nothing in it |
+| `courthouse-night/28388728`, `legal-documents-dark/*` | 4s; bright desks L78-150 |
+| `influencer-filming-phone-ring-light/*`, `hand-turning-off-tv/*` | L95-190; S103-139 |
+| `nightclub-lights-miami/*`, `neon-sign-city-night/*` | a disco ball; a legible ROOMS sign |
+
+## When the subject is a real thing, its real pictures lead (2026-10-20)
+
+**The user's note on the first GTA 6 cut, and a standing rule for both
+channels:** a video whose subject is a real, named thing - a game, a
+product, a company, an event, a scam coin - must show that thing, not only
+stock that resembles its world. Twenty-four well-screened stock clips of
+Miami, planes and phones read as "boring and monotone", because nothing on
+screen was GTA VI. Fair use for commentary covers the subject's own press
+material; the description credits it (`Meta.credits`).
+
+**Where to get them, in this order:**
+
+1. **The owner's own press or official site.** `rockstargames.com/VI` serves
+   4K key art, in-game screenshots and the logo as an RGBA PNG under
+   `/VI/_next/static/media/` - `curl` the page and grep the paths. Official
+   art is the most trustworthy source and the only one with no third-party
+   watermark.
+2. **A press outlet's lead image, for a moment the owner did not publish as
+   a still** - the trailer's DacityCoin plane came from a news article's
+   `og:image`. Look at it before using it: half of crypto-news lead images
+   are AI composites carrying the outlet's own logo (`coingabbar`), which
+   is neither real nor theirs to lend.
+3. **Never a logo you cannot tie to the thing.** A scam token exists under a
+   dozen copycat contracts, so a DEX logo may be the wrong coin, and showing
+   it points viewers at a live scam. Draw a `ticker_card` from the verified
+   name and date instead.
+
+**How they go in:**
+
+- **`Shot(image=)` for a still that is the line's noun** - full-bleed in 16:9
+  when the source clears `1920 / 1.90`, a framed card in 9:16. Official 4K
+  art always clears it.
+- **`Shot(inset=(path, where, scale))` to put the real thing over stock** -
+  the logo in the corner (`"tr"`, 0.12 in 16:9, 0.22 in 9:16), a game still
+  beside a leaker's laptop, a ticker card on the phone shot. See
+  `overlay.InsetOverlay`.
+- **Budget it:** on the GTA pair, about a third of the clip slots became real
+  stills and another quarter carry an inset. Stock still carries the act
+  (hands, phones, cash); the real pictures carry the nouns.
+- **The thumbnail is the subject's own key art** when there is one; the
+  user picked it over the drawn and stock options.
+
+Assets live in `assets/stock/press/<topic>/` with a committed `SOURCES.md`;
+the bytes are gitignored like the rest of the stock cache.

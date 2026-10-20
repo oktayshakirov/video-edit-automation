@@ -110,7 +110,15 @@ def wrap(d: ImageDraw.ImageDraw, text: str, font, max_w: float) -> list[str]:
     A single orphaned word on the final line is the tell that separates a
     generated card from a hand-set one.
     """
-    words, lines, cur = text.split(), [], ""
+    # Split on ordinary whitespace only, so a no-break space glues a pair
+    # that must not part ("GTA\u00a06"). `str.split()` treats U+00A0 as a
+    # break; no shipped text carries one, so nothing moves.
+    import re
+
+    def split(t: str) -> list[str]:
+        return [w for w in re.split(r"[ \t\r\n]+", t) if w]
+
+    words, lines, cur = split(text), [], ""
     for w in words:
         trial = f"{cur} {w}".strip()
         if d.textlength(trial, font=font) <= max_w or not cur:
@@ -121,8 +129,8 @@ def wrap(d: ImageDraw.ImageDraw, text: str, font, max_w: float) -> list[str]:
     if cur:
         lines.append(cur)
 
-    while len(lines) > 1 and len(lines[-1].split()) < 2:
-        prev = lines[-2].split()
+    while len(lines) > 1 and len(split(lines[-1])) < 2:
+        prev = split(lines[-2])
         if len(prev) < 3:
             break
         lines[-1] = f"{prev[-1]} {lines[-1]}"

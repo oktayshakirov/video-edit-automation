@@ -51,3 +51,10 @@ assets/stock/**/*.jpg
 # Local credentials. Never committed.
 .secrets/
 .publish-serve/
+
+# Press and official assets (game art, trailer stills, drawn ticker cards):
+# third-party bytes, re-fetchable from the URLs in each folder's SOURCES.md,
+# which is the committed record.
+assets/stock/press/**
+!assets/stock/press/**/
+!assets/stock/press/**/SOURCES.md

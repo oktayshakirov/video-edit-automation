@@ -96,6 +96,14 @@ copies that disagreed with each other.
    pointing at, and that is the bar: a picture where the parts are genuinely
    visible. Without one, say it in the narration and put a `clip` or a
    `diagram` under it.
+
+   **When the script names a real thing, show the real thing.** A product
+   (AirPods, a hearing aid, an app), a study's institution, a named musician:
+   pull its official press images or logo, put them under the line that names
+   it (`Shot(image=)`) or over the stock (`Shot(inset=)`), and credit them in
+   the description. All-stock about a real subject was rejected on the crypto
+   channel as monotone (2026-10-20). `footage.md`, "When the subject is a
+   real thing".
 5. **Preflight, then build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for
    a session).

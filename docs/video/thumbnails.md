@@ -594,3 +594,23 @@ headline where they say. `render_thumb`'s narrow column cannot set one row, so
 shadow, rebuildable with `--thumb`. The 9:16 cover keeps the words but takes
 two rows; one row across 1080px is unreadable at feed size. Record the image's
 origin in that asset folder's `CREDITS.md`.
+
+## A real subject's key art is the thumbnail, headline two rows on the left (2026-10-20)
+
+On the GTA 6 pair the user supplied the game's own key art (Rockstar's
+Jason and Lucia) and it replaced the stock palm avenue on both covers - the
+rule in `footage.md`, "When the subject is a real thing", applied to the
+frame that sells the click. Two layout notes from it:
+
+- **The long form's headline is two rows on the left, the channel's usual
+  layout.** A one-row headline along the bottom, under both faces, was
+  tried and rejected. When the art's subject is centred, crop the source to
+  the subject (`0.15-0.84` of the width there), set it against the right
+  edge, and blend its left edge into black over a 300px ramp; the headline
+  goes in the black, `band="middle"`, forced rows. Two wide rows (560px
+  column) crossed into the art; the user's pick was **four short rows in a
+  ~400px column** (`"Will\nGTA\u00a06\nhave\n[crypto?]"`), which leaves the
+  art alone. The plate may cross an arm, never a face.
+- **The Short uses the owner's portrait cut of the same art** when one
+  exists (`extended-look`, 1080x1600 on Rockstar's site): faces in the top
+  half, three rows on a bottom ramp, clear of the view count.

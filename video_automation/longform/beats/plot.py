@@ -63,9 +63,18 @@ class Timeline(Beat):
 
     @staticmethod
     def _year(date: str) -> float:
+        """The first four-digit year, plus the month as a fraction when one
+        is named ("Aug 2026" -> 2026.58). Without it, four events inside one
+        year all landed on one point - the GTA 6 history is three months of
+        2026. No shipped timeline names a month, so none moves."""
         import re
         m = re.search(r"(\d{4})", date)
-        return float(m.group(1)) if m else 0.0
+        if not m:
+            return 0.0
+        mo = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)",
+                       date.lower())
+        months = "jan feb mar apr may jun jul aug sep oct nov dec".split()
+        return float(m.group(1)) + (months.index(mo.group(1)) / 12 if mo else 0.0)
 
     def content(self, out: Image.Image, f: float) -> None:
         d = ImageDraw.Draw(out, "RGBA")
@@ -115,6 +124,12 @@ class Timeline(Beat):
             # stem still reads as belonging to it, and a timeline squeezed
             # into the middle 60% of the frame does not.
             lines = wrap(d, text, label_font, 300)[:3]
+            # An upper label sits *above* its stem. It used to start a fixed
+            # 96px above the stem's end, so a two-line label hung down over
+            # the stem and the line ran up through the text (GTA 6 cut,
+            # 2026-10-20). Measure the block and stand it on the stem.
+            if up:
+                ty = sy - (52 + len(lines) * 40) - 8
             half = max([d.textlength(ln, font=label_font) for ln in lines]
                        + [d.textlength(date, font=date_font)]) / 2 + 8
             tx = max(self.margin + half, min(fr.w - self.margin - half, cx))

@@ -1014,3 +1014,18 @@ checks every transaction".
   past the card / frame width, the same guard `split` carries.
 - Portrait-safe and whitelisted in `crypto/build.py`; cues as `reveal`.
 - A finished still makes a concept thumbnail (`reveals=[0, 0.2]`, `f=1.0`).
+
+## `timeline` places a named month inside its year (2026-10-20)
+
+`Timeline._year` read only the four-digit year, so "Feb 2026", "Aug 2026"
+and "Oct 2026" all landed on one point - the GTA 6 history is three months
+of 2026 after four quiet years. A month name now adds `(month - 1) / 12`.
+No shipped timeline names a month, so none moves. Two dates a few months
+apart still sit close at a five-year span: keep it to four events, and let
+the alternating labels do the rest.
+
+**An upper label now stands on its stem.** It started a fixed 96px above
+the stem's end, so a two-line label hung over the stem and the line ran up
+through the text - the user caught it on the GTA 6 cut. The block is
+measured and placed above the stem. Older timelines with one-line labels
+shift up a few pixels on a re-render.

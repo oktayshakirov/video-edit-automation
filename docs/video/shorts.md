@@ -1091,3 +1091,19 @@ Whitelisted in `crypto/build.py` with the other vertical beats. Its portrait
 layout stacks the job card at y=470 over a 6x8 node grid that ends near
 y=1480, the copies label under it - the lower ~400px stay empty, which is
 where the platform's own title and description overlay sits anyway.
+
+## A pair may share its opener (2026-10-20)
+
+The GTA 6 Short first ran `Search` to rotate away from the long form's
+`Stamp`; the user asked for the long form's RUMOR stamp instead, so the
+pair reads as one. When the opener is a belief both cuts overturn, give the
+Short the same `Stamp` and land it in sentence 2 ("The Bitcoin was a
+rumor..."), with sentence 1 still the title question. Rotation is across
+videos on the channel, not between the two halves of a pair.
+
+## A still whose lettering is the point is shown whole (2026-10-20)
+
+The launch trailer's DacityCoin plane went in at `aspect=0.95` and the 9:16
+crop cut "Dacity" off the left, leaving "...yCoin". Same fix as a face:
+`aspect` = the source's own ratio (`1200 / 900`), letterboxed into the
+blurred fill. Check any still that carries a word the narration says.
