@@ -65,20 +65,32 @@ Drone uses neither the drawn beats nor the site photos and stock shelf, so
    handoff is the only description carrier. See "Metadata for the handoff" in
    `docs/video/projects/drone-long.md`; a stub description ships as-is.
 
-## HDR: the colour trap
+## HDR: only when a source is HDR, and never Spree's trim
 
-When an iPhone clip (HLG) shares a cut with drone footage (SDR), **convert the
-drone clips with `video_automation/core/hdr.py`** (`write_sdr_to_hlg_cube`
-then `lut3d`, SDR white ~400 nits). **Do not copy Spree's `eq`
-saturation 0.66 / gamma 1.20 trim**: it was matched on an SDR tone map, and on
-the HDR phone the user actually watches on it drains the colour, which then
-gets "fixed" by grading into neon. Akra lost six renders to it.
+**A cut goes HDR when, and only when, one of its sources is HLG** - an iPhone
+clip (the POV controller), or drone footage recorded in HLG
+(`core.hdr.wants_hdr`). SDR-only drone shorts stay SDR unless the user asks;
+then `finish_hdr(out)` converts the finished file and keeps `<stem>-sdr.mp4`.
+Decided 2026-10-20: SDR footage gains only brightness from HDR, and every HDR
+upload risks a platform dropping the tags. Tinnitus, crypto, quiz and zen
+shorts stay SDR - see `docs/video/shorts.md`.
 
-**Judge HLG colour on `hlg_display`, never by eye on extracted stills or a
-`scale_vt` tone map** - both hide what an HDR screen shows. The drone clips
-need no grade after the exact conversion; if one looks off, the conversion is
-wrong, not the footage. Details under the POV section of `drone-short.md`;
-`projects/drone-short/akra-what-my-drone-sees.py` is the reference.
+**The SDR renderers refuse an HLG clip** (`render_short`, `render_narrated*`
+raise via `refuse_hlg`): through an 8-bit 709 chain it comes out grey. Build
+an HLG cut like `projects/drone-short/akra-what-my-drone-sees.py`, converting
+each SDR clip with `core.hdr.sdr_to_hlg_vf(cube)` as the last step before the
+encode, SDR white 400 nits, no grade on the drone clips.
+
+**Do not copy Spree's `eq` saturation 0.66 / gamma 1.20 trim**: matched on an
+SDR tone map, it drains colour on the HDR phone the user watches on, which
+then gets "fixed" by grading into neon. Akra lost six renders to it. And keep
+`hdr.SWS`'s precision flags on every matrix step - without them swscale costs
+~10% brightness on graphics.
+
+**Judge HLG colour with `check_hlg` / `hlg_display`, never by eye on
+extracted stills or a `scale_vt` tone map** - both hide what an HDR screen
+shows. If a drone clip looks off after the exact conversion, the conversion
+is wrong, not the footage. Details under the POV section of `drone-short.md`.
 
 ## This skill does not publish
 

@@ -26,6 +26,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from .frame import VERTICAL, Frame
+from .hdr import refuse_hlg
 
 # Kept as module constants, because most of what lives below is vertical by
 # definition — the 4K native crop, and the ffmpeg burn-in chains over in
@@ -333,6 +334,7 @@ def render_short(src: Path, out: Path, start: float, duration: float,
     No fade to black. Shorts loop, and a fade spends the last half-second
     telling the viewer it is over — the loop point should land on picture.
     """
+    refuse_hlg(src)
     x, y, w, h = box
     crop = f"crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos"
     if text_png:
