@@ -134,12 +134,35 @@ HEADLINE_V = "Can AI\nrun on a\n[blockchain?]"
 
 def thumbs(out: Path) -> Path:
     """The 9:16 cover, re-cut 2026-10-20: the long form's bionic-hand photo,
-    framed so both hands and the touch survive the narrow crop, with the
-    headline at the bottom. Replaced the drawn beat in `thumbs_beat`."""
-    return T.render_short_thumb(
-        out, CRYPTO, HEADLINE_V,
-        image=Path("assets/stock/photos/bionic-hand/6153354.jpg"),
-        accent="yellow", ax=0.62, band="bottom")
+    cropped to the two hands at full width and set at the bottom, the studio
+    grey extended upward with a dark fade under the headline.
+
+    A cover crop (`render_short_thumb`) of a landscape source is a third of
+    its width, and the user rejected it: the hands were lost. Fitting the
+    width keeps both hands and the touch whole; the photo's backdrop is a
+    flat grey, so the extension has no seam. Replaced the drawn beat in
+    `thumbs_beat`.
+    """
+    import numpy as np
+    src = Image.open("assets/stock/photos/bionic-hand/6153354.jpg").convert("RGB")
+    c = src.crop((800, 200, 3450, 2731))
+    a = np.asarray(c.resize((1080, round(c.height * 1080 / c.width)),
+                            Image.LANCZOS)).astype(float)
+    ph = a.shape[0]
+    y0 = 1920 - ph - 40
+    can = np.zeros((1920, 1080, 3))
+    can[:y0] = a[:30].mean((0, 1))
+    can[y0 + ph:] = a[-30:].mean((0, 1))
+    can[y0:y0 + ph] = a
+    yy = np.arange(1920)[:, None]
+    m = np.clip((820 - yy) / 820, 0, 1) ** 1.3 * 0.9
+    im = Image.fromarray((can * (1 - m[..., None])).astype("uint8"))
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE_V, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=3,
+                max_block=1920 * 0.24, leading=1.02, band="top",
+                margin=int(1920 * 0.07), shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
 
 
 def thumbs_beat(out: Path) -> Path:
