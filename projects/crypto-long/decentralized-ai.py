@@ -85,6 +85,7 @@ from video_automation.core import music
 from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
+import numpy as np
 from PIL import Image
 
 from video_automation.longform import Meta, Section, render_long
@@ -403,8 +404,36 @@ META = Meta(
 HEADLINE = "Can AI run on a [blockchain?]"
 
 
+HAND = Path("assets/stock/photos/bionic-hand/6153354.jpg")   # cottonbro studio, Pexels
+
+
 def thumbs(out: Path) -> Path:
-    """The 16:9 thumbnail: the `replicate` beat as a still, drawn at full
+    """The 16:9 thumbnail, re-cut 2026-10-20: a bionic hand touching a human
+    finger, the whole photograph with no scrim, and the headline in the empty
+    lower-left corner on a local dark fade that stays clear of both hands.
+
+    The user replaced the drawn `replicate` still below (`thumbs_beat`); a
+    scrimmed `render_thumb` crop hid the human hand and set the type over the
+    touch, which is the whole picture.
+    """
+    src = Image.open(HAND).convert("RGB")
+    h = round(src.height * 1280 / src.width)
+    im = src.resize((1280, h), Image.LANCZOS).crop((0, 60, 1280, 780))
+    a = np.asarray(im).astype(float)
+    yy, xx = np.mgrid[0:720, 0:1280]
+    d = np.sqrt((xx / 900.0) ** 2 + ((yy - 720) / 440.0) ** 2)
+    m = np.clip(1.25 - d, 0, 1) ** 1.4 * 0.92
+    im = Image.fromarray((a * (1 - m[..., None])).astype("uint8"))
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, "Can AI\nrun on a\n[blockchain?]", 120, 560, 48, fill, ink,
+                max_lines=3, leading=1.02, band="bottom", margin=44,
+                shadow=11, drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
+def thumbs_beat(out: Path) -> Path:
+    """The original 16:9 thumbnail: the `replicate` beat as a still, drawn at full
     size and *downscaled* into the right of the frame, the title's question
     on black at the left - no water, so the type and the beat share one
     ground.
