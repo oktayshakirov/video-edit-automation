@@ -300,10 +300,7 @@ META = Meta(
           "does silence make tinnitus worse", "sound therapy for tinnitus",
           "ringing in ears"],
     cta=f"Full article and sources: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. If "
+    credits=["This video is general information, not medical advice. If "
              "your tinnitus is new, one-sided, pulsing with your heartbeat, "
              "worsening, or comes with dizziness or hearing loss, see a "
              "doctor or an ear specialist."],

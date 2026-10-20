@@ -44,6 +44,37 @@ def plain_dashes(text: str) -> str:
     return text.replace("—", "-").replace("–", "-")
 
 
+def required_credits(credits: list[str]) -> list[str]:
+    """`credits` without the lines nobody is owed.
+
+    Every crypto and tinnitus description used to carry "Footage: Pexels
+    (Pexels licence, no attribution required)." and a music line ("Music:
+    oosongoo, via Pixabay.", "Music: night-drift."). Neither is required: the
+    Pexels licence says so in the line itself, and the user cleared the music
+    with its producer. The user dropped both on 2026-10-20 and swept them from
+    the 56 live videos. New builds copy the nearest project file, so the lines
+    would come back by copy-paste; this is where they stop. A credit the video
+    actually owes (Commons portraits, game artwork, a CC-BY track) is untouched.
+    """
+    def owed(line: str) -> bool:
+        s = line.strip().lower()
+        if "pexels" in s and (s.startswith("footage")
+                              or s.startswith("additional footage")):
+            return False
+        if s.startswith("music:") and any(
+                k in s for k in ("oosongoo", "night-drift", "licensed for this",
+                                 "generated for this")):
+            return False
+        return True
+    return [c for c in credits if owed(c)]
+
+
+def is_disclaimer(line: str) -> bool:
+    """A line in `credits` that credits nobody: advice and affiliation notes."""
+    s = line.lower()
+    return "advice" in s or "not affiliated" in s
+
+
 def timestamp(t: float, srt: bool = False) -> str:
     """`0:00` / `1:23:45` for a description, `00:00:01,500` for an SRT."""
     ms = int(round(t * 1000))
@@ -135,9 +166,15 @@ class Meta:
             for t, name in chapters:
                 parts.append(f"{timestamp(t)} {name}")
             parts.append("")
-        if self.credits:
+        credits = required_credits(self.credits)
+        while credits and not credits[0].strip():
+            credits.pop(0)
+        # The block also carries disclaimers. With the stock and music lines
+        # gone, a heading over "not financial advice" alone would be a lie.
+        if any(c.strip() and not is_disclaimer(c) for c in credits):
             parts.append("Credits")
-            parts += self.credits
+        if credits:
+            parts += credits
             parts.append("")
         if self.tags:
             parts.append(" ".join(f"#{t.replace(' ', '')}" for t in self.tags[:5]))

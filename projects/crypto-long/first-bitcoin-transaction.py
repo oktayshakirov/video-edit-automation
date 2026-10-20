@@ -540,13 +540,11 @@ META = Meta(
           "reusable proof of work", "rpow", "early bitcoin 2009",
           "how bitcoin transactions work", "bitcoin for beginners"],
     cta=f"The full Hal Finney page: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Photograph of Hal Finney (1972): Daily News-Post staff photo, "
+    credits=["Photograph of Hal Finney (1972): Daily News-Post staff photo, "
              "public domain, via Wikimedia Commons.",
              "Reusable proof of work's trusted-server design: Hal Finney's "
              "own RPOW pages, via the Nakamoto Institute "
              "(nakamotoinstitute.org/finney/rpow/).",
-             "Music: oosongoo, via Pixabay.",
              "Nothing in this video is financial advice."],
 )
 

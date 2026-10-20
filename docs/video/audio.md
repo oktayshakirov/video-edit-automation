@@ -62,6 +62,9 @@ one which we decided to not use anymore, delete it and never use it again".
 Every video, long and short, uses `music.track("night-drift")` — the prepared
 track that lives in `assets/brand/music/` and is shared with thecrypto.wiki.
 
+It needs no credit line in the description: the user cleared it with the
+producer (2026-10-20). See the `Meta.credits` section in `longform.md`.
+
 The presets stay in `core/music.py` because they are the safer licence story
 for anything new and `render_long` still accepts a preset name; they are just
 not the pick here. If a second real track is ever added, add it with

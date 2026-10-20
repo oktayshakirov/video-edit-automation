@@ -401,9 +401,6 @@ META = Meta(
     credits=["Photographs of Michael Saylor by Gage Skidmore (CC BY-SA 3.0 / "
              "CC BY-SA 2.0) and MicroStrategy (CC BY 2.0), via Wikimedia "
              "Commons. This video is shared under CC BY-SA 4.0.",
-             "Additional footage: Pexels (Pexels licence, no attribution "
-             "required).",
-             "Music: generated for this channel.",
              "Nothing in this video is financial advice."],
 )
 

@@ -400,9 +400,7 @@ META = Meta(
           "block subsidy", "bitcoin supply", "21 million bitcoin",
           "bitcoin mining", "difficulty adjustment", "crypto for beginners"],
     cta=f"The full guide to the Bitcoin halving: {URL}",
-    credits=["Footage and photography: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 HEADLINE = "Why does Bitcoin cut its pay in [half?]"

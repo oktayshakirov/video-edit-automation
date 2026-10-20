@@ -360,9 +360,7 @@ META = Meta(
           "harvest now decrypt later", "quantum computing explained",
           "crypto security", "crypto for beginners"],
     cta=f"The full breakdown of the quantum threat and post-quantum crypto: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

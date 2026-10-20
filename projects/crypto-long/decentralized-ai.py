@@ -394,9 +394,7 @@ META = Meta(
           "ethereum gas limit", "ai crypto explained",
           "blockchain explained"],
     cta=f"The full guide to decentralized AI: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 # One bracketed word in the 16:9 column (`thumbnails.md`): the title's own

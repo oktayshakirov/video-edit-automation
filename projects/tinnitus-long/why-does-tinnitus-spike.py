@@ -309,10 +309,7 @@ META = Meta(
           "tinnitus get louder", "ringing in ears louder", "tinnitus "
           "worse today"],
     cta=f"Full article and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. If "
+    credits=["This video is general information, not medical advice. If "
              "your tinnitus is new, persistent, in one ear only, pulses "
              "with your heartbeat, or comes with hearing loss or dizziness, "
              "see a doctor or audiologist."],

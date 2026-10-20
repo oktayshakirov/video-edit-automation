@@ -414,9 +414,6 @@ META = Meta(
              "shared under CC BY-SA 4.0.",
              "FBI Ten Most Wanted poster image: Federal Bureau of "
              "Investigation, public domain.",
-             "Additional footage and photographs: Pexels (Pexels licence, no "
-             "attribution required).",
-             "Music: night-drift, licensed for this channel.",
              "Nothing in this video is financial advice."],
 )
 

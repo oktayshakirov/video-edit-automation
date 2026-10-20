@@ -307,10 +307,7 @@ META = Meta(
           "living with tinnitus", "tinnitus", "ringing in ears",
           "tinnitus support"],
     cta=f"Full article, with scripts for every situation: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. Sudden "
+    credits=["This video is general information, not medical advice. Sudden "
              "hearing loss, tinnitus that pounds with your pulse, or "
              "tinnitus after a head injury needs care the same day. New "
              "one-sided tinnitus, ear pain, pressure or drainage, or "

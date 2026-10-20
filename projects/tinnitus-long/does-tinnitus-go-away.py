@@ -333,10 +333,7 @@ META = Meta(
     tags=["tinnitus", "does tinnitus go away", "ringing in ears",
           "chronic tinnitus", "tinnitus causes"],
     cta=f"Full article, sources and the management guide: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: generated for this channel.",
-             "",
-             "This video is general information, not medical advice. If your "
+    credits=["This video is general information, not medical advice. If your "
              "tinnitus is persistent, one-sided, pulsing, worsening, or comes "
              "with dizziness or hearing loss, see a doctor or audiologist."],
 )

@@ -407,9 +407,7 @@ META = Meta(
           "is a cheap coin better", "low price crypto",
           "crypto for beginners"],
     cta=f"The full guide to market cap: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "World economy figure: IMF World Economic Outlook.",
-             "Music: oosongoo, via Pixabay.",
+    credits=["World economy figure: IMF World Economic Outlook.",
              "Nothing in this video is financial advice."],
 )
 

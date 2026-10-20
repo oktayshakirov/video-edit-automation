@@ -329,9 +329,7 @@ META = Meta(
           "perpetual swap", "crypto derivatives", "crypto for beginners",
           "isolated vs cross margin"],
     cta=f"The full breakdown of funding rates, margin modes and liquidation risk: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

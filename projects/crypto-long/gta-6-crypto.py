@@ -399,8 +399,6 @@ META = Meta(
     cta=f"The full guide to GTA 6 and crypto: {URL}",
     credits=["GTA VI artwork and screenshots: Rockstar Games, used for commentary.",
              "Launch-trailer still via The Sunday Guardian.",
-             "Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
              "Not affiliated with Rockstar Games or Take-Two Interactive.",
              "Nothing in this video is financial advice."],
 )

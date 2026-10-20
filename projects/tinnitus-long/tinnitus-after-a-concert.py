@@ -328,10 +328,7 @@ META = Meta(
           "tinnitus", "ringing in ears", "concert hearing damage",
           "musician earplugs", "temporary threshold shift"],
     cta=f"Full article and sources: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. If you "
+    credits=["This video is general information, not medical advice. If you "
              "have sudden hearing loss, dizziness, ear pain or discharge, "
              "get seen the same day. If the ringing or muffled hearing has "
              "not improved after three to seven days, or is in one ear only, "

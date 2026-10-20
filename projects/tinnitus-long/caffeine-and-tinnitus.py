@@ -359,10 +359,7 @@ META = Meta(
           "worse", "coffee and tinnitus", "tinnitus triggers",
           "ringing in ears"],
     cta=f"Full article, the dose table and sources: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: licensed for this channel.",
-             "",
-             "This video is general information, not medical advice. If your "
+    credits=["This video is general information, not medical advice. If your "
              "tinnitus is new, one-sided, pulsing with your heartbeat, "
              "worsening, or comes with dizziness or hearing loss, see a "
              "doctor or an ear specialist."],

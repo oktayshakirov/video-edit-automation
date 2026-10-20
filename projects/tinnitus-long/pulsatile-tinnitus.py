@@ -323,10 +323,7 @@ META = Meta(
           "whooshing sound in ear", "hear my pulse in my ear",
           "ringing in ears"],
     cta=f"Full article, the red flags and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. "
+    credits=["This video is general information, not medical advice. "
              "Pulsatile tinnitus - especially if it is new, one-sided, "
              "sudden, or comes with headaches, vision changes, neck pain, or "
              "neurological symptoms - should be evaluated by a doctor."],

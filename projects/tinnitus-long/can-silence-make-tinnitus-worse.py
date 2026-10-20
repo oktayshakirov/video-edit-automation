@@ -475,10 +475,7 @@ META = Meta(
           "white noise", "brown noise", "tinnitus masking", "auditory gain",
           "ringing in ears", "tinnitus help", "tinnitus management"],
     cta=f"Full guide, the strategies and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. If your "
+    credits=["This video is general information, not medical advice. If your "
              "tinnitus is new, persistent, in one ear only, pulses with your "
              "heartbeat, or comes with hearing loss or dizziness, see a "
              "doctor or audiologist."],

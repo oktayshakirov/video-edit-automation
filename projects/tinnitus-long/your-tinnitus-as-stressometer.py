@@ -400,10 +400,7 @@ META = Meta(
           "tinnitus louder some days", "tinnitus stress", "tinnitus log",
           "tinnitus diary", "tinnitus anxiety", "tinnitus", "ringing in ears"],
     cta=f"The full article, with a sample log you can copy: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. Rating "
+    credits=["This video is general information, not medical advice. Rating "
              "your tinnitus is a self-check, not a diagnosis. If your "
              "tinnitus is severe, keeps distressing you, changes suddenly, or "
              "comes with hearing loss, dizziness or pain, please see a doctor "

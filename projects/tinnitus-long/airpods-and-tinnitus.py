@@ -468,11 +468,7 @@ META = Meta(
           "safe listening", "headphone volume", "ringing in ears",
           "hearing loss", "airpods pro hearing test"],
     cta=f"Full guide, the decibel table and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. It is "
+    credits=["This video is general information, not medical advice. It is "
              "not affiliated with or endorsed by Apple. If your tinnitus is "
              "new, persistent, in one ear only, pulses with your heartbeat, "
              "or comes with hearing loss or dizziness, see a doctor or "
