@@ -133,7 +133,17 @@ HEADLINE_V = "Can AI\nrun on a\n[blockchain?]"
 
 
 def thumbs(out: Path) -> Path:
-    """The 9:16 cover: the `replicate` beat drawn in portrait, all copies
+    """The 9:16 cover, re-cut 2026-10-20: the long form's bionic-hand photo,
+    framed so both hands and the touch survive the narrow crop, with the
+    headline at the bottom. Replaced the drawn beat in `thumbs_beat`."""
+    return T.render_short_thumb(
+        out, CRYPTO, HEADLINE_V,
+        image=Path("assets/stock/photos/bionic-hand/6153354.jpg"),
+        accent="yellow", ax=0.62, band="bottom")
+
+
+def thumbs_beat(out: Path) -> Path:
+    """The original 9:16 cover: the `replicate` beat drawn in portrait, all copies
     lit, with the long form's headline in the room above the card."""
     from video_automation.core.frame import VERTICAL
     from video_automation.longform.beats import Replicate
