@@ -224,6 +224,18 @@ product, different retention curve.
 - As conventions get settled for these channels, record them here the way the drone
   section records its own — but do not invent them retroactively from three videos.
 
+### Settled on 2026-10-20 - no Pexels or music credit lines
+
+"Footage: Pexels (Pexels licence, no attribution required)." and "Music:
+oosongoo, via Pixabay." (and its variants: "Additional footage: Pexels",
+"Music: night-drift", "licensed/generated for this channel") are not required -
+Pexels asks for no attribution and the user cleared the music with its
+producer. Swept from all 56 live crypto and tinnitus videos, longs and Shorts,
+on 2026-10-20; `meta.required_credits` in video-edit-automation filters them at
+build time. Do not add them back. A credit a specific video owes (Commons
+portraits, game artwork, a named photo source) and the disclaimers stay. If an
+audit finds one of these lines again, it regressed - check `meta.py`.
+
 ### Settled on 2026-09-02 — one article link per long-form description
 
 Every long-form description the pipeline generated carried the article URL
