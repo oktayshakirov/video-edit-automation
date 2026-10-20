@@ -158,3 +158,14 @@ Two things about it that are not optional:
 Measured: longest run of identical values along a row went **158px to 7px**,
 mean run 23.1px to 1.5px, at 8.7 ms/frame. If a background ever bands again,
 measure run lengths — level *count* barely moves and will tell you nothing.
+
+## A name with a number in it is glued with a no-break space (2026-10-20)
+
+"GTA 6" broke as "GTA / 6" in the long form's title overlay, the
+thumbnail and the Short's outro on the first renders - a lone "6" is the
+stranded short word this file already bans. `core.draw.wrap` now splits on
+ordinary whitespace only, so `"GTA 6"` stays one unit wherever that
+wrapper is used (the title overlay, the beats). Pass the glued string as
+`render_long(title=...)`, never in `Meta.title`, which is the YouTube
+title. The thumbnail fitter has its own wrap: force the rows with `\n`.
+The hook/outro card: reword so the pair leads ("GTA 6's only crypto...").

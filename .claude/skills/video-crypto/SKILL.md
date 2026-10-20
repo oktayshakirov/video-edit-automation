@@ -74,6 +74,15 @@ sequence drifted into four copies that disagreed.
    time rather than evenly like `steps`; **`map`** is regulation and domicile
    when *clustering* is the point, not merely when countries are named.
    `docs/video/footage.md` and `docs/video/beats.md`.
+
+   **When the subject is a real, named thing, its real pictures come
+   first.** A game, an app, a company, a coin: pull the owner's official
+   art, screenshots and logo (its press or official site), put them under
+   the lines that name it with `Shot(image=)` and over the remaining stock
+   with `Shot(inset=)`, and use its key art for the thumbnail. All-stock
+   about a real game was rejected as monotone (2026-10-20). Never a token
+   logo you cannot tie to the right contract - draw a `ticker_card`.
+   `footage.md`, "When the subject is a real thing".
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`

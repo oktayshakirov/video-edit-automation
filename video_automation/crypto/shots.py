@@ -109,6 +109,10 @@ class Shot:
     xfade: float | None = None          # override the transition length out of
                                         # this shot; 0.0 cuts.
     transition: str | None = None       # "dissolve" | "push". See `render_shots`.
+    inset: tuple | None = None          # (path, where[, scale]) - a real still
+                                        # over this shot: a logo bug, a press
+                                        # still, a ticker card. See
+                                        # `longform/overlay.InsetOverlay`.
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:
@@ -689,6 +693,15 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
     anchors = [tuple(logo_at)] if not logo_anchors else [tuple(a) for a in
                                                          logo_anchors]
 
+    # Insets ride under every other overlay (a title, an opener, the sting)
+    # and are timed off the shot's own span, so one cannot outlive its line.
+    from ..longform.overlay import InsetOverlay
+    insets = [InsetOverlay(s.inset[0], s.start + 0.12, s.start + s.hold,
+                           frame=frame, where=s.inset[1],
+                           scale=(s.inset[2] if len(s.inset) > 2 else 0.16),
+                           brand=brand)
+              for s in shots if s is not None and s.inset]
+
     prepared = []
     for s in shots:
         if s.image is not None:
@@ -789,6 +802,8 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
         pic = pic.convert("RGB")
         # Overlays go on last, over the watermark: a subscribe sting is
         # the topmost thing in the frame by definition.
+        for ov in insets:
+            pic = ov.draw(pic, t)
         for ov in (overlays or ()):
             pic = ov.draw(pic, t)
 
