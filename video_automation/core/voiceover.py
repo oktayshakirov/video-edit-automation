@@ -50,6 +50,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import voices
+from .hdr import refuse_hlg
 from . import sfx as sfx_lib
 from .vertical import (FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX, FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
                        FONT_QUOTE, FONT_QUOTE_INDEX, FONT_QUOTE_SIZE,
@@ -1304,6 +1305,7 @@ def render_narrated(src: Path, out: Path, start: float,
     quote, on one clip or stacked. Pass `font_path=FONT_CAPTION` to fall back
     to Futura if a particular cut wants the plainer face.
     """
+    refuse_hlg(src)
     if sentences is not None:
         track, captions, total = build_narration_aligned(
             sentences, workdir, voice, mood, gap, tail)
@@ -1398,6 +1400,7 @@ def render_narrated_cuts(clips: list[tuple[Path, float, tuple[int, int, int, int
     Everything downstream of the narration is unchanged from `render_narrated`:
     same alignment, same caption treatment, same audio mapping.
     """
+    refuse_hlg(*(c[0] for c in clips))
     track, captions, total = build_narration_aligned(
         sentences, workdir, voice, mood, gap, tail)
 
@@ -1567,6 +1570,7 @@ def render_narrated_stack(top: tuple,
     """
     # Ink karaoke is the default again since 2026-10-15; None picks its face/stroke
     # (Arial Black, 5) or the older Iowan italic at 4 when the box is off.
+    refuse_hlg(top[0], bottom[0])
     if font_path is None:
         font_path = FONT_KARAOKE_BOX if karaoke_box else FONT_QUOTE
         font_index = FONT_KARAOKE_BOX_INDEX if karaoke_box else FONT_QUOTE_INDEX

@@ -648,18 +648,22 @@ where the subject actually sits and set `x` yourself. Then check the box at the
 **end** of the span too: these are push-ins, and eleven seconds of source at 2x
 is enough for a subject to walk out of a box that framed it at the in-point.
 
-**An HLG controller clip: convert the drone clips with `core/hdr.py`, not
-Spree's trim.** Spree lifts SDR into HLG with `eq` saturation 0.66 / gamma
+**HDR only when a source is HDR; convert with `core/hdr.py`, not Spree's
+trim.** A cut goes HLG when one of its sources is (an iPhone controller clip,
+HLG drone footage); SDR-only cuts stay SDR unless the user asks, then
+`finish_hdr`. Spree lifts SDR into HLG with `eq` saturation 0.66 / gamma
 1.20, matched by tone-mapping the render back to SDR. That is an SDR screen's
 view; on the HDR phone the user watches on, the trim stays in, and modelled on
 a 1000-nit HLG display it takes Coast 2's saturation from 0.80 to 0.66. Akra
-spent six renders grading against it. `write_sdr_to_hlg_cube` bakes an exact
-display-light conversion (SDR white at a chosen nits, 400 on Akra) for
-`lut3d`; the drone clips then need no grade and measure within a point of
-their source on `hlg_display`. **Check HLG renders on `hlg_display`, never on
-a `scale_vt` tone map or an untonemapped still.** If HDR is not wanted, the
-other clean route is SDR out with the controller tone-mapped by `scale_vt`
-(Akra render seven, `-noautorotate`, download as `p010le`).
+spent six renders grading against it. `sdr_to_hlg_vf` applies an exact
+display-light conversion (SDR white 400 nits) with swscale's precision flags
+- without `hdr.SWS` the matrix steps alone lose ~10% brightness on graphics.
+The drone clips then need no grade and measure within a point of their
+source. **Check HLG renders with `check_hlg`, never on a `scale_vt` tone map
+or an untonemapped still.** The SDR renderers refuse HLG sources outright.
+If HDR is not wanted, the other clean route is SDR out with the controller
+tone-mapped by `scale_vt` (Akra render seven, `-noautorotate`, download as
+`p010le`).
 
 **Never track a crop with an integer box.** A 9:16 crop drifting 40-50 px/s
 lands on even pixels only, steps 2, 2, 0, and reads as lag (Akra, two rounds).

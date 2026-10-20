@@ -3,6 +3,19 @@
 Shorts, Reels and TikToks. One engine for every project - what changes per
 project is the voice, the source material and the safety rules, not this.
 
+## Shorts are SDR, unless a source is HDR
+
+**Tinnitus, crypto, quiz and zen shorts render SDR, and stay SDR.** Decided
+2026-10-20 after the Akra drone cut went HDR. HDR adds real range only when
+the footage has it (an iPhone HLG clip); on SDR sources it adds brightness and
+nothing else. On these it costs: white cards and captions glare at HDR
+brightness, brand colours stop matching thumbnails and the site, and zen
+sessions are watched at night where brighter is the opposite of the point.
+Every HDR upload also risks a platform dropping the HLG tags and showing it
+washed-out. `core/hdr.py` holds the machinery for the drone cuts that need it;
+`finish_hdr` can convert a finished SDR short if the user ever asks to test
+one. The SDR renderers refuse an HLG source rather than turn it grey.
+
 ## Seven beats transfer to 9:16 now, not two
 
 `checklist`, `grid`, `steps`, `bars`, `logos`, `chapter` — and **`diagram`**,
