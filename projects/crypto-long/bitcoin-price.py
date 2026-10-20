@@ -513,9 +513,7 @@ META = Meta(
           "order book explained", "crypto for beginners",
           "bitcoin market manipulation"],
     cta=f"The full breakdown of whales, developers and regulators: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

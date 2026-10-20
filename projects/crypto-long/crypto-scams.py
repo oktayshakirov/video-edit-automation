@@ -299,9 +299,7 @@ META = Meta(
           "clipper malware", "crypto giveaway scam", "crypto romance scam",
           "crypto security"],
     cta=f"The full guide to spotting and avoiding crypto scams: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

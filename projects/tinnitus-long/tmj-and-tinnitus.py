@@ -380,10 +380,7 @@ META = Meta(
           "somatosensory tinnitus", "jaw clenching tinnitus",
           "teeth grinding tinnitus", "tinnitus", "ringing in ears"],
     cta=f"Full article, with the whole routine: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. Sudden "
+    credits=["This video is general information, not medical advice. Sudden "
              "hearing loss, tinnitus that keeps time with your pulse, a "
              "locked jaw or severe pain after a head injury, and ear pain, "
              "pressure or fluid with a fever all need care the same day. A "

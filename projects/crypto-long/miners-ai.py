@@ -292,9 +292,7 @@ META = Meta(
           "bitcoin halving miners", "ai power shortage",
           "crypto mining ai", "bitcoin miners hpc"],
     cta=f"The full guide - the economics, the retrofit and the risks: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

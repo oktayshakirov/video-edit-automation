@@ -374,10 +374,7 @@ META = Meta(
           "somatosensory tinnitus", "neck and tinnitus", "posture tinnitus",
           "jaw clenching tinnitus", "tinnitus", "ringing in ears"],
     cta=f"Full article, with the whole routine: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. Sudden "
+    credits=["This video is general information, not medical advice. Sudden "
              "hearing loss, tinnitus that keeps time with your pulse, severe "
              "pain after a head or neck injury, dizziness that will not "
              "settle or new facial weakness need care the same day. New "

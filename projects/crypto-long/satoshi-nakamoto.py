@@ -274,9 +274,7 @@ META = Meta(
           "bitcoin whitepaper", "satoshi coins", "hal finney",
           "nick szabo", "bitcoin history"],
     cta=f"The full Satoshi Nakamoto profile - timeline, wallets and theories: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

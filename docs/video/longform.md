@@ -585,3 +585,20 @@ the first pass. The fix that kept the writing was to lead with the number:
 "One word from your AI would fill hundreds of blocks." reveals at ~2s, and
 sentence 2 draws the conclusion. The Short's sentence-1-is-the-title rule
 does not bind a long form.
+
+## `Meta.credits` holds only what the video owes (2026-10-20)
+
+**No Pexels line and no music line.** Every description used to carry
+"Footage: Pexels (Pexels licence, no attribution required)." and "Music:
+oosongoo, via Pixabay." (or "night-drift"). Neither is required: the Pexels
+licence asks for none, and the user cleared the music with its producer. The
+user dropped both on 2026-10-20, and they were swept from all 56 live
+crypto and tinnitus videos, longs and Shorts. `meta.required_credits` filters
+them out of any project that still lists them, so a copied project file
+cannot bring them back, and the "Credits" heading only prints when a real
+credit is left (not over a disclaimer alone).
+
+What still goes in: the credits a specific video does owe - Commons
+portraits (CC BY / BY-SA attribution), game or company artwork used for
+commentary, a named photo source - plus the disclaimers. A Short's
+description follows the same rule: do not copy a stock or music line into it.

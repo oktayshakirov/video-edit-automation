@@ -294,10 +294,7 @@ META = Meta(
           "exchange wallets", "cold storage", "on-chain analysis",
           "crypto for beginners"],
     cta=f"The full guide to crypto whales: {URL}",
-    credits=["Footage and thumbnail photograph: Pexels (Pexels licence, "
-             "no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

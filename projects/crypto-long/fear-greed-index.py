@@ -380,9 +380,7 @@ META = Meta(
           "crypto sentiment analysis", "warren buffett fear and greed"],
     cta=f"The full guide - how to read every band, and the limits of using "
         f"it as a tool: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Fear & Greed Index scale: thecrypto.wiki.",
+    credits=["Fear & Greed Index scale: thecrypto.wiki.",
              "Nothing in this video is financial advice."],
 )
 

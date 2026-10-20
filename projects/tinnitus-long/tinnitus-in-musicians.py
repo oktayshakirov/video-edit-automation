@@ -387,10 +387,7 @@ META = Meta(
           "musicians hearing loss", "musician earplugs", "in ear monitors",
           "hearing protection for musicians", "tinnitus", "ringing in ears"],
     cta=f"Full article, with the protection options: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. "
+    credits=["This video is general information, not medical advice. "
              "Ringing or muffled hearing that lasts more than about a week "
              "after loud exposure, or that follows repeated loud nights, is "
              "worth a hearing test. Musicians are advised to have their "

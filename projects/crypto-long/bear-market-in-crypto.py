@@ -368,9 +368,7 @@ META = Meta(
           "bitcoin bear market", "crypto crash explained",
           "crypto for beginners"],
     cta=f"The full guide to crypto bear markets: {URL}",
-    credits=["Footage and photography: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 # One bracketed word, BEAR, beside the bear (`thumbnails.md`: one-word accent

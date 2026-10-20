@@ -376,10 +376,7 @@ META = Meta(
     tags=["tinnitus", "gaming and tinnitus", "hearing loss gamers",
           "headset volume", "safe listening", "ringing in ears"],
     cta=f"Full guide, the decibel table and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: generated for this channel.",
-             "",
-             "This video is general information, not medical advice. If your "
+    credits=["This video is general information, not medical advice. If your "
              "tinnitus is new, persistent, in one ear only, or comes with "
              "hearing loss or dizziness, see a doctor or audiologist."],
 )

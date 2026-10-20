@@ -456,10 +456,7 @@ META = Meta(
     tags=["tinnitus", "tinnitus myths", "tinnitus facts", "ringing in ears",
           "tinnitus causes", "tinnitus treatment"],
     cta=f"Full article and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. If "
+    credits=["This video is general information, not medical advice. If "
              "your tinnitus is new, persistent, in one ear only, or comes "
              "with hearing loss or dizziness, see a doctor or audiologist."],
 )

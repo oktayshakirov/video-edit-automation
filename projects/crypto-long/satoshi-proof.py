@@ -355,8 +355,7 @@ META = Meta(
     tags=["satoshi nakamoto", "bitcoin", "crypto security",
           "bitcoin signatures", "dyor"],
     cta=f"Full breakdown, sources and the security checklist: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: generated for this channel."],
+    credits=[],
 )
 
 

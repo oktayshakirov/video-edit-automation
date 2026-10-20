@@ -386,9 +386,6 @@ META = Meta(
              "2015).",
              "Ethereum mark by the Ethereum Foundation, CC BY 3.0, via "
              "Wikimedia Commons (recoloured). Ethereum Classic mark: CC0.",
-             "Additional footage: Pexels (Pexels licence, no attribution "
-             "required).",
-             "Music: night-drift, licensed for this channel.",
              "Nothing in this video is financial advice."],
 )
 

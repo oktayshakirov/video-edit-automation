@@ -434,9 +434,6 @@ META = Meta(
              "CC BY 2.0. Barbra Streisand by lifescript, CC BY 2.0; 1966 "
              "publicity photo and with Gregory Peck, 1969, public domain. This "
              "video is shared under CC BY-SA 4.0.",
-             "Additional footage: Pexels (Pexels licence, no attribution "
-             "required).",
-             "Music: night-drift.",
              "",
              "This video is general information, not medical advice. Each "
              "person's experience is their own. New ringing, or ringing that "

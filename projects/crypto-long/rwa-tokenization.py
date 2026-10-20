@@ -278,9 +278,7 @@ META = Meta(
           "tokenized treasuries", "fractional ownership crypto",
           "special purpose vehicle token", "rwa tokens"],
     cta=f"The full guide - how it works, the risks and the legal side: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

@@ -359,10 +359,7 @@ META = Meta(
           "tinnitus", "tinnitus first week", "tinnitus", "ringing in ears",
           "tinnitus sleep", "tinnitus advice"],
     cta=f"Full article and sources: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: night-drift.",
-             "",
-             "This video is general information, not medical advice. If you "
+    credits=["This video is general information, not medical advice. If you "
              "have sudden hearing loss in one ear, severe dizziness, facial "
              "weakness, ear discharge with a fever, a whooshing that keeps "
              "time with your pulse, a recent head injury or the worst "

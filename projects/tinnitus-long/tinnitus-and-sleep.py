@@ -488,10 +488,7 @@ META = Meta(
           "ringing in ears", "tinnitus help", "tinnitus and sleep",
           "cant sleep tinnitus", "tinnitus masking", "sleep hygiene"],
     cta=f"Full guide, the night-time routine and sources: {URL}",
-    credits=["Additional footage: Pexels (Pexels licence, no attribution "
-             "required).", "Music: generated for this channel.",
-             "",
-             "This video is general information, not medical advice. If your "
+    credits=["This video is general information, not medical advice. If your "
              "tinnitus is new, persistent, in one ear only, or comes with "
              "hearing loss or dizziness, see a doctor or audiologist."],
 )

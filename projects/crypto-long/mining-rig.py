@@ -464,9 +464,7 @@ META = Meta(
     tags=["mining rig", "crypto mining", "gpu mining", "bitcoin mining",
           "how to build a mining rig", "mining profitability"],
     cta=f"Full parts list, assembly steps and safety warnings: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: generated for this channel.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

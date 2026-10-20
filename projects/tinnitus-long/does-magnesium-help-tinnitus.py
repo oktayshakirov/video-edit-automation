@@ -354,10 +354,7 @@ META = Meta(
           "magnesium for ringing in ears", "magnesium glycinate",
           "tinnitus supplements", "tinnitus research", "ringing in ears"],
     cta=f"Full article, the dose notes and the sources: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: licensed for this channel.",
-             "",
-             "This video is general information, not medical advice. Talk to "
+    credits=["This video is general information, not medical advice. Talk to "
              "a pharmacist or doctor before starting any supplement, "
              "especially if you take other medication or have reduced kidney "
              "function. If your tinnitus is new, one-sided, pulsing with your "

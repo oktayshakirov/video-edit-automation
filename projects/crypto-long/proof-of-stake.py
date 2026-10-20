@@ -524,9 +524,7 @@ META = Meta(
           "staking explained", "crypto slashing", "crypto for beginners",
           "ethereum merge"],
     cta=f"The full breakdown of staking, slashing and validator selection: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

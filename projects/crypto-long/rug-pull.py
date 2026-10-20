@@ -358,9 +358,7 @@ META = Meta(
           "crypto safety"],
     cta=f"The full breakdown - five rug-pull patterns, the on-chain checklist "
         f"and what to do if it happens to you: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 

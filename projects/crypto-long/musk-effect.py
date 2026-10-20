@@ -427,10 +427,8 @@ META = Meta(
           "order book explained", "crypto volatility",
           "what moves crypto prices", "crypto for beginners"],
     cta=f"The full Elon Musk and crypto page: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Photographs of Elon Musk: Daniel Oberhaus (CC BY 2.0) and "
+    credits=["Photographs of Elon Musk: Daniel Oberhaus (CC BY 2.0) and "
              "public-domain images, via Wikimedia Commons.",
-             "Music: oosongoo, via Pixabay.",
              "Nothing in this video is financial advice."],
 )
 

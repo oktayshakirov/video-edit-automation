@@ -522,9 +522,7 @@ META = Meta(
           "centralized exchange", "decentralized exchange", "trading pairs",
           "crypto for beginners", "not your keys not your coins"],
     cta=f"Full comparison, platform reviews and safety practices: {URL}",
-    credits=["Footage: Pexels (Pexels licence, no attribution required).",
-             "Music: oosongoo, via Pixabay.",
-             "Nothing in this video is financial advice."],
+    credits=["Nothing in this video is financial advice."],
 )
 
 
