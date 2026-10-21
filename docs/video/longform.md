@@ -190,7 +190,27 @@ speaks it.
 
 ## Chapter cards
 
-**No numbers.** A numbered agenda is the visual language of a presentation and
+**The band card is the default (2026-10-21), long form and Shorts.** After a
+documentary-channel reference the user liked: the title in widely tracked DIN
+Condensed caps inside a band of the brand colour (`Brand.band` - crypto gold
+with near-black type, tinnitus a lifted app purple with white), a small
+glowing label above it, no backdrop of its own. The band opens from the
+centre, the title **types in behind a caret** with a key click per character,
+and band and title close back to the centre together. `chapter_style="type"`
+on either builder brings back the centred typed card.
+
+- **The label is `Section(kicker=)`** - two or three words naming the stake
+  ("THE REJECTION", "THE CATCH"). Without one, the long form shows
+  "CHAPTER n" and a Short shows nothing: one argument in sixty seconds has no
+  chapters to count. This is the user's call, and it overrides the
+  "no numbers" rule below for the band card only.
+- **Centre on the ink, not on `textlength`.** Advance widths carry side
+  bearings and the trailing tracking, and the first band render sat visibly
+  right of the band's middle. `ChapterCard._band_layout` measures each line's
+  real pixel extent.
+- **A long title wraps in 9:16** rather than shrinking to caption size.
+
+**No numbers** (the typed card). A numbered agenda is the visual language of a presentation and
 tells the viewer they are being lectured. It also hid an off-by-one: numbering
 ran off the section index, and because the opening section carries no card, the
 first one on screen read "02".
@@ -231,6 +251,19 @@ a label and becomes a **statement the footage is illustrating** — and it carri
 the viewer into the section instead of annotating it. `Shot(clip=...,
 payload=("KICKER", "The line"))`; the kicker is optional and usually better
 empty.
+
+## The title is a cinematic card by default (2026-10-21)
+
+The lower third below was called boring, so `render_long(title_at=...)` now
+draws `overlay.CinematicTitle`: letterbox bars slide in, the picture darkens
+from the edges, the title (SF Pro Heavy caps) resolves letter by letter out of
+a blur from the centre outward, its tracking closes slowly for the whole hold,
+a glint crosses its bloom once, a brand hairline opens beneath and the domain
+sits above. It leaves by blurring up and opening out, on `title_flashback`;
+it arrives on `title_intro`. The watermark is under the top bar for the hold.
+`title_style="lower"` brings back the lower third, which now types on behind
+a caret. Keep the title's hold clear of the first chapter card - its fade
+otherwise sits over the card's band.
 
 ## The title is `title_at=`, not a `payload` — and it animates
 

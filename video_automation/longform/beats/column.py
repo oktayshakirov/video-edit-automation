@@ -12,11 +12,17 @@ import re
 
 from PIL import Image, ImageDraw
 
+from ...core import typewriter
 from ...core.draw import ease_out, mark, shadow_text, wrap
 from .base import DRAW, RISE, Beat, _display, _font
 
 class ChapterCard(Beat):
     """The turn between sections: one line, centred, spoken as it appears.
+
+    **Typed on behind a caret, with a key click per character** (2026-10-20,
+    the user's call, after a code-tutorial reference). The narration still
+    reads the title; the typing only changes how the type arrives. See
+    `core/typewriter.py`.
 
     **No number by default, and that is still the point.** The first build set
     a `02` in 150px gold above every title, which turned the video into a
@@ -67,11 +73,17 @@ class ChapterCard(Beat):
     NUM_SCALE = 1.7          # the numeral, relative to the title size
     NUM_GAP = 34             # clear space between the numeral and the rule
 
-    def __init__(self, title: str, number: int | None = None, **kw):
+    def __init__(self, title: str, number: int | None = None,
+                 style: str | None = None, index: int | None = None,
+                 label: str | None = None, **kw):
         super().__init__(**kw)
         self.title, self.number = title, number
+        self.style, self.index = style or "type", index
+        self.label = label
 
     def content(self, out: Image.Image, f: float) -> None:
+        if self.style == "band":
+            return self.band(out, f)
         d = ImageDraw.Draw(out)
         w = self.frame.w - 2 * self.margin
         size = self.SIZE_PORTRAIT if self.portrait else self.SIZE
@@ -93,8 +105,10 @@ class ChapterCard(Beat):
         extra = (num_h + self.NUM_GAP) if self.number is not None else 0
 
         e = ease_out(min(1.0, (self.at(f) - self.start) / 0.5))
-        y = ((self.frame.h - block - extra) // 2 + extra
-             + int(round(26 * (1.0 - e))))
+        # **No rise any more: the title types on in place** (2026-10-20). A
+        # caret travelling along a line that is also sliding up reads as two
+        # animations fighting; the rule and the numeral still settle.
+        y = (self.frame.h - block - extra) // 2 + extra
 
         # A short rule above the line, opening outward from the centre as the
         # card settles. It gives the eye something to follow through a beat that
@@ -113,11 +127,220 @@ class ChapterCard(Beat):
             shadow_text(d, ((self.frame.w - tw) / 2, ny), num_str, num_font,
                         self.brand.primary, blur=10, drop=(4, 6))
 
-        for ln in lines:
-            tw = d.textlength(ln, font=font)
-            shadow_text(d, ((self.frame.w - tw) / 2, y), ln, font,
-                        self.brand.ink, blur=10, drop=(4, 6))
+        # Typed, not set. Each line is placed where its *finished* centred
+        # position will be and grows rightward from there - centring the
+        # partial string would slide the whole line left on every keystroke.
+        # The schedule is `typewriter.card_schedule`, the same one `_cues`
+        # places the key clicks from.
+        t = self.at(f)
+        times = typewriter.card_schedule(self.title, self.start, self.hold)
+        parts = typewriter.lines_shown(lines, typewriter.shown(times, t))
+        caret = None
+        for i, ln in enumerate(lines):
+            x0 = (self.frame.w - d.textlength(ln, font=font)) / 2
+            part = parts[i] if i < len(parts) else None
+            if part:
+                shadow_text(d, (x0, y), part, font,
+                            self.brand.ink, blur=10, drop=(4, 6))
+            if part is not None:
+                caret = (x0 + d.textlength(part, font=font), y)
             y += line_h
+        if caret is not None and typewriter.caret_on(times, t):
+            self.caret(d, caret, size)
+
+    def caret(self, d: ImageDraw.ImageDraw, at: tuple[float, float],
+              size: int) -> None:
+        """The `|` - a bar in the brand colour, not a glyph, so it has the
+        cap height of the face and the weight of the rule above it."""
+        x = at[0] + size * 0.08
+        top = at[1] + size * 0.20
+        w = max(4, int(round(size * 0.075)))
+        d.rectangle([x, top, x + w, top + size * 0.86],
+                    fill=self.brand.primary)
+
+
+    # --- the band style (experimental, 2026-10-20) -----------------------
+    #
+    # After a documentary-channel reference the user liked: a small glowing
+    # "CHAPTER 2" over a solid band in the brand colour, the title in widely
+    # tracked condensed caps inside it. No radial glow behind it - the beat's
+    # own moving background stays. The band opens from the centre, the title
+    # types into it on the same key clicks, and the whole card closes back to
+    # the centre and fades before the cut.
+    #
+    # **The label is the one numeral this card has ever shown by default.**
+    # The docstring above records why a numbered agenda was dropped; this is
+    # the user's call to try it again in a different treatment. If the band
+    # ships, that paragraph needs revisiting rather than both standing.
+
+    BAND_OPEN = 0.38
+    BAND_CLOSE = 0.40
+    FONT_BAND = "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf"
+
+    def _band_layout(self, text: str):
+        """Font, tracking and lines for the band, fitted once per card.
+
+        One line wherever it stays big enough to read; a 9:16 frame takes a
+        long title onto two lines rather than shrinking it to caption size.
+        """
+        from PIL import ImageFont
+        W, H = self.frame.size
+        probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        avail = W * (0.86 if self.portrait else 0.88)
+        floor = W * (0.078 if self.portrait else 0.050)
+
+        def width(s, font, track):
+            return (sum(probe.textlength(c, font=font) for c in s)
+                    + track * max(0, len(s) - 1))
+
+        def fit(lines, top):
+            size = top
+            while size > 28:
+                font = ImageFont.truetype(self.FONT_BAND, size)
+                track = size * 0.16
+                if max(width(ln, font, track) for ln in lines) <= avail:
+                    return size, font, track
+                size -= 2
+            font = ImageFont.truetype(self.FONT_BAND, size)
+            return size, font, size * 0.16
+
+        top = int(H * (0.060 if self.portrait else 0.105))
+        lines = [text]
+        size, font, track = fit(lines, top)
+        if size < floor and " " in text:
+            words = text.split(" ")
+            best = min(range(1, len(words)), key=lambda i: abs(
+                len(" ".join(words[:i])) - len(" ".join(words[i:]))))
+            lines = [" ".join(words[:best]), " ".join(words[best:])]
+            size, font, track = fit(lines, top)
+        # **Centre on the ink, not on the advance widths.** `textlength`
+        # carries each glyph's side bearings and the tracking after the last
+        # letter, so a line centred on it sits visibly right of the band's
+        # middle - the user caught it on the first band render. Each line is
+        # drawn once here and measured by its real pixel extent.
+        inks = []
+        for ln in lines:
+            im = Image.new("L", (int(width(ln, font, track) + size * 2),
+                                 int(size * 2)), 0)
+            dd = ImageDraw.Draw(im)
+            x = size * 0.5
+            for c in ln:
+                dd.text((x, size * 0.5), c, font=font, fill=255)
+                x += dd.textlength(c, font=font) + track
+            l, t, r, b = im.getbbox()
+            inks.append((l - size * 0.5, t - size * 0.5,
+                         r - size * 0.5, b - size * 0.5))
+        return lines, size, font, track, inks
+
+    def band(self, out: Image.Image, f: float) -> None:
+        from PIL import ImageFilter
+        from .base import _smooth
+
+        W, H = self.frame.size
+        t = self.at(f)
+        e = t - self.start
+        fill = self.brand.band or self.brand.primary
+        ink = self.brand.band_ink
+
+        opening = ease_out(min(1.0, e / self.BAND_OPEN))
+        closing = _smooth(max(0.0, (e - (self.hold - self.BAND_CLOSE))
+                              / self.BAND_CLOSE))
+        width_k = opening * (1.0 - closing)
+        alpha = 1.0 - closing
+        if width_k <= 0.002:
+            return
+
+        if not hasattr(self, "_band"):
+            self._band = self._band_layout(self.title.upper())
+        lines, size, font, track, inks = self._band
+        text = " ".join(lines)
+
+        # The band hugs the title, so a short title is not a thin word in a
+        # frame-wide stripe.
+        pad = size * 0.55
+        band_w = max(r - l for l, _, r, _ in inks) + 2 * pad
+        line_h = int(size * 1.08)
+        # The ink block: first line's cap top to last line's baseline. The
+        # band is that plus equal padding above and below.
+        ink_top = inks[0][1]
+        ink_h = (len(lines) - 1) * line_h + inks[-1][3] - ink_top
+        vpad = size * 0.30
+        band_h = int(ink_h + 2 * vpad)
+        cy = int(H * (0.50 if self.portrait else 0.56))
+        y0 = cy - band_h // 2
+        cx = W / 2
+        a8 = int(255 * alpha)
+
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        half = band_w * width_k / 2
+        d.rectangle([cx - half, y0, cx + half, y0 + band_h], fill=(*fill, a8))
+
+        # Typed into the band, each line from its finished left edge.
+        times = typewriter.card_schedule(self.title, self.start, self.hold,
+                                         "band")
+        parts = typewriter.lines_shown(lines, typewriter.shown(times, t))
+        caret = None
+        for i, part in enumerate(parts):
+            l, _, r, _ = inks[i]
+            x = cx - (l + r) / 2
+            ty = y0 + vpad - ink_top + i * line_h
+            for ch in part:
+                d.text((x, ty), ch, font=font, fill=(*ink, a8))
+                x += d.textlength(ch, font=font) + track
+            caret = (x - (track if part else 0), ty + ink_top)
+        if caret and typewriter.caret_on(times, t) and closing == 0.0:
+            cxr = caret[0] + size * 0.06
+            cap = inks[0][3] - inks[0][1]
+            d.rectangle([cxr, caret[1] - cap * 0.06,
+                         cxr + max(4, size * 0.06), caret[1] + cap * 1.06],
+                        fill=(*ink, a8))
+
+        # The title lives inside the band: as the band closes, the letters are
+        # cut by its edges rather than left hanging in the air beside it.
+        if width_k < 1.0:
+            clip = Image.new("L", (W, H), 0)
+            ImageDraw.Draw(clip).rectangle(
+                [cx - half, 0, cx + half, H], fill=255)
+            layer.putalpha(Image.composite(layer.getchannel("A"),
+                                           Image.new("L", (W, H), 0), clip))
+
+        # The band's bloom: its own colour, blurred, under it.
+        glow = layer.filter(ImageFilter.GaussianBlur(int(size * 0.45)))
+        glow.putalpha(glow.getchannel("A").point(lambda v: min(255, int(v * 1.1))))
+
+        # The label: white, with a white bloom of its own - the part of the
+        # reference that reads as light rather than as type.
+        lab_layer = None
+        # The label: the section's kicker when the script wrote one, else
+        # "CHAPTER n" in the long form. A Short takes no numeral - one
+        # argument in sixty seconds has no chapters to count.
+        lab = (self.label or "").upper() or (
+            f"CHAPTER {self.index}"
+            if self.index is not None and not self.portrait else "")
+        if lab:
+            lf = _display(int(size * 0.66))
+            lab_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+            ld = ImageDraw.Draw(lab_layer)
+            lw = ld.textlength(lab, font=lf)
+            ly = (y0 - int(size * 1.02)
+                  + int(round(16 * (1.0 - opening))))
+            la = alpha * ease_out(min(1.0, max(0.0, e - 0.10) / 0.45))
+            ld.text(((W - lw) / 2, ly), lab, font=lf,
+                    fill=(255, 255, 255, int(255 * la)))
+
+        base = out.convert("RGBA")
+        base.alpha_composite(glow)
+        if lab_layer is not None:
+            for r, k in ((int(size * 0.40), 1.3), (int(size * 0.12), 0.9)):
+                g = lab_layer.filter(ImageFilter.GaussianBlur(r))
+                g.putalpha(g.getchannel("A").point(
+                    lambda v, k=k: min(255, int(v * k))))
+                base.alpha_composite(g)
+        base.alpha_composite(layer)
+        if lab_layer is not None:
+            base.alpha_composite(lab_layer)
+        out.paste(base.convert("RGB"))
 
 
 class Checklist(Beat):

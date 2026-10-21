@@ -468,9 +468,12 @@ class Search(_Opener):
             self.end = self.exit_at + self.EXIT
 
     def cues(self):
-        n = int(len(self.query) / 3)
+        from ..core import typewriter
         c = [(0.0, "hook_slam"), (self.exit_at, "hook_swish")]
-        c += [(0.35 + i * self.CPS * 3, "reveal") for i in range(n)]
+        # A key click per character, on the frame `_content` shows it - the
+        # same instrument as the typed chapter cards (`core/typewriter.py`).
+        c += typewriter.cues(self.query, [0.3 + (i + 1) * self.CPS
+                                          for i in range(len(self.query))])
         return c
 
     def _content(self, t):

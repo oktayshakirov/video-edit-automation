@@ -104,14 +104,38 @@ frequently here *because* sound is a problem; the bed should not be one.
 
 ## Sound effects
 
-All synthesized, all in `core/sfx.py`, all cued from the shot list by
-`build._cues` so picture and sound cannot drift.
+### The title and chapter sounds are the user's files (2026-10-21)
+
+Two synthesized risers in a row missed what the user meant - a high Shepard
+shimmer, then a low-to-high synth sweep - and they supplied library sounds
+instead: `assets/brand/sfx/chapter-riser.mp3`, `title-intro.mp3`,
+`title-flashback.mp3`. **They are gitignored** (third-party, public repo), like
+the music bed; a missing file falls back to a synthesized stand-in
+(`sfx.FILE_SFX`) so a fresh checkout still builds.
+
+**A file cue's time is its anchor, not its start.** Each file has a moment
+that must land on the picture - the riser's hard stop at 3.75s, the
+flashback's hit at 0.83s - measured with a 0.1s RMS envelope and recorded in
+`FILE_SFX`. `mix` subtracts it, and trims a clip that would start before 0:00
+rather than dropping it. **Never anchor the synthesized `whoosh`**: every
+transition cue is timed as its start, and anchoring it once shifted all of
+them 0.31s early.
+
+Both channels get the files, including the riser on tinnitus - the user did
+not split them, and `KIT_GAIN` still takes the tinnitus kit down. The Short
+builder fires the same chapter set (riser, impact, keys, flashback) as the
+long form.
+
+Synthesized in `core/sfx.py`, except the title and chapter sounds below, and
+all cued from the shot list by `build._cues` so picture and sound cannot drift.
 
 | cue | where |
 |---|---|
-| `riser` | 0.75s before a chapter card — says a cut is coming |
+| `chapter_riser` | **a file** - its hard stop lands on a chapter card's first frame |
 | `impact` | on the card — the riser's full stop |
-| `whoosh` | cutting *out* of a card, covering the return to content - **suppressed when the card carries a transition that brings its own sound**, or the two fire 0.14s apart as a flam |
+| `key0`..`key3` | one per typed character of a chapter card or the `Search` opener, spaces silent (`core/typewriter.py`) |
+| `title_flashback` | **a file** - leaving a chapter card and the opening title. **Suppressed on a card that carries a transition with its own sound**, or the two fire as a flam |
+| `title_intro` | **a file** - under the opening title's arrival, its swell peaking as the letters resolve |
 | `reveal` | an item arriving on a `checklist`, `compare`, `stat`, `quote`, `logos`, `callout` or `gauge` |
 | `cross` / `tick` | a checklist verdict landing, and a quiz card's |
 | `link` | a `diagram` connector landing on its box — "and therefore" |

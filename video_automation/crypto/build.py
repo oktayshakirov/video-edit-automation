@@ -208,6 +208,10 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         keep_work: bool = False,
                         frame: Frame = VERTICAL,
                         brand: Brand = CRYPTO,
+                        # The chapter card's look - "band" (the default since
+                        # 2026-10-21, same as the long form) or "type", the
+                        # centred typed card. `longform.plan.style_chapters`.
+                        chapter_style: str = "band",
                         mark: "Image.Image | None" = None,
                         roam: bool = False,
                         karaoke: bool = True,
@@ -364,6 +368,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     pauses are now deliberate and long.
     """
     workdir.mkdir(parents=True, exist_ok=True)
+    from ..longform.plan import style_chapters
+    style_chapters(shots, chapter_style)
     track, captions, total = build_narration_aligned(
         [list(s) for s in sentences], workdir, gap=gap, tail=tail,
         **({} if run_break is None else {"run_break": run_break}),
@@ -628,6 +634,18 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 for sh in shots if sh.graphic and sh.marks
                 for t, item in zip(sh.marks, sh.payload[0])
                 if item[-1] is not None]
+        # A chapter card types itself on; its key clicks come off the same
+        # schedule `ChapterCard` draws from (`core/typewriter.py`).
+        from ..core import typewriter
+        for sh in shots:
+            if sh.graphic == "chapter":
+                # The long form's whole chapter grammar: the riser's stop and
+                # a hit on the card, the typing, the flashback on the way out.
+                cues += [(sh.start, "chapter_riser"), (sh.start, "impact")]
+                cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
+                if sh.start + sh.hold < total - 0.4:
+                    cues.append((sh.start + sh.hold - 0.20,
+                                 "title_flashback"))
         if cues:
             track = sfx.mix(track, workdir / "track-sfx.wav", cues,
                             kit=brand.name)

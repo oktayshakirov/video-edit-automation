@@ -96,7 +96,9 @@ def test_overlays_expose_cues_so_they_are_interchangeable():
 
 def _whooshes(shots):
     cues = _cues(shots, TOTAL) + transitions.cues(shots)
-    return sorted(t for t, k in cues if k == "whoosh")
+    # A card's own exit is the cinematic flashback since 2026-10-21; a
+    # transition's is still a whoosh. Either one counts as "the exit sound".
+    return sorted(t for t, k in cues if k in ("whoosh", "title_flashback"))
 
 
 def test_a_plain_card_keeps_its_exit_whoosh():
