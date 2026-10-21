@@ -493,6 +493,33 @@ time than a fade that has to reach 50% before it reads as anything.
 
 `Shot.transition` overrides per shot, `Shot.xfade = 0` still cuts.
 
+## Glitch and TV-static cuts, placed by meaning (2026-10-21)
+
+The user's ask: glitch and TV-noise transitions "used sometimes, not too
+often". `transitions.plan_special` places them on both builders
+(`special_cuts=True`, the default; `False` off, a number sets the count):
+
+| cut | move | why |
+|---|---|---|
+| into a sentence that turns - "But", "Except", "Actually", "That was not" | `glitch` | a contradiction is the cut the glitch was built for; first priority |
+| into a chapter card | `static`, then `glitch`, alternating | the section turning over is a channel change; two cards never arrive the same way |
+| into a jump in time - "In 2013", "Years later" | `static` | |
+
+**Budget**: ~1 per 45s and 20s apart in the long form; 1 (2 past 40s) and
+10s apart in a Short. Never in the hook (first 6s / 4s) or under the end
+card (last 8s / 3s), never touching a drawn data beat, and **never on a cut
+the script set by hand** - and `lay_out` no longer flattens a hand-set
+transition into a chapter card to a hard cut. The build prints each choice
+(`special cut: glitch at 19.6s (turn)`).
+
+Both are **cuts underneath** - every frame shows one shot, or the snow - so
+they are safe against type. `static` rolls the picture into coarse
+monochrome snow with scanlines and a rolling band (0.32s, `tv_static`
+sound); `glitch` was strengthened the same day (0.26s, more and wider torn
+slices, block corruption, a wider colour split, `glitch_cut` sound) because
+at 0.18s it read as a dropped frame. The tinnitus kit keeps the picture but
+softens both sounds (`tv_static_soft`, the glitch as a `reveal` tick).
+
 ## No burned captions
 
 `callouts=None`. Showing a handful of lines and not the rest reads as

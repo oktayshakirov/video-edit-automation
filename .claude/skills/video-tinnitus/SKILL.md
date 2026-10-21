@@ -132,6 +132,12 @@ These are on without asking - a script only supplies the words. Detail in
   the first shot clean, a section's first clip full, the rest rotating
   grain-only / clean / dust-only / full, nothing on drawn beats. `film=False`
   turns it off for one video, a number scales it.
+- **A few cuts become glitch or TV static on their own**
+  (`transitions.plan_special`): a glitch into a sentence that turns ("But…"),
+  static or glitch alternating into chapter cards, static on a jump in time -
+  about one per 45 seconds. **Open a turning sentence with "But" or
+  "Actually" when it really turns**; that is what places the glitch. A
+  transition set by hand on a shot always wins.
 - **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
   of git. On a machine without them the build falls back to synthesized
   stand-ins - copy them over before a build that ships.

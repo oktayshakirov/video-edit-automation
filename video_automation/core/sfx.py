@@ -204,6 +204,28 @@ def tv_off(sr: int = SR, dur: float = 0.45) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+def tv_static(sr: int = SR, dur: float = 0.36, soft: bool = False) -> np.ndarray:
+    """Analog snow for the `static` cut: band-limited hiss plus crackle,
+    swelling to the cut and gone after it. `soft` is the tinnitus kit's: lower
+    and darker, no crackle."""
+    from scipy.signal import butter, sosfilt
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    rng = np.random.default_rng(37)
+    lo, hi = (300.0, 2500.0) if soft else (900.0, 7500.0)
+    sos = butter(2, [lo, hi], btype="band", fs=sr, output="sos")
+    hiss = sosfilt(sos, rng.normal(0.0, 1.0, n))
+    hiss /= np.max(np.abs(hiss)) + 1e-9
+    env = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 1.5
+    out = hiss * env
+    if not soft:
+        crack = np.zeros(n)
+        idx = rng.integers(0, n, 40)
+        crack[idx] = rng.uniform(-1, 1, 40)
+        out += 0.8 * np.convolve(crack, np.exp(-np.arange(60) / 8.0))[:n] * env
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
 def impact(sr: int = SR, dur: float = 0.85) -> np.ndarray:
     """A low, soft thud for a chapter card landing. The riser's full stop."""
     n = int(sr * dur)
@@ -342,6 +364,9 @@ LEVELS = {
     # The file sounds, peak-normalised before these apply.
     "chapter_riser": 0.70, "title_intro": 0.80, "title_flashback": 0.70,
     "notification": 0.55, "tv_off": 0.55,
+    # The special cuts: heard, but under the voice - they mark a cut, they
+    # do not interrupt the sentence on either side of it.
+    "tv_static": 0.42, "tv_static_soft": 0.30, "glitch_cut": 0.32,
     # The drawn-beat cues (2026-09-10). `link` sits just above `reveal` — it is
     # still punctuation, not an event. `loop_close` and `limit` each fire once
     # per beat at the one structural moment, so they can carry like an impact.
@@ -535,6 +560,9 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
               "riser": riser, "impact": impact, "reveal": reveal,
               "tension": tension, "tv_off": tv_off,
+              "tv_static": tv_static,
+              "tv_static_soft": lambda sr: tv_static(sr, soft=True),
+              "glitch_cut": hook_glitch,
               "riser_soft": lambda sr: riser(sr, RISER_DUR),
               "link": link, "loop_close": loop_close, "limit": limit,
               "clock": clock, "clock_final": clock_final,
@@ -691,6 +719,10 @@ KITS = {
         # high tone is close to what a tinnitus listener is trying not to
         # hear; the old soft noise riser stays here.
         "tension": "riser_soft",
+        # The special cuts keep their picture on both channels, but this kit
+        # takes the crackle out of the static and the bitcrush off the glitch.
+        "tv_static": "tv_static_soft",
+        "glitch_cut": "reveal",
         "drop": "link",
         # A whoosh is broadband noise sweeping - it is the one transition
         # sound that is genuinely fine here, and softening it would leave the

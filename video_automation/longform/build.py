@@ -91,6 +91,9 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # arranged per shot by `core.filmfx.plan`; on by default since
                 # 2026-10-21. False turns it off, a number scales it.
                 film: "bool | float" = True,
+                # Glitch and TV-static cuts on a few meaningful cuts - a
+                # turn, a chapter, a jump in time. `transitions.plan_special`.
+                special_cuts: "bool | int" = True,
                 # The redacted opening hook - see `overlay.HookOverlay` and
                 # longform.md's "The first five seconds carry information".
                 # The `[bracketed]` word is hidden until the voice says it;
@@ -127,6 +130,15 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
 
     spans = sentence_spans(sentences, captions)
     shots, groups, chapters = lay_out(sections, shots, spans, total)
+    if special_cuts:
+        # A few glitch and TV-static cuts where the cut means something -
+        # `transitions.plan_special` has the rules and the budget.
+        lines = [transitions.sentence_text(sentences[g[0]]) if g else ""
+                 for g in groups]
+        n = None if special_cuts is True else int(special_cuts)
+        for t, mode, why in transitions.plan_special(shots, lines, total,
+                                                     budget=n):
+            print(f"special cut: {mode} at {t:.1f}s ({why})")
 
     # Where each sentence's captions begin, so a beat spanning several
     # sentences can draw its reveals from all of them.
