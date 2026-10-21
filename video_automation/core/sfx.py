@@ -189,6 +189,21 @@ def tension(sr: int = SR, dur: float = RISER_DUR) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+def tv_off(sr: int = SR, dur: float = 0.45) -> np.ndarray:
+    """A CRT switching off: a click, then a tone falling away fast.
+
+    For `overlay.TvOff`, the video's last half second. The click is the
+    relay; the falling sine is the flyback whine collapsing with the picture.
+    """
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    p = t / dur
+    f = 1400.0 * (60.0 / 1400.0) ** (p ** 0.6)
+    tone = np.sin(2 * np.pi * np.cumsum(f) / sr) * np.exp(-t / 0.16)
+    out = 0.7 * tone + 0.6 * _noise_transient(n, sr, 0.004)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
 def impact(sr: int = SR, dur: float = 0.85) -> np.ndarray:
     """A low, soft thud for a chapter card landing. The riser's full stop."""
     n = int(sr * dur)
@@ -326,6 +341,7 @@ LEVELS = {
     "tension": 0.62, "riser_soft": 0.55,
     # The file sounds, peak-normalised before these apply.
     "chapter_riser": 0.70, "title_intro": 0.80, "title_flashback": 0.70,
+    "notification": 0.55, "tv_off": 0.55,
     # The drawn-beat cues (2026-09-10). `link` sits just above `reveal` — it is
     # still punctuation, not an event. `loop_close` and `limit` each fire once
     # per beat at the one structural moment, so they can carry like an impact.
@@ -467,6 +483,8 @@ FILE_SFX = {
     "chapter_riser": ("chapter-riser.mp3", 3.75, "tension"),
     "title_intro": ("title-intro.mp3", 0.20, "impact"),
     "title_flashback": ("title-flashback.mp3", 0.83, "whoosh"),
+    # A two-note chime, its first note at 0.05s - the disclaimer notice.
+    "notification": ("notification.mp3", 0.05, "reveal"),
 }
 
 # Anchors for the synthesized sounds that do not start on their moment.
@@ -516,7 +534,7 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     peak = float(np.max(np.abs(audio))) or 1.0
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
               "riser": riser, "impact": impact, "reveal": reveal,
-              "tension": tension,
+              "tension": tension, "tv_off": tv_off,
               "riser_soft": lambda sr: riser(sr, RISER_DUR),
               "link": link, "loop_close": loop_close, "limit": limit,
               "clock": clock, "clock_final": clock_final,

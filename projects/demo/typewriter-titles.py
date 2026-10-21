@@ -45,8 +45,14 @@ CRYPTO_SECTIONS = [
     ),
     Section(
         title="Who controls Ethereum today?",
-        sentences=[("The answer is nobody, and that was the point.",)],
-        shots=[Shot(clip=V / "digital-network-grid-gold-dark/34645139.mp4")],
+        sentences=[("The answer is nobody, and that was the point.",),
+                   ("Nothing in this video is financial advice.",),
+                   ("If this helped, like the video and subscribe for the next one.",)],
+        shots=[Shot(clip=V / "digital-network-grid-gold-dark/34645139.mp4"),
+               Shot(clip=V / "abstract-flowing-data-network-dark-blue/28561463.mp4",
+                    clip_at=4.0, payload=("", "This is not financial advice.")),
+               Shot(clip=V / "digital-network-grid-gold-dark/28561594.mp4", clip_at=6.0)],
+        gaps=[0.45, 0.60, 2.4],
     ),
 ]
 
@@ -70,6 +76,16 @@ TINNITUS_SECTIONS = [
         sentences=[("The jaw joint and the ear share nerves and muscles.",)],
         shots=[Shot(clip=V / "city-window-night-quiet-room/8591726.mp4")],
     ),
+    Section(
+        title="What you can do tonight",
+        sentences=[("Nothing in this video is medical advice.",),
+                   ("If this helped, like the video and subscribe for the next one.",)],
+        shots=[Shot(clip=V / "city-window-night-quiet-room/8591726.mp4", clip_at=6.0,
+                    payload=("", "This is not medical advice.")),
+               Shot(clip=V / "hand-on-desk-pause-break-office-night-dark/5473794.mp4",
+                    clip_at=12.0)],
+        gaps=[0.60, 2.4],
+    ),
 ]
 
 SITES = {
@@ -85,7 +101,7 @@ def main(site: str, style: str | None = None) -> None:
         sections, OUT / f"{name}.mp4", OUT / f"{name}-work",
         brand=brand, voice="mia", music=music.track("night-drift"),
         callouts=None, title_at=2.2, title=title, title_hold=4.6,
-        chapter_style=style)
+        chapter_style=style, endcard=True, endcard_lead=5.0)
     for k, v in made.items():
         print(f"{k}: {v}")
 

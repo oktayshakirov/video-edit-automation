@@ -228,7 +228,9 @@ class VideoShot:
         # like a chapter card, holds the eye in the middle of the frame where
         # the motion is, and carries the viewer into the section rather than
         # annotating it.
-        if self.label and self.brand is not None:
+        if self.label and self.brand is not None and self._is_notice():
+            out = self._notice(out, f)
+        elif self.label and self.brand is not None:
             from PIL import ImageFont
 
             from ..core.draw import shadow_text, wrap
@@ -279,6 +281,127 @@ class VideoShot:
 
         out = self._note(out, f)
         return out
+
+    # --- the disclaimer notice (2026-10-21) --------------------------------
+
+    NOTICE_IN = 0.20        # after the cut, so the card lands on a still frame
+    NOTICE_OUT = 0.35
+
+    def _is_notice(self) -> bool:
+        """A `payload` line that is a disclaimer, not a statement.
+
+        Detected rather than flagged, so every shipped script's compliance
+        line ("This is not financial advice.") takes the template without an
+        edit. Same test `meta` uses to keep disclaimers out of the credits.
+        """
+        from .meta import is_disclaimer
+        return bool(self.label) and is_disclaimer(self.label[1])
+
+    def _notice(self, out: "Image.Image", f: float) -> "Image.Image":
+        """The disclaimer as a system notice: a dark glass card with an alert
+        mark, an eyebrow and the line, popping in on the notification chime.
+
+        **Not a statement band.** The compliance line used to borrow the
+        statement treatment - 96px over a scrim - which gave a legal note the
+        same weight as the line the section exists for. The user asked for a
+        template of its own that matches the titles. This takes the titles'
+        faces (SF Pro Heavy, the tracked eyebrow, the brand hairline and
+        bloom) and the grammar of a phone notification, because the sound it
+        lands on (`sfx` "notification") is one: it reads as *note this*, not
+        as the argument.
+        """
+        from PIL import ImageFilter
+        from ..core.draw import wrap
+        from .overlay import _sf, _tracked
+
+        fr, br = self.frame, self.brand
+        W, H = fr.w, fr.h
+        t = f * self.hold_s if self.hold_s else 0.0
+        p_in = (t - self.NOTICE_IN) / 0.42
+        if p_in <= 0.0:
+            return out
+        p_in = min(1.0, p_in)
+        # Ease-out-back: the card overshoots a touch and settles - the pop.
+        k = 1.70
+        x1 = p_in - 1.0
+        pop = 1.0 + (k + 1.0) * x1 ** 3 + k * x1 ** 2
+        p_out = 0.0
+        if self.hold_s:
+            p_out = max(0.0, min(1.0, (t - (self.hold_s - self.NOTICE_OUT))
+                                 / self.NOTICE_OUT))
+        alpha = min(1.0, p_in * 2.2) * (1.0 - p_out)
+        if alpha <= 0.004:
+            return out
+
+        # The picture steps back while the notice is up.
+        dim = 0.42 * alpha
+        arr = np.asarray(out).astype(np.float32) * (1.0 - dim)
+        out = Image.fromarray(arr.clip(0, 255).astype(np.uint8))
+
+        portrait = H > W
+        size = int(W * (0.056 if portrait else 0.040))
+        body_f = _sf(size, "Heavy")
+        eb_f = _sf(max(14, int(size * 0.46)), "Semibold")
+        probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        text = self.label[1]
+        max_text = W * 0.62
+        lines = wrap(probe, text, body_f, int(max_text))
+        line_h = int(size * 1.22)
+        icon = int(size * 1.9)
+        pad = int(size * 0.95)
+        gap = int(size * 0.75)
+        eb_h = int(size * 0.80)
+        text_w = max(probe.textlength(ln, font=body_f) for ln in lines)
+        eyebrow = (self.label[0] or "Disclaimer").upper()
+        eb_track = size * 0.16
+        eb_w = (sum(probe.textlength(c, font=eb_f) for c in eyebrow)
+                + eb_track * (len(eyebrow) - 1))
+        card_w = int(pad + icon + gap + max(text_w, eb_w) + pad * 1.2)
+        card_h = int(max(icon, eb_h + line_h * len(lines)) + 2 * pad)
+
+        card = Image.new("RGBA", (card_w, card_h), (0, 0, 0, 0))
+        d = ImageDraw.Draw(card)
+        r = int(size * 0.65)
+        d.rounded_rectangle([0, 0, card_w - 1, card_h - 1], radius=r,
+                            fill=(14, 14, 16, 228),
+                            outline=(*br.primary, 170), width=2)
+        # The alert mark: a filled circle in the brand colour, "!" knocked out.
+        cy = card_h // 2
+        ix = pad
+        d.ellipse([ix, cy - icon // 2, ix + icon, cy + icon // 2],
+                  fill=(*br.primary, 255))
+        mark_f = _sf(int(icon * 0.62), "Heavy")
+        mw = d.textlength("!", font=mark_f)
+        mb = d.textbbox((0, 0), "!", font=mark_f)
+        d.text((ix + (icon - mw) / 2, cy - (mb[1] + mb[3]) / 2), "!",
+               font=mark_f, fill=(16, 16, 16, 255))
+        tx = ix + icon + gap
+        ty = cy - (eb_h + line_h * len(lines)) / 2
+        _tracked(d, (tx, ty), eyebrow, eb_f, (*br.primary, 255), eb_track)
+        for i, ln in enumerate(lines):
+            d.text((tx, ty + eb_h + i * line_h - size * 0.08), ln,
+                   font=body_f, fill=(255, 255, 255, 255))
+
+        # Scale for the pop, then alpha for the fade.
+        sc = max(0.05, 0.86 + 0.14 * pop - 0.04 * p_out)
+        cw, ch = max(1, int(card_w * sc)), max(1, int(card_h * sc))
+        card = card.resize((cw, ch), Image.LANCZOS)
+        if alpha < 1.0:
+            card.putalpha(card.getchannel("A").point(
+                lambda v: int(v * alpha)))
+        x0 = (W - cw) // 2
+        y0 = (H - ch) // 2 + int(round(14 * (1.0 - min(1.0, p_in * 1.4))))
+
+        glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        gd = ImageDraw.Draw(glow)
+        gd.rounded_rectangle([x0, y0, x0 + cw, y0 + ch], radius=int(r * sc),
+                             fill=(*br.primary, int(120 * alpha)))
+        glow = glow.filter(ImageFilter.GaussianBlur(size * 0.9))
+
+        base = out.convert("RGBA")
+        base.alpha_composite(glow)
+        base.alpha_composite(card, (x0, y0))
+        return base.convert("RGB")
 
     def _note(self, out: "Image.Image", f: float) -> "Image.Image":
         """A small figure card in the lower left — "92 dB / music on a train".
