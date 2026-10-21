@@ -68,7 +68,17 @@ class Timeline(Beat):
         year all landed on one point - the GTA 6 history is three months of
         2026. No shipped timeline names a month, so none moves."""
         import re
-        m = re.search(r"(\d{4})", date)
+        # A BC date counts backwards from zero, and an ancient one has fewer
+        # than four digits - the tinnitus history runs from "c. 1550 BC" to
+        # "Today", and read the old way the papyrus landed at AD 1550.
+        bc = re.search(r"(\d{1,4})\s*(?:BC|BCE|B\.C\.)\b", date, re.I)
+        if bc:
+            return -float(bc.group(1))
+        if re.search(r"\b(today|now)\b", date, re.I):
+            import datetime
+            return float(datetime.date.today().year)
+        m = re.search(r"(\d{4})", date) or re.search(r"\b(\d{1,3})\s*(?:AD|CE)\b",
+                                                      date, re.I)
         if not m:
             return 0.0
         mo = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)",

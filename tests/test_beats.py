@@ -239,3 +239,14 @@ def test_no_family_module_imports_another():
             if other != fam:
                 assert f"from .{other} import" not in src, \
                     f"{fam}.py imports {other}.py - put the shared part in base.py"
+
+
+def test_timeline_places_bc_dates_before_ad_ones():
+    """The tinnitus history runs from "c. 1550 BC" to "Today"; read for its
+    first four digits alone, the papyrus landed at AD 1550."""
+    from video_automation.longform.beats.plot import Timeline
+    assert Timeline._year("c. 1550 BC") == -1550.0
+    assert Timeline._year("c. 400 BC") == -400.0
+    assert Timeline._year("1543") == 1543.0
+    assert Timeline._year("Today") > 2000
+    assert Timeline._year("Feb 2026") == 2026 + 1 / 12

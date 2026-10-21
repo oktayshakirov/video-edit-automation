@@ -453,6 +453,13 @@ user's `notification.mp3` (`sfx.FILE_SFX`, gitignored with the other file
 sounds). No script changes: `payload=("", "This is not financial advice.")`
 already gets it.
 
+**A routing line asks for the card by kicker** (2026-10-21). "New ringing,
+or ringing that changed? Get it checked." credits nobody and has no
+"advice" in it, so it drew the statement band; the user wanted the notice
+card for it. `payload=("NOTICE", "...")` (or `"DISCLAIMER"`) takes the card
+whatever the line says, with the kicker as the eyebrow - `meta.is_notice`,
+which the clip, the chime cue and the film plan all read.
+
 ## The end-screen sting (retired)
 
 `render_long(endcard=..., endcard_lead=7.0)` used to screen-blend over the last
