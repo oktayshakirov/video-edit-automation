@@ -395,9 +395,42 @@ for 16:9 (higher on the frame, wider measure). `hook=` stays the default.
 says a video lost people; only the curve says at which sentence, and the two
 have pointed at different sentences every time they have been compared.
 
-## The end-screen sting
+## The end card is the band card, and the video switches off (2026-10-21)
 
-`render_long(endcard=..., endcard_lead=7.0)`, screen-blended over the last
+**The stock sting below is retired** - its arrow pointed down and right, and
+YouTube's subscribe element is not on that side. Two drawn versions followed
+in one session: a centred cinematic "LIKE & SUBSCRIBE", then a copy of the
+user's reference screenshots (black italic, two-tone). The note on the second
+was that **the references were for content only** - "recreate it natively
+with our fonts and colours and transitions". So `overlay.EndCard` is the band
+chapter card's grammar: the footage fades almost to black, "THANKS FOR"
+glows over a band that opens in `Brand.band`, "WATCHING" types in on key
+clicks, then the band backspaces it, resizes, the label becomes a glowing
+thumbs-up (`overlay.thumbs_up`, drawn in code) and "LIKE & COMMENT" types in.
+
+**The text never leaves.** The user's call: no exit move - the video ends
+like a TV switching off. `overlay.TvOff` is the last overlay on every long
+form, over the watermark too: the whole frame squeezes to a bright line, the
+line to a dot, black, on the synthesized `tv_off` zap.
+
+`endcard` only switches the card on (any truthy value), so every shipped
+script's `endcard=ENDCARD` keeps working. It sits mid-frame, so place the
+YouTube end-screen elements clear of the centre.
+
+## The disclaimer is a notice card, on the notification chime (2026-10-21)
+
+A clip `payload` whose line is a disclaimer (`meta.is_disclaimer` - "advice"
+or "not affiliated") is detected and drawn by `VideoShot._notice` instead of
+the statement band: the picture dims, and a dark glass card pops in centred,
+with a brand-colour alert mark, a `DISCLAIMER` eyebrow (or the payload's
+kicker) and the line in SF Pro Heavy. It lands 0.2s after the cut on the
+user's `notification.mp3` (`sfx.FILE_SFX`, gitignored with the other file
+sounds). No script changes: `payload=("", "This is not financial advice.")`
+already gets it.
+
+## The end-screen sting (retired)
+
+`render_long(endcard=..., endcard_lead=7.0)` used to screen-blend over the last
 seconds by `longform/overlay.py`. It rides **over** the outro footage rather
 than replacing it, because the outro is deliberately uncluttered for YouTube's
 own end-screen cards and that gap is what the viewer stares at while the ask is

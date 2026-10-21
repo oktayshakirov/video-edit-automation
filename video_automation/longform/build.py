@@ -32,7 +32,7 @@ from . import audio as audio_mod
 from . import chrome as chrome_mod
 from .beats import Checklist, item_count, make_beat
 from .meta import Meta, write_srt
-from .overlay import CinematicTitle, ClipOverlay, TitleOverlay
+from .overlay import CinematicTitle, ClipOverlay, EndCard, TitleOverlay, TvOff
 from .plan import (Section, flatten, lay_out, mark_times, reveal_times,
                    style_chapters)
 from .thumb import render_thumb
@@ -218,6 +218,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                else _hook(hook, hook_until, brand, frame, captions))
     title_ov = _title(title_at, title, title_hold, title_eyebrow,
                       meta, brand, frame, title_style)
+    end_ov = _endcard(endcard, endcard_lead, total, frame, brand)
+    tv_ov = [TvOff(total, frame)]
 
     picture = render_shots(
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
@@ -230,10 +232,12 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         # a 16:9 video is watched in a player, not scrolled past.
         brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        overlays=(_endcard(endcard, endcard_lead, total, frame)
+        overlays=(end_ov
                   + title_ov
                   + _chrome(chrome_nav, chapters, shots, total, brand, frame)
-                  + hook_ov))
+                  + hook_ov
+                  # Last, over everything: the video switches off.
+                  + tv_ov))
 
     # --- sound -----------------------------------------------------------
     if sound:
@@ -248,7 +252,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                         _cues(shots, total)
                         + transitions.cues(shots)
                         + [c for h in hook_ov for c in h.cues()]
-                        + [c for o in title_ov for c in o.cues()],
+                        + [c for o in title_ov + end_ov + tv_ov
+                           for c in o.cues()],
                         kit=brand.name)
 
     if music:
@@ -333,28 +338,21 @@ def _chrome(on: bool, chapters: list[tuple[float, str]], shots, total: float,
 
 
 def _endcard(path: "Path | None", lead: float, total: float,
-             frame) -> list:
-    """The subscribe sting, screen-blended over the last few seconds.
+             frame, brand: Brand) -> list:
+    """"THANKS FOR WATCHING", then "LIKE & COMMENT!" - `overlay.EndCard`.
 
-    It rides *over* the outro footage rather than replacing it, because the
-    outro shot is deliberately uncluttered so YouTube's own end-screen elements
-    have somewhere to sit — and a gap with nothing in it is what the viewer
-    actually sees while the ask is being spoken.
+    **No sting and no arrow (2026-10-21).** This used to screen-blend a stock
+    subscribe clip whose arrow pointed down and right, toward the side YouTube
+    does not put its subscribe element on. Silent: the narration is still
+    asking.
+
+    `path` only switches it on; any truthy value does, so every shipped
+    script's `endcard=ENDCARD` keeps working without the clip on disk.
     """
-    if path is None or not Path(path).exists():
+    if not path:
         return []
     start = max(0.0, total - lead)
-    # Measured on the asset: the artwork sits in a stable box at x 0.48-0.89,
-    # y 0.71-0.89 of the source, on pure black. Cropped to it and placed in the
-    # lower middle — clear of the upper-left watermark and of the corners where
-    # YouTube stacks its own end-screen cards. **0.72, not 0.60:** the
-    # outro's compliance `payload` band fills the middle third (to ~0.67), and
-    # at 0.60 the sting sat inside it, behind the disclaimer (market-cap,
-    # 2026-10-06). The cropped sting is ~0.21 of the height, so it ends ~0.93.
-    w = int(frame.w * 0.42)
-    at = ((frame.w - w) // 2, int(frame.h * 0.72))
-    return [ClipOverlay(Path(path), start, total, frame=frame, scale=0.42,
-                        at=at, fade=0.5, crop=(0.46, 0.69, 0.91, 0.91))]
+    return [EndCard(start, total, brand, frame=frame)]
 
 
 def _title(at: "float | None", text: "str | None", hold: float,
@@ -453,6 +451,13 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
                 r1 = sh.reveals[1]
                 travel = min(1.5, max(0.5, (sh.start + sh.hold - r1) - 0.16))
                 cues.append((r1 + 0.05 + travel * (float(thr) / frac), "limit"))
+        if sh.clip is not None and sh.payload and len(sh.payload) > 1:
+            # A disclaimer line takes the notice card, which lands on the
+            # notification chime (`clip.VideoShot._notice`).
+            from .clip import VideoShot
+            from .meta import is_disclaimer
+            if is_disclaimer(sh.payload[1]):
+                cues.append((sh.start + VideoShot.NOTICE_IN, "notification"))
         elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
                             "callout", "replicate"):
             for t in (sh.reveals or [])[:8]:

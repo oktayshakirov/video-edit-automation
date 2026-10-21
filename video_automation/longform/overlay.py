@@ -606,6 +606,289 @@ class CinematicTitle:
         return out.convert("RGB")
 
 
+def _sf_italic(size: int, weight: str = "Black Italic"):
+    from PIL import ImageFont
+    f = ImageFont.truetype("/System/Library/Fonts/SFNSItalic.ttf", size)
+    try:
+        f.set_variation_by_name(weight)
+    except Exception:
+        pass
+    return f
+
+
+def thumbs_up(size: int, colour: tuple, width: float = 0.07) -> Image.Image:
+    """An outline thumbs-up, drawn rather than taken from a font.
+
+    The only thumbs-up glyph on the machine is the colour emoji, and the
+    reference is a one-colour outline in the accent. Built as a filled
+    silhouette - cuff, palm, four rounded fingers, a thumb - whose outline is
+    the silhouette minus an eroded copy of itself, so the line weight is even
+    everywhere. Drawn at 4x and downsampled.
+    """
+    from PIL import ImageChops
+
+    k = 4
+    S = size * k
+    u = S / 100.0
+    w = max(3, int(S * width)) | 1          # odd, for MinFilter
+
+    def box(x0, y0, x1, y1):
+        return [x0 * u, y0 * u, x1 * u, y1 * u]
+
+    hand = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(hand)
+    d.rounded_rectangle(box(30, 44, 76, 96), radius=8 * u, fill=255)
+    for y0 in (44, 57, 70, 83):
+        d.rounded_rectangle(box(56, y0, 95, y0 + 13), radius=6.5 * u, fill=255)
+    d.polygon([(x * u, y * u) for x, y in
+               ((30, 50), (42, 32), (44, 14), (49, 5), (57, 5), (62, 13),
+                (61, 30), (58, 46))], fill=255)
+    d.ellipse(box(44, 2, 60, 16), fill=255)
+    cuff = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(cuff).rounded_rectangle(box(4, 46, 24, 96),
+                                           radius=5 * u, fill=255)
+
+    def ring(m):
+        return ImageChops.subtract(m, m.filter(ImageFilter.MinFilter(w)))
+
+    line = ImageChops.lighter(ring(hand), ring(cuff))
+    ld = ImageDraw.Draw(line)
+    # The finger seams, inside the hand only, so the fingers read as four.
+    for y in (57, 70, 83):
+        ld.line([(62 * u, y * u), (94 * u, y * u)], fill=255, width=w // 2)
+    ld.ellipse(box(11.5, 84, 16.5, 89), fill=255)
+
+    im = Image.new("RGBA", (S, S), (*colour, 0))
+    im.putalpha(line)
+    return im.resize((size, size), Image.LANCZOS)
+
+
+class EndCard:
+    """The last seconds: "THANKS FOR WATCHING", then "LIKE & COMMENT".
+
+    **Built from the chapter card, not from the reference** (2026-10-21).
+    The user's reference screenshots were for content only - "recreate it
+    natively with our fonts and colours and transitions" - so this is the
+    band card's own grammar, end to end:
+
+    * the footage fades almost to black;
+    * the label glows over the band - "THANKS FOR" - and the band opens from
+      the centre in the brand colour (`Brand.band`), the same layout code as
+      `ChapterCard.band`;
+    * "WATCHING" **types** into it behind the caret, on key clicks;
+    * then the band **backspaces** it, resizes, the label becomes a glowing
+      thumbs-up, and "LIKE & COMMENT" types in;
+    * and it stays. **No exit**: the video ends on `TvOff`, the picture
+      collapsing to a line and a dot like a CRT switching off.
+
+    `cues()` gives the key clicks for both the typing and the backspacing.
+    """
+
+    OPEN_AT = 0.30
+    OPEN = 0.38
+    TYPE_AT = 0.72
+    SPLIT = 0.46            # share of the window before the swap
+    BACKSPACE = 0.035       # seconds per deleted character
+    SWAP = 0.36             # the band resizing and the label changing
+
+    FIRST = ("THANKS FOR", "WATCHING")
+    SECOND = "LIKE & COMMENT"
+
+    def __init__(self, start: float, end: float, brand,
+                 frame: Frame = LANDSCAPE):
+        from .beats import ChapterCard
+        self.start, self.end = start, end
+        self.brand, self.frame = brand, frame
+        card = ChapterCard(self.FIRST[1], brand=brand, frame=frame,
+                           start=start, hold=end - start, style="band")
+        a = card._band_layout(self.FIRST[1])
+        b = card._band_layout(self.SECOND)
+        # One size for both states, so the swap is a retype, not a zoom.
+        size = min(a[1], b[1])
+        self.size, self.font, self.track = size, a[2], a[3]
+        if b[1] != size:
+            from PIL import ImageFont
+            self.font = ImageFont.truetype(card.FONT_BAND, size)
+        self.ink = {self.FIRST[1]: a[4][0], self.SECOND: b[4][0]}
+        self.icon = thumbs_up(int(size * 1.25), (255, 255, 255), width=0.08)
+
+        life = end - start
+        self.swap_at = start + life * self.SPLIT
+        from ..core import typewriter as tw
+        self.t1 = tw.schedule(self.FIRST[1], start + self.TYPE_AT)
+        self.bs = [self.swap_at + i * self.BACKSPACE
+                   for i in range(len(self.FIRST[1]))]
+        self.t2 = tw.schedule(self.SECOND,
+                              self.bs[-1] + self.BACKSPACE + 0.10)
+
+    def cues(self) -> list[tuple[float, str]]:
+        from ..core import typewriter as tw
+        out = tw.cues(self.FIRST[1], self.t1)
+        out += [(t, f"key{i % tw.KEY_VARIANTS}")
+                for i, t in enumerate(self.bs)]
+        out += tw.cues(self.SECOND, self.t2)
+        return out
+
+    def _state(self, t: float) -> tuple[str, str, int]:
+        """(text the band is sized for, text shown, characters shown)."""
+        from ..core import typewriter as tw
+        first = self.FIRST[1]
+        if t < self.swap_at:
+            return first, first, tw.shown(self.t1, t)
+        gone = tw.shown(self.bs, t)
+        if gone < len(first):
+            return first, first, len(first) - gone
+        return self.SECOND, self.SECOND, tw.shown(self.t2, t)
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        from ..core import typewriter as tw
+        from ..core.draw import ease_out
+        from .beats.base import _display, _smooth
+
+        W, H = self.frame.size
+        e = t - self.start
+        fill = self.brand.band or self.brand.primary
+        ink = self.brand.band_ink
+
+        fade = _smooth(min(1.0, e / 0.6))
+        base = np.asarray(pic).astype(np.float32) * (1.0 - 0.90 * fade)
+        out = Image.fromarray(base.clip(0, 255).astype(np.uint8)).convert("RGBA")
+
+        opening = ease_out(max(0.0, min(1.0, (e - self.OPEN_AT) / self.OPEN)))
+        if opening <= 0.0:
+            return out.convert("RGB")
+
+        size, track = self.size, self.track
+        pad = size * 0.55
+        vpad = size * 0.30
+
+        def band_w(text):
+            l, _, r, _ = self.ink[text]
+            return r - l + 2 * pad
+
+        sw = _smooth(max(0.0, min(1.0, (t - self.swap_at) / self.SWAP)))
+        width = band_w(self.FIRST[1]) * (1 - sw) + band_w(self.SECOND) * sw
+        l0, ink_top, _, ink_bot = self.ink[self.FIRST[1]]
+        band_h = int(ink_bot - ink_top + 2 * vpad)
+        cy = int(H * 0.56)
+        y0 = cy - band_h // 2
+        cx = W / 2
+
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        half = width * opening / 2
+        d.rectangle([cx - half, y0, cx + half, y0 + band_h], fill=(*fill, 255))
+
+        sized, text, n = self._state(t)
+        l, _, r, _ = self.ink[sized]
+        x = cx - (l + r) / 2
+        ty = y0 + vpad - ink_top
+        for ch in text[:n]:
+            d.text((x, ty), ch, font=self.font, fill=(*ink, 255))
+            x += d.textlength(ch, font=self.font) + track
+        times = self.t2 if sized == self.SECOND else self.t1
+        typing_or_deleting = self.swap_at <= t < self.t2[0]
+        if n or typing_or_deleting:
+            on = True if typing_or_deleting else tw.caret_on(times, t)
+            if on and t >= self.t1[0]:
+                cxr = x - (track if n else 0) + size * 0.06
+                cap = ink_bot - ink_top
+                d.rectangle([cxr, ty + ink_top - cap * 0.06,
+                             cxr + max(4, size * 0.06),
+                             ty + ink_top + cap * 1.06], fill=(*ink, 255))
+
+        # The band clips its own text while it is still opening.
+        if opening < 1.0:
+            clip = Image.new("L", (W, H), 0)
+            ImageDraw.Draw(clip).rectangle([cx - half, 0, cx + half, H],
+                                           fill=255)
+            layer.putalpha(Image.composite(layer.getchannel("A"),
+                                           Image.new("L", (W, H), 0), clip))
+
+        # The label: "THANKS FOR", then the thumbs-up, crossfading on the swap.
+        lab = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        la = ease_out(max(0.0, min(1.0, (e - self.OPEN_AT + 0.05) / 0.45)))
+        rise = int(round(16 * (1.0 - opening)))
+        ly_base = y0 - int(size * 1.02) + rise
+        if sw < 1.0:
+            ld = ImageDraw.Draw(lab)
+            lf = _display(int(size * 0.66))
+            lw = ld.textlength(self.FIRST[0], font=lf)
+            ld.text(((W - lw) / 2, ly_base), self.FIRST[0], font=lf,
+                    fill=(255, 255, 255, int(255 * la * (1 - sw))))
+        if sw > 0.0:
+            ic = self.icon.copy()
+            ic.putalpha(ic.getchannel("A").point(lambda v: int(v * sw)))
+            lab.alpha_composite(ic, (int((W - ic.width) / 2),
+                                     int(y0 - ic.height - size * 0.28)))
+
+        glow = layer.filter(ImageFilter.GaussianBlur(int(size * 0.45)))
+        glow.putalpha(glow.getchannel("A").point(lambda v: min(255, int(v * 1.1))))
+        out.alpha_composite(glow)
+        for rad, k in ((int(size * 0.40), 1.3), (int(size * 0.12), 0.9)):
+            g = lab.filter(ImageFilter.GaussianBlur(rad))
+            g.putalpha(g.getchannel("A").point(
+                lambda v, k=k: min(255, int(v * k))))
+            out.alpha_composite(g)
+        out.alpha_composite(layer)
+        out.alpha_composite(lab)
+        return out.convert("RGB")
+
+
+class TvOff:
+    """The video's last half second: the picture switches off like a CRT.
+
+    The user's call (2026-10-21): no exit move on the end card's text - the
+    video itself ends, "like turning off the tv". The whole frame - text,
+    watermark and all, which is why this is the **last** overlay - squeezes
+    to a bright horizontal line, the line shrinks to a dot, the dot dies.
+    `cues()` puts the power-off zap (`sfx.tv_off`) on it.
+    """
+
+    DUR = 0.55
+
+    def __init__(self, end: float, frame: Frame = LANDSCAPE):
+        self.end, self.frame = end, frame
+        self.start = end - self.DUR
+
+    def cues(self) -> list[tuple[float, str]]:
+        return [(max(0.0, self.start), "tv_off")]
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if t < self.start:
+            return pic
+        from .beats.base import _smooth
+        W, H = self.frame.size
+        p = min(1.0, (t - self.start) / self.DUR)
+        black = np.zeros((H, W, 3), np.uint8)
+        if p < 0.55:
+            q = _smooth(p / 0.55)
+            h = max(2, int(round(H * (1.0 - q) ** 2.2)))
+            src = np.asarray(pic).astype(np.float32) * (1.0 + 2.6 * q) + 70 * q
+            sq = cv2.resize(src.clip(0, 255).astype(np.uint8), (W, h),
+                            interpolation=cv2.INTER_AREA)
+            y = (H - h) // 2
+            black[y:y + h] = sq
+            return Image.fromarray(black)
+        out = Image.fromarray(black)
+        d = ImageDraw.Draw(out)
+        if p < 0.85:
+            q = _smooth((p - 0.55) / 0.30)
+            half = max(3, (W / 2) * (1.0 - q))
+            d.rectangle([W / 2 - half, H / 2 - 2, W / 2 + half, H / 2 + 2],
+                        fill=(255, 255, 255))
+        else:
+            q = (p - 0.85) / 0.15
+            r = 6 * (1.0 - q)
+            if r > 0.5:
+                v = int(255 * (1.0 - q))
+                d.ellipse([W / 2 - r, H / 2 - r, W / 2 + r, H / 2 + r],
+                          fill=(v, v, v))
+        return out.filter(ImageFilter.GaussianBlur(1.2))
+
+
 # --------------------------------------------------------------------------
 # The first-second hook: a redacted headline
 # --------------------------------------------------------------------------
