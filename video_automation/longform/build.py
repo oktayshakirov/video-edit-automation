@@ -87,6 +87,10 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # card - `overlay.CinematicTitle`. "lower" brings back the
                 # typed lower third, `overlay.TitleOverlay`.
                 title_style: str = "cinematic",
+                # The old-film surface - grain, dust, a light leak, flicker -
+                # arranged per shot by `core.filmfx.plan`; on by default since
+                # 2026-10-21. False turns it off, a number scales it.
+                film: "bool | float" = True,
                 # The redacted opening hook - see `overlay.HookOverlay` and
                 # longform.md's "The first five seconds carry information".
                 # The `[bracketed]` word is hidden until the voice says it;
@@ -220,6 +224,17 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                       meta, brand, frame, title_style)
     end_ov = _endcard(endcard, endcard_lead, total, frame, brand)
     tv_ov = [TvOff(total, frame)]
+    film_ov = []
+    if film:
+        # The old-film surface, placed per moment (`core.filmfx.POLICY`). It
+        # goes under every other overlay, so the title and the end card's
+        # type stay clean over a textured picture.
+        from ..core.filmfx import FilmOverlay
+        windows = ([(o.start, o.end, "title") for o in title_ov]
+                   + [(o.start, o.end, "end") for o in end_ov])
+        film_ov = [FilmOverlay(shots, total, windows,
+                               strength=1.0 if film is True else float(film),
+                               fps=fps)]
 
     picture = render_shots(
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
@@ -232,7 +247,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         # a 16:9 video is watched in a player, not scrolled past.
         brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        overlays=(end_ov
+        overlays=(film_ov + end_ov
                   + title_ov
                   + _chrome(chrome_nav, chapters, shots, total, brand, frame)
                   + hook_ov

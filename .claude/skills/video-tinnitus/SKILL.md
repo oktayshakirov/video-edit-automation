@@ -110,6 +110,32 @@ copies that disagreed with each other.
 6. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
    steps 4 and 5.
 
+## What every build draws by default (2026-10-21)
+
+These are on without asking - a script only supplies the words. Detail in
+`docs/video/longform.md` and `docs/video/audio.md`.
+
+- **Chapter cards are the band card**, long form and Short: the title typed
+  into a band of the brand colour on key clicks, the riser into it and the
+  cinematic flashback out of it. **Write a `Section(kicker=)` for every
+  carded section** - two or three words naming the stake ("THE REJECTION",
+  "THE CATCH"). Without one the long form shows "CHAPTER n" and a Short
+  shows no label.
+- **The opening title is the cinematic card** (`title_at=`), on the title
+  intro sound. Keep its hold clear of the first chapter card.
+- **A disclaimer `payload` becomes the notice card** on the notification
+  chime - no flag needed.
+- **The video ends on the band end card** - THANKS FOR WATCHING, retyped as
+  LIKE & COMMENT - **and switches off like a TV.** `endcard=` turns the card
+  on; the TV-off is always there.
+- **The old-film surface is arranged, not blanketed** (`core/filmfx.py`):
+  the first shot clean, a section's first clip full, the rest rotating
+  grain-only / clean / dust-only / full, nothing on drawn beats. `film=False`
+  turns it off for one video, a number scales it.
+- **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
+  of git. On a machine without them the build falls back to synthesized
+  stand-ins - copy them over before a build that ships.
+
 ## The line that outranks everything else
 
 **Nothing here diagnoses, and nothing here promises relief.** This is a health

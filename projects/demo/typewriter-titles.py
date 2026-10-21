@@ -7,7 +7,7 @@ Unlike `format-upgrades.py` this one **is narrated**, through the real
 `render_long` path, because the point is to hear the clicks sit under the voice
 reading the same line.
 
-    PYTHONPATH=. .venv/bin/python projects/demo/typewriter-titles.py [crypto|tinnitus] [band]
+    PYTHONPATH=. .venv/bin/python projects/demo/typewriter-titles.py [crypto|tinnitus] [band] [nofilm]
 """
 
 import sys
@@ -94,14 +94,15 @@ SITES = {
 }
 
 
-def main(site: str, style: str | None = None) -> None:
+def main(site: str, style: str | None = None, film: bool = True) -> None:
     brand, sections, title = SITES[site]
-    name = f"{site}-typewriter" + (f"-{style}" if style else "")
+    name = (f"{site}-typewriter" + (f"-{style}" if style else "")
+            + ("" if film else "-nofilm"))
     made = render_long(
         sections, OUT / f"{name}.mp4", OUT / f"{name}-work",
         brand=brand, voice="mia", music=music.track("night-drift"),
         callouts=None, title_at=2.2, title=title, title_hold=4.6,
-        chapter_style=style, endcard=True, endcard_lead=5.0)
+        chapter_style=style, endcard=True, endcard_lead=5.0, film=film)
     for k, v in made.items():
         print(f"{k}: {v}")
 
@@ -110,4 +111,4 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     style = "band" if "band" in args else None
     for s in ([a for a in args if a in SITES] or ["crypto", "tinnitus"]):
-        main(s, style)
+        main(s, style, film="nofilm" not in args)

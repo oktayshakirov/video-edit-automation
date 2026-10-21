@@ -212,6 +212,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # 2026-10-21, same as the long form) or "type", the
                         # centred typed card. `longform.plan.style_chapters`.
                         chapter_style: str = "band",
+                        # The old-film surface, arranged per shot
+                        # (`core.filmfx.plan`). False off, a number scales it.
+                        film: "bool | float" = True,
                         mark: "Image.Image | None" = None,
                         roam: bool = False,
                         karaoke: bool = True,
@@ -609,6 +612,13 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # *is* the closing line, so burning it underneath as well is the
             # duplication the opener already dropped.
             sprites = [sp for sp in sprites if sp.start < at]
+
+    if film:
+        # Under every other overlay, so the hook and the outro stay clean.
+        from ..core.filmfx import FilmOverlay
+        overlays = [FilmOverlay(shots, total,
+                                strength=1.0 if film is True else float(film),
+                                fps=fps), *(overlays or [])]
 
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
