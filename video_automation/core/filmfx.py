@@ -76,7 +76,7 @@ def plan(shots) -> list[str]:
     * **Every other footage shot takes the next step of `ROTATION`**, counted
       across the whole video so the clean shots spread out.
     """
-    from ..longform.meta import is_disclaimer
+    from ..longform.meta import is_notice
 
     out, k, fresh, first, prev = [], 0, False, True, None
     for sh in shots:
@@ -92,7 +92,7 @@ def plan(shots) -> list[str]:
         line = payload[1] if len(payload) > 1 else ""
         if first:
             r = "clean"
-        elif line and is_disclaimer(line):
+        elif line and is_notice(payload):
             r = "clean"
         elif line:
             r = "grain"

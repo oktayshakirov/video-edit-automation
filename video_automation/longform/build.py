@@ -482,8 +482,8 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             # A disclaimer line takes the notice card, which lands on the
             # notification chime (`clip.VideoShot._notice`).
             from .clip import VideoShot
-            from .meta import is_disclaimer
-            if is_disclaimer(sh.payload[1]):
+            from .meta import is_notice
+            if is_notice(sh.payload):
                 cues.append((sh.start + VideoShot.NOTICE_IN, "notification"))
         elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
                             "callout", "replicate"):

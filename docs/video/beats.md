@@ -1029,3 +1029,13 @@ the stem's end, so a two-line label hung over the stem and the line ran up
 through the text - the user caught it on the GTA 6 cut. The block is
 measured and placed above the stem. Older timelines with one-line labels
 shift up a few pixels on a re-render.
+
+## `timeline` reads BC dates and "Today" (2026-10-21)
+
+`Timeline._year` took the first four-digit run, so "c. 1550 BC" landed at
+AD 1550 and "c. 400 BC" (no four digits) at year zero - the tinnitus history
+would have drawn the papyrus *after* Vesalius. A `BC`/`BCE` date now counts
+back from zero, a one-to-three-digit `AD`/`CE` year parses, and "Today" or
+"now" is the current year. Every shipped timeline has four-digit AD dates, so
+none moves. On a span this long the clustering is the argument: 3,500 years
+of guesses and the science in the last sliver of the axis.

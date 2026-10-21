@@ -294,8 +294,8 @@ class VideoShot:
         line ("This is not financial advice.") takes the template without an
         edit. Same test `meta` uses to keep disclaimers out of the credits.
         """
-        from .meta import is_disclaimer
-        return bool(self.label) and is_disclaimer(self.label[1])
+        from .meta import is_notice
+        return bool(self.label) and is_notice(self.label)
 
     def _notice(self, out: "Image.Image", f: float) -> "Image.Image":
         """The disclaimer as a system notice: a dark glass card with an alert

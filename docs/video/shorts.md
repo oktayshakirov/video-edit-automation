@@ -1120,3 +1120,11 @@ The launch trailer's DacityCoin plane went in at `aspect=0.95` and the 9:16
 crop cut "Dacity" off the left, leaving "...yCoin". Same fix as a face:
 `aspect` = the source's own ratio (`1200 / 900`), letterboxed into the
 blurred fill. Check any still that carries a word the narration says.
+
+## A near-white still under the karaoke line goes in as an inset (2026-10-21)
+
+The Ebers Papyrus plate (a facsimile, L203) as a framed 9:16 card put the
+burned caption on a white page and the line could not be read. As
+`inset=(plate, "top", 0.50)` over a dark clip it sits above the caption
+block and the picture is still the noun. Check any bright still in a Short
+against the caption band, not on its own.

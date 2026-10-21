@@ -75,6 +75,22 @@ def is_disclaimer(line: str) -> bool:
     return "advice" in s or "not affiliated" in s
 
 
+# Kickers that put a payload on the notice card whatever its line says. A
+# disclaimer is detected from its words; a health routing line ("New ringing?
+# Get it checked.") credits nobody and contains no "advice", so it asks by
+# kicker instead - the user wanted it on the notice card, not the statement
+# band (tinnitus-in-history, 2026-10-21). The kicker is also the eyebrow.
+NOTICE_KICKERS = {"DISCLAIMER", "NOTICE"}
+
+
+def is_notice(payload) -> bool:
+    """A clip `payload` that draws the notice card rather than a statement."""
+    if not payload or len(payload) < 2:
+        return False
+    kicker, line = payload[0] or "", payload[1] or ""
+    return is_disclaimer(line) or kicker.strip().upper() in NOTICE_KICKERS
+
+
 def timestamp(t: float, srt: bool = False) -> str:
     """`0:00` / `1:23:45` for a description, `00:00:01,500` for an SRT."""
     ms = int(round(t * 1000))
