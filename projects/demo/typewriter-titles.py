@@ -40,8 +40,15 @@ CRYPTO_SECTIONS = [
     Section(
         title="Why did Bitcoin say no?",
         kicker="The rejection",
-        sentences=[("The developers who maintain Bitcoin turned the idea down.",)],
-        shots=[Shot(clip=V / "abstract-flowing-data-network-dark-blue/28561463.mp4")],
+        sentences=[("The developers who maintain Bitcoin turned the idea down.",),
+                   ("But Vitalik did not drop it.",),
+                   ("In twenty fourteen, he announced Ethereum to the world.",)],
+        shots=[Shot(clip=V / "abstract-flowing-data-network-dark-blue/28561463.mp4"),
+               Shot(clip=V / "blockchain-blocks-chain-digital-dark/34127877.mp4", clip_at=3.0),
+               # Hand-set, to show the static into a card in a reel too short
+               # for the planner's 20s spacing to place it as well.
+               Shot(clip=V / "digital-network-grid-gold-dark/34645139.mp4", clip_at=2.0,
+                    transition="static")],
     ),
     Section(
         title="Who controls Ethereum today?",
@@ -102,7 +109,9 @@ def main(site: str, style: str | None = None, film: bool = True) -> None:
         sections, OUT / f"{name}.mp4", OUT / f"{name}-work",
         brand=brand, voice="mia", music=music.track("night-drift"),
         callouts=None, title_at=2.2, title=title, title_hold=4.6,
-        chapter_style=style, endcard=True, endcard_lead=5.0, film=film)
+        chapter_style=style, endcard=True, endcard_lead=5.0, film=film,
+        # The reel shows every special cut; a real video gets ~1 per 45s.
+        special_cuts=3)
     for k, v in made.items():
         print(f"{k}: {v}")
 

@@ -155,7 +155,10 @@ def lay_out(sections: list[Section], shots: list[Shot],
     for a, b in zip(shots, shots[1:]):
         if a.xfade is None and a.graphic and b.graphic:
             a.xfade = 0.0
-        if b.graphic == "chapter" or a.graphic == "chapter":
+        # A transition the script chose by hand is kept: `glitch` and
+        # `static` are cuts underneath and safe against a card's type.
+        if (b.graphic == "chapter" or a.graphic == "chapter") \
+                and a.transition is None:
             a.xfade = 0.0
 
     # Chapters key off the first *sentence* of each section, then map through

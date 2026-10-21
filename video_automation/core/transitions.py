@@ -16,6 +16,10 @@ between the two shots** rather than by taste.
 | `flash` | a reveal. The number, the verdict, the payoff. |
 | `wipe` | a comparison. The band crossing *is* the "versus". |
 | `punch` | escalation. Same subject, closer in. |
+| `static` | a channel change: into a chapter card, or a jump in time. |
+
+`glitch` and `static` are also placed **automatically and sparingly** by
+`plan_special` - see there for the rules.
 
 **Two rules carried over from `render_shots`' own comments, and they are not
 style preferences.** A dissolve between two *drawn* beats cross-fades two sets
@@ -40,10 +44,11 @@ XF = {
     "dissolve": 0.60,
     "push": 0.34,
     "whip": 0.22,
-    "glitch": 0.18,
+    "glitch": 0.26,
     "flash": 0.20,
     "wipe": 0.40,
     "punch": 0.26,
+    "static": 0.32,
 }
 
 # The sound each move wants under it, and how far ahead of the cut it fires.
@@ -51,7 +56,11 @@ XF = {
 # picture moves or the sound arrives late; a flash's pop is on the frame.
 CUES = {
     "whip": ("whoosh", -0.10),
-    "glitch": ("hook_glitch", -0.02),
+    # `glitch_cut`, not the hook's own `hook_glitch`: the hook's sounds are
+    # exempt from the per-site kit, and a transition must not be - the
+    # tinnitus kit softens it (`sfx.KITS`).
+    "glitch": ("glitch_cut", -0.02),
+    "static": ("tv_static", -0.02),
     "flash": ("hook_pop", -0.04),
     "wipe": ("hook_swish", -0.08),
     "punch": ("impact", -0.03),
@@ -133,14 +142,27 @@ def _glitch(out: Image.Image, inc: Image.Image, p: float, frame) -> Image.Image:
     # A fixed generator: the same cut renders the same way on every re-run,
     # which is the difference between a designed effect and a flickering one.
     rng = np.random.default_rng(int(p * 997) + 11)
-    for _ in range(int(3 + 9 * amt)):
+    # **Stronger since 2026-10-21**: at 3-12 slices of 60px over 0.18s the
+    # cut showed one torn frame and read as a dropped frame, not a glitch.
+    k = w / 1920
+    for _ in range(int(6 + 16 * amt)):
         y0 = int(rng.integers(0, h - 8))
-        y1 = min(h, y0 + int(rng.integers(6, 46)))
-        a[y0:y1] = np.roll(a[y0:y1], int(rng.integers(-1, 2) * 60 * amt), axis=1)
+        y1 = min(h, y0 + int(rng.integers(6, 70)))
+        a[y0:y1] = np.roll(a[y0:y1],
+                           int(rng.choice([-1, 1]) * rng.uniform(40, 170) * amt * k),
+                           axis=1)
+    # Block corruption: a few rectangles copied from elsewhere in the frame,
+    # the macroblock smear of a broken stream.
+    if amt > 0.4:
+        for _ in range(int(2 + 5 * amt)):
+            bw, bh = int(rng.integers(40, 260) * k), int(rng.integers(16, 90) * k)
+            sx, sy = int(rng.integers(0, w - bw)), int(rng.integers(0, h - bh))
+            dx, dy = int(rng.integers(0, w - bw)), int(rng.integers(0, h - bh))
+            a[dy:dy + bh, dx:dx + bw] = a[sy:sy + bh, sx:sx + bw]
 
     # Chromatic split. Red one way, blue the other, green held - anything else
     # reads as a colour cast rather than as a signal fault.
-    shift = int(round(13 * amt))
+    shift = int(round(26 * amt * k))
     if shift:
         a[:, :, 0] = np.roll(a[:, :, 0], shift, axis=1)
         a[:, :, 2] = np.roll(a[:, :, 2], -shift, axis=1)
@@ -223,6 +245,41 @@ def _punch(out: Image.Image, inc: Image.Image, p: float, frame) -> Image.Image:
     return scaled(inc, 1.0 + 0.14 * (1.0 - (e - 0.5) * 2))
 
 
+def _static(out: Image.Image, inc: Image.Image, p: float, frame) -> Image.Image:
+    """Analog TV noise: the picture rolls and drowns in snow, then the new one
+    tunes in. A channel change.
+
+    **A cut underneath, like `glitch`** - each frame shows one shot or the
+    snow, never two pictures through each other, so it is safe next to type.
+    The snow is monochrome, drawn at a third of the resolution so it has the
+    coarse grain of a real tuner, with dark scanlines and a bright band
+    rolling down it. For the two or three frames around the cut it is all
+    snow; either side the picture shows through, desaturated and rolling.
+    """
+    src = out if p < 0.5 else inc
+    amt = 1.0 - abs(2 * p - 1)              # peaks exactly on the cut
+    if amt < 0.03:
+        return src
+    w, h = frame.w, frame.h
+    rng = np.random.default_rng(int(p * 997) + 29)
+    small = rng.integers(0, 256, (h // 3 + 1, w // 3 + 1), dtype=np.uint8)
+    snow = np.asarray(Image.fromarray(small).resize((w, h), Image.NEAREST),
+                      dtype=np.float32)
+    rows = np.arange(h, dtype=np.float32)
+    snow *= np.where(rows % 3 == 0, 0.55, 1.0)[:, None]
+    band_y = (p * 1.7 % 1.0) * h
+    snow += 60.0 * np.exp(-((rows - band_y) / (h * 0.05)) ** 2)[:, None]
+
+    a = np.asarray(src).astype(np.float32)
+    roll = int(round(h * 0.10 * amt * (1 if p < 0.5 else -1)))
+    a = np.roll(a, roll, axis=0)
+    grey = a.mean(axis=2, keepdims=True)
+    a = a * (1 - 0.7 * amt) + grey * (0.7 * amt)
+    k = min(1.0, (amt ** 0.6) * 1.25)
+    mix = a * (1 - k) + snow[:, :, None] * k
+    return Image.fromarray(np.clip(mix, 0, 255).astype(np.uint8))
+
+
 _MODES = {
     "push": _push,
     "whip": _whip,
@@ -230,6 +287,7 @@ _MODES = {
     "flash": _flash,
     "wipe": _wipe,
     "punch": _punch,
+    "static": _static,
 }
 
 # The moves that paint in the brand's accent rather than in white.
@@ -274,3 +332,98 @@ def cues(shots) -> list[tuple[float, str]]:
         if at > 0:
             out.append((at, kind))
     return out
+
+
+# --------------------------------------------------------------------------
+# Placing the special cuts (2026-10-21)
+# --------------------------------------------------------------------------
+
+import re
+
+# A sentence that turns on what came before - the glitch's cut.
+_TURN = re.compile(r"^(but|except|yet|instead|however|actually|wrong|"
+                   r"not\b|no\b|it (did not|didn't|was not|wasn't)|"
+                   r"that (is|was) not|that's not)", re.I)
+# A sentence that jumps in time - the static's cut.
+_JUMP = re.compile(r"^((back )?in|by) (\d{4}|nineteen|twenty)\b|"
+                   r"\b(years|decades) (later|earlier|ago)\b", re.I)
+
+
+def plan_special(shots, lines, total: float, *, short: bool = False,
+                 budget: int | None = None) -> list:
+    """Put a glitch or a TV-static cut on a few cuts that mean something.
+
+    The user's ask: glitch and TV-noise transitions "used sometimes, not too
+    often". **A special cut is punctuation, and punctuation on every cut is
+    noise**, so this picks a handful by what the cut means and leaves every
+    other cut the default:
+
+    * **glitch - a contradiction.** The cut into a sentence that turns on the
+      last one: "But...", "Except...", "Actually...", "That was not...".
+      Highest priority: it is the cut the transition was designed for.
+    * **static - into a chapter card.** The section turning over is a
+      channel change. Alternates with glitch from card to card so two cards
+      in a row never arrive the same way.
+    * **static - a jump in time.** "In 2013...", "Years later...".
+
+    **Budget and spacing.** About one per 45 seconds and never within 20
+    seconds of another in the long form; one, or two past 40 seconds, in a
+    Short, 10 seconds apart. Never under the opening hook (the first 6s, 4s
+    in a Short) or the end card (the last 8s, 3s in a Short). Never on a cut
+    the script already gave a transition - a hand-picked move wins - and
+    never touching a drawn data beat: only between footage, photographs and
+    chapter cards.
+
+    `budget` overrides the count (a script passes `special_cuts=3`).
+    `lines[i]` is the first sentence carried by shot `i` ("" if none).
+    Mutates the shot *leaving* each chosen cut and returns the choices as
+    `(cut_time, mode, reason)` for the build log.
+    """
+    def eligible(sh):
+        return sh is not None and (sh.graphic in (None, "chapter"))
+
+    start_guard, end_guard = (4.0, 3.0) if short else (6.0, 8.0)
+    gap = 10.0 if short else 20.0
+    if budget is None:
+        budget = ((2 if total > 40 else 1) if short
+                  else max(1, int(round(total / 45.0))))
+
+    cands, chap_n = [], 0
+    for i in range(1, len(shots)):
+        a, b = shots[i - 1], shots[i]
+        if not (eligible(a) and eligible(b)) or a.transition is not None:
+            continue
+        t = b.start
+        if t < start_guard or t > total - end_guard:
+            continue
+        line = (lines[i] if i < len(lines) else "") or ""
+        if b.graphic != "chapter" and _TURN.match(line.strip()):
+            cands.append((0, t, i, "glitch", "turn"))
+        elif b.graphic == "chapter":
+            cands.append((1, t, i, "static" if chap_n % 2 == 0 else "glitch",
+                          "chapter"))
+            chap_n += 1
+        elif _JUMP.search(line.strip()):
+            cands.append((2, t, i, "static", "time jump"))
+
+    chosen = []
+    for _, t, i, mode, why in sorted(cands):
+        if len(chosen) >= budget:
+            break
+        if all(abs(t - c[0]) >= gap for c in chosen):
+            chosen.append((t, mode, why, i))
+
+    for t, mode, why, i in chosen:
+        shots[i - 1].transition = mode
+        shots[i - 1].xfade = XF[mode]
+    return sorted((t, mode, why) for t, mode, why, _ in chosen)
+
+
+def sentence_text(sentence) -> str:
+    """The on-screen words of a sentence in any of the scripts' shapes."""
+    parts = []
+    for ph in (sentence if isinstance(sentence, (list, tuple)) else (sentence,)):
+        if isinstance(ph, (list, tuple)):
+            ph = ph[0] if ph else ""
+        parts.append(str(ph))
+    return " ".join(parts)

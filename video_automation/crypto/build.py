@@ -215,6 +215,8 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # The old-film surface, arranged per shot
                         # (`core.filmfx.plan`). False off, a number scales it.
                         film: "bool | float" = True,
+                        # Glitch / TV-static on one or two meaningful cuts.
+                        special_cuts: "bool | int" = True,
                         mark: "Image.Image | None" = None,
                         roam: bool = False,
                         karaoke: bool = True,
@@ -477,6 +479,16 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         if a.xfade is None and ((a.graphic and b.clip is not None)
                                 or (a.clip is not None and b.graphic)):
             a.xfade = 0.0
+
+    if special_cuts:
+        # One or two glitch / TV-static cuts where the cut means something
+        # (`transitions.plan_special`). Shots and sentences are one-to-one.
+        from ..core import transitions as _tr
+        lines = [_tr.sentence_text(s) for s in sentences]
+        n = None if special_cuts is True else int(special_cuts)
+        for t, mode, why in _tr.plan_special(shots, lines, total, short=True,
+                                             budget=n):
+            print(f"special cut: {mode} at {t:.1f}s ({why})")
 
     line = caption_line(shots, y_frac, frame=frame)
 
