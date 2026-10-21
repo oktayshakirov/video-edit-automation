@@ -417,6 +417,31 @@ line to a dot, black, on the synthesized `tv_off` zap.
 script's `endcard=ENDCARD` keeps working. It sits mid-frame, so place the
 YouTube end-screen elements clear of the centre.
 
+## The old-film surface is arranged per shot (2026-10-21)
+
+From a documentary-channel reference: a very slight grain with particles,
+"reminding of old movie" - **placed strategically, not over everything**.
+`core/filmfx.py` draws four generated layers (grain, dust specks and hairs, a
+warm light leak from the bottom edge, exposure flicker), seeded by frame so a
+re-render is identical, and `filmfx.plan` gives each shot a recipe:
+
+| shot | recipe |
+|---|---|
+| the very first shot | clean - the hook's first frame stays crisp |
+| a section's first clip, after its card | full: grain, flicker, light dust |
+| every other clip | rotating grain-only, clean, dust-only, full; never two alike in a row |
+| a disclaimer clip | clean |
+| a clip carrying a statement | grain only - no speck in the type |
+| chapter card | dust, leak, light grain - specks read best on dark frames |
+| opening title / end card window | dust, leak, grain; the type is drawn clean on top |
+| drawn data beat | nothing - grain costs a chart its legibility |
+
+On by default in `render_long` and `render_crypto_short` (`film=False`
+off, a number scales it). It sits under every other overlay, so titles,
+the hook and the end card stay sharp; burned captions are drawn before it.
+**No vertical scratches** - the first version had a wandering scratch line
+and the user disliked it. Adds ~55ms a frame.
+
 ## The disclaimer is a notice card, on the notification chime (2026-10-21)
 
 A clip `payload` whose line is a disclaimer (`meta.is_disclaimer` - "advice"
