@@ -53,6 +53,12 @@ class Brand:
     # moves; only the quiz format reads it. Overridable per site if one ever
     # wants a green of its own.
     positive: RGB = (76, 175, 80)
+    # The band-style chapter card's fill and its type (2026-10-20). None
+    # takes `primary`. A field rather than `primary` because tinnitushelp.me's
+    # accent is peach and its band is the app's purple, and because gold needs
+    # dark type on it where purple needs white.
+    band: RGB | None = None
+    band_ink: RGB = (255, 255, 255)
     # The looping background behind a drawn beat, by name in
     # `assets/brand/backgrounds/`. None falls back to a flat `bg` panel. This
     # replaced a ruled grid that was identical on both channels and stepped a
@@ -130,6 +136,7 @@ CRYPTO = Brand(
     # reads as depth, where ruled lines read as a template. Ping-ponged from
     # the calm-water stock so the loop has no seam.
     backdrop="crypto-blackwater",
+    band_ink=(16, 16, 16),
     logo=Path.home() / "Coding/crypto-wiki/public/images/logo.png",
 )
 
@@ -146,6 +153,9 @@ TINNITUS = Brand(
     # A generated purple mesh gradient, out of the app's own palette. Ours on
     # every platform, seamless by construction, and regenerable at any size.
     backdrop="tinnitus-plum",
+    # The app's #5B3964 lifted: at its own value it sinks into the plum
+    # backdrop it sits on.
+    band=(132, 78, 150),
     mascot=Path.home() / "Coding/tinnitus-app/assets/images/splash-icon.png",
     mascot_crop=0.82,
     wordmark="TinnitusHelp.me",

@@ -28,6 +28,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
+from ..core import typewriter
 from ..core.frame import LANDSCAPE, Frame
 
 
@@ -321,6 +322,17 @@ class TitleOverlay:
         ramp[top:, 0] = k * k * 210.0
         self.scrim = np.repeat(ramp, frame.w, axis=1)
 
+        # The typing gets whatever the window leaves after the bar and before
+        # the exit, less a second for the finished line to be read whole.
+        self.times = typewriter.schedule(
+            title, start + self.LEAD,
+            max_dur=max(0.4, hold - self.LEAD - self.OUT - 1.4))
+        self.title = title
+
+    def cues(self) -> list[tuple[float, str]]:
+        """A key click per typed character, off the drawing's own schedule."""
+        return typewriter.cues(self.title, self.times)
+
     def draw(self, pic: Image.Image, t: float) -> Image.Image:
         if not (self.start <= t < self.end):
             return pic
@@ -364,26 +376,25 @@ class TitleOverlay:
             _tracked(d, (ex, ey), self.eyebrow, self.eb_font,
                      (*self.brand.primary, int(255 * ep)), self.eb_track)
 
-        for i, ln in enumerate(self.lines):
-            lp = ease_out(max(0.0, min(1.0, (e - (self.LEAD + i * self.STAGGER))
-                                       / self.RISE)))
-            if lp <= 0.01:
-                continue
-            # The slot is exactly one line tall, and the type starts below it.
-            # Anything still below the slot's own edge is simply not drawn —
-            # which is the mask, without a mask image.
-            slot = Image.new("RGBA", (self.col + self.size, self.line_h),
-                             (0, 0, 0, 0))
-            sd = ImageDraw.Draw(slot)
-            off = int(round(self.line_h * 0.92 * (1.0 - lp)))
-            sd.text((0, off - int(self.size * 0.06)), ln, font=self.font,
-                    fill=(255, 255, 255, 255))
-            if lp < 1.0 or a_all < 1.0:
-                al = slot.getchannel("A").point(
-                    lambda v: int(v * lp * a_all))
-                slot.putalpha(al)
+        # **Typed on behind a caret** (2026-10-20), replacing the masked
+        # line rise. Left-aligned, so the partial line needs no re-centring.
+        # The key clicks come from `cues()`, off the same schedule.
+        parts = typewriter.lines_shown(self.lines,
+                                       typewriter.shown(self.times, t))
+        ink = (255, 255, 255, int(255 * a_all))
+        caret = None
+        for i, part in enumerate(parts):
             y = self.block_top + self.eb_h + i * self.line_h + drift
-            layer.alpha_composite(slot, (self.text_x, y))
+            if part:
+                d.text((self.text_x, y - int(self.size * 0.06)), part,
+                       font=self.font, fill=ink)
+            caret = (self.text_x + d.textlength(part, font=self.font), y)
+        if caret is not None and typewriter.caret_on(self.times, t):
+            cx = caret[0] + self.size * 0.07
+            cw = max(3, int(round(self.size * 0.07)))
+            d.rectangle([cx, caret[1] + self.size * 0.08, cx + cw,
+                         caret[1] + self.size * 0.98],
+                        fill=(*self.brand.primary, int(255 * a_all)))
 
         # A soft drop shadow under the whole block, from the block's own alpha.
         sh = layer.getchannel("A").filter(ImageFilter.GaussianBlur(9))
@@ -391,6 +402,206 @@ class TitleOverlay:
         shadow.putalpha(sh.point(lambda v: int(v * 0.55)))
         out = pic.convert("RGBA")
         out.alpha_composite(shadow, (0, 5))
+        out.alpha_composite(layer)
+        return out.convert("RGB")
+
+
+class CinematicTitle:
+    """The video's title as a trailer card, over the opening footage.
+
+    Replaced `TitleOverlay`'s lower third as the default on 2026-10-20 - the
+    user's note was that it read as boring. A lower third is the language of
+    a news strap; a title the video has been building to wants the language
+    of a film title. Every part of this is borrowed from that grammar:
+
+    * **The picture steps back.** A soft vignette darkens the frame from the
+      edges in, so the footage stays visible but the type owns the middle.
+    * **Letters resolve out of a blur, centre first.** Each glyph fades in
+      from a heavy blur, staggered outward from the middle of the line, so the
+      title arrives as one gesture rather than left to right.
+    * **The tracking keeps tightening.** Wide-spaced capitals close up slowly
+      for the whole time the title is on screen - the slow move that makes a
+      still card feel like a shot.
+    * **A glint crosses it once**, a bright soft band brightening the bloom
+      behind the letters, after the last letter settles.
+    * **Brand hairlines open from the centre** under the title, and the
+      domain sits above it, tracked small, in the brand colour.
+    * **It leaves the way it came**: blurs up and opens out as it fades.
+
+    `cues()` plays the title intro under the arrival and the cinematic
+    flashback on the exit (`sfx.FILE_SFX`).
+    """
+
+    LAND = 0.10             # the first letter starts resolving
+    STAGGER = 0.75          # centre letter to edge letters
+    RESOLVE = 0.60          # one letter's blur-in
+    OUT = 0.65
+
+    def __init__(self, title: str, start: float, hold: float, brand,
+                 frame: Frame = LANDSCAPE, eyebrow: str | None = None):
+        self.start, self.end, self.hold = start, start + hold, hold
+        self.brand, self.frame = brand, frame
+        self.title = title
+        self.text = title.upper()
+        self.eyebrow = (eyebrow if eyebrow is not None
+                        else (brand.site or brand.name)).upper()
+        W, H = frame.size
+        portrait = H > W
+
+        # One line where it fits at a cinematic size, else two balanced ones.
+        probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        avail = W * (0.84 if portrait else 0.80)
+        size = int(W * (0.088 if portrait else 0.068))
+        words = self.text.split(" ")
+        lines = [self.text]
+
+        def wide(ln, f, sz):
+            return (sum(probe.textlength(c, font=f) for c in ln)
+                    + sz * self.TRACK_FROM * max(0, len(ln) - 1))
+
+        f = _sf(size, "Heavy")
+        if wide(self.text, f, size) > avail and len(words) > 1:
+            k = min(range(1, len(words)), key=lambda i: abs(
+                len(" ".join(words[:i])) - len(" ".join(words[i:]))))
+            lines = [" ".join(words[:k]), " ".join(words[k:])]
+        while size > 24 and max(wide(ln, _sf(size, "Heavy"), size)
+                                for ln in lines) > avail:
+            size -= 2
+        self.size, self.lines = size, lines
+        self.font = _sf(size, "Heavy")
+        self.line_h = int(size * 1.22)
+        self.eb_font = _sf(max(16, int(size * 0.36)), "Semibold")
+        self.bar_h = int(H * (0.07 if portrait else 0.115))
+        # The letters' order of arrival: distance from the line's middle.
+        self.order = []
+        for ln in lines:
+            mid = (len(ln) - 1) / 2
+            span = max(mid, 1.0)
+            self.order.append([abs(i - mid) / span for i in range(len(ln))])
+
+        # The vignette, built once and scaled per frame.
+        yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+        r = np.sqrt(((xx - W / 2) / (W * 0.62)) ** 2
+                    + ((yy - H / 2) / (H * 0.62)) ** 2)
+        self.vig = np.clip(0.38 + 0.55 * r ** 1.6, 0.0, 0.92)[:, :, None]
+
+    TRACK_FROM = 0.34       # letter spacing, in ems, at the start...
+    TRACK_TO = 0.12         # ...and at the end of the hold
+
+    @property
+    def land(self) -> float:
+        return self.start + self.LAND
+
+    def cues(self) -> list[tuple[float, str]]:
+        """The user's two title sounds (2026-10-21): the intro under the
+        arrival, its swell peaking as the letters finish resolving, and the
+        cinematic flashback on the way out, its hit a beat into the fade.
+        Times are the files' anchors - see `sfx.FILE_SFX`."""
+        out = [(self.start, "title_intro")]
+        if self.end - self.OUT > self.land:
+            out.append((self.end - self.OUT + 0.20, "title_flashback"))
+        return out
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        from ..core.draw import ease_out
+        from .beats.base import _smooth
+
+        W, H = self.frame.size
+        e = t - self.start
+        out_p = _smooth(max(0.0, (e - (self.hold - self.OUT)) / self.OUT))
+        in_p = _smooth(min(1.0, e / 0.6))
+        a_all = 1.0 - out_p
+
+        # The picture steps back.
+        base = np.asarray(pic).astype(np.float32)
+        base *= 1.0 - self.vig * (in_p * (1.0 - out_p))
+        # Letterbox bars slide in for the title and back out with it - the
+        # one device that says "film" before anything is read.
+        bh = int(round(self.bar_h * in_p * (1.0 - out_p)))
+        if bh > 0:
+            base[:bh] = 0.0
+            base[H - bh:] = 0.0
+        pic = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8))
+
+        # Tracking: closes over the whole hold, opens again on the way out.
+        k = _smooth(min(1.0, e / max(self.hold - self.OUT, 0.5)))
+        track = self.size * (self.TRACK_FROM + (self.TRACK_TO - self.TRACK_FROM)
+                             * k + 0.18 * out_p)
+
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        probe = ImageDraw.Draw(layer)
+        block_h = self.line_h * len(self.lines)
+        top = (H - block_h) / 2
+        line_w = []
+        for li, ln in enumerate(self.lines):
+            widths = [probe.textlength(c, font=self.font) for c in ln]
+            w = sum(widths) + track * max(0, len(ln) - 1)
+            line_w.append(w)
+            x = (W - w) / 2
+            y = top + li * self.line_h
+            for ci, ch in enumerate(ln):
+                cw = widths[ci]
+                if ch != " ":
+                    when = self.LAND + self.order[li][ci] * self.STAGGER
+                    lp = ease_out(max(0.0, min(1.0, (e - when) / self.RESOLVE)))
+                    if lp > 0.0:
+                        a = int(255 * lp * a_all)
+                        blur = 16.0 * (1.0 - lp)
+                        if blur < 0.6:
+                            probe.text((x, y), ch, font=self.font,
+                                       fill=(255, 255, 255, a))
+                        else:
+                            pad = int(blur * 3) + 4
+                            tile = Image.new("RGBA", (int(cw) + 2 * pad,
+                                                      self.line_h + 2 * pad),
+                                             (0, 0, 0, 0))
+                            ImageDraw.Draw(tile).text(
+                                (pad, pad), ch, font=self.font,
+                                fill=(255, 255, 255, a))
+                            tile = tile.filter(ImageFilter.GaussianBlur(blur))
+                            layer.alpha_composite(
+                                tile, (int(x) - pad, int(y) - pad))
+                x += cw + track
+
+        # The exit blurs the whole title up as it fades.
+        if out_p > 0.0:
+            layer = layer.filter(ImageFilter.GaussianBlur(10.0 * out_p))
+
+        # Bloom behind the letters, brightened where the glint passes.
+        bloom = layer.filter(ImageFilter.GaussianBlur(self.size * 0.35))
+        ba = np.asarray(bloom.getchannel("A")).astype(np.float32) * 0.55
+        g0 = self.LAND + self.STAGGER + self.RESOLVE
+        gp = (e - g0) / 0.9
+        if 0.0 <= gp <= 1.0:
+            xs = np.arange(W, dtype=np.float32)
+            cx = W * (0.10 + 0.80 * _smooth(gp))
+            band = np.exp(-0.5 * ((xs - cx) / (W * 0.06)) ** 2)
+            ba *= (1.0 + 2.2 * band)[None, :]
+        bloom.putalpha(Image.fromarray(np.clip(ba, 0, 255).astype(np.uint8)))
+
+        # Hairlines and the eyebrow.
+        deco = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(deco)
+        rp = ease_out(max(0.0, min(1.0, (e - self.LAND - 0.45) / 0.8)))
+        if rp > 0.0:
+            half = max(line_w) * 0.42 * rp
+            ry = top + block_h + self.size * 0.30
+            col = (*self.brand.primary, int(230 * a_all))
+            d.rectangle([W / 2 - half, ry, W / 2 + half, ry + 3], fill=col)
+        ep = ease_out(max(0.0, min(1.0, (e - self.LAND - 0.65) / 0.6)))
+        if ep > 0.0 and self.eyebrow:
+            etr = self.size * 0.36 * 0.50
+            ew = (sum(d.textlength(c, font=self.eb_font) for c in self.eyebrow)
+                  + etr * (len(self.eyebrow) - 1))
+            ey = top - self.size * 0.78 + 8 * (1.0 - ep)
+            _tracked(d, ((W - ew) / 2, ey), self.eyebrow, self.eb_font,
+                     (*self.brand.primary, int(255 * ep * a_all)), etr)
+
+        out = pic.convert("RGBA")
+        out.alpha_composite(bloom)
+        out.alpha_composite(deco)
         out.alpha_composite(layer)
         return out.convert("RGB")
 

@@ -19,7 +19,7 @@ from pathlib import Path
 
 from ..core import music as music_mod
 from ..core import sfx
-from ..core import transitions
+from ..core import transitions, typewriter
 from ..core.brand import Brand
 from ..core.frame import LANDSCAPE, Frame
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX,
@@ -32,11 +32,11 @@ from . import audio as audio_mod
 from . import chrome as chrome_mod
 from .beats import Checklist, item_count, make_beat
 from .meta import Meta, write_srt
-from .overlay import ClipOverlay, TitleOverlay
-from .plan import Section, flatten, lay_out, mark_times, reveal_times
+from .overlay import CinematicTitle, ClipOverlay, TitleOverlay
+from .plan import (Section, flatten, lay_out, mark_times, reveal_times,
+                   style_chapters)
 from .thumb import render_thumb
 
-RISER_LEAD = 0.75       # a riser starts this far before the card it announces
 
 
 def render_long(sections: list[Section], out: Path, workdir: Path,
@@ -67,6 +67,11 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # argues for is settled by that rather than by a curve. Pass
                 # True to put it back on one video.
                 chrome_nav: bool = False,
+                # "band" (the default since 2026-10-21): the section's kicker
+                # (or "CHAPTER n") glowing over a band in the brand colour, the
+                # title typed into it. "type" is the centred typed card. See
+                # `beats.column.ChapterCard.band`.
+                chapter_style: str = "band",
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 # The title sequence. `title_at` is the second it starts and
                 # turns the whole thing on; `title` defaults to `meta.title`
@@ -78,6 +83,10 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 title: str | None = None,
                 title_hold: float = 5.0,
                 title_eyebrow: str | None = None,
+                # "cinematic" (the default since 2026-10-20): a centred trailer
+                # card - `overlay.CinematicTitle`. "lower" brings back the
+                # typed lower third, `overlay.TitleOverlay`.
+                title_style: str = "cinematic",
                 # The redacted opening hook - see `overlay.HookOverlay` and
                 # longform.md's "The first five seconds carry information".
                 # The `[bracketed]` word is hidden until the voice says it;
@@ -108,6 +117,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     callouts = set(callouts or ())
 
     sentences, shots, gaps = flatten(sections)
+    style_chapters(shots, chapter_style)
     track, captions, total = build_narration_aligned(
         [list(s) for s in sentences], workdir, gap=gaps, **profile_args(voice))
 
@@ -206,6 +216,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     # fade that has to reach 50% before it reads as anything.
     hook_ov = ([opener.build(frame, brand, captions)] if opener is not None
                else _hook(hook, hook_until, brand, frame, captions))
+    title_ov = _title(title_at, title, title_hold, title_eyebrow,
+                      meta, brand, frame, title_style)
 
     picture = render_shots(
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
@@ -219,8 +231,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
         overlays=(_endcard(endcard, endcard_lead, total, frame)
-                  + _title(title_at, title, title_hold, title_eyebrow,
-                           meta, brand, frame)
+                  + title_ov
                   + _chrome(chrome_nav, chapters, shots, total, brand, frame)
                   + hook_ov))
 
@@ -236,7 +247,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         track = sfx.mix(track, workdir / "track-sfx.wav",
                         _cues(shots, total)
                         + transitions.cues(shots)
-                        + [c for h in hook_ov for c in h.cues()],
+                        + [c for h in hook_ov for c in h.cues()]
+                        + [c for o in title_ov for c in o.cues()],
                         kit=brand.name)
 
     if music:
@@ -346,7 +358,8 @@ def _endcard(path: "Path | None", lead: float, total: float,
 
 
 def _title(at: "float | None", text: "str | None", hold: float,
-           eyebrow: "str | None", meta, brand, frame) -> list:
+           eyebrow: "str | None", meta, brand, frame,
+           style: str = "cinematic") -> list:
     """The title sequence, if this build asked for one.
 
     **Put it on the line that promises the payoff, not on frame one.** The
@@ -361,6 +374,9 @@ def _title(at: "float | None", text: "str | None", hold: float,
     if not line:
         raise ValueError("title_at was given but there is no title to draw - "
                          "pass `title=` or a `meta` with one")
+    if style == "cinematic":
+        return [CinematicTitle(line, at, hold, brand, frame=frame,
+                               eyebrow=eyebrow)]
     return [TitleOverlay(line, at, hold, brand, frame=frame, eyebrow=eyebrow)]
 
 
@@ -394,8 +410,13 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             # Riser *into* the card, impact *on* it. The riser has to start
             # before the cut it announces, so it is clamped at zero rather than
             # scheduled negative on an opening card.
-            cues.append((max(0.0, sh.start - RISER_LEAD), "riser"))
+            # The riser's hard stop lands on the cut - the cue time is its
+            # anchor, not its start (`sfx.FILE_SFX`).
+            cues.append((sh.start, "chapter_riser"))
             cues.append((sh.start, "impact"))
+            # A key click per character as the title types on - the same
+            # schedule `ChapterCard` draws from, so no click lands early.
+            cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
             # And a whoosh on the way out, covering the cut back to content —
             # **unless the shot carries a transition that brings its own
             # sound.** A card leaving on a `whip` would otherwise fire this
@@ -403,9 +424,13 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             # the same sound 0.14s apart, which is a flam rather than a
             # transition. The transition owns the cut when one is set, because
             # its cue is timed to the move it is actually covering.
+            #
+            # **The user's cinematic flashback, not the synthesized whoosh**
+            # (2026-10-21) - the same exit sound as the opening title, its hit
+            # landing in the card's own close (`sfx.FILE_SFX` anchors it).
             end = sh.start + sh.hold
             if end < total - 0.4 and sh.transition not in transitions.CUES:
-                cues.append((end - 0.18, "whoosh"))
+                cues.append((end - 0.20, "title_flashback"))
         elif sh.graphic == "diagram":
             # Each node lands with its connector, so one cue per reveal marks
             # "and therefore" — `link`, not `reveal`, because a causal step is

@@ -100,6 +100,9 @@ def whoosh(sr: int = SR, dur: float = 0.62, down: bool = False) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+RISER_DUR = 2.0         # the cinematic riser, ending on the card's first frame
+
+
 def riser(sr: int = SR, dur: float = 0.9) -> np.ndarray:
     """Noise plus a rising partial, landing at full level. Goes *into* a card.
 
@@ -122,6 +125,67 @@ def riser(sr: int = SR, dur: float = 0.9) -> np.ndarray:
     tone = np.sin(2 * np.pi * np.cumsum(f) / sr) * 0.5
 
     out = (air * 0.85 + tone) * (t / dur) ** 1.7
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def tension(sr: int = SR, dur: float = RISER_DUR) -> np.ndarray:
+    """The cinematic riser: a big synth swell climbing from low to high.
+
+    Second version (2026-10-20). The first was a high Shepard shimmer, and the
+    user's note was that the sound on trailer-style channels starts *low* and
+    climbs - the whole register in one gesture. So this is the classic trailer
+    riser, built from three layers:
+
+    * **Three detuned sawtooth voices gliding four octaves**, 55 Hz to 880 Hz,
+      exponentially, so most of the climb happens late. They are additive
+      (band-limited harmonics), so the top of the glide does not alias.
+    * **A low-pass that opens with the pitch**, from a few hundred Hz to the
+      top of the spectrum. Applied per harmonic as a smooth roll-off rather
+      than by a moving IIR, which would ring. The opening filter is what makes
+      it read as "rising into something" rather than as a pitch bend.
+    * **Noise swelling under it**, its colour brightening with the filter, and
+      a sub layer that holds the low end so the start has weight.
+
+    It crescendoes and **stops dead** on the cut - no tail - so the card's
+    impact lands on silence.
+    """
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    p = t / dur
+    rng = np.random.default_rng(43)
+
+    glide = p ** 1.6
+    f0 = 55.0 * 2.0 ** (4.0 * glide)
+    cutoff = 260.0 * 2.0 ** (5.2 * glide)               # ~260 Hz -> ~9.5 kHz
+
+    voices = np.zeros(n)
+    for detune, ph in ((1.0, 0.0), (1.008, 1.1), (0.993, 2.3)):
+        f = f0 * detune
+        phase = 2 * np.pi * np.cumsum(f) / sr + ph
+        for k in range(1, 41):
+            fk = f * k
+            # A smooth 4th-order low-pass on each partial, and silence above
+            # Nyquist rather than a fold-back.
+            amp = (1.0 / k) / (1.0 + (fk / cutoff) ** 4)
+            amp = np.where(fk < sr / 2 - 500, amp, 0.0)
+            voices += amp * np.sin(k * phase)
+    voices /= np.max(np.abs(voices)) + 1e-9
+
+    # Noise, coloured by a one-pole low-pass whose cutoff tracks the filter.
+    white = rng.normal(0.0, 1.0, n)
+    coef = np.exp(-2 * np.pi * np.minimum(cutoff * 1.4, sr / 2.2) / sr)
+    noise = np.empty(n)
+    acc = 0.0
+    for i in range(n):
+        acc = (1.0 - coef[i]) * white[i] + coef[i] * acc
+        noise[i] = acc
+    noise /= np.max(np.abs(noise)) + 1e-9
+
+    sub = np.sin(2 * np.pi * np.cumsum(f0 * 0.5) / sr) * (1.0 - glide) * 0.6
+
+    out = (voices * 0.85 + noise * 0.45 * p + sub) * (0.08 + 0.92 * p ** 1.8)
+    tail = int(sr * 0.010)
+    out[-tail:] *= np.linspace(1.0, 0.0, tail)
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
@@ -259,6 +323,9 @@ def clock_final(sr: int = SR, dur: float = 0.11) -> np.ndarray:
 LEVELS = {
     "cross": 1.00, "tick": 1.00,
     "whoosh": 0.85, "riser": 0.55, "impact": 0.95, "reveal": 0.34,
+    "tension": 0.62, "riser_soft": 0.55,
+    # The file sounds, peak-normalised before these apply.
+    "chapter_riser": 0.70, "title_intro": 0.80, "title_flashback": 0.70,
     # The drawn-beat cues (2026-09-10). `link` sits just above `reveal` — it is
     # still punctuation, not an event. `loop_close` and `limit` each fire once
     # per beat at the one structural moment, so they can carry like an impact.
@@ -277,6 +344,9 @@ LEVELS = {
     # in the first second; the glitches are texture and sit well under it.
     "hook_slam": 1.10, "hook_glitch": 0.30, "hook_swell": 0.55,
     "hook_pop": 0.80, "hook_swish": 0.45,
+    # Typed titles (2026-10-20). Twenty a second under a spoken line, so they
+    # sit at texture level - under a `reveal`, which happens once.
+    "key0": 0.36, "key1": 0.36, "key2": 0.36, "key3": 0.36,
 }
 
 
@@ -373,6 +443,58 @@ def hook_swish(sr: int = SR, dur: float = 0.38) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+# --------------------------------------------------------------------------
+# Sounds from files (2026-10-21). The user supplied these three after two
+# synthesized risers missed what they meant. They are third-party library
+# sounds, so like the music bed they live in `assets/brand/sfx/` and are
+# gitignored - the repo is public. Each has a synthesized stand-in, used
+# automatically when the file is missing.
+#
+# The anchor is the moment in the file that lands on the cue's time,
+# measured on the files with a 0.1s RMS envelope:
+#
+# * chapter-riser.mp3 (3.84s) climbs to a hard stop at 3.75s - that stop
+#   lands on the chapter card's first frame.
+# * title-intro.mp3 (7.68s) has 0.2s of silence, a swell peaking at 1.3s as
+#   the title's letters resolve, and a second swell and tail under the hold.
+# * title-flashback.mp3 (2.04s) peaks at 0.83s - placed on the title's exit.
+# --------------------------------------------------------------------------
+
+SFX_DIR = Path(__file__).resolve().parents[2] / "assets/brand/sfx"
+
+FILE_SFX = {
+    # cue: (file, anchor seconds, synthesized stand-in)
+    "chapter_riser": ("chapter-riser.mp3", 3.75, "tension"),
+    "title_intro": ("title-intro.mp3", 0.20, "impact"),
+    "title_flashback": ("title-flashback.mp3", 0.83, "whoosh"),
+}
+
+# Anchors for the synthesized sounds that do not start on their moment.
+# **Not `whoosh`**: every existing whoosh cue is timed as its start, and
+# anchoring it would shift every transition in every video.
+ANCHOR = {"tension": RISER_DUR, "riser_soft": RISER_DUR}
+
+_FILE_CACHE: dict = {}
+
+
+def _file_clip(kind: str, sr: int) -> "np.ndarray | None":
+    """A file cue decoded to mono at `sr`, peak-normalised, or None."""
+    key = (kind, sr)
+    if key not in _FILE_CACHE:
+        import subprocess
+        path = SFX_DIR / FILE_SFX[kind][0]
+        clip = None
+        if path.exists():
+            raw = subprocess.run(
+                ["ffmpeg", "-v", "error", "-i", str(path), "-ac", "1",
+                 "-ar", str(sr), "-f", "f32le", "-"],
+                capture_output=True, check=True).stdout
+            x = np.frombuffer(raw, np.float32).astype(np.float64)
+            clip = x / (np.max(np.abs(x)) + 1e-9)
+        _FILE_CACHE[key] = clip
+    return _FILE_CACHE[key]
+
+
 def mix(track: Path, out: Path, cues: list[tuple[float, str]],
         gain: float = 0.22, kit: str | None = None) -> Path:
     """Lay sound effects over a finished narration track.
@@ -394,6 +516,8 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     peak = float(np.max(np.abs(audio))) or 1.0
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
               "riser": riser, "impact": impact, "reveal": reveal,
+              "tension": tension,
+              "riser_soft": lambda sr: riser(sr, RISER_DUR),
               "link": link, "loop_close": loop_close, "limit": limit,
               "clock": clock, "clock_final": clock_final,
               "hook_slam": hook_slam, "hook_glitch": hook_glitch,
@@ -407,10 +531,22 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
             g = gain
         else:
             kind, g = sub.get(kind, kind), gain * kit_gain
-        clip = makers[kind](sr) * peak * g * LEVELS.get(kind, 1.0)
-        i = int(at * sr)
+        # A file cue swaps to its synthesized stand-in when the file is not
+        # on this machine - the sounds are licensed and stay out of git.
+        if kind in FILE_SFX and _file_clip(kind, sr) is None:
+            kind = FILE_SFX[kind][2]
+        if kind in FILE_SFX:
+            raw = _file_clip(kind, sr)
+            anchor = FILE_SFX[kind][1]
+        else:
+            raw, anchor = makers[kind](sr), ANCHOR.get(kind, 0.0)
+        clip = raw * peak * g * LEVELS.get(kind, 1.0)
+        # `at` is when the clip's anchor lands, not when the clip starts. A
+        # riser that must end on a card starts before it; near the top of the
+        # timeline its front is trimmed rather than the cue dropped.
+        i = int(round((at - anchor) * sr))
         if i < 0:
-            continue
+            clip, i = clip[-i:], 0
         j = min(len(audio), i + len(clip))
         if j <= i:
             continue
@@ -486,7 +622,36 @@ def count(sr: int = SR, dur: float = 0.05) -> np.ndarray:
 
 LEVELS.update({"sweep": 0.30, "drop": 0.62, "count": 0.20})
 
-_MAKERS_EXTRA = {"sweep": sweep, "drop": drop, "count": count}
+def key(sr: int = SR, dur: float = 0.055, variant: int = 0) -> np.ndarray:
+    """One digital keystroke, for a title typing itself out (`typewriter`).
+
+    A soft tick rather than a mechanical clack: a bright, very short pitched
+    body over a high-passed noise snap, with a faint low thock under it so it
+    has some weight on a phone speaker. It fires once per character, twenty
+    times a second, so the decay is the whole design - anything that rings
+    past the next keystroke smears the train into a buzz.
+
+    Four variants a few semitones apart, cycled by the cue list, because one
+    identical sample repeated thirty times is audibly a loop.
+    """
+    from scipy.signal import butter, sosfilt
+
+    n = int(sr * dur)
+    t = np.arange(n) / sr
+    rng = np.random.default_rng(31 + variant)
+    f = 2350.0 * (1.0, 1.12, 0.94, 1.06)[variant % 4]
+
+    sos = butter(2, 3200, btype="high", fs=sr, output="sos")
+    snap = sosfilt(sos, rng.normal(0.0, 1.0, n)) * _env(n, sr, 0.0001, 0.0025)
+    body = np.sin(2 * np.pi * f * t) * _env(n, sr, 0.0003, 0.006)
+    thock = np.sin(2 * np.pi * 410.0 * t) * _env(n, sr, 0.0005, 0.010)
+    out = 0.9 * snap + 0.55 * body + 0.35 * thock
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+_MAKERS_EXTRA = {"sweep": sweep, "drop": drop, "count": count,
+                 **{f"key{i}": (lambda sr, i=i: key(sr, variant=i))
+                    for i in range(4)}}
 
 
 # One kit per site. A cue name is looked up here first, so a script and a beat
@@ -504,6 +669,10 @@ KITS = {
     "crypto": {},                       # the shipped sound, unchanged
     "tinnitus": {
         "impact": "loop_close",
+        # **No high tension riser for this audience.** A sustained, rising
+        # high tone is close to what a tinnitus listener is trying not to
+        # hear; the old soft noise riser stays here.
+        "tension": "riser_soft",
         "drop": "link",
         # A whoosh is broadband noise sweeping - it is the one transition
         # sound that is genuinely fine here, and softening it would leave the

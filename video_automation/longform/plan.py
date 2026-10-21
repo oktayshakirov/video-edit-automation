@@ -84,8 +84,10 @@ class Section:
             spoken = self.spoken_title or self.title
             # The caption is the title as written; the spoken half may differ.
             sents.insert(0, ((self.title, spoken),))
+            # `kicker` is the band card's label (`ChapterCard.band`).
             shots.insert(0, Shot(graphic="chapter",
-                                 payload=(self.title, self.number)))
+                                 payload=(self.title, self.number, None, None,
+                                          self.kicker or None)))
             gaps.insert(0, self.card_gap)
         return sents, shots, gaps
 
@@ -198,3 +200,21 @@ def mark_times(last_start: float, end: float, n: int) -> list[float]:
     step = MARK_STEP if n < 2 else min(MARK_STEP, max(0.10, room / (n - 1 + 0.7)))
     times = [first + i * step for i in range(n - 1)]
     return times + [(times[-1] if times else first) + step * 1.7]
+
+
+def style_chapters(shots: list, style: str | None) -> None:
+    """Give every chapter card its style and its running number, in place.
+
+    The number is the card's position among the cards on screen, not the
+    section index - the opening section carries no card, and numbering from
+    the section index is the off-by-one `ChapterCard` already records.
+    Payload becomes `(title, number, style, index, label)`.
+    """
+    if not style or style == "type":
+        return
+    k = 0
+    for sh in shots:
+        if sh is not None and sh.graphic == "chapter":
+            k += 1
+            pl = tuple(sh.payload) + (None,) * (5 - len(sh.payload))
+            sh.payload = (pl[0], pl[1], style, k, pl[4])
