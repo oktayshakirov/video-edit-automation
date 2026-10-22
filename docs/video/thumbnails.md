@@ -626,3 +626,14 @@ people already love - a mascot, an animal - that face is the thumbnail, not
 the object it is printed on. In 9:16, scale a landscape source to the
 width rather than cutting it to the frame's shape: the full-height cut put
 the tongue behind the headline.
+
+## Forced rows beat the auto-wrap on the Short too (2026-10-22)
+
+The Vitalik re-do: `render_short_thumb` with two rows (`"He made it.\nHe
+can't [stop it.]"`) capped near size 126 however high `size` was set, because
+the longer row hits the frame width first. Splitting into three rows
+(`...\nHe can't\n[stop it.]`) set at 180 and filled the band. On the landscape
+side, `"He was 19.\nBitcoin wasn't\n[enough.]"` set *smaller* than four rows
+(`He was 19.` / `Bitcoin` / `wasn't` / `[enough.]`) - the long middle row is
+the ceiling. **When the note is "bigger" or "catchier", shorten the longest
+row before touching anything else.**

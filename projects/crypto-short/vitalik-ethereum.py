@@ -50,6 +50,7 @@ POSTS = SITE_IMAGES / "posts"
 
 P_FACE = VIT / "vitalik-techcrunch-portrait.jpg"     # 1670x2553
 P_SQUARE = VIT / "vitalik-techcrunch-square.jpg"     # 3223x3597
+P_SF = VIT / "vitalik-techcrunch-sf2017.jpg"         # 2000x1334 - thumbnail
 ETH_MARK = VIT / "ethereum-mark-gold.jpg"            # gold Ethereum mark, square
 ETC_MARK = VIT / "etc-mark-square.jpg"               # pewter Ethereum Classic mark
 
@@ -191,12 +192,13 @@ def main() -> None:
         karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
 
-    # `size=126` keeps the headline inside the frame - 168 ran "ETHEREUM?" off
-    # both edges. `band="bottom"` because his head is in the top half.
+    # Re-done 2026-10-22 on the user's SF 2017 photo for a catchier hook.
+    # Three forced rows set at 180; two rows capped near 126. `band="bottom"`
+    # because his head is in the top half; `ax=0.48` centres his face.
     thumb = render_short_thumb(
         Path.home() / "Desktop/crypto-vitalik-ethereum-short-thumb.jpg",
-        CRYPTO, "Who [runs] Ethereum?",
-        image=P_SQUARE, accent="yellow", band="bottom", size=126)
+        CRYPTO, "He made it.\nHe can't\n[stop it.]",
+        image=P_SF, accent="yellow", band="bottom", ax=0.48, size=180)
     print(f"{out}  {total:.2f}s")
     print(f"thumb: {thumb}")
 
