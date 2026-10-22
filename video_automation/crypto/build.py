@@ -118,7 +118,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
                         "diagram", "dial", "split", "chart",
-                        "replicate", "pool"):
+                        "replicate", "pool", "reel"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -479,6 +479,10 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         if a.xfade is None and ((a.graphic and b.clip is not None)
                                 or (a.clip is not None and b.graphic)):
             a.xfade = 0.0
+
+    # A reel entered or left through a card joins the clip beside it.
+    from ..longform.beats.reel import link_reels
+    link_reels(shots)
 
     if special_cuts:
         # One or two glitch / TV-static cuts where the cut means something

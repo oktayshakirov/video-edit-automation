@@ -367,6 +367,8 @@ LEVELS = {
     # The special cuts: heard, but under the voice - they mark a cut, they
     # do not interrupt the sentence on either side of it.
     "tv_static": 0.42, "tv_static_soft": 0.30, "glitch_cut": 0.32,
+    # The reel's camera move: a whoosh, but a quiet one - it fires per card.
+    "pan": 0.40,
     # The drawn-beat cues (2026-09-10). `link` sits just above `reveal` — it is
     # still punctuation, not an event. `loop_close` and `limit` each fire once
     # per beat at the one structural moment, so they can carry like an impact.
@@ -563,6 +565,7 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
               "tv_static": tv_static,
               "tv_static_soft": lambda sr: tv_static(sr, soft=True),
               "glitch_cut": hook_glitch,
+              "pan": lambda sr: whoosh(sr, dur=0.48),
               "riser_soft": lambda sr: riser(sr, RISER_DUR),
               "link": link, "loop_close": loop_close, "limit": limit,
               "clock": clock, "clock_final": clock_final,

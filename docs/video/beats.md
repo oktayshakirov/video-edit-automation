@@ -1064,3 +1064,71 @@ full. Reach for it on any DEX swap, liquidity pool or bank run.
 - Portrait-safe and whitelisted in `crypto/build.py`; cues as `reveal`.
 - Give its sentence a `gap` of ~1.4-2.1s: the drain runs 1.7s after the
   third chunk starts and the verdict lands at the end of it.
+
+## `reel` - a strip of cards the camera travels along (2026-10-22)
+
+From a reference the user liked: the "extended screen", where the frame is a
+window onto a wider surface and the camera follows a row of cards, each with
+a label, gliding to the next as the voice names it. `longform/beats/reel.py`,
+both formats.
+
+```python
+Shot(graphic="reel", payload=([(clip_or_image, "2009"),
+                               (clip_or_image, "2013"),
+                               (None, "Today")],          # a text card
+                              "HOW IT GOT HERE"))         # optional kicker
+```
+
+- **One card per caption.** `item_count` is the number of cards; card `i`
+  comes to centre on reveal `i`. Write the script as one sentence per card
+  and hold the shot across them with `None` - see `projects/demo/reel.py`.
+- **Media** is an image, a video (played from its start, looping) or None
+  for a text card showing the label large. A missing file draws as a text
+  card rather than failing.
+- **What makes it a camera, not a carousel:** a dot grid on the backdrop
+  moves with the camera; the camera pulls back ~10% mid-travel and settles;
+  horizontal motion blur scales with its speed, labels included; cards dim
+  away from centre; a slight barrel curve and vignette over the frame.
+- **Labels are the band card's pill** (`Brand.band`, DIN Condensed), popping
+  in when the card is named, on a `reveal` tick; each move between cards is
+  a quiet `pan` whoosh.
+- **Use it for a sequence the viewer should feel move**: days, versions,
+  dates, steps, a set of examples. Four to six cards; past that it is a
+  slideshow. Dark stock on the dark backdrop separates by border and shadow
+  only - prefer a brighter picture where there is a choice.
+- ~0.25s a frame to draw (video decode, blur, curve), so a 10s reel adds
+  about a minute to a render.
+
+### Entering and leaving a reel through a card (2026-10-22)
+
+`payload=(items, title, enter, emerge)`.
+
+- **`enter=True`** - the camera dives into the **last** card until it fills
+  the frame, then the reel cuts. Make the next shot the **same clip** as that
+  card and `link_reels` starts it at the card's own media time, so the dive
+  lands on the frame the footage continues from - an invisible cut. Into a
+  chapter card it reads as going through the card; a text card last works
+  for that.
+- **`emerge=True`** - the reverse: the reel opens full-frame on its first
+  card and pulls back to the strip. Make the **previous** shot the same clip
+  as the first card and the card picks up where that shot stopped.
+- Everything that is not the card - grid, other cards, labels, shadow, the
+  barrel curve - fades with the dive, and cards take `clip.VideoShot`'s grade
+  (0.86 dim, 0.82 saturation), so the last frame of an enter *is* the next
+  shot's first. Cards are drawn from the full-resolution source, cropped to
+  what is on screen, so a card at 4x its resting size stays sharp.
+- `link_reels` runs in both builders once holds are final; it makes the
+  joining cut hard either way, and skips the continuation (not the dive) if
+  the clip is too short to carry on.
+- Item: `(media, label[, offset])` - `offset` starts a video card partway in.
+
+### In a Short
+
+- **Cards are 4:5 in 9:16**, not 16:9 - a wide card left two thirds of the
+  phone screen as backdrop. Footage is centre-cropped to it.
+- A Short has one shot per sentence, so **a reel is one sentence with one
+  phrase per card**: the camera moves on each phrase's caption. Give each
+  phrase about two seconds ("Twenty thirteen, the Ethereum paper.") - four
+  cards in three seconds never let the camera settle. Burned captions are
+  suppressed over the reel, as over every drawn beat; the labels carry it.
+- `projects/demo/reel.py short` is the reference.
