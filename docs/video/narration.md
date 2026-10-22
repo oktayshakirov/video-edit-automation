@@ -554,9 +554,11 @@ option 2 above - which is why option 2 now carries the caveat.
 **The hidden word is usually the cause.** The redacted hook and `at_word=`
 land on a word that sentence 2 must say at ~3.5-5s. When that word *is* the
 answer - `[Hal Finney]`, `[explosion]`, `[30 seconds]`, at_word "forty-three"
-- the opener forces the verdict into sentence 2. Hide the *kind* of answer
-("Every crypto scam asks for [two things]"), or a word from the reversal
-("The biggest whale is [not a person]"), never the answer itself.
+- the opener forces the verdict into sentence 2. Hide a word from the
+reversal ("The biggest whale is [not a person]"), never the answer itself.
+Hiding the *kind* of answer ("[two things]") keeps the verdict back but
+reveals a placeholder - see `shorts.md`, "A hidden word must be worth
+revealing" (2026-10-22), before reaching for it.
 
 **Self-check, replacing the two questions above:** cover everything after
 sentence 2 and try to answer the title question from sentences 1-2. If you

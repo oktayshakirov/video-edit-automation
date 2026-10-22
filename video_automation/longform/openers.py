@@ -91,9 +91,15 @@ class _Opener:
 
     def __init__(self, *, at_word: str | None = None, at: float | None = None,
                  hold: float = 0.9, punch: bool = True,
-                 enter_word: str | None = None):
+                 enter_word: str | None = None,
+                 centre_y: float | None = None):
         self.at_word, self.at_fixed, self.hold, self.punch = at_word, at, hold, punch
         self.enter_word = enter_word
+        # A fraction of the frame height, for an opening shot whose subject
+        # sits where the block would (2026-10-22: the meme coins long form's
+        # Counter covered the Shiba Inu's eyes). The redacted hook has had
+        # `hook_centre_y` for the same reason since 2026-10-09.
+        self.centre_y = centre_y
         self.frame: Frame = VERTICAL
         self.accent = (229, 194, 0)
         self.built = False
@@ -131,7 +137,8 @@ class _Opener:
         return self
 
     def _layout(self) -> None:
-        self.centre = self.frame.h * (0.34 if self.frame.h > self.frame.w else 0.26)
+        default = 0.34 if self.frame.h > self.frame.w else 0.26
+        self.centre = self.frame.h * (self.centre_y or default)
         self.block_h = 360
 
     # -- drawing ---------------------------------------------------------

@@ -291,7 +291,9 @@ colours, the width of the word — and **revealed on the frame the narration
 says it**. **Never hide the answer to the title question** (2026-10-11): the
 narration has to say the word at ~3.5-5s, so a hidden answer puts the verdict
 in sentence 2. `[Hal Finney]`, `[explosion]` and `[30 seconds]` all cliffed;
-`[two things]` and `[request]` held. `tools/opening_check.py` prints the
+`[two things]` and `[request]` held - but see "A hidden word must be worth
+revealing" (2026-10-22) before hiding a placeholder like those.
+`tools/opening_check.py` prints the
 word next to sentence 2 (`workflow.md`, step 2). `hook_reveal_time()` finds the word in the caption timings; the
 render prints a warning and falls back to `hook_until` (3.4s) if it is never
 spoken. Timeline (`longform/overlay.py`, `HookOverlay`):
@@ -1128,3 +1130,40 @@ burned caption on a white page and the line could not be read. As
 `inset=(plate, "top", 0.50)` over a dark clip it sits above the caption
 block and the picture is still the noun. Check any bright still in a Short
 against the caption band, not on its own.
+
+## A hidden word must be worth revealing (2026-10-22)
+
+The meme coins Short opened on `hook="A meme coin's price has [one
+source]"`. It passed every rule above - not the answer, not guessable, said
+early in sentence 2 - and the user's verdict was that the reveal does not
+work: **the words did not fit the idea**, and this has happened before. The
+reveal is the hook's payoff - static wipes off, the pill lands, a chime -
+and `ONE SOURCE` in the pill is a placeholder. The viewer waited three
+seconds for a word that tells them nothing they could not have guessed was
+coming.
+
+The 2026-10-11 rule caused it. "Hide the *kind* of answer" was the safe way
+to keep the verdict out of sentence 2, and the kind of answer is almost
+always a placeholder: `[two things]`, `[one source]`, `[a request]`. Their
+retention held because sentence 2 withheld the answer, not because the
+reveal worked. So the redacted hook now has two tests, and both must pass:
+
+1. **It is not the answer** (2026-10-11, unchanged).
+2. **Read alone in the pill, it is a thing worth seeing** - a number, a
+   name, an object, a plain reversal (`[not a person]`, `[30 seconds]`,
+   `[newspaper headline]`). Not a count of unnamed things, not "source",
+   "reason", "way", "part", "thing", "step". If a viewer who saw only the
+   pill would shrug, it fails.
+
+**When nothing passes both, do not redact.** Use the pair's long-form
+opener when it fits the Short's sentence 2 (the default for a pair - this
+Short took the long form's `Counter` on "$90B", entering on "joke"), a
+`Counter` or `Stamp` of its own, or the hook in statement mode with no
+brackets. `tools/opening_check.py` flags a redacted hook whose hidden words
+are all placeholders.
+
+**Every opener takes `centre_y=` now** (2026-10-22), a fraction of the frame
+height - the `hook_centre_y` the redacted hook already had. The meme coins
+long form's `Counter` sat at the 16:9 default 0.26, square over the opening
+Shiba Inu's eyes; `centre_y=0.74` puts it on the chest. Check the opener
+against the opening shot's subject, not only the shot's brightness.

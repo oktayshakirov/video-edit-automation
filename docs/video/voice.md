@@ -156,7 +156,13 @@ in the spoken half of a `(caption, spoken)` pair.
 **Surnames from the celebrities pair (2026-10-09):** `Nimoy` reads
 `nˈɪmɔɪ` (NIM-oy) - respell `Neemoy`; `Streisand` reads `stɹˈeɪsænd`
 (STRAY-sand) - respell `Strysand`; `Ulrich` reads UL-ritch - respell
-`Ulrick`; `Gallagher` reads GAL-uh-ger - respell `Gallaher`; `will.i.am` - say
+`Ulrick`; `Gallagher` reads GAL-uh-ger - respell `Gallaher`; `Elon` reads
+`ᵻlˈɑːn` (uh-LON) - respell `Eelahn`; `Inu` (Shiba Inu) reads in-YOO -
+respell `Eenoo`; `Kabosu` reads ka-BAH-soo - respell `Kahbosoo`. **`Elon`
+shipped wrong into the meme coins pair (2026-10-22) although musk-effect had
+already solved it** - the fix lived only in that script's comment. Grep
+`projects/` for a name before writing it: a solved respelling is reused, not
+rediscovered by the user. `will.i.am` - say
 `Will I Am`. **`habituated` has no respelling that
 works** - six tried, every one wrong on the stress or the vowel - so say "used
 to it" and keep the word on screen only.

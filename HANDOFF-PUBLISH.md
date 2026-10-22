@@ -1,65 +1,65 @@
-# Handoff: tinnitus-in-history (long + Short)
+# Handoff: what-are-memecoins (long + Short)
 
-Approved by the user 2026-10-21. Channel: tinnitushelp.me. Voice `mia`, music
-`night-drift`. Source article slug: `tinnitus-in-history`
-(https://tinnitushelp.me/blog/tinnitus-in-history). Build commits on `main`,
+Approved by the user 2026-10-22. Channel: thecrypto.wiki. Voice `mia`, music
+`night-drift`. Source article slug: `what-are-memecoins`
+(https://thecrypto.wiki/posts/what-are-memecoins). Build commit on `main`,
 **not pushed**. **Nothing has been published yet.**
 
 ## Files
 
 | What | Path |
 | --- | --- |
-| Long form (3:58) | `/Users/oktayshakirov/Desktop/tinnitus-in-history-long.mp4` |
-| Long thumbnail | `/Users/oktayshakirov/Desktop/tinnitus-in-history-long-thumb.jpg` |
-| Long captions | `/Users/oktayshakirov/Desktop/tinnitus-in-history-long.srt` |
-| Long sidecar (title, description, chapters, tags, credits) | `/Users/oktayshakirov/Desktop/tinnitus-in-history-long.md` |
-| Short (44.8s) | `/Users/oktayshakirov/Desktop/tinnitus-in-history-short.mp4` |
-| Short cover | `/Users/oktayshakirov/Desktop/tinnitus-in-history-short-thumb.jpg` |
+| Long form (4:08) | `/Users/oktayshakirov/Desktop/what-are-memecoins-long.mp4` |
+| Long thumbnail | `/Users/oktayshakirov/Desktop/what-are-memecoins-long-thumb.jpg` |
+| Long captions | `/Users/oktayshakirov/Desktop/what-are-memecoins-long.srt` |
+| Long sidecar (title, description, chapters, tags, credits) | `/Users/oktayshakirov/Desktop/what-are-memecoins-long.md` |
+| Short (40.8s) | `/Users/oktayshakirov/Desktop/what-are-memecoins-short.mp4` |
+| Short cover | `/Users/oktayshakirov/Desktop/what-are-memecoins-short-thumb.jpg` |
 
-Scripts: `projects/tinnitus-long/tinnitus-in-history.py`,
-`projects/tinnitus-short/tinnitus-in-history.py`.
+Scripts: `projects/crypto-long/what-are-memecoins.py`,
+`projects/crypto-short/what-are-memecoins.py`.
 
-The long thumbnail on the Desktop was redrawn after the last render with
-`thumb_shift=0.28` (now in the script), so a re-render reproduces it.
+The long thumbnail on the Desktop was redrawn with `--thumb` after the
+render, and the script's `thumbs()` is what drew it, so a re-render
+reproduces it.
 
 ## Titles
 
-- Long: **The History of Tinnitus: 3,500 Years of Ringing Ears** (in the
-  sidecar). Search query angle: "history of tinnitus".
-- Short: **Is Tinnitus a Modern Problem?** - its opening line. No sidecar;
-  write its caption from the script, keeping: an Egyptian papyrus described a
-  humming in the ear 3,500 years ago, every age blamed something different
-  (spirits, humours, blocked energy, a sign from heaven), and today the
-  answer points to the brain. Link the article. No disclaimer line in the
-  Short (`shorts-no-disclaimer`).
-- Both thumbnails carry the same question: "Is tinnitus a modern problem?"
-  (the user's call on the first cut).
+- Long: **What Are Meme Coins and How Do They Work?** (in the sidecar).
+  Search query angle: "what are meme coins".
+- Short: **Where Does a Meme Coin's Price Come From?** - its opening line.
+  No sidecar; write its caption from the script, keeping: Dogecoin was made
+  as a joke and peaked at about $90 billion (May 2021); a meme coin has no
+  company, profits or supply limit, so its price is whatever the next buyer
+  pays; the money sits in a pool the creator can pull - a rug pull - as the
+  Squid Game token's creators did with an estimated $3.4 million in 2021.
+  Link the article. No disclaimer line in the Short (`shorts-no-disclaimer`).
+- Both thumbnails: a grinning Shiba Inu (Pexels 16730750, no credit needed)
+  with "What are meme coins?" - the user's call over the first cut's coin.
 
 ## Openers (tag for the fortnightly review)
 
-- Long: `Stamp("Tinnitus is a modern problem", "MYTH")`, landing on "myth".
-- Short: the same Stamp. Sentence 2: "That is a myth, and the oldest record
-  of it is three and a half thousand years old."
+- Long: `Counter("$90B", "DOGECOIN AT ITS PEAK, MAY 2021")`, landing on
+  "ninety" in sentence 1, set low (`centre_y=0.74`).
+- Short: the same Counter, entering on "joke" and landing on "ninety" in
+  sentence 2. The first cut ran the redacted hook `[one source]`; the user
+  rejected it as a reveal that did not fit the idea (`shorts.md`, "A hidden
+  word must be worth revealing").
 
 ## Credits - must go in both descriptions
 
-All images are Wikimedia Commons, none CC BY-SA. Full table in
-`assets/tinnitus/history/CREDITS.md`. The block (already in the long
-sidecar; copy it into the Short's description):
+Commons photographs, two of them attribution-required (one share-alike).
+Full table in `assets/crypto/memecoins/CREDITS.md`. The line is already in
+the long sidecar; **the Short uses the Dogecoin coin and the Musk photo, so
+copy it into the Short's caption too**:
 
-> Images via Wikimedia Commons. Ebers Papyrus plates, Hippocrates engraving
-> (1584), the four humours chart, the Charaka Samhita, a Chinese acupuncture
-> woodcut and a horn ear trumpet: Wellcome Collection, CC BY 4.0. Celsus, De
-> medicina (1465), Bayerische Staatsbibliothek; the Carrara Herbal; Vesalius,
-> De humani corporis fabrica (1543): public domain. Ming bronze acupuncture
-> figure: CC0.
+> Photographs: Dogecoin coin by Cyril Ernst (CC BY-SA 4.0); Elon Musk by UK
+> Government (CC BY 2.0); Kabosu by Asanagi (CC0); via Wikimedia Commons.
 
-The long sidecar also carries the medical disclaimer ("general history, not
-medical advice...").
+The long sidecar also carries "Nothing in this video is financial advice."
 
 ## Undecided
 
-- The source post still contains a generator leftover in its TCM section:
-  "(if discussed in your nutrition article)" after the Ginkgo link. The
-  video does not use it; fixing the site is the user's call, separate from
-  publishing.
+- Nothing open on the cut itself.
+- The long form runs 4:08, just over the 2:30-4:00 guide; accepted as
+  written (the doc allows a well-punctuated cut to run over).
