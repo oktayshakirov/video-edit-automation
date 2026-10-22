@@ -720,6 +720,12 @@ fresh in its own style. So:
   again, and the video that used it still re-renders. Never import another
   video's look.
 
+**A look that reads the breath must also build with `pattern=None`.** The
+session thumbnails call `looks.make(look, W, H, 60.0)` with no pattern, so a
+look that raises on a non-dividing period (`StarPulse` at 4-7-8 did) breaks
+the thumbnail after a finished render. Validate only when a pattern is given
+and hold the breath-driven part still otherwise.
+
 The nebula's rules apply, and `tests/test_looks.py` holds every look to them,
 shelf and used alike: a look is built at `period=loop` and closes on it
 exactly, it accepts negative `t` because the bookends run the clock below
@@ -754,7 +760,8 @@ variation (2026-10-15), and `forest-chorus-box-breathing` is the first:
   follow is a reason to leave.
 
 Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
-(white noise, both waterfalls), box (forest chorus). Pick one off this list's
+(white noise, both waterfalls, Nebula Pulse - the user asked for it by name), box
+(forest chorus). Pick one off this list's
 tail, or a new one, rather than the last session's.
 
 ## The intro
@@ -865,6 +872,12 @@ Measured on a 30s sample, and this is why both are needed:
 |---|---|---|---|
 | SpaceshipAmbience | 128 Hz | 86.8% | 0.1% |
 | NebulaPulse | 807 Hz | 63.1% | 6.5% |
+
+**Re-measured 2026-10-22 on the full ten-minute NebulaPulse.mp3 the user
+supplied: 99.7-99.8% below 200 Hz in every window, nothing above 1 kHz** - two
+tones near 87.6 and 175 Hz beating at ~4.3 Hz. The 63.1% row above is not
+what that file holds; trust a fresh `band_energy` over this table. On its own
+it is a comfort bed, not a masking one (`nebula-pulse-478-breathing`).
 
 SpaceshipAmbience is a beautiful floor that masks nothing in the band tinnitus
 actually occupies. NebulaPulse carries the mid and upper content. `render_bed`
