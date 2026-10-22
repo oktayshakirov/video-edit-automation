@@ -68,10 +68,15 @@ headline", and `narration.md`, "Revised 2026-09-21".
 
 **The hidden word is never the answer to the title question.** Sentence 2
 has to say it, so if `[Hal Finney]` is hidden, "Hal Finney." is sentence 2
-and the viewer has what they came for at five seconds. Hide the *kind* of
-answer (`[two things]`, `[a request]`) or a word from a plain reversal of
-the title's assumption. The same goes for an opener's `at_word=`. See
-`narration.md`, "Confirmed 2026-10-11".
+and the viewer has what they came for at five seconds. The same goes for an
+opener's `at_word=`. See `narration.md`, "Confirmed 2026-10-11".
+
+**And the hidden word has to be worth revealing (2026-10-22).** A
+placeholder - `[one source]`, `[two things]` - is not the answer, and it is
+not a payoff either: the pill lands and the viewer has learned nothing. When
+the only safe word to hide is a placeholder, do not redact: use the pair's
+long-form opener, a `Counter`/`Stamp`, or the hook in statement mode. See
+`shorts.md`, "A hidden word must be worth revealing".
 
 **Gate: run the opening check on the Short before preflight or build, and
 put its output in the script handover.**

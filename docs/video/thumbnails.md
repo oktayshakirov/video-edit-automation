@@ -614,3 +614,15 @@ frame that sells the click. Two layout notes from it:
 - **The Short uses the owner's portrait cut of the same art** when one
   exists (`extended-look`, 1080x1600 on Rockstar's site): faces in the top
   half, three rows on a bottom ramp, clear of the view count.
+
+## A cute animal beats the object it stands for (2026-10-22)
+
+The meme coins pair first shipped a physical Dogecoin on black - on-palette,
+real, sharp, and the user's verdict was "boring and not clickbaiting
+enough". The coin is the *noun*; the Shiba Inu is what the viewer feels
+about the noun. A grinning Shiba Inu, tongue out, on a dark background
+(Pexels 16730750) replaced it on both covers. When the subject has a face
+people already love - a mascot, an animal - that face is the thumbnail, not
+the object it is printed on. In 9:16, scale a landscape source to the
+width rather than cutting it to the frame's shape: the full-height cut put
+the tongue behind the headline.

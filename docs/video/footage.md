@@ -1127,3 +1127,34 @@ material; the description credits it (`Meta.credits`).
 
 Assets live in `assets/stock/press/<topic>/` with a committed `SOURCES.md`;
 the bytes are gitignored like the rest of the stock cache.
+
+## The meme coins fetch: verdicts (2026-10-22)
+
+**Every Shiba Inu clip is bright** (L90-157): Pexels shoots dogs in daylight
+and white rooms. Relevance won for the Doge noun - three kept, never two in
+a row. **Commons had the real things**: a physical Dogecoin on black (CC
+BY-SA), Kabosu herself with her owner (CC0), and a 2023 Musk photo unused by
+the musk-effect pair. `Kabosu.jpg` on Commons is the citrus fruit - look at
+every file a name search returns. Credits in `assets/crypto/memecoins/`.
+
+| clip | verdict |
+| --- | --- |
+| `shiba-inu-dog/20378106`, `20660963`, `16436887` | **kept**: a grinning close-up (the opening face), one lying down, one on a lead |
+| `shiba-inu-dog-close-up/5728459`, `-evening/5921464` | warm-orange interior S90; autumn forest S66 |
+| `scrolling-social-media-phone-night/6279142`, `17586685` | **kept**: a feed in two hands by a lamp; a hand on a phone, screen away |
+| `scrolling-social-media-phone-night/10238038` | a legible chat, L81-98 |
+| `laughing-at-phone-dark/5281602` | **kept**: a face lit by a screen |
+| `laughing-at-phone-dark/7986753` | L7, nothing readable |
+| `crowd-holding-phones/8088612`, `38471324` | **kept**: a crowd each on a phone; a night square of raised phones |
+| `typing-code-laptop-night/13522186`, `5495781` | **kept**: code on a laptop; hands typing |
+| `programmer-monitor-code-dark/34160292` | **kept**: a monitor of code, red light |
+| `crypto-app-phone-hands/35124446` | **kept**: a candle chart on a phone, no name or ticker |
+| `crypto-app-phone-hands/35886692` | **cut after the first render**: the screen says "Apple Inc / AAPL" with prices, legible in 9:16 - a named stock under a meme coin line. The contact-sheet thumbnail hid it |
+| `television-studio-audience/14367163` | **kept**: a TV studio floor in silhouette - SNL |
+| `padlock-chain-dark/4889026`, `hands-empty-wallet/16747050` | **kept**: an old padlock; an empty wallet opened |
+| `stack-of-cash-dark/6266652` | **kept**: a briefcase of cash in red light |
+| `person-checking-phone-worried-night/7280528`, `8376635` | **kept**: head in hand over a phone; a glow under a blanket |
+| `dark-ocean-waves-night/5678004` | **kept**: dark water - the one abstract |
+| `money-banknotes-dark-table/345790xx` | the shoot of `34579096`, already cut twice |
+| `magnifying-glass-document-dark/6979937` | the shoot of `6979933`, already used |
+| `hourglass-sand-dark/*`, `hand-taking-money-from-table/*`, `people-laughing-at-phone-together/*` | L110-170 daylight |

@@ -67,7 +67,7 @@ from .annotate import Anatomy, Callout, Diagram, Map
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
-from .wide import Grid, Logos, Replicate, Split, Steps
+from .wide import Grid, Logos, Pool, Replicate, Split, Steps
 
 # Re-exported on purpose: `from .beats import Checklist, _font, item_count`
 # meant this before the split and has to keep meaning it. `__all__` is what
@@ -75,7 +75,7 @@ from .wide import Grid, Logos, Replicate, Split, Steps
 __all__ = [
     "Beat", "BEATS", "item_count", "make_beat",
     "ChapterCard", "Checklist", "Stat", "Compare", "Quote",
-    "Grid", "Logos", "Steps", "Split", "Replicate",
+    "Grid", "Logos", "Steps", "Split", "Replicate", "Pool",
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy",
@@ -98,6 +98,7 @@ BEATS = {
     "diagram": Diagram,
     "split": Split,
     "replicate": Replicate,
+    "pool": Pool,
     "timeline": Timeline,
     "chart": Chart,
     "map": Map,
@@ -127,6 +128,7 @@ _COUNT = {
     "split": lambda p: 2,
     # The job, then its copies.
     "replicate": lambda p: 2,
+    "pool": lambda p: 3,
     "timeline": lambda p: len(p[0]),
     # A line and its marked moment: two reveals, or one if nothing is marked.
     "chart": lambda p: 2 if len(p) > 2 and p[2] is not None else 1,

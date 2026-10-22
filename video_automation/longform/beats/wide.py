@@ -924,3 +924,208 @@ class Replicate(Beat):
 def _ease_io(p: float) -> float:
     p = min(1.0, max(0.0, p))
     return p * p * (3.0 - 2.0 * p)
+
+
+class Pool(Beat):
+    """A trading pool - the coin on one side, the buyers' money on the
+    other - and the money side being pulled out.
+
+    **Built for `what-are-memecoins` (2026-10-22), because the library could
+    not draw the noun a rug pull rests on.** A meme coin is bought and sold
+    against a pool, not a person, and a rug pull is the creator taking the
+    money half of it away. Narrated over a stock clip of cash, that is "money
+    went somewhere"; drawn, it is the mechanism: the coins are still there and
+    there is nothing left on the other side to sell them into. `split` cuts a
+    whole into parts and `bars` compares sizes - neither shows one side of a
+    pair emptying while the other stays full. Reusable for any liquidity
+    pool, a DEX swap, or a bank run.
+
+    Three reveals, in this order:
+
+    0. **The coin side.** The left tank draws round, and coin discs stack up
+       from its floor, row by row.
+    1. **The money side.** The right tank draws round and fills with a liquid
+       whose surface moves - money, not tokens, so a different material.
+    2. **The pull.** A pipe opens under the money side, the level drains down
+       it to `pulled` at its foot, and the coins left behind go grey;
+       `pulled_note` sets under them in the negative colour once the money
+       has gone.
+
+    payload: (coin, coin_note, money, money_note, pulled, pulled_note, title)
+    """
+
+    EMBLEM = False
+    SS = 2
+    LEVEL = 0.72                # how full both sides start
+
+    def __init__(self, coin: str, coin_note: str = "", money: str = "",
+                 money_note: str = "", pulled: str = "",
+                 pulled_note: str = "", title: str = "", **kw):
+        super().__init__(**kw)
+        self.coin, self.coin_note = coin, coin_note
+        self.money, self.money_note = money, money_note
+        self.pulled, self.pulled_note = pulled, pulled_note
+        self.title = title
+        # Display-face names, centred over a tank and unwrapped - same guard
+        # as `Split` and `Replicate`, so an over-long name fails here rather
+        # than twelve minutes into a render.
+        d = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+        (_, _, tw, _), _, _ = self._geom()
+        for label, name in ((coin, "coin"), (money, "money")):
+            w = d.textlength(label, font=_display(self._name_size()))
+            if w > tw:
+                raise ValueError(f"pool {name}={label!r} is {w:.0f}px wide and "
+                                 f"its tank is {tw}px. Shorten it.")
+        for label, name, size in ((coin_note, "coin_note", self._note_size()),
+                                  (money_note, "money_note", self._note_size()),
+                                  (pulled_note, "pulled_note", self._note_size()),
+                                  (pulled, "pulled", self._name_size())):
+            w = d.textlength(label, font=(_display(size) if name == "pulled"
+                                          else _font(size)))
+            if w > tw + 40:
+                raise ValueError(f"pool {name}={label!r} is {w:.0f}px wide and "
+                                 f"has {tw + 40}px under its tank. Shorten it.")
+
+    def _name_size(self) -> int:
+        return 58 if self.portrait else 54
+
+    def _note_size(self) -> int:
+        return 40 if self.portrait else 36
+
+    def _geom(self) -> tuple:
+        """left tank (x, y, w, h), right tank (x, y, w, h), names y."""
+        fr = self.frame
+        if self.portrait:
+            tw, th, gap = 440, 620, 32
+            ty = 740
+            names = 540
+        else:
+            tw, th, gap = 540, 350, 48
+            ty = 450
+            names = self.head_y + 110
+        x0 = (fr.w - (2 * tw + gap)) // 2
+        return (x0, ty, tw, th), (x0 + tw + gap, ty, tw, th), names
+
+    def content(self, out: Image.Image, f: float) -> None:
+        import math
+        d = ImageDraw.Draw(out, "RGBA")
+        self.heading(out, self.title, f)
+        (lx, ly, tw, th), (rx, ry, _, _), names_y = self._geom()
+        prim = self.brand.primary
+        ink = self.brand.ink
+        neg = self.brand.negative
+        t = self.at(f)
+        rv = self.reveals or [self.start + self.hold * k for k in (0.0, 0.3, 0.6)]
+
+        e0 = self.due(0, 3, f)
+        if e0 < 0:
+            return
+        e1, e2 = self.due(1, 3, f), self.due(2, 3, f)
+        o0 = self.span_p(0, f, lead=0.05, cap=0.9)
+        o1 = self.span_p(1, f, lead=0.05, cap=0.9) if e1 >= 0 else 0.0
+        # The fills follow their outlines on their own short clocks.
+        c_fill = _ease_io((t - rv[0] - 0.35) / 1.3)
+        m_fill = _ease_io((t - rv[1] - 0.35) / 1.3) if e1 >= 0 else 0.0
+        drain = _ease_io((t - rv[2] - 0.30) / 1.7) if e2 >= 0 else 0.0
+        pipe = _ease_io((t - rv[2] - 0.05) / 0.35) if e2 >= 0 else 0.0
+
+        S = self.SS
+        pad = 16
+        foot = ly + th + (230 if self.portrait else 170)
+        X0, Y0 = lx - pad, ly - pad
+        X1, Y1 = rx + tw + pad, foot
+        layer = Image.new("RGBA", ((X1 - X0) * S, (Y1 - Y0) * S), (0, 0, 0, 0))
+        v = ImageDraw.Draw(layer)
+
+        def L(x, y):
+            return ((x - X0) * S, (y - Y0) * S)
+
+        def tank(x, y, p, a):
+            # Open at the top: down the left wall, along the floor, up the right.
+            v.rectangle([L(x, y), L(x + tw, y + th)], fill=(255, 255, 255, int(10 * p)))
+            partial(v, [L(x, y), L(x, y + th), L(x + tw, y + th), L(x + tw, y)],
+                    p, prim + (a,), 5 * S)
+
+        # --- the coin side: discs stacked row by row ---------------------------
+        tank(lx, ly, o0, 255)
+        r = 21 if self.portrait else 19
+        step = 2 * r + 7
+        cols = int((tw - 24) // step)
+        rows = int((th * self.LEVEL) // (step * 0.82))
+        ox = lx + (tw - cols * step) / 2 + step / 2
+        grey = (118, 118, 118)
+        for row in range(rows):
+            k = min(1.0, max(0.0, c_fill * rows - row))
+            if k <= 0:
+                break
+            cy = ly + th - 14 - r - row * step * 0.82 + (1 - ease_out(k)) * -18
+            shift = step / 2 if row % 2 else 0
+            for c in range(cols - (1 if row % 2 else 0)):
+                cx = ox + c * step + shift
+                col = tuple(int(prim[i] + (grey[i] - prim[i]) * drain) for i in range(3))
+                a = int(255 * k)
+                v.ellipse([L(cx - r, cy - r), L(cx + r, cy + r)], fill=col + (a,))
+                v.ellipse([L(cx - r + 6, cy - r + 6), L(cx + r - 6, cy + r - 6)],
+                          outline=(23, 23, 23, int(a * 0.55)), width=2 * S)
+
+        # --- the money side: a liquid with a moving surface --------------------
+        if e1 >= 0:
+            tank(rx, ry, o1, 255)
+            level = self.LEVEL * m_fill * (1.0 - drain)
+            if level > 0.004:
+                top = ry + th - th * level
+                pts = [L(rx + 5, ry + th - 3)]
+                for i in range(41):
+                    x = rx + 5 + (tw - 10) * i / 40
+                    wave = math.sin(i / 40 * math.tau * 1.5 + t * 2.6) * 6 * min(1.0, level * 6)
+                    pts.append(L(x, top + wave))
+                pts.append(L(rx + tw - 5, ry + th - 3))
+                v.polygon(pts, fill=ink + (205,))
+            # The pipe under the money side, and the stream running down it.
+            # The pipe under the money side - an open channel that grows down
+            # to the label - and the stream running down it.
+            if pipe > 0:
+                px = rx + tw / 2
+                pw = 30
+                end = foot - 74
+                bot = ry + th + (end - ry - th) * pipe
+                v.rectangle([L(px - pw / 2, ry + th - 3), L(px + pw / 2, bot)],
+                            outline=prim + (255,), width=4 * S)
+                if 0 < drain < 1:
+                    sw = (pw - 12) * min(1.0, (1 - drain) * 4)
+                    v.rectangle([L(px - sw / 2, ry + th - 3),
+                                 L(px + sw / 2, ry + th + (end - ry - th) * min(1.0, drain * 5))],
+                                fill=ink + (205,))
+                if pipe >= 1:
+                    self._head(v, L(px, end - 10), L(px, end + 14), prim + (255,), s=18 * S)
+
+        layer = layer.resize((X1 - X0, Y1 - Y0), Image.LANCZOS)
+        out.paste(layer, (X0, Y0), layer)
+
+        # --- type ----------------------------------------------------------------
+        name_f, note_f = _display(self._name_size()), _font(self._note_size())
+
+        def centred(text, font, cx, y, fill, a):
+            b = d.textbbox((0, 0), text, font=font)
+            shadow_text(d, (cx - (b[2] - b[0]) / 2 - b[0], y - b[1]), text, font,
+                        fill + (a,), alpha=a)
+            return b[3] - b[1]
+
+        for x, e, name, note in ((lx, e0, self.coin, self.coin_note),
+                                 (rx, e1, self.money, self.money_note)):
+            if e < 0:
+                continue
+            a = int(255 * min(1.0, e))
+            y = names_y + int(RISE * (1 - e))
+            h = centred(name, name_f, x + tw / 2, y, prim, a)
+            if note:
+                centred(note, note_f, x + tw / 2, y + h + 16, ink, a)
+
+        if self.pulled and drain > 0.25:
+            k = min(1.0, (drain - 0.25) * 3)
+            centred(self.pulled, name_f, rx + tw / 2, foot - 44 + int(RISE * (1 - k)),
+                    prim, int(255 * k))
+        if self.pulled_note and drain > 0.8:
+            k = min(1.0, (drain - 0.8) * 5)
+            centred(self.pulled_note, note_f, lx + tw / 2,
+                    ly + th + 28 + int(RISE * (1 - k)), neg, int(255 * k))

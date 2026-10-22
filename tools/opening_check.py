@@ -21,7 +21,9 @@ that were verdicts every time they shipped, and exits 1 when it does:
 
 - a **yes/no title question** - any natural sentence 2 is "yes";
 - sentence 2 **opening on a verdict** - "Yes", "It can", "Usually";
-- a **very short first clause after a who/what question** - "Hal Finney.".
+- a **very short first clause after a who/what question** - "Hal Finney.";
+- a **redacted hook hiding only a placeholder** - `[one source]`,
+  `[two things]` - which keeps the verdict back and reveals nothing.
 
 It also prints the word the opener lands on, without flagging it: `hook=`
 and `at_word=` are meant to be said in sentence 2, so the word is always
@@ -52,6 +54,15 @@ VERDICT_START = re.compile(
 VERDICT_ANY = re.compile(r"\bthe answer is (yes|no)\b", re.I)
 # Opener fields that are layout and timing, not what the viewer reads.
 QUIET = {"frame", "accent", "built", "hold", "punch", "at_fixed"}
+# A redacted word made only of these is a placeholder: it keeps the verdict
+# back, but the reveal shows nothing worth seeing (`shorts.md`, "A hidden
+# word must be worth revealing", 2026-10-22 - `[one source]`).
+PLACEHOLDER = {"a", "an", "the", "one", "two", "three", "four", "five", "few",
+               "thing", "things", "source", "sources", "reason", "reasons",
+               "way", "ways", "part", "parts", "step", "steps", "kind",
+               "kinds", "request", "question", "answer", "rule", "rules",
+               "secret", "trick", "factor", "factors", "place", "job",
+               "word", "words", "detail", "problem", "catch", "mistake"}
 
 
 def load(path: Path):
@@ -137,6 +148,11 @@ def check(path: Path) -> list[str]:
         flags.append(f"short first clause after a {first}-question "
                      f"({clause!r}) - is it the answer itself?")
 
+    if word and shown.startswith("hook") and all(
+            w.strip(".,?!").lower() in PLACEHOLDER for w in word.split()):
+        flags.append(f"the hidden word {word!r} is a placeholder - the reveal "
+                     f"shows nothing worth seeing. Use the pair's opener, a "
+                     f"Counter/Stamp, or a statement hook")
     for f in flags:
         print(f"  ! {f}")
     if word:

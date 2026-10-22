@@ -1039,3 +1039,28 @@ back from zero, a one-to-three-digit `AD`/`CE` year parses, and "Today" or
 "now" is the current year. Every shipped timeline has four-digit AD dates, so
 none moves. On a span this long the clustering is the argument: 3,500 years
 of guesses and the science in the last sliver of the axis.
+
+## `pool` - a trading pool, and its money side pulled (2026-10-22)
+
+`payload: (coin, coin_note, money, money_note, pulled, pulled_note, title)`,
+three reveals and three caption chunks in this order: the coin side ("On one
+side of the pool sit the coins."), the money side ("On the other, the real
+money that buyers paid in."), the pull ("Pull the money side out, and every
+coin left has nothing to sell into."). Coin discs stack up the left tank,
+a liquid with a moving surface fills the right; on the third reveal a pipe
+opens under the money side, the level drains down it to `pulled`, the coins
+go grey and `pulled_note` sets under them in `brand.negative`.
+
+Built for `what-are-memecoins`, because a rug pull's noun is a liquidity
+pool and nothing here could draw one: `split` cuts a whole, `bars` compares
+sizes, and neither shows one side of a pair emptying while the other stays
+full. Reach for it on any DEX swap, liquidity pool or bank run.
+
+- **Two materials on purpose** - discs for the token, a liquid for the
+  money - so the two sides read as different things without a legend.
+- `__init__` raises on a name or note wider than its tank. **In 9:16 a tank
+  is 440px**, so `pulled` is about 11 display characters: "TO THE CREATOR"
+  raised, "THE CREATOR" fits.
+- Portrait-safe and whitelisted in `crypto/build.py`; cues as `reveal`.
+- Give its sentence a `gap` of ~1.4-2.1s: the drain runs 1.7s after the
+  third chunk starts and the verdict lands at the end of it.

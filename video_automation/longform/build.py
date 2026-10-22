@@ -486,7 +486,7 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if is_notice(sh.payload):
                 cues.append((sh.start + VideoShot.NOTICE_IN, "notification"))
         elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
-                            "callout", "replicate"):
+                            "callout", "replicate", "pool"):
             for t in (sh.reveals or [])[:8]:
                 cues.append((t, "reveal"))
         if sh.graphic in ("checklist", "logos") and sh.marks:

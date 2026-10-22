@@ -63,6 +63,8 @@ PAYLOADS = {
     "replicate": ("ONE AI ANSWER", "7 billion multiply-adds",
                   "x THOUSANDS", "every computer, the same work",
                   "WHO DOES THE MATH?"),
+    "pool": ("THE COIN", "a billion tokens", "THE MONEY", "what buyers paid",
+             "TO THE CREATOR", "nothing left to sell into", "A RUG PULL"),
     "timeline": ([("2009", "The first block is mined"),
                   ("2024", "Spot funds list in the US")], "WHY GAPS MATTER"),
     "chart": ([12, 26, 58, 77, 64], "THE SHAPE", 3, "the turn"),
