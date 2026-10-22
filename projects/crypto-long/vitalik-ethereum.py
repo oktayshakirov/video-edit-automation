@@ -75,6 +75,7 @@ def es(caption: str) -> tuple[str, str] | str:
 # Pictures. Only P_WIDE is landscape and may fill the frame.
 BITCOIN = VIT / "bitcoin-neon-wide.jpg"               # site photo, cropped to 16:9
 P_WIDE = VIT / "vitalik-techcrunch-wide.jpg"          # 5760x3840 - full-frame
+P_SF = VIT / "vitalik-techcrunch-sf2017.jpg"          # 2000x1334 - thumbnails only
 P_SQUARE = VIT / "vitalik-techcrunch-square.jpg"      # 3223x3597 - beat column only
 P_FACE = VIT / "vitalik-techcrunch-portrait.jpg"      # 1670x2553 - beat column only
 VIT_STUDIO = VIT / "vitalik-studio-blue.jpg"          # 1920x1080 - site photo
@@ -397,8 +398,11 @@ def main() -> None:
         SECTIONS, out, work, brand=CRYPTO, meta=META, voice=VOICE,
         music=music.track("night-drift"),
         callouts=None,
-        thumb_headline="He built it. He can't [control] it.",
-        thumb_image=P_WIDE,
+        # Re-done 2026-10-22 on the user's SF 2017 photo for a catchier hook.
+        # The user picked this from four options: the script's "They turned
+        # him down" is a sharper hook than his age ("He was 19" was rejected).
+        thumb_headline="They\nsaid no.\nHe built\n[Ethereum]",
+        thumb_image=P_SF,
         thumb_accent="yellow",
         endcard=ENDCARD, endcard_lead=7.0,
     )
