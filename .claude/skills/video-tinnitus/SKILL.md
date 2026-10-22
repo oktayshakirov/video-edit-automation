@@ -138,6 +138,12 @@ These are on without asking - a script only supplies the words. Detail in
   about one per 45 seconds. **Open a turning sentence with "But" or
   "Actually" when it really turns**; that is what places the glitch. A
   transition set by hand on a shot always wins.
+- **`reel` is the beat for a sequence the viewer should feel move** - days,
+  versions, dates, steps: a strip of cards (clips, photos or text) the camera
+  travels along, one card per sentence (a Short: one phrase per card, ~2s
+  each). It can **dive into its last card and continue as that clip**, or
+  open out of the previous clip (`enter` / `emerge`) - use it where the
+  script moves from an overview into one example. `docs/video/beats.md`.
 - **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
   of git. On a machine without them the build falls back to synthesized
   stand-ins - copy them over before a build that ships.

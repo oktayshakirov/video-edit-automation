@@ -130,6 +130,10 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
 
     spans = sentence_spans(sentences, captions)
     shots, groups, chapters = lay_out(sections, shots, spans, total)
+    # A reel that dives into its last card, or opens out of its first, is
+    # joined to the clip beside it here, once the holds are final.
+    from .beats.reel import link_reels
+    link_reels(shots)
     if special_cuts:
         # A few glitch and TV-static cuts where the cut means something -
         # `transitions.plan_special` has the rules and the budget.
@@ -456,6 +460,13 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             end = sh.start + sh.hold
             if end < total - 0.4 and sh.transition not in transitions.CUES:
                 cues.append((end - 0.20, "title_flashback"))
+        elif sh.graphic == "reel":
+            # A pan whoosh as the camera leaves for each next card, and the
+            # label's tick as it lands (`beats.reel.Reel`).
+            for i, t in enumerate((sh.reveals or [])[:12]):
+                if i:
+                    cues.append((t - 0.12, "pan"))
+                cues.append((t + 0.20, "reveal"))
         elif sh.graphic == "diagram":
             # Each node lands with its connector, so one cue per reveal marks
             # "and therefore" — `link`, not `reveal`, because a causal step is

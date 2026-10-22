@@ -76,6 +76,10 @@ PAYLOADS = {
     "anatomy": ([("The jaw joint", 0.65, 0.45, "l"),
                  ("Your ear canal", 0.70, 0.42, "r")], "THE NEIGHBOURHOOD"),
     "spectrum": ((3400, 5200), "NOTCHED AUDIO", "cut around your tone", "notch"),
+    # A still, a missing clip (drawn as its label) and a text card: the three
+    # kinds of card the strip takes.
+    "reel": ([("<photo>", "Day 1"), ("missing.mp4", "Day 2"), (None, "Day 30")],
+             "THIRTY DAYS"),
 }
 
 
@@ -93,7 +97,14 @@ PHOTO = Path(__file__).resolve().parents[1] / "assets/brand/beat-ground-crypto.j
 
 
 def _payload(name):
-    return tuple(PHOTO if v == "<photo>" else v for v in PAYLOADS[name])
+    def sub(v):
+        if v == "<photo>":
+            return PHOTO
+        if isinstance(v, list):             # `reel` nests its media in items
+            return [tuple(PHOTO if x == "<photo>" else x for x in it)
+                    if isinstance(it, tuple) else it for it in v]
+        return v
+    return tuple(sub(v) for v in PAYLOADS[name])
 
 
 # Beats whose picture is the `picture=` keyword rather than part of the
@@ -138,7 +149,7 @@ def test_beat_renders_on_both_brands(name):
 # turns its track ninety degrees, `logos` lays a 2x2 - and that path has no
 # coverage at all from the landscape cases above.
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
-            "timeline", "chart", "map", "spectrum", "dial", "diagram"]
+            "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -198,7 +209,7 @@ def test_every_beat_class_is_registered():
     from video_automation.longform.beats.base import Beat
 
     defined = set()
-    for fam in ("column", "wide", "scale", "plot", "annotate"):
+    for fam in ("column", "wide", "scale", "plot", "annotate", "reel"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from
