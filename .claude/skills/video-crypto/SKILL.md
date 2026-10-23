@@ -59,6 +59,11 @@ sequence drifted into four copies that disagreed.
 
 1. **Suggest, do not pick** - `python3 tools/topics.py crypto`.
 2. **Script both together** from the chosen article.
+   **Voice: check the `noah` test table first** (`projects/crypto.md`,
+   *Voice test*). Until it has 5 rows, the pair reads in `noah` (male,
+   `voice="noah"` on both builders) and gets a row; after that, `mia`
+   (female, the default). One voice for the whole pair. `noah` reads ~6%
+   slower, so size the script to its pace.
 3. **Decide what gets drawn, before writing a shot list.** This is the step
    that matters most here. Read the script's nouns back: most of them are
    abstractions, and **stock has no photograph of an abstraction**. List the

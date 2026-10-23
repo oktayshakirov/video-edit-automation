@@ -74,6 +74,11 @@ copies that disagreed with each other.
    `workflow.md` says to pick deliberately and this channel sets the limit: a
    verdict stamp is about a *claim*, never about an outcome and never about
    anybody's prognosis.
+   **Voice: check the `noah` test table first** (`projects/tinnitus.md`,
+   *Voice test*). Until it has 5 rows, an article pair reads in `noah` (male,
+   `voice="noah"` on both builders) and gets a row; after that, `mia`
+   (female, the default). Sessions keep `luna`. One voice for the whole pair.
+   `noah` reads ~6% slower, so size the script to its pace.
 4. **Decide what gets drawn, before writing a shot list.** The step that
    matters most here, because the subject cannot be photographed at all. List
    the beats first and raise the graphic share. `diagram(loop=True)` is the

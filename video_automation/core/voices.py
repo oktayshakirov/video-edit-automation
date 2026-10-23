@@ -184,6 +184,24 @@ PROFILES: dict[str, VoiceProfile] = {
              "sound like the channel rather than a different show.",
         source="P1_am_puck_energetic.wav", folder="Crypto Wiki Voices",
     ),
+    "noah": VoiceProfile(
+        voice="am_michael", speed=1.10, chain=ENERGETIC,
+        projects=("crypto", "tinnitus"), status="candidate", script="crypto",
+        note="**The male article reader**, the option alongside mia — mia "
+             "stays the default. mia's exact recipe (1.10, ENERGETIC) with "
+             "bare am_michael (C+ on hours of data). Picked by the user by "
+             "ear on 2026-10-23 from eight male candidates read through the "
+             "real narration path on the what-are-memecoins Short script, "
+             "over am_fenrir, am_echo, am_eric, am_liam, bm_george, bm_fable "
+             "and a michael/fenrir blend. am_puck (otis) was left out: its "
+             "high-open, low-close contour was already rejected for "
+             "exposition. Reads ~6% slower than mia on the same script "
+             "(43.3s against 40.7s). No `source`: the audition was the "
+             "full aligned Short narration, not the reference script, so "
+             "`verify` could never reproduce it. On test for the next 10 article pairs, "
+             "5 crypto + 5 tinnitus, to compare retention against mia.",
+        folder="Male Explainer Voices",
+    ),
     # --- tinnitus zen (sound therapy) ---------------------------------------
     # Both are the bare af_nicole voice, which is Kokoro's only breathy/ASMR
     # voice — measured, not assumed. All twelve male voices ran 11.7-16.2s
