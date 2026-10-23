@@ -586,6 +586,36 @@ Reach is a separate matter. The four highest-reach Shorts in this cohort are
 all verdicts, because reach comes from the title and topic. Keep the title
 that gets the click and fix sentence 2 so the click stays.
 
+### Revised 2026-10-23: necessary, not sufficient
+
+"Two ways sentence 2 holds, and nothing else" was too strong. The rule
+predicted Halving correctly, and then two Shorts that followed it, with
+the check recorded in their handovers, cliffed like verdicts:
+
+| sentence 2 (whole entry) | shape | drop 4-7s | half gone |
+|---|---|---|---|
+| Halving: "And the last one is not due until 2140." | keeps it back | -40.3 from a 166% open | **22.3s** |
+| GTA 6: "The Bitcoin was a rumor. But the final trailer does hide a coin. A fake one." | reversal, next question open | -30.4 | 10.2s |
+| Stress-o-meter: "Quick check - from zero to ten, how loud is it right now?" | **a task, Jaw's shape** | -35.0 | **8.5s** |
+| Bear market: "Stocks draw the line at one number. Crypto's go about four times deeper." | **keeps it back, Scams' shape** | -54.8 | **7.0s** |
+
+Count across both runs: **6 of 8** Shorts that keep the answer back or
+cleanly overturn the title hold (11.6-28.8s); **0 of 6** verdicts hold past
+11.0s. So the two shapes above are still required, and a verdict still
+cliffs every time, but a withheld sentence 2 is not a guarantee. Read the
+two shapes as "the only ones that *can* hold".
+
+Both failures lost their viewers *while sentence 2 was being said*, before
+the withheld answer had time to pull. Two guesses, neither tested, each
+from one video: Bear's sentence 2 opens on a different subject (stocks, in
+a crypto Short); Stress-o-meter's task asks for a number every sufferer
+already knows, where Jaw's ("are your teeth touching?") surprises. Until a
+third case settles it, let sentence 2's **first words** stay on the title's
+subject, and make a task one whose answer the viewer does not already
+know. Market cap and Bear market, the two worst curves on the channel, are
+both "What is [finance term]?" - a definition question gives sentence 2
+little to withhold that the viewer cares about.
+
 ## A tip needs a reason before it is a tip
 
 The first cut went straight from the custody beat into "turn on two-factor,

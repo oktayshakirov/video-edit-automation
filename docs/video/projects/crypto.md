@@ -286,6 +286,32 @@ so the Short is not the problem - the non-searchable title is. Still no
 financial advice in the title: a mechanism question, never a price or a
 direction. Full reasoning in the `video-views-audit` skill.
 
+### A trend works as a new search term, not as a trend (experiment E8, 2026-10-23)
+
+GTA 6 is the only crypto long-form that has broken out: 619 YouTube views
+in three days, 3.5x the next best. **178 of its first 206 views were
+YouTube search**, on "dacity coin", "dacity" and "dacitycoin", a name the
+game's launch trailer had coined five days before the upload, so almost no
+video answered it yet. The trend did nothing for anything else: the Short
+took 109, TikTok 259 (the low batch), Instagram 4, Facebook 16 and 36.
+
+So when choosing a topic, the trend is not the thing to look for. Look for a
+**term that has just appeared** (a trailer, a launch, a listing, a hack, a
+named scam) **and that few videos answer yet**. Then:
+
+- the long-form `Meta` title leads with **the exact new term** as people
+  type it ("What Is Dacity Coin?"), with the familiar name after it
+  ("The Crypto in GTA 6, Explained");
+- ship within days, while supply is low, and only from a real article
+  source, as with every topic (`A topic about a real thing shows the real
+  thing`);
+- the Short is made as usual and expected to do as usual. Do not count it
+  as part of the trend test.
+
+One video is a lead, not a rule. This is being tested as E8 in
+`video-performance-review/experiments.md`. Do not promote it to a rule
+until that entry holds.
+
 ## Decisions already taken
 
 **Render headless with ffmpeg, not FCPXML.** Drone long-form writes XML to finish

@@ -44,7 +44,7 @@ logged-in Chrome (`claude-in-chrome`); close every tab opened.
 | --- | --- |
 | "how is this video doing?" | every platform it was published to - the answer differs by 10x between them |
 | "why did people stop watching?" | **YouTube `retention`** - the only per-second curve available anywhere |
-| "is the title working?" | YouTube views + TikTok plays; CTR is unavailable everywhere |
+| "is the title working?" | YouTube `traffic` (search share and terms) + TikTok plays; CTR is unavailable everywhere |
 | "how is the channel doing overall?" | all four, and compare against the last `video-performance-review` snapshot |
 | "should I change this title/description?" | YouTube `videos`/`audit`, then "Editing metadata" |
 
@@ -67,6 +67,7 @@ cd ~/Coding/youtube-audit && npx tsx src/cli.ts <command> [options]
 | `analytics` | Per-video watch time and retention for a date range |
 | `video <id\|url>` | Everything about one video |
 | `retention <id\|url>` | Audience-retention curve - **where** a video loses people |
+| `traffic <id\|url>` | Traffic sources (search, browse, suggested, Shorts feed) and the search terms - **how** a video was found |
 | `audit` | videos + analytics + heuristic flags - the usual starting point |
 | `set <id\|url>` | Edit title / description / tags - dry run unless `--apply` |
 | `upload` | Upload a video with its thumbnail - dry run unless `--apply` |
@@ -414,6 +415,19 @@ skills now bind this to the `Meta` title. An audit's job is to catch a
 long-form title that is the Short's hook reworded and propose the searchable
 version. Separating the two uploads by a day or two is optional polish with no
 evidence behind it - mention it as an option, never require it.
+
+**Corrected 2026-10-23: the evidence above was browse, not search.** Traffic
+sources (`traffic <id>`, added the same day) show "How to Sleep With
+Tinnitus" took 7 of its 167 views from YouTube search and 129 from suggested;
+"What Was the First Bitcoin Transaction?", cited on 10-11 as the second case,
+took 20 of 176 from search and 148 from browse. Both wins were read from
+view counts. **The first measured search win is GTA 6**
+(`FXW9Zd5vjYk`, 2026-10-20): 178 of its first 206 views from search, on
+"dacity coin" and variants - a term the game's trailer had coined five days
+earlier, so almost nothing else answered it. The rule stands, because search
+pays when the query exists, but **check `traffic` before crediting a
+long-form's title for its views.** Browse and suggested are the usual
+source on these channels.
 
 ## Competitor teardown 2026-09-04
 
