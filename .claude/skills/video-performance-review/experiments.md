@@ -14,29 +14,32 @@ when the data will exist. Answered checks move into that run's snapshot.
 
 *Set 2026-10-23* (the 10-11 checks are answered in `history/2026-10-23.md`):
 
-- **E6, drone thumbnail test.** Still needs Studio's per-video winner from
-  the user, and the date the test ends. After winners apply, read 14 days of
-  views and minutes watched against `history/2026-10-11.md`. Mid-test
+- **E6, drone thumbnail test: winner read dropped (user, 2026-10-23).** Do
+  not ask for Studio's per-video winners. The test may still be running in
+  Studio, so the no-API-title/thumbnail-writes constraint stays. Read API
+  views and minutes watched against `history/2026-10-11.md` only when the
+  user says the test is over or drone is back in scope. Mid-test
   (10-11..10-22) was flat: 149 views against 154, minutes 98 against 133.
-- **E7, male voice.** Tag `VOICE` on every new video. First read once 3+
+- **E7, male voice.** Not chosen yet (user, 2026-10-23): the roster will be
+  `mia` plus one new male voice. Nothing to read until it ships. Then tag
+  `VOICE` on every new video. First read once 3+
   male-voiced Shorts have curves (each needs ~60 views, so about a week after
   the third ships). Compare only within the sentence-2 "keeps back" group.
 - **Sentence 2 holds only sometimes.** Read every new withheld-or-reversal
   Short's curve and note where its cliff lands *inside* sentence 2 (Bear and
   Stress-o-meter both fell during sentence 2 itself). Curves still due:
-  Decentralized AI, History, Meme coins, Vitalik once published.
-- **Vitalik Short: run `opening_check.py` before it publishes.** Sentence 2
-  "Vitalik Buterin created it." looks like the plain answer to "Who is
-  actually in charge of Ethereum?".
+  Decentralized AI, History, Meme coins.
 - **E8, trend long-forms.** Read each new trend long-form at 7 days: YouTube
   views and `youtube-audit traffic <id>` search share. Fail line is in the
   entry.
 - **GTA 6 long-form decay.** Pull traffic sources again: does search hold
   after the 11-19 launch, when many more videos will answer "dacity coin"?
 - **Crypto Facebook.** Every crypto upload since 10-02 has failed (1-38), and
-  tinnitus passes on the same workflows, so the cause is at the page. Needs
-  the user to read the crypto page's Professional dashboard (Page quality,
-  Support inbox). Then re-read the next two uploads.
+  tinnitus passes on the same workflows, so the cause is at the page. The
+  user checked on 10-23: no visible restrictions, and both pages are typed
+  Business, so the type cannot be what separates them. Re-read the next two
+  uploads; if they also fail, compare what changed on the crypto page around
+  10-02 (posting rate, topics, any shared or reposted content).
 - **Zen sessions on Facebook and YouTube.** TikTok is closed (5 of 5 in
   batches). Keep counting Facebook long/reel per session against the 29k
   outlier, and YouTube suggested growth on the 09-05 session (388 on 10-23).
@@ -214,7 +217,8 @@ when the data will exist. Answered checks move into that run's snapshot.
 - **E5 (openers): no opener effect yet.** Search now has 1 hold (Jaw) and
   2 fails (Musk, Bear). The fails have different sentence-2 shapes, so the
   opener still cannot be separated out.
-- **E6 (drone thumbnails): running, too early.** See Open checks.
+- **E6 (drone thumbnails): parked.** The user dropped the Studio winner
+  read on 10-23; the Studio test itself is not ended by that.
 
 ## E7 - Male voice on the article Shorts and long-forms
 
@@ -236,7 +240,8 @@ when the data will exist. Answered checks move into that run's snapshot.
   Then the voice is a matter of taste: keep whichever the user prefers.
 - **Fails if:** the male withheld group's median half-gone is 4s+ below the
   female one over 4+ curves.
-- **Status:** not yet shipped.
+- **Status:** not yet shipped. 2026-10-23: the male voice is still being
+  chosen; the roster will be `mia` plus that one new voice.
 
 ## E8 - Crypto long-forms on a freshly coined search term
 
