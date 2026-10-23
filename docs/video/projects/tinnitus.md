@@ -30,7 +30,7 @@ brand.** Always establish which before doing anything else:
 |---|---|---|
 | what it is | a post explained | a session to leave running |
 | runtime | 2:30–4:00 | 10–60 minutes |
-| voice | **`mia`** (female) | **`luna`**, intro only |
+| voice | **`mia`** (female); **`noah`** (male) on test, see *Voice* | **`luna`**, intro only |
 | module | `longform/build.py` | `longform/asmr.py` |
 | example | `projects/tinnitus-long/does-tinnitus-go-away.py` | see below |
 
@@ -342,15 +342,40 @@ which were rendered on now-retired profiles and were repointed at `mia` on
 2026-08-28 so they stay re-runnable — a re-cut of either would no longer
 reproduce the exact original audio.
 
-**There is no male explainer voice, and `otis` is not to be offered as
-one** (2026-09-20). It read the `new-tinnitus-what-to-do-first-week` pair and
+**Male explainer option: `noah`** (2026-10-23). `am_michael` on mia's exact
+recipe — 1.10, `ENERGETIC` — picked by the user by ear from eight male
+candidates read on a real Short script. `mia` stays the default.
+
+### Voice test: `noah` on the next 5 tinnitus pairs (from 2026-10-23)
+
+**The next 5 tinnitus article pairs read in `noah`, not `mia`** — long form
+and its Short together. Crypto runs the same test on its next 5 pairs; the 10
+together are compared against `mia` on retention in the views audit, which the
+user handles. Sound-therapy sessions are not part of it and keep `luna`. Pass
+`voice="noah"` to both builders and add the pair here when it is built. After
+the fifth row, go back to `mia` until the user decides.
+
+| # | pair | built |
+| --- | --- | --- |
+| 1 | | |
+| 2 | | |
+| 3 | | |
+| 4 | | |
+| 5 | | |
+
+**`noah` reads ~6% slower than `mia`** (43.3s against 40.7s on the same
+Short script) — about 2.9 words/sec where `mia` reads 3.06 — so **re-run the
+preflight**; a script cut to `mia`'s pace runs long. One script's worth of
+measurement; correct it from the first shipped cut.
+
+**`otis` is not to be offered as a male explainer voice** (2026-09-20). It read the `new-tinnitus-what-to-do-first-week` pair and
 the user's verdict was that it "reads the script very wrong — always starts
 with high tone and sounds excited but ends low", and that the female voice
 reads better. That is a prosody fault, not a mixing one: Kokoro has no
 prosody control (`voice.md`), so a voice whose sentence contour is wrong for
 exposition cannot be corrected by the chain, and every explainer sentence on
-this channel is exposition. **A male reader will be added later; until one is
-chosen by ear, every article pair reads in `mia`.**
+this channel is exposition. `noah` (above) is the male reader that replaced
+it.
 
 `otis` stays registered in `core/voices.py` because the quiz format defaults
 to it — **the user's explicit call on 2026-09-20, when the explainer roster
@@ -395,7 +420,7 @@ fine-tuning code, so blending and DSP are the whole ceiling.
 **Open risk:** a pitch-shifted female voice can read as "a processed woman"
 rather than "a man". No measurement settles that; only the user's ear does.
 
-**None of the four is approved.** All are `candidate` until the user says
+**None of them is approved.** All are `candidate` until the user says
 otherwise.
 
 **Check phonemes before rendering, not after** — same espeak traps as the drone

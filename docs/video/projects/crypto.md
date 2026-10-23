@@ -117,12 +117,35 @@ F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `gr
 
 ## Voice
 
-**`mia` (female) is the default** for both formats, and as of 2026-09-20
-it is the *only* explainer voice — **`otis` is off the roster and must not be
+**`mia` (female) is the default** for both formats. **`noah` (male,
+`am_michael` on mia's exact recipe) is the male option**, added 2026-10-23
+and picked by the user by ear. **`otis` is off the roster and must not be
 offered for an article video.** The user's verdict on a full cut was that it
 reads exposition wrong: it opens high and excited and ends low. It stays
-registered because the quiz format defaults to it; a male reader will be
-added later. Full reasoning in `projects/tinnitus.md`. `max` is **not** an article
+registered because the quiz format defaults to it. Full reasoning in
+`projects/tinnitus.md`.
+
+### Voice test: `noah` on the next 5 crypto pairs (from 2026-10-23)
+
+**The next 5 crypto article pairs read in `noah`, not `mia`** — long form and
+its Short together, since a pair shares one voice. Tinnitus runs the same test
+on its next 5 pairs; the 10 together are compared against `mia` on retention
+in the views audit, which the user handles. Pass `voice="noah"` to both
+`render_long` and `render_crypto_short`, and add the pair to this table when
+it is built. After the fifth row, go back to `mia` until the user decides.
+
+| # | pair | built |
+| --- | --- | --- |
+| 1 | | |
+| 2 | | |
+| 3 | | |
+| 4 | | |
+| 5 | | |
+
+**`noah` reads ~6% slower than `mia`** (43.3s against 40.7s on the
+`what-are-memecoins` Short), so for a `noah` script use `words / 3.05 +
+sum(gaps)` rather than 3.25 below. One script's worth of measurement —
+correct the figure from the first shipped cut. `max` is **not** an article
 voice — it is a drone blend that was briefly mislisted here and reads
 androgynous on a real script; see `voice.md` and
 `docs/video/projects/tinnitus.md`. All remain `candidate`, not `approved`,
