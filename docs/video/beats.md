@@ -1178,3 +1178,35 @@ source frame (now only the on-screen crop, same formula, so the dive seams
 still match), a full-frame shadow blur (now at quarter size) and a float
 vignette (now fixed-point maps). Profile before optimising - the guess was
 wrong.
+
+## `spotlight` - zoom into part of a photograph (2026-10-23)
+
+The camera starts on the whole picture, glides into the part the voice is
+naming, dims the rest under a soft spotlight and rings the detail in the
+brand colour with a band-style label; then the next detail, and optionally
+back out. `longform/beats/spotlight.py`, both formats.
+
+```python
+Shot(graphic="spotlight", payload=(POSTER, [
+    (None, ""),                                        # open on the whole
+    ((0.17, 0.02, 0.94, 0.27), "Ten Most Wanted"),
+    ((0.01, 0.42, 0.63, 0.475), "The charges"),
+    (None, ""),                                        # pull back out
+], ""))
+```
+
+- **One region per sentence** - hold the shot across them with `None`
+  shots. Regions are fractions of the image and can be rough.
+- **The ring is snapped to the content** (`snap`). The first demo's charges
+  box was typed by hand and cut through a line that ran past it; the user's
+  note was that this must not happen. On a plain ground (a document, a
+  poster, a screenshot) the box is fitted to the ink the region touches,
+  letters joined into lines and a paragraph's lines into a block, widening
+  until nothing is cut. **So it frames whole text blocks - it cannot ring
+  one word inside a line.** On a photograph with no plain ground the region
+  is used as given.
+- Zoom stops at 2.6x the source, so pick sources with the detail at real
+  resolution; a soft `pan` per move. Best on documents, posters, filings,
+  screenshots, a crowd photo with one face that matters.
+- The label sits under the ring (above it when there is no room); on a
+  dense document it can land over dimmed text - that is expected.

@@ -134,6 +134,13 @@ These are on without asking - a script only supplies the words. Detail in
 - **`emphasis=[...]` punches the word a sentence hinges on onto the screen**
   as it is spoken, long form only, once or twice a minute. Pick one word or
   short phrase per minute that the whole sentence turns on.
+- **`spotlight` directs a still**: the camera glides into the part of a
+  photo the voice names (a line of a document, one face), one region per
+  sentence; the ring snaps to the content, so regions can be rough.
+  `docs/video/beats.md`, "`spotlight`".
+- **Footage of a place gets a quiet bed of it** (city, rain, office,
+  servers) automatically, only on clips of 3s or more - nothing to write.
+  Pick clips whose folder names the place when the sound would help.
 - **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
   of git. On a machine without them the build falls back to synthesized
   stand-ins - copy them over before a build that ships.

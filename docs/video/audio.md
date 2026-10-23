@@ -102,6 +102,23 @@ only with text over it.
 **Music is `bright`**, not `pulse`. Warmer and less tense. This audience is
 frequently here *because* sound is a problem; the bed should not be one.
 
+## Place-sound under footage (2026-10-23)
+
+`core/ambience.py`, long form, on by default (`render_long(ambience=False)`
+off, a number scales it). A footage shot of a place gets a quiet bed of that
+place - city, rain, office, servers - generated (band-limited noise, seeded,
+atonal: no hum, for the tinnitus audience) and mixed **~23dB under the
+finished mix**, after the music bed.
+
+**Restraint is the rule** ("only if it helps the delivery"): a bed plays
+only when the clip's stock folder names a place in `KEYWORDS` (abstract
+footage, faces and hands get none), never under a drawn beat, and only when
+the place stays on screen at least `MIN_RUN` (3s) - consecutive shots of one
+place share one continuous bed rather than restarting. The approved A/B was
+at -22dB; the user asked for 5-10% quieter, so `LEVEL_DB` is -22.8. The
+tinnitus kit takes it down a further 20%. Add a place by adding a bed
+function and its folder keywords - not by raising the level.
+
 ## Sound effects
 
 ### The title and chapter sounds are the user's files (2026-10-21)
