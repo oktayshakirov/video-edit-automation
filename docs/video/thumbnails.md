@@ -637,3 +637,16 @@ side, `"He was 19.\nBitcoin wasn't\n[enough.]"` set *smaller* than four rows
 (`He was 19.` / `Bitcoin` / `wasn't` / `[enough.]`) - the long middle row is
 the ceiling. **When the note is "bigger" or "catchier", shorten the longest
 row before touching anything else.**
+
+## The band-card look is an opt-in A/B, not the default (2026-10-22)
+
+`render_thumb` and `render_short_thumb` take `accent="band"` (the brand's
+band colour and ink - the chapter card's plate), `kicker="Ethereum"` (the
+chapter card's glowing white label, left-aligned above the headline) and
+`grain=True` (the film surface's grain and a soft vignette); `render_long`
+passes `thumb_kicker=` / `thumb_grain=`. **The default is unchanged on
+purpose.** The plate headline already is the band card's ancestor, and its
+Arial Black is tuned for a 160px grid tile where the band card's condensed
+DIN would read smaller - so the video's look on the thumbnail is something to
+test with video-views-audit's thumbnail swap, not to assume. Same layout,
+same crop: only the styling differs between A and B.

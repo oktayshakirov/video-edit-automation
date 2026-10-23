@@ -1132,3 +1132,49 @@ Shot(graphic="reel", payload=([(clip_or_image, "2009"),
   cards in three seconds never let the camera settle. Burned captions are
   suppressed over the reel, as over every drawn beat; the labels carry it.
 - `projects/demo/reel.py short` is the reference.
+
+## `post` - a pulled-out post, headline or transaction (2026-10-22)
+
+The thing someone actually wrote, lifted onto its own card with the line
+that matters highlighted as the voice reads it. `longform/beats/post.py`,
+both formats.
+
+```python
+Shot(graphic="post", payload=("headline",
+     {"source": "The Times", "date": "3 January 2009",
+      "headline": "Chancellor on brink of [second bailout] for banks"},
+     "In the first block"))
+Shot(graphic="post", payload=("post",
+     {"name": "Hal Finney", "handle": "@halfin", "date": "10 Jan 2009",
+      "text": "[Running bitcoin]", "avatar": optional_image}, ""))
+Shot(graphic="post", payload=("tx",
+     {"label": "Bitcoin transaction · block 57,043",
+      "rows": [("Date", "22 May 2010"), ("*Value", "10,000 BTC")]}, "The pizza"))
+```
+
+- **Two reveals**: the card arrives on the sentence's first caption, the
+  highlighter sweeps on the second - so write the sentence as two phrases,
+  the lead-in and then the quoted words ("...left a line from that morning's
+  paper." / "Chancellor on brink of second bailout for banks."). The
+  `[bracketed]` run, or the tx row whose key starts with `*`, is what is
+  highlighted, in `Brand.band`, its words turning `band_ink`.
+- **Our card, not a screenshot.** Drawn in the channel's type, never a copy
+  of a platform's interface, and **always the real wording, sourced** like
+  any quote in the script. The demo uses only documented lines.
+- The card floats in tilted a little in depth and settles; the camera pushes
+  in ~16% toward the highlight, clamped so the card never leaves the frame
+  (it slid off 9:16 before the clamp). Vertical cards get larger type.
+- Sounds: a `pan` on arrival, a `reveal` tick on the highlight.
+
+**Build each format from fresh `Shot` objects.** The builders write
+`start`, `hold` and `reveals` onto the shots they are given; a shot shared
+by a long build and a Short in one process carries the long form's reveals
+into the Short (the card arrived late and never highlighted, the first time).
+
+### The reel draws ~3x faster (2026-10-22)
+
+76ms a frame, from 244. It was not the decode: grading every card's full
+source frame (now only the on-screen crop, same formula, so the dive seams
+still match), a full-frame shadow blur (now at quarter size) and a float
+vignette (now fixed-point maps). Profile before optimising - the guess was
+wrong.

@@ -88,6 +88,56 @@ ACCENTS = {
 }
 
 
+def _accent(name: str | None, brand: Brand) -> tuple:
+    """(plate, ink) for an accent name. `"band"` is the brand's own band
+    colour and ink - the chapter card's plate - so a thumbnail can wear the
+    video's band (2026-10-22)."""
+    if name == "band":
+        return (brand.band or brand.primary), brand.band_ink
+    return ACCENTS.get(name, ACCENTS["red"])
+
+
+def _band_extras(base: Image.Image, kicker: str | None, x: int, y_top: int,
+                 grain: bool, scale: float = 0.036) -> Image.Image:
+    """The video's band-card touches on a finished thumbnail, both opt-in.
+
+    * `kicker` - the chapter card's glowing white label, set above the
+      headline block and aligned with it: "THE REJECTION" over the claim.
+    * `grain` - the film surface's grain and a soft vignette, so the
+      thumbnail has the texture the video has.
+
+    Opt-in on purpose: the plate headline is tuned for the grid at feed size,
+    and these are to be A/B tested (video-views-audit), not assumed.
+    """
+    if kicker:
+        size = max(30, int(base.width * scale))
+        f = ImageFont.truetype(FONT_DISPLAY, size)
+        layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        text = kicker.upper()
+        # Left-aligned with the headline block, which is left-aligned in its
+        # column on either side of the frame.
+        kx, ky = x, y_top - int(size * 1.45)
+        d.text((kx, ky), text, font=f, fill=(255, 255, 255, 255))
+        out = base.convert("RGBA")
+        for r, k in ((size * 0.45, 1.3), (size * 0.14, 0.9)):
+            g = layer.filter(ImageFilter.GaussianBlur(r))
+            g.putalpha(g.getchannel("A").point(lambda v, k=k: min(255, int(v * k))))
+            out.alpha_composite(g)
+        out.alpha_composite(layer)
+        base = out.convert("RGB")
+    if grain:
+        from ..core import filmfx
+        arr = np.asarray(base).astype(np.float32)
+        arr = filmfx.grain(arr, 0, 0.8)
+        h, w = arr.shape[:2]
+        yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+        r2 = ((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2
+        arr *= np.clip(1.0 - 0.18 * r2 ** 1.3, 0, 1)[:, :, None]
+        base = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+    return base
+
+
 def _energy(bgr: np.ndarray) -> np.ndarray:
     """A per-pixel map of "there is something here worth not covering".
 
@@ -579,8 +629,12 @@ def render_thumb(out: Path, brand: Brand, headline: str,
                  crop_at: tuple[float, float] | None = None,
                  crop_zoom: float = 1.0, crop_band: str = "middle",
                  shift: float = 0.0,
+                 kicker: str | None = None, grain: bool = False,
                  **_ignored) -> Path:
     """One thumbnail: photograph, scrim, headline with a boxed accent phrase.
+
+    `accent="band"`, `kicker=` and `grain=True` are the video's band-card
+    look, opt-in for an A/B (`_band_extras`).
 
     `headline` marks its accent with brackets — `"Nobody has [passed it]"`.
     `arrow_to` is a fractional point on the frame; when given, a hand-drawn
@@ -726,8 +780,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     # line and be large in a column this narrow.
     col_w = int(W * 0.46)
     x_text = margin if side == "left" else W - margin - col_w
-    fill, ink = ACCENTS.get(accent, ACCENTS["red"])
-    fill2, ink2 = ACCENTS.get(accent2, (None, None)) if accent2 else (None, None)
+    fill, ink = _accent(accent, brand)
+    fill2, ink2 = _accent(accent2, brand) if accent2 else (None, None)
 
     block = _headline(base, headline, size, col_w, x_text, fill, ink,
                       max_lines=6, max_block=H - 2 * margin, leading=1.0,
@@ -735,6 +789,8 @@ def render_thumb(out: Path, brand: Brand, headline: str,
                       fill2=fill2, ink2=ink2)
     y = {"top": margin, "middle": (H - block) // 2,
          "bottom": H - margin - block}[vband] + block
+    if kicker or grain:
+        base = _band_extras(base, kicker, x_text, y - block, grain)
     d = ImageDraw.Draw(base)
 
     if arrow_to is not None:
@@ -1129,8 +1185,12 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
                        image: Path | None = None, accent: str = "red",
                        accent2: str | None = None,
                        size: int = 168, at: float = 0.34, ax: float = 0.5,
-                       zoom: float = 1.0, band: str = "top") -> Path:
+                       zoom: float = 1.0, band: str = "top",
+                       kicker: str | None = None, grain: bool = False) -> Path:
     """A 9:16 thumbnail for a Short.
+
+    `accent="band"`, `kicker=` and `grain=True`: the band-card look, opt-in,
+    as on `render_thumb`.
 
     **This does not share `render_thumb`'s type treatment, and that is the
     point.** The landscape version sets Futura Medium with an 8px black stroke
@@ -1161,8 +1221,8 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     how correct the platform-safe-area reasoning is. Set `band="bottom"` when
     the picture itself has the empty half at the bottom; the scrim follows.
     """
-    fill, ink = ACCENTS.get(accent, ACCENTS["red"])
-    fill2, ink2 = ACCENTS.get(accent2, (None, None)) if accent2 else (None, None)
+    fill, ink = _accent(accent, brand)
+    fill2, ink2 = _accent(accent2, brand) if accent2 else (None, None)
 
     if image is not None and Path(image).exists():
         src = Image.open(image).convert("RGB")
@@ -1211,10 +1271,13 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     # the composition.
     margin = 52
     edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16) + 20
-    _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
-              max_lines=4, max_block=VH * 0.42, leading=1.02,
-              band=band, margin=edge_margin, shadow=14, drop=(6, 8),
-              fill2=fill2, ink2=ink2)
+    block = _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
+                      max_lines=4, max_block=VH * 0.42, leading=1.02,
+                      band=band, margin=edge_margin, shadow=14, drop=(6, 8),
+                      fill2=fill2, ink2=ink2)
+    if kicker or grain:
+        top = edge_margin if band == "top" else VH - edge_margin - block
+        base = _band_extras(base, kicker, margin, top, grain, scale=0.052)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     base.save(out, quality=92)

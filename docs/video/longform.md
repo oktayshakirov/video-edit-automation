@@ -417,6 +417,22 @@ line to a dot, black, on the synthesized `tv_off` zap.
 script's `endcard=ENDCARD` keeps working. It sits mid-frame, so place the
 YouTube end-screen elements clear of the centre.
 
+## Key words, punched in as they are spoken (2026-10-22)
+
+The long form burns no captions, so the word a sentence turns on had no
+presence on screen. `render_long(emphasis=["Nobody", "hundreds of
+millions"])` gives it one: the word punches in at the centre in SF Pro Heavy
+caps as the voice says it, a `Brand.band` bar sweeps under it, the picture
+dims a little, and it is gone in ~1.5s, on a soft `emph` hit
+(`overlay.Emphasis`). **Not a plate**, so it never reads as a chapter card.
+
+- Pick **the one word a sentence hinges on**, once or twice a minute. The
+  build drops (and logs) any that is never spoken, falls on a drawn beat, a
+  chapter card, the title or the end card, or comes within 20s of the last.
+- Timed by the word's position inside its caption chunk, the same estimate
+  the Shorts' karaoke uses. Shorts already show every word, so this is long
+  form only.
+
 ## The old-film surface is arranged per shot (2026-10-21)
 
 From a documentary-channel reference: a very slight grain with particles,
@@ -437,8 +453,10 @@ re-render is identical, and `filmfx.plan` gives each shot a recipe:
 | drawn data beat | nothing - grain costs a chart its legibility |
 
 On by default in `render_long` and `render_crypto_short` (`film=False`
-off, a number scales it). It sits under every other overlay, so titles,
-the hook and the end card stay sharp; burned captions are drawn before it.
+off, a number scales it). **It is an underlay** (`render_shots(underlays=)`,
+2026-10-22): drawn on the picture before the watermark, the burned captions
+and every overlay, so all type stays clean - grain over the Shorts' karaoke
+words made them fizz.
 **No vertical scratches** - the first version had a wandering scratch line
 and the user disliked it. Adds ~55ms a frame.
 
