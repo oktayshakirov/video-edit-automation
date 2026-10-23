@@ -20,11 +20,14 @@ when the data will exist. Answered checks move into that run's snapshot.
   views and minutes watched against `history/2026-10-11.md` only when the
   user says the test is over or drone is back in scope. Mid-test
   (10-11..10-22) was flat: 149 views against 154, minutes 98 against 133.
-- **E7, male voice.** Not chosen yet (user, 2026-10-23): the roster will be
-  `mia` plus one new male voice. Nothing to read until it ships. Then tag
-  `VOICE` on every new video. First read once 3+
-  male-voiced Shorts have curves (each needs ~60 views, so about a week after
-  the third ships). Compare only within the sentence-2 "keeps back" group.
+- **E7, male voice `noah`.** On test from 2026-10-23: the next 5 crypto and
+  5 tinnitus article pairs (long + Short) read in `noah`, then back to `mia`.
+  The pairs are listed in the "Voice test" tables in
+  `docs/video/projects/crypto.md` and `tinnitus.md`. Tag each new video from
+  its build script's voice (`voice="noah"` / `VOICE`). First read once 3+
+  `noah` Shorts have curves (about a week after the third ships). Compare
+  only within the sentence-2 "keeps back" group. Also note whether
+  `noah`'s ~6% slower read pushed any Short past its planned length.
 - **Sentence 2 holds only sometimes.** Read every new withheld-or-reversal
   Short's curve and note where its cliff lands *inside* sentence 2 (Bear and
   Stress-o-meter both fell during sentence 2 itself). Curves still due:
@@ -222,11 +225,12 @@ when the data will exist. Answered checks move into that run's snapshot.
 
 ## E7 - Male voice on the article Shorts and long-forms
 
-- **Started:** the user's announcement on 2026-10-23. Every video before then
-  is `mia` (female, af_heart), which makes them the baseline. The new voice
-  is not yet a profile in `core/voices.py`. It must become one, so that each
-  build script's `VOICE =` line tags which voice a video used.
-- **Change:** the voice only. Keep sentence-2 shape, opener rotation and
+- **Started:** 2026-10-23. The voice is `noah` (`am_michael` on mia's exact
+  recipe, 1.10 ENERGETIC), picked by the user by ear from eight male
+  candidates (`5aa11fe`). Every video before then is `mia` (female,
+  af_heart), which makes them the baseline.
+- **Change:** the next 5 article pairs per channel read in `noah`, then back
+  to `mia` until the user decides. Nothing else changes. Keep sentence-2 shape, opener rotation and
   topic choice on their usual rules, so the voice is the one thing that
   changed.
 - **Judged by:** on YouTube, half-gone second and the 4-7s drop for male
@@ -240,8 +244,11 @@ when the data will exist. Answered checks move into that run's snapshot.
   Then the voice is a matter of taste: keep whichever the user prefers.
 - **Fails if:** the male withheld group's median half-gone is 4s+ below the
   female one over 4+ curves.
-- **Status:** not yet shipped. 2026-10-23: the male voice is still being
-  chosen; the roster will be `mia` plus that one new voice.
+- **Confound:** the 10 `noah` pairs are consecutive, not alternated with
+  `mia`, so a change in topic mix or channel age over those weeks lands on
+  the voice too. Compare against the `mia` Shorts from just before, and say
+  so in the verdict.
+- **Status:** voice chosen and added; no `noah` video has shipped yet.
 
 ## E8 - Crypto long-forms on a freshly coined search term
 
