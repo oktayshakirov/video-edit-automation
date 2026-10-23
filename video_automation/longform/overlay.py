@@ -663,6 +663,98 @@ def thumbs_up(size: int, colour: tuple, width: float = 0.07) -> Image.Image:
     return im.resize((size, size), Image.LANCZOS)
 
 
+class Emphasis:
+    """One key word, large, the moment the voice says it (2026-10-22).
+
+    The long form burns no captions (`callouts=None`) - so the word a
+    sentence turns on had no presence on screen at all. Once or twice a
+    minute it now does: the word punches in at the centre in SF Pro Heavy
+    caps, a bar in `Brand.band` sweeps under it, the picture steps back a
+    little, and it is gone within a second and a half. **Not a plate** - a
+    word on a band would read as a chapter card arriving.
+
+    Placed by `build._emphasis` from the script's `emphasis=[...]` list,
+    only over footage and photographs. `cues()` is a soft hit on the word.
+    """
+
+    IN = 0.20
+    HOLD = 1.25
+    OUT = 0.30
+
+    def __init__(self, text: str, at: float, brand, frame: Frame = LANDSCAPE):
+        self.text, self.at = text.upper(), at
+        self.start, self.end = at - 0.04, at + self.HOLD
+        self.brand, self.frame = brand, frame
+        W, H = frame.size
+        probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        size = int(H * 0.15)
+        while size > 40:
+            f = _sf(size, "Heavy")
+            if probe.textlength(self.text, font=f) < W * 0.80:
+                break
+            size -= 4
+        self.font, self.size = _sf(size, "Heavy"), size
+        bb = probe.textbbox((0, 0), self.text, font=self.font)
+        self.bb = bb
+
+    def cues(self) -> list[tuple[float, str]]:
+        return [(self.at, "emph")]
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        from ..core.draw import ease_out
+        from .beats.base import _smooth
+        W, H = self.frame.size
+        e = t - self.start
+        pin = min(1.0, e / self.IN)
+        pout = _smooth(max(0.0, (t - (self.end - self.OUT)) / self.OUT))
+        a = pin * (1.0 - pout)
+        if a <= 0.004:
+            return pic
+
+        arr = np.asarray(pic).astype(np.float32) * (1.0 - 0.30 * a)
+        base = Image.fromarray(arr.clip(0, 255).astype(np.uint8)).convert("RGBA")
+
+        tw, th = self.bb[2] - self.bb[0], self.bb[3] - self.bb[1]
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        cx, cy = W / 2, H * 0.50
+        x0, y0 = cx - tw / 2 - self.bb[0], cy - th / 2 - self.bb[1]
+        d.text((x0, y0), self.text, font=self.font,
+               fill=(255, 255, 255, int(255 * a)))
+        # The bar sweeps in under the word, left to right, a beat after it.
+        bp = ease_out(max(0.0, min(1.0, (e - 0.08) / 0.35)))
+        if bp > 0:
+            bar_h = max(6, int(self.size * 0.09))
+            by = cy + th / 2 + self.size * 0.14
+            bx0 = cx - tw / 2
+            d.rectangle([bx0, by, bx0 + tw * bp, by + bar_h],
+                        fill=(*(self.brand.band or self.brand.primary),
+                              int(255 * a)))
+
+        # The punch: in from 1.22x, settling - and up and out on the exit.
+        sc = 1.22 - 0.22 * ease_out(pin) + 0.06 * pout
+        if abs(sc - 1.0) > 0.002:
+            big = layer.resize((int(W * sc), int(H * sc)), Image.BILINEAR)
+            layer = big.crop(((big.width - W) // 2, (big.height - H) // 2,
+                              (big.width - W) // 2 + W,
+                              (big.height - H) // 2 + H)) if sc > 1 else big
+            if sc < 1:
+                pad = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                pad.alpha_composite(big, ((W - big.width) // 2,
+                                          (H - big.height) // 2))
+                layer = pad
+        blur = 6.0 * (1.0 - pin) + 8.0 * pout
+        if blur > 0.4:
+            layer = layer.filter(ImageFilter.GaussianBlur(blur))
+        glow = layer.filter(ImageFilter.GaussianBlur(self.size * 0.30))
+        glow.putalpha(glow.getchannel("A").point(lambda v: int(v * 0.55)))
+        base.alpha_composite(glow)
+        base.alpha_composite(layer)
+        return base.convert("RGB")
+
+
 class EndCard:
     """The last seconds: "THANKS FOR WATCHING", then "LIKE & COMMENT".
 

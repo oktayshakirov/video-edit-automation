@@ -67,6 +67,7 @@ from .annotate import Anatomy, Callout, Diagram, Map
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
+from .post import Post
 from .reel import Reel
 from .wide import Grid, Logos, Pool, Replicate, Split, Steps
 
@@ -79,7 +80,7 @@ __all__ = [
     "Grid", "Logos", "Steps", "Split", "Replicate", "Pool",
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
-    "Callout", "Diagram", "Map", "Anatomy", "Reel",
+    "Callout", "Diagram", "Map", "Anatomy", "Reel", "Post",
     "DRAW", "POP", "RISE",
 ]
 
@@ -106,6 +107,7 @@ BEATS = {
     "anatomy": Anatomy,
     "spectrum": Spectrum,
     "reel": Reel,
+    "post": Post,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -140,6 +142,8 @@ _COUNT = {
     "spectrum": lambda p: 2,
     # One card per caption: the camera arrives as each is named.
     "reel": lambda p: len(p[0]),
+    # The card arriving, then its marked line highlighted.
+    "post": lambda p: 2,
 }
 
 

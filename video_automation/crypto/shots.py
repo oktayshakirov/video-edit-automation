@@ -644,7 +644,7 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                  brand: Brand = CRYPTO,
                  logo_anchors: "list[tuple[int, int]] | None" = None,
                  logo_hold: float = 13.0,
-                 overlays=None) -> Path:
+                 overlays=None, underlays=None) -> Path:
     """Render the picture track: every shot, crossfaded, captions, watermark.
 
     `logo_at` and `logo_w` default to the frame's own values rather than to the
@@ -779,6 +779,11 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                 # module and is the identical code it always was, so shipped
                 # videos render unchanged.
                 pic = transitions.apply(mode, pic, incoming, p, frame, brand)
+
+        # Underlays texture the picture itself - under the captions and the
+        # watermark, which stay clean (`core.filmfx`).
+        for ov in (underlays or ()):
+            pic = ov.draw(pic, t)
 
         pic = pic.convert("RGBA")
         for sprite in (captions or ()):

@@ -118,7 +118,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
                         "diagram", "dial", "split", "chart",
-                        "replicate", "pool", "reel"):
+                        "replicate", "pool", "reel", "post"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -188,6 +188,39 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          reveals=shot.reveals, marks=shot.marks,
                          start=shot.start, hold=shot.hold, frame=frame,
                          brand=brand)
+
+
+def card_cues(shots, total: float) -> list[tuple[float, str]]:
+    """The sounds of the shared cards in a Short: chapter cards and reels.
+
+    The long form's grammar, from the same schedules the beats draw from: a
+    chapter card's riser stop and hit, its typing (`core/typewriter.py`) and
+    the flashback on the way out; a reel's pan whoosh per move and a tick as
+    each label lands. Shared by the default path and any caller with its own
+    cue list (the quiz), so a card never plays silent.
+    """
+    from ..core import typewriter
+    cues: list[tuple[float, str]] = []
+    for sh in shots:
+        if sh is None:
+            continue
+        if sh.graphic == "chapter":
+            cues += [(sh.start, "chapter_riser"), (sh.start, "impact")]
+            cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
+            if sh.start + sh.hold < total - 0.4:
+                cues.append((sh.start + sh.hold - 0.20, "title_flashback"))
+        elif sh.graphic == "post":
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues.append((rv[1] + 0.05, "reveal"))
+        elif sh.graphic == "reel":
+            for i, t in enumerate((sh.reveals or [])[:12]):
+                if i:
+                    cues.append((t - 0.12, "pan"))
+                cues.append((t + 0.20, "reveal"))
+    return [(t, k) for t, k in cues if 0.0 <= t < total]
 
 
 def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
@@ -629,12 +662,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # duplication the opener already dropped.
             sprites = [sp for sp in sprites if sp.start < at]
 
+    underlays = []
     if film:
-        # Under every other overlay, so the hook and the outro stay clean.
+        # **Under the captions and the watermark**, not just under the other
+        # overlays: grain over the karaoke words made them fizz.
         from ..core.filmfx import FilmOverlay
-        overlays = [FilmOverlay(shots, total,
-                                strength=1.0 if film is True else float(film),
-                                fps=fps), *(overlays or [])]
+        underlays = [FilmOverlay(shots, total,
+                                 strength=1.0 if film is True else float(film),
+                                 fps=fps)]
 
     picture = render_shots(workdir / "picture.mp4", shots, total,
                            fps=fps, captions=sprites, frame=frame,
@@ -642,13 +677,15 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                                     lambda sh, fr: _short_factory(sh, fr, brand)),
                            mark=mark, brand=brand,
                            logo_anchors=anchors, logo_hold=logo_hold,
-                           overlays=overlays)
+                           overlays=overlays, underlays=underlays)
 
     # A mark that lands silently is a graphic; one that lands with a sound is an
     # event. The cues come from the same list that drives the drawing, so they
     # cannot drift apart.
     if sound and cues is not None:
-        cue_list = cues(shots)
+        # A caller's own cue list (the quiz) still gets the chapter cards' and
+        # reels' sounds - they are drawn the same way whoever builds the shot.
+        cue_list = cues(shots) + card_cues(shots, total)
         if cue_list:
             track = sfx.mix(track, workdir / "track-sfx.wav", cue_list,
                             kit=brand.name)
@@ -660,18 +697,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 for sh in shots if sh.graphic and sh.marks
                 for t, item in zip(sh.marks, sh.payload[0])
                 if item[-1] is not None]
-        # A chapter card types itself on; its key clicks come off the same
-        # schedule `ChapterCard` draws from (`core/typewriter.py`).
-        from ..core import typewriter
-        for sh in shots:
-            if sh.graphic == "chapter":
-                # The long form's whole chapter grammar: the riser's stop and
-                # a hit on the card, the typing, the flashback on the way out.
-                cues += [(sh.start, "chapter_riser"), (sh.start, "impact")]
-                cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
-                if sh.start + sh.hold < total - 0.4:
-                    cues.append((sh.start + sh.hold - 0.20,
-                                 "title_flashback"))
+        cues += card_cues(shots, total)
         if cues:
             track = sfx.mix(track, workdir / "track-sfx.wav", cues,
                             kit=brand.name)

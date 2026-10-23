@@ -369,6 +369,8 @@ LEVELS = {
     "tv_static": 0.42, "tv_static_soft": 0.30, "glitch_cut": 0.32,
     # The reel's camera move: a whoosh, but a quiet one - it fires per card.
     "pan": 0.40,
+    # A key word landing (`overlay.Emphasis`): the chapter impact, softer.
+    "emph": 0.55,
     # The drawn-beat cues (2026-09-10). `link` sits just above `reveal` — it is
     # still punctuation, not an event. `loop_close` and `limit` each fire once
     # per beat at the one structural moment, so they can carry like an impact.
@@ -566,6 +568,7 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
               "tv_static_soft": lambda sr: tv_static(sr, soft=True),
               "glitch_cut": hook_glitch,
               "pan": lambda sr: whoosh(sr, dur=0.48),
+              "emph": impact,
               "riser_soft": lambda sr: riser(sr, RISER_DUR),
               "link": link, "loop_close": loop_close, "limit": limit,
               "clock": clock, "clock_final": clock_final,
@@ -726,6 +729,7 @@ KITS = {
         # takes the crackle out of the static and the bitcrush off the glitch.
         "tv_static": "tv_static_soft",
         "glitch_cut": "reveal",
+        "emph": "loop_close",
         "drop": "link",
         # A whoosh is broadband noise sweeping - it is the one transition
         # sound that is genuinely fine here, and softening it would leave the

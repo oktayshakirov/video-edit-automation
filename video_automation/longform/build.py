@@ -32,7 +32,8 @@ from . import audio as audio_mod
 from . import chrome as chrome_mod
 from .beats import Checklist, item_count, make_beat
 from .meta import Meta, write_srt
-from .overlay import CinematicTitle, ClipOverlay, EndCard, TitleOverlay, TvOff
+from .overlay import (CinematicTitle, ClipOverlay, Emphasis, EndCard,
+                      TitleOverlay, TvOff)
 from .plan import (Section, flatten, lay_out, mark_times, reveal_times,
                    style_chapters)
 from .thumb import render_thumb
@@ -60,6 +61,10 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_crop_zoom: float = 1.0,
                 thumb_crop_band: str = "middle",
                 thumb_shift: float = 0.0,
+                # The band-card look on the thumbnail, opt-in for an A/B:
+                # `thumb_accent="band"`, a glowing kicker, film grain.
+                thumb_kicker: str | None = None,
+                thumb_grain: bool = False,
                 # The navigation layer: a ticked progress bar along the
                 # bottom and "3 of 5" under each chapter card. **Off since
                 # 2026-10-02, by the user's call** - the bar along the bottom
@@ -94,6 +99,9 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # Glitch and TV-static cuts on a few meaningful cuts - a
                 # turn, a chapter, a jump in time. `transitions.plan_special`.
                 special_cuts: "bool | int" = True,
+                # Key words, punched in large as they are spoken, over
+                # footage only - once or twice a minute. `overlay.Emphasis`.
+                emphasis: "list[str] | None" = None,
                 # The redacted opening hook - see `overlay.HookOverlay` and
                 # longform.md's "The first five seconds carry information".
                 # The `[bracketed]` word is hidden until the voice says it;
@@ -240,11 +248,14 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                       meta, brand, frame, title_style)
     end_ov = _endcard(endcard, endcard_lead, total, frame, brand)
     tv_ov = [TvOff(total, frame)]
+    emph_ov = _emphasis(emphasis, captions, shots, total, brand, frame,
+                        avoid=[(o.start - 0.5, o.end + 0.5)
+                               for o in title_ov + end_ov])
     film_ov = []
     if film:
-        # The old-film surface, placed per moment (`core.filmfx.POLICY`). It
-        # goes under every other overlay, so the title and the end card's
-        # type stay clean over a textured picture.
+        # The old-film surface, placed per shot (`core.filmfx.plan`). An
+        # underlay: under the watermark, burned captions and every overlay,
+        # so all type stays clean over a textured picture.
         from ..core.filmfx import FilmOverlay
         windows = ([(o.start, o.end, "title") for o in title_ov]
                    + [(o.start, o.end, "end") for o in end_ov])
@@ -263,7 +274,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
         # a 16:9 video is watched in a player, not scrolled past.
         brand=brand,
         mark=brand.mark(int(frame.logo_w * brand.mark_scale)),
-        overlays=(film_ov + end_ov
+        underlays=film_ov,
+        overlays=(emph_ov + end_ov
                   + title_ov
                   + _chrome(chrome_nav, chapters, shots, total, brand, frame)
                   + hook_ov
@@ -283,7 +295,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                         _cues(shots, total)
                         + transitions.cues(shots)
                         + [c for h in hook_ov for c in h.cues()]
-                        + [c for o in title_ov + end_ov + tv_ov
+                        + [c for o in title_ov + end_ov + tv_ov + emph_ov
                            for c in o.cues()],
                         kit=brand.name)
 
@@ -318,7 +330,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                      accent=thumb_accent, accent2=thumb_accent2,
                      side=thumb_side,
                      crop_at=thumb_crop_at, crop_zoom=thumb_crop_zoom,
-                     crop_band=thumb_crop_band, shift=thumb_shift)
+                     crop_band=thumb_crop_band, shift=thumb_shift,
+                     kicker=thumb_kicker, grain=thumb_grain)
         made["thumb"] = thumb
 
     if meta is not None:
@@ -409,6 +422,54 @@ def _title(at: "float | None", text: "str | None", hold: float,
     return [TitleOverlay(line, at, hold, brand, frame=frame, eyebrow=eyebrow)]
 
 
+def _emphasis(words, captions, shots, total: float, brand, frame,
+              avoid=()) -> list:
+    """An `Emphasis` for each script-chosen key word, where it is spoken.
+
+    Each phrase is found in the captions, in order, case-insensitively, and
+    timed by its position inside its caption chunk - the estimate the Shorts'
+    karaoke uses. It is **dropped**, with a line in the build log, if it is
+    never spoken, if it lands over anything but footage or a photograph (a
+    drawn beat, a chapter card) or inside an `avoid` window (the title, the
+    end card), or within 20s of the last one: once or twice a minute is the
+    device; more is subtitles.
+    """
+    from .meta import is_disclaimer
+    out, used, last = [], 0, -1e9
+    for phrase in words or ():
+        key = phrase.lower()
+        hit = None
+        for ci in range(used, len(captions)):
+            text = captions[ci].text.lower()
+            k = text.find(key)
+            if k >= 0:
+                c = captions[ci]
+                span = max(0.2, c.speech_end - c.start)
+                hit = (c.start + span * k / max(1, len(text)), ci)
+                break
+        if hit is None:
+            print(f"emphasis: '{phrase}' is never spoken - skipped")
+            continue
+        at, used = hit[0], hit[1] + 1
+        sh = next((s for s in shots
+                   if s is not None and s.start <= at < s.start + s.hold), None)
+        line = (sh.payload[1] if sh is not None and sh.payload
+                and len(sh.payload) > 1 else "")
+        ok_shot = (sh is not None and sh.graphic is None
+                   and not (line and is_disclaimer(str(line))))
+        if not ok_shot or any(a <= at <= b for a, b in avoid):
+            print(f"emphasis: '{phrase}' at {at:.1f}s is over a graphic, "
+                  f"the title or the end card - skipped")
+            continue
+        if at - last < 20.0:
+            print(f"emphasis: '{phrase}' at {at:.1f}s is {at - last:.0f}s after "
+                  f"the last one - skipped (20s apart)")
+            continue
+        out.append(Emphasis(phrase, at, brand, frame))
+        last = at
+    return out
+
+
 def _hook(text: str | None, fallback: float, brand: Brand, frame,
           captions: list) -> list:
     if not text:
@@ -460,6 +521,13 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             end = sh.start + sh.hold
             if end < total - 0.4 and sh.transition not in transitions.CUES:
                 cues.append((end - 0.20, "title_flashback"))
+        elif sh.graphic == "post":
+            # The card arriving on a pan, the highlighter on a tick.
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues.append((rv[1] + 0.05, "reveal"))
         elif sh.graphic == "reel":
             # A pan whoosh as the camera leaves for each next card, and the
             # label's tick as it lands (`beats.reel.Reel`).

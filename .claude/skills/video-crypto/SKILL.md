@@ -127,6 +127,13 @@ These are on without asking - a script only supplies the words. Detail in
   each). It can **dive into its last card and continue as that clip**, or
   open out of the previous clip (`enter` / `emerge`) - use it where the
   script moves from an overview into one example. `docs/video/beats.md`.
+- **`post` puts what someone actually wrote on screen** - a post, a news
+  headline, a transaction - and highlights the `[bracketed]` line as it is
+  read. Real, sourced wording only; write its sentence as two phrases, the
+  lead-in and the quote. `docs/video/beats.md`, "`post`".
+- **`emphasis=[...]` punches the word a sentence hinges on onto the screen**
+  as it is spoken, long form only, once or twice a minute. Pick one word or
+  short phrase per minute that the whole sentence turns on.
 - **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
   of git. On a machine without them the build falls back to synthesized
   stand-ins - copy them over before a build that ships.

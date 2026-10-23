@@ -446,11 +446,17 @@ class Search(_Opener):
     sentence 2" mistake in picture form (the user's call, 2026-09-24).
     """
 
-    CPS = 0.085          # seconds per character
+    TYPE_AT = 0.30       # the first keystroke, after the slam
 
     def __init__(self, query: str, **kw):
         super().__init__(**kw)
         self.query = query
+        # **The shared typing rhythm** (2026-10-22): the same schedule, jitter,
+        # caret and key clicks as the typed chapter cards, so every piece of
+        # type that writes itself on in a video moves at one tempo. It used
+        # to type at a fixed 0.085s a character with its own blink.
+        from ..core import typewriter
+        self.times = typewriter.schedule(query, self.TYPE_AT)
 
     def _layout(self):
         super()._layout()
@@ -468,7 +474,7 @@ class Search(_Opener):
             self.size -= 2
         # Type the whole query, then hold it; the land is the last keystroke
         # unless the script pinned one.
-        typed = 0.3 + len(self.query) * self.CPS
+        typed = self.times[-1] if self.times else self.TYPE_AT
         if self.at_word is None and self.at_fixed is None:
             self.land = typed
             self.exit_at = self.land + self.hold
@@ -479,8 +485,7 @@ class Search(_Opener):
         c = [(0.0, "hook_slam"), (self.exit_at, "hook_swish")]
         # A key click per character, on the frame `_content` shows it - the
         # same instrument as the typed chapter cards (`core/typewriter.py`).
-        c += typewriter.cues(self.query, [0.3 + (i + 1) * self.CPS
-                                          for i in range(len(self.query))])
+        c += typewriter.cues(self.query, self.times)
         return c
 
     def _content(self, t):
@@ -493,11 +498,11 @@ class Search(_Opener):
         d.rounded_rectangle((x0, y, x1, y + h), radius=h // 2,
                             fill=(245, 245, 245, 245))
         f = _font(self.size)
-        n = int(max(0.0, t - 0.3) / self.CPS)
-        typed = self.query[:n].upper()
+        from ..core import typewriter
+        typed = self.query[:typewriter.shown(self.times, t)].upper()
         d.text((x0 + 52, y + (h - self.size) / 2 - 4), typed, font=f,
                fill=(20, 20, 20, 255))
-        if t % 0.7 < 0.35:
+        if typewriter.caret_on(self.times, t) or t < self.TYPE_AT:
             cw = d.textlength(typed, font=f)
             d.rectangle((x0 + 56 + cw, y + 30, x0 + 60 + cw, y + h - 30),
                         fill=(20, 20, 20, 255))

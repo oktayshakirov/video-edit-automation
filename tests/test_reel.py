@@ -59,3 +59,16 @@ def test_link_leaves_a_plain_reel_alone():
     nxt = _shot(clip=CLIP)
     link_reels([reel, nxt])
     assert reel.xfade is None and nxt.clip_at == 0.0
+
+
+@pytest.mark.parametrize("kind,fields", [
+    ("post", {"name": "A", "text": "one [two three] four"}),
+    ("headline", {"source": "S", "headline": "one [two] three"}),
+    ("tx", {"rows": [("*Value", "10 BTC"), ("For", "x")]}),
+])
+def test_post_highlighter_every_frame(kind, fields):
+    """Every sweep fraction draws - the first sliver once had x1 < x0."""
+    b = BEATS["post"](kind, fields, brand=CRYPTO, reveals=[0.2, 1.0],
+                      start=0.0, hold=3.0)
+    for i in range(31):
+        b.draw(i / 30)

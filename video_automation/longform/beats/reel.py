@@ -91,12 +91,6 @@ class _Media:
         self.count = max(1, int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT)))
         self.pos, self.last = -1, None
 
-    @staticmethod
-    def _grade(bgr: np.ndarray) -> np.ndarray:
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32)
-        grey = rgb.mean(axis=2, keepdims=True)
-        rgb = (grey + (rgb - grey) * SAT) * DIM
-        return np.clip(rgb, 0, 255).astype(np.uint8)
 
     def raw(self, t: float) -> np.ndarray | None:
         if self.still is not None:
@@ -114,12 +108,22 @@ class _Media:
         if self.last is None or self.last[0] != self.pos:
             ok, bgr = self.cap.retrieve()
             if ok:
-                self.last = (self.pos, self._grade(bgr))
+                self.last = (self.pos, cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB))
         return self.last[1] if self.last else None
 
 
+def _grade(rgb: np.ndarray) -> np.ndarray:
+    """`VideoShot._prepare`'s grade, same formula, so a dive's last frame and
+    the clip's first agree. Applied to the on-screen crop only - grading the
+    full source frame was most of the reel's render time."""
+    f = rgb.astype(np.float32)
+    grey = f.mean(axis=2, keepdims=True)
+    f = (grey + (f - grey) * SAT) * DIM
+    return np.clip(f, 0, 255).astype(np.uint8)
+
+
 def _view(raw: np.ndarray, x0: float, y0: float, w: float, h: float,
-          W: int, H: int):
+          W: int, H: int, grade: bool = False):
     """The visible part of `raw` covered into the screen rect (x0, y0, w, h).
 
     Returns (image, (vx, vy)) or None. Only the part on screen is resampled,
@@ -141,7 +145,29 @@ def _view(raw: np.ndarray, x0: float, y0: float, w: float, h: float,
     m = np.float32([[c, 0, ox - vx0], [0, c, oy - vy0]])
     out = cv2.warpAffine(src, m, (vx1 - vx0, vy1 - vy0),
                          flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
-    return Image.fromarray(out), (vx0, vy0)
+    return Image.fromarray(_grade(out) if grade else out), (vx0, vy0)
+
+
+def dot_grid(out: Image.Image, cam: float, zoom: float, brand, frame) -> None:
+    """The faint dot grid the camera beats move over, offset by the camera.
+
+    Shared by `reel` and `post`: the surface moving is what makes a moving
+    card read as a camera rather than a slide.
+    """
+    W, H = frame.size
+    d = ImageDraw.Draw(out)
+    g = W * 0.035 * zoom
+    x0 = (W / 2 - cam * zoom) % g
+    y0 = (H / 2) % g
+    col = tuple(int(c * 0.45 + 40) for c in brand.primary)
+    r = max(2, int(W / 900))
+    y = y0
+    while y < H:
+        x = x0
+        while x < W:
+            d.ellipse([x - r, y - r, x + r, y + r], fill=col)
+            x += g
+        y += g
 
 
 class Reel(Beat):
@@ -240,20 +266,7 @@ class Reel(Beat):
     # --- drawing ----------------------------------------------------------
 
     def _grid(self, out: Image.Image, cam: float, zoom: float) -> None:
-        W, H = self.frame.size
-        d = ImageDraw.Draw(out)
-        g = W * 0.035 * zoom
-        x0 = (W / 2 - cam * zoom) % g
-        y0 = (H / 2) % g
-        col = tuple(int(c * 0.45 + 40) for c in self.brand.primary)
-        r = max(2, int(W / 900))
-        y = y0
-        while y < H:
-            x = x0
-            while x < W:
-                d.ellipse([x - r, y - r, x + r, y + r], fill=col)
-                x += g
-            y += g
+        dot_grid(out, cam, zoom, self.brand, self.frame)
 
     def _label(self, layer: Image.Image, text: str, cx: float, top: float,
                s: float, a: float) -> None:
@@ -294,12 +307,14 @@ class Reel(Beat):
             k = 1.0 - self.CURVE * (1.0 - r2 * 0.5)
             mx = (nx * k) * (W / 2) + W / 2
             my = (ny * k) * (H / 2) + H / 2
-            vig = np.clip(1.0 - 0.28 * r2 ** 1.4, 0.0, 1.0)[:, :, None]
-            self._maps = (mx, my, vig.astype(np.float32))
-        mx, my, vig = self._maps
-        a = cv2.remap(np.asarray(out), mx, my, cv2.INTER_LINEAR,
+            vig = np.clip(1.0 - 0.28 * r2 ** 1.4, 0.0, 1.0)
+            vig = np.repeat((vig * 255).astype(np.uint8)[:, :, None], 3, axis=2)
+            m1, m2 = cv2.convertMaps(mx, my, cv2.CV_16SC2)
+            self._maps = (m1, m2, vig)
+        m1, m2, vig = self._maps
+        a = cv2.remap(np.asarray(out), m1, m2, cv2.INTER_LINEAR,
                       borderMode=cv2.BORDER_REFLECT)
-        return Image.fromarray((a * vig).astype(np.uint8))
+        return Image.fromarray(cv2.multiply(a, vig, scale=1 / 255))
 
     def content(self, out: Image.Image, f: float) -> None:
         from ...core.transitions import _blur_x
@@ -345,9 +360,10 @@ class Reel(Beat):
                                       y0 + ch + 14 * zoom], radius=rad,
                                      fill=(0, 0, 0, int(235 * keep)))
             raw = self.media[i].raw(max(0.0, e))
+            video = raw is not None and self.media[i].cap is not None
             if raw is None:
                 raw = self._text_card(label)
-            got = _view(raw, x0, y0, cw, ch, W, H)
+            got = _view(raw, x0, y0, cw, ch, W, H, grade=video)
             if got is None:
                 continue
             pic, (vx, vy) = got
@@ -378,8 +394,13 @@ class Reel(Beat):
                                 * keep ** 4)
 
         if keep > 0.02:
-            shadow = shadow.filter(ImageFilter.GaussianBlur(
-                max(6, int(W * 0.010))))
+            # Blurred at a quarter size: a soft shadow has no detail to lose,
+            # and the full-frame blur was a third of the frame's cost.
+            q = 4
+            small = shadow.resize((W // q, H // q), Image.BILINEAR)
+            small = small.filter(ImageFilter.GaussianBlur(
+                max(2, int(W * 0.010 / q))))
+            shadow = small.resize((W, H), Image.BILINEAR)
         # Labels ride on their cards, so they smear with them - a sharp pill
         # over a blurred card reads as detached from it.
         layer = out.convert("RGBA")
