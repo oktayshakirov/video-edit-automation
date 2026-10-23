@@ -20,6 +20,15 @@ when the data will exist. Answered checks move into that run's snapshot.
   views and minutes watched against `history/2026-10-11.md` only when the
   user says the test is over or drone is back in scope. Mid-test
   (10-11..10-22) was flat: 149 views against 154, minutes 98 against 133.
+- **E9, the engine overhaul, and its overlap with E7.** Every video in the
+  next run has to be tagged old engine or new engine. The upgrades landed
+  from `7aed772` (10-21: typed chapter cards, cinematic title, native
+  outro, old-film surface, glitch cuts) through `d553559` (10-23:
+  spotlight, post cards, reel beat). The user said on 10-23 that only one
+  uploaded video uses them so far. History, Meme coins and Nebula were all
+  built after `7aed772`, so confirm with the user which one it is, and tag
+  the rest by build commit date. Everything published on or before 10-20
+  is old engine.
 - **E7, male voice `noah`.** On test from 2026-10-23: the next 5 crypto and
   5 tinnitus article pairs (long + Short) read in `noah`, then back to `mia`.
   The pairs are listed in the "Voice test" tables in
@@ -271,3 +280,35 @@ when the data will exist. Answered checks move into that run's snapshot.
   when many more videos will answer "dacity coin". It shows how long the
   window stays open.
 - **Status:** not yet shipped.
+
+## E9 - The engine overhaul (cinematic look and new features)
+
+- **Started:** 2026-10-21 to 10-23, per the user, as a set of build
+  changes, not a single switch: typed band chapter cards and a cinematic
+  title (`7aed772`), a native outro with a TV-off ending (`a32f7b1`), an
+  old-film surface on every shot (`24be9b7`), glitch and TV-static cuts
+  (`695fb74`), then the reel beat, post cards, key-word moments and the
+  spotlight beat (`8eb5c29`, `575fe9d`, `d553559`). One uploaded video used
+  them as of 10-23.
+- **Why:** the videos look better and more cinematic. Looking better is a
+  goal in its own right, so this entry can only fail on retention and
+  reach, never on taste.
+- **Judged by:** per platform, new-engine videos against old-engine videos
+  of the same format (Short or long, article or session), on their own
+  platform's numbers. On YouTube Shorts: half-gone second and the 4-7s
+  drop, within the same sentence-2 group. On YouTube long-form: average
+  view % and half-gone. On TikTok: the 250/770 batch and anything over
+  ~1,000. On Facebook: the pass rate (≥150).
+- **Fails if:** after 5+ new-engine Shorts with curves, their median
+  half-gone sits 4s+ below the old-engine median for the same sentence-2
+  group. Or new-engine long-forms show a lower average view % than the
+  old ones, which would point at the longer title and outro.
+- **Confounded with E7 (`noah`), and this is the main problem.** Both start
+  on the same videos. If the next 10 article pairs carry `noah` *and* the
+  new engine, neither effect can be separated from the other. Separation
+  only comes from videos that have one and not the other: new-engine `mia`
+  videos (the one already uploaded, History or Meme coins if new-engine,
+  every zen session, and every pair after the 5-pair `noah` test), and
+  old-engine `noah` videos (none exist). Say "noah + new engine" in every
+  verdict until those exist, and do not credit either alone.
+- **Status:** started; one upload.
