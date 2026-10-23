@@ -69,6 +69,7 @@ from .plot import Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
 from .post import Post
 from .reel import Reel
+from .spotlight import Spotlight
 from .wide import Grid, Logos, Pool, Replicate, Split, Steps
 
 # Re-exported on purpose: `from .beats import Checklist, _font, item_count`
@@ -80,7 +81,7 @@ __all__ = [
     "Grid", "Logos", "Steps", "Split", "Replicate", "Pool",
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
-    "Callout", "Diagram", "Map", "Anatomy", "Reel", "Post",
+    "Callout", "Diagram", "Map", "Anatomy", "Reel", "Post", "Spotlight",
     "DRAW", "POP", "RISE",
 ]
 
@@ -108,6 +109,7 @@ BEATS = {
     "spectrum": Spectrum,
     "reel": Reel,
     "post": Post,
+    "spotlight": Spotlight,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -144,6 +146,8 @@ _COUNT = {
     "reel": lambda p: len(p[0]),
     # The card arriving, then its marked line highlighted.
     "post": lambda p: 2,
+    # One framing per spoken sentence (the first may be the whole picture).
+    "spotlight": lambda p: len(p[1]),
 }
 
 

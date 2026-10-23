@@ -118,7 +118,8 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
                         "diagram", "dial", "split", "chart",
-                        "replicate", "pool", "reel", "post"):
+                        "replicate", "pool", "reel", "post",
+                        "spotlight"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -209,6 +210,8 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
             if sh.start + sh.hold < total - 0.4:
                 cues.append((sh.start + sh.hold - 0.20, "title_flashback"))
+        elif sh.graphic == "spotlight":
+            cues += [(t - 0.10, "pan") for t in (sh.reveals or [])[1:12]]
         elif sh.graphic == "post":
             rv = sh.reveals or []
             if rv:

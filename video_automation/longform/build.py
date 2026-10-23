@@ -102,6 +102,10 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 # Key words, punched in large as they are spoken, over
                 # footage only - once or twice a minute. `overlay.Emphasis`.
                 emphasis: "list[str] | None" = None,
+                # A quiet bed of the place a clip shows - city, rain, office,
+                # servers - under long enough footage shots only. False off,
+                # a number scales it. `core/ambience.py`.
+                ambience: "bool | float" = True,
                 # The redacted opening hook - see `overlay.HookOverlay` and
                 # longform.md's "The first five seconds carry information".
                 # The `[bracketed]` word is hidden until the voice says it;
@@ -308,6 +312,14 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                                    gain=music_gain)
         track = audio_mod.mix_voice_over_bed(bed, track, workdir / "mix.wav",
                                              total)
+
+    if sound and ambience:
+        # Quiet place-sound under footage that shows a place - restrained by
+        # rule, not by taste (`core/ambience.py`).
+        from ..core import ambience as ambience_mod
+        track = ambience_mod.mix(track, workdir / "mix-ambience.wav", shots,
+                                 total, kit=brand.name,
+                                 gain=1.0 if ambience is True else float(ambience))
 
     subprocess.run(
         ["ffmpeg", "-v", "error", "-y", "-i", str(picture), "-i", str(track),
@@ -521,6 +533,9 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             end = sh.start + sh.hold
             if end < total - 0.4 and sh.transition not in transitions.CUES:
                 cues.append((end - 0.20, "title_flashback"))
+        elif sh.graphic == "spotlight":
+            # A soft pan as the camera leaves for each framing.
+            cues += [(t - 0.10, "pan") for t in (sh.reveals or [])[1:12]]
         elif sh.graphic == "post":
             # The card arriving on a pan, the highlighter on a tick.
             rv = sh.reveals or []

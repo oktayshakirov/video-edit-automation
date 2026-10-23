@@ -80,6 +80,8 @@ PAYLOADS = {
     # kinds of card the strip takes.
     "reel": ([("<photo>", "Day 1"), ("missing.mp4", "Day 2"), (None, "Day 30")],
              "THIRTY DAYS"),
+    "spotlight": ("<photo>", [(None, ""), ((0.2, 0.2, 0.6, 0.6), "Detail"),
+                              (None, "")], ""),
     "post": ("post", {"name": "Example Author", "handle": "@example",
                       "date": "1 Jan 2020",
                       "text": "A sample post whose [key phrase] is highlighted."},
@@ -154,7 +156,7 @@ def test_beat_renders_on_both_brands(name):
 # coverage at all from the landscape cases above.
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
-            "post"]
+            "post", "spotlight"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -214,7 +216,8 @@ def test_every_beat_class_is_registered():
     from video_automation.longform.beats.base import Beat
 
     defined = set()
-    for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post"):
+    for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
+                "spotlight"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from
