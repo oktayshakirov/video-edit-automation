@@ -12,32 +12,35 @@ Baseline for everything below: `history/2026-09-21.md`.
 Rewritten at the end of each run (step 9). Each says what to read and from
 when the data will exist. Answered checks move into that run's snapshot.
 
-*Set 2026-10-11:*
+*Set 2026-10-23* (the 10-11 checks are answered in `history/2026-10-23.md`):
 
-- **E6, drone thumbnail test.** Ask the user for Studio's per-video winner
-  and whether the test has ended. After winners apply, compare 14 days of
-  views and average view duration against `history/2026-10-11.md`. Not
-  readable before ~10-25.
-- **Bitcoin halving Short `HSUtPLAJlcg`, the first prediction from the
-  sentence-2 rule.** Its sentence 2 keeps the answer back, so it should hold
-  (half gone past ~12s). Its curve exists once it passes ~60 views; it had 284
-  on day one.
-- **Gate compliance.** Run `tools/opening_check.py` on every Short built
-  after 2026-10-12 and check its handover carried the output. A Short that
-  skipped the gate is a compliance finding, not a rule finding.
-- **Crypto Facebook long-form.** Scams 15, First tx 27, Market cap 36 against
-  145-285 before 09-22. Watch the next two (halving first). If they also land
-  under ~70, compare the passing and failing publish runs: cover frame,
-  caption, posting time, and whether n8n finished.
-- **Sound beds outside YouTube** (proposed 10-11, not started). Sessions are
-  the tinnitus outlier on Facebook (29k) and on pre-pipeline TikTok (~1.9k).
-  If the user builds a 30-60s cut for TikTok, open it as an experiment with a
-  fail line of "lands in the 250/770 batch like the rest".
-  **2026-10-12: the user's focus until ~11-12 is publishing more sound
-  sessions.** Next run: count the sessions published since 10-12 and their
-  views per platform (Facebook first), against the 29k outlier. Once a few
-  are live, it is worth testing translated titles on half of them (see
-  "Parked: localization").
+- **E6, drone thumbnail test.** Still needs Studio's per-video winner from
+  the user, and the date the test ends. After winners apply, read 14 days of
+  views and minutes watched against `history/2026-10-11.md`. Mid-test
+  (10-11..10-22) was flat: 149 views against 154, minutes 98 against 133.
+- **E7, male voice.** Tag `VOICE` on every new video. First read once 3+
+  male-voiced Shorts have curves (each needs ~60 views, so about a week after
+  the third ships). Compare only within the sentence-2 "keeps back" group.
+- **Sentence 2 holds only sometimes.** Read every new withheld-or-reversal
+  Short's curve and note where its cliff lands *inside* sentence 2 (Bear and
+  Stress-o-meter both fell during sentence 2 itself). Curves still due:
+  Decentralized AI, History, Meme coins, Vitalik once published.
+- **Vitalik Short: run `opening_check.py` before it publishes.** Sentence 2
+  "Vitalik Buterin created it." looks like the plain answer to "Who is
+  actually in charge of Ethereum?".
+- **E8, trend long-forms.** Read each new trend long-form at 7 days: YouTube
+  views and `youtube-audit traffic <id>` search share. Fail line is in the
+  entry.
+- **GTA 6 long-form decay.** Pull traffic sources again: does search hold
+  after the 11-19 launch, when many more videos will answer "dacity coin"?
+- **Crypto Facebook.** Every crypto upload since 10-02 has failed (1-38), and
+  tinnitus passes on the same workflows, so the cause is at the page. Needs
+  the user to read the crypto page's Professional dashboard (Page quality,
+  Support inbox). Then re-read the next two uploads.
+- **Zen sessions on Facebook and YouTube.** TikTok is closed (5 of 5 in
+  batches). Keep counting Facebook long/reel per session against the 29k
+  outlier, and YouTube suggested growth on the 09-05 session (388 on 10-23).
+  The user's sessions focus runs to ~11-12.
 
 ---
 
@@ -192,3 +195,67 @@ when the data will exist. Answered checks move into that run's snapshot.
 - **Constraint:** no API title or thumbnail writes on drone long-forms while
   the test runs.
 - **Status:** running.
+
+## Status 2026-10-23
+
+- **E1 (redacted hook): unchanged.** The only new hooked Short
+  (Decentralized AI, a placeholder `[one job]`) has no curve.
+- **E2 (sentence 2): weakened, the "no overlap" claim retired.** Two
+  compliant Shorts failed: Bear market (keeps back "one number", half gone
+  7.0s) and Stress-o-meter (a task like Jaw's, 8.5s). Halving, the 10-11
+  prediction, held (22.3s from a 166% open). Count across both runs: 6 of 8
+  withheld/reversal Shorts hold, 0 of 6 verdicts. A withheld sentence 2
+  seems to be needed, but it is not enough on its own.
+- **E3 (cold close): no comparison possible.** Every new Short closes cold,
+  so there is no question-close cohort left. Openings 103-109% except
+  Halving (166) and Forest (182). Leave as is.
+- **E4 (search-question titles): holding on reach,** but see the 10-23
+  correction: the long-form "search title" cases were browse until GTA.
+- **E5 (openers): no opener effect yet.** Search now has 1 hold (Jaw) and
+  2 fails (Musk, Bear). The fails have different sentence-2 shapes, so the
+  opener still cannot be separated out.
+- **E6 (drone thumbnails): running, too early.** See Open checks.
+
+## E7 - Male voice on the article Shorts and long-forms
+
+- **Started:** the user's announcement on 2026-10-23. Every video before then
+  is `mia` (female, af_heart), which makes them the baseline. The new voice
+  is not yet a profile in `core/voices.py`. It must become one, so that each
+  build script's `VOICE =` line tags which voice a video used.
+- **Change:** the voice only. Keep sentence-2 shape, opener rotation and
+  topic choice on their usual rules, so the voice is the one thing that
+  changed.
+- **Judged by:** on YouTube, half-gone second and the 4-7s drop for male
+  Shorts against `mia` Shorts *within the same sentence-2 group* (the
+  baseline is the 8 withheld/reversal curves: half gone 7.0-28.8s, median
+  ~16s). Also the TikTok batch (250 vs 770) and the Facebook pass rate
+  (≥150), each read against that platform's own history.
+- **No effect if:** after 4+ male-voiced Shorts with curves, their
+  withheld-group half-gone falls inside 7.0-28.8s with a median within ~3s
+  of the female group, and TikTok and Facebook land in their usual buckets.
+  Then the voice is a matter of taste: keep whichever the user prefers.
+- **Fails if:** the male withheld group's median half-gone is 4s+ below the
+  female one over 4+ curves.
+- **Status:** not yet shipped.
+
+## E8 - Crypto long-forms on a freshly coined search term
+
+- **Started:** 2026-10-23, on the user's yes. Built on one video: GTA 6
+  `FXW9Zd5vjYk` (2026-10-20), 619 YouTube views in three days, with 178 of
+  its first 206 from YouTube search for "dacity coin" and variants. The
+  launch trailer coined that term five days before the upload.
+- **Change:** pick some crypto long-form topics for a term that has just
+  appeared and that few videos answer yet. Title the long-form with the
+  exact term first. Rule text in `docs/video/projects/crypto.md`, "A trend
+  works as a new search term". Nothing else about the build changes. The
+  Short is not part of the test.
+- **Judged by:** each trend long-form's YouTube views at 7 days, and its
+  search share from `youtube-audit traffic <id>`. Compare against the
+  non-trend crypto long-forms of the same period, which mostly sit at 4-16
+  views.
+- **Fails if:** the next 3 trend long-forms each take under ~150 YouTube
+  views in their first 7 days, or under half of their views from search.
+- **Also watch:** GTA 6's own search share after the 11-19 game launch,
+  when many more videos will answer "dacity coin". It shows how long the
+  window stays open.
+- **Status:** not yet shipped.
