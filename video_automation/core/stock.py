@@ -92,8 +92,18 @@ def _download(src: str, dest: Path) -> Path:
     tmp = dest.with_suffix(dest.suffix + ".part")
     req = urllib.request.Request(src, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=180) as r, open(tmp, "wb") as f:
+        want = int(r.headers.get("Content-Length") or 0)
         while chunk := r.read(1 << 16):
             f.write(chunk)
+    # **The CDN can end a response early and urllib does not raise**
+    # (2026-10-24): `3822008.mp4` landed short, screened fine on its opening
+    # frames, and failed the render with "decoded no frames" twenty minutes
+    # in. A short file is deleted here rather than cached as a clip.
+    got = tmp.stat().st_size
+    if want and got < want:
+        tmp.unlink()
+        raise IOError(f"{dest.name}: got {got} of {want} bytes - truncated "
+                      f"download, fetch it again")
     tmp.rename(dest)
     return dest
 

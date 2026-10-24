@@ -514,6 +514,16 @@ atmospheric.
 
 ## Choosing the opener
 
+**The user's preference, 2026-10-24: `Search` over the redacted hook**
+whenever the title is something people type - "it's cleaner and easier to
+understand". The Beethoven Short shipped with the long form's `Search` in
+place of its first cut's `[not silence]` hook. Reach for the redacted hook
+only with a real punchline, and **preferably a single hidden word**: two
+words read as confusing. When a run has to be two or more words, it is drawn
+as **one box** - one static bar, then one pill (`HookOverlay`, fixed the same
+day; before it, every word got its own box). The outro's `[...]` follows the
+same rule. This overrides "default" in the table below.
+
 **Five variants, one per shape of topic** (`longform/openers.py`), plus the
 redacted hook (`hook=`) which stays the default and the control. They share
 the hook's language - Arial Black upper case, the brand pill, the camera
@@ -531,7 +541,7 @@ render_tinnitus_short(SENTENCES, SHOTS, out, work, ...,
 
 | opener | pick it when | lands on |
 | --- | --- | --- |
-| `hook="... [word] ..."` | **default** - nothing below clearly fits | the hidden word being spoken |
+| `hook="... [word] ..."` | a real punchline in one word - `Search` first when the title is a search (2026-10-24) | the hidden word being spoken |
 | `Counter(final, caption)` | the payoff **is** a number or a scale | the figure, spinning then slamming to a stop |
 | `Stamp(quote, verdict)` | the topic is a **belief** to overturn or confirm | the verdict stamping across, below the quote |
 | `Split(left, right, question)` | a **comparison** | nothing, unless `winner=` - the question stays open |

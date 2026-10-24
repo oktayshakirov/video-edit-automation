@@ -10,6 +10,10 @@ matters highlighted as the voice reads it. Three kinds, one grammar:
   standfirst, on paper.
 * `"tx"` - a transaction: rows of monospace fields (hash, from, to, value,
   block), one of them the point.
+* `"letter"` - a line from a letter (2026-10-24): on paper, the writer and
+  recipient over a hairline, the quoted line in Georgia, the place and date
+  under it. Built for Beethoven's 1801 letter to Wegeler, which as a `post`
+  read as a social feed and as a `headline` as a newspaper.
 
 **Our card, not a platform's interface.** It is drawn in the channel's own
 type and colours and carries the source line the script gives it. It quotes;
@@ -28,6 +32,7 @@ payload: (kind, fields, title) - `fields` is a dict:
     headline: source, headline, date, text (optional)
     tx:       label (optional), rows [(key, value), ...]; a key starting
               with "*" is the highlighted row
+    letter:   name, to, text, date, avatar (image path, optional)
 """
 
 from __future__ import annotations
@@ -45,6 +50,11 @@ from .base import Beat, _smooth
 
 SF = "/System/Library/Fonts/SFNS.ttf"
 SERIF = "/System/Library/Fonts/NewYork.ttf"
+# The letter's line. New York italic was the first pick and the user found it
+# hard to read on a phone: at display size it takes its high-contrast optical
+# cut, hairlines vanish and the italic joins up. Georgia was drawn for
+# screens; Charter was tried too and showed seams inside the highlight.
+LETTER = "/System/Library/Fonts/Supplemental/Georgia.ttf"
 MONO = "/System/Library/Fonts/SFNSMono.ttf"
 
 PAPER = (238, 233, 222)
@@ -159,7 +169,7 @@ class Post(Beat):
         hi_ink = self.brand.band_ink
         pad = int(64 * s)
         H = int(W * 1.4)                        # cropped to content below
-        bg = PAPER if self.kind == "headline" else CARD
+        bg = PAPER if self.kind in ("headline", "letter") else CARD
         im = Image.new("RGB", (W, H), bg)
         d = ImageDraw.Draw(im)
         self._mark_box = None
@@ -211,6 +221,31 @@ class Post(Beat):
                 y += int(12 * s)
                 d.text((pad, y), f["date"],
                        font=_font(SF, int(28 * s), "Medium"), fill=MUTED)
+                y += int(40 * s)
+
+        elif self.kind == "letter":
+            x = pad
+            if self._avatar is not None:
+                im.paste(self._avatar, (x, y), self._avatar)
+                x += self._avatar.width + int(24 * s)
+            d.text((x, y + int(6 * s)), f.get("name", ""),
+                   font=_font(SERIF, int(40 * s), "Bold"), fill=INK)
+            if f.get("to"):
+                d.text((x, y + int(56 * s)), f["to"],
+                       font=_font(SF, int(30 * s), "Regular"), fill=MUTED)
+            y += int(124 * s) if self._avatar is not None else int(104 * s)
+            d.line([(pad, y), (W - pad, y)], fill=(196, 188, 172),
+                   width=max(1, int(2 * s)))
+            y += int(40 * s)
+            y = self._paint_words(d, _words(f.get("text", "")),
+                                  _font(LETTER, int(54 * s)),
+                                  pad, y, W - 2 * pad, int(76 * s), sweep,
+                                  INK, hi_fill, hi_ink)
+            if f.get("date"):
+                y += int(18 * s)
+                d.text((pad, y), f["date"],
+                       font=_font(LETTER, int(30 * s)),
+                       fill=MUTED)
                 y += int(40 * s)
 
         else:                                    # tx

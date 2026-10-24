@@ -1123,7 +1123,7 @@ class HookOverlay:
                     lines.append((cur, cur_w))
                     cur, cur_w = [], 0.0
                 cur_w += (space if cur else 0) + ww
-                cur.append((w, a, ww))
+                cur.append((w, a, ww, r))
                 if r:
                     runs.setdefault(r, set()).add(len(lines))
             if cur:
@@ -1154,13 +1154,24 @@ class HookOverlay:
         y = oy
         for ln, ln_w in lines:
             x = (block_w - ln_w) / 2          # centred line
-            for w, a, ww in ln:
+            # **One box per bracketed run, not per word** (the user's note on
+            # the Beethoven Short, 2026-10-24): `[not silence]` drew NOT and
+            # SILENCE as two pills and read as two separate things. The words
+            # of a run share one bar while hidden and one pill once revealed.
+            runs_here: dict[int, list[float]] = {}
+            for w, a, ww, r in ln:
                 if a:
-                    box = (int(x - pad_x), int(y + asc - pad_y * 2),
-                           int(x + ww + pad_x), int(y + asc + cap_h + pad_y * 2))
-                    self.bars.append(box)
-                    db.rounded_rectangle(box, radius=radius, fill=accent + (255,))
-                    dr.rounded_rectangle(box, radius=radius, fill=accent + (255,))
+                    runs_here.setdefault(r, [x, x + ww])[1] = x + ww
+                x += ww + space
+            for x0, x1 in runs_here.values():
+                box = (int(x0 - pad_x), int(y + asc - pad_y * 2),
+                       int(x1 + pad_x), int(y + asc + cap_h + pad_y * 2))
+                self.bars.append(box)
+                db.rounded_rectangle(box, radius=radius, fill=accent + (255,))
+                dr.rounded_rectangle(box, radius=radius, fill=accent + (255,))
+            x = (block_w - ln_w) / 2
+            for w, a, ww, r in ln:
+                if a:
                     dr.text((x, y), w, font=font, fill=ink_on_accent + (255,))
                 else:
                     dw.text((x, y), w, font=font, fill=(255, 255, 255, 255),

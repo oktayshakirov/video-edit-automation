@@ -182,3 +182,14 @@ safe either, nor a long form plus a sweep over a full-size stock photo.
 **The log is empty because Python buffered it.** A render killed with 137
 never flushes stdout, so a redirected log holds nothing but the shell's
 exit line. Run renders with `python -u` when the output goes to a file.
+
+## "decoded no frames" from a stock clip twenty minutes into a render (2026-10-24)
+
+The clip is a truncated download. Pexels' CDN ended `3822008.mp4` early,
+urllib raised nothing, and the file screened fine on its opening frames, so
+it passed every check until `clip.py` tried to read it mid-render. ffmpeg's
+"partial file" / "Invalid NAL unit size" lines during the fetch were the
+only sign. `stock._download` now compares the bytes against
+`Content-Length` and refuses a short file. For a clip already in the cache,
+`ffmpeg -v error -sseof -1 -i clip.mp4 -f null -` prints nothing on a whole
+file. Delete a bad one and fetch it again.
