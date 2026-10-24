@@ -650,3 +650,14 @@ Arial Black is tuned for a 160px grid tile where the band card's condensed
 DIN would read smaller - so the video's look on the thumbnail is something to
 test with video-views-audit's thumbnail swap, not to assume. Same layout,
 same crop: only the styling differs between A and B.
+
+## A person in the scene beats the object, on an abstract topic too (2026-10-24)
+
+`crypto-when-you-die` first shipped its covers on a safe's dial and keypad -
+dark, on-palette, and the literal noun. The user replaced both with a man in
+a trench coat standing at a grave (Pexels 10499499): the moment the topic is
+about, not the thing that stores it. Same lesson as the Shiba Inu, from a
+topic with no mascot: pick the picture of the situation the viewer pictures,
+not the object. Layout as the meme coins pair: the figure against the right
+edge, the dark foreground ramped into black under three forced rows; in 9:16
+cut round him and scale to the width so his face is in the top half.
