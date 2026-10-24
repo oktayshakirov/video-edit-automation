@@ -1166,6 +1166,15 @@ Shot(graphic="post", payload=("tx",
   (it slid off 9:16 before the clamp). Vertical cards get larger type.
 - Sounds: a `pan` on arrival, a `reveal` tick on the highlight.
 
+**`"letter"` is the fourth kind (2026-10-24)**, for a line someone wrote by
+hand: paper, the writer and recipient over a hairline (`name`, `to`, an
+optional `avatar`), the line in Georgia - New York italic was
+hard to read on a phone - the place and date under it
+(`date`). Built for Beethoven's 1801 letter to Wegeler, which as a `post`
+read as a social feed and as a `headline` as a newspaper clipping - the
+wrong century either way. Keep the 16:9 `title` empty: the push-in carries
+the card over the heading in landscape.
+
 **Build each format from fresh `Shot` objects.** The builders write
 `start`, `hold` and `reveals` onto the shots they are given; a shot shared
 by a long build and a Short in one process carries the long form's reveals
