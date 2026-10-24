@@ -8,9 +8,14 @@ see `projects/drone-long.md`.
 `render_long` synthesises its own narration and lays the timeline out from it,
 so it cannot be pointed at a finished track. A still plus karaoke captions over
 delivered audio - the audiobook sample - is `longform/readalong.py`, and
-`projects/tinnitus-long/shut-up-tinnitus-sample.py` is the worked example.
-Its alignment only works on Kokoro audio, since the references are
-synthesised in the same voice.
+`projects/tinnitus-long/shut-up-tinnitus-sample.py` is the worked example
+(`crypto-long/stop-losing-money-sample.py` the second). Its alignment only
+works on Kokoro audio, since the references are synthesised in the same voice.
+**Look at the panel heading of every chapter before shipping:** a title that
+wraps to two lines pushes its last word down onto the gold hairline. The
+hairline used to sit at a fixed y and struck through "Money" on the crypto
+sample; it now follows the heading's ink, but a third wrapped line would
+start crowding the caption.
 
 ## The shape
 
