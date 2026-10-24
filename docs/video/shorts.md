@@ -659,6 +659,13 @@ the default; flipped on for crypto 2026-08-27 after the drone stack-vs-cuts A/B,
 same instinct - give the viewer more to track on screen. Pass `karaoke=False` to
 opt out on a specific short.
 
+**The burned line wraps at `SHORT_CAPTION_MAX_W` (782px), 15% under the
+920 it used to share with the long form** (2026-10-24, both channels, the
+ASMR intros too). On TikTok the Beethoven Short's caption ran under the
+right-hand button rail - "WHAT" behind the comment icon. Measured on that
+line: the right edge moved from 989px to 909px, and the sentence took one
+more row. `CAPTION_MAX_W` stays 920 for the long form's callouts.
+
 `core.vertical.render_caption_karaoke` draws one frame per word and
 `crypto/build._karaoke_sprites` emits one sprite per word.
 

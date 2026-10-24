@@ -562,7 +562,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
     `render_visual`. Pass the long form's `look` and `loop`.
     """
     from ..core.vertical import render_text_png
-    from ..core.voiceover import CAPTION_MAX_W
+    from ..core.voiceover import SHORT_CAPTION_MAX_W
     from ..core.voiceover import build_narration_aligned, profile_args
 
     workdir.mkdir(parents=True, exist_ok=True)
@@ -648,12 +648,12 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
         p = workdir / f"cap{i:02d}.png"
         # bg_luma 0 keeps the ink white: the nebula is dark by construction, so
         # there is nothing to sample and nothing that would justify black type.
-        # CAPTION_MAX_W, not the default — that default is the silent quote
+        # SHORT_CAPTION_MAX_W, not the default — that default is the silent quote
         # card's narrower 780px, and it wraps a caption that would otherwise
         # have set on one line.
         render_text_png(text, p, size=font_size, bg_luma=0.0,
                         font_path=FONT_CAPTION, font_index=FONT_CAPTION_INDEX,
-                        y_frac=y_frac, stroke=4, max_w=CAPTION_MAX_W)
+                        y_frac=y_frac, stroke=4, max_w=SHORT_CAPTION_MAX_W)
         if emoji and text in emoji:
             add_caption_emoji(p, text, emoji[text], font_size, y_frac,
                               FONT_CAPTION, FONT_CAPTION_INDEX)
