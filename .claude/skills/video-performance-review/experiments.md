@@ -359,4 +359,4 @@ when the data will exist. Answered checks move into that run's snapshot.
   | Jungle Waterfall `6zJGsj3aCTU` | 10-15 | JUNGLE WATERFALL | 8 | - | - |
   | Forest Chorus `GIOaF-uas1s` | 10-15 | FOREST CHORUS | 24 | suggested 17 | - |
   | Nebula Pulse `r7NqyOv5_9Y` | 10-22 | NEBULA PULSE | 5 | - | - |
-- **Status:** test being set up by the user.
+- **Status:** running since 2026-10-24 (user added variant B in Studio).
