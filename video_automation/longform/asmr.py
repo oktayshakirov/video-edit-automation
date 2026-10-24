@@ -38,7 +38,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from ..core import looks, soundbed
+from ..core import guard, looks, soundbed
 from ..core.brand import Brand
 from ..core.voiceover import build_narration_aligned, profile_args
 from . import audio as audio_mod
@@ -235,14 +235,19 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
         frame.check_top(logo_at[1] - logo_float, "asmr watermark")
 
     n = int(round(loop * fps))
+    guard.preflight(out)
     proc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
          "-s", f"{frame.w}x{frame.h}", "-r", str(fps), "-i", "-",
          "-an", "-c:v", "libx264", "-crf", "20", "-preset", "medium",
          "-pix_fmt", "yuv420p", str(out)], stdin=subprocess.PIPE)
 
+    # Checks memory pressure and free disk once a second of output, and kills
+    # the encoder and raises before the machine runs out (`core.guard`).
+    watch = guard.Watch(out, every=fps, stop=proc.kill)
     cx, cy = frame.w // 2, frame.h // 2
     for i in range(n):
+        watch()
         t = i / fps
         img = _bg_frame(bg_look, canvas, t, loop, cw, ch, frame)
 
@@ -323,15 +328,20 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
         frame.check_top(logo_at[1] - logo_float, "asmr watermark")
 
     n = int(round(length * fps))
+    guard.preflight(out)
     proc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
          "-s", f"{frame.w}x{frame.h}", "-r", str(fps), "-i", "-",
          "-an", "-c:v", "libx264", "-crf", "20", "-preset", "medium",
          "-pix_fmt", "yuv420p", str(out)], stdin=subprocess.PIPE)
 
+    # Checks memory pressure and free disk once a second of output, and kills
+    # the encoder and raises before the machine runs out (`core.guard`).
+    watch = guard.Watch(out, every=fps, stop=proc.kill)
     cx, cy = frame.w // 2, frame.h // 2
     max_w = int(frame.w * 0.62)
     for i in range(n):
+        watch()
         u = i / fps
         # The shared clock: negative through the intro so it arrives at 0 on the
         # body's first frame, forward through the outro from the same angle the

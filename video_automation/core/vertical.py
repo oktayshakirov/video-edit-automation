@@ -25,6 +25,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from . import guard
 from .frame import VERTICAL, Frame
 from .hdr import refuse_hlg
 
@@ -347,7 +348,7 @@ def render_short(src: Path, out: Path, start: float, duration: float,
                "-i", str(src), "-vf", crop]
     cmd += ["-an", "-c:v", "libx264", "-crf", "18", "-preset", "slow",
             "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)]
-    subprocess.run(cmd, check=True, capture_output=True)
+    guard.run(cmd, out, capture_output=True)
     return out
 
 

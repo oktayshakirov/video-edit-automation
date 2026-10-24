@@ -23,6 +23,8 @@ from pathlib import Path
 
 import numpy as np
 
+from . import guard
+
 _A, _B, _C = 0.17883277, 0.28466892, 0.55991073
 LW, GAMMA = 1000.0, 1.2                 # nominal HLG display: peak, system gamma
 _M709_2020 = np.array([[0.6274, 0.3293, 0.0433],
@@ -238,11 +240,11 @@ def finish_hdr(out: Path, white: float = HDR_WHITE,
     cube_dir.mkdir(parents=True, exist_ok=True)
     cube = write_sdr_to_hlg_cube(cube_dir / f".sdr-to-hlg-{int(white)}.cube", white)
     try:
-        subprocess.run(
+        guard.run(
             ["ffmpeg", "-v", "error", "-y", "-i", str(sdr), "-map", "0:v",
              "-map", "0:a?", "-vf", sdr_to_hlg_vf(cube, _sdr_matrix(sdr)),
              *X265_HLG, "-c:a", "copy", "-movflags", "+faststart", str(out)],
-            check=True, capture_output=True)
+            out, capture_output=True)
         check_hlg(sdr, out, white)
     except Exception:
         out.unlink(missing_ok=True)
