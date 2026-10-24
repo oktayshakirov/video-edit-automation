@@ -735,11 +735,18 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
          "-an", "-c:v", "libx264", "-crf", "18", "-preset", "medium",
          "-pix_fmt", "yuv420p", str(out)], stdin=subprocess.PIPE)
 
+    released = 0
     for i in range(n):
         t = i / fps
         idx = max(0, min(len(shots) - 1,
                          next((k for k, s in enumerate(shots)
                                if t < s.start + s.hold), len(shots) - 1)))
+        # A shot the timeline has passed is not drawn again, so one holding
+        # decoded footage can let it go (`longform.clip.VideoShot`). Without
+        # this every clip's last frames stay resident to the end of the render.
+        while released < idx:
+            getattr(prepared[released], "release", lambda: None)()
+            released += 1
         s = shots[idx]
         f = 0.0 if s.hold <= 0 else min(1.0, max(0.0, (t - s.start) / s.hold))
         pic = prepared[idx].draw(f)
