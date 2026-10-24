@@ -1158,3 +1158,44 @@ every file a name search returns. Credits in `assets/crypto/memecoins/`.
 | `money-banknotes-dark-table/345790xx` | the shoot of `34579096`, already cut twice |
 | `magnifying-glass-document-dark/6979937` | the shoot of `6979933`, already used |
 | `hourglass-sand-dark/*`, `hand-taking-money-from-table/*`, `people-laughing-at-phone-together/*` | L110-170 daylight |
+
+## The when-you-die fetch: verdicts (2026-10-24)
+
+**Most of the obvious inheritance clips were already in other videos**: the
+gavel close-up (`6699964`), the open hard drive (`19285752`), a hand writing
+under a lamp (`39425736`), the man at a night window (`3585311`), a hand
+opening a deposit box (`39060937`), rain on glass (`15161525`). All dropped
+for unused ones even where they were the better picture. Grep the ids, not
+the folder names: one query returned three clips and two were taken.
+**Pexels has no hardware wallet in motion** - the query returns coins and
+trading screens; the site's `ledger.jpeg` (unused until now) carries it.
+**"Last will and testament" photos are Bibles** (`OLD TESTAMENT` /
+`NEW TESTAMENT` spines) - all three, both queries.
+
+| clip | verdict |
+| --- | --- |
+| `judge-gavel-courtroom/6101367` | **kept**: a judge's folded hands by a gavel, face out of frame - opens both cuts |
+| `face-id-unlock-phone-dark/8090419` | **kept**: a man's face crossed by a red scan line - identity |
+| `face-id-unlock-phone-dark/8090412`, `8090413` | a child, same shoot |
+| `elderly-hands-holding/8057825` | **kept**: two people holding hands, 7s |
+| `usb-device-plugged-laptop-dark/40304895` | **kept**: a device into a laptop, dark |
+| `writing-on-paper-notebook-night/39425741` | **kept**: a hand writing under a lamp - the shoot of a used clip, different moment |
+| `customer-support-headset-night/5452679` | **kept**: a support agent on a headset |
+| `metal-plate-engraving/30455960` | **kept**: a machine engraving metal - seed plates |
+| `old-hard-drive-computer/7841655` | **kept**: an open drive, platter spinning, L109 - bright, but the noun |
+| `phone-call-desk-night/8061371`, `signing-documents-desk-lamp/8061370` | **kept**: a woman on the phone; hands signing papers - one office shoot, used as two reel cards |
+| `notary-stamping-document/8731441` | **kept**: a hand signing beside a law book |
+| `lawyer-office-documents-night/8731589` | **kept**: a "THE LAW" book against a bag |
+| `reading-letter-by-window/8171550` | **kept**: a woman reading a letter |
+| `archive-files-shelves/6550428` | **kept**: rows of record drawers, L113 - "public record" |
+| `sealed-envelope-wax-seal/5916730` | **kept**: hands sealing an envelope |
+| `safe-deposit-box-bank-vault/31750573` | **kept**: coins poured into a deposit box |
+| `desk-drawer-opening/9130356` | **kept** (Short reel): a hand opening a white drawer, L85-98 |
+| `man-thinking-dark-window/33972359` | **kept**: a man standing by a curtain |
+| `rain-on-window-night/4458918` | **kept**: rain, a street lamp - the one abstract |
+| photos `safe-deposit-box/5332291`, `32334240`, `wall-safe/1990764` | **kept**: a wall of deposit boxes; a safe dial (both covers); a keypad safe |
+| `burglar-flashlight-dark-house/13702778`, `18449083` | a flashlight in the dark, L3-9 - unreadable at size; the other lights a person |
+| `hardware-wallet-crypto-device/*` | an ETH coin, a Doge coin, trading screens - none is a wallet |
+| `home-safe-opening/*`, `hand-opening-safe-dial/*` | delivery boxes; a rotary telephone; a car dashboard |
+| `typing-password-laptop-night/36036810` | a hooded figure at a laptop - the hacker trope |
+| `stamping-metal-letters/*`, `family-looking-old-photographs/*`, `empty-office-chair-night/*`, `bank-teller-counter/*` | off-noun or L100-180 daylight |

@@ -136,7 +136,7 @@ it is built. After the fifth row, go back to `mia` until the user decides.
 
 | # | pair | built |
 | --- | --- | --- |
-| 1 | | |
+| 1 | crypto-when-you-die (long 3:57, Short 41.5s) | 2026-10-24 |
 | 2 | | |
 | 3 | | |
 | 4 | | |

@@ -1219,3 +1219,27 @@ Shot(graphic="spotlight", payload=(POSTER, [
   screenshots, a crowd photo with one face that matters.
 - The label sits under the ring (above it when there is no room); on a
   dense document it can land over dimmed text - that is expected.
+
+## `quorum` - a lock that needs m of n keys (2026-10-24)
+
+`payload: (keys, need, result, title, gone)`, keys `[(holder, note), ...]`.
+**`len(keys) + 1` reveals**: one caption chunk per key, then one for the
+opening - "One key stays with you, at home." / "One sits on a second
+device." / "And one is held by a lawyer." / "Any two can move the coins..."
+A padlock reading "2 OF 3" draws first; each key card draws round as its
+holder is named; on the last chunk the `gone` card greys and is struck, a
+line travels from each remaining signer up into the lock across that phrase,
+the pips fill, the shackle lifts, the lock turns brand-coloured and `result`
+sets beside it.
+
+Built for `crypto-when-you-die`, because a multisig wallet is the mechanism
+and nothing here draws a threshold: `diagram` is a chain, `grid` a set.
+Reuse it for any m-of-n signer set - an exchange's cold wallet, a hacked
+multisig, a DAO's signers.
+
+- **Landscape only** (raises in portrait) until a Short asks for it.
+- Card labels are checked in `__init__`: the holder is set at 40px in the
+  display face and a card holds ~400px, so "SECOND DEVICE" fits and "A
+  SECOND DEVICE" raises.
+- Give its sentence a `gap` of ~2.0s: the lines travel up to 1.6s after the
+  last chunk starts and the lock opens at the end of that.
