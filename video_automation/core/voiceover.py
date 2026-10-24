@@ -54,6 +54,7 @@ from .hdr import refuse_hlg
 from . import sfx as sfx_lib
 from .vertical import (FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX, FONT_CAPTION, FONT_CAPTION_INDEX, FONT_CAPTION_SIZE,
                        FONT_QUOTE, FONT_QUOTE_INDEX, FONT_QUOTE_SIZE,
+                       FONT_SIMPLE, FONT_SIMPLE_INDEX,
                        OUT_H, OUT_W,
                        add_caption_emoji, dominant_accent,
                        render_caption_karaoke,
@@ -1280,11 +1281,13 @@ def render_narrated(src: Path, out: Path, start: float,
                     backend: str = TTS_BACKEND, mood: str = "reflective",
                     phrases: list[Phrase] | None = None,
                     sentences: list[list[Phrase]] | None = None,
-                    font_path: str = FONT_QUOTE,
-                    font_index: int = FONT_QUOTE_INDEX,
-                    y_frac: float = 0.34, stroke: int = 4,
+                    font_path: str = FONT_SIMPLE,
+                    font_index: int = FONT_SIMPLE_INDEX,
+                    y_frac: float = 0.50, stroke: int = 4,
                     max_w: int = CAPTION_MAX_W,
-                    gap: "float | list[float]" = GAP, tail: float = TAIL) -> tuple[Path, float]:
+                    gap: "float | list[float]" = GAP, tail: float = TAIL,
+                    karaoke: bool = True,
+                    accent: "tuple | str | None" = "auto") -> tuple[Path, float]:
     """Cut, crop, burn synced captions, and lay the narration underneath.
 
     Video length follows the narration rather than a fixed target — a caption
@@ -1305,10 +1308,12 @@ def render_narrated(src: Path, out: Path, start: float,
     on top of the size bump — pass a per-caption colour by wrapping the call,
     same pattern as `font_size`.
 
-    Defaults to Iowan Old Style Italic — the approved quote face, chosen over
-    Futura on the Sunset Sea Stack cut and now the default for every narrated
-    quote, on one clip or stacked. Pass `font_path=FONT_CAPTION` to fall back
-    to Futura if a particular cut wants the plainer face.
+    Defaults to Avenir Next Demi Bold (`FONT_SIMPLE`) since 2026-10-24: with no
+    band behind it the type sits on the footage, and the user wanted a plainer
+    face than the stack's Iowan italic there. `karaoke` lights the spoken word
+    the way `render_narrated_stack` does, in an `accent` pulled from the crop
+    (`"auto"`), a fixed `(r,g,b,a)`, or `None` for white. A caption set at a
+    size of its own (a set-piece word) keeps the single still PNG.
     """
     refuse_hlg(src)
     if sentences is not None:
@@ -1322,26 +1327,44 @@ def render_narrated(src: Path, out: Path, start: float,
     # An empty caption is spoken but not shown — same rule as
     # `render_narrated_cuts`, so a reveal works on one clip or several.
     shown = [(i, c) for i, c in enumerate(captions) if c.text.strip()]
-    pngs = []
-    for i, c in shown:
+    sizes = [font_size(c.text) if callable(font_size) else font_size
+             for _, c in shown]
+    body_size = max(set(sizes), key=sizes.count) if sizes else FONT_QUOTE_SIZE
+    if accent == "auto":
+        acc = dominant_accent(src, box, [start + total * f for f in (0.1, 0.5, 0.9)])
+    else:
+        acc = accent or (255, 255, 255, 255)
+
+    # (png, start, end) — one per caption, or one per word when karaoke'd.
+    layers: list[tuple[Path, float, float]] = []
+    for (i, c), size in zip(shown, sizes):
+        cs, ce = caption_window(c)
+        if karaoke and len(c.text.split()) >= 2 and size == body_size:
+            for k, (a, b) in enumerate(word_spans(c.text, cs, ce, c.speech_end)):
+                p = workdir / f"cap{i:02d}_{k:02d}.png"
+                render_caption_karaoke(c.text, p, active=k, size=size,
+                                       font_path=font_path, font_index=font_index,
+                                       y_frac=y_frac, stroke=stroke,
+                                       max_w=max_w, accent=acc)
+                layers.append((p, a, b))
+            continue
         p = workdir / f"cap{i:02d}.png"
-        size = font_size(c.text) if callable(font_size) else font_size
         render_text_png(c.text, p, size=size, bg_luma=luma,
                         font_path=font_path, font_index=font_index,
                         y_frac=y_frac, stroke=stroke, max_w=max_w)
-        pngs.append(p)
+        layers.append((p, cs, ce))
+    pngs = [p for p, _, _ in layers]
 
     x, y, w, h = box
     chain = [f"[0:v]crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos[v0]"]
-    for n, (_, c) in enumerate(shown):
+    for n, (_, cs, ce) in enumerate(layers):
         src_lbl, dst_lbl = f"[v{n}]", f"[v{n+1}]"
-        cs, ce = caption_window(c)
         chain.append(
             f"{src_lbl}[{n+1}:v]overlay=0:0:enable='between(t,{cs:.3f},{ce:.3f})'{dst_lbl}"
         )
     # No fade to black — see `render_short`. Shorts loop, and the fade spent
     # the last half-second announcing the end instead of holding the picture.
-    last = f"[v{len(shown)}]"
+    last = f"[v{len(layers)}]"
     chain.append(f"{last}null[vout]")
 
     cmd = ["ffmpeg", "-v", "error", "-y",
@@ -1618,6 +1641,11 @@ def render_narrated_stack(top: tuple,
     # (png, start, end) — one per caption normally, one per *word* where the
     # caption is karaoke'd.
     layers: list[tuple[Path, float, float, str | None]] = []
+    # The body size is the one most captions use, so a smaller or larger body
+    # still karaokes and only a set-piece word (a size of its own) is left out.
+    sizes = [font_size(c.text) if callable(font_size) else font_size
+             for c in captions if c.text.strip()]
+    body_size = max(set(sizes), key=sizes.count) if sizes else FONT_QUOTE_SIZE
     for i, c in enumerate(captions):
         if not c.text.strip():
             continue
@@ -1634,7 +1662,7 @@ def render_narrated_stack(top: tuple,
         # size), a colour-inked word or an emoji caption keep the single PNG —
         # `render_caption_karaoke` models none of those.
         if (karaoke and len(words) >= 2 and not char and not word_ink
-                and size == FONT_QUOTE_SIZE):
+                and size == body_size):
             acc = accent_for(c.text)
             for k, (a, b) in enumerate(
                     word_spans(c.text, cs, ce, c.speech_end)):
@@ -1668,7 +1696,7 @@ def render_narrated_stack(top: tuple,
             word_ink = ink(c.text) if callable(ink) else ink
             char = emoji(c.text) if emoji else None
             if (karaoke and len(words) >= 2 and not char and not word_ink
-                    and size == FONT_QUOTE_SIZE):
+                    and size == body_size):
                 # Freezing the last word's highlight would read as a stuck
                 # frame, not a held one — swap to the plain, unlit phrase.
                 p = workdir / f"cap{i:02d}_hold.png"
