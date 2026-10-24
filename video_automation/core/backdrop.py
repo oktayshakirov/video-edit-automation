@@ -59,6 +59,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from . import guard
+
 BACKGROUNDS = Path(__file__).resolve().parents[2] / "assets/brand/backgrounds"
 
 SIZE = 512          # square, and deliberately small — see the module docstring
@@ -189,6 +191,7 @@ def generate(out: Path, spec: dict, size: int = SIZE,
     """Render a generated background to a looping mp4."""
     out.parent.mkdir(parents=True, exist_ok=True)
     n = int(round(seconds * fps))
+    guard.preflight(out)
     proc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y",
          "-f", "rawvideo", "-pix_fmt", "rgb24",
@@ -199,7 +202,11 @@ def generate(out: Path, spec: dict, size: int = SIZE,
          "-c:v", "libx264", "-crf", "14", "-preset", "slow",
          "-pix_fmt", "yuv420p", str(out)],
         stdin=subprocess.PIPE)
+    # Checks memory pressure and free disk once a second of output, and kills
+    # the encoder and raises before the machine runs out (`core.guard`).
+    watch = guard.Watch(out, every=fps, stop=proc.kill)
     for i in range(n):
+        watch()
         frame = aurora(i / fps, size, spec["base"], spec["blobs"])
         proc.stdin.write((frame * 255).astype(np.uint8).tobytes())
     proc.stdin.close()
@@ -245,7 +252,9 @@ def pingpong(src: Path, out: Path, start: float, seconds: float,
     vf = (f"crop='min(iw,ih)':'min(iw,ih)',scale={size}:{size},"
           f"eq=saturation={saturation:.3f},"
           f"colorchannelmixer=rr={dim:.3f}:gg={dim:.3f}:bb={dim:.3f}")
-    subprocess.run(
+    # `reverse` buffers the whole forward half inside ffmpeg, so this is the
+    # one encode here that can hold real memory - run it under the guard.
+    guard.run(
         ["ffmpeg", "-v", "error", "-y", "-ss", str(start), "-t", str(seconds),
          "-i", str(src), "-an", "-filter_complex",
          f"[0:v]{vf},fps={FPS},split[a][b];"
@@ -255,7 +264,7 @@ def pingpong(src: Path, out: Path, start: float, seconds: float,
          # nobody looks at directly does not need 720 frames held in memory.
          "-r", str(FPS),
          "-c:v", "libx264", "-crf", "14", "-preset", "slow",
-         "-pix_fmt", "yuv420p", str(out)], check=True)
+         "-pix_fmt", "yuv420p", str(out)], out)
     return out
 
 

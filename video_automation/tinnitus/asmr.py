@@ -41,7 +41,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from ..core import soundbed
+from ..core import guard, soundbed
 from ..core.frame import VERTICAL
 from ..crypto.shots import roam_anchors
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX, OUT_H, OUT_W,
@@ -365,6 +365,7 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
     # audio, so a picture that lands a few frames short silently clips the end
     # card rather than erroring.
     n = int(round(duration * fps)) + fps // 2
+    guard.preflight(out)
     proc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y",
          "-f", "rawvideo", "-pix_fmt", "rgb24",
@@ -373,7 +374,11 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
          "-pix_fmt", "yuv420p", str(out)],
         stdin=subprocess.PIPE)
 
+    # Checks memory pressure and free disk once a second of output, and kills
+    # the encoder and raises before the machine runs out (`core.guard`).
+    watch = guard.Watch(out, every=fps, stop=proc.kill)
     for i in range(n):
+        watch()
         t = i / fps
         if bg_look is not None:
             frame = Image.fromarray(bg_look.at(t - look_t0))

@@ -30,7 +30,9 @@ from __future__ import annotations
 import ctypes
 import ctypes.util
 import shutil
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 # Room the render needs to start: enough for its own output and temp files and
@@ -114,21 +116,55 @@ class Watch:
 
     def __call__(self) -> None:
         self.frames += 1
-        if self.frames % self.every:
-            return
+        if self.frames % self.every == 0:
+            self.check(f"{self.frames} frames")
+
+    def check(self, progress: str) -> None:
+        """One look at the machine; `progress` says how far the render got."""
         level = pressure_level()
         if level is not None and level >= CRITICAL:
             self._abort(
-                f"memory pressure went critical {self.frames} frames into "
+                f"memory pressure went critical {progress} into "
                 f"{self.out.name} - render stopped before the system ran out of "
                 f"memory. Close other heavy jobs and render again.")
         free = free_gb(self.out)
         if free < self.floor_gb:
             self._abort(
-                f"free disk fell to {free:.1f} GB {self.frames} frames into "
+                f"free disk fell to {free:.1f} GB {progress} into "
                 f"{self.out.name} - swap is filling the volume, render stopped.")
         if level is not None and level >= WARNING and not self.warned:
             self.warned = True
             print(f"[guard] memory pressure is at warning while rendering "
                   f"{self.out.name}; it will stop if it goes critical.",
                   file=sys.stderr)
+
+
+def run(cmd: list, out: Path, check: bool = True,
+        capture_output: bool = False) -> subprocess.CompletedProcess:
+    """`subprocess.run` for an ffmpeg job with no Python frame loop to watch.
+
+    The cut-and-crop, HDR and ping-pong encodes hand the whole job to one
+    ffmpeg call, so there is no per-frame hook - this preflights, then looks at
+    the machine once a second while ffmpeg runs, and kills it on the same
+    signals `Watch` aborts on. `communicate` with a timeout keeps draining the
+    pipes between looks, so a captured stderr cannot fill and stall the job.
+    """
+    preflight(out)
+    pipe = subprocess.PIPE if capture_output else None
+    proc = subprocess.Popen(cmd, stdout=pipe, stderr=pipe)
+
+    def stop():
+        proc.kill()
+        proc.communicate()
+
+    watch = Watch(out, stop=stop)
+    started = time.monotonic()
+    while True:
+        try:
+            stdout, stderr = proc.communicate(timeout=1.0)
+            break
+        except subprocess.TimeoutExpired:
+            watch.check(f"{time.monotonic() - started:.0f}s")
+    if check and proc.returncode:
+        raise subprocess.CalledProcessError(proc.returncode, cmd, stdout, stderr)
+    return subprocess.CompletedProcess(cmd, proc.returncode, stdout, stderr)

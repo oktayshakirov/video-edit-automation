@@ -73,3 +73,30 @@ def test_pressure_level_reads_the_kernel():
 
 def test_free_gb_walks_up_to_an_existing_dir(tmp_path):
     assert guard.free_gb(tmp_path / "not" / "made" / "yet.mp4") > 0
+
+
+def test_run_returns_like_subprocess_run(machine, tmp_path):
+    r = guard.run(["sh", "-c", "echo hi; echo err >&2"], tmp_path / "o.mp4",
+                  capture_output=True)
+    assert (r.returncode, r.stdout, r.stderr) == (0, b"hi\n", b"err\n")
+
+
+def test_run_raises_on_failure(machine, tmp_path):
+    import subprocess
+    with pytest.raises(subprocess.CalledProcessError):
+        guard.run(["sh", "-c", "exit 3"], tmp_path / "o.mp4")
+
+
+def test_run_kills_a_job_when_pressure_goes_critical(machine, tmp_path,
+                                                     monkeypatch):
+    import time
+    calls = {"n": 0}
+
+    def level():                    # normal for the preflight, critical after
+        calls["n"] += 1
+        return NORMAL if calls["n"] == 1 else CRITICAL
+    monkeypatch.setattr(guard, "pressure_level", level)
+    t0 = time.monotonic()
+    with pytest.raises(RenderGuardError, match="critical"):
+        guard.run(["sleep", "30"], tmp_path / "o.mp4")
+    assert time.monotonic() - t0 < 5
