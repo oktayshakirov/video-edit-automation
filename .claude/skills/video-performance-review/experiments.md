@@ -29,6 +29,11 @@ when the data will exist. Answered checks move into that run's snapshot.
   built after `7aed772`, so confirm with the user which one it is, and tag
   the rest by build commit date. Everything published on or before 10-20
   is old engine.
+- **E10, Nebula thumbnail test.** Ask the user whether the Studio Test &
+  Compare on `r7NqyOv5_9Y` has ended, and for its winner (watch-time share)
+  and each variant's share. Until it ends, never write that video's title
+  or thumbnail through the API. Also ask for the Studio CSV (impressions,
+  CTR) for every session, and fill the CTR column of the E10 baseline table.
 - **E7, male voice `noah`.** On test from 2026-10-23: the next 5 crypto and
   5 tinnitus article pairs (long + Short) read in `noah`, then back to `mia`.
   The pairs are listed in the "Voice test" tables in
@@ -312,3 +317,46 @@ when the data will exist. Answered checks move into that run's snapshot.
   old-engine `noah` videos (none exist). Say "noah + new engine" in every
   verdict until those exist, and do not credit either alone.
 - **Status:** started; one upload.
+
+## E10 - Session thumbnails: a known technique against an invented name
+
+- **Started:** 2026-10-24, by the user, as a Studio Test & Compare on
+  Nebula Pulse `r7NqyOv5_9Y` (published 10-22, 5 YouTube views on day two).
+- **Change:** one variable, the thumbnail's lead words. A: the current
+  "NEBULA PULSE" over a small "4-7-8 BREATHING". B: "4-7-8 BREATHING" as
+  the lead, with "NEBULA PULSE" small or gone. Same layout, same "20
+  MINUTES" circle, same background. The title is not changed.
+- **Why:** the user's hypothesis. The best tinnitus long-form, "4-7-8
+  Breathing + White Noise" `rvYOnvp7ufY` (388 views, growing: 56 on the
+  latest day, 193 from suggested), leads with "4-7-8 BREATHING". The newest
+  session leads with a name nobody knows. The sessions that lead with a
+  known term (4-7-8, rain) have done better than the invented names
+  (Jungle Waterfall 8, Forest Chorus 24, Nebula 5).
+- **Evidence against it, written before the result:** Waterfall + 4-7-8
+  `DKzUkSqIKS8` carries almost exactly the hit's thumbnail and has 28. So the
+  lead words cannot be the whole story. Suggested traffic picked up one
+  video and not the other.
+- **Judged by:** Studio's winner (watch-time share) and each variant's
+  share, which only the user can read. Then CTR from the Studio CSV, against
+  the other sessions.
+- **Holds if:** Studio picks B, the 4-7-8 lead. Then lead future session
+  thumbnails with the technique or sound people know and keep invented names
+  small, as a rule in `docs/video/thumbnails.md` once a second session agrees.
+- **Fails if:** Studio picks A or calls it inconclusive. Then the lead words
+  are not the lever, and the next thing to test is the layout (the "20
+  MINUTES" circle takes about half the width, so the topic words stay small
+  at 320px).
+- **Constraint:** no API title or thumbnail writes to `r7NqyOv5_9Y` while the
+  test runs.
+- **Baseline, 10-24** (all the same layout; CTR waits on the Studio CSV):
+
+  | session | published | lead words | YouTube views | top source | CTR |
+  | --- | --- | --- | --- | --- | --- |
+  | 4-7-8 + White Noise `rvYOnvp7ufY` | 09-05 | 4-7-8 BREATHING | 388 | suggested 193 | - |
+  | Waterfall + 4-7-8 `DKzUkSqIKS8` | 09-14 | 4-7-8 BREATHING | 28 | suggested 20 | - |
+  | Cat Purring `DQohsxR94NQ` | 09-28 | CAT PURRING | 17 | suggested 9 | - |
+  | Rain `qaodCuHY6ss` | 10-12 | RAIN SOUNDS | 41 | suggested 24 | - |
+  | Jungle Waterfall `6zJGsj3aCTU` | 10-15 | JUNGLE WATERFALL | 8 | - | - |
+  | Forest Chorus `GIOaF-uas1s` | 10-15 | FOREST CHORUS | 24 | suggested 17 | - |
+  | Nebula Pulse `r7NqyOv5_9Y` | 10-22 | NEBULA PULSE | 5 | - | - |
+- **Status:** test being set up by the user.
