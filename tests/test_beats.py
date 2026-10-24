@@ -86,6 +86,9 @@ PAYLOADS = {
                       "date": "1 Jan 2020",
                       "text": "A sample post whose [key phrase] is highlighted."},
              "WHAT THEY WROTE"),
+    # (keys, need, result, title, gone): landscape only for now.
+    "quorum": ([("YOU", "at home"), ("SECOND DEVICE", "another safe"),
+                ("A LAWYER", "in escrow")], 2, "COINS MOVE", "TWO OF THREE", 0),
 }
 
 

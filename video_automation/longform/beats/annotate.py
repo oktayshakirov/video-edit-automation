@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from ...core.draw import ease_out, partial, shadow_text, wrap
-from .base import RISE, Beat, _font, _round_corners, _smooth
+from .base import RISE, Beat, _display, _font, _round_corners, _smooth
 
 class Callout(Beat):
     """A photograph in the middle, a column of labels each side pointing in.
@@ -787,3 +787,201 @@ class Anatomy(Beat):
                        fill=br.ink + (la,), anchor=anchor)
 
 
+
+
+class Quorum(Beat):
+    """A lock that needs `need` of `n` keys, the keys, and the lock opening
+    without one of them.
+
+    **Built for `what-happens-to-crypto-when-you-die` (2026-10-24), because
+    the library could not draw a multi-signature wallet.** "Three keys, any
+    two can move the coins" is the whole mechanism, and spoken over a stock
+    clip of a safe it is a sentence the viewer has to picture for themselves.
+    `diagram` draws a chain and `grid` a set; neither shows a threshold being
+    met, which is the one thing this beat is for. Reusable for any m-of-n
+    signing: an inheritance setup, an exchange's multisig cold wallet, a
+    hacked signer set.
+
+    Reveals: one per key, then one for the opening, so `len(keys) + 1`
+    caption chunks in this order - "One key stays with you." / "One on a
+    second device." / "One with a lawyer." / "And any two can move the
+    coins." On the last one the `gone` card greys out and is struck, a line
+    travels from each remaining card up into the lock across that phrase,
+    the lock's pips fill as they arrive, the shackle lifts, and `result`
+    sets beside the lock.
+
+    Landscape only, like `timeline` and `map`, until a Short asks for it.
+
+    payload: (keys, need, result, title, gone)
+      keys    [(holder, note), ...] - two to four
+      need    how many keys open the lock
+      result  what opening means, beside the lock ("COINS MOVE")
+      title   the beat's kicker
+      gone    index of the key that is missing when it opens (default 0)
+    """
+
+    EMBLEM = False
+    SS = 2
+    CARD_W, CARD_H, GAP = 470, 230, 50
+    NAME = 40                   # the holder, in the display face
+
+    def __init__(self, keys: list, need: int = 2, result: str = "",
+                 title: str = "", gone: int | None = 0, **kw):
+        super().__init__(**kw)
+        if self.portrait:
+            raise ValueError("quorum has no portrait layout yet")
+        if not 2 <= len(keys) <= 4 or not 1 <= need <= len(keys):
+            raise ValueError(f"quorum wants 2-4 keys and 1 <= need <= keys, "
+                             f"got {len(keys)} keys, need {need}")
+        self.keys = [(k, "") if isinstance(k, str) else tuple(k) for k in keys]
+        self.need, self.result, self.title, self.gone = need, result, title, gone
+        d = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+        for holder, note in self.keys:
+            for text, font in ((holder, _display(self.NAME)), (note, _font(32))):
+                w = d.textlength(text, font=font)
+                if w > self.CARD_W - 40:
+                    raise ValueError(f"quorum label {text!r} is {w:.0f}px wide "
+                                     f"and a card has {self.CARD_W - 40}px. "
+                                     f"Shorten it.")
+
+    def _cards(self) -> list[tuple[int, int]]:
+        n = len(self.keys)
+        row = n * self.CARD_W + (n - 1) * self.GAP
+        x0 = (self.frame.w - row) // 2
+        return [(x0 + i * (self.CARD_W + self.GAP), 650) for i in range(n)]
+
+    def _signers(self) -> list[int]:
+        return [i for i in range(len(self.keys)) if i != self.gone][:self.need]
+
+    def content(self, out: Image.Image, f: float) -> None:
+        d = ImageDraw.Draw(out, "RGBA")
+        self.heading(out, self.title, f)
+        prim, ink, neg = self.brand.primary, self.brand.ink, self.brand.negative
+        grey = (110, 110, 110)
+        n = len(self.keys)
+        cards = self._cards()
+        signers = self._signers()
+
+        # The opening gesture: the lock draws round before any key arrives.
+        lock_p = self.open_p(f, 0.8)
+        e_open = self.due(n, n + 1, f)
+        travel = self.span_p(n, f, lead=0.25, cap=1.6) if e_open >= 0 else 0.0
+        opened = _smooth((travel - 0.92) / 0.08) if travel > 0.92 else 0.0
+        drop = ease_out(e_open * 3) if e_open >= 0 else 0.0
+
+        S = self.SS
+        layer = Image.new("RGBA", (self.frame.w * S, self.frame.h * S), (0, 0, 0, 0))
+        v = ImageDraw.Draw(layer)
+
+        def L(x, y):
+            return (x * S, y * S)
+
+        # --- the lock --------------------------------------------------------
+        cx, by0, bw, bh = self.frame.w // 2, 360, 230, 170
+        bx0, bx1, by1 = cx - bw // 2, cx + bw // 2, by0 + bh
+        lift = 34 * ease_out(opened)
+        leg = 54
+        sh = [(bx0 + 52, by0 - lift), (bx0 + 52, by0 - leg - lift)]
+        for k in range(1, 18):
+            a = math.pi - math.pi * k / 17
+            sh.append((cx + (bw / 2 - 52) * math.cos(a),
+                       by0 - leg - lift - (bw / 2 - 52) * math.sin(a)))
+        sh += [(bx1 - 52, by0 - leg - lift), (bx1 - 52, by0 - 10 - lift)]
+        partial(v, [L(*p) for p in sh], lock_p, prim + (255,), 14 * S)
+        if lock_p > 0:
+            fill = tuple(int(23 + (c - 23) * opened * 0.9) for c in prim)
+            v.rounded_rectangle([L(bx0, by0), L(bx1, by1)], radius=22 * S,
+                                fill=fill + (int(255 * lock_p),))
+            partial(v, [L(bx0 + 22, by0), L(bx1 - 22, by0), L(bx1, by0 + 22),
+                        L(bx1, by1 - 22), L(bx1 - 22, by1), L(bx0 + 22, by1),
+                        L(bx0, by1 - 22), L(bx0, by0 + 22), L(bx0 + 22, by0)],
+                    lock_p, prim + (255,), 6 * S)
+
+        # --- the cards -------------------------------------------------------
+        for i, ((holder, note), (x, y)) in enumerate(zip(self.keys, cards)):
+            e = self.due(i, n + 1, f)
+            if e < 0:
+                continue
+            draw_p = self.span_p(i, f, lead=0.02, cap=0.7)
+            dead = drop if (i == self.gone and e_open >= 0) else 0.0
+            col = tuple(int(prim[c] + (grey[c] - prim[c]) * dead) for c in range(3))
+            r = 20
+            pts = [(x + r, y), (x + self.CARD_W - r, y), (x + self.CARD_W, y + r),
+                   (x + self.CARD_W, y + self.CARD_H - r), (x + self.CARD_W - r, y + self.CARD_H),
+                   (x + r, y + self.CARD_H), (x, y + self.CARD_H - r), (x, y + r), (x + r, y)]
+            v.rounded_rectangle([L(x, y), L(x + self.CARD_W, y + self.CARD_H)],
+                                radius=r * S, fill=(255, 255, 255, int(14 * min(1, e))))
+            partial(v, [L(*p) for p in pts], max(draw_p, 0.001), col + (255,), 5 * S)
+            # A key: a ring for the bow, a shaft, two teeth.
+            kx, ky = x + self.CARD_W // 2 - 60, y + 58
+            a = int(255 * min(1.0, e))
+            v.ellipse([L(kx - 24, ky - 24), L(kx + 24, ky + 24)],
+                      outline=col + (a,), width=9 * S)
+            v.line([L(kx + 24, ky), L(kx + 132, ky)], fill=col + (a,), width=10 * S)
+            for tx in (kx + 104, kx + 126):
+                v.line([L(tx, ky), L(tx, ky + 24)], fill=col + (a,), width=10 * S)
+            if dead > 0:
+                # Struck: an X across the key, drawn on.
+                partial(v, [L(kx - 40, ky - 34), L(kx + 150, ky + 40)],
+                        min(1.0, dead * 1.4), neg + (255,), 8 * S)
+
+        # --- the lines from the signers into the lock -------------------------
+        if travel > 0:
+            for j, i in enumerate(signers):
+                x, y = cards[i]
+                sx, sy = x + self.CARD_W / 2, y
+                tx = cx + (j - (len(signers) - 1) / 2) * 64
+                path = [L(sx, sy), L(sx, sy - 60), L(tx, by1 + 60), L(tx, by1)]
+                partial(v, path, travel, prim + (255,), 6 * S)
+
+        layer = layer.resize(self.frame.size, Image.LANCZOS)
+        out.paste(layer, (0, 0), layer)
+
+        # --- type ------------------------------------------------------------
+        if lock_p > 0.5:
+            # Pips across the lock's face: one per key needed, filling as the
+            # lines arrive.
+            k = min(1.0, (lock_p - 0.5) * 2)
+            filled = self.need * (min(1.0, travel / 0.92) if travel > 0 else 0.0)
+            pw = 26
+            row = self.need * pw + (self.need - 1) * 18
+            px0 = cx - row / 2
+            for p in range(self.need):
+                on = filled >= p + 1 - 1e-6 or opened > 0
+                x = px0 + p * (pw + 18)
+                # Gold rings on the dark lock; dark discs once it turns gold.
+                ring = (23, 23, 23) if opened > 0.5 else prim
+                d.ellipse([x, by0 + 40, x + pw, by0 + 40 + pw],
+                          fill=ring + (int(255 * k),) if on else None,
+                          outline=ring + (int(255 * k),), width=4)
+            lab = f"{self.need} OF {n}"
+            fnt = _display(40)
+            b = d.textbbox((0, 0), lab, font=fnt)
+            tint = (23, 23, 23) if opened > 0.5 else prim
+            d.text((cx - (b[2] - b[0]) / 2 - b[0], by1 - 74 - b[1]), lab,
+                   font=fnt, fill=tint + (int(255 * k),))
+
+        for i, ((holder, note), (x, y)) in enumerate(zip(self.keys, cards)):
+            e = self.due(i, n + 1, f)
+            if e < 0:
+                continue
+            a = int(255 * min(1.0, e))
+            dead = drop if (i == self.gone and e_open >= 0) else 0.0
+            hc = tuple(int(ink[c] + (130 - ink[c]) * dead) for c in range(3))
+            nc = tuple(int(prim[c] + (110 - prim[c]) * dead) for c in range(3))
+            rise = int(RISE * (1 - min(1.0, e)))
+            for text, font, yy, colr in ((holder, _display(self.NAME), y + 112, hc),
+                                         (note, _font(32), y + 172, nc)):
+                if not text:
+                    continue
+                b = d.textbbox((0, 0), text, font=font)
+                shadow_text(d, (x + self.CARD_W / 2 - (b[2] - b[0]) / 2 - b[0],
+                                yy + rise - b[1]), text, font, colr + (a,), alpha=a)
+
+        if self.result and opened > 0:
+            k = ease_out(opened)
+            fnt = _display(56)
+            b = d.textbbox((0, 0), self.result, font=fnt)
+            shadow_text(d, (bx1 + 70 - b[0], (by0 + by1) / 2 - (b[3] - b[1]) / 2
+                            - b[1] + int(RISE * (1 - k))),
+                        self.result, fnt, prim + (int(255 * k),), alpha=int(255 * k))

@@ -63,7 +63,7 @@ from ...core.frame import Frame
 # them is what makes the split invisible to everything outside this package.
 from .base import (DRAW, POP, RISE, Beat, _display, _font, _hex,  # noqa: F401
                    _mark_bottom, _round_corners, _smooth, _unit)
-from .annotate import Anatomy, Callout, Diagram, Map
+from .annotate import Anatomy, Callout, Diagram, Map, Quorum
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
@@ -81,7 +81,8 @@ __all__ = [
     "Grid", "Logos", "Steps", "Split", "Replicate", "Pool",
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
-    "Callout", "Diagram", "Map", "Anatomy", "Reel", "Post", "Spotlight",
+    "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
+    "Spotlight",
     "DRAW", "POP", "RISE",
 ]
 
@@ -110,6 +111,7 @@ BEATS = {
     "reel": Reel,
     "post": Post,
     "spotlight": Spotlight,
+    "quorum": Quorum,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -148,6 +150,8 @@ _COUNT = {
     "post": lambda p: 2,
     # One framing per spoken sentence (the first may be the whole picture).
     "spotlight": lambda p: len(p[1]),
+    # Each key as it is named, then the lock opening.
+    "quorum": lambda p: len(p[0]) + 1,
 }
 
 
