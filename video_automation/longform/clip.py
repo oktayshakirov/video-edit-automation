@@ -8,10 +8,16 @@ carries captions and sits under the watermark exactly like anything else.
 
 Three decisions worth stating:
 
-* **Decode once, into memory, at output size.** A six-second 1080p clip at the
-  shot's own length is a few hundred frames; holding them as uint8 is ~100 MB at
-  worst and makes every frame lookup free. Seeking per frame through a
-  compressed stream is both slower and, on some codecs, not frame-accurate.
+* **Decode on demand, sequentially, never the whole slot.** This used to decode
+  every frame of the slot into memory at construction, on the reasoning that a
+  six-second clip is ~100 MB. But `render_shots` builds every shot before the
+  first frame is written, so the cost is the whole video's footage at once:
+  ~200 MB per second of 1080p stock with zoom headroom. The Beethoven long form
+  held 21 GB and its Short 8 GB, rendering side by side on a 16 GB machine, and
+  the Mac panicked (2026-10-24). Now a shot reads its clip forward as it is
+  drawn and keeps only the two source frames the current output frame blends;
+  `render_shots` releases it once the timeline has passed. Seeking per frame is
+  still avoided — it is slower and, on some codecs, not frame-accurate.
 
 * **Trim when long, stretch gently when short, never loop.** A shot's length
   comes from the narration, so a clip almost never matches it. Longer than the
@@ -111,39 +117,77 @@ class VideoShot:
         # frame-interpolation would risk does not arise here.
         n_out = max(1, int(round(want * fps)))
         pos = np.linspace(first, max(last, first), n_out)
-        lo = np.floor(pos).astype(int)
-        hi = np.minimum(lo + 1, max(last, first))
-        frac = (pos - lo).astype(np.float32)
-        need = set(lo.tolist()) | set(hi.tolist())
+        self._lo = np.floor(pos).astype(int)
+        self._hi = np.minimum(self._lo + 1, max(last, first))
+        self._frac = (pos - self._lo).astype(np.float32)
+        self._need = set(self._lo.tolist()) | set(self._hi.tolist())
 
-        keep, cache, idx, cursor = [], {}, 0, 0
-        while idx < src_n and cursor < n_out:
-            ok, bgr = cap.read()
-            if not ok:
-                break
-            if idx in need:
-                cache[idx] = self._prepare(bgr, dim, saturation)
-            while cursor < n_out and hi[cursor] <= idx:
-                a, b, w = cache[lo[cursor]], cache[hi[cursor]], float(frac[cursor])
-                keep.append(a if w < 1e-3 else
-                            cv2.addWeighted(a, 1.0 - w, b, w, 0.0))
-                cursor += 1
-                # Positions are monotonic, so anything before the next `lo` is
-                # finished with. Without this the cache is the whole clip.
-                if cursor < n_out:
-                    for k in [k for k in cache if k < lo[cursor]]:
-                        del cache[k]
-            idx += 1
+        # Nothing is decoded here (see the module docstring), but a clip that
+        # cannot give up a single frame should still fail before the render
+        # starts rather than minutes into it.
+        ok, _ = cap.read()
         cap.release()
-        if not keep:
+        if not ok or src_n <= 0:
             raise ValueError(f"decoded no frames from {path}")
-        # A short read (a truncated download, a lying frame count) pads with the
-        # last frame rather than raising — a held final frame is survivable, a
-        # crash three minutes into a ten-minute render is not.
-        while len(keep) < n_out:
-            keep.append(keep[-1])
-        self.frames = keep
+        self.path, self.dim, self.saturation = path, dim, saturation
+        self.src_n, self.n_out = src_n, n_out
         self.hold_s = want
+        self._end = None        # source frames actually decodable, once known
+        self.release()
+
+    def release(self) -> None:
+        """Drop the decoder and every decoded frame. A later draw reopens."""
+        if getattr(self, "_cap", None) is not None:
+            self._cap.release()
+        self._cap, self._idx, self._base = None, 0, 0
+        self._cache, self._last, self._tail = {}, None, None
+
+    def _frame(self, i: int) -> np.ndarray:
+        """Output frame `i` of the slot, decoded on demand.
+
+        The render asks for frames in order, so this reads the clip forward and
+        keeps only the source frames still ahead of it. Asked for an earlier
+        frame than the cache can serve, it rewinds and reads again — slow, but
+        only a re-draw does that, never the render loop.
+        """
+        if self._last is not None and self._last[0] == i:
+            return self._last[1]
+        lo, hi = int(self._lo[i]), int(self._hi[i])
+        if self._cap is None or lo < self._base:
+            self.release()
+            self._cap = cv2.VideoCapture(str(self.path))
+        limit = self.src_n if self._end is None else self._end
+        while self._idx <= hi and self._idx < limit:
+            ok, bgr = self._cap.read()
+            if not ok:
+                self._end = self._idx
+                break
+            if self._idx in self._need:
+                self._cache[self._idx] = self._prepare(bgr, self.dim,
+                                                       self.saturation)
+            self._idx += 1
+
+        # A short read (a truncated download, a lying frame count) holds the
+        # last frame that could be made rather than raising — a held final
+        # frame is survivable, a crash three minutes into a ten-minute render
+        # is not.
+        if self._end is not None and hi >= self._end:
+            if self._tail is None:
+                c = int(np.searchsorted(self._hi, self._end)) - 1
+                if c < 0:
+                    raise ValueError(f"decoded no frames from {self.path}")
+                self._tail = self._frame(c)
+            return self._tail
+
+        a, b, w = self._cache[lo], self._cache[hi], float(self._frac[i])
+        out = a if w < 1e-3 else cv2.addWeighted(a, 1.0 - w, b, w, 0.0)
+        # Positions are monotonic, so anything before this `lo` is finished
+        # with. Without this the cache is the whole clip.
+        for k in [k for k in self._cache if k < lo]:
+            del self._cache[k]
+        self._base = lo
+        self._last = (i, out)
+        return out
 
     def _prepare(self, bgr: np.ndarray, dim: float, sat: float) -> np.ndarray:
         """Cover the frame with zoom headroom, then grade toward the stills."""
@@ -185,8 +229,8 @@ class VideoShot:
 
     def draw(self, f: float) -> Image.Image:
         fr = self.frame
-        i = min(len(self.frames) - 1, max(0, int(round(f * (len(self.frames) - 1)))))
-        buf = self.frames[i]
+        i = min(self.n_out - 1, max(0, int(round(f * (self.n_out - 1)))))
+        buf = self._frame(i)
 
         # A slow push in across the shot, using the zoom headroom decoded above.
         # Stock clips already move, so this is deliberately gentler than the
