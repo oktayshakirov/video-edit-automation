@@ -293,6 +293,8 @@ def panel_base(ground: Image.Image, layout: Layout, brand: Brand,
     img = ground.copy()
     d = ImageDraw.Draw(img)
     cx = p.w // 2
+    # Lowest ink of the heading block, descenders included.
+    bottom = 0
 
     _spaced(d, (cx, 118), eyebrow.upper(), _font(26, FONT_FUTURA_BOLD),
             brand.primary, tracking=5)
@@ -308,9 +310,14 @@ def panel_base(ground: Image.Image, layout: Layout, brand: Brand,
         for ln in _wrap(d, title, f, layout.caption_max_w):
             w = d.textlength(ln, font=f)
             d.text((cx - w / 2, y), ln, font=f, fill=(215, 215, 215))
+            bottom = d.textbbox((cx - w / 2, y), ln, font=f)[3]
             y += 52
     # A hairline under the heading block, so the caption has a top edge.
-    d.line([(cx - 60, 300), (cx + 60, 300)], fill=brand.primary, width=2)
+    # At 300 when the title fits on one line; below the ink when it wraps,
+    # or it strikes through the second line's descenders ("Money" in Stop
+    # Losing Money in Crypto's introduction).
+    line_y = max(300, bottom + 22)
+    d.line([(cx - 60, line_y), (cx + 60, line_y)], fill=brand.primary, width=2)
 
     if badges:
         h = 64
