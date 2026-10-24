@@ -33,7 +33,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from ..core import backdrop
+from ..core import backdrop, guard
 from ..core.brand import CRYPTO, Brand
 from ..core.draw import cover as _cover
 from ..core.draw import ease_out as _ease_out
@@ -729,14 +729,19 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                                  mark.height + 2 * logo_float, f"anchor {a}")
 
     n = int(round(total * fps)) + fps // 2
+    guard.preflight(out)
     proc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
          "-s", f"{frame.w}x{frame.h}", "-r", str(fps), "-i", "-",
          "-an", "-c:v", "libx264", "-crf", "18", "-preset", "medium",
          "-pix_fmt", "yuv420p", str(out)], stdin=subprocess.PIPE)
 
+    # Checks memory pressure and free disk once a second of output, and kills
+    # the encoder and raises before the machine runs out (`core.guard`).
+    watch = guard.Watch(out, every=fps, stop=proc.kill)
     released = 0
     for i in range(n):
+        watch()
         t = i / fps
         idx = max(0, min(len(shots) - 1,
                          next((k for k, s in enumerate(shots)
