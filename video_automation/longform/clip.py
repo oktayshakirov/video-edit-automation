@@ -56,6 +56,25 @@ FONT_DISPLAY = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
 SLOWEST = 0.75
 
 
+def grade(img: np.ndarray, dim: float, sat: float,
+          bgr: bool = False) -> np.ndarray:
+    """Desaturate toward the pixel's grey by `sat`, then scale by `dim`.
+
+    `(grey + (rgb - grey) * sat) * dim` is linear in the three channels, so
+    the whole grade is one 3x3 colour matrix, and `bgr=True` folds OpenCV's
+    channel swap into the same matrix. One `cv2.transform` pass replaced a
+    float32 copy, a channel mean, two array ops and a clip, which together
+    were a third of a clip render's time (2026-10-24). The -0.5 offset turns
+    cv2's rounding into the truncation the float version did, so the result
+    is the same to within one level.
+    """
+    m = dim * (sat * np.eye(3) + (1.0 - sat) / 3.0)
+    if bgr:
+        m = m[:, ::-1]
+    m = np.hstack([m, np.full((3, 1), -0.5)]).astype(np.float32)
+    return cv2.transform(np.ascontiguousarray(img), m)
+
+
 class VideoShot:
     """A stock clip, decoded and retimed to fill its slot exactly."""
 
@@ -222,10 +241,7 @@ class VideoShot:
         x0 = max(0, int(round((nw - w) * self.ax)))
         bgr = bgr[y0:y0 + h, x0:x0 + w]
 
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32)
-        grey = rgb.mean(axis=2, keepdims=True)
-        rgb = (grey + (rgb - grey) * sat) * dim
-        return np.clip(rgb, 0, 255).astype(np.uint8)
+        return grade(bgr, dim, sat, bgr=True)
 
     def draw(self, f: float) -> Image.Image:
         fr = self.frame
