@@ -250,6 +250,26 @@ ends = align_chunks(_synth_raw(text, voice, mood), words, voice, mood)
 Anything over ~0.6s on a one-syllable word is the drag. Captions are free to
 keep the comma — this only ever concerns the spoken half.
 
+## A sentence-final full stop can drop the last word into creak
+
+Different from the drag above, and the more common glitch on this voice.
+"it's a decision." (Ready Is a Decision, 2026-10-24) and "set another one."
+(Next Trick) both ended in **creaky voice**: on the spectrogram the last
+syllable's harmonics break into widely spaced vertical pulses at ~60 Hz
+against the voice's ~110 Hz, and leo's pitch-down chain turns that into an
+audible crackle. The user heard it as "the last word is glitching". It is the
+falling terminal contour Kokoro gives a full stop; the duration was normal
+(0.62s for "decision"), so the drag check above does not catch it.
+
+Ending variants of the same line, final word compared by spectrogram:
+`.`, `...`, `?` and no mark all creaked; **`,` and `!` stayed clean**.
+
+**The fix: end the spoken half of the last caption with a comma** (or `!`
+when the line can take it). The caption keeps its full stop. Check it by
+eye, `ffmpeg -ss <last word> -i out.mp4 -lavfi showspectrumpic=stop=3000`:
+clean is continuous, evenly spaced horizontal harmonics to the end; creak is
+the harmonics dissolving into vertical stripes.
+
 ## Punctuation in the spoken half
 
 Tested against measured audio, three finished renders compared by ear, and

@@ -159,6 +159,22 @@ from video_automation.core.voiceover import (render_narrated, render_narrated_cu
 **Given two clips for a narrated quote, stack them by default** — see
 *One clip vs. two stacked* below. Cut sequentially only when the user says so.
 
+**Given one clip, use `render_narrated` — no black band** (user's call,
+2026-10-24, on Ready Is a Decision, which stacked the same clip twice to get
+the band). One clip fills the 9:16 frame and the captions sit on the footage.
+That layout has its own type rules, all defaults of `render_narrated` now:
+
+- **Avenir Next Demi Bold** (`FONT_SIMPLE`), not the Iowan italic — "more
+  simple and easier to read" once there is no flat band behind the type.
+  White ink, black stroke 4, the spoken word lit in the auto accent
+- **Karaoke on**, same per-word highlight as the stack (`karaoke=True`,
+  `accent="auto"`)
+- **`y_frac=0.50`**, centre, per the user's standing preference
+- **Sentence case** — see *Text* below; applies to every drone quote
+
+The stack keeps the Iowan italic: the band is what lets a light serif survive
+the stroke.
+
 Silent quote card:
 
 ```python
@@ -185,9 +201,8 @@ render_narrated(
     src, out, start=2.0, box=box,
     text=" ".join(c for s in SENTENCES for c, _ in s), workdir=work,
     sentences=SENTENCES,    # NOT phrases= — see Caption sync
-    # font_path/font_index default to FONT_QUOTE (Iowan Old Style Italic) —
-    # see Text below. No need to pass them.
-    stroke=4, y_frac=0.34,
+    # font_path/font_index default to FONT_SIMPLE (Avenir Next Demi Bold),
+    # karaoke on, y_frac 0.50 — see "Given one clip" above. No need to pass them.
     gap=0.65, tail=1.2,     # gap is between sentences only; tail stays 1-2s
     **profile_args("leo"))
 ```
@@ -299,15 +314,17 @@ orange. Pass an `(r,g,b,a)` tuple to pin it, or a `(caption)->colour|None`
 callable for per-line control.
 
 **A set-piece word keeps its single PNG.** Karaoke only touches a plain
-multi-word caption at the base 44px. A word given its own `font_size` (the
+multi-word caption at the body size, which is the size most captions use, not
+a fixed 44px: until 2026-10-24 the gate was `== 44`, so Ready Is a Decision's
+36px body test silently rendered with no highlight at all. A word given its own `font_size` (the
 `belong` treatment), a colour-inked word, or an emoji caption all still render
 as one PNG — `render_caption_karaoke` models none of those, and forcing them
 through it would move the type. So the two emphasis tools compose: the quote
 lines karaoke, the one turn word stays big and white.
 
-Only `render_narrated_stack` karaokes so far. `render_narrated` and
-`render_narrated_cuts` still render one PNG per caption; wire the same way if a
-single-clip or sequential cut ever needs it.
+`render_narrated_stack` and `render_narrated` (single clip, since 2026-10-24,
+Next Trick) karaoke. `render_narrated_cuts` still renders one PNG per caption;
+wire the same way if a sequential cut ever needs it.
 
 ## A second karaoke style: a coloured box behind the word, not a coloured word
 
@@ -494,7 +511,14 @@ on Sunset Sea Stack
 Both wrap with **no widows** — the wrap pulls a word back so the last line is
 never a single orphan; that is the usual tell that a card was generated.
 
-Copy style: lowercase, conversational, six to twelve words. Payoff in the second
+Copy style: conversational, six to twelve words.
+
+**Sentence case on screen** (user's call, 2026-10-24, for every future drone
+quote): each sentence opens with a capital, and `I` is capitalised, the rest
+lowercase. "And for my next trick," / "I'm going to set a goal,". This
+replaces the old all-lowercase captions. It is the caption half only; the
+spoken half can stay lowercase, Kokoro does not care. A set-piece word in caps
+(STUPID) is still an emphasis choice, not a case rule. Payoff in the second
 half so the eye has to finish — that is what drives the rewatch.
 
 **Open a narrated quote with "i read a quote that said".** Approved by the user
