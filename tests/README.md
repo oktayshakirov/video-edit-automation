@@ -21,6 +21,7 @@ What they cover:
 | `test_transitions.py` | `push` stays byte-identical; every mode returns a frame |
 | `test_narration_cache.py` | the cache key, and the shadowing bug that poisoned it |
 | `test_chrome.py` | the navigation overlays, and the cue collision rule |
+| `test_guard.py` | a render refuses a full disk and aborts on critical memory pressure |
 
 **What they deliberately do not cover** is whether anything *looks* right.
 A beat that renders a legible frame and a beat that renders a grey rectangle
