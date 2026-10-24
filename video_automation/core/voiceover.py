@@ -146,6 +146,11 @@ GAP = 0.18          # seconds of silence between phrases
 TAIL = 1.0          # hold the last caption this long after the audio ends
 
 CAPTION_MAX_W = 920         # wider than the silent card: one phrase, one line
+# **A Short's burned line is 15% narrower** (2026-10-24, both channels): at
+# 920 the karaoke lines ran under TikTok's right-hand button rail - the
+# Beethoven Short's "WHAT" sat behind the comment icon. 782 wraps a long
+# sentence onto one more row instead.
+SHORT_CAPTION_MAX_W = int(CAPTION_MAX_W * 0.85)
 
 KOKORO_SR = 24000           # the model's native rate; alignment works pre-resample
 ALIGN_HOP = 128             # ~5.3ms frames — finer than the error we care about

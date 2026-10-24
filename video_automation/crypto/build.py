@@ -17,7 +17,7 @@ from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
 from ..core.vertical import (add_caption_emoji, render_caption_karaoke,
                              render_text_png)
-from ..core.voiceover import (CAPTION_MAX_W, build_narration_aligned,
+from ..core.voiceover import (SHORT_CAPTION_MAX_W, build_narration_aligned,
                               caption_window, profile_args)
 from ..core.vertical import (FONT_CAPTION, FONT_CAPTION_INDEX,
                              FONT_KARAOKE_BOX, FONT_KARAOKE_BOX_INDEX)
@@ -559,7 +559,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # black-border treatment, the only one that survives type on a photo.
             render_text_png(text, p, size=font_size, bg_luma=0.0,
                             font_path=cap_font_path, font_index=cap_font_index,
-                            y_frac=line, stroke=4, max_w=CAPTION_MAX_W,
+                            y_frac=line, stroke=4, max_w=SHORT_CAPTION_MAX_W,
                             frame=frame)
             if emoji and c.text in emoji:
                 add_caption_emoji(p, text, emoji[c.text], font_size,
@@ -903,7 +903,7 @@ def _karaoke_sprites(pngs, captions, workdir: Path, font_size: int,
             render_caption_karaoke(
                 c.text, wp, active=k, size=font_size,
                 font_path=font_path, font_index=font_index,
-                y_frac=line, stroke=4, max_w=CAPTION_MAX_W, frame=frame,
+                y_frac=line, stroke=4, max_w=SHORT_CAPTION_MAX_W, frame=frame,
                 accent=brand.primary + (255,), box=box, upper=upper)
             # Only the caption's own first and last frames animate; the word
             # frames between them hard-cut, or the phrase pulses per syllable.
