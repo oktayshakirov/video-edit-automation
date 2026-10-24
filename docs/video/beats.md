@@ -1243,3 +1243,8 @@ multisig, a DAO's signers.
   SECOND DEVICE" raises.
 - Give its sentence a `gap` of ~2.0s: the lines travel up to 1.6s after the
   last chunk starts and the lock opens at the end of that.
+
+**The user's verdict: "very nice", and build more custom visuals like it
+when possible.** What made it work: line art in the brand colour, one object
+per spoken phrase, then a single state change (the lock opening) that is the
+sentence's point. Use that as the template for the next topic-specific beat.
