@@ -48,7 +48,14 @@ when the run itself changes order or gains a step.
 2. **Pull every platform** with `video-views-audit`'s procedures: both
    channels on all four platforms, and drone whenever a drone experiment is
    open. Do not skip a dull platform; Instagram went to zero without anyone
-   noticing.
+   noticing. **Ask the user for Studio's CSV export at the start**
+   (Analytics, Advanced mode: Impressions and Impressions CTR per video, for
+   each channel, since the last run). It is the only source of impressions
+   and CTR, because the API refuses them, and without it a thumbnail cannot
+   be judged. If the user skips it, say that every thumbnail verdict in the
+   run is a guess. Pull `traffic <id>` for every long-form that moved, so a
+   view is never credited to search or a thumbnail without knowing where it
+   came from.
 3. **Tag every video published since the last run from its build script**,
    because a video cannot be compared without knowing what it tried:
    - opener (redacted hook, Counter, Stamp, Split, Search, Flash, none) and
@@ -57,7 +64,15 @@ when the run itself changes order or gains a step.
      first clause misfiled Whale and put a wrong rule into a commit.
      `tools/opening_check.py <script>` prints both for a Short;
    - the last line (cold close or question), and the title shape (yes/no, how
-     or why, named person).
+     or why, named person);
+   - the voice (`mia`, `noah`) and the engine (old, or after the 10-21
+     overhaul), for E7 and E9;
+   - **the thumbnail**, for every long-form and session. Download it and look
+     at it at 320px (`sips -Z 320`), the size people see. Record the lead word
+     and whether it is a term people already know ("4-7-8 BREATHING", "RAIN
+     SOUNDS") or a name we invented ("NEBULA PULSE"), roughly how many words
+     it has, the layout, and anything that is unreadable at 320px. Put its
+     impressions and CTR next to it when the CSV is in.
 4. **Write the snapshot** to `history/<today>.md` in the shape of the last
    one: totals table, per-platform rows, the retention cohort with tags.
 5. **Judge.** Each experiment against its own fail line: *holding*,
@@ -120,6 +135,17 @@ around 100% means no loop.
 **Reach and retention separately.** The highest-reach Shorts on 10-11 were
 all the worst-retaining ones. The title earns the click and sentence 2
 keeps it, so a finding about one says nothing about the other.
+
+**Thumbnails, by CTR, within one format.** A thumbnail earns impressions
+into clicks, so CTR from the Studio CSV is the number that judges it, and
+only against thumbnails of the same format (sessions against sessions,
+explainers against explainers). Views alone mislead. On 10-24 the 4-7-8 hit
+(388) and its near-twin (28) carried almost the same thumbnail. Their
+difference was suggested traffic, not the image. Read a thumbnail claim
+together with `traffic`: a video fed by suggested or browse lives on its
+thumbnail, while one fed by search lives on its title. A Studio Test &
+Compare (E6, E10) is the only clean thumbnail comparison. While one runs on
+a video, never write that video's title or thumbnail through the API.
 
 ## Evidence standards
 
