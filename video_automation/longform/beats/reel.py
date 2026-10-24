@@ -113,13 +113,11 @@ class _Media:
 
 
 def _grade(rgb: np.ndarray) -> np.ndarray:
-    """`VideoShot._prepare`'s grade, same formula, so a dive's last frame and
+    """`VideoShot._prepare`'s grade, the same function, so a dive's last frame and
     the clip's first agree. Applied to the on-screen crop only - grading the
     full source frame was most of the reel's render time."""
-    f = rgb.astype(np.float32)
-    grey = f.mean(axis=2, keepdims=True)
-    f = (grey + (f - grey) * SAT) * DIM
-    return np.clip(f, 0, 255).astype(np.uint8)
+    from ..clip import grade
+    return grade(rgb, DIM, SAT)
 
 
 def _view(raw: np.ndarray, x0: float, y0: float, w: float, h: float,
