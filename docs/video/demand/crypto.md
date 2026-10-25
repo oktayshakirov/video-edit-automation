@@ -90,5 +90,5 @@ One line per branch: date, the term or channel, what it added.
   Bitcoin - Explained..." 7.4x at 3 days old, "Who Sets The Price Of
   Bitcoin?" 2.0x. Format: one CAPS adverb plus the plain search question.
   Our "What Determines Bitcoin's Price?" had 3 views at 81% average viewed;
-  proposed title "What REALLY Decides Bitcoin's Price? Explained Simply", a
+  re-titled "What REALLY Decides Bitcoin's Price? Explained Simply" (applied 10-25), a
   new cover. Re-check its `traffic` in two weeks.
