@@ -57,6 +57,16 @@ when the data will exist. Answered checks move into that run's snapshot.
   Business, so the type cannot be what separates them. Re-read the next two
   uploads; if they also fail, compare what changed on the crypto page around
   10-02 (posting rate, topics, any shared or reposted content).
+- **E11, demand-led topics (from 2026-10-25).** Tag every new video's
+  `DEMAND` line. First read once a channel has 3 demand-backed long-forms
+  14 days old. Also check that each run extended each demand map by one
+  branch, and that standouts have real medians, not `?`.
+- **Was GTA 6 on-audience?** Crypto subscribers around 10-20 to 10-27, and
+  whether the uploads after it took suggested traffic from `FXW9Zd5vjYk`.
+  If its viewers did not come back, E8 trend topics are reach, not channel
+  growth, and the E8 entry says so.
+- **Funnel.** Ask the user for GA4 sessions from youtube.com, facebook.com
+  and tiktok.com on each site since 10-23, the first funnel reading.
 - **Zen sessions on Facebook and YouTube.** TikTok is closed (5 of 5 in
   batches). Keep counting Facebook long/reel per session against the 29k
   outlier, and YouTube suggested growth on the 09-05 session (388 on 10-23).
@@ -316,6 +326,12 @@ when the data will exist. Answered checks move into that run's snapshot.
   every zen session, and every pair after the 5-pair `noah` test), and
   old-engine `noah` videos (none exist). Say "noah + new engine" in every
   verdict until those exist, and do not credit either alone.
+- **External view, recorded 2026-10-25, before any data:** the Trenda
+  talk behind E11 holds that a visual which does not clarify, prove or help
+  the viewer follow is decoration, and that an audience looking to learn
+  cares least about it. Glitch cuts, static and the film surface are that
+  kind of visual. If E9 fails, read this first; if it holds, the talk is
+  wrong for these channels.
 - **Status:** started; one upload.
 
 ## E10 - Session thumbnails: a known technique against an invented name
@@ -360,3 +376,41 @@ when the data will exist. Answered checks move into that run's snapshot.
   | Forest Chorus `GIOaF-uas1s` | 10-15 | FOREST CHORUS | 24 | suggested 17 | - |
   | Nebula Pulse `r7NqyOv5_9Y` | 10-22 | NEBULA PULSE | 5 | - | - |
 - **Status:** running since 2026-10-24 (user added variant B in Studio).
+
+## E11 - Topics picked on demand evidence
+
+- **Started:** 2026-10-25, every pair suggested after this date.
+- **Change:** `workflow.md` step 1 now crosses `tools/topics.py` with the
+  channel's demand map (`docs/video/demand/`). Every candidate carries its
+  demand evidence - a standout at 3x+ its channel's median, one of our own
+  standouts, or a brand-new term (E8) - or is labelled "no evidence". A
+  mechanism with no demand is bridged to the outcome the viewer searches.
+  The build script records it in `DEMAND`. The long form also gets a feed
+  check at the handover (our thumbnail beside the top three results).
+  From the same day, a standout named in `DEMAND` gets a **teardown** before
+  the script (`demand/teardowns/`, from `youtube-audit transcript`), and a
+  covered article can be **re-angled** onto the promise that wins. The
+  first candidate is the spike re-angle. Judge re-angles against the video
+  they replace, on the same article.
+- **Why:** external research (a talk by Jake Trenda, a YouTube agency
+  running 100+ channels, reviewed by the user 10-25): demand first, then
+  packaging, then a video that keeps the promise. Locally, every outlier
+  this pipeline has had came from demand it did not plan for (GTA 6 search,
+  4-7-8 suggested), and topics were picked from what had no video yet.
+- **Judged by:** YouTube long-form views at 14 days and the `traffic` split,
+  demand-backed against "no evidence" videos of the same channel and
+  format. Long-forms first, because search and suggested are where demand
+  shows; Shorts are read too but not judged on it. Also the share of
+  demand-backed long-forms passing Facebook's ~150 bucket.
+- **Holds if:** after 5 demand-backed long-forms on a channel, their median
+  14-day YouTube views is at least 2x the median of that channel's last 5
+  "no evidence" long-forms (tinnitus sessions against sessions, explainers
+  against explainers).
+- **Fails if:** after those 5, the median is below 1.5x. Then the map's
+  evidence is not transferring - check whether the videos borrowed the
+  standouts' execution or only their subject before retiring it.
+- **Confounded with E7 and E9.** Every pair after 10-25 is also `noah` for
+  the first five and new engine. Compare demand-backed against "no
+  evidence" videos built in the same period, not against the old baseline,
+  and say so in the verdict.
+- **Status:** started; no video built under it yet.
