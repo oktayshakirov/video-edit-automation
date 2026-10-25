@@ -83,3 +83,12 @@ One line per branch: date, the term or channel, what it added.
   its `traffic` at 14 days; if search brings nothing, the subject has no
   YouTube demand as phrased, and the next inheritance video is bridged to a
   searched outcome (lost keys, a seed phrase) instead.
+- 2026-10-25, "what determines bitcoin price" (`outliers`, 128 units): the
+  query has demand. Standouts: "Why Bitcoin Keeps Rising in Price -
+  Explained Like..." 37.6x (closed to us: direction), "How the Crypto Market
+  REALLY Works" (Coin Bureau) 8.7x, "What EXACTLY Decides the Price of a
+  Bitcoin - Explained..." 7.4x at 3 days old, "Who Sets The Price Of
+  Bitcoin?" 2.0x. Format: one CAPS adverb plus the plain search question.
+  Our "What Determines Bitcoin's Price?" had 3 views at 81% average viewed;
+  proposed title "What REALLY Decides Bitcoin's Price? Explained Simply", a
+  new cover. Re-check its `traffic` in two weeks.
