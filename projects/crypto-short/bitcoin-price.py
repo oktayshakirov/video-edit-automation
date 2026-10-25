@@ -48,14 +48,13 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/bitcoin-price.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
-from video_automation.longform.thumb import render_short_thumb, render_thumb
 
 POSTS = SITE_IMAGES / "posts"
 
@@ -223,6 +222,49 @@ EMOJI = {
 GAPS = [0.75, 0.85, 0.60, 0.80, 0.70, 0.85, 0.90, 2.10, 0.75, 0.70,
         0.90, 0.70, 1.30, 0.34]
 
+# The long form's picture and words (2026-10-25), supplied by the user.
+COIN = Path(__file__).resolve().parents[2] / "assets/crypto/bitcoin-price/coin-over-chart.jpg"
+HEADLINE = "Who\nreally\nsets the\n[price?]"
+
+
+def _bleed_top(crop, feather: int = 90):
+    """Scale a landscape cut to the 1080 width, sit it on the bottom of the
+    9:16 frame, and continue its own top edge upward - averaged across, so a
+    thin antenna or rim does not streak - with a short feather into the
+    picture. A uniform sky or studio backdrop becomes the type's ground
+    without a black fade over the subject."""
+    import numpy as np
+    from PIL import Image
+    W, H = 1080, 1920
+    h = int(crop.height * W / crop.width)
+    crop = crop.resize((W, h), Image.LANCZOS)
+    row = crop.crop((0, 0, W, 6)).resize((W // 24, 1), Image.BOX)
+    ground = row.resize((W, 1), Image.BILINEAR).resize((W, H))
+    im = ground.copy()
+    y = H - h
+    im.paste(crop, (0, y))
+    a = np.zeros((H, 1), np.float32)
+    a[:y, 0] = 1.0
+    a[y:y + feather, 0] = np.linspace(1.0, 0.0, feather)
+    mask = Image.fromarray((np.repeat(a, W, 1) * 255).astype("uint8"))
+    return Image.composite(ground, im, mask)
+
+
+def thumbs(out: Path) -> Path:
+    """The coin and phone scaled to the width on the bottom of the frame, the
+    white backdrop continued above, the headline on it in dark ink."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COIN).convert("RGB")
+    im = _bleed_top(src.crop((int(src.width * 0.31), 0, src.width, 1250)))
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
 
 def main() -> None:
     out = Path.home() / "Desktop/bitcoin-price-short.mp4"
@@ -232,33 +274,16 @@ def main() -> None:
                                      voice=VOICE, emoji=EMOJI, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
 
-    # **Two thumbnails, and the vertical one is not for YouTube.** The 1080x1920
-    # is what Instagram and Facebook Reels use; YouTube takes the 1280x720 and
-    # letterboxes anything else into it with a blurred zoomed copy either side,
-    # which shipped once on the tinnitus channel and had to be replaced by hand.
-    # Neither the upload nor the audit reports it - only looking does.
-    #
-    # **Same source and same headline as the long form from this post**, which
-    # is the pairing rule: match a Short to its long form's thumbnail even
-    # where the two videos cover different ground.
-    # **The names are the convention `publish-video` reads, and they are not
-    # arbitrary.** `-thumb.jpg` is the vertical Reel cover and `-thumb-yt.jpg`
-    # is the 1280x720 YouTube one, matching `can-silence-make-tinnitus-worse`.
-    # This script had them the other way round for one render, which is the
-    # exact setup for uploading a 9:16 image to YouTube - the failure that
-    # shipped on the silence pair, where YouTube letterboxed it between two
-    # blurred zoomed copies and neither the upload nor the audit reported it.
-    head = "Who controls [Bitcoin's price?]"
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO, head,
-        image=POSTS / "analysis.jpg", accent="orange", band="bottom")
-    wide = render_thumb(
-        out.with_name(out.stem + "-thumb-yt.jpg"), CRYPTO, head,
-        image=POSTS / "analysis.jpg", accent="orange")
+    # One vertical cover, matching the long form's (2026-10-25). The second
+    # 1280x720 file this used to write is gone: a Short's thumbnail is one
+    # vertical file (thumbnails.md).
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
-    print(f"{wide}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/bitcoin-price-short-thumb.jpg"))
+    else:
+        main()

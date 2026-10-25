@@ -529,31 +529,27 @@ META = Meta(
 # showing a chart. The coin already says "Bitcoin", so the headline spends its
 # rows on the question the title asks and the hook opens ("So who did that?").
 COIN = _P(__file__).resolve().parents[2] / "assets/crypto/bitcoin-price/coin-over-chart.jpg"
-HEADLINE = "Who\nreally\nsets the\n[price?]"
+HEADLINE = "Who really\nsets the\n[price?]"
 
 
 def thumbs(out: Path) -> Path:
-    """The coin and phone cropped from 0.48 of the width and set against the
-    right edge, the white backdrop ramped into black at the left, and the
-    headline in four rows on the black, clear of the coin."""
-    import numpy as np
+    """The picture's own white backdrop is the type's ground, in dark ink, and
+    nothing is faded. A first version ramped the backdrop into black and hid
+    half the coin and most of the phone; the user rejected it. Scaled to 1.2x
+    and anchored left, the coin moves right and stays whole, the phone's
+    chart runs along the bottom, and the top-left white holds three rows."""
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(COIN).convert("RGB")
-    crop = src.crop((int(src.width * 0.48), 0, src.width, src.height))
-    pw = int(720 * crop.width / crop.height)
-    crop = crop.resize((pw, 720), Image.LANCZOS)
-    im = Image.new("RGB", (1280, 720), (0, 0, 0))
-    x = 1280 - pw
-    im.paste(crop, (x, 0))
-    a = np.zeros((1, 1280), np.float32)
-    a[0, :x] = 1.0
-    a[0, x:x + 300] = np.linspace(1.0, 0.0, 300)
-    mask = Image.fromarray((np.repeat(a, 720, 0) * 255).astype("uint8"))
-    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
+    w = int(1280 * 1.2)
+    src = src.resize((w, int(src.height * w / src.width)), Image.LANCZOS)
+    im = src.crop((0, 0, 1280, 720))
     fill, ink = T.ACCENTS["orange"]
-    T._headline(im, HEADLINE, 240, 560, 50, fill, ink, max_lines=4,
-                leading=1.02, band="middle", margin=40, shadow=11, drop=(5, 6))
+    # A forced-row column is widened 1.38x; 430 lands "WHO REALLY" clear of
+    # the coin's rim.
+    T._headline(im, HEADLINE, 200, 430, 44, fill, ink, max_lines=3,
+                leading=1.02, band="top", margin=40, shadow=11, drop=(5, 6),
+                text=(20, 20, 20))
     im.save(out, quality=92)
     return out
 

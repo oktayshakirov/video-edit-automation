@@ -290,25 +290,21 @@ HEADLINE = "Own $100\nof this\n[building?]"
 
 
 def thumbs(out: Path) -> Path:
-    """The tower slid left and its right side ramped into black, the headline
-    in three rows on the right, clear of the building."""
-    import numpy as np
+    """Cropped so the tower sits on the left and the frame's own night sky
+    fills the right, where the headline goes in three rows. No black fade:
+    the sky is already the type's ground (the user's note, 2026-10-25)."""
     from PIL import Image
     from video_automation.longform import thumb as T
-    src = Image.open(THUMB).convert("RGB").resize((1280, 720), Image.LANCZOS)
-    im = Image.new("RGB", (1280, 720), (0, 0, 0))
-    dx = int(1280 * 0.18)
-    im.paste(src, (-dx, 0))
-    x = 1280 - dx - 160
-    a = np.zeros((1, 1280), np.float32)
-    a[0, x:] = 1.0
-    a[0, x - 300:x] = np.linspace(0.0, 1.0, 300)
-    mask = Image.fromarray((np.repeat(a, 720, 0) * 255).astype("uint8"))
-    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
+    src = Image.open(THUMB).convert("RGB")
+    # The tower spans ~600-1230 of the 1920px frame; starting the crop at
+    # 650 sets it against the left edge, and a top-aligned 16:9 window
+    # leaves out the low building at the bottom right.
+    x0 = 650
+    w = src.width - x0
+    im = src.crop((x0, 0, src.width, int(w * 9 / 16))).resize((1280, 720), Image.LANCZOS)
     fill, ink = T.ACCENTS["yellow"]
-    T._headline(im, HEADLINE, 240, 700, 1280 - 50 - 700, fill, ink,
-                max_lines=3, leading=1.02, band="middle", margin=40,
-                shadow=11, drop=(5, 6))
+    T._headline(im, HEADLINE, 240, 480, 590, fill, ink, max_lines=3,
+                leading=1.02, band="middle", margin=40, shadow=11, drop=(5, 6))
     im.save(out, quality=92)
     return out
 

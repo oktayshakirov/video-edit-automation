@@ -19,15 +19,14 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/rwa-tokenization.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
 
 SOURCE_POST = "real-world-asset-tokenization"
 
@@ -104,6 +103,46 @@ SHOTS = [
 
 GAPS = [0.70, 0.60, 0.55, 0.45, 1.20, 0.60, 0.45, 1.10, 0.60, 0.50, 0.70, 1.30]
 
+# Same words and rows as the long form's cover (2026-10-25).
+HEADLINE = "Own $100\nof this\n[building?]"
+
+
+def _bleed_top(crop, feather: int = 90):
+    """Scale a landscape cut to the 1080 width, sit it on the bottom of the
+    9:16 frame, and continue its own top edge upward - averaged across, so a
+    thin antenna or rim does not streak - with a short feather into the
+    picture. A uniform sky or studio backdrop becomes the type's ground
+    without a black fade over the subject."""
+    import numpy as np
+    from PIL import Image
+    W, H = 1080, 1920
+    h = int(crop.height * W / crop.width)
+    crop = crop.resize((W, h), Image.LANCZOS)
+    row = crop.crop((0, 0, W, 6)).resize((W // 24, 1), Image.BOX)
+    ground = row.resize((W, 1), Image.BILINEAR).resize((W, H))
+    im = ground.copy()
+    y = H - h
+    im.paste(crop, (0, y))
+    a = np.zeros((H, 1), np.float32)
+    a[:y, 0] = 1.0
+    a[y:y + feather, 0] = np.linspace(1.0, 0.0, feather)
+    mask = Image.fromarray((np.repeat(a, W, 1) * 255).astype("uint8"))
+    return Image.composite(ground, im, mask)
+
+
+def thumbs(out: Path) -> Path:
+    """The tower and the street lamp scaled to the width on the bottom of the
+    frame, the night sky continued above it, the headline on the sky."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    im = _bleed_top(Image.open(THUMB).convert("RGB").crop((380, 40, 1500, 1080)))
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
+
 
 def main() -> None:
     out = Path.home() / "Desktop/crypto-rwa-tokenization-short.mp4"
@@ -112,14 +151,13 @@ def main() -> None:
         karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
-    # Same headline as the long form - a pair shares its thumbnail.
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO,
-        "$100 of a [building?]",
-        image=THUMB, accent="yellow", band="top")
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-rwa-tokenization-short-thumb.jpg"))
+    else:
+        main()
