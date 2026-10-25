@@ -30,6 +30,7 @@ pair. Nobody is cast as a victim.
     PYTHONPATH=. .venv/bin/python projects/crypto-long/crypto-scams.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
@@ -303,6 +304,36 @@ META = Meta(
 )
 
 
+# The first cover's words, re-set in the current format (2026-10-25): four
+# big rows instead of two small ones. The row breaks after "A" so the plate
+# carries SCAM alone, the largest word on the card.
+HEADLINE = "How to\nspot a\ncrypto\n[scam]"
+
+
+def thumbs(out: Path) -> Path:
+    """The keycaps hand slid left and its right side ramped into black, with
+    the headline in four rows on the right, clear of all four keycaps."""
+    import numpy as np
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(THUMB).convert("RGB").resize((1280, 720), Image.LANCZOS)
+    im = Image.new("RGB", (1280, 720), (0, 0, 0))
+    dx = int(1280 * 0.24)
+    im.paste(src, (-dx, 0))
+    x = 1280 - dx - 120
+    a = np.zeros((1, 1280), np.float32)
+    a[0, x:] = 1.0
+    a[0, x - 260:x] = np.linspace(0.0, 1.0, 260)
+    mask = Image.fromarray((np.repeat(a, 720, 0) * 255).astype("uint8"))
+    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 220, 640, 1280 - 50 - 640, fill, ink,
+                max_lines=4, leading=1.02, band="middle", margin=40,
+                shadow=11, drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-scams-long.mp4"
     work = Path.home() / "Desktop/.crypto-scams-long-work"
@@ -311,19 +342,20 @@ def main() -> None:
         music=MUSIC,
         callouts=None,
         hook="Most crypto scams need [your help]",
-        # Two forced rows, centred vertically; the picture slides left so all
-        # four keycaps sit clear of the type.
-        thumb_headline="How to spot\na [crypto scam]",
+        thumb_headline=HEADLINE,
         thumb_image=THUMB,
         thumb_accent="yellow",
-        thumb_side="right", thumb_crop_at=(0.5, 0.5),
-        thumb_crop_band="middle", thumb_shift=0.2,
         endcard=ENDCARD, endcard_lead=7.0,
         title_at=8.5, title_hold=5.4,
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-scams-long-thumb.jpg"))
+    else:
+        main()

@@ -112,7 +112,9 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-long/bitcoin-price.py
 """
 
+import sys
 from pathlib import Path
+from pathlib import Path as _P
 
 from video_automation.core import music
 from video_automation.core.brand import CRYPTO
@@ -500,7 +502,13 @@ SECTIONS = [
 ]
 
 META = Meta(
-    title="Who Controls Bitcoin's Price? Not Who You Think",
+    # Re-titled 2026-10-25 (video-views-audit): 3 views in two months as "What
+    # Determines Bitcoin's Price?", 81% average viewed, so the packaging failed
+    # and the video did not. The format is borrowed from the query's standouts
+    # (`outliers "what determines bitcoin price"`): one CAPS word plus the
+    # plain search question, as in "What EXACTLY Decides the Price of a
+    # Bitcoin" (7.4x its channel median).
+    title="What REALLY Decides Bitcoin's Price? Explained Simply",
     hook="Whales, developers and governments all get blamed. The real answer "
          "is stranger, and it changes what is worth watching.",
     url=URL,
@@ -515,6 +523,39 @@ META = Meta(
     cta=f"The full breakdown of whales, developers and regulators: {URL}",
     credits=["Nothing in this video is financial advice."],
 )
+
+
+# The user's picture (2026-10-25): a gold Bitcoin floating over a phone
+# showing a chart. The coin already says "Bitcoin", so the headline spends its
+# rows on the question the title asks and the hook opens ("So who did that?").
+COIN = _P(__file__).resolve().parents[2] / "assets/crypto/bitcoin-price/coin-over-chart.jpg"
+HEADLINE = "Who\nreally\nsets the\n[price?]"
+
+
+def thumbs(out: Path) -> Path:
+    """The coin and phone cropped from 0.48 of the width and set against the
+    right edge, the white backdrop ramped into black at the left, and the
+    headline in four rows on the black, clear of the coin."""
+    import numpy as np
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COIN).convert("RGB")
+    crop = src.crop((int(src.width * 0.48), 0, src.width, src.height))
+    pw = int(720 * crop.width / crop.height)
+    crop = crop.resize((pw, 720), Image.LANCZOS)
+    im = Image.new("RGB", (1280, 720), (0, 0, 0))
+    x = 1280 - pw
+    im.paste(crop, (x, 0))
+    a = np.zeros((1, 1280), np.float32)
+    a[0, :x] = 1.0
+    a[0, x:x + 300] = np.linspace(1.0, 0.0, 300)
+    mask = Image.fromarray((np.repeat(a, 720, 0) * 255).astype("uint8"))
+    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 240, 560, 50, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=40, shadow=11, drop=(5, 6))
+    im.save(out, quality=92)
+    return out
 
 
 def main() -> None:
@@ -543,14 +584,22 @@ def main() -> None:
         # `analysis.jpg` promises what the video actually is: a market being
         # read. Scored clean at -0.07, right/top, and the type sits on genuine
         # black rather than on a scrim.
-        thumb_headline="Who controls [Bitcoin's price?]",
-        thumb_image=POSTS / "analysis.jpg",
+        #
+        # Replaced 2026-10-25 by the user's coin-over-chart picture and the
+        # hand-built `thumbs()` below.
+        thumb_headline=HEADLINE,
+        thumb_image=COIN,
         thumb_accent="orange",
         endcard=ENDCARD, endcard_lead=7.0,
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/bitcoin-price-long-thumb.jpg"))
+    else:
+        main()

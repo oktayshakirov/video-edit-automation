@@ -661,3 +661,29 @@ topic with no mascot: pick the picture of the situation the viewer pictures,
 not the object. Layout as the meme coins pair: the figure against the right
 edge, the dark foreground ramped into black under three forced rows; in 9:16
 cut round him and scale to the width so his face is in the top half.
+
+## Re-doing an older cover in the current format (2026-10-25)
+
+Three pre-format covers (scams, Bitcoin price, RWA) were re-set by hand. Each
+long project file now has the `thumbs()` helper and `--thumb` flag the newer
+pairs carry, so a cover can be rebuilt without re-rendering the video:
+`PYTHONPATH=. .venv/bin/python projects/crypto-long/<name>.py --thumb`
+writes `~/Desktop/<name>-long-thumb.jpg`.
+
+- **"Same text, bigger" means more rows, with the plate on the last word.**
+  `How to spot\na [crypto scam]` became `How to\nspot a\ncrypto\n[scam]`: four
+  rows, about twice the cap height. Ending a row on "A" is fine (the whale
+  rule, `IS NOT A` / `PERSON`); a two-word plate row (`[crypto scam]`) is
+  the longest row and caps the size, so it set small.
+- **When the type side is kept, slide the picture away from it** rather than
+  narrowing the column: picture pasted at `-0.18..-0.24` of the width, its
+  far edge ramped into black over 260-300px, column 640-700px on the black.
+- **A light-backdrop picture (white studio, the user's coin shot) still
+  takes the black ramp.** Crop it to the subject, set it against the far
+  edge, and ramp the backdrop into black; at feed size the white-to-black
+  falloff reads as a vignette, not a seam. White type on the white backdrop
+  itself is never an option, since `_headline` has no dark-ink mode.
+- **Point at the picture when the noun is in it.** `Own $100\nof this
+  [building?]` beats "of a building" because the tower is right there, and
+  with a Bitcoin on the cover the headline need not spend a row on "Bitcoin"
+  (`Who\nreally\nsets the\n[price?]`).
