@@ -39,6 +39,7 @@ when the run itself changes order or gains a step.
 | a rule that can be checked from the script file | a tool in `tools/` plus a gate line in `workflow.md` (`tools/opening_check.py` is the pattern) |
 | titles, descriptions, tags, publishing metadata | `video-views-audit` "settled" sections, and `longform/meta.py` if the generator is wrong |
 | how to pull a number, or a platform's limits | `video-views-audit` |
+| a subject or title format that does or does not draw viewers, ours or a competitor's | `docs/video/demand/<channel>.md` |
 
 ## The run
 
@@ -67,6 +68,11 @@ when the run itself changes order or gains a step.
      or why, named person);
    - the voice (`mia`, `noah`) and the engine (old, or after the 10-21
      overhaul), for E7 and E9;
+   - **the demand evidence**, from the script's `DEMAND` line (a standout and
+     its ratio, one of ours, a new term, or `None`), and the title format it
+     borrowed, for E11, and whether a teardown in `docs/video/demand/teardowns/`
+     shaped it. A script built before 10-25 has no line: tag it "no
+     evidence (pre-E11)";
    - **the thumbnail**, for every long-form and session. Download it and look
      at it at 320px (`sips -Z 320`), the size people see. Record the lead word
      and whether it is a term people already know ("4-7-8 BREATHING", "RAIN
@@ -75,6 +81,13 @@ when the run itself changes order or gains a step.
      impressions and CTR next to it when the CSV is in.
 4. **Write the snapshot** to `history/<today>.md` in the shape of the last
    one: totals table, per-platform rows, the retention cohort with tags.
+   **Then extend each channel's demand map by one branch** - the next
+   unticked seed term in `docs/video/demand/<channel>.md`, searched and
+   followed per `demand/README.md`, plus the channel medians for any
+   standout still marked `?`. One branch per channel per run keeps the map
+   growing without a session of its own. Add any of our videos that stood
+   out to "Our own standouts" with its traffic source. Map rows are
+   bookkeeping and are written without asking.
 5. **Judge.** Each experiment against its own fail line: *holding*,
    *failed*, *too early*, with the numbers. Each Open check: answered or
    still waiting. **Check compliance before blaming a rule.** If the videos did
@@ -147,6 +160,24 @@ thumbnail, while one fed by search lives on its title. A Studio Test &
 Compare (E6, E10) is the only clean thumbnail comparison. While one runs on
 a video, never write that video's title or thumbnail through the API.
 
+**Why a hit worked, before more of it.** For any video of ours that stood
+out, name the reason - subject, title format, thumbnail, execution or
+traffic source - with `traffic` read first. The finding is the reason, and
+the proposed change is a new subject or angle that keeps it, never a
+sequel of the same video (`demand/README.md`, "Doubling down").
+
+**Whether a hit was on-audience.** A hit whose viewers ignore every upload
+after it is worth less than its views say. Check subscribers around its
+publish date and whether the following uploads took suggested traffic from
+it. An off-topic hit is reported as one and is not a direction to follow.
+
+**Where the funnel leaks.** Views are the top; the sites are the point. Ask
+the user for GA4 sessions from `youtube.com`, `facebook.com` and
+`tiktok.com` per site since the last run, together with the Studio CSV, and
+put them in the snapshot. Then name the bottleneck: too few views, views that
+do not click through, or clicks that leave. Without GA4, say the funnel was
+not read.
+
 ## Evidence standards
 
 - **Curves over averages.** An average says a video lost people; the curve
@@ -160,6 +191,10 @@ a video, never write that video's title or thumbnail through the API.
   have their corrections next to them.
 - **Mark external research as external.** It is a hypothesis until this
   channel's numbers agree.
+- **Look for the failures too.** A format or subject judged only on the
+  videos where it worked proves any bad idea. Before a rule says "do more
+  of X", list the videos that did X and did not stand out, ours or the
+  map's, and say why they differ.
 - **One change per experiment where possible**, and say so when a batch
   changed several things at once.
 - **Tinnitus is health content.** No change may push toward promising a cure,

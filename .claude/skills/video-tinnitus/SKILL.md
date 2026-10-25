@@ -69,7 +69,17 @@ copies that disagreed with each other.
 
 1. **Ask which product** - explainer pair, or session. A session has no article,
    skips topic suggestion, and takes the session copy rules in the project doc.
-2. **Suggest, do not pick** - `python3 tools/topics.py tinnitus`.
+2. **Suggest, do not pick** - `python3 tools/topics.py tinnitus`, crossed
+   with `docs/video/demand/tinnitus.md`. Every candidate shows its demand
+   evidence or says "no evidence" (`workflow.md` step 1). The bridge matters
+   most on this channel: our articles explain mechanisms (gain, habituation,
+   somatic tinnitus) and sufferers search outcomes (sleep, spikes, "will it
+   go away"). Name the outcome as the subject; promise understanding, never
+   relief. A format that sells a result is closed here, however well it does
+   elsewhere. An article that already has a video can be **re-angled** when
+   the map shows the subject wins on another promise (spikes: "what to do
+   during one" beat "why"). Once picked, a standout gets its **teardown**
+   before the script (`demand/README.md`, "Teardown"; the spike one exists).
 3. **Script both together** from the chosen article. On the opener,
    `workflow.md` says to pick deliberately and this channel sets the limit: a
    verdict stamp is about a *claim*, never about an outcome and never about

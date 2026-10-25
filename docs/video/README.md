@@ -19,6 +19,8 @@ Four skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
 | `audio.md` | Music, generated beds, sound effects |
 | `thumbnails.md` | One per video, and how the pair share a source image |
 | `troubleshooting.md` | Engine faults that already cost a re-cut once |
+| `demand/README.md` | Demand maps: proving people already watch a subject before it is picked, and the formats that fit each channel |
+| `demand/tinnitus.md`, `demand/crypto.md` | Each channel's map - standouts, proven subjects, formats |
 | `projects/crypto.md` | thecrypto.wiki: voice, copy, what the site gives you |
 | `projects/tinnitus.md` | tinnitushelp.me: article explainers *and* sound-therapy sessions |
 | `projects/quiz.md` | The quiz Short: three questions, four cards, a countdown - both channels |
