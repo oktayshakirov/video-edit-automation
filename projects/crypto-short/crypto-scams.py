@@ -17,15 +17,14 @@ same keycaps-spelling-SCAM clip the long form opens on.
     PYTHONPATH=. .venv/bin/python projects/crypto-short/crypto-scams.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
 
 SOURCE_POST = "how-to-avoid-crypto-scams"
 
@@ -89,6 +88,37 @@ SHOTS = [
 
 GAPS = [0.70, 0.85, 0.80, 0.55, 1.20, 0.75, 0.90, 1.30]
 
+# Same words and rows as the long form's cover (2026-10-25).
+HEADLINE = "How to\nspot a\ncrypto\n[scam]"
+
+
+def thumbs(out: Path) -> Path:
+    """The keycaps hand cut round and scaled to the width, the hood behind it
+    in the top half, the headline in four rows on the dark below it. The
+    frame's own background is near black, so the ramps at the picture's edges
+    only hide the seam; nothing of the hand is faded."""
+    import numpy as np
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(THUMB).convert("RGB").crop((180, 0, 1380, 1080))
+    h = int(src.height * 1080 / src.width)
+    src = src.resize((1080, h), Image.LANCZOS)
+    im = Image.new("RGB", (1080, 1920), (0, 0, 0))
+    y = 120
+    im.paste(src, (0, y))
+    a = np.zeros((1920, 1), np.float32)
+    a[:y, 0] = 1.0
+    a[y:y + 120, 0] = np.linspace(1.0, 0.0, 120)
+    a[y + h - 240:y + h, 0] = np.linspace(0.0, 1.0, 240)
+    a[y + h:, 0] = 1.0
+    mask = Image.fromarray((np.repeat(a, 1080, 1) * 255).astype("uint8"))
+    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="bottom",
+                margin=int(1920 * 0.16) + 20, shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
 
 def main() -> None:
     out = Path.home() / "Desktop/crypto-scams-short.mp4"
@@ -97,14 +127,13 @@ def main() -> None:
                                      voice=VOICE, gap=GAPS,
                                      music=MUSIC, music_gain=0.85,
                                      hook="Every crypto scam asks for [two things]")
-    # Same headline as the long form - a pair shares its thumbnail.
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO,
-        "How to spot a [crypto scam]",
-        image=THUMB, accent="yellow", band="top")
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-scams-short-thumb.jpg"))
+    else:
+        main()

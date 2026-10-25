@@ -665,25 +665,38 @@ cut round him and scale to the width so his face is in the top half.
 ## Re-doing an older cover in the current format (2026-10-25)
 
 Three pre-format covers (scams, Bitcoin price, RWA) were re-set by hand. Each
-long project file now has the `thumbs()` helper and `--thumb` flag the newer
+long and Short project file now has the `thumbs()` helper and `--thumb` flag the newer
 pairs carry, so a cover can be rebuilt without re-rendering the video:
-`PYTHONPATH=. .venv/bin/python projects/crypto-long/<name>.py --thumb`
-writes `~/Desktop/<name>-long-thumb.jpg`.
+`PYTHONPATH=. .venv/bin/python projects/crypto-{long,short}/<name>.py --thumb`
+writes `~/Desktop/<name>-{long,short}-thumb.jpg`. The Bitcoin Short no longer
+writes a second 1280x720 file (a Short's cover is one vertical file).
 
 - **"Same text, bigger" means more rows, with the plate on the last word.**
   `How to spot\na [crypto scam]` became `How to\nspot a\ncrypto\n[scam]`: four
   rows, about twice the cap height. Ending a row on "A" is fine (the whale
   rule, `IS NOT A` / `PERSON`); a two-word plate row (`[crypto scam]`) is
   the longest row and caps the size, so it set small.
-- **When the type side is kept, slide the picture away from it** rather than
-  narrowing the column: picture pasted at `-0.18..-0.24` of the width, its
-  far edge ramped into black over 260-300px, column 640-700px on the black.
-- **A light-backdrop picture (white studio, the user's coin shot) still
-  takes the black ramp.** Crop it to the subject, set it against the far
-  edge, and ramp the backdrop into black; at feed size the white-to-black
-  falloff reads as a vignette, not a seam. White type on the white backdrop
-  itself is never an option, since `_headline` has no dark-ink mode.
+- **Use the picture's own empty space before laying a black ramp over it**
+  (the user, same day). The first coin cover cropped the picture against the
+  right edge and ramped its white backdrop into black, which hid half the
+  coin and most of the phone. The fix: scale 1.2x anchored left so the coin
+  moves right and stays whole, and set the headline on the white in dark
+  ink - `_headline(..., text=(20, 20, 20))`, a new option; dark words get no
+  drop shadow. The tower's night sky took the type the same way, by cropping
+  so the tower sits left. **A ramp is only for hiding a seam into a ground
+  that is already dark** (the keycaps frame), never for making room.
+- **When the frame's own dark ground is too narrow, slide the picture away
+  from the type** - the keycaps hand pasted at `-0.24` of the width, its far
+  edge ramped into the near-black it already had. That is extending the
+  background, not covering the subject.
+- **The 9:16 cover continues the backdrop upward instead of fading it.**
+  `_bleed_top` in the crypto Short files scales a landscape cut to the
+  width, sits it on the bottom, and fills above with its own top edge,
+  averaged across the width (a raw row stretch drags a thin antenna into a
+  full-height streak) and feathered 90px into the picture. Sky and studio
+  white both work; the type sits on the fill. A dark source (keycaps) gets
+  the picture at the top and the type on the black below it instead.
 - **Point at the picture when the noun is in it.** `Own $100\nof this
   [building?]` beats "of a building" because the tower is right there, and
   with a Bitcoin on the cover the headline need not spend a row on "Bitcoin"
-  (`Who\nreally\nsets the\n[price?]`).
+  (`Who really\nsets the\n[price?]`).

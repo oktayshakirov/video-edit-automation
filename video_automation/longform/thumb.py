@@ -407,11 +407,17 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
               max_block: float = 1e9, leading: float = 1.02,
               band: str = "middle", margin: int = 58,
               shadow: int = 14, drop: tuple = (6, 8),
-              fill2=None, ink2=None):
+              fill2=None, ink2=None, text=(255, 255, 255)):
     """Lay out and paint the headline. Shared by both aspects on purpose.
 
     Returns the block height. `band` places it once the height is known, which
     is why placement lives here rather than in the callers.
+
+    `text` is the colour of the plain words. White by default; pass a near
+    black for a picture whose empty space is light (a white studio backdrop),
+    so the type can sit on the picture's own space instead of a black ramp
+    laid over it. Dark words get no drop shadow - on a light ground it reads
+    as a smudge, not as depth. Plates keep theirs.
 
     **Shrink until it fits and until the accent run lands whole on one line.**
     An accent that wraps draws two plates on two lines and loses the single
@@ -605,8 +611,9 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     ld = ImageDraw.Draw(lay)
     for b in plates:
         ld.rectangle([b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy], fill=190)
+    light = sum(text) / 3 > 128
     for gx, gy, word, tag in glyphs:
-        if not tag:
+        if not tag and light:
             ld.text((gx + dx, gy + dy), word, font=font, fill=210)
     lay = lay.filter(ImageFilter.GaussianBlur(shadow))
     base.paste(Image.composite(Image.new("RGB", base.size, (0, 0, 0)),
@@ -617,7 +624,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         d.rectangle(b[:4], fill=colour[b[4]][0])
     for gx, gy, word, tag in glyphs:
         d.text((gx, gy), word, font=font,
-               fill=colour[tag][1] if tag else (255, 255, 255))
+               fill=colour[tag][1] if tag else text)
     return block
 
 
