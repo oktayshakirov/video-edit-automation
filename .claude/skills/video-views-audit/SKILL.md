@@ -47,6 +47,8 @@ logged-in Chrome (`claude-in-chrome`); close every tab opened.
 | "is the title working?" | YouTube `traffic` (search share and terms) + TikTok plays; CTR is unavailable everywhere |
 | "how is the channel doing overall?" | all four, and compare against the last `video-performance-review` snapshot |
 | "should I change this title/description?" | YouTube `videos`/`audit`, then "Editing metadata" |
+| "why did this one take off?" | YouTube `traffic`, then "Reading a video the way the market reads it" - name the reason before proposing a follow-up |
+| "is the thumbnail/title competitive?" | the feed check in "Reading a video the way the market reads it", against the real search results |
 
 ## YouTube - the CLI
 
@@ -71,6 +73,8 @@ cd ~/Coding/youtube-audit && npx tsx src/cli.ts <command> [options]
 | `audit` | videos + analytics + heuristic flags - the usual starting point |
 | `set <id\|url>` | Edit title / description / tags - dry run unless `--apply` |
 | `upload` | Upload a video with its thumbnail - dry run unless `--apply` |
+| `outliers "<term>"` | Search YouTube and score each result against its own channel's median - the demand-map search. ~120 quota units |
+| `transcript <id\|url>` | Any public video's transcript, chapters, "most replayed" heatmap and top comments, via `yt-dlp` (`brew install yt-dlp`). No `--channel`. Writes to the gitignored `research/transcripts/` |
 
 Options: `--channel <key>`, `--json`, `--thumbs`, `--all-res`, `--days <n>`, `--start`/`--end`,
 `--since <YYYY-MM-DD>`, `--no-shorts`, `--shorts-only`, `--public-only`, `--limit <n>`.
@@ -181,6 +185,84 @@ A Short's retention percentage, a TikTok play and a Facebook view are three
 different things counted three different ways. Never put them in one ranking.
 Compare a video against **its own platform's** history, and when reporting
 across platforms give each its own row.
+
+## Reading a video the way the market reads it (2026-10-25)
+
+From a talk by Jake Trenda (YouTube agency, 100+ channels) the user
+reviewed. **External research, a hypothesis until these channels agree** -
+the method is `docs/video/demand/README.md` in video-edit-automation, and
+the demand-led topic picking it drives is experiment E11. What it changes
+here is how a single video is read and what an audit may propose.
+
+**The target is a satisfied viewer.** CTR and retention are noisy readings
+of one question: did the video keep the promise its title and thumbnail made
+to the viewer who clicked? So for any video under review:
+
+1. **Write down the promise** the title and thumbnail make together, in one
+   sentence.
+2. **Read the opening of the script against it** (`SENTENCES` / `SECTIONS`
+   in the build file): is the promise confirmed in the first lines, is there
+   a reason to trust this video on it, and is it clear where the video is
+   going? Promise, proof, plan. A cliff on the curve right after the opening
+   is very often a promise the opening did not confirm.
+3. **Read the satisfaction signals that exist:** likes and comments per
+   view (`videos`), the curve's shape after the opening, a Short's loop
+   (opening over 100%), and on a long-form whether suggested traffic grows
+   over time (`traffic`) - YouTube keeps recommending what satisfied the
+   last viewers. None is satisfaction itself; together they are the nearest
+   reading available. Say that when reporting.
+
+**The feed check, for any title or thumbnail question.** Search the
+long-form's title on YouTube (built-in browser), take the top results, and
+look at ours beside the top three at 320px. Report: does the query return
+videos with real views; does ours make a different promise from the top
+result, or the same one with less proof; is ours the one the eye lands on.
+A title rewrite proposed without this check is a guess. Shorts have no
+thumbnail in the feed, so for a Short the first frame and the first line
+take its place.
+
+**A rewrite borrows a format, it does not invent one.** Take the title
+format from the channel's demand map (`docs/video/demand/<channel>.md`),
+say *why* that format works for its audience, and check the map's fit
+column - "so fast it feels like cheating" and anything else that sells a
+result is closed to both channels. Copying the words of a standout without
+its reason, or its title without its structure, is how a borrowed title
+flops.
+
+**When one of ours stands out, name why before proposing more of it.** The
+candidates: the subject, the title format, the thumbnail, the execution,
+the traffic source. Pull `traffic` first; on these channels a "search title
+win" has twice turned out to be browse. Then the follow-up is a *new*
+subject or angle that keeps that reason - never the same video again. Add
+the standout to the channel's demand map, "Our own standouts".
+
+**Compare a weak video against the standout on its subject.** When one of
+ours underperforms on a subject the demand map says has demand, run
+`outliers` on its subject and `transcript` on the top standout, and read
+the two promises side by side before touching the title. The first case
+(10-25): our "Why Does Tinnitus Spike?" at 26 views against five channels
+standing out on *what to do during a spike*. The subject was right and the
+promise was wrong, which no title tweak fixes. The fix is a re-angled pair
+(`docs/video/demand/teardowns/manage-a-tinnitus-spike.md`).
+
+**Ask whether a hit is on-audience.** A video that pulls viewers who care
+about nothing else on the channel can top the view count and be the least
+valuable upload: they ignore the next video, and the channel's average
+satisfaction drops. Check whether the hit's viewers came back - subscribers
+around its publish date, and whether the next uploads took suggested
+traffic from it. GTA 6 on crypto is the open case.
+
+**Views are the top of a funnel, not the end.** The channels exist to send
+people to tinnitushelp.me and thecrypto.wiki. Both sites run Google
+Analytics 4, which this skill cannot read: when the question is "is the
+video worth it", ask the user for the GA4 sessions with `youtube.com`,
+`facebook.com` and `tiktok.com` as source over the period, and say where the
+drop is - not enough views, or views that never click through (a weak or
+missing next step in the description), or clicks that leave the page.
+
+**Do not stack these onto the Shorts-first channels as verdicts.** The
+sample rules below still hold: fewer than five videos with data means no
+ranking and no winner.
 
 ## Channel context — drone
 
@@ -438,6 +520,12 @@ Pulled via YouTube RSS (`feeds/videos.xml?channel_id=`) - gives the last 15 uplo
 with real view counts, but **excludes most Shorts** and shows no retention. Directional,
 not a full picture. Channel grids do not render in the headless browser here, so RSS is
 the best available route; redo it the same way next audit.
+
+**From 2026-10-25 competitor research lands in the demand maps**, not here:
+`docs/video/demand/tinnitus.md` and `crypto.md` in video-edit-automation,
+one row per standout with its ratio to the channel's own median (the 15 RSS
+uploads are that median's sample). The teardown below seeded them and stays
+as the record of 09-04.
 
 ### Tinnitus
 

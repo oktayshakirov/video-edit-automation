@@ -27,16 +27,51 @@ Coverage is derived, never tracked: an article is covered when a script in
 `projects/` names it or the site's `videos.json` points a video at it. There is
 no list to maintain, so there is nothing to forget to update.
 
-**Offer three to five candidates with a reason each**, then stop and wait. The
-reason is the part that matters - a title that is already a question, an honest
-answer that is counterintuitive, a table of figures that earns a `bars` beat, a
-query people actually type into YouTube. A list of slugs with no reasoning is
-not a suggestion.
+**That list says what has no video yet. It does not say what anyone wants to
+watch.** Cross it with the channel's demand map (`demand/tinnitus.md`,
+`demand/crypto.md`; the method is `demand/README.md`) before suggesting
+anything (2026-10-25, E11).
+
+**Offer three to five candidates**, then stop and wait. Each one carries:
+
+- **the demand evidence** - a standout from the map (title, channel, views,
+  ratio to that channel's median), one of our own standouts, or a brand-new
+  search term with few answers yet (E8). Mark it **"no evidence"** when there
+  is none, and say so plainly; it may still be picked, but not by default.
+  When the map has nothing on the subject, search it on YouTube now (one
+  branch, `demand/README.md`) and add what you find to the map;
+- **the bridge**, when the article's subject is a mechanism with no demand of
+  its own: the outcome the viewer already searches, and the format that ties
+  them ("If you don't understand X, you don't understand Y");
+- **the title format** to borrow, from the map's formats table, with *why*
+  it works and its fit verdict for this channel - never a format marked "no";
+- what the article gives the video - a counterintuitive honest answer, a table
+  that earns a `bars` beat, a real thing to show.
+
+A list of slugs with no reasoning is not a suggestion, and neither is a list
+with no demand column.
+
+**A covered article is not used up when its video missed the demanded
+angle.** `topics.py` hides it, so check the map for it too. When the map
+shows the subject wins on a different promise from the one our video made,
+offer a **re-angle**: a new pair from the same article, on the promise that
+wins. The first case: "Why Does Tinnitus Spike?" (26 views) against five
+channels standing out on *what to do during a spike*, from an article that
+already has that section (`demand/teardowns/manage-a-tinnitus-spike.md`).
+
+**Once one is picked, and its `DEMAND` names a standout, write its teardown
+before the script** (`demand/README.md`, "Teardown"), unless one is already
+in `demand/teardowns/`. The script takes its shape - promise, opening order,
+number of points, kind of proof - and none of its words.
 
 **Do not start building until the user has picked one.**
 
 An off-site topic - one with no article - is a fine thing to build when the user
-asks for it, and is never offered from this list.
+asks for it, and is never offered from `topics.py`. **A subject the demand map
+proves (2+ channels with standouts) that no article covers** may be offered,
+labelled *article first*: the article is written and published through
+`/publish-content-tinnitus` or `/publish-content-crypto`, and the pair is
+built from it afterwards. The site stays the place the video sends people.
 
 ## 2. Script the pair together
 
@@ -110,6 +145,17 @@ One Python file per video under `projects/<project>-<format>/<name>.py`. Set
 `SOURCE_POST = "<article-slug>"` near the top so `tools/topics.py` can see it -
 or `SOURCE_POST = None` for an off-site topic.
 
+Under it, set `DEMAND` to the evidence the topic was picked on, as one line -
+`DEMAND = "Treble Health 'Does Tinnitus Cause Dementia?' 5.5k, ratio ?"`, or
+`DEMAND = None` when it had none. `video-performance-review` tags every video
+from this line, and E11 cannot be judged without it.
+
+**The description's link is the next useful step, not "read more".** Write
+the `cta` as what the article gives that the video could not: the full
+table, every source, the checklist, the sessions on Spotify. The question to
+ask of it: would an unbiased expert point the viewer there because it makes
+the lesson more useful? If not, it is a plug, and a plug is skipped.
+
 Run `tools/audit_assets.py` before rendering. Outputs go to the Desktop; they
 are uploads, not repo artifacts.
 
@@ -151,6 +197,16 @@ dead "read more" line and no URL.
 Hand over the render and say what to look at. The user watches it and either
 approves or asks for changes; **re-cut as many times as it takes.** This loop is
 the normal case, not a failure - most rules in these docs came out of it.
+
+**Include the feed check for the long form in the handover.** Search the
+long-form's `Meta` title on YouTube in the built-in browser, read the top
+results, and put our thumbnail next to the top three at 320px (`sips -Z
+320`). Report three things in one line each: whether the query returns
+videos with real views (it is a search people make), whether ours makes a
+different promise from the top result or the same one with less proof, and
+whether ours is the one the eye lands on. A thumbnail or title that loses
+this check is re-cut here, before publishing, where it is cheap.
+`demand/README.md`, "Packaging".
 
 When something turns out to be a bug or a missing capability rather than a
 choice, fix the code, then record the lesson under the policy in `README.md` -

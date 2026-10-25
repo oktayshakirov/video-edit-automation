@@ -57,7 +57,16 @@ and a remembered version is a stale one.
 only what is this channel's own - restating the shared steps is how the publish
 sequence drifted into four copies that disagreed.
 
-1. **Suggest, do not pick** - `python3 tools/topics.py crypto`.
+1. **Suggest, do not pick** - `python3 tools/topics.py crypto`, crossed with
+   `docs/video/demand/crypto.md`. Every candidate shows its demand evidence
+   or says "no evidence" (`workflow.md` step 1). Look first for a **brand-new
+   named term few videos answer yet** (E8, our only search win) and for a
+   **named project people are unsure whether to trust** (the niche's biggest
+   format). A mechanism with no demand of its own is bridged to what the
+   viewer cares about - understanding a thing, not getting burned - never to
+   profit. An article that already has a video can be **re-angled** when the
+   map shows the subject wins on another promise. Once picked, a standout
+   gets its **teardown** before the script (`demand/README.md`, "Teardown").
 2. **Script both together** from the chosen article.
    **Voice: check the `noah` test table first** (`projects/crypto.md`,
    *Voice test*). Until it has 5 rows, the pair reads in `noah` (male,

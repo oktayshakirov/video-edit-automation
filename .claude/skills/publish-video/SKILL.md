@@ -41,6 +41,31 @@ social posts both cite work that has to exist in history afterwards.
 If there is no handoff file, ask the user which render to publish and confirm
 the paths before running anything. Do not guess from the Desktop's newest MP4.
 
+## Three checks that ride in the one confirmation (2026-10-25)
+
+Part of the non-gated prep. They do not add a stop: their results go into the
+single confirmation message under the captions, one line each, and the user's
+"go" covers them. They exist because a title, a thumbnail or a link is
+cheapest to change before the upload and expensive after (`docs/video/demand/README.md`).
+
+- **Demand.** Quote the build script's `DEMAND` line for the pair. `None`,
+  or a script without the line, is reported as "no demand evidence" - not a
+  blocker, but the user should see it before the video goes public.
+- **The feed check, long form only.** If the handover reports it
+  (`workflow.md` step 4), quote it. If not, run it now: search the `Meta`
+  title on YouTube in the built-in browser and report whether the query
+  returns videos with real views and whether our thumbnail stands out beside
+  the top three at 320px. A title that returns nothing relevant is not a
+  search anyone makes; say so and offer the searchable alternative.
+- **The description's next step.** The line with the article link must name
+  what the article gives that the video could not (the full table, the
+  sources, the sessions), not "read more". A bare "read more" or "Full
+  article:" line is flagged with a suggested rewrite. Never rewrite it
+  silently - the description is what the user approved at the build.
+
+The same applies to both channels' Facebook captions: the `facebookCaption`
+link line is the same next step, in the same words.
+
 ## Where each video goes
 
 | Project | YouTube | Instagram | Facebook | TikTok | Site entry |
@@ -154,8 +179,9 @@ The whole sequence runs on one "upload". These do not:
   **One phase, one confirmation. Settled 2026-08-31.** Do not stop the run
   mid-way to ask. Do the non-gated prep first - both YouTube uploads (unlisted,
   after their dry runs), the poster fetch, the `videos.json` entry, the tunnel,
-  and every dry run - then post **one** message with the full caption/title text
-  for every social post and the site push, and on a single "go" run the entire
+  every dry run and the three checks above - then post **one** message with the
+  full caption/title text for every social post and the site push, followed by
+  the three check lines, and on a single "go" run the entire
   remainder top to bottom without pausing again. The gate is that one
   confirmation carries the exact wording and happens in this chat; it is not a
   licence to break the run into phases. The user's instruction: "do all in one
