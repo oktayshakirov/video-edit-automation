@@ -120,3 +120,10 @@ One line per branch: date, the term or channel, what it added.
   Perpetual Futures? The Trade That Never Expires", "Will Quantum Computers
   BREAK Bitcoin? Not the Way You Think", "Proof of Work vs Proof of Stake:
   Which One Actually Wins?".
+- 2026-10-26, "bitcoin halving explained" (`outliers`): crowded and old.
+  Business Insider's price-angle video 140x (closed to us - price), CoinGecko
+  "What is a Bitcoin Halving?" 45x, Alex Glasse "Bitcoin Halving Explained!"
+  14.9x Short. Our long had 4 views (2 search) and 27% average viewed; our
+  Short on the half-mined-in-four-years fact had 335 at 89%. Re-done cover
+  and proposed title "Bitcoin Halving Explained: Why Half Was Mined in 4
+  Years" carry the Short's fact. Re-check `traffic` in two weeks.

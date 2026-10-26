@@ -747,3 +747,19 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
   the user flagged it. Lifting the picture 120px and continuing its own
   smooth bottom edge underneath gave the rows clear ground. Lift only when
   the top has spare room - at 220px the card's frame hit the top edge.
+
+### When the Short wins and the long does not, the long borrows the Short's fact (2026-10-26)
+
+The halving long sat at 4 views in 15 days while its Short ("Why Was Half of
+All Bitcoin Mined in Its First Four Years?") took 335 at 89% viewed - and
+already linked to the long. The long's cover asked a jargon question
+("Why does Bitcoin cut its pay in [half?]") and its title was a 66-character
+generic. Both now carry the Short's fact: `Half of it\nmined in\n[4 years]`,
+title "Bitcoin Halving Explained: Why Half Was Mined in 4 Years". Check the
+pair's Short before rewriting a weak long - it is the cheapest evidence of
+what the audience wants from the subject.
+
+- **A Short whose subject starts high leaves the headline a sliver.** The
+  straight 9:16 cut put the coin's rim 29% down and the rows set small. A
+  wider 3:4 cut, scaled to the width on the bottom with `bleed_portrait(...,
+  fill="blur")`, lowered the coin and doubled the rows.

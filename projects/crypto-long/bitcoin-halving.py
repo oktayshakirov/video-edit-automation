@@ -403,9 +403,31 @@ META = Meta(
     credits=["Nothing in this video is financial advice."],
 )
 
-HEADLINE = "Why does Bitcoin cut its pay in [half?]"
-THUMB_LAYOUT = dict(thumb_crop_at=(0.5, 0.55), thumb_side="right",
-                    thumb_shift=0.20)
+# Re-done 2026-10-26 (video-views-audit): 4 views in 15 days, while the
+# Short on this fact ("Why Was Half of All Bitcoin Mined in Its First Four
+# Years?") took 335 at 89% viewed. The cover now carries that fact instead
+# of "Why does Bitcoin cut its pay in [half?]", and drops the black fade.
+HEADLINE = "Half of it\nmined in\n[4 years]"
+
+
+def thumbs(out: Path) -> Path:
+    """The coin in soil, scaled 1.45x and anchored right so the coin moves
+    left and stays whole; three rows on the soil to its right. Nothing is
+    slid or faded - the soil is the type's ground."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(SOIL).convert("RGB")
+    w = int(1280 * 1.45)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    x0, y0 = w - 1280, (h - 720) // 2
+    im = src.crop((x0, y0, x0 + 1280, y0 + 720))
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 200, 420, 670, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6))
+    im.save(out, quality=92)
+    return out
 
 
 def main() -> None:
@@ -423,21 +445,17 @@ def main() -> None:
         thumb_headline=HEADLINE,
         thumb_image=SOIL,
         thumb_accent="yellow",
-        # The scorer zoomed in and cut the coin at two edges. A manual crop,
-        # pushed left so the whole coin sits beside the type on dark soil.
-        **THUMB_LAYOUT,
         endcard=ENDCARD, endcard_lead=7.0,
         title_at=8.5, title_hold=5.4,
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
     if "--thumb" in sys.argv:
-        from video_automation.longform.thumb import render_thumb
-        print(render_thumb(Path.home() / "Desktop/bitcoin-halving-long-thumb.jpg",
-                           CRYPTO, HEADLINE, image=SOIL, accent="yellow",
-                           **{k[6:]: v for k, v in THUMB_LAYOUT.items()}))
+        print(thumbs(Path.home() / "Desktop/bitcoin-halving-long-thumb.jpg"))
     else:
         main()

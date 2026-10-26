@@ -134,27 +134,27 @@ SHOTS = [
 
 GAPS = [0.70, 0.80, 0.60, 0.60, 1.30, 0.70, 0.85, 1.40, 1.20]
 
-HEADLINE = "Why does Bitcoin cut its pay in [half?]"
+# The long form's words (re-done 2026-10-26): this Short's own fact.
+HEADLINE = "Half of it\nmined in\n[4 years]"
 
 
 def thumbs(out: Path) -> Path:
-    """The 9:16 cover: the long form's coin-in-soil, cropped onto the coin,
-    the same headline on three rows, set above the coin."""
-    im = Image.open(SOIL).convert("RGB")
-    w, h = im.size
-    cw = int(h * 9 / 16)
-    x0 = max(0, min(w - cw, int(w * 0.47 - cw / 2)))
-    im = im.crop((x0, 0, x0 + cw, h)).resize((1080, 1920), Image.LANCZOS)
+    """The 9:16 cover: a 3:4 cut round the coin, scaled to the width on the
+    bottom of the frame, the soil continued above as a blur, and the rows
+    on it. The old straight 9:16 cut started the coin's rim ~29% down and
+    left the headline only a fifth of the frame, so it set small."""
+    w, h = Image.open(SOIL).size
+    src = Image.open(SOIL).convert("RGB")
+    cw = int(h * 0.75)
+    x0 = int(w * 0.47 - cw / 2)
+    im = T.bleed_portrait(src.crop((x0, 0, x0 + cw, h)), feather=160,
+                          fill="blur")
     fill, ink = T.ACCENTS["yellow"]
-    # Three rows, set high: the coin's rim starts ~29% down the frame, and
-    # four rows at 0.11 ran the plate onto it.
-    T._headline(im, "Why does Bitcoin\ncut its pay\nin [half?]", 240,
-                1080 - 2 * 52, 52, fill, ink, max_lines=3,
-                max_block=1920 * 0.21, leading=1.02, band="top",
-                margin=int(1920 * 0.07), shadow=14, drop=(6, 8))
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
     im.save(out, quality=92)
     return out
-
 
 def main() -> None:
     out = Path.home() / "Desktop/bitcoin-halving-short.mp4"
