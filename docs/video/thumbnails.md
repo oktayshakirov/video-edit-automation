@@ -738,3 +738,9 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
 - **A Short whose subject fills the full height takes a straight 9:16 cut**,
   no bleed (the quantum sphere); put the rows on whichever half the subject
   leaves free.
+- **Text under a centred subject is centred, with a real gap above it**
+  (`_headline(..., align="center")`, new). The miners-AI cover first set
+  two left-aligned rows at the plain cover crop and they ran into the palms;
+  the user flagged it. Lifting the picture 120px and continuing its own
+  smooth bottom edge underneath gave the rows clear ground. Lift only when
+  the top has spare room - at 220px the card's frame hit the top edge.

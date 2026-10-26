@@ -303,29 +303,34 @@ COVER = Path(__file__).resolve().parents[2] / "assets/crypto/miners-ai/ai-card-h
 HEADLINE = "What AI wants\nfrom [miners]"
 
 
-def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
-    """A cover crop of the picture to 1280x720, scaled `z` times the frame
-    width and placed by `ax`/`ay` - nothing slid, nothing faded."""
-    from PIL import Image
-    src = Image.open(path).convert("RGB")
-    w = int(1280 * z)
-    h = int(src.height * w / src.width)
-    src = src.resize((w, h), Image.LANCZOS)
-    x0, y0 = int((w - 1280) * ax), int((h - 720) * ay)
-    return src.crop((x0, y0, x0 + 1280, y0 + 720))
-
-
 def thumbs(out: Path) -> Path:
-    """Two rows along the dark bottom edge, under the hands."""
+    """The card and both hands lifted 120px, the picture's own smooth dark
+    bottom edge continued under them, and the two rows centred below with a
+    clear gap. The first version set left-aligned rows at the plain cover
+    crop, and they ran into the palms (the user's note, 2026-10-26)."""
+    import numpy as np
+    from PIL import Image
     from video_automation.longform import thumb as T
-    im = _cover(COVER)
+    src = Image.open(COVER).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    src = src.resize((1280, h), Image.LANCZOS)
+    lift, feather = 120, 80
+    edge = src.crop((0, h - 6, 1280, h)).resize((1280 // 24, 1), Image.BOX)
+    ground = edge.resize((1280, 1), Image.BILINEAR).resize((1280, 720))
+    im = ground.copy()
+    im.paste(src, (0, -lift))
+    bottom = h - lift
+    a = np.zeros((720, 1), np.float32)
+    a[bottom - feather:bottom, 0] = np.linspace(0.0, 1.0, feather)
+    a[bottom:, 0] = 1.0
+    mask = Image.fromarray((np.repeat(a, 1280, 1) * 255).astype("uint8"))
+    im = Image.composite(ground, im, mask)
     fill, ink = T.ACCENTS["yellow"]
-    T._headline(im, HEADLINE, 120, 860, 40, fill, ink, max_lines=4,
-                leading=1.02, band="bottom", margin=36, shadow=11,
-                drop=(5, 6))
+    T._headline(im, HEADLINE, 132, 870, 40, fill, ink, max_lines=4,
+                leading=1.02, band="bottom", margin=40, shadow=11,
+                drop=(5, 6), align="center")
     im.save(out, quality=92)
     return out
-
 
 def main() -> None:
     out = Path.home() / "Desktop/crypto-miners-ai-long.mp4"

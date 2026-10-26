@@ -407,11 +407,16 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
               max_block: float = 1e9, leading: float = 1.02,
               band: str = "middle", margin: int = 58,
               shadow: int = 14, drop: tuple = (6, 8),
-              fill2=None, ink2=None, text=(255, 255, 255)):
+              fill2=None, ink2=None, text=(255, 255, 255),
+              align: str = "left"):
     """Lay out and paint the headline. Shared by both aspects on purpose.
 
     Returns the block height. `band` places it once the height is known, which
     is why placement lives here rather than in the callers.
+
+    `align="center"` centres each row in the column - for a headline set
+    under or over a centred subject (the AI card, 2026-10-26), where a
+    left-aligned block reads as off-balance. Left is the channel's default.
 
     `text` is the colour of the plain words. White by default; pass a near
     black for a picture whose empty space is light (a white studio backdrop),
@@ -569,6 +574,9 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         # plate per run, not one per word - a seam of background between two
         # boxed words reads as a fault; a run breaks where the tag changes.
         xs, x = [], x_text
+        if align == "center":
+            row_w = sum(ww for _, _, ww in line) + space * (len(line) - 1)
+            x = x_text + max(0, (col_w - row_w) // 2)
         for _, _, ww in line:
             xs.append(x)
             x += ww + space
