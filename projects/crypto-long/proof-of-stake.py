@@ -530,8 +530,8 @@ META = Meta(
 
 
 # Re-done 2026-10-26 on the user's picture: a Bitcoin leaning on a padlock
-# in front of a blurred circuit board - staking locks coins up. Dark rows on
-# the yellow board, the plate red so it does not melt into it.
+# in front of a blurred circuit board - staking locks coins up. White rows on
+# the board, shaded behind them; the plate red so it does not melt into it.
 COVER = Path(__file__).resolve().parents[2] / "assets/crypto/proof-of-stake/padlock-bitcoin.jpg"   # 2000x1333, supplied by the user
 HEADLINE = "Mining\nor\n[staking?]"
 
@@ -550,14 +550,23 @@ def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
 
 def thumbs(out: Path) -> Path:
     """Scaled 1.25x and anchored left so the padlock moves right, whole; the
-    rows go on the board to its left."""
+    rows go on the board to its left in white. Dark ink on the bright board
+    was hard to read (the user, 2026-10-26), so the empty board left of the
+    padlock is shaded to 0.3 brightness, easing out over 220px before the
+    padlock begins - the subject itself is never darkened."""
+    import numpy as np
+    from PIL import Image
     from video_automation.longform import thumb as T
     im = _cover(COVER, 1.25, 0.0, 0.58)
+    a = np.zeros((1, 1280), np.float32)
+    a[0, :420] = 0.7
+    a[0, 420:640] = np.linspace(0.7, 0.0, 220)
+    mask = Image.fromarray((np.repeat(a, 720, 0) * 255).astype("uint8"))
+    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
     fill, ink = T.ACCENTS["red"]
     T._headline(im, HEADLINE, 200, 380, 40, fill, ink, max_lines=4,
                 leading=1.02, band="middle", margin=36, shadow=11,
-                drop=(5, 6),
-                text=(20, 20, 20))
+                drop=(5, 6))
     im.save(out, quality=92)
     return out
 

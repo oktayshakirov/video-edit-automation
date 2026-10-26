@@ -730,9 +730,12 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
   the subject the other way while it stays whole: the coin left of "NO
   EXPIRY DATE?", the sphere left of "IS BITCOIN QUANTUM SAFE?", the padlock
   right of "MINING OR STAKING?". Check the subject's far edge still fits.
-- **`bleed_portrait(..., dim=1.0)`** when dark ink goes on the blur. The
-  default 0.7 dims a bright board into olive, and dark type on it lost its
-  contrast (proof of stake).
+- **Dark ink only on a flat light ground (studio white), never on a busy
+  bright one.** Proof of stake first set dark rows on the yellow circuit
+  board and the user found them hard to read. The fix: white rows, with only
+  the *empty* board behind them shaded (a horizontal mask, 70% black easing
+  to 0 over 220px before the padlock), and on the Short the blur fill dimmed
+  to `dim=0.45`. The subject is never darkened.
 - **A plate colour has to differ from the ground.** Yellow on the yellow
   circuit board disappears; red holds.
 - **A Short whose subject fills the full height takes a straight 9:16 cut**,
