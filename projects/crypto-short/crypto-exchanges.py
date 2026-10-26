@@ -37,14 +37,13 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/crypto-exchanges.py
 """
 
+import sys
 from pathlib import Path
 
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto import facts as F
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
-from video_automation.longform.thumb import render_short_thumb
 
 POSTS = SITE_IMAGES / "posts"
 
@@ -229,6 +228,27 @@ EMOJI = {
 GAPS = [0.60, 0.80, 0.55, 0.90, 2.10, 0.80, 0.70, 0.90, 0.70, 1.30, 0.34]
 
 
+# The long form's picture and words (2026-10-26), supplied by the user.
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/exchanges/coin-hand-to-hand.jpg"
+HEADLINE = "Who\nholds\nyour\n[coins?]"
+
+def thumbs(out: Path) -> Path:
+    """The two hands and the coin cut at the wrists and scaled to the width
+    on the bottom of the frame; the white continues above and takes the
+    headline in dark ink."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COVER).convert("RGB")
+    im = T.bleed_portrait(src.crop((250, 0, 1850, src.height)))
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-exchanges-short.mp4"
     work = Path.home() / "Desktop/.crypto-exchanges-short-work"
@@ -236,24 +256,13 @@ def main() -> None:
         karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
 
-    # **Same source and same headline as the long form from this post** — the
-    # pairing rule the tinnitus pairs settled: match a Short to its long form's
-    # thumbnail even where the two videos cover different ground, because the
-    # thumbnail pairing and the script's angle are independent questions.
-    #
-    # **`band="bottom"`, not the default top.** The default is right when the
-    # Shorts player's chrome is the only consideration, and wrong the moment
-    # the subject's face is in the top half of the crop — which it is here,
-    # and the first cut printed the headline across it. Text over a face reads
-    # as a mistake regardless of how correct the safe-area reasoning is.
-    thumb = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO,
-        "Your crypto is [not yours]",
-        image=POSTS / "futuristic-crypto-exchange.jpg", accent="red",
-        band="bottom")
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
-    print(f"{thumb}")
+    print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-exchanges-short-thumb.jpg"))
+    else:
+        main()

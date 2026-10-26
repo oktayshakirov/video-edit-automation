@@ -19,6 +19,11 @@ The two paths are different. Check which site before writing anything.
    letterboxed composite locally was solving a problem that did not exist - it
    was measured pixel-identical to the CDN image to 1.1 mean difference, which
    is re-encoding noise. Removed 2026-08-19.
+   **When a cover is re-done after publishing** (2026-10-26), the user
+   uploads it to YouTube by hand, so there is nothing new to fetch yet.
+   Convert the local render instead - same 1280x720, WebP quality 88 - over
+   `public/images/videos/<slug>.webp`, and bring the entry's `title` in line
+   with YouTube's if it was re-titled. Every re-done cover, every batch.
 2. **Write the registry entry.** The field-by-field shape, the `target` join key
    and the chapter format are in `docs/site-video-integration.md`, which is the
    reference for the schema - do not re-derive it here.

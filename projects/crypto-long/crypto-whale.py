@@ -51,6 +51,7 @@ a broker's name burned into it.
     PYTHONPATH=. .venv/bin/python projects/crypto-long/crypto-whale.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
@@ -298,6 +299,38 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-26 on the user's picture: a whale floating over a city at
+# sunset, a girl watching it. Same words as before; the person in the frame
+# is the joke the headline makes.
+COVER = ROOT / "assets/crypto/whale/whale-over-city.jpg"   # 2000x1121, supplied by the user
+HEADLINE = "The biggest whale\nis not a [person]"
+
+
+def _cover(path: Path, ax: float = 0.0, ay: float = 0.0):
+    """A plain cover crop of the supplied picture to 1280x720 - nothing slid,
+    nothing faded - so the subject stays whole and the headline sits on the
+    picture's own empty space."""
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    src = src.resize((1280, h), Image.LANCZOS)
+    y0 = int((h - 720) * ay)
+    return src.crop((0, y0, 1280, y0 + 720))
+
+
+def thumbs(out: Path) -> Path:
+    """Two rows along the bottom, over the city and the sunset, so the whale
+    and the girl are both whole above them."""
+    from video_automation.longform import thumb as T
+    im = _cover(COVER)
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 120, 860, 40, fill, ink, max_lines=4,
+                leading=1.02, band="bottom", margin=40, shadow=11,
+                drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-whale-long.mp4"
     work = Path.home() / "Desktop/.crypto-whale-long-work"
@@ -316,18 +349,20 @@ def main() -> None:
         # forces four big short rows and lands `[person]` on a line of its
         # own, which is also what keeps the plate clear of the word in front
         # of it.
-        thumb_headline="The biggest whale is not a [person]",
-        thumb_image=THUMB,
+        thumb_headline=HEADLINE,
+        thumb_image=COVER,
         thumb_accent="yellow",
-        # Type on the dark left half, the sun flare kept on the right.
-        thumb_side="left", thumb_crop_at=(0.60, 0.25),
-        thumb_crop_band="middle",
         endcard=ENDCARD, endcard_lead=7.0,
         title_at=8.5, title_hold=5.4,
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-whale-long-thumb.jpg"))
+    else:
+        main()

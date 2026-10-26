@@ -92,3 +92,16 @@ One line per branch: date, the term or channel, what it added.
   Our "What Determines Bitcoin's Price?" had 3 views at 81% average viewed;
   re-titled "What REALLY Decides Bitcoin's Price? Explained Simply" (applied 10-25), a
   new cover. Re-check its `traffic` in two weeks.
+- 2026-10-26, three `outliers` runs (~384 units) for the re-done covers.
+  "what is market cap crypto": real demand - "Why is Market Cap IMPORTANT
+  In Crypto?" (CoinGecko) 28.9x, "Market Cap Explained for Cryptocurrency"
+  27.4x, "What Market Cap really means" 16.2x. "what is a crypto whale": the
+  demand is **tracking** whales ("How to find & track crypto whales" 740x
+  Short, "How I Track Crypto WHALE Wallets" 22.1x); ours explains what a
+  whale alert can and cannot tell you, a possible re-angle later. "how do
+  crypto exchanges work": "How Does a Crypto Exchange Actually Work?" 16.3x
+  Short, "How a Cryptocurrency Exchange Works" 13.3x. Ours sat at 14 / 15 / 5
+  views with 35 / 69 / 65% average viewed. Proposed titles: "What Is Market
+  Cap in Crypto? Why a Cheap Coin Isn't Cheap", "What Is a Crypto Whale? Who
+  Really Owns the Biggest Wallets", "How Do Crypto Exchanges ACTUALLY Work?
+  Who Holds Your Coins".

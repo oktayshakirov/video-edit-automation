@@ -412,17 +412,34 @@ META = Meta(
 )
 
 
-HEADLINE = "Cheap coin. Easy [win?]"
+# Re-done 2026-10-26 on the user's picture: a man reading a market-cap
+# chart at night. The question is the hook's own ("A five cent coin feels
+# like an easier win"), asked rather than answered, and no longer "easy win",
+# which read as a promise of gains.
+COVER = ROOT / "assets/crypto/market-cap/man-reading-cap-chart.jpg"   # 2000x1333, supplied by the user
+HEADLINE = "Is a $0.05\ncoin\n[cheap?]"
+
+
+def _cover(path: Path, ax: float = 0.0, ay: float = 0.0):
+    """A plain cover crop of the supplied picture to 1280x720 - nothing slid,
+    nothing faded - so the subject stays whole and the headline sits on the
+    picture's own empty space."""
+    src = Image.open(path).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    src = src.resize((1280, h), Image.LANCZOS)
+    y0 = int((h - 720) * ay)
+    return src.crop((0, y0, 1280, y0 + 720))
 
 
 def thumbs(out: Path) -> Path:
-    """The 16:9 thumbnail: the supplied image, headline on one row at the top."""
-    im = Image.open(THUMB).convert("RGB")
-    im = im.resize((1280, 853), Image.LANCZOS).crop((0, 40, 1280, 760))
+    """The headline on the dark wall at the top left; the chart, the tea and
+    the man reading stay whole. The plate may cross the lamp and the
+    laptop's corner, never the chart."""
+    im = _cover(COVER)
     fill, ink = T.ACCENTS["yellow"]
-    T._headline(im, HEADLINE, 160, 1280 - 2 * 58, 58, fill, ink, max_lines=1,
-                max_block=200, leading=1.0, band="top", margin=34,
-                shadow=11, drop=(5, 6))
+    T._headline(im, HEADLINE, 200, 420, 40, fill, ink, max_lines=4,
+                leading=1.02, band="top", margin=40, shadow=11,
+                drop=(5, 6))
     im.save(out, quality=92)
     return out
 
@@ -438,12 +455,9 @@ def main() -> None:
         # claim and never an asset. Last three long forms opened hook /
         # Search / hook.
         opener=Stamp("A cheap coin can grow more", "MYTH", at_word="size"),
-        thumb_headline="Cheap coin. Easy [win?]",
-        thumb_image=THUMB,
+        thumb_headline=HEADLINE,
+        thumb_image=COVER,
         thumb_accent="yellow",
-        # The heap pushed right and faded to black on the left, so the type
-        # sits on real black rather than over coins.
-        thumb_crop_at=(0.5, 1.0), thumb_side="left", thumb_shift=0.32,
         endcard=ENDCARD, endcard_lead=7.0,
         title_at=8.5, title_hold=5.4,
     )
