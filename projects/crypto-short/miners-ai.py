@@ -20,15 +20,14 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/miners-ai.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
 
 SOURCE_POST = "why-wall-street-is-betting-big-on-bitcoin-miners-for-ai"
 
@@ -106,6 +105,26 @@ SHOTS = [
 GAPS = [0.70, 0.60, 0.55, 0.60, 1.10, 0.60, 0.55, 1.00, 0.60, 0.60, 1.30]
 
 
+# The long form's picture and words (2026-10-26), supplied by the user.
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/miners-ai/ai-card-hands.jpg"
+HEADLINE = "What AI\nwants\nfrom\n[miners]"
+
+
+def thumbs(out: Path) -> Path:
+    """The card and hands cut at the wrists, scaled to the width low in the
+    frame; the smooth purple-to-blue backdrop continues above for the rows."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COVER).convert("RGB")
+    im = T.bleed_portrait(src.crop((300, 0, 1700, src.height)), y=860)
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-miners-ai-short.mp4"
     work = Path.home() / "Desktop/.crypto-miners-ai-short-work"
@@ -114,13 +133,13 @@ def main() -> None:
                                      voice=VOICE, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
     # Same headline as the long form - a pair shares its thumbnail.
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO,
-        "Why AI wants Bitcoin [miners]",
-        image=THUMB, accent="yellow", band="top")
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/miners-ai-short-thumb.jpg"))
+    else:
+        main()

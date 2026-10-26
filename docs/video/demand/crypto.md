@@ -105,3 +105,18 @@ One line per branch: date, the term or channel, what it added.
   Cap in Crypto? Why a Cheap Coin Isn't Cheap", "What Is a Crypto Whale? Who
   Really Owns the Biggest Wallets", "How Do Crypto Exchanges ACTUALLY Work?
   Who Holds Your Coins".
+- 2026-10-26, four `outliers` runs for the third cover batch. "proof of
+  stake vs proof of work" is a proven query: CoinMarketCap "Proof of Work vs
+  Proof Stake - What's The Difference" 121x, CoinGecko "...What's Better?"
+  31x, Simply Explained 25.6x. "can quantum computers break bitcoin":
+  CoinGecko "Will Quantum Computing KILL Bitcoin??" 60x, a Short "is quantum
+  computing dangerous for crypto?" 486x - the CAPS-verb question format.
+  "what are perpetual futures crypto": dYdX "What Are Perpetual Contracts in
+  Crypto?" 80x Short, a16z "How Perpetual Futures Work and Why They Matter"
+  8.3x. "bitcoin miners ai": mostly hardware and profit videos (closed to
+  us); CoinGecko "Bitcoin Miners Are Selling Everything... For AI" 7.6x is
+  the on-topic one. Ours: 6 / 8 / 16 / 9 views. Proposed titles: "Why
+  Bitcoin Miners Are Switching to AI (It's Not the Chips)", "What Are
+  Perpetual Futures? The Trade That Never Expires", "Will Quantum Computers
+  BREAK Bitcoin? Not the Way You Think", "Proof of Work vs Proof of Stake:
+  Which One Actually Wins?".

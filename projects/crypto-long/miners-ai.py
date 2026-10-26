@@ -42,6 +42,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-long/miners-ai.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
@@ -296,6 +297,36 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-26 on the user's picture: two hands holding a glowing "AI"
+# card. Two rows along the bottom keep the card and both hands whole.
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/miners-ai/ai-card-hands.jpg"   # 2000x1143, supplied by the user
+HEADLINE = "What AI wants\nfrom [miners]"
+
+
+def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
+    """A cover crop of the picture to 1280x720, scaled `z` times the frame
+    width and placed by `ax`/`ay` - nothing slid, nothing faded."""
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    w = int(1280 * z)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    x0, y0 = int((w - 1280) * ax), int((h - 720) * ay)
+    return src.crop((x0, y0, x0 + 1280, y0 + 720))
+
+
+def thumbs(out: Path) -> Path:
+    """Two rows along the dark bottom edge, under the hands."""
+    from video_automation.longform import thumb as T
+    im = _cover(COVER)
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 120, 860, 40, fill, ink, max_lines=4,
+                leading=1.02, band="bottom", margin=36, shadow=11,
+                drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-miners-ai-long.mp4"
     work = Path.home() / "Desktop/.crypto-miners-ai-long-work"
@@ -303,15 +334,20 @@ def main() -> None:
         SECTIONS, out, work, brand=CRYPTO, meta=META, voice=VOICE,
         music=MUSIC,
         callouts=None,
-        thumb_headline="Why AI wants Bitcoin [miners]",
-        thumb_image=THUMB,
+        thumb_headline=HEADLINE,
+        thumb_image=COVER,
         thumb_accent="yellow",
         endcard=ENDCARD, endcard_lead=7.0,
         title_at=8.5, title_hold=5.4,
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/miners-ai-long-thumb.jpg"))
+    else:
+        main()

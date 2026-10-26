@@ -70,6 +70,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-long/perpetual-futures.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -333,6 +334,36 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-26: same coin, the hook's own point ("No expiration
+# date.") as a question, and the plate now holds its question mark.
+HEADLINE = "No\nexpiry\n[date?]"
+
+
+def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
+    """A cover crop of the picture to 1280x720, scaled `z` times the frame
+    width and placed by `ax`/`ay` - nothing slid, nothing faded."""
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    w = int(1280 * z)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    x0, y0 = int((w - 1280) * ax), int((h - 720) * ay)
+    return src.crop((x0, y0, x0 + 1280, y0 + 720))
+
+
+def thumbs(out: Path) -> Path:
+    """Scaled 1.3x and anchored right so the coin moves left, whole, and the
+    black to its right takes three big rows."""
+    from video_automation.longform import thumb as T
+    im = _cover(COINS, 1.3, 1.0, 0.2)
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 200, 380, 740, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/perpetual-futures-long.mp4"
     work = Path.home() / "Desktop/.perpetual-futures-long-work"
@@ -343,14 +374,19 @@ def main() -> None:
         # "Never expires. Still [risky.]" clipped "EXPIRES" at the frame edge
         # on render and was simplified after review - see the regenerated
         # thumbnail note below; the video itself was not re-rendered for this.
-        thumb_headline="What Are Perpetual [Futures]?",
+        thumb_headline=HEADLINE,
         thumb_image=COINS,
         thumb_accent="yellow",
         endcard=ENDCARD, endcard_lead=7.0,
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/perpetual-futures-long-thumb.jpg"))
+    else:
+        main()

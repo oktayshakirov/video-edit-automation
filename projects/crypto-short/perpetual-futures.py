@@ -66,14 +66,13 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/perpetual-futures.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
 
 V = STOCK / "videos"
 # Shared with the long form, one use left each under the pair's reuse cap.
@@ -162,6 +161,25 @@ EMOJI = {
 GAPS = [0.75, 0.85, 0.85, 0.90, 0.60, 1.10, 0.85, 1.30, 0.34]
 
 
+HEADLINE = "No\nexpiry\n[date?]"
+
+
+def thumbs(out: Path) -> Path:
+    """The coin and its pile scaled to the width on the bottom of the frame;
+    the black above it continues for the rows."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COINS).convert("RGB")
+    im = T.bleed_portrait(src.crop((int(src.width * 0.22), 0,
+                                    int(src.width * 0.78), src.height)))
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/perpetual-futures-short.mp4"
     work = Path.home() / "Desktop/.perpetual-futures-short-work"
@@ -170,18 +188,14 @@ def main() -> None:
                                      voice=VOICE, emoji=EMOJI, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
 
-    # Same source and headline as the long form - a viewer who sees both
-    # should recognise the second one. Simplified from the bracket-accent
-    # phrasing after review: "Never expires. Still [risky.]" clipped its own
-    # last word at the frame edge, and a plain search-style question is
-    # clearer at feed size anyway.
-    head = "What Are Perpetual [Futures]?"
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO, head,
-        image=COINS, accent="yellow", band="top")
+    # Same picture and headline as the long form (re-done 2026-10-26).
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/perpetual-futures-short-thumb.jpg"))
+    else:
+        main()
