@@ -51,6 +51,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-long/new-tinnitus-what-to-do-first-week.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -368,6 +369,56 @@ META = Meta(
 )
 
 
+# Re-set 2026-10-26 in the current format: the user's own rows, larger, on
+# the grey studio wall continued where the first cover laid black.
+HEADLINE = "New tinnitus.\nWhat do you\ndo [first?]"
+
+def _slide(path: Path, dx: int, ay: float, sample_x: int, rows=None,
+           feather: int = 200):
+    """Cover-scale the photo to 1280 wide, slide it `dx` px sideways, and fill
+    the gap by continuing its own flat backdrop - one column sampled at
+    `sample_x` (averaged over `rows` when the backdrop is uniform), feathered
+    into the picture. The backdrop takes the type; nothing is faded to black."""
+    import numpy as np
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    src = src.resize((1280, h), Image.LANCZOS)
+    y0 = int((h - 720) * ay)
+    src = src.crop((0, y0, 1280, y0 + 720))
+    col = np.asarray(src.crop((sample_x, 0, sample_x + 8, 720))
+                     .resize((1, 720), Image.BOX)).astype(np.float32)
+    if rows:
+        col[:] = col[rows[0]:rows[1]].mean(axis=0, keepdims=True)
+    ground = Image.fromarray(np.repeat(col, 1280, 1).astype("uint8"))
+    im = ground.copy()
+    im.paste(src, (dx, 0))
+    m = np.zeros((1, 1280), np.float32)
+    if dx > 0:
+        m[0, :dx] = 1.0
+        m[0, dx:dx + feather] = np.linspace(1.0, 0.0, feather)
+    else:
+        e = 1280 + dx
+        m[0, e - feather:e] = np.linspace(0.0, 1.0, feather)
+        m[0, e:] = 1.0
+    mask = Image.fromarray((np.repeat(m, 720, 0) * 255).astype("uint8"))
+    return Image.composite(ground, im, mask)
+
+
+def thumbs(out: Path) -> Path:
+    """He is slid 380px right, whole, and the flat grey wall continues across
+    the left for three rows in dark ink."""
+    from video_automation.longform import thumb as T
+    im = _slide(THUMB_PHOTO, 380, 0.4, sample_x=10)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 220, 480, 40, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/new-tinnitus-first-week-long.mp4"
     work = Path.home() / "Desktop/.new-tinnitus-first-week-work"
@@ -382,18 +433,17 @@ def main() -> None:
         # rows let the size search run much larger. The source is landscape
         # and the subject sits in its left third, so `_layout` is left to
         # place the type - no `crop_at`, and therefore no `side` either.
-        thumb_headline="NEW TINNITUS.\nWHAT DO YOU\nDO [FIRST?]",
+        thumb_headline=HEADLINE,
         thumb_image=THUMB_PHOTO, thumb_accent="red",
-        # `crop_zoom` 1.0 keeps the full width so the subject is not cut -
-        # the auto-scorer zooms in hunting for quiet space and takes half his
-        # face with it - and `shift` slides him left to uncover real black for
-        # the type rather than laying a scrim over the studio ground.
-        thumb_crop_at=(0.5, 0.45), thumb_crop_zoom=1.0,
-        thumb_side="right", thumb_shift=0.20,
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-new-tinnitus-long-thumb.jpg"))
+    else:
+        main()

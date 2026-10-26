@@ -45,6 +45,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-long/noise-canceling-headphones-for-tinnitus.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -307,6 +308,57 @@ META = Meta(
 )
 
 
+# Re-set 2026-10-26 in the current format: the same words, larger, and the
+# teal studio ground continued where the first cover laid black.
+HEADLINE = "Headphones on.\nRinging\n[louder?]"
+
+def _slide(path: Path, dx: int, ay: float, sample_x: int, rows=None,
+           feather: int = 200):
+    """Cover-scale the photo to 1280 wide, slide it `dx` px sideways, and fill
+    the gap by continuing its own flat backdrop - one column sampled at
+    `sample_x` (averaged over `rows` when the backdrop is uniform), feathered
+    into the picture. The backdrop takes the type; nothing is faded to black."""
+    import numpy as np
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    src = src.resize((1280, h), Image.LANCZOS)
+    y0 = int((h - 720) * ay)
+    src = src.crop((0, y0, 1280, y0 + 720))
+    col = np.asarray(src.crop((sample_x, 0, sample_x + 8, 720))
+                     .resize((1, 720), Image.BOX)).astype(np.float32)
+    if rows:
+        col[:] = col[rows[0]:rows[1]].mean(axis=0, keepdims=True)
+    ground = Image.fromarray(np.repeat(col, 1280, 1).astype("uint8"))
+    im = ground.copy()
+    im.paste(src, (dx, 0))
+    m = np.zeros((1, 1280), np.float32)
+    if dx > 0:
+        m[0, :dx] = 1.0
+        m[0, dx:dx + feather] = np.linspace(1.0, 0.0, feather)
+    else:
+        e = 1280 + dx
+        m[0, e - feather:e] = np.linspace(0.0, 1.0, feather)
+        m[0, e:] = 1.0
+    mask = Image.fromarray((np.repeat(m, 720, 0) * 255).astype("uint8"))
+    return Image.composite(ground, im, mask)
+
+
+def thumbs(out: Path) -> Path:
+    """She is slid 520px right, face whole at the right edge, and the teal
+    backdrop continues across the left for three rows in dark ink - teal is
+    flat and light enough that dark type out-reads white."""
+    from video_automation.longform import thumb as T
+    im = _slide(THUMB_PHOTO, 520, 0.3, sample_x=0, rows=(0, 260))
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 220, 600, 40, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/noise-canceling-headphones-for-tinnitus-long.mp4"
     work = Path.home() / "Desktop/.noise-canceling-headphones-for-tinnitus-work"
@@ -321,14 +373,18 @@ def main() -> None:
         # sentences and each one gets its own row, rather than the wrap
         # splitting them wherever the line lengths happen to even out. See
         # `thumbnails.md`.
-        thumb_headline="Headphones on.\nRinging [louder?]",
+        thumb_headline=HEADLINE,
         thumb_image=THUMB_PHOTO,
-        thumb_accent="red", thumb_side="left",
-        thumb_crop_at=(0.55, 0.30), thumb_crop_zoom=1.0, thumb_shift=0.26,
+        thumb_accent="red",
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-noise-canceling-long-thumb.jpg"))
+    else:
+        main()

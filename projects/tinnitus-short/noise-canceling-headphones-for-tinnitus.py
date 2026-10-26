@@ -25,13 +25,12 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-short/noise-canceling-headphones-for-tinnitus.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb, render_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 SOURCE_POST = "noise-canceling-headphones-for-tinnitus"
@@ -112,6 +111,25 @@ SHOTS = [
 ]
 
 
+HEADLINE = "Headphones on.\nRinging\n[louder?]"
+
+def thumbs(out: Path) -> Path:
+    """Her side of the photo, scaled to the width on the bottom of the frame;
+    the teal backdrop continues above and takes the rows in dark ink."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(THUMB_PHOTO).convert("RGB")
+    im = T.bleed_portrait(src.crop((int(src.width * 0.12), 0,
+                                    int(src.width * 0.72), src.height)))
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/noise-canceling-headphones-for-tinnitus-short.mp4"
     work = Path.home() / "Desktop/.noise-canceling-headphones-for-tinnitus-short-work"
@@ -119,33 +137,17 @@ def main() -> None:
                                         voice=VOICE, gap=GAPS,
                                         music=MUSIC, music_gain=0.85)
 
-    # Same source and headline as the long form. The newline is deliberate:
-    # one sentence per row, rather than the wrap breaking them wherever the
-    # line lengths even out - see `thumbnails.md`. `zoom` below 1.0 shipped
-    # once here and was wrong: `render_short_thumb`'s `zoom` multiplies the
-    # *cover* scale (unlike `render_thumb`'s `crop_zoom`, which has a real fit
-    # mode under 1.0), so anything below 1.0 leaves the source smaller than
-    # the frame - black bars top and bottom, not a pulled-back crop. `zoom=1.0`
-    # is a straight cover crop; the source is landscape and much wider than
-    # 9:16, so it is height-constrained and `at` has no slack to move in.
-    # She tilts into frame with empty gradient above her, so `band="top"`
-    # puts the type there instead of over her face.
-    thumb = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
-        "Headphones on.\nRinging [louder?]", image=THUMB_PHOTO, accent="red",
-        ax=0.5, zoom=1.0, band="top")
-
-    # 16:9 for YouTube. She is shifted right so the type gets real black
-    # rather than a scrim over the teal.
-    yt = render_thumb(
-        out.with_name(out.stem + "-thumb-yt.jpg"), TINNITUS,
-        "Headphones on.\nRinging [louder?]", image=THUMB_PHOTO, accent="red",
-        crop_at=(0.55, 0.30), crop_zoom=1.0, side="left", shift=0.26)
+    # Same picture and words as the long form (re-set 2026-10-26). One
+    # vertical cover only - the 1280x720 second file this wrote is gone; the
+    # long form's cover is the YouTube one (thumbnails.md).
+    thumb = thumbs(out.with_name(out.stem + "-thumb.jpg"))
 
     print(f"{path}  {total:.1f}s")
-    print(f"{thumb}   <- Reel cover (Instagram, Facebook)")
-    print(f"{yt}   <- YouTube thumbnail")
+    print(f"{thumb}   <- Short cover")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-noise-canceling-short-thumb.jpg"))
+    else:
+        main()

@@ -24,13 +24,12 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-short/new-tinnitus-what-to-do-first-week.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 SOURCE_POST = "new-tinnitus-what-to-do-first-week"
@@ -147,6 +146,25 @@ SHOTS = [
 ]
 
 
+HEADLINE = "New tinnitus.\nWhat do you\ndo [first?]"
+
+def thumbs(out: Path) -> Path:
+    """A 3:4 cut round him, scaled to the width on the bottom of the frame;
+    the flat grey wall continues above and takes the rows in dark ink, clear
+    of his face."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(THUMB_PHOTO).convert("RGB")
+    im = T.bleed_portrait(src.crop((int(src.width * 0.25), 0, int(src.width * 0.75), src.height)))
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/new-tinnitus-first-week-short.mp4"
     work = Path.home() / "Desktop/.new-tinnitus-first-week-short-work"
@@ -154,26 +172,15 @@ def main() -> None:
                                         voice=VOICE, gap=GAPS,
                                         music=MUSIC, music_gain=0.85)
 
-    # Same source and headline as the long form. The rows are forced rather
-    # than wrapped, so no phrase is torn across a break - "NEW TINNITUS." /
-    # "WHAT DO YOU" / "DO FIRST?" - and three short rows let the size search
-    # go much larger than two long ones did. `zoom` above 1.0 buys vertical
-    # slack so `at` can push the subject clear of the type band.
-    thumb = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
-        "NEW TINNITUS.\nWHAT DO YOU\nDO [FIRST?]", image=THUMB_PHOTO,
-        accent="red", ax=0.5, zoom=1.0, at=0.34, band="bottom", size=210)
-    # **`band` is "bottom" here and that is forced by the picture, not a
-    # preference.** The subject's head and hands occupy the top half of the
-    # 9:16 crop, so a top band prints the headline straight across his face -
-    # the one thing the thumbnail checklist calls fatal - and the renderer
-    # then crushes the band dark to keep the type legible. His black t-shirt
-    # fills the lower third and is the best type ground in the frame. The
-    # bottom band also clears the Shorts grid's play count.
+    # Same picture and rows as the long form (re-set 2026-10-26).
+    thumb = thumbs(out.with_name(out.stem + "-thumb.jpg"))
 
     print(f"{path}  {total:.1f}s")
     print(f"{thumb}   <- Short cover")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-new-tinnitus-short-thumb.jpg"))
+    else:
+        main()
