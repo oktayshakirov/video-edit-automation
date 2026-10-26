@@ -264,17 +264,17 @@ HEADLINE = "Mining\nor\n[staking?]"
 
 def thumbs(out: Path) -> Path:
     """The padlock and coin scaled to the width on the bottom; above them the
-    board itself, blurred at full brightness so dark ink still reads."""
+    board itself, blurred and dimmed so white rows read. Dark ink on the
+    full-brightness blur was hard to read (the user, 2026-10-26)."""
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(COVER).convert("RGB")
     im = T.bleed_portrait(src.crop((480, 0, 1560, src.height)), feather=160,
-                          fill="blur", dim=1.0)
+                          fill="blur", dim=0.45)
     fill, ink = T.ACCENTS["red"]
     T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
                 max_block=1920 * 0.36, leading=1.02, band="top",
-                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
-                text=(20, 20, 20))
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
     im.save(out, quality=92)
     return out
 
