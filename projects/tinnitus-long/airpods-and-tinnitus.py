@@ -66,6 +66,7 @@ screened stock clips and the drawn beats, with no site photograph at full
 frame. Clips screened at 0.5/3/6/9s; the trailing comment on each is the range.
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -476,6 +477,39 @@ META = Meta(
 )
 
 
+# Re-set 2026-10-26 in the current format: the same words in four big rows.
+# The first cover set them in two small rows on a dimmed whole frame.
+HEADLINE = "The\nwarning\neveryone\n[ignores]"
+
+
+def thumbs(out: Path) -> Path:
+    """The portrait photo scaled 1.3x and anchored right so the ear, the
+    AirPod and the finger sit left, whole. White rows on the right, over the
+    yellow sweater, which is too bright for white type - so only that empty
+    side is shaded (70% black, easing in over 220px from x=560). The subject
+    keeps its own light."""
+    import numpy as np
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(THUMB_PHOTO).convert("RGB")
+    w = int(1280 * 1.3)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    x0, y0 = w - 1280, int((h - 720) * 0.62)
+    im = src.crop((x0, y0, x0 + 1280, y0 + 720))
+    a = np.zeros((1, 1280), np.float32)
+    a[0, 560:780] = np.linspace(0.0, 0.7, 220)
+    a[0, 780:] = 0.7
+    mask = Image.fromarray((np.repeat(a, 720, 0) * 255).astype("uint8"))
+    im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 220, 390, 720, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/tinnitus-airpods-long.mp4"
     work = Path.home() / "Desktop/.tinnitus-airpods-work"
@@ -492,15 +526,18 @@ def main() -> None:
         # asks the search question; the thumbnail points at the part of the
         # answer they do not have, which is that the ringing afterwards was
         # information and they threw it away.
-        thumb_headline="The warning [everyone ignores]",
+        thumb_headline=HEADLINE,
         thumb_image=THUMB_PHOTO,
         thumb_accent="red",
-        thumb_side="right",
-        thumb_crop_at=(0.5, 0.7),
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-airpods-long-thumb.jpg"))
+    else:
+        main()

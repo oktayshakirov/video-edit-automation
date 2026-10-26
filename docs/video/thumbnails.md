@@ -763,3 +763,15 @@ what the audience wants from the subject.
   straight 9:16 cut put the coin's rim 29% down and the rows set small. A
   wider 3:4 cut, scaled to the width on the bottom with `bleed_portrait(...,
   fill="blur")`, lowered the coin and doubled the rows.
+
+### "Text too small" on an old cover: same words, our format (tinnitus AirPods, 2026-10-26)
+
+- The words stay ("The warning [everyone ignores]") and only the layout
+  changes, per the rule above: four forced rows, the plate on the last word.
+- **The source had been pruned from the stock cache.** Re-fetch a Pexels
+  photo by id: `stock._get("https://api.pexels.com/v1/photos/<id>", {})`,
+  then `stock._download(p["src"]["original"], <the path the script names>)`.
+- A bright, warm background (the yellow sweater) is too light for white
+  type: shade only the empty side behind it, as on proof of stake.
+- On the 9:16 cut the ear sat just below the middle, so the bottom band put
+  the rows across the AirPod; the dark hair above took them instead.

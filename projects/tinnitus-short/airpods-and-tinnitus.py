@@ -43,13 +43,12 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-short/airpods-and-tinnitus.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
-from video_automation.longform.thumb import render_short_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 # Screened across their length by the long-form build from this post; the
@@ -214,6 +213,28 @@ GAPS = [0.60, 0.55, 0.80, 0.75, 0.90, 0.70,
         0.55, 0.70, 0.80, 0.60, 0.60, 0.75, 0.80, 0.45]
 
 
+# The long form's words in the current format (2026-10-26).
+HEADLINE = "The\nwarning\neveryone\n[ignores]"
+
+
+def thumbs(out: Path) -> Path:
+    """A straight 9:16 cut of the portrait photo. The ear and the AirPod sit
+    just below the middle, so the four rows go on the dark hair above them -
+    not the bottom band, which put them across the AirPod and the finger."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(THUMB_PHOTO).convert("RGB")
+    cw = int(src.height * 9 / 16)
+    x0 = (src.width - cw) // 2
+    im = src.crop((x0, 0, x0 + cw, src.height)).resize((1080, 1920), Image.LANCZOS)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.07), shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/tinnitus-airpods-short.mp4"
     work = Path.home() / "Desktop/.tinnitus-airpods-short-work"
@@ -222,20 +243,13 @@ def main() -> None:
                                         karaoke_box=False, karaoke_upper=False,  # pre-box-default cut
                                         music=MUSIC, music_gain=MUSIC_GAIN)
 
-    # Same source and same headline as the long form from this post - the
-    # pairing rule. `band="bottom"`: the ear and the earbud sit in the upper
-    # half of the 9:16 crop, which is exactly where the default top band would
-    # print the type.
-    thumb = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
-        # **It must not answer the title.** "Not the earbuds. The volume."
-        # shipped first and gives the whole video away in five words - there is
-        # no reason to press play on a thumbnail that has already told you.
-        "The warning [everyone ignores]", image=THUMB_PHOTO, accent="red",
-        ax=0.5, zoom=1.0, band="bottom")
+    thumb = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{path}  {total:.1f}s")
     print(f"{thumb}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-airpods-short-thumb.jpg"))
+    else:
+        main()
