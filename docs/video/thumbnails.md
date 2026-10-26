@@ -3,6 +3,44 @@
 One per video. A Short's is vertical and a long's is 16:9, and when both come
 from one article they share a source image.
 
+## The current format, in one place (settled 2026-10-26)
+
+Thirteen covers were re-done across both channels in one session and every
+one the user kept followed these. The dated sections further down say why;
+read them when a cover fights back.
+
+1. **The subject stays whole and is never faded.** No black ramp, no `shift`
+   into black. Make room by, in order: a plain cover crop with the type on
+   the picture's own empty space; zooming past cover and anchoring the crop
+   to one side so the subject slides the other way (`z` 1.2-1.45); lifting
+   or sliding the picture and continuing its own flat backdrop into the gap
+   (`bleed_portrait` vertically, `_slide` sideways). A black ramp is only
+   ever a seam into a ground that is already black.
+2. **Big rows.** Forced rows (`\n`), three or four, each a phrase; the
+   longest row sets the size, so shorten it before anything else. The plate
+   goes on the last word or the one carrying the question, and holds its
+   own question mark.
+3. **Ink by ground.** White words on dark or mid grounds. Dark words
+   (`text=(20, 20, 20)`) only on a flat light ground - studio white, a grey
+   or teal wall. On a busy bright ground (a yellow board, a sweater) use
+   white and shade only the empty area behind the type, never the subject.
+   The plate colour must differ from the ground (red on yellow, not yellow).
+4. **Placement follows the subject.** Type beside or below it with a clear
+   gap, centred (`align="center"`) when it sits under a centred subject.
+   Never across a face; never across the object the video is about.
+5. **Words.** Keep the old words when the note is only "too small". Otherwise
+   ask the video's own question (often its first line), never give the
+   answer, and when the pair's Short outperforms, carry the Short's fact.
+6. **The Short cover is built by hand too** - `bleed_portrait` with
+   `fill="edge"` on flat backdrops and `fill="blur"` on busy ones - and a
+   Short writes one vertical file, never a second 1280x720.
+7. **Every re-done long cover replaces the site poster** (`public/images/
+   videos/<slug>.webp`, WebP q88) and the site title is brought in line with
+   YouTube's; `docs/publish/site.md`.
+8. **Each project file gets `thumbs()` and `--thumb`**, so a cover rebuilds
+   without a render. Sweep 3-4 variants on a contact sheet, then look at the
+   pick at full size and at ~320px before writing it in.
+
 ## `render_thumb`, and what it does not take
 
 `render_thumb(headline=, subline=, image=, accent=)`. **No zoom, no focus, no
@@ -367,7 +405,8 @@ The treatment, settled against reference thumbnails from large channels:
 - **A blurred drop shadow on its own layer, never a stroke.** A stroke traces
   every glyph at constant width and reads as an outline; that was the single
   thing called out as making these "look very unprofessional".
-- **One accent run on a solid plate**, padded from the cap band.
+- **One accent run on a solid plate**, padded from the cap band. **The
+  plate casts no shadow** (2026-10-26) - only the bare white words do.
 
 **The two aspects need different source photographs, and that is not optional.**
 A landscape picture of someone lying down cannot be cover-cropped to 9:16 — the
