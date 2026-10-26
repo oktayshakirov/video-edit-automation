@@ -31,6 +31,13 @@ The two paths are different. Check which site before writing anything.
    every session. See the skill's Gates section.
 4. **`npm run sync-content`, after the deploy is live.** Details below.
 
+**Checking that a deploy is live: follow the redirect** (2026-10-26).
+`thecrypto.wiki` answers every path with a 301 to `www.thecrypto.wiki`, so
+a bare `curl` of a poster never returns the file and a "wait until the new
+poster is served" loop never succeeds - one sat for ten minutes on a deploy
+that had been live from the start. Use `curl -sL`, or the `www.` host, and
+compare against the local file's hash.
+
 ## The site entry is not what notifies the apps
 
 **`npm run sync-content`, in the site repo, after the deploy gate.** Writing
