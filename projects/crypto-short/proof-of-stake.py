@@ -63,15 +63,14 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/proof-of-stake.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
 from video_automation.longform.overlay import ImageOverlay
-from video_automation.longform.thumb import render_short_thumb
 
 # **Fresh, and shared only with this post's long form.** See that file's
 # docstring for the inventory that forced this: the channel had been recycling
@@ -258,6 +257,28 @@ GAPS = [0.75, 0.60, 0.55, 0.85, 0.60, 0.55, 0.90, 0.60, 0.90, 0.85,
         0.60, 1.30, 0.34]
 
 
+# The long form's picture and words (2026-10-26), supplied by the user.
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/proof-of-stake/padlock-bitcoin.jpg"
+HEADLINE = "Mining\nor\n[staking?]"
+
+
+def thumbs(out: Path) -> Path:
+    """The padlock and coin scaled to the width on the bottom; above them the
+    board itself, blurred at full brightness so dark ink still reads."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COVER).convert("RGB")
+    im = T.bleed_portrait(src.crop((480, 0, 1560, src.height)), feather=160,
+                          fill="blur", dim=1.0)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/proof-of-stake-short.mp4"
     work = Path.home() / "Desktop/.proof-of-stake-short-work"
@@ -290,16 +311,14 @@ def main() -> None:
                                      music=MUSIC, music_gain=0.85,
                                      overlays=overlays)
 
-    # **One thumbnail: vertical, because a Short is a vertical video.** Same
-    # source and headline as the long form.
-    head = "What replaced the [miners?]"
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO, head,
-        image=GPUFANS, accent="cyan", band="top")
+    # Same picture and headline as the long form (re-done 2026-10-26).
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
-    print(f"{wide}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/proof-of-stake-short-thumb.jpg"))
+    else:
+        main()

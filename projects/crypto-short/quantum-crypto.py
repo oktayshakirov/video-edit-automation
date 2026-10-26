@@ -30,14 +30,13 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-short/quantum-crypto.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import SITE_IMAGES, Shot
-from video_automation.longform.thumb import render_short_thumb
 
 PH = STOCK / "photos"
 
@@ -151,6 +150,26 @@ EMOJI = {
 GAPS = [0.65, 0.55, 0.50, 0.55, 0.80, 1.30, 1.30, 0.70, 0.85, 0.55, 1.15, 0.40]
 
 
+HEADLINE = "Is Bitcoin\nquantum\n[safe?]"
+
+
+def thumbs(out: Path) -> Path:
+    """A straight 9:16 cut of the full height round the sphere; the rows sit
+    low, on the field lines under it, clear of the view count."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(MAGFIELD).convert("RGB")
+    w = int(1080 / 1920 * src.height)
+    cx = int(src.width * 0.47)
+    im = src.crop((cx - w // 2, 0, cx + w // 2, src.height)).resize((1080, 1920), Image.LANCZOS)
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="bottom",
+                margin=int(1920 * 0.16) + 20, shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/quantum-crypto-short.mp4"
     work = Path.home() / "Desktop/.quantum-crypto-short-work"
@@ -159,14 +178,14 @@ def main() -> None:
                                      voice=VOICE, emoji=EMOJI, gap=GAPS,
                                      music=MUSIC, music_gain=0.85)
 
-    # One thumbnail: vertical, same source and headline as the long form.
-    head = "Can quantum computers [break] Bitcoin?"
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO, head,
-        image=MAGFIELD, accent="orange", band="bottom")
+    # Same picture and headline as the long form (re-done 2026-10-26).
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/quantum-crypto-short-thumb.jpg"))
+    else:
+        main()

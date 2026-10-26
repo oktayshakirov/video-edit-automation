@@ -56,6 +56,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-long/quantum-crypto.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -364,6 +365,36 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-26: same picture (the user's call), the old title's
+# question in three big rows.
+HEADLINE = "Is Bitcoin\nquantum\n[safe?]"
+
+
+def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
+    """A cover crop of the picture to 1280x720, scaled `z` times the frame
+    width and placed by `ax`/`ay` - nothing slid, nothing faded."""
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    w = int(1280 * z)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    x0, y0 = int((w - 1280) * ax), int((h - 720) * ay)
+    return src.crop((x0, y0, x0 + 1280, y0 + 720))
+
+
+def thumbs(out: Path) -> Path:
+    """Scaled 1.3x and anchored right so the sphere sits whole at the left;
+    the rows go on the field lines to its right."""
+    from video_automation.longform import thumb as T
+    im = _cover(MAGFIELD, 1.3, 1.0, 0.5)
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 200, 420, 680, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/quantum-crypto-long.mp4"
     work = Path.home() / "Desktop/.quantum-crypto-long-work"
@@ -374,14 +405,19 @@ def main() -> None:
         # The title carries the search phrase; the thumbnail asks the question
         # it does not answer. Orange accent because the source is blue - cyan
         # would blend into the field lines.
-        thumb_headline="Can quantum computers [break] Bitcoin?",
+        thumb_headline=HEADLINE,
         thumb_image=MAGFIELD,
         thumb_accent="orange",
         endcard=ENDCARD, endcard_lead=7.0,
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/quantum-crypto-long-thumb.jpg"))
+    else:
+        main()

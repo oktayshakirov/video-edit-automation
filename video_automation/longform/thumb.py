@@ -1189,7 +1189,8 @@ def fetch_video_poster(out: Path, video_id: str) -> Path:
 
 
 def bleed_portrait(crop: Image.Image, y: int | None = None,
-                   feather: int = 90, fill: str = "edge") -> Image.Image:
+                   feather: int = 90, fill: str = "edge",
+                   dim: float = 0.7) -> Image.Image:
     """A 9:16 canvas from a landscape cut, with nothing faded to black.
 
     `crop` is scaled to the 1080 width and placed at `y` (default: on the
@@ -1204,7 +1205,9 @@ def bleed_portrait(crop: Image.Image, y: int | None = None,
     each column carries its own colour and the continuation reads as
     vertical streaks (the whale cover, 2026-10-26). `fill="blur"` grounds
     the frame on the same picture cover-scaled to 9:16, heavily blurred and
-    dimmed to 0.7 instead - still the picture's own colours, never black."""
+    dimmed (`dim`, 0.7) instead - still the picture's own colours, never
+    black. Pass `dim=1.0` when dark ink goes on a bright blur (the yellow
+    circuit board behind the proof-of-stake padlock)."""
     W, H = VW, VH
     h = int(crop.height * W / crop.width)
     crop = crop.resize((W, h), Image.LANCZOS)
@@ -1220,7 +1223,7 @@ def bleed_portrait(crop: Image.Image, y: int | None = None,
         big = crop.resize((int(crop.width * s), H), Image.LANCZOS)
         x0 = (big.width - W) // 2
         ground = big.crop((x0, 0, x0 + W, H)).filter(ImageFilter.GaussianBlur(48))
-        ground = ImageEnhance.Brightness(ground).enhance(0.7)
+        ground = ImageEnhance.Brightness(ground).enhance(dim)
     else:
         ground = Image.new("RGB", (W, H))
         ground.paste(edge(crop.crop((0, 0, W, 6)), y + feather), (0, 0))

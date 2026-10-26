@@ -722,3 +722,19 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
   `public/images/videos/<slug>.webp` (WebP, quality 88, as
   `fetch_video_poster` does) and match the site's `title` to YouTube's -
   see `docs/publish/site.md`.
+
+### The third batch: miners-ai, perpetual futures, quantum, proof of stake (2026-10-26)
+
+- **Zoom toward the far edge to move a centred subject away from the type.**
+  Scaling past cover (1.25-1.4x) and anchoring the crop to one side slides
+  the subject the other way while it stays whole: the coin left of "NO
+  EXPIRY DATE?", the sphere left of "IS BITCOIN QUANTUM SAFE?", the padlock
+  right of "MINING OR STAKING?". Check the subject's far edge still fits.
+- **`bleed_portrait(..., dim=1.0)`** when dark ink goes on the blur. The
+  default 0.7 dims a bright board into olive, and dark type on it lost its
+  contrast (proof of stake).
+- **A plate colour has to differ from the ground.** Yellow on the yellow
+  circuit board disappears; red holds.
+- **A Short whose subject fills the full height takes a straight 9:16 cut**,
+  no bleed (the quantum sphere); put the rows on whichever half the subject
+  leaves free.

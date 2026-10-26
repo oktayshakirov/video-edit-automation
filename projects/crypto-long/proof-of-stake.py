@@ -130,6 +130,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-long/proof-of-stake.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -528,6 +529,39 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-26 on the user's picture: a Bitcoin leaning on a padlock
+# in front of a blurred circuit board - staking locks coins up. Dark rows on
+# the yellow board, the plate red so it does not melt into it.
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/proof-of-stake/padlock-bitcoin.jpg"   # 2000x1333, supplied by the user
+HEADLINE = "Mining\nor\n[staking?]"
+
+
+def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
+    """A cover crop of the picture to 1280x720, scaled `z` times the frame
+    width and placed by `ax`/`ay` - nothing slid, nothing faded."""
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    w = int(1280 * z)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    x0, y0 = int((w - 1280) * ax), int((h - 720) * ay)
+    return src.crop((x0, y0, x0 + 1280, y0 + 720))
+
+
+def thumbs(out: Path) -> Path:
+    """Scaled 1.25x and anchored left so the padlock moves right, whole; the
+    rows go on the board to its left."""
+    from video_automation.longform import thumb as T
+    im = _cover(COVER, 1.25, 0.0, 0.58)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 200, 380, 40, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/proof-of-stake-long.mp4"
     work = Path.home() / "Desktop/.proof-of-stake-long-work"
@@ -553,14 +587,19 @@ def main() -> None:
         # edge to edge, so a plain cover crop - no `crop_at`, no `crop_zoom`,
         # letting `_layout` choose - fills the whole frame at full sharpness in
         # both 16:9 and 9:16. Scored clean at -0.02, side left, band top.
-        thumb_headline="What replaced the [miners?]",
-        thumb_image=GPUFANS,
+        thumb_headline=HEADLINE,
+        thumb_image=COVER,
         thumb_accent="cyan",
         endcard=ENDCARD, endcard_lead=7.0,
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/proof-of-stake-long-thumb.jpg"))
+    else:
+        main()
