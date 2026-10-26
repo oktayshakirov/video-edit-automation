@@ -227,28 +227,6 @@ COIN = Path(__file__).resolve().parents[2] / "assets/crypto/bitcoin-price/coin-o
 HEADLINE = "Who\nreally\nsets the\n[price?]"
 
 
-def _bleed_top(crop, feather: int = 90):
-    """Scale a landscape cut to the 1080 width, sit it on the bottom of the
-    9:16 frame, and continue its own top edge upward - averaged across, so a
-    thin antenna or rim does not streak - with a short feather into the
-    picture. A uniform sky or studio backdrop becomes the type's ground
-    without a black fade over the subject."""
-    import numpy as np
-    from PIL import Image
-    W, H = 1080, 1920
-    h = int(crop.height * W / crop.width)
-    crop = crop.resize((W, h), Image.LANCZOS)
-    row = crop.crop((0, 0, W, 6)).resize((W // 24, 1), Image.BOX)
-    ground = row.resize((W, 1), Image.BILINEAR).resize((W, H))
-    im = ground.copy()
-    y = H - h
-    im.paste(crop, (0, y))
-    a = np.zeros((H, 1), np.float32)
-    a[:y, 0] = 1.0
-    a[y:y + feather, 0] = np.linspace(1.0, 0.0, feather)
-    mask = Image.fromarray((np.repeat(a, W, 1) * 255).astype("uint8"))
-    return Image.composite(ground, im, mask)
-
 
 def thumbs(out: Path) -> Path:
     """The coin and phone scaled to the width on the bottom of the frame, the
@@ -256,7 +234,7 @@ def thumbs(out: Path) -> Path:
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(COIN).convert("RGB")
-    im = _bleed_top(src.crop((int(src.width * 0.31), 0, src.width, 1250)))
+    im = T.bleed_portrait(src.crop((int(src.width * 0.31), 0, src.width, 1250)))
     fill, ink = T.ACCENTS["orange"]
     T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
                 max_block=1920 * 0.36, leading=1.02, band="top",

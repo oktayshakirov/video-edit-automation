@@ -53,16 +53,15 @@ broker's name on it, and both were rejected on the contact sheet.
     PYTHONPATH=. .venv/bin/python projects/crypto-short/crypto-whale.py
 """
 
+import sys
 from pathlib import Path
 from pathlib import Path as _P
 
 from video_automation.core import music
-from video_automation.core.brand import CRYPTO
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.build import render_crypto_short
 from video_automation.crypto.shots import Shot
 from video_automation.longform.openers import Stamp
-from video_automation.longform.thumb import render_short_thumb
 
 SOURCE_POST = "what-is-a-crypto-whale"
 
@@ -159,6 +158,28 @@ SHOTS = [
 GAPS = [0.70, 0.90, 0.80, 0.60, 1.20, 0.70, 1.10, 0.95, 1.30]
 
 
+# The long form's picture (2026-10-26), supplied by the user; the four rows
+# the first cover settled on.
+COVER = ROOT / "assets/crypto/whale/whale-over-city.jpg"
+HEADLINE = "The biggest\nwhale\nis not a\n[person]"
+
+def thumbs(out: Path) -> Path:
+    """The whole scene - whale and girl - scaled to the width in the middle
+    of the frame, the sky continued above for the headline and the city
+    continued below, where the Shorts player draws its chrome."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COVER).convert("RGB")
+    im = T.bleed_portrait(src.crop((80, 0, 1960, src.height)), y=780,
+                          feather=140, fill="blur")
+    fill, ink = T.ACCENTS["yellow"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-whale-short.mp4"
     work = Path.home() / "Desktop/.crypto-whale-short-work"
@@ -171,21 +192,13 @@ def main() -> None:
         opener=Stamp("The biggest Bitcoin whale is a person", "MYTH",
                      at_word="exchange"),
         outro="The biggest whale is not a person. It is a [warehouse].")
-    # A pair shares its thumbnail.
-    # **Four short forced rows, and a high starting size.** Two rows across
-    # the full width set small - the user's note on the first pass - because
-    # the size search is capped by the longest row, not by the height. Short
-    # rows clear the column early and the search keeps climbing, and putting
-    # `[person]` on its own row is what gives the plate room from the word
-    # before it. Same row structure as the long form, so the pair reads as a
-    # set at feed size.
-    vert = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), CRYPTO,
-        "The biggest\nwhale\nis not a\n[person]",
-        image=THUMB, accent="yellow", band="top", size=240)
+    vert = thumbs(out.with_name(out.stem + "-thumb.jpg"))
     print(f"{out}  {total:.2f}s")
     print(f"{vert}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-whale-short-thumb.jpg"))
+    else:
+        main()

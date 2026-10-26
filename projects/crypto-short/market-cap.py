@@ -134,15 +134,21 @@ SHOTS = [
 GAPS = [0.70, 0.80, 0.65, 0.55, 1.30, 0.85, 0.60, 1.30, 0.90, 1.20]
 
 
+# The long form's picture and words (2026-10-26), supplied by the user.
+COVER = ROOT / "assets/crypto/market-cap/man-reading-cap-chart.jpg"
+HEADLINE = "Is a $0.05\ncoin\n[cheap?]"
+
+
 def thumbs(out: Path) -> Path:
-    """The 9:16 cover: the long form's image cropped onto the centre coin, the
-    same words on two rows - one row across 1080px sets too small to read."""
-    im = Image.open(THUMB).convert("RGB")
-    im = im.crop((330, 0, 330 + 576, 1024)).resize((1080, 1920), Image.LANCZOS)
+    """The man, the laptop and the chart cut round and scaled to the width
+    on the bottom of the frame; the dark wall continues above and takes the
+    headline."""
+    src = Image.open(COVER).convert("RGB")
+    im = T.bleed_portrait(src.crop((380, 0, 1720, src.height)))
     fill, ink = T.ACCENTS["yellow"]
-    T._headline(im, "Cheap coin.\nEasy [win?]", 200, 1080 - 2 * 52, 52, fill,
-                ink, max_lines=2, max_block=1920 * 0.3, leading=1.02,
-                band="top", margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
     im.save(out, quality=92)
     return out
 

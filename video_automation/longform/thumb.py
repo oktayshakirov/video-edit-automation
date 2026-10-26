@@ -1188,6 +1188,58 @@ def fetch_video_poster(out: Path, video_id: str) -> Path:
     return out
 
 
+def bleed_portrait(crop: Image.Image, y: int | None = None,
+                   feather: int = 90, fill: str = "edge") -> Image.Image:
+    """A 9:16 canvas from a landscape cut, with nothing faded to black.
+
+    `crop` is scaled to the 1080 width and placed at `y` (default: on the
+    bottom edge). Above it, its own top edge is continued upward; below it,
+    its bottom edge downward. Each edge is averaged across the width first,
+    because a raw one-pixel row stretched to full height drags any thin
+    detail on it (an antenna, a coin's rim) into a streak. A `feather`-px
+    blend hides the join. A sky, a wall or a studio white then becomes the
+    headline's ground while the subject stays whole (2026-10-25).
+
+    **`fill="edge"` only suits a flat edge.** On a cloudy sky or a lit city
+    each column carries its own colour and the continuation reads as
+    vertical streaks (the whale cover, 2026-10-26). `fill="blur"` grounds
+    the frame on the same picture cover-scaled to 9:16, heavily blurred and
+    dimmed to 0.7 instead - still the picture's own colours, never black."""
+    W, H = VW, VH
+    h = int(crop.height * W / crop.width)
+    crop = crop.resize((W, h), Image.LANCZOS)
+    y = H - h if y is None else y
+    below = H - (y + h)
+
+    def edge(row: Image.Image, rows: int) -> Image.Image:
+        row = row.resize((W // 24, 1), Image.BOX)
+        return row.resize((W, 1), Image.BILINEAR).resize((W, max(rows, 1)))
+
+    if fill == "blur":
+        s = H / crop.height
+        big = crop.resize((int(crop.width * s), H), Image.LANCZOS)
+        x0 = (big.width - W) // 2
+        ground = big.crop((x0, 0, x0 + W, H)).filter(ImageFilter.GaussianBlur(48))
+        ground = ImageEnhance.Brightness(ground).enhance(0.7)
+    else:
+        ground = Image.new("RGB", (W, H))
+        ground.paste(edge(crop.crop((0, 0, W, 6)), y + feather), (0, 0))
+        if below > 0:
+            ground.paste(edge(crop.crop((0, h - 6, W, h)), below + feather),
+                         (0, y + h - feather))
+    im = ground.copy()
+    im.paste(crop, (0, y))
+    a = np.zeros((H, 1), np.float32)
+    a[:max(y, 0), 0] = 1.0
+    if y > 0:
+        a[y:y + feather, 0] = np.linspace(1.0, 0.0, feather)
+    if below > 0:
+        a[y + h - feather:y + h, 0] = np.linspace(0.0, 1.0, feather)
+        a[y + h:, 0] = 1.0
+    mask = Image.fromarray((np.repeat(a, W, 1) * 255).astype("uint8"))
+    return Image.composite(ground, im, mask)
+
+
 def render_short_thumb(out: Path, brand: Brand, headline: str,
                        image: Path | None = None, accent: str = "red",
                        accent2: str | None = None,

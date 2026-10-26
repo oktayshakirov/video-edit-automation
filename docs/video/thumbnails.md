@@ -700,3 +700,25 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
   [building?]` beats "of a building" because the tower is right there, and
   with a Bitcoin on the cover the headline need not spend a row on "Bitcoin"
   (`Who really\nsets the\n[price?]`).
+
+### The second batch: market cap, whale, exchanges (2026-10-26)
+
+- **A plain cover crop comes first.** All three user pictures took the
+  headline on their own empty space with nothing slid or faded: the dark
+  wall above the laptop, the city along the bottom under the whale, the
+  white at the top right of the hands (dark ink). Sweep the corner, not a
+  ramp.
+- **`T.bleed_portrait`** is the shared 9:16 helper now (it began as a
+  per-file `_bleed_top`). `fill="edge"` continues a flat backdrop (white,
+  a plain sky or wall); **on a cloudy sky or a lit city it streaks** - every
+  column keeps its own colour - so the whale Short uses `fill="blur"`, the
+  picture itself cover-scaled, blurred and dimmed. Look before choosing.
+- **An old headline that gives the answer is replaced by the hook's
+  question.** "Your crypto is [not yours]" became `Who\nholds\nyour\n[coins?]`
+  ("But who is actually holding it?"), and "Cheap coin. Easy [win?]" became
+  `Is a $0.05\ncoin\n[cheap?]` - "easy win" read as a promise of gains.
+- **The site poster is the same file.** When a cover is re-done here and the
+  user uploads it by hand, write the long cover straight to the site's
+  `public/images/videos/<slug>.webp` (WebP, quality 88, as
+  `fetch_video_poster` does) and match the site's `title` to YouTube's -
+  see `docs/publish/site.md`.

@@ -70,6 +70,7 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/crypto-long/crypto-exchanges.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
@@ -526,6 +527,39 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-26 on the user's picture: one hand passing a Bitcoin into
+# another, on white. The question is the hook's ("But who is actually holding
+# it?"); the old "Your crypto is [not yours]" gave the answer away.
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/exchanges/coin-hand-to-hand.jpg"   # 2000x1333, supplied by the user
+HEADLINE = "Who\nholds\nyour\n[coins?]"
+
+
+def _cover(path: Path, ax: float = 0.0, ay: float = 0.0):
+    """A plain cover crop of the supplied picture to 1280x720 - nothing slid,
+    nothing faded - so the subject stays whole and the headline sits on the
+    picture's own empty space."""
+    from PIL import Image
+    src = Image.open(path).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    src = src.resize((1280, h), Image.LANCZOS)
+    y0 = int((h - 720) * ay)
+    return src.crop((0, y0, 1280, y0 + 720))
+
+
+def thumbs(out: Path) -> Path:
+    """Four short rows in dark ink on the white at the top right, clear of
+    the coin and both hands."""
+    from video_automation.longform import thumb as T
+    im = _cover(COVER)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, HEADLINE, 200, 290, 840, fill, ink, max_lines=4,
+                leading=1.02, band="top", margin=40, shadow=11,
+                drop=(5, 6),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/crypto-exchanges-long.mp4"
     work = Path.home() / "Desktop/.crypto-exchanges-long-work"
@@ -533,39 +567,22 @@ def main() -> None:
         SECTIONS, out, work, brand=CRYPTO, meta=META, voice=VOICE,
         music=MUSIC,
         callouts=None,
-        # The title already carries the search phrase and already asks the
-        # custody question, so the thumbnail asks the thing that decides which
-        # answer applies to *you* — and the accent lands on "yours", which is
-        # the whole argument in one word.
-        #
-        # **Hand-placed, and this one is worth the note.** `_layout` cannot
-        # win on this source: the cascade returns a box running off the top of
-        # the original, so the man is already clipped before any crop, and the
-        # searched answer zoomed until only half his face was left against the
-        # frame edge. `crop_at=(0.0, 0.0)` takes the top-left of the cover
-        # crop, which is the one placement that keeps his whole head — and the
-        # right half of the frame is the dashboard's dark falloff, which is
-        # where the type wanted to be anyway.
-        thumb_headline="Your crypto is [not yours]",
-        thumb_image=POSTS / "futuristic-crypto-exchange.jpg",
+        # Hand-built cover since 2026-10-26, see `thumbs()`. The first one
+        # was the futuristic-crypto-exchange.jpg man, hand-placed with
+        # crop_at=(0, 0) and shift=0.16 because `_layout` kept clipping him.
+        thumb_headline=HEADLINE,
+        thumb_image=COVER,
         thumb_accent="red",
-        thumb_side="right",
-        thumb_crop_at=(0.0, 0.0),
-        # **And slid 16% left, with the vacated band faded to black.** A cover
-        # crop of a landscape source into 16:9 has no horizontal slack at all,
-        # so `crop_at`'s `ax` cannot move a subject sideways — the only lever
-        # was zoom, which is what put half his face off frame to begin with.
-        # `shift` translates the picture and fades what it uncovers, which is
-        # the user's own suggestion: the man is entirely clear on the left and
-        # the type gets a real black ground rather than a scrim over the
-        # dashboard. Swept 10 / 16 / 22 and looked; 22 crowds him against the
-        # edge and 10 still catches "YOUR" on the hologram.
-        thumb_shift=0.16,
         endcard=ENDCARD, endcard_lead=7.0,
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/crypto-exchanges-long-thumb.jpg"))
+    else:
+        main()
