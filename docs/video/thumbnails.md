@@ -775,3 +775,12 @@ what the audience wants from the subject.
   type: shade only the empty side behind it, as on proof of stake.
 - On the 9:16 cut the ear sat just below the middle, so the bottom band put
   the rows across the AirPod; the dark hair above took them instead.
+- **Slide the picture and continue its flat backdrop sideways** (noise
+  canceling, new tinnitus): when the subject fills the frame or sits dead
+  centre, slide it toward one edge and fill the gap with one column of its
+  own backdrop (teal, grey wall) feathered 200px in - `_slide` in those two
+  project files. Same idea as `bleed_portrait`, horizontal. The old covers
+  slid with `shift` and laid black; continuing the backdrop keeps the
+  picture's colour and lets dark ink sit on it.
+- Two more source photos had been pruned from the stock cache (Pexels
+  3757028, 8638769) and were re-fetched by id.

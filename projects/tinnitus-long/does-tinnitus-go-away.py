@@ -36,6 +36,7 @@ this leans on the picture column and on screened stock — a 900px source in the
 660px column is a downscale, the same source full-frame at 1920 is not.
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core.brand import TINNITUS
@@ -339,6 +340,30 @@ META = Meta(
 )
 
 
+# Re-set 2026-10-26 in the current format: the same words in three big rows.
+COVER = IMG / "anxiety.jpg"          # 900x600 site image - upscaled 1.78x here
+HEADLINE = "Does it\never\n[go away?]"
+
+def thumbs(out: Path) -> Path:
+    """Scaled 1.25x and anchored left so she moves right, whole; three rows
+    in dark ink on the light kitchen to her left."""
+    from video_automation.longform import thumb as T
+    from PIL import Image
+    src = Image.open(COVER).convert("RGB")
+    w = int(1280 * 1.25)
+    h = int(src.height * w / src.width)
+    src = src.resize((w, h), Image.LANCZOS)
+    y0 = int((h - 720) * 0.4)
+    im = src.crop((0, y0, 1280, y0 + 720))
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 220, 430, 40, fill, ink, max_lines=4,
+                leading=1.02, band="middle", margin=36, shadow=11,
+                drop=(5, 6),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/tinnitus-does-it-go-away-long.mp4"
     work = Path.home() / "Desktop/.tinnitus-long-work"
@@ -349,13 +374,18 @@ def main() -> None:
         # The user's pick over "Which kind do you have?". The type auto-sizes
         # down until "GO AWAY?" fits on one line — see thumb.py; an accent that
         # wraps draws two plates and loses the focal point.
-        thumb_headline="Does it ever [go away?]",
-        thumb_image=IMG / "anxiety.jpg",
+        thumb_headline=HEADLINE,
+        thumb_image=COVER,
         thumb_accent="orange",
     )
+    # `render_long`\'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-does-it-go-away-long-thumb.jpg"))
+    else:
+        main()
