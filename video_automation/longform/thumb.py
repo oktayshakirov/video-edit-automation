@@ -422,7 +422,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     black for a picture whose empty space is light (a white studio backdrop),
     so the type can sit on the picture's own space instead of a black ramp
     laid over it. Dark words get no drop shadow - on a light ground it reads
-    as a smudge, not as depth. Plates keep theirs.
+    as a smudge, not as depth. Plates never get one.
 
     **Shrink until it fits and until the accent run lands whole on one line.**
     An accent that wraps draws two plates on two lines and loses the single
@@ -617,8 +617,9 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     dx, dy = drop
     lay = Image.new("L", base.size, 0)
     ld = ImageDraw.Draw(lay)
-    for b in plates:
-        ld.rectangle([b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy], fill=190)
+    # **The coloured plate casts no shadow** (the user, 2026-10-26). Only the
+    # bare white words get one; a plate is already a solid shape on the
+    # picture, and a dark halo under it reads as a sticker.
     light = sum(text) / 3 > 128
     for gx, gy, word, tag in glyphs:
         if not tag and light:
