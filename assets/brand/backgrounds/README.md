@@ -7,6 +7,7 @@ The moving ground behind a drawn beat, one per brand, named by
 |---|---|---|
 | `tinnitus-galaxy.mp4` | tinnitushelp.me | supplied nebula starfield, ping-ponged, 12 s |
 | `crypto-blackwater.mp4` | thecrypto.wiki | black water, ping-ponged from stock, 12 s |
+| `loveswipe-*.mp4` | Love Swipe | six generated two-bloom grounds (neon, ruby, ocean, sunset, emerald, midnight), one per video in a batch - `backdrop.LOVESWIPE_BACKDROPS` |
 
 ## `tinnitus-aurora` is gone, and do not regenerate it
 

@@ -452,7 +452,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         # unconditionally, on every quiz render, the moment `item_count`
         # replaced the old `len(sh.payload[0])` shortcut that quiz shots
         # (harmlessly) also happened to satisfy.
-        if sh.graphic and sh.graphic != "quiz":
+        # `truthdare` is the same kind of sentinel, for
+        # `quiz.truthdare.render_truth_dare_short`.
+        if sh.graphic and sh.graphic not in ("quiz", "truthdare"):
             starts = [captions[first + k].start for k in range(len(sent))]
             # **`item_count` knows the shapes `len(payload[0])` does not.**
             # That shortcut holds for every list beat, where payload[0] is the

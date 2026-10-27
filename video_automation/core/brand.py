@@ -174,4 +174,26 @@ TINNITUS = Brand(
     mark_scale=0.42,
 )
 
-BRANDS = {b.name: b for b in (CRYPTO, TINNITUS)}
+LOVESWIPE = Brand(
+    name="loveswipe",
+    site="Love Swipe",            # an app, not a site: the store name is the CTA
+    # The icon's neon pink. The TRUTH/DARE pair are the icon's cyan and pink
+    # and live with the beat that draws them (`quiz.truthdare`), since only
+    # that beat has two cards to tell apart.
+    primary=(255, 110, 199),
+    ink=(255, 255, 255),
+    bg=(12, 6, 20),
+    panel=(30, 16, 40),           # the app's #1a0a0f card, lifted off the glow
+    negative=(255, 107, 107),     # #FF6B6B, the app's own red
+    strike=(255, 140, 140),
+    grid=(40, 22, 52),
+    band=(170, 50, 150),
+    backdrop="loveswipe-neon",
+    # The app's transparent heart with the name set under it — the same
+    # mascot-over-wordmark lockup tinnitushelp.me uses, at the same scale.
+    mascot=Path.home() / "Coding/couples-card-game/assets/images/icon-simple.png",
+    wordmark="Love Swipe",
+    mark_scale=0.42,
+)
+
+BRANDS = {b.name: b for b in (CRYPTO, TINNITUS, LOVESWIPE)}

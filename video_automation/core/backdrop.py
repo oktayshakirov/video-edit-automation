@@ -172,6 +172,47 @@ PLUM = dict(
 )
 
 
+# **Love Swipe's ground: the app icon's two neons, pushed almost to black.**
+# The icon is a pink card and a blue card on near-black, so the field is one
+# soft magenta bloom and one blue one at PLUM's wide sigmas — a continuous
+# glow with no cloud edges, dark enough (mean luma in the twenties, like the
+# other two) that white type and the cards' neon borders carry the frame.
+LOVESWIPE_NEON = dict(
+    base=(10, 5, 20),
+    blobs=[
+        # cx    cy   radius turns phase  colour           strength sigma
+        (0.36, 0.40, 0.10,  1,   0.00, (120, 28, 110),   0.30,  0.60),
+        (0.66, 0.60, 0.12,  1,   0.50, (34, 40, 140),    0.32,  0.66),
+    ],
+)
+
+# **One ground per video in a Love Swipe batch** (2026-10-27): the series is
+# posted on one TikTok grid, and six videos on one purple read as one video
+# posted six times. Same recipe as `LOVESWIPE_NEON` - two wide blooms, the
+# PLUM sigmas - with only the hues moved, so the white type and the cyan and
+# pink cards hold on every one.
+LOVESWIPE_BACKDROPS = {
+    "loveswipe-neon": LOVESWIPE_NEON,
+    "loveswipe-ruby": dict(base=(18, 4, 10), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (140, 22, 52), 0.30, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (96, 18, 84), 0.30, 0.66)]),
+    "loveswipe-ocean": dict(base=(4, 10, 22), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (10, 86, 120), 0.30, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (30, 34, 128), 0.30, 0.66)]),
+    # Amber and burnt orange: with a magenta second bloom it read as a
+    # second ruby beside the first, and over plum it went brown.
+    "loveswipe-sunset": dict(base=(14, 6, 2), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (210, 104, 16), 0.22, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (150, 46, 14), 0.20, 0.66)]),
+    "loveswipe-emerald": dict(base=(4, 16, 14), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (12, 100, 72), 0.28, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (16, 52, 96), 0.30, 0.66)]),
+    "loveswipe-midnight": dict(base=(6, 6, 22), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (72, 34, 150), 0.30, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (20, 56, 140), 0.30, 0.66)]),
+}
+
+
 _RETIRED_TINNITUS_AURORA = dict(
     base=(10, 6, 15),
     blobs=[
