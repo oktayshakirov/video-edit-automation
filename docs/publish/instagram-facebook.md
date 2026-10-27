@@ -25,6 +25,17 @@ cloudflared tunnel --url http://localhost:8765
 
 Run the server with `run_in_background: true`; it never exits on its own.
 
+**Check the port is free first: `lsof -nP -iTCP:8765 -sTCP:LISTEN`.** On
+2026-10-27 the fitness-automation review server (`core/review_server.py
+8765`) already held `127.0.0.1:8765`. `http.server` then bound IPv6 only and
+reported nothing, so every request to `127.0.0.1` - and the tunnel to
+`localhost` - reached the fitness app instead, and that app sat on a public
+URL for two minutes before the 404s gave it away. Moving to another port is
+not a fix: both workflows hard-code `http://127.0.0.1:8765` for their local
+fetches. Ask the user before stopping whatever holds it, then serve with
+`--bind 127.0.0.1` and tunnel to `http://127.0.0.1:8765`, and restart their
+server afterwards with the same command from its own repo.
+
 **Use `--directory`, not `cd <folder> && python3 ...`.** A permission rule
 matches the command string from its start, so a compound `cd X && python3 ...`
 does not match `Bash(python3 -m http.server *)` and gets classified as if no
@@ -224,6 +235,23 @@ believing a run is the one you started.
   five minutes and is not generous - do not lower it.
 - `FB Reel Upload` authenticates by query string rather than the documented
   header. Verified working on both Pages; see the note in `publish-content`.
+
+## "Gateway timed out" on Publish Facebook Video does not mean it failed
+
+**On 2026-10-27 the 400 MB `north-korea-crypto` long failed at `Publish
+Video` after 120 seconds** with Facebook's HTML "Gateway timed out" page. The
+access log showed one fetch of the mp4, and the video was created and
+**published** on the Page anyway (`2863609347415743`). Only the nodes after it
+did not run - the cover, and the inline Telegram branch if it was passed.
+
+So a red execution on this node is not a reason to re-run - a re-run would
+have posted the video twice. **List the Page's videos first**:
+`GET /me/videos?fields=id,title,created_time,status&limit=5` through a
+throwaway webhook workflow (see the cover verification section below for
+the pattern). If the title is there, set the cover the same way: fetch
+`http://127.0.0.1:8765/<thumb>.jpg` as binary and POST it multipart to
+`/{video_id}/thumbnails?is_preferred=true`, then verify the pixels as
+described below. Post Telegram with the standalone workflow.
 
 ## The native Page video's cover
 
