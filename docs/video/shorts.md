@@ -563,6 +563,12 @@ Rules that apply to all of them:
 - **It must be true and the video must pay it off.** A number that is not in
   the article, a verdict the cut never argues, a flash of a picture that never
   returns: all the same fault as a hidden word that is never revealed.
+- **A `Search` query that asks ends on a question mark, automatically**
+  (2026-10-27). The user's note: the bar typed "did beethoven have
+  tinnitus" and "how to manage a tinnitus spike" with no mark. A query
+  opening on a question word (how, what, why, does, did, can, is...) gets
+  `?` from `Search.as_question`, typed as the last keystroke. Write the
+  query plainly; do not add the mark by hand and do not strip it.
 - **`Search` shows the question only.** No autocomplete answer, no result - the
   user's call, 2026-09-24, and it is the "complete answer in sentence 2"
   mistake in picture form: answer it on screen at 2s and the viewer has what
@@ -1081,6 +1087,16 @@ divider. Each label's cap height now centres on the disc, a two-word label
 centring its whole block, and the question sits under the disc. Nothing to
 pass per video, in either aspect; labels can still collide with the disc if
 they are long, as above.
+
+## A longer `Search` query needs a longer gap after sentence 1 (2026-10-27)
+
+`Search` clears when its last keystroke has landed, so the clear time grows
+with the query: Beethoven's "did beethoven have tinnitus" cleared at 2.6s,
+"what to do during a tinnitus spike" at 2.9s. With the same 1.00 gap the
+spike Short's sentence 2 - the task the whole opening depends on - started
+under the opener and ran with no captions at all (the render logs "captions
+resume with the sentence at ..."; read that line). Size the first gap so
+sentence 2 starts after the clear: 1.20 there.
 
 ## `enter_word` holds an opener back until the voice says it (2026-10-11)
 
