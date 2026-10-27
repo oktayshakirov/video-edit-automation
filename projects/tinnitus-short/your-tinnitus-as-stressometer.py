@@ -37,14 +37,13 @@ Run from the repo root:
     PYTHONPATH=. .venv/bin/python projects/tinnitus-short/your-tinnitus-as-stressometer.py
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core import music
-from video_automation.core.brand import TINNITUS
 from video_automation.core.stock import CACHE as STOCK
 from video_automation.crypto.shots import Shot
 from video_automation.longform.openers import Split
-from video_automation.longform.thumb import render_short_thumb
 from video_automation.tinnitus.article import render_tinnitus_short
 
 SOURCE_POST = "your-tinnitus-as-stressometer"
@@ -161,6 +160,42 @@ SHOTS = [
 ]
 
 
+COVER = STOCK / "photos/stressed-woman-laptop-user-picked/4226218.jpg"
+HEADLINE = "Does\nstress make\ntinnitus\n[worse?]"
+
+
+def thumbs(out: Path) -> Path:
+    """She and the laptop cut round and scaled to the width on the bottom of
+    the frame; above her, the wall's own flat white (sampled from the empty
+    top-left corner) takes four rows in dark ink. Not `bleed_portrait`: her
+    hair reaches the photo's top edge, and continuing that edge upward drew
+    a brown streak to the top of the frame."""
+    import numpy as np
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COVER).convert("RGB")
+    crop = src.crop((int(src.width * 0.30), 0, src.width, src.height))
+    h = int(crop.height * 1080 / crop.width)
+    crop = crop.resize((1080, h), Image.LANCZOS)
+    wall = tuple(int(c) for c in np.asarray(
+        src.crop((0, 0, src.width // 6, src.height // 6))).reshape(-1, 3).mean(0))
+    im = Image.new("RGB", (1080, 1920), wall)
+    y, feather = 1920 - h, 160
+    im.paste(crop, (0, y))
+    a = np.zeros((1920, 1), np.float32)
+    a[:y, 0] = 1.0
+    a[y:y + feather, 0] = np.linspace(1.0, 0.0, feather)
+    mask = Image.fromarray((np.repeat(a, 1080, 1) * 255).astype("uint8"))
+    im = Image.composite(Image.new("RGB", im.size, wall), im, mask)
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink, max_lines=4,
+                max_block=1920 * 0.36, leading=1.02, band="top",
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
+                text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/your-tinnitus-as-stressometer-short.mp4"
     work = Path.home() / "Desktop/.your-tinnitus-as-stressometer-short-work"
@@ -170,17 +205,15 @@ def main() -> None:
                                         opener=OPENER, outro=OUTRO,
                                         tail=2.0)
 
-    # Same art and headline as the long form, in short forced rows at a
-    # raised size. The dial still has no person in it, so there is no face
-    # for the type to cover.
-    thumb = render_short_thumb(
-        out.with_name(out.stem + "-thumb.jpg"), TINNITUS,
-        "Does stress\nmake tinnitus\n[worse?]", image=THUMB_ART_V,
-        accent="orange", ax=0.50, zoom=1.0, at=0.50, band="bottom", size=240)
+    # Same picture and words as the long form (re-done 2026-10-27).
+    thumb = thumbs(out.with_name(out.stem + "-thumb.jpg"))
 
     print(f"{path}  {total:.1f}s")
     print(f"{thumb}   <- Short cover")
 
 
 if __name__ == "__main__":
-    main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-stress-short-thumb.jpg"))
+    else:
+        main()

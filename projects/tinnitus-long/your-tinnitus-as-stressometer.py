@@ -408,6 +408,30 @@ META = Meta(
 )
 
 
+# Re-done 2026-10-27 on the user's pick: a stressed woman at a laptop (Pexels
+# 4226218, Anna Shvets). It replaces the drawn dial (`thumb_art`, kept below)
+# - a person under stress is the situation the viewer pictures.
+COVER = STOCK / "photos/stressed-woman-laptop-user-picked/4226218.jpg"   # 5821x3881
+HEADLINE = "Does\nstress\nmake\ntinnitus\n[worse?]"
+
+
+def thumbs(out: Path) -> Path:
+    """A plain cover crop: she and the laptop stay whole on the right, and
+    five short rows in dark ink fill the flat white wall to her left.
+    Sliding her right to widen the wall pushed the laptop out of frame."""
+    from PIL import Image
+    from video_automation.longform import thumb as T
+    src = Image.open(COVER).convert("RGB")
+    h = int(src.height * 1280 / src.width)
+    im = src.resize((1280, h), Image.LANCZOS).crop((0, 0, 1280, 720))
+    fill, ink = T.ACCENTS["orange"]
+    T._headline(im, HEADLINE, 220, 300, 40, fill, ink, max_lines=5,
+                leading=1.02, band="middle", margin=40, shadow=11,
+                drop=(5, 6), text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
+
+
 def main() -> None:
     out = Path.home() / "Desktop/your-tinnitus-as-stressometer-long.mp4"
     work = Path.home() / "Desktop/.your-tinnitus-as-stressometer-long-work"
@@ -419,11 +443,12 @@ def main() -> None:
         # The article's own two readings, no winner: why they differ is the
         # video. Lands as the voice says "four".
         opener=Split("8/10", "4/10", "Same ears?", at_word="four"),
-        # The meter itself, as a still, with the title's own question.
-        thumb_headline="Does stress make tinnitus [worse?]",
-        thumb_image=THUMB_ART, thumb_accent="orange",
-        thumb_crop_at=(0.5, 0.5), thumb_side="left", thumb_shift=0.24,
+        # The title's own question. The cover is hand-built in `thumbs()`.
+        thumb_headline=HEADLINE,
+        thumb_image=COVER, thumb_accent="orange",
     )
+    # `render_long`'s own thumbnail is replaced by the hand-built one.
+    made["thumb"] = thumbs(Path(made["thumb"]))
     for k, v in made.items():
         print(f"{k}: {v}")
 
@@ -460,4 +485,9 @@ def thumb_art() -> None:
 
 if __name__ == "__main__":
     import sys
-    thumb_art() if "--thumb-art" in sys.argv else main()
+    if "--thumb" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tinnitus-stress-long-thumb.jpg"))
+    elif "--thumb-art" in sys.argv:
+        thumb_art()
+    else:
+        main()
