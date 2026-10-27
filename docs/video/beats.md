@@ -769,6 +769,13 @@ loudness scale.
   on a thumbnail reads as "the market is fearful right now", which is exactly
   the claim these channels never make.
 
+- **`top=0` is a scale with no unit** (2026-10-27). "How loud should a
+  background sound be" is read against the viewer's own tinnitus, and the
+  first cut printed 0 / 25 / 50 / 75 / 100 round the arc and "45" under the
+  hub - a precision the article never gave. With `top=0` the arc carries no
+  numerals, no figure is drawn, and the label rises into the figure's place.
+  Reach for it whenever the regions have names and the scale has no number.
+
 ### Vary the beats across the channel, not only within one video
 
 **Restating the silhouette rule at the unit it should always have used.**

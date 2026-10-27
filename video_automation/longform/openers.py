@@ -448,15 +448,32 @@ class Search(_Opener):
 
     TYPE_AT = 0.30       # the first keystroke, after the slam
 
+    # **A query that asks gets its question mark** (the user's note,
+    # 2026-10-27): every `Search` so far typed "did beethoven have tinnitus",
+    # "how to manage a tinnitus spike" with no mark, and the bar read as a
+    # statement. A query opening on one of these words is a question, so the
+    # mark is added here rather than remembered in every script.
+    QUESTION_WORDS = ("how", "what", "why", "when", "where", "which", "who",
+                      "whose", "is", "are", "can", "could", "do", "does",
+                      "did", "should", "will", "would", "has", "have")
+
+    @classmethod
+    def as_question(cls, query: str) -> str:
+        q = query.rstrip()
+        first = q.split(maxsplit=1)[0].lower() if q else ""
+        if first in cls.QUESTION_WORDS and not q.endswith("?"):
+            q += "?"
+        return q
+
     def __init__(self, query: str, **kw):
         super().__init__(**kw)
-        self.query = query
+        self.query = self.as_question(query)
         # **The shared typing rhythm** (2026-10-22): the same schedule, jitter,
         # caret and key clicks as the typed chapter cards, so every piece of
         # type that writes itself on in a video moves at one tempo. It used
         # to type at a fixed 0.085s a character with its own blink.
         from ..core import typewriter
-        self.times = typewriter.schedule(query, self.TYPE_AT)
+        self.times = typewriter.schedule(self.query, self.TYPE_AT)
 
     def _layout(self):
         super()._layout()

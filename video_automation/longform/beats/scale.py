@@ -340,6 +340,12 @@ class Dial(Beat):
     whole number of `top` keeps its mark and loses its numeral, so a 0-10 dial
     reads 0 / 5 / 10 with two unlabelled minor ticks between.
 
+    **`top=0` is a scale with no unit** (2026-10-27): no numerals round the
+    arc and no figure under the hub, only the needle and the label. "How loud
+    should a background sound be" is measured against the viewer's own
+    tinnitus, and a "45" under the needle was a precision the article never
+    gave.
+
     payload: (bands, value, label, title, top)
       bands  [(name, upto, "#rrggbb"), ...] — `upto` is the band's far edge as
              a fraction of the scale, ascending, ending at 1.0. The first and
@@ -347,7 +353,7 @@ class Dial(Beat):
       value  0.0..1.0, or None for a scale with no needle
       label  what the needle position is called, under the figure
       title  the beat's kicker
-      top    what the far end of the scale reads (100)
+      top    what the far end of the scale reads (100); 0 for no unit
     """
 
     EMBLEM = False
@@ -366,6 +372,8 @@ class Dial(Beat):
     def tick_labels(self) -> list[tuple[float, str]]:
         """The quarters that land on a whole number of `top`, and their text."""
         out = []
+        if not self.top:
+            return out
         for e in self.TICKS:
             v = e * self.top
             if abs(v - round(v)) < 1e-6:
@@ -510,8 +518,12 @@ class Dial(Beat):
             txt = str(int(round(self.value * self.top * travel)))
             bb = d.textbbox((0, 0), txt, font=big)
             fy = cy + (104 if not self.portrait else 118)
-            shadow_text(d, (cx - (bb[2] - bb[0]) / 2, fy), txt, big,
-                        self.brand.ink)
+            if not self.top:
+                # No unit, no figure: the label rises into the figure's place.
+                bb = (0, 0, 0, 20)
+            else:
+                shadow_text(d, (cx - (bb[2] - bb[0]) / 2, fy), txt, big,
+                            self.brand.ink)
             if self.label and travel > 0.92:
                 lf = _font(44 if not self.portrait else 48)
                 bb2 = d.textbbox((0, 0), self.label.upper(), font=lf)
