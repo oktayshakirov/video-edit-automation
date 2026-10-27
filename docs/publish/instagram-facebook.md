@@ -141,6 +141,9 @@ the video is the de-facto title, and the caption's first line is the rest of it.
 One n8n form workflow per site. n8n must be running at `http://localhost:5678`.
 **If it is not, start it yourself** - just run `n8n` in the terminal. The
 user's instruction, 2026-08-23; do not stop and ask them to do it.
+**And stop it when the run is done** - after the last workflow execution has
+finished, not just the tunnel. The user's instruction, 2026-10-27: always stop
+n8n when you finish using it.
 
 **The workflows are version-controlled**, one JSON per workflow at the root of
 each automation repo: `publish_facebook_video.json`, `publish_reel.json` and
