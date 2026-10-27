@@ -113,6 +113,9 @@ a platform from the run.
 3. **Start the tunnel once and keep it up for both.** Both the short's Reels and
    the long's native Facebook upload need a public URL, so serve the render
    folder and open one tunnel rather than one per video. Stop it after step 4.
+   **Stop n8n too once the last workflow has finished** (the long's Telegram
+   share and Facebook video included) - the user's instruction, 2026-10-27:
+   always stop n8n when you finish using it, whether or not you started it.
 4. **Short: Reels then TikTok. Long: native Facebook upload, then poster,
    `videos.json`, the deploy gate and `npm run sync-content`.** The Reel caption
    rules - short hook plus one or two sentences, 3 to 5 varied hashtags, **no
