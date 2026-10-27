@@ -129,19 +129,25 @@ SHOTS = [
 
 def thumbs(out: Path) -> Path:
     """Her side of the photo on the bottom of the frame; the busy room is
-    continued above as a blur (`thumbnails.md`, rule 6) and takes the rows
-    in dark ink, clear of her face."""
+    continued above as a blur (`thumbnails.md`, rule 6). The rows are white
+    over that blur shaded by half, easing off before her headphones - dark
+    ink on the light blur was still hard to read (the user, 2026-10-27)."""
+    import numpy as np
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(THUMB_PHOTO).convert("RGB")
     w, h = src.size
     im = T.bleed_portrait(src.crop((int(w * 0.35), int(h * 0.06), int(w * 0.95), h)),
                           fill="blur")
+    # Shade the type's area only: 50% at the top, smoothstepped to none by
+    # y=900, above her head.
+    t = np.clip((900 - np.arange(1920, dtype=np.float32)) / 300, 0, 1)
+    t = (t * t * (3 - 2 * t) * 0.5)[:, None, None]
+    im = Image.fromarray((np.asarray(im).astype(np.float32) * (1 - t)).astype(np.uint8))
     fill, ink = T.ACCENTS["red"]
     T._headline(im, THUMB_HEADLINE, 240, 1080 - 2 * 52, 52, fill, ink,
                 max_lines=4, max_block=600, leading=1.02, band="top",
-                margin=int(1920 * 0.13), shadow=14, drop=(6, 8),
-                text=(20, 20, 20))
+                margin=int(1920 * 0.13), shadow=14, drop=(6, 8))
     im.save(out, quality=92)
     return out
 
