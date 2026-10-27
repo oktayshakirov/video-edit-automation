@@ -1255,3 +1255,35 @@ multisig, a DAO's signers.
 when possible.** What made it work: line art in the brand colour, one object
 per spoken phrase, then a single state change (the lock opening) that is the
 sentence's point. Use that as the template for the next topic-specific beat.
+
+## `blindsign` - the screen they approved, and what they signed (2026-10-27)
+
+`payload: (shown, real, signers, title, heads)`, rows `[(key, value), ...]`.
+**Three reveals, three caption chunks**: the card ("The screen asked for a
+routine transfer..."), the approvals ("Three signers approved it..."), the
+truth ("But what they signed handed it to the attackers."). The card draws
+round and its rows set; each signer's disc fills with a tick 0.42s apart;
+then a scanline sweeps down, tearing the rows it crosses, and above it is
+the real transaction - header and every changed value in `brand.negative`.
+The ticks stay: they signed it.
+
+Built for `how-does-north-korea-steal-crypto`, because Bybit, Drift and
+Bitget all turned on one gap - people approving what their screen showed -
+and nothing here draws a display disagreeing with its payload. `quorum` is
+a threshold, `post` a quoted line. Reach for it on any blind-signing story:
+a wallet drainer, an unlimited approval, a spoofed withdrawal. It follows
+`quorum`'s template: line art in the brand colour, one object per phrase,
+one state change.
+
+- **Portrait-safe** and whitelisted in `crypto/build.py`. In 9:16 each row
+  stacks its key over its value: side by side, a 940px card left a value
+  ~630px and "Replace wallet code" did not fit at a phone-readable size.
+  The card centres on the frame - a beat in a Short burns no caption.
+- `__init__` raises on a value or header wider than its row.
+- Cues: a `pan` on the card, a `tick` per approval, `glitch_cut` as the
+  sweep starts and `cross` as it lands - timed from the beat's own
+  `sign_times` / `sweep_span`, so sound and picture share one clock.
+- Give its sentence a `gap` of ~1.8-2.0s: the sweep runs 1.1s from 0.1s
+  after the third chunk starts.
+- A finished still makes the concept thumbnail (`reveals=[0, 3, 6]`,
+  `f` near 1.0) - both covers of the North Korea pair are it.

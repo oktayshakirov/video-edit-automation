@@ -119,7 +119,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
-                        "spotlight"):
+                        "spotlight", "blindsign"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -218,6 +218,18 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
                 cues.append((rv[0] - 0.05, "pan"))
             if len(rv) > 1:
                 cues.append((rv[1] + 0.05, "reveal"))
+        elif sh.graphic == "blindsign":
+            # The card on a pan, a tick per approval, the scanline on a
+            # glitch and its landing on a cross (`beats.blindsign`).
+            from ..longform.beats.blindsign import sign_times, sweep_span
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues += [(t, "tick") for t in sign_times(rv[1], len(sh.payload[2]))]
+            if len(rv) > 2:
+                t0, t1 = sweep_span(rv[2])
+                cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
         elif sh.graphic == "reel":
             for i, t in enumerate((sh.reveals or [])[:12]):
                 if i:
