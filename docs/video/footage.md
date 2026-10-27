@@ -1199,3 +1199,30 @@ trading screens; the site's `ledger.jpeg` (unused until now) carries it.
 | `home-safe-opening/*`, `hand-opening-safe-dial/*` | delivery boxes; a rotary telephone; a car dashboard |
 | `typing-password-laptop-night/36036810` | a hooded figure at a laptop - the hacker trope |
 | `stamping-metal-letters/*`, `family-looking-old-photographs/*`, `empty-office-chair-night/*`, `bank-teller-counter/*` | off-noun or L100-180 daylight |
+
+## The spike re-angle fetch: verdicts (2026-10-27)
+
+`how-to-manage-a-tinnitus-spike` fetched its whole roster fresh (about 120
+clips over five rounds) because every cached tinnitus clip is cut elsewhere.
+The queries were for the acts the script names - a lamp going off, a speaker,
+faders, breathing, headphones, shoulders, a notebook, water - and every pick
+was contact-sheeted at 15/50/85%.
+
+| clip | verdict |
+| --- | --- |
+| `woman-breathing-slowly-eyes-closed-dark-room/7191270`, `6438122` | meditation in a sports bra on a mat: reads as a fitness ad, like the stress-meter midriff. `5114850` (a woman, head back, eyes closed, 8s) **kept** |
+| `man-breathing-deeply-eyes-closed-night/6415878`, `6415611` | the same bearded man in the same black studio as `6415592`, which the myths cut over-used. Adjacent ids, same shoot |
+| `man-meditating-eyes-closed-dark-room/6447702` | **kept**: a man seated, eyes closed, a dark loft. `6448051` is a yoga pose |
+| `person-sitting-still-in-quiet-dark-room/6068286` | one figure under one bulb in an empty room - the look of the head-shaving clip `6073058`. Not used on suspicion. `8860237` (an old man by a bedroom window, a cane) **kept** |
+| `person-sitting-still-in-quiet-dark-room/6470619`, `man-rolling-shoulders-tension-relief/4588470` | a figure holding his head, purple light; a man gripping his skull - portraits of suffering, the thing this channel does not cut |
+| `turning-off-lamp-bedroom-night/8810535` | **kept**, but from 0.5-6s: by ~11s the lamp fills the frame white |
+| `woman-massaging-her-own-shoulders/5978076` | **kept** for a `reel` card only (L75): somebody else's hands easing her shoulders. Bright is right on a reel card |
+| `woman-relaxing-on-sofa-evening-lamp/6264055` | **kept** for a `reel` card (L75), a woman reading on a sofa. `15010135` is a woman asleep under a blanket |
+| `doing-jigsaw-puzzle-at-night/*`, `crossword-puzzle-hands-pencil/*` | every result L70-150 on white tables |
+| `pouring-glass-of-water-dark-kitchen/*` | all L76-106. `drinking-glass-of-water-close-up-dark/10631942` (L65, a glass filling) **kept** as the only usable one |
+| `alarm-clock-bedside-night/*`, `warning-light-blinking-dark/*`, `red-alarm-light-dark/*` | bright clocks, an exit sign, a blue window, a smiling man in a doorway. The alert is drawn in the `diagram` instead |
+| `hand-holding-phone-dialing-dark/*`, `phone-call-at-night-window/*` | L74-129 or already cut. `typing-notes-on-phone-at-night/6414098` carries the red-flag line |
+| `loud-bar-crowd-night/12893902` | a club shot from the floor up, dancers' bodies - off-message. `6531530` (a bar, red light) **kept** |
+| `hands-massaging-own-neck-shoulder-dark/6187323` | a shirtless man being massaged - reads as a spa ad |
+| `rain-on-window-night/4458845` | the shoot of `4458918`, cut elsewhere. `34977302` **kept** |
+| `volume-knob-turning-close-up-dark/12213085`, `12213087` | the shoot of `12213088`, the first spike pair's knob. `audio-equalizer-lights-dark/7087627` (a hand on faders) **kept** |

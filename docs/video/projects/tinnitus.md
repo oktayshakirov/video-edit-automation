@@ -358,7 +358,7 @@ the fifth row, go back to `mia` until the user decides.
 | # | pair | built |
 | --- | --- | --- |
 | 1 | `did-beethoven-have-tinnitus` | 2026-10-24 |
-| 2 | | |
+| 2 | `how-to-manage-a-tinnitus-spike` | 2026-10-27 |
 | 3 | | |
 | 4 | | |
 | 5 | | |
