@@ -828,3 +828,13 @@ what the audience wants from the subject.
   picture's colour and lets dark ink sit on it.
 - Two more source photos had been pruned from the stock cache (Pexels
   3757028, 8638769) and were re-fetched by id.
+
+### A photo instead of a drawn dial (stress, 2026-10-27)
+
+The user replaced the stress-meter dial cover with a photo of a stressed
+woman at a laptop (Pexels 4226218) - the person-in-the-situation rule again.
+Two notes: **sliding her right to widen the white wall pushed the laptop out
+of frame**, so the plain cover crop with five short rows won; and **on the
+Short her hair touches the photo's top edge**, so `bleed_portrait`'s edge fill
+streaked brown - fill with the wall's flat colour sampled from an empty
+corner instead, feathered into the hair.
