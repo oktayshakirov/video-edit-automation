@@ -89,6 +89,10 @@ PAYLOADS = {
     # (keys, need, result, title, gone): landscape only for now.
     "quorum": ([("YOU", "at home"), ("SECOND DEVICE", "another safe"),
                 ("A LAWYER", "in escrow")], 2, "COINS MOVE", "TWO OF THREE", 0),
+    # (shown, real, signers, title, heads): portrait-safe.
+    "blindsign": ([("Action", "Routine transfer"), ("To", "Hot wallet")],
+                  [("Action", "Replace wallet code"), ("To", "Attacker")],
+                  ["SIGNER", "CEO"], "WHAT THEY SAW"),
 }
 
 
@@ -220,7 +224,7 @@ def test_every_beat_class_is_registered():
 
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
-                "spotlight"):
+                "spotlight", "blindsign"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from

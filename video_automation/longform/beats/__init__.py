@@ -64,6 +64,7 @@ from ...core.frame import Frame
 from .base import (DRAW, POP, RISE, Beat, _display, _font, _hex,  # noqa: F401
                    _mark_bottom, _round_corners, _smooth, _unit)
 from .annotate import Anatomy, Callout, Diagram, Map, Quorum
+from .blindsign import BlindSign
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
@@ -82,7 +83,7 @@ __all__ = [
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
-    "Spotlight",
+    "Spotlight", "BlindSign",
     "DRAW", "POP", "RISE",
 ]
 
@@ -112,6 +113,7 @@ BEATS = {
     "post": Post,
     "spotlight": Spotlight,
     "quorum": Quorum,
+    "blindsign": BlindSign,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -152,6 +154,8 @@ _COUNT = {
     "spotlight": lambda p: len(p[1]),
     # Each key as it is named, then the lock opening.
     "quorum": lambda p: len(p[0]) + 1,
+    # The card, the approvals, then what was really signed.
+    "blindsign": lambda p: 3,
 }
 
 

@@ -841,3 +841,12 @@ of frame**, so the plain cover crop with five short rows won; and **on the
 Short her hair touches the photo's top edge**, so `bleed_portrait`'s edge fill
 streaked brown - fill with the wall's flat colour sampled from an empty
 corner instead, feathered into the hair.
+
+## Forced rows widen their column by 1.38 - pass the edge over 1.38 (2026-10-27)
+
+`_headline` widens `col_w` by 1.38 when the rows are forced, so passing the
+card's left edge as the column put "NORTH KOREA" across the `blindsign`
+card on the North Korea cover, and lowering `size` changed nothing. When the
+type has to stop at an object, pass `(edge - x_text - gap) / 1.38`.
+`thumb_image` must be a still: a clip failed in `cv2.imread` after the MP4
+had rendered, and `render_long` now refuses one before synthesis.

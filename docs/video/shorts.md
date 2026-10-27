@@ -1200,3 +1200,13 @@ height - the `hook_centre_y` the redacted hook already had. The meme coins
 long form's `Counter` sat at the 16:9 default 0.26, square over the opening
 Shiba Inu's eyes; `centre_y=0.74` puts it on the chest. Check the opener
 against the opening shot's subject, not only the shot's brightness.
+
+## A screen of small bright text cannot sit under the caption (2026-10-27)
+
+The North Korea Short put "Nobody cracked the encryption..." over a
+terminal printing white log lines, and the burned caption dissolved into
+the text behind it. The long form ran the same clip fine: it burns no
+caption. Under a Short's caption line, a screen clip wants its screen to be
+a glow (`footage.md`, "check what is *on* the prop's screen"); a
+backlit keyboard replaced it. The same pair's stylus clip lost its tablet
+to the 9:16 crop - two clips the long form kept, swapped in the Short.

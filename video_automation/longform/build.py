@@ -131,6 +131,12 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
     for the same space, and the drawn beats are what buy the runtime. The
     complete transcript still ships, as an SRT that YouTube will index.
     """
+    # The thumbnail is drawn last, after the MP4: a clip passed as its image
+    # used to fail there, in `cv2.imread`, and cost the sidecar with it.
+    if thumb_image is not None and Path(thumb_image).suffix.lower() in (
+            ".mp4", ".mov", ".webm"):
+        raise ValueError(f"thumb_image must be a still, got {Path(thumb_image).name}"
+                         f" - export a frame, or build the cover in thumbs()")
     workdir.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
     callouts = set(callouts or ())
@@ -543,6 +549,18 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
                 cues.append((rv[0] - 0.05, "pan"))
             if len(rv) > 1:
                 cues.append((rv[1] + 0.05, "reveal"))
+        elif sh.graphic == "blindsign":
+            # The card on a pan, a tick per approval, the scanline on a
+            # glitch and its landing on a cross (`beats.blindsign`).
+            from .beats.blindsign import sign_times, sweep_span
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues += [(t, "tick") for t in sign_times(rv[1], len(sh.payload[2]))]
+            if len(rv) > 2:
+                t0, t1 = sweep_span(rv[2])
+                cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
         elif sh.graphic == "reel":
             # A pan whoosh as the camera leaves for each next card, and the
             # label's tick as it lands (`beats.reel.Reel`).

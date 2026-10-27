@@ -1226,3 +1226,35 @@ was contact-sheeted at 15/50/85%.
 | `hands-massaging-own-neck-shoulder-dark/6187323` | a shirtless man being massaged - reads as a spa ad |
 | `rain-on-window-night/4458845` | the shoot of `4458918`, cut elsewhere. `34977302` **kept** |
 | `volume-knob-turning-close-up-dark/12213085`, `12213087` | the shoot of `12213088`, the first spike pair's knob. `audio-equalizer-lights-dark/7087627` (a hand on faders) **kept** |
+
+## The North Korea fetch: verdicts (2026-10-27)
+
+**Grep a pick by `"<id>.mp4"`, not `/<id>.mp4`.** The used-id list built
+from `/<id>.mp4` missed `7140928` (the server rack in five projects), because
+`mining-rig.py` joins it as `SERVER / "7140928.mp4"`. The halving note above
+says grep each pick; this is why the pattern matters. **"Pyongyang" and
+"north korea" return Seoul** - Gyeongbokgung, the Sejong statue and a South
+Korean flag. All rejected: on this subject that pairing is a factual error.
+
+| clip | verdict |
+| --- | --- |
+| `clicking-download-laptop-close-up/36392510` | **kept**: a hand on a mouse in red light - opens both cuts |
+| `video-call-job-interview-laptop-night/8632779` | **kept**: a man on a video call with two interviewers, L130 - bright, but the fake recruiter. `8632767`, `8632776`, `8512946` are the shoot |
+| `hands-typing-laptop-dark-room/6611947`, `office-workers-computers-night/39425751` | **kept**: hands on a laptop; fingers on a backlit keyboard |
+| `signing-on-tablet-stylus/6895621` | **kept**: hands with a tablet and stylus - signing. `4962735`, `6185681`, `6612468` bright studios |
+| `hand-pressing-enter-key/5119219` | **kept**: a finger on Enter - "approved" |
+| `dubai-skyline-night/34529274`, `35296036` | **kept**: downtown at night; an aerial with traffic - Bybit's city |
+| `security-camera-monitoring-room/7255101`, `38779103` | **kept**: analysts at a screen wall; an ops floor. `38779098` L132 |
+| `person-reading-contract-carefully/7841874` | **kept**: glasses over a contract - "check what it does". `7841638` is the shoot |
+| `remote-worker-home-office-night/8888780`, `man-working-laptop-alone-night/4069295`, `38990451`, `3585312` | **kept**: workers alone at night - the fake employee. `3585312` smiles by ~20s, use the start |
+| `laptop-video-call-night-dark-room/6517468`, `39191965` | **kept**: a silhouette in blue light; typing in near-dark (under an inset) |
+| `command-line-terminal-screen-dark/35475345` | **kept**: a terminal install log. `35475328` is the shoot |
+| `phnom-penh-night/32934306` | **kept** (reel card): Phnom Penh at dusk, L110 - the place |
+| `rocket-launch-night/854232` | **kept**: a rocket at night under the weapons estimate |
+| `dark-water-ripples-night/10577610` | **kept**: gold light on water - the disclaimer, on-palette |
+| `programmer-code-screen-night/31155915` | a Nike swoosh on the monitor at 15% |
+| `lines-of-code-scrolling-dark/6346228` | green Matrix code, already rejected in the halving fetch |
+| `banknotes-hands-counting-dark/345790xx` | the shoot of `34579096`, already cut |
+| `cash-counting-machine/*` | rupee notes on bright tables, L96-125 |
+| `hong-kong-night-street/10244484` | fine, unused once the cash-out became a reel card; `10244478` has a McDonald's sign |
+| `usb-security-key-laptop/*`, `conference-hall-delegates/*`, `ice-freezing-close-up-dark/*` | white desks, EU flags, bright ice |

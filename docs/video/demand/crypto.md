@@ -20,7 +20,7 @@ is exhausted, with the date.
 - [ ] who is satoshi nakamoto / crypto mysteries
 - [ ] crypto exchange collapse (FTX, Mt. Gox)
 - [ ] bitcoin halving
-- [ ] stablecoins / how do stablecoins work
+- [x] stablecoins / how do stablecoins work (2026-10-27, proven, crowded)
 - [ ] airdrop / airdrop scam
 - [ ] crypto taxes (careful: YMYL, mechanism only)
 - [ ] new coins in games / pop culture (the E8 lane)
@@ -127,3 +127,22 @@ One line per branch: date, the term or channel, what it added.
   Short on the half-mined-in-four-years fact had 335 at 89%. Re-done cover
   and proposed title "Bitcoin Halving Explained: Why Half Was Mined in 4
   Years" carry the Short's fact. Re-check `traffic` in two weeks.
+- 2026-10-27, five `outliers` runs (~630 units) for topic suggestions.
+  "how does north korea steal crypto": **proven (3 channels)** - Blackfiles
+  "The Hacker Who Took Down North Korea" 44.1x (1.9M), Johnny Harris "How
+  North Korea Pulled off a Billion $$$ Heist" 18.0x Short (2.9M), Lume "The
+  Hacker Who Stole $1.5 Billion In 2 Minutes" 3.0x; CoinGecko's mechanism
+  title "Why Does North Korea Love Stealing Crypto So Much?" 0.7x - the
+  story of one heist wins, the why-question does not. "what are prediction
+  markets": **proven** - DGFantasy "Prediction Markets for Dummies" 104x,
+  Coinsider "What is Polymarket? The Ultimate Prediction Market" 31.4x,
+  Lincoln Neilsen 8.0x, Unabated 7.0x. "how do stablecoins work":
+  **proven, crowded** - "How Stablecoin Issuers Make Money" 231.7x (the
+  counterintuitive angle), Binance 26.1x, CoinGecko 14.0x, Whiteboard 12.8x,
+  Mastercard 39.6x Short. "crypto liquidation explained": **proven** but
+  mostly trading-strategy channels (closed to us); CoinGecko "What Does It
+  Mean To Get LIQUIDATED In Bitcoin?" 6.2x and Crypto For Canadians 13.4x
+  are the mechanism ones. "what is a seed phrase": **proven** - CoinGecko
+  twice at 11x ("What Is A SEED Phrase?? How It Is Generated", "...VS
+  Private Keys"), Hipo 4.9x Short; "Your Seed Phrase Wasn't Stolen - It Was
+  Guessed" 1.1x (the fear angle did not stand out).
