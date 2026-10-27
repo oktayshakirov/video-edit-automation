@@ -30,6 +30,9 @@ read them when a cover fights back.
    over the type area, smoothstepped back to sharp before the subject. The
    first cover set black rows straight on a bookshelf and the user found it
    hard to read; the blur keeps the room's colour and only takes its detail.
+   On a Short whose rows sit on a `bleed_portrait` blur of a light room,
+   dark ink was still hard to read: use white rows and shade the blur by
+   half above the subject, easing off before the head (2026-10-27).
 4. **Placement follows the subject.** Type beside or below it with a clear
    gap, centred (`align="center"`) when it sits under a centred subject.
    Never across a face; never across the object the video is about.
