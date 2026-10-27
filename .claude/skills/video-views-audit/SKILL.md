@@ -252,13 +252,9 @@ satisfaction drops. Check whether the hit's viewers came back - subscribers
 around its publish date, and whether the next uploads took suggested
 traffic from it. GTA 6 on crypto is the open case.
 
-**Views are the top of a funnel, not the end.** The channels exist to send
-people to tinnitushelp.me and thecrypto.wiki. Both sites run Google
-Analytics 4, which this skill cannot read: when the question is "is the
-video worth it", ask the user for the GA4 sessions with `youtube.com`,
-`facebook.com` and `tiktok.com` as source over the period, and say where the
-drop is - not enough views, or views that never click through (a weak or
-missing next step in the description), or clicks that leave the page.
+**Site traffic from the videos is parked (the user, 2026-10-27).** Do not
+ask for Google Analytics numbers; judge a video on reach, retention and the
+satisfaction signals above.
 
 **Do not stack these onto the Shorts-first channels as verdicts.** The
 sample rules below still hold: fewer than five videos with data means no

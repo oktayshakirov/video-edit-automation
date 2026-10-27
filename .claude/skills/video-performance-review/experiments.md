@@ -65,8 +65,6 @@ when the data will exist. Answered checks move into that run's snapshot.
   whether the uploads after it took suggested traffic from `FXW9Zd5vjYk`.
   If its viewers did not come back, E8 trend topics are reach, not channel
   growth, and the E8 entry says so.
-- **Funnel.** Ask the user for GA4 sessions from youtube.com, facebook.com
-  and tiktok.com on each site since 10-23, the first funnel reading.
 - **Zen sessions on Facebook and YouTube.** TikTok is closed (5 of 5 in
   batches). Keep counting Facebook long/reel per session against the 29k
   outlier, and YouTube suggested growth on the 09-05 session (388 on 10-23).

@@ -171,12 +171,10 @@ after it is worth less than its views say. Check subscribers around its
 publish date and whether the following uploads took suggested traffic from
 it. An off-topic hit is reported as one and is not a direction to follow.
 
-**Where the funnel leaks.** Views are the top; the sites are the point. Ask
-the user for GA4 sessions from `youtube.com`, `facebook.com` and
-`tiktok.com` per site since the last run, together with the Studio CSV, and
-put them in the snapshot. Then name the bottleneck: too few views, views that
-do not click through, or clicks that leave. Without GA4, say the funnel was
-not read.
+**The funnel to the sites is parked (the user, 2026-10-27).** Do not ask
+for Google Analytics numbers; reach and retention are the focus for now.
+If the user brings it back, the reading is: too few views, views that do
+not click through, or clicks that leave.
 
 ## Evidence standards
 
