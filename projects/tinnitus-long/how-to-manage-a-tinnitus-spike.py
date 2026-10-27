@@ -394,8 +394,11 @@ META = Meta(
 def thumbs(out: Path) -> Path:
     """Scaled 1.15x and anchored left so she sits right, face and hands
     whole; four rows in dark ink on the light room, ending clear of her
-    raised hand."""
-    from PIL import Image
+    raised hand. The left side is blurred and lifted a little so the black
+    type reads, easing back to sharp before her hand (the user's note on the
+    first cover: hard to read on the busy shelves)."""
+    import numpy as np
+    from PIL import Image, ImageFilter
     from video_automation.longform import thumb as T
     src = Image.open(THUMB_PHOTO).convert("RGB")
     w = int(1280 * 1.15)
@@ -403,6 +406,13 @@ def thumbs(out: Path) -> Path:
     src = src.resize((w, h), Image.LANCZOS)
     y0 = int((h - 720) * 0.25)
     im = src.crop((0, y0, 1280, y0 + 720))
+    soft = Image.blend(im.filter(ImageFilter.GaussianBlur(22)),
+                       Image.new("RGB", im.size, (245, 245, 245)), 0.15)
+    # Full blur to x=520, smoothstepped back to sharp by x=760.
+    t = np.clip((760 - np.arange(1280, dtype=np.float32)) / 240, 0, 1)
+    t = t * t * (3 - 2 * t)
+    mask = Image.fromarray((np.tile(t, (720, 1)) * 255).astype(np.uint8), "L")
+    im = Image.composite(soft, im, mask)
     fill, ink = T.ACCENTS["red"]
     # 460, not wider: rows with their own breaks widen the column by 1.38x,
     # and anything past ~640px runs into her hand.

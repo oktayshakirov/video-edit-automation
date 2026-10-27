@@ -25,6 +25,11 @@ read them when a cover fights back.
    or teal wall. On a busy bright ground (a yellow board, a sweater) use
    white and shade only the empty area behind the type, never the subject.
    The plate colour must differ from the ground (red on yellow, not yellow).
+   **On a busy light ground under dark type, blur the type's side**
+   (2026-10-27, the spike cover): Gaussian ~22 with a 15% lift toward white
+   over the type area, smoothstepped back to sharp before the subject. The
+   first cover set black rows straight on a bookshelf and the user found it
+   hard to read; the blur keeps the room's colour and only takes its detail.
 4. **Placement follows the subject.** Type beside or below it with a clear
    gap, centred (`align="center"`) when it sits under a centred subject.
    Never across a face; never across the object the video is about.
