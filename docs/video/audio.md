@@ -119,6 +119,29 @@ at -22dB; the user asked for 5-10% quieter, so `LEVEL_DB` is -22.8. The
 tinnitus kit takes it down a further 20%. Add a place by adding a bed
 function and its folder keywords - not by raising the level.
 
+## Sound samples (2026-10-28)
+
+`core/samples.py`: short synthesised examples of the sounds tinnitus is
+described as - ringing (a 6 kHz tone), hissing (2.8-12 kHz noise), humming
+(a 120 Hz buzz with harmonics, so a phone can play it), roaring (low wide
+noise), clicking (three soft clicks) and pulsing (a low whoosh at 72 bpm).
+A beat names them in `Shot(samples=)`, one per reveal; see `beats.md`.
+
+**This channel plays them only after a warning, said and on the notice
+card** ("Quiet sound samples next. Lower your volume if sounds bother
+you."), over a hand turning a volume knob. The first `what-does-tinnitus-
+sound-like` cut drew the sounds only; the feed check showed every top result
+for the query plays examples, and the user chose to play them.
+
+- **Short and quiet**: 1.6s (the pulse 2.2s), long fades, nothing that
+  starts as a transient. Levels in `sfx.LEVELS` are ear-weighted from equal
+  RMS - the 6 kHz ringing lowest, the hum highest - and take the kit's 0.72.
+- **In the pause, never under the voice**: each is cued on its end, `LEAD`
+  (0.25s) before the next caption; `samples.cues` prints a warning when the
+  room left for the naming words is under 0.45s.
+- **The bed dips to 20% under each** (`longform.audio.dip`), or the music
+  covers a sample kept this quiet.
+
 ## Sound effects
 
 ### The title and chapter sounds are the user's files (2026-10-21)

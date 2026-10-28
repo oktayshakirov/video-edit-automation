@@ -1258,3 +1258,38 @@ Korean flag. All rejected: on this subject that pairing is a factual error.
 | `cash-counting-machine/*` | rupee notes on bright tables, L96-125 |
 | `hong-kong-night-street/10244484` | fine, unused once the cash-out became a reel card; `10244478` has a McDonald's sign |
 | `usb-security-key-laptop/*`, `conference-hall-delegates/*`, `ice-freezing-close-up-dark/*` | white desks, EU flags, bright ice |
+
+## The tinnitus-sounds fetch: verdicts (2026-10-28)
+
+`what-does-tinnitus-sound-like` fetched its roster fresh (about 110 clips in
+two rounds). The queries were the article's own comparisons for each sound -
+steam, insects, machinery, a waterfall, wind - plus the acts around them.
+Every pick was contact-sheeted at 15/50/85%.
+
+| clip | verdict |
+| --- | --- |
+| `kettle-steam-dark-kitchen/32001621` | **kept** (L76): a steel kettle, a thread of steam - the noun for hissing. `5835661`, `5835662` L97-99 steam on a cream wall; `3752414` a red kettle in a bright kitchen |
+| `steam-rising-dark-background/29686188`, `9694807` | **kept**: steam on black. `6527496` is a street with a car in fog, upside down by the end |
+| `waterfall-at-night-dark/27591404`, `4208224` | **kept**: white water at night, water down a rock face. `18988719` is a red-lit fountain ring - a hotel lobby |
+| `strong-wind-trees-night/5765474` | **kept** (L23): a street lamp in wind and rain. `28777052` is shaky torchlight in a forest (horror-adjacent); `5963246` runs from day to night at L27-111 |
+| `cricket-insect-close-up-night/5612427` | **kept** (L41-46): a cricket, macro. `12044771` is wasps fighting on a flower (L65-70); `38963088` a grasshopper on a sunny fence |
+| `electric-fan-spinning-dark-room/3069096` | **kept** (L4-7): fan blades lit at the tips. `853772` a filament bulb, fine but unused; `854135` a novelty LED fan on an orange wall |
+| `tuning-fork-vibrating/*` | none is a tuning fork: wind chimes, a glockenspiel (L157), a guitar pedal, marimba mallets |
+| `singing-bowl-ringing-dark/4488445`, `4487438` | **kept**: a brass bowl rung by hand by candlelight - the noun for a ringing tone. A small Ganesha figure stands beside it; `6892465` is a sound-healing session on white |
+| `old-radio-static-dark/11999587` | **kept**: an old TV in a dark room coming on to static. `10487961`, `14904107` are near-black noise |
+| `hand-on-chest-heartbeat-dark/9737994` | **kept** (L58-60): an older woman's hand resting on her chest. `6892622` is a woman praying under red light; `8795151` a man outdoors at L109 |
+| `checking-pulse-on-wrist/*` | all clinics at L83-167, gloved hands, a bedside |
+| `woman-yawning-dark-room/*`, `man-chewing-food-close-up-dark/*`, `woman-touching-jaw/*` | no usable jaw: dark bedrooms with nobody yawning, faces eating at L75-121, and jaw-holding portraits on white at L100-187 that read as toothache. The jaw is carried by the `grid` instead |
+| `oscilloscope-sine-wave/7858272` | **kept** from 0-4s: a green trace on an old scope, gone by the middle. `34645273` (a dotted waveform on black, L7) **kept**. `4684800`, `6442797` bright labs |
+| `hand-writing-notes-at-night-desk-lamp/8631662` | **kept** (L41-44). `10396265` L77-89, `8631661` L72 |
+| `man-looking-out-window-at-night-city/4538212`, `38380402` | **kept**. `4774976` a man's profile at L76; `16777488` is 3s |
+| `woman-lying-awake-in-bed-dark/6944078` | **kept** (L27-32). `8376628` is the spike pair's; `6753383` a face crushed into a pillow, eyes half open (suffering) |
+| `headphones-on-desk-dark/8100340` | **kept** (L34): headphones round her neck at a monitor. `27153539`, `9130360` L103-120 |
+| `ocean-waves-at-night-dark/11287848`, `40200251` | **kept** |
+| `concert-crowd-lights/13082773` | **kept** (L20-24). `39204687` red concert, fine, unused; `34059087`, `34059053` L70-91 |
+| `elderly-hands-close-up-dark/5214600` | **kept** (L75-79): an older man's hands on a tablet, for "age". `4661403` jewelled hands on grey (L175) |
+| `hearing-test-headphones/7651887` | **kept** (L77-85): a man on a sofa in wired headphones - the nearest thing to a hearing check that is not a white clinic. `8004702`, `9130353` L111-165 |
+| `quiet-bedroom-at-night-window-light/36244322`, `19919755` | **kept**. `7494760` a child holding a glowing moon lamp |
+| `woman-sitting-by-window-at-night/17673702` | **kept** (L31): a woman reading in a lit window. `6236416` red curtains; `6654157` L112-144 |
+| `power-lines-at-dusk/*`, `mixing-console-knob-turning-dark/*` | power lines all L78-192 sunsets; the dark knobs `12213085`, `12213088` are the first spike pair's shoot |
+| `person-putting-on-headphones-night/6890229` | the spike pair's. `6952860` L126-141; `8513622` a woman putting in earbuds, close on the ear - out under the ear rule |

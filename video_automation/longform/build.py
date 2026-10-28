@@ -18,7 +18,7 @@ import subprocess
 from pathlib import Path
 
 from ..core import music as music_mod
-from ..core import sfx
+from ..core import samples, sfx
 from ..core import transitions, typewriter
 from ..core.brand import Brand
 from ..core.frame import LANDSCAPE, Frame
@@ -308,6 +308,14 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                         + [c for o in title_ov + end_ov + tv_ov + emph_ov
                            for c in o.cues()],
                         kit=brand.name)
+        # Sound samples a beat names, in the pause after each is spoken
+        # (`core/samples.py`) - and the bed dips under them below.
+        sample_cues = samples.cues(shots, [c.start for c in captions], total)
+        if sample_cues:
+            track = sfx.mix(track, workdir / "track-samples.wav", sample_cues,
+                            kit=brand.name)
+    else:
+        sample_cues = []
 
     if music:
         if isinstance(music, str) and music in music_mod.PRESETS:
@@ -316,6 +324,9 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
             src = Path(music)
         bed = audio_mod.render_bed(src, workdir / "bed.wav", total,
                                    gain=music_gain)
+        if sample_cues:
+            bed = audio_mod.dip(bed, workdir / "bed-dip.wav",
+                                samples.windows(sample_cues))
         track = audio_mod.mix_voice_over_bed(bed, track, workdir / "mix.wav",
                                              total)
 

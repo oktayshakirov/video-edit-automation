@@ -1,78 +1,80 @@
-# Handoff: north-korea-crypto (long + Short)
+# Handoff: what-does-tinnitus-sound-like (long + Short)
 
-Approved by the user 2026-10-27 ("super happy with the results").
-Channel: thecrypto.wiki. Voice **`noah`** (male, the voice test - crypto
-pair 2 of 5, `docs/video/projects/crypto.md`), music `night-drift`. Source
-article slug: `how-does-north-korea-steal-crypto`
-(https://thecrypto.wiki/posts/how-does-north-korea-steal-crypto). Build
-commit on `main`, pushed. **Nothing has been published yet.**
+Approved by the user 2026-10-28 after the re-cut (sound samples in, new
+covers, the Short's ending and 0:03 clip changed). Channel: tinnitushelp.me.
+Voice **`noah`** (male, the voice test - tinnitus pair 3 of 5,
+`docs/video/projects/tinnitus.md`), music `night-drift`. Source article
+slug: `what-is-tinnitus` (https://tinnitushelp.me/blog/what-is-tinnitus).
+Build commit on `main`, pushed. **Nothing has been published yet.**
 
-**The E8 lane, partly.** Drift (April 2026) and Bitget (September 2026) are
-heists few videos answer yet; both names are in the long form's tags,
-description and chapters. The subject itself is proven on three channels
-(`docs/video/demand/crypto.md`, 2026-10-27; teardown in
-`docs/video/demand/teardowns/how-does-north-korea-steal-crypto.md`).
+The subject is proven on two channels: MUSC Health's Short (593k, 4820x its
+median) and UCI Otolaryngology's "Is tinnitus ringing or buzzing?" (1.1M,
+932x). Teardown: `docs/video/demand/teardowns/what-does-tinnitus-sound-like.md`.
 
 ## Files
 
 | What | Path |
 | --- | --- |
-| Long form (4:14) | `/Users/oktayshakirov/Desktop/north-korea-crypto-long.mp4` |
-| Long thumbnail | `/Users/oktayshakirov/Desktop/north-korea-crypto-long-thumb.jpg` |
-| Long captions | `/Users/oktayshakirov/Desktop/north-korea-crypto-long.srt` |
-| Long sidecar (title, description, chapters, tags) | `/Users/oktayshakirov/Desktop/north-korea-crypto-long.md` |
-| Short (48.2s) | `/Users/oktayshakirov/Desktop/north-korea-crypto-short.mp4` |
-| Short cover | `/Users/oktayshakirov/Desktop/north-korea-crypto-short-thumb.jpg` |
+| Long form (3:18) | `/Users/oktayshakirov/Desktop/what-does-tinnitus-sound-like-long.mp4` |
+| Long thumbnail | `/Users/oktayshakirov/Desktop/what-does-tinnitus-sound-like-long-thumb.jpg` |
+| Long captions | `/Users/oktayshakirov/Desktop/what-does-tinnitus-sound-like-long.srt` |
+| Long sidecar (title, description, chapters, tags) | `/Users/oktayshakirov/Desktop/what-does-tinnitus-sound-like-long.md` |
+| Short (55.5s) | `/Users/oktayshakirov/Desktop/what-does-tinnitus-sound-like-short.mp4` |
+| Short cover | `/Users/oktayshakirov/Desktop/what-does-tinnitus-sound-like-short-thumb.jpg` |
 
-Scripts: `projects/crypto-long/north-korea-crypto.py`,
-`projects/crypto-short/north-korea-crypto.py`. Both carry `DEMAND`.
-Covers rebuild without a render: `--thumb` on either script.
+Scripts: `projects/tinnitus-long/what-does-tinnitus-sound-like.py`,
+`projects/tinnitus-short/what-does-tinnitus-sound-like.py`. Both carry
+`DEMAND` and `SOURCE_POST`. Covers rebuild without a render: `--thumb` on
+either script.
 
 ## Titles
 
-- Long: **How Does North Korea Steal Crypto? The $1.5 Billion Bybit Heist,
-  Explained** (in the sidecar) - the search query first, the familiar name
-  after it.
-- Short: **How Did North Korea Steal $1.5 Billion in One Transaction?** -
-  its own sentence 1, a different query angle from the long form. The Short
-  has no sidecar; its description follows the channel's Short rules with
-  the article URL and `Full video:` to the long form.
+- Long: **What Does Tinnitus Sound Like? Ringing, Hissing, Buzzing and More**
+  (in the sidecar) - the search query first.
+- Short: **Is Tinnitus Ringing or Buzzing?** - its own sentence 1 and its
+  `Search` opener, UCI's query rather than the long form's. The Short has no
+  sidecar; its description follows the channel's Short rules with the
+  article URL and `Full video:` to the long form.
 
 ## Tagging for the review
 
-- Openers: long `Search` ("how does north korea steal crypto"), Short
-  `Search` ("how did north korea steal $1.5 billion").
-- New beat: `blindsign`, in both cuts.
+- Openers: long `Search` ("what does tinnitus sound like"), Short `Search`
+  ("is tinnitus ringing or buzzing").
+- New: the `spectrum` beat's sounds mode, and **played sound samples**
+  (`core/samples.py`) after a lower-your-volume notice card - the first
+  video on this channel that plays the symptom it describes. Worth watching
+  for comments about the samples, either way.
+- Both cuts end on the same question: "If you had to name yours, which of
+  the five would it be?"
 
 ## The description's next step
 
-The long description's link line names what the article adds: "Every
-heist, every source and the full laundering trail". Social captions should
-carry the same link.
+The long description's link line names what the article adds: "every
+cause, what a professional check involves and the full list of red flags".
+Social captions should carry the same link.
 
 ## Credits the descriptions owe
 
-- Long: "Headline: FBI public service announcement I-022625-PSA, 26 February
-  2025." and the disclaimer - both already in the sidecar. The site's own
-  Bybit and Bitget exchange cards appear as insets; no third-party press art
-  was used. No Pexels or music line (dropped channel-wide 2026-10-20).
+- Long: the disclaimer, already in the sidecar. No third-party press art.
+  No Pexels or music line (dropped channel-wide 2026-10-20) - the covers'
+  photo is Pexels 3761514, the user's pick.
 - Short: no disclaimer, by the channel rule.
 
 ## Feed check (`workflow.md` step 4)
 
-The long title's query returns real views: BBC World Service 326k, Lume
-556k, Blackfiles 1.9M; CoinGecko's mechanism-first video sits at 3.6k. Ours
-promises the mechanism (what the signers saw against what they signed)
-where the top results promise the heist story or the totals. The first
-cover lost at 320px - every competitor said "North Korea" with the flag or
-a face - so both covers were redrawn on a code-drawn DPRK flag
-(`assets/crypto/north-korea/`).
+The query is big: NHS 24 651k, Treble Health 1M, Hearing Healthcare Centre
+1.5M, Sound Relief's 7500 Hz tone 3.1M. Every top result plays examples, so
+the first drawn-only cut was the weaker promise; the samples answer that.
+The first cover nearly copied NHS 24's (big question over a person with a
+hand at the ear); the user replaced the photo with a man listening to a
+paper-cup phone on a white wall, which none of the top covers look like.
 
 ## Undecided
 
-- **The site entry.** No video points at this article yet, so a new
-  `videos.json` entry is expected; the slug and poster are publish-video's
-  call.
-- The long form's cinematic title card prints the full YouTube title on two
-  lines. The user approved it as rendered; `render_long(title=...)` would
-  shorten it on a future re-cut.
+- **The site entry.** No video in `tinnitus-blog/src/data/videos.json`
+  points at `what-is-tinnitus` yet, so a new entry is expected; the slug and
+  poster are publish-video's call.
+- **The description does not say the samples are played.** The sidecar's
+  first line is "Here are the five people describe..." - the metadata pass
+  may want "hear a short, quiet sample of each" in it, since hearing them is
+  what this query promises.
