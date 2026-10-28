@@ -1,7 +1,9 @@
 # Handoff: what-does-tinnitus-sound-like (long + Short)
 
 Approved by the user 2026-10-28 after the re-cut (sound samples in, new
-covers, the Short's ending and 0:03 clip changed). Channel: tinnitushelp.me.
+covers, the Short's ending and 0:03 clip changed). Both cuts re-rendered
+after the user cut the cricket close-up as disturbing: the Short's 0:03 is
+the waterfall, the long form's insects line (0:44) is the spinning fan. Channel: tinnitushelp.me.
 Voice **`noah`** (male, the voice test - tinnitus pair 3 of 5,
 `docs/video/projects/tinnitus.md`), music `night-drift`. Source article
 slug: `what-is-tinnitus` (https://tinnitushelp.me/blog/what-is-tinnitus).

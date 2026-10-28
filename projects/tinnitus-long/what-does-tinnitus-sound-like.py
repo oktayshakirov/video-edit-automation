@@ -55,7 +55,8 @@ specialist are never named by an initialism.
 
 **Footage.** Fetched fresh on 2026-10-28, contact-sheeted at 15/50/85%
 (verdicts in `docs/video/footage.md`). The nouns are the article's own
-comparisons: steam, insects, a waterfall, a singing bowl's tone, TV static.
+comparisons: steam, machinery, a waterfall, a singing bowl's tone, TV
+static. No insect close-ups: the user cut the cricket as disturbing.
 
 Run from the repo root:
 
@@ -85,7 +86,6 @@ BOWL2 = V / "singing-bowl-ringing-dark/4487438.mp4"                # 41s, L12-28
 KETTLE = V / "kettle-steam-dark-kitchen/32001621.mp4"              # 33s, L76, a steel kettle on a dark wall, a thread of steam
 STEAM = V / "steam-rising-dark-background/29686188.mp4"            # 19s, L9-25, steam billowing on black
 SMOKE = V / "steam-rising-dark-background/9694807.mp4"             # 39s, L28, slow wisps drifting on black
-CRICKET = V / "cricket-insect-close-up-night/5612427.mp4"          # 35s, L41-46, a cricket on a stalk, macro
 FAN = V / "electric-fan-spinning-dark-room/3069096.mp4"            # 15s, L4-7, a fan's blades, lit at the tips, spinning
 WATER = V / "waterfall-at-night-dark/27591404.mp4"                 # 23s, L27-41, white water tumbling, blue night
 FALLS = V / "waterfall-at-night-dark/4208224.mp4"                  # 22s, L28, water falling down a dark rock face
@@ -193,7 +193,9 @@ SECTIONS = [
             Shot(clip=WAVEFORM, clip_at=1.0),
             Shot(clip=BOWL2, clip_at=1.0),
             Shot(clip=KETTLE, clip_at=4.0),
-            Shot(clip=CRICKET, clip_at=2.0),
+            # The machinery: the user cut the cricket close-up as disturbing
+            # (2026-10-28). Later in the fan clip than THE RHYTHM's use of it.
+            Shot(clip=FAN, clip_at=8.0),
             Shot(clip=WATER, clip_at=1.0),
             Shot(clip=KNOB, clip_at=1.0,
                  payload=("NOTICE", "Quiet sound samples next. Lower your "
