@@ -786,8 +786,8 @@ variation (2026-10-15), and `forest-chorus-box-breathing` is the first:
 
 Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
 (white noise, both waterfalls, Nebula Pulse - the editor asked for it by name), box
-(forest chorus). Pick one off this list's
-tail, or a new one, rather than the last session's.
+(forest chorus), 5-in/5-out with no holds (bird chirps). Pick one off this
+list's tail, or a new one, rather than the last session's.
 
 ## The intro
 
@@ -855,6 +855,13 @@ for rain, fire or a fan:
   support that. Take the page's *positive* material — the comfort, the rhythm,
   the sense of safety — and leave its masking sentence behind. Run
   `band_energy` on the file, not on the page.
+- **Energy in the band is not enough: the sound also has to be there.** The
+  Feathered Tunes bird-chirps track put 80% of its energy in 1–4 kHz and 19%
+  in 4–8 kHz — exactly where tinnitus sits — and is still a comfort bed,
+  because it comes in calls: 30% of 100ms windows sit below -70 dB, with
+  gaps up to 6s. Partial masking needs a sound that is always on. For any
+  recording made of events (birds, drips, chimes), measure the share of
+  near-silent windows alongside `band_energy`.
 
 ### `bed_file_loop`, and when a recording may be tiled
 
@@ -882,6 +889,16 @@ which is where the first seam's midpoint lands. When `seam_drop` fails on a
 recording whose 10s RMS swings by a few dB, check against that prediction
 before lengthening `xfade`. Also trim the source's own fade-in and fade-out
 before tiling, or each seam inherits them.
+
+**Check whether the album track is already a loop before tiling it.** The
+Feathered Tunes bird-chirps file is ten minutes long and holds 52 seconds of
+recording: `x[t] == x[t + 52s]` across 99% of it, with the album's own seams
+at every multiple of 52s. Correlate the file against itself at a few lags
+first. If it is periodic, repeat one period (`bird-chirps-55-breathing`'s
+`period_source`) instead of crossfading — that adds no seam the album does not
+already ship, and an equal-power crossfade of the track onto a shifted copy of
+itself would be summing correlated signals, which is what the -3 dB maths
+assumes it is not.
 
 **Tiling changes the length and nothing else.** `band_energy` governs the copy
 exactly as it does for a trimmed `bed_file`; making a bed longer never makes it
