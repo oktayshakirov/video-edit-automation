@@ -17,7 +17,7 @@ It is a how-question, not a yes/no one (`narration.md`, 2026-10-11), and
 sentence 2's first word stays on the title's subject (the theft's victim).
 
 **Opener: `Search`** - the title is a phrase people type (Johnny Harris's
-18x Short is titled on it), and the user prefers `Search` over the redacted
+18x Short is titled on it), and the editor prefers `Search` over the redacted
 hook whenever it is. The last three crypto Shorts opened Stamp / Counter /
 Stamp. It shares the long form's opener, which a pair may.
 

@@ -27,7 +27,7 @@ PIN_CLIPS = { 8 = "Spree Hyperlapse 1", 20 = "Spree Hyperlapse 3", 44 = "Spree H
 MUSIC_LOOP = false
 
 # The three most-reused takes are also the slowest-moving. Running them at 2x
-# tightens the cut and shortens the timeline. User's call from watching them,
+# tightens the cut and shortens the timeline. Editor's call from watching them,
 # not coverage pressure.
 CLIP_SPEED = { "Spree Buildings 10" = 2.0, "Spree Buildings 8" = 2.0, "Spree Buildings 4" = 2.0 }
 
@@ -41,7 +41,7 @@ CLIP_BAR_WINDOWS = { "Spree Buildings 7" = [[28, 56]] }
 # whatever the config comment implies.
 #
 # The pin and title fragments were re-captured from this project's own Final
-# Cut export (2026-09-01) after the user restyled the title and moved both to
+# Cut export (2026-09-01) after the editor restyled the title and moved both to
 # the lower-left. That placement is now baked into the fragments, so dx is 0 —
 # at lower-left the title no longer collides with the pin.
 LOCATION_PIN = true

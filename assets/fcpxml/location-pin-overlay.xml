@@ -5,7 +5,7 @@
      the spine clip it should sit over (lane="1").
      `start` is the in-point into location-pin-source.mp4.
 
-     Placement RE-CAPTURED from the Berlin export (2026-09-01): the user
+     Placement RE-CAPTURED from the Berlin export (2026-09-01): the editor
      moved the pin to the lower-left, position -81.524 -45.5365 (was
      -81.524 42.1759, upper-left). Scale 0.06 unchanged. The paired title
      in location-title-overlay.xml moved to match. -->

@@ -7,7 +7,7 @@ because nothing is wrong. It reuses the quiz's pacing (every gap at or above
 `RUN_BREAK`, the `LEAD`/`TAIL` daylight around the ring, the whoosh ahead of
 each round) and the quiz's ring, and draws its own beat.
 
-**Two truths, not a truth and a dare (2026-10-27, the user's call on the first
+**Two truths, not a truth and a dare (2026-10-27, the editor's call on the first
 cut).** A six-second countdown is time to *choose*, and a dare is not done in
 six seconds - the first cut asked the viewer to pick a dare and then swiped it
 away before anyone could stand up. A truth is answered out loud, so picking
@@ -151,7 +151,7 @@ class TruthDareShot:
         # lockup, and the second card ends just inside `safe_bottom`.
         #
         # **The ring sits between the two cards, not under them** (the
-        # user's note on the second cut, 2026-10-27). Under them it was the
+        # editor's note on the second cut, 2026-10-27). Under them it was the
         # thing holding the stack up: the ring's bottom had to clear
         # `safe_bottom`, so the cards could not come down and the header was
         # crowded while the bottom of the frame stayed empty. In the gap it

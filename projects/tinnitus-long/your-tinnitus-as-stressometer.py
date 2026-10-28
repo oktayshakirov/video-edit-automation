@@ -131,7 +131,7 @@ SECTIONS = [
             # The `Split` opener lands on "four".
             ("By seven that evening, it reads four.",),
             ("Same ears, same day, five hours apart.",),
-            # The reframe inside the first ten seconds (the user's call on
+            # The reframe inside the first ten seconds (the editor's call on
             # the first cut): the article's own "your very own
             # stress-o-meter" and "this shift in perspective". A change in
             # how it is seen, never a promise about how it sounds.
@@ -408,7 +408,7 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-27 on the user's pick: a stressed woman at a laptop (Pexels
+# Re-done 2026-10-27 on the editor's pick: a stressed woman at a laptop (Pexels
 # 4226218, Anna Shvets). It replaces the drawn dial (`thumb_art`, kept below)
 # - a person under stress is the situation the viewer pictures.
 COVER = STOCK / "photos/stressed-woman-laptop-user-picked/4226218.jpg"   # 5821x3881

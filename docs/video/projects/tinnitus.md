@@ -130,7 +130,7 @@ below, which replaced the "point at the part of the answer they do not have"
 half of this. What survives is the first sentence.**
 
 **The thumbnail must not answer the video's own question.** "Not the earbuds.
-The volume." shipped on the AirPods pair and the user's note was that it
+The volume." shipped on the AirPods pair and the editor's note was that it
 answers the title directly, so there is no point watching. The title carries
 the search phrase and asks; **the thumbnail points at the part of the answer
 the viewer does not have yet** — "The warning everyone ignores" — so reading it
@@ -154,14 +154,14 @@ bottom and a button rail up the right.
 **`band="bottom"` clears the view count, and the clearance is already in the
 renderer — do not re-tune it.** The bottom margin was `int(VH * 0.16)` and the
 last line of type ran straight through the play-count YouTube draws across the
-bottom of a Short's grid tile, so the user was opening the artwork and nudging
+bottom of a Short's grid tile, so the editor was opening the artwork and nudging
 it up by hand before every upload. `render_short_thumb` now adds 20px to the
 bottom band only. If a bottom-banded thumbnail ever looks slightly high in
 isolation, that is correct: it is composed against a platform overlay that is
 not in the file.
 
 **Article shorts take a music bed, and it is the default now — pass nothing.**
-Standing instruction from the user. `render_tinnitus_short` forwards `music` /
+Standing instruction from the editor. `render_tinnitus_short` forwards `music` /
 `music_gain` to `render_crypto_short`, which now **defaults** `music` to
 `music.track("night-drift")` and `music_gain` to `0.85` — a build that passes
 neither still gets the bed. A long video and the Short from the same post sit on
@@ -177,7 +177,7 @@ the right shape rather than a static mix now that the pauses are deliberate and
 long.
 
 **Do not close on "save this".** Asking for a save is asking for the wrong
-action when the video is about something to do tonight — the user's call, and
+action when the video is about something to do tonight — the editor's call, and
 they are right that saving a video is not the behaviour the piece is arguing
 for. Close on the action itself: "Try it tonight." — and nothing after it: no
 "let me know in the comments", no "subscribe". That is `narration.md`'s outro
@@ -343,7 +343,7 @@ which were rendered on now-retired profiles and were repointed at `mia` on
 reproduce the exact original audio.
 
 **Male explainer option: `noah`** (2026-10-23). `am_michael` on mia's exact
-recipe — 1.10, `ENERGETIC` — picked by the user by ear from eight male
+recipe — 1.10, `ENERGETIC` — picked by the editor by ear from eight male
 candidates read on a real Short script. `mia` stays the default.
 
 ### Voice test: `noah` on the next 5 tinnitus pairs (from 2026-10-23)
@@ -351,7 +351,7 @@ candidates read on a real Short script. `mia` stays the default.
 **The next 5 tinnitus article pairs read in `noah`, not `mia`** — long form
 and its Short together. Crypto runs the same test on its next 5 pairs; the 10
 together are compared against `mia` on retention in the views audit, which the
-user handles. Sound-therapy sessions are not part of it and keep `luna`. Pass
+editor handles. Sound-therapy sessions are not part of it and keep `luna`. Pass
 `voice="noah"` to both builders and add the pair here when it is built. After
 the fifth row, go back to `mia` until the user decides.
 
@@ -369,7 +369,7 @@ preflight**; a script cut to `mia`'s pace runs long. One script's worth of
 measurement; correct it from the first shipped cut.
 
 **`otis` is not to be offered as a male explainer voice** (2026-09-20). It read the `new-tinnitus-what-to-do-first-week` pair and
-the user's verdict was that it "reads the script very wrong — always starts
+the editor's verdict was that it "reads the script very wrong — always starts
 with high tone and sounds excited but ends low", and that the female voice
 reads better. That is a prosody fault, not a mixing one: Kokoro has no
 prosody control (`voice.md`), so a voice whose sentence contour is wrong for
@@ -378,7 +378,7 @@ this channel is exposition. `noah` (above) is the male reader that replaced
 it.
 
 `otis` stays registered in `core/voices.py` because the quiz format defaults
-to it — **the user's explicit call on 2026-09-20, when the explainer roster
+to it — **the editor's explicit call on 2026-09-20, when the explainer roster
 was cleared: leave the quiz on `otis`.** It is not an oversight and it is not
 to be "tidied" away; the complaint was about exposition, and a quiz is short
 questions and option cards, where the high-open/low-close contour costs far
@@ -418,7 +418,7 @@ a pitched female voice rather than a true male one. Kokoro has released no
 fine-tuning code, so blending and DSP are the whole ceiling.
 
 **Open risk:** a pitch-shifted female voice can read as "a processed woman"
-rather than "a man". No measurement settles that; only the user's ear does.
+rather than "a man". No measurement settles that; only the editor's ear does.
 
 **None of them is approved.** All are `candidate` until the user says
 otherwise.
@@ -449,7 +449,7 @@ sound completely is what most people do and what the post argues against.
 **Open on the hook with no lead-in silence.** A silent opening frame is a
 scroll-past; `lead_in` defaults to 0.
 
-**No end-card promo.** The user's call: a curious viewer will find the page, and
+**No end-card promo.** The editor's call: a curious viewer will find the page, and
 the link goes in the description. The persistent lockup is the only on-screen
 plug.
 
@@ -462,7 +462,7 @@ and its artwork is space. The palette is lifted straight from the app's
 
 - **The drift must be subpixel.** It moves tens of pixels per second, so an
   integer crop jumps a whole pixel every few frames and holds still in between.
-  The user's word for the first cut was "laggy". `cv2.warpAffine` at
+  The editor's word for the first cut was "laggy". `cv2.warpAffine` at
   `INTER_LINEAR` costs a few ms a frame and fixes it completely — verify with a
   frame-difference check that no two consecutive frames are identical.
 - **The ring's rim glows; its fill does not.** Blurring a filled disc put a haze
@@ -557,7 +557,7 @@ red flags on screen" gets satisfied without spending a sixth beat shape.
 ## No ear close-ups, in either format
 
 **Two were shipped in the AirPods cut and both were rejected on sight**, in the
-user's words as "a nasty close up of ear which dont look good". A macro of an
+editor's words as "a nasty close up of ear which dont look good". A macro of an
 ear canal at full frame is unpleasant to look at, and it is not even
 informative — the viewer knows what an ear is. `human-ear-close-up-dark` and
 `audiologist-hearing-test-ear` are both in the stock cache and neither should
@@ -611,9 +611,9 @@ difference was not subtle. This channel has the beats for it already:
 
 **Budget a new beat when the library cannot draw the subject.** It is
 cheaper than a second stock fetch and it is reusable forever after — `dial`
-took one session and now serves both channels.
+took one build and now serves both channels.
 
-**The casting corollary, which the user raised directly.** Shooting an
+**The casting corollary, which the editor raised directly.** Shooting an
 abstract subject through hands, screens, objects and crowds rather than
 portraits also takes the casting question out of most slots — and that
 matters here because `footage.md` records that screening on `MAX_LUMA`
@@ -726,7 +726,7 @@ colour, so the channel's sessions read as one video re-tinted. **`look=` on
 `render_asmr_long`, `render_asmr_short` and both session thumbnails** swaps the
 whole picture for a `core.looks.Look`.
 
-**A look is used by exactly one video, then retired** — the user's call,
+**A look is used by exactly one video, then retired** — the editor's call,
 2026-10-15. What carries from session to session is the *format*, not the
 picture: each new session (rain, fireplace, jungle, ...) gets a look built
 fresh in its own style. So:
@@ -768,7 +768,7 @@ was 0.34 against an in-loop maximum of 0.37.
 
 Sessions up to `jungle-waterfall-478` were all 4-in/6-out or 4-7-8 with the
 same "set it just below your tinnitus, then follow the circle" intro, so a
-returning viewer heard the same video over a new bed. The user asked for
+returning viewer heard the same video over a new bed. The editor asked for
 variation (2026-10-15), and `forest-chorus-box-breathing` is the first:
 
 - **Box breathing (4-4-4-4) needs a hold after the exhale**, so both
@@ -785,7 +785,7 @@ variation (2026-10-15), and `forest-chorus-box-breathing` is the first:
   follow is a reason to leave.
 
 Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
-(white noise, both waterfalls, Nebula Pulse - the user asked for it by name), box
+(white noise, both waterfalls, Nebula Pulse - the editor asked for it by name), box
 (forest chorus). Pick one off this list's
 tail, or a new one, rather than the last session's.
 
@@ -815,7 +815,7 @@ like a treatment. It is a sound to listen to. Say that.
 **A session Short ends on "If this helped, save it for the next time you need
 it." — not on "there's a full twenty-minute version on the channel".** The
 long version only goes to YouTube; on TikTok and Instagram that line points at
-nothing. The user's call, 2026-10-15. Shipped Shorts before
+nothing. The editor's call, 2026-10-15. Shipped Shorts before
 `jungle-waterfall-478` kept the old line and their scripts are left as built.
 
 This is not the article-Short rule ("Do not close on 'save this'", above)
@@ -898,7 +898,7 @@ Measured on a 30s sample, and this is why both are needed:
 | SpaceshipAmbience | 128 Hz | 86.8% | 0.1% |
 | NebulaPulse | 807 Hz | 63.1% | 6.5% |
 
-**Re-measured 2026-10-22 on the full ten-minute NebulaPulse.mp3 the user
+**Re-measured 2026-10-22 on the full ten-minute NebulaPulse.mp3 the editor
 supplied: 99.7-99.8% below 200 Hz in every window, nothing above 1 kHz** - two
 tones near 87.6 and 175 Hz beating at ~4.3 Hz. The 63.1% row above is not
 what that file holds; trust a fresh `band_energy` over this table. On its own
@@ -942,7 +942,7 @@ tall lockup at a wide wordmark's width dominates the frame.
 ### The mark's height is charged to the picture, twice
 
 **`mark_scale` is 0.42, down from 0.62, and `PhotoShot.LOGO_CLEAR` is 10, down
-from 16.** The gaming cut shipped at the old numbers and the user's note was
+from 16.** The gaming cut shipped at the old numbers and the editor's note was
 that the watermark was so big it pushed the photographs down and left an empty
 band across the top — which is exactly what the arithmetic does. A photo that
 *fits* the frame must clear the whole lockup, so at 159px tall the top hairline

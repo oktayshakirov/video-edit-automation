@@ -69,7 +69,7 @@ ENVELOPE = V / "sealed-envelope-wax-seal/5916730.mp4"      # hands sealing an en
 DRAWER = V / "desk-drawer-opening/9130356.mp4"
 
 KEYPAD = P / "wall-safe/1990764.jpg"              # a keypad safe
-# Both covers, the user's pick: a man in a trench coat at a grave.
+# Both covers, the editor's pick: a man in a trench coat at a grave.
 GRAVE = P / "man-at-grave/10499499.jpg"           # 6073x4049, the man at ~0.55-0.83 of the width
 
 VOICE = "noah"

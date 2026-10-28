@@ -105,7 +105,7 @@ LEDGER = SITE / "ledger.jpeg"                     # 1500x997, a hand holding a h
 BOXES = P / "safe-deposit-box/5332291.jpg"        # 6000x4000, L75, a wall of deposit boxes, monochrome
 DIAL = P / "safe-deposit-box/32334240.jpg"        # 9504x6336, L51, a safe's dial in the dark
 KEYPAD = P / "wall-safe/1990764.jpg"              # 6048x4024, L73, a keypad safe
-# Both covers, the user's pick: a man in a trench coat at a grave, a stone
+# Both covers, the editor's pick: a man in a trench coat at a grave, a stone
 # cross dark in the left foreground. Pexels 10499499, cottonbro studio.
 GRAVE = P / "man-at-grave/10499499.jpg"           # 6073x4049, L49, the man at ~0.55-0.83 of the width
 

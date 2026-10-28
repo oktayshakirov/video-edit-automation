@@ -61,7 +61,7 @@ dark-background/10243082` (an Ethereum coin over code), the vault folder
 (cartoon infographics), banknote clips with a monarch's portrait, and the
 SALE / Rebajas price tags.
 
-**Thumbnail: the user's own image** (`assets/crypto/market-cap/`), the
+**Thumbnail: the editor's own image** (`assets/crypto/market-cap/`), the
 headline set on ONE row in the empty band along the top. `render_thumb`'s
 narrow column cannot do one row, so `thumbs()` calls the shared `_headline`
 directly - same type, plate and shadow. Rebuild it alone with `--thumb`.
@@ -94,7 +94,7 @@ BRAND = ROOT / "assets/brand"
 #
 # **Re-cut 2026-10-06, after the first review.** Out: the rusty chain, the
 # padlocked door and the warehouse crates (metaphors for "locked supply",
-# not the thing - the user flagged the chain and the crates at 1:01 by name),
+# not the thing - the editor flagged the chain and the crates at 1:01 by name),
 # and six of the ten coin clips (stacks, macro, chute, hopper, a falling
 # coin), because a coin under every line stopped saying anything. Four coin
 # shots remain, each under a line that is actually about a coin. In: the
@@ -123,7 +123,7 @@ CROWD = V / "night-market-crowd-stalls/19926187.mp4"                       # 28s
 THIN = V / "empty-market-stalls-night/15777863.mp4"                        # 23s, L51-56 S26-28, a sparse market, a few people
 MOON = V / "dark-ocean-waves-night-slow/32864351.mp4"                      # 31s, L58-63 S12-13, moonlight on open water - the one abstract
 
-THUMB = ROOT / "assets/crypto/market-cap/meme-coins.jpg"                   # 1536x1024, supplied by the user - see CREDITS.md
+THUMB = ROOT / "assets/crypto/market-cap/meme-coins.jpg"                   # 1536x1024, supplied by the editor - see CREDITS.md
 BEATGROUND = BRAND / "beat-ground-crypto.jpg"
 ENDCARD = V / "subscribe/4928934.mp4"
 
@@ -412,11 +412,11 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-26 on the user's picture: a man reading a market-cap
+# Re-done 2026-10-26 on the editor's picture: a man reading a market-cap
 # chart at night. The question is the hook's own ("A five cent coin feels
 # like an easier win"), asked rather than answered, and no longer "easy win",
 # which read as a promise of gains.
-COVER = ROOT / "assets/crypto/market-cap/man-reading-cap-chart.jpg"   # 2000x1333, supplied by the user
+COVER = ROOT / "assets/crypto/market-cap/man-reading-cap-chart.jpg"   # 2000x1333, supplied by the editor
 HEADLINE = "Is a $0.05\ncoin\n[cheap?]"
 
 

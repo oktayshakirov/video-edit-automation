@@ -19,7 +19,7 @@ The Short does the one thing all of that rests on: the supply, the code and
 what the coin can do are all unchanged, and only the number of people watching
 moved.
 
-**He is in the cut and on the thumbnail, at the user's direction** (the first
+**He is in the cut and on the thumbnail, at the editor's direction** (the first
 pass had neither, on the reasoning that the subject is a queue of offers).
 The constraint that survives is licensing, not taste: a portrait of a named
 individual comes from **Wikimedia Commons**, screened and credited in

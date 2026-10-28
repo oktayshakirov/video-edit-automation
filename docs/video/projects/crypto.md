@@ -119,8 +119,8 @@ F.facts_grid(F.load("exchanges", "kraken"))   # -> [(label, value), ...] for `gr
 
 **`mia` (female) is the default** for both formats. **`noah` (male,
 `am_michael` on mia's exact recipe) is the male option**, added 2026-10-23
-and picked by the user by ear. **`otis` is off the roster and must not be
-offered for an article video.** The user's verdict on a full cut was that it
+and picked by the editor by ear. **`otis` is off the roster and must not be
+offered for an article video.** The editor's verdict on a full cut was that it
 reads exposition wrong: it opens high and excited and ends low. It stays
 registered because the quiz format defaults to it. Full reasoning in
 `projects/tinnitus.md`.
@@ -130,7 +130,7 @@ registered because the quiz format defaults to it. Full reasoning in
 **The next 5 crypto article pairs read in `noah`, not `mia`** — long form and
 its Short together, since a pair shares one voice. Tinnitus runs the same test
 on its next 5 pairs; the 10 together are compared against `mia` on retention
-in the views audit, which the user handles. Pass `voice="noah"` to both
+in the views audit, which the editor handles. Pass `voice="noah"` to both
 `render_long` and `render_crypto_short`, and add the pair to this table when
 it is built. After the fifth row, go back to `mia` until the user decides.
 
@@ -214,7 +214,7 @@ during.
 **End on a question — unless the video is a how-to, and then end on the rule and
 a save.** But it has to be a question the viewer can actually answer from what
 they just watched: the mining rig short closed on "would you have caught that
-before switching it on?" and the user cut it as confusing, correctly — "that"
+before switching it on?" and the editor cut it as confusing, correctly — "that"
 had three possible referents by then, and it asked the viewer to audit a build
 they have not made.
 
@@ -233,7 +233,7 @@ exception (arguments where the viewer's own opinion is the actual point,
 sparingly) rather than the rule.
 
 **The question is the whole outro. Do not append "in the comments", "let me
-know below", or "subscribe".** The user's standing rule for every channel —
+know below", or "subscribe".** The editor's standing rule for every channel —
 those lines spend the last seconds managing the viewer instead of leaving them
 with the thought. "So, what do you think — where is she now?" and stop. The
 bare compliance line ("Nothing in this video is financial advice.") may stand
@@ -357,7 +357,7 @@ The other half of the rule below. When the subject *is* a real, named
 thing - GTA VI, an exchange's app, a scam coin, a court case - fetch its
 official art, screenshots and logo first, and put them under the lines that
 name it (`Shot(image=)`) or over the stock (`Shot(inset=)`). An all-stock
-cut of a real game was the user's "boring and monotone". Never a token logo
+cut of a real game was the editor's "boring and monotone". Never a token logo
 that cannot be tied to the right contract: draw a `ticker_card`. Sources
 and mechanics in `footage.md`, "When the subject is a real thing".
 
@@ -423,7 +423,7 @@ is wanted for the ask. Every other slot wants a thing a viewer can name.
 
 ## On a price topic, overturn the belief people act on
 
-The first `market-cap` cut stamped "a low price means a small coin". The user's
+The first `market-cap` cut stamped "a low price means a small coin". The editor's
 note: what people actually connect a cheap coin with is easy profit - a quick
 jump. So the opener and a whole chapter now answer *that* belief, as
 arithmetic: doubling a 5-cent and a $50 coin takes the same extra $50M; one
@@ -433,7 +433,7 @@ happens. Find the belief the viewer acts on, not the definitional one.
 
 ## "Are we in one right now?" gets a check, not a verdict (2026-10-13)
 
-The user asked the bear-market Short to cover whether we are in a bear
+The editor asked the bear-market Short to cover whether we are in a bear
 market now. It is a real question people type, and a statement about where
 the market is today is a call on direction - and stale within weeks. So the
 Short asks it and hands over the article's own test as a `steps` procedure

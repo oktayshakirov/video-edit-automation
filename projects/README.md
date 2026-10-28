@@ -4,7 +4,7 @@ One directory per **site and format**. The format is in the directory name, and
 that is the whole point of the naming: `projects/crypto` and
 `projects/crypto-long` sat side by side for months and nothing said which one
 held the Shorts — you had to open a file and look at the frame size. Renamed
-2026-08-18 on the user's instruction.
+2026-08-18 on the editor's instruction.
 
 | directory | site | format | entry point |
 |---|---|---|---|

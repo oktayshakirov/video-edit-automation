@@ -189,7 +189,7 @@ guessable — by hue it measures ~345° and classifies as pink). Placement: lane
 `scale 0.06`, `position -81.524 -45.5365`, `conform-rate srcFrameRate="24"`.
 
 **Placement and title style were re-captured from the Berlin export
-(2026-09-01).** The user moved the pin from the upper-left
+(2026-09-01).** The editor moved the pin from the upper-left
 (`-81.524 42.1759`) to the lower-left and restyled the title: **not bold**
 (`fontFace="Regular"`), and a **drop shadow** (`shadowColor="0 0 0 0.8321"`,
 `shadowOffset="5 315"`) instead of the old outside stroke. Both fragments in
@@ -233,7 +233,7 @@ sit apart, or by baking the LUT into new media with ffmpeg's `lut3d` — which
 re-encodes the selects and is the worse answer on a project where the footage
 is the product.
 
-The user's LUT library lives in
+The editor's LUT library lives in
 `~/Library/Application Support/ProApps/Custom LUTs/LUTs Library/`.
 
 ## When Final Cut rejects the import

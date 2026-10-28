@@ -299,10 +299,10 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-26 on the user's picture: a whale floating over a city at
+# Re-done 2026-10-26 on the editor's picture: a whale floating over a city at
 # sunset, a girl watching it. Same words as before; the person in the frame
 # is the joke the headline makes.
-COVER = ROOT / "assets/crypto/whale/whale-over-city.jpg"   # 2000x1121, supplied by the user
+COVER = ROOT / "assets/crypto/whale/whale-over-city.jpg"   # 2000x1121, supplied by the editor
 HEADLINE = "The biggest whale\nis not a [person]"
 
 
@@ -345,7 +345,7 @@ def main() -> None:
         # **No forced rows here.** A newline in the headline is a break the
         # layout may not move, and a two-row headline gets the wider column
         # (1.38x) - which is how the first pass ended up with small type in
-        # two lines, the note the user gave. Left to wrap, the narrow column
+        # two lines, the note the editor gave. Left to wrap, the narrow column
         # forces four big short rows and lands `[person]` on a line of its
         # own, which is also what keeps the plate clear of the word in front
         # of it.

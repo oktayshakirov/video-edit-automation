@@ -297,9 +297,9 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-26 on the user's picture: two hands holding a glowing "AI"
+# Re-done 2026-10-26 on the editor's picture: two hands holding a glowing "AI"
 # card. Two rows along the bottom keep the card and both hands whole.
-COVER = Path(__file__).resolve().parents[2] / "assets/crypto/miners-ai/ai-card-hands.jpg"   # 2000x1143, supplied by the user
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/miners-ai/ai-card-hands.jpg"   # 2000x1143, supplied by the editor
 HEADLINE = "What AI wants\nfrom [miners]"
 
 
@@ -307,7 +307,7 @@ def thumbs(out: Path) -> Path:
     """The card and both hands lifted 120px, the picture's own smooth dark
     bottom edge continued under them, and the two rows centred below with a
     clear gap. The first version set left-aligned rows at the plain cover
-    crop, and they ran into the palms (the user's note, 2026-10-26)."""
+    crop, and they ran into the palms (the editor's note, 2026-10-26)."""
     import numpy as np
     from PIL import Image
     from video_automation.longform import thumb as T

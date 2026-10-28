@@ -1,5 +1,5 @@
 <!-- Captured verbatim from a Final Cut FCPXML export (Bulgaria, 2026-08-28),
-     where the user dropped Custom LUT on one clip and exported.
+     where the editor dropped Custom LUT on one clip and exported.
 
      FCPXML HAS NO COLOUR ELEMENT. A LUT is <filter-video> plus an <effect uid>
      that is an FxPlug identifier — FCP-internal, not derivable, and guessing

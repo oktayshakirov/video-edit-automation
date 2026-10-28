@@ -63,7 +63,7 @@ shape - a line steps up, then plunges to a flat zero - naming nothing tradeable.
 **Two generated brand assets, both new here.** `assets/brand/graphics/
 rug-pull-chart.png` is the chart above. `assets/brand/beat-ground-crypto.jpg`
 is a warm near-black bloom passed as `Shot(backdrop=...)` to every drawn beat -
-the user's note was that `crypto-blackwater` (the brand default) was the ground
+the editor's note was that `crypto-blackwater` (the brand default) was the ground
 under *every* graphic, so now the water is reserved for the chapter cards and
 the beats sit on the gradient. `Beat.__init__` covers + blurs + dims a supplied
 backdrop to 0.42, so the source is generated bright (~L45) to land ~L19 behind
@@ -124,7 +124,7 @@ DUST = V / "golden-dust-particles-black-background/10296171.mp4"       # 27.6s L
 CHART = BRAND / "graphics/rug-pull-chart.png"                         # 1920x1080, generated
 # Behind the drawn beats only. The chapter cards keep `crypto-blackwater`
 # (the brand default); the beats get this warm near-black bloom so the water
-# is not the ground under every single graphic - the user's note.
+# is not the ground under every single graphic - the editor's note.
 BEATGROUND = BRAND / "beat-ground-crypto.jpg"                          # 2200x1400, generated, ~L45 -> x0.42 -> ~L19 behind type
 
 DOLLARS = PH / "stack-of-cash-money-dark-moody/18921474.jpg"          # 6000x4000 L78 S8, three $100 bills on dark - US dollars

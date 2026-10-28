@@ -18,7 +18,7 @@ tinnitus is, the four steady sounds on the `spectrum` (sounds mode - one
 peak gliding low to high as each is named), the two that keep time with the
 body on a `grid`, and the one worth a check.
 
-**It ends on the long form's question** (the user's call, 2026-10-28): "If
+**It ends on the long form's question** (the editor's call, 2026-10-28): "If
 you had to name yours, which of the five would it be?" - the same ask in
 both cuts, for the comments. It still loops: the replay opens on "ringing,
 or buzzing?", two of the five it just asked about.
@@ -106,7 +106,7 @@ SENTENCES = [
      "And a whoosh can keep time with your heartbeat."),
     ("That one is called pulsatile tinnitus, and it is worth getting "
      "checked.",),
-    # The long form's closing question, drawn by `outro=` (the user's call,
+    # The long form's closing question, drawn by `outro=` (the editor's call,
     # 2026-10-28): the pair ends on the same ask.
     ("If you had to name yours, which of the five would it be?",),
 ]
@@ -126,7 +126,7 @@ GAPS = [1.25,   # into sentence 2, after the opener has gone
 SHOTS = [
     # A brass bowl low in the frame, clear of the search bar.
     Shot(clip=BOWL, clip_at=0.5, clip_ax=0.35),
-    # The user cut the kettle, then the cricket close-up as disturbing
+    # The editor cut the kettle, then the cricket close-up as disturbing
     # (2026-10-28): the waterfall, the roar - one of the other three.
     Shot(clip=WATER, clip_at=1.0, clip_ax=0.50),
     Shot(clip=WAVEFORM, clip_at=1.0, clip_ax=0.50),

@@ -228,7 +228,7 @@ class VideoShot:
         # hard `// 2` on both axes and in 16:9 that is almost always right,
         # because a landscape source into a landscape frame throws away very
         # little. In **9:16 it throws away about 68% of the width**, and a
-        # centred crop then loses whatever the shot is actually of: the user's
+        # centred crop then loses whatever the shot is actually of: the editor's
         # note on the silence short was that "if there is a person we dont see
         # it, if there is object we dont see it". Two of its clips had their
         # subject against the right edge of the source and the vertical cut
@@ -281,7 +281,7 @@ class VideoShot:
 
         # **A clip carries its line big and centred, not tucked in a corner.**
         # The first build set a 34px kicker and a 58px line in the lower left,
-        # which the user called boring and confusing — and it was both, because
+        # which the editor called boring and confusing — and it was both, because
         # a small label in a corner reads as a caption for footage that does not
         # need captioning. Set large and centred, the same line stops being a
         # label and becomes a statement the footage is illustrating: it lands
@@ -363,7 +363,7 @@ class VideoShot:
 
         **Not a statement band.** The compliance line used to borrow the
         statement treatment - 96px over a scrim - which gave a legal note the
-        same weight as the line the section exists for. The user asked for a
+        same weight as the line the section exists for. The editor asked for a
         template of its own that matches the titles. This takes the titles'
         faces (SF Pro Heavy, the tracked eyebrow, the brand hairline and
         bloom) and the grammar of a phone notification, because the sound it
@@ -469,7 +469,7 @@ class VideoShot:
         **A number that is only spoken is a number the viewer does not keep.**
         The AirPods cut says eight decibel figures out loud and drew exactly
         four of them, in one `bars` beat forty seconds away from where most of
-        them are said. The user's note was to put them on screen as notes,
+        them are said. The editor's note was to put them on screen as notes,
         clean and easy to understand, and this is that: the figure large in the
         brand accent, one plain-English line under it saying what that level
         actually sounds like, on a short rule.

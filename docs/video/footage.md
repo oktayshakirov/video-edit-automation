@@ -8,7 +8,7 @@ re-cuts, which is why it is the longest doc here.
 `core/stock.py`, on the same Pexels key `publish-content` uses. Cached under
 `assets/stock/` — the **bytes are gitignored and `manifest.json` is what makes a
 build reproducible**, so anything pulled must land in the manifest. It was found
-75 files short, including tinnitus assets from earlier sessions; an unmanifested
+75 files short, including tinnitus assets from earlier builds; an unmanifested
 file is unrecoverable the day its photographer deletes it. (`stock.manifest()`
 writes a different, thinner schema than the file on disk actually uses — extend
 the existing JSON, do not call it and clobber the richer one.) Write it back
@@ -58,7 +58,7 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   it.
 - **Never put a site infographic in a full-frame shot.** A Ken Burns move on a
   diagram crops its own title off the top and its last row off the bottom, which
-  is what shipped and what the user caught at 0:27. And at 660px in a beat's
+  is what shipped and what the editor caught at 0:27. And at 660px in a beat's
   picture column its labels are unreadable. So an infographic has **no
   full-frame use in this format at all** — as a blurred `backdrop` it is only
   texture, which is fine and is the one place it belongs.
@@ -92,7 +92,7 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
 appeared on a labelled contact sheet as a woman alone under a single bulb in
 an empty room - the exact subject of the script. It shipped into two cuts.
 Played, she is **shaving her head**, which is a specific and arresting act
-under a line about quiet rooms, and the user caught it in the first five
+under a line about quiet rooms, and the editor caught it in the first five
 seconds of both videos.
 
 The luma/saturation box measures brightness. A contact sheet at one timestamp
@@ -107,7 +107,7 @@ unlabelled water, arriving through the one door those rules left open.
 The silence cut put the site's `neurons.jpg` (900x599) in a full-frame slot.
 Under `max_upscale=1.90` a 900px source cannot reach 1920, so it rendered
 **fitted** - a letterboxed panel with a hairline and black bands above and
-below - and the user's note at 0:54 was to remove that treatment completely
+below - and the editor's note at 0:54 was to remove that treatment completely
 and show the picture full screen the way the one at 3:27 is.
 
 So the rule is now absolute: **a photograph in a full-frame shot must be large
@@ -126,7 +126,7 @@ resolution.** `PhotoShot` cover-crops to the `aspect` it is given, so a portrait
 source in a landscape slot (`aspect=16/9`) keeps the full width and throws away
 the height: a 1670x2553 press portrait becomes a **938px band across the face**,
 with the top of the head and everything below the chest gone. It upscales
-cleanly, nothing raises, and the user's word for it was "zoomed in too close".
+cleanly, nothing raises, and the editor's word for it was "zoomed in too close".
 
 So, on any video about a person:
 
@@ -204,14 +204,14 @@ the noun is **a different picture**, and only where no such picture exists does
 `Shot(clip=..., payload=("", "One line"))` earn its place.
 
 Labelling every clip put a 96px statement on almost every frame of a
-four-minute video and the user's verdict was that it was impossible to follow.
+four-minute video and the editor's verdict was that it was impossible to follow.
 The density rule, the three things a payload may still carry, and the
 one-per-minute budget live in `longform.md` — see the payload bullet under *The
 screen has to say what the voice is saying*.
 
 ## A clip is over-used long before it is used twice
 
-**Every note the user gave on the myths cut's footage was one of three
+**Every note the editor gave on the myths cut's footage was one of three
 faults, and they compound.** The rules now:
 
 - **No clip plays more than twice, and never twice inside a minute.** That
@@ -220,7 +220,7 @@ faults, and they compound.** The rules now:
   deliberate echo — the myths re-cut re-opens on its own opening face at the
   close — and a third is not.
 - **No clip holds longer than about eight seconds.** Two slots ran 14.7s and
-  10.4s and the user flagged the first one by timestamp. **The fix is usually
+  10.4s and the editor flagged the first one by timestamp. **The fix is usually
   not a longer clip, it is splitting the sentence**: both offenders were a
   single `Section` sentence with four or five caption chunks, which is one
   span and therefore one picture. Splitting "See a doctor if it is new, will
@@ -296,7 +296,7 @@ between those two facts looked at the picture.
 So: **build one labelled contact sheet of every clip in the shot list, cached
 or fetched, before the first render.** Three timestamps across each clip, id
 burned into the frame. It costs about a minute for a whole cut and it is the
-only step that catches subject faults, which are the only faults the user
+only step that catches subject faults, which are the only faults the editor
 ever notices.
 
 ## Whole query classes come back as the wrong thing — and one class is off-message for crypto
@@ -460,7 +460,7 @@ screen says something else.
 The section above records that screening on `MAX_LUMA` against dark backdrops
 selects for darker-skinned actors structurally, and that every attempt to
 steer it with search terms failed — the filter does the casting, not the
-query. **The user's standing instruction is that the channel should not keep
+query. **The editor's standing instruction is that the channel should not keep
 returning the same casting, and the reliable way to honour it is to stop
 casting at all in most slots.** A hand, a screen, a silhouette and a crowd
 carry an explainer perfectly well; they are usually the better picture for an
@@ -486,7 +486,7 @@ the section above — so the roster was built as "dark texture that is not a
 face": candles, embers, fog, star trails, the moon, a spider web, a
 lighthouse, snow. Every clip screened inside the luma box, every clip was
 unused elsewhere, every clip was on-palette, `audit_assets.py` passed, and the
-user's verdict was that the footage is irrelevant to the topic. It was.
+editor's verdict was that the footage is irrelevant to the topic. It was.
 
 **"Not a face" is not the same instruction as "not the subject".** A
 candle is as generic under "one machine keeps the register" as a stock
@@ -515,7 +515,7 @@ literal, they need no face, and they are usually darker than a candle anyway.
 
 ## An asset used in another video is not available to this one
 
-**The user's rejection of the proof-of-stake cut, and it is a channel-level
+**The editor's rejection of the proof-of-stake cut, and it is a channel-level
 rule, not a note about one video.** That cut was built entirely from assets
 already shipped elsewhere — reasoning, wrongly, that "screen the cache first"
 meant "prefer the cache". An inventory across all six crypto projects found
@@ -582,7 +582,7 @@ Both found fetching for proof-of-stake, both would have shipped on the numbers:
 the more important half.** Told to stop recycling assets and to search the
 channel's own colour, the next cut came back almost entirely gold-on-black
 *abstraction* — gold dust, drifting smoke, particle spheres, geometric solids,
-light trails — and the user's note was that these "feel more like a background
+light trails — and the editor's note was that these "feel more like a background
 than main footage" and lose attention across a long video. That is exactly
 right, and it is the same failure as wall-to-wall stock, wearing a better
 palette.
@@ -630,7 +630,7 @@ check every pair.
 Ethereum short opened on the founder's portrait while the voice asked "who is in
 charge of *Ethereum*?", then cut to the Ethereum mark while the voice said
 "*Vitalik Buterin* created it". Both pictures were in the video and both were
-right — they were one slot apart, and the user caught it immediately. An
+right — they were one slot apart, and the editor caught it immediately. An
 off-by-one is harder to spot than a wrong picture, because every shot looks
 correct in isolation and only the *pairing* is wrong. Reading the two lists
 side by side as pairs catches it; reading the shot list alone never will.
@@ -638,7 +638,7 @@ side by side as pairs catches it; reading the shot list alone never will.
 ## Show the thing the line is about
 
 **A concert line gets a concert.** The AirPods cut ran an empty night street
-under "a concert is loud, and then you go home" and the user's note was to use
+under "a concert is loud, and then you go home" and the editor's note was to use
 something relevant. Stock searched for atmosphere ("city traffic night") comes
 back as atmosphere, and atmosphere under a specific noun is a shot that
 illustrates nothing — the same failure as the sleep cut's unlabelled water,
@@ -731,7 +731,7 @@ isolated spike is a crop step, and real motion has neither.
 **The ban above is about the move, not the picture, and the proof-of-stake cut
 is where that distinction finally mattered.** `posts/proof-of-stake.jpg` is the
 site's own architecture diagram — new transaction, mempool, validators stake,
-random selection, propose, attest, reward — and the user asked for it to carry
+random selection, propose, attest, reward — and the editor asked for it to carry
 the section that describes exactly that. The existing rule reads as a flat "no
 infographics", which would have refused a picture that is better than anything
 stock could supply.
@@ -801,7 +801,7 @@ usually a script problem, not a footage problem** — a `Section` sentence with
 five caption chunks is one span and therefore one picture, so splitting the
 sentence fixes it without touching a word.
 
-**Every still image is used once.** The user's rule, from the Ruja cut where
+**Every still image is used once.** The editor's rule, from the Ruja cut where
 `regulators.jpg` appeared five times: a photograph the viewer has already seen
 reads as the video running out of pictures. Clips may run twice (the audit
 allows it, and there are fewer of them); a still runs once. The exceptions,
@@ -824,7 +824,7 @@ fetching again. Two more folder names that lie:
 ### A metaphor for the noun is not the noun, again - and do not drown a crypto video in coins (2026-10-06)
 
 `market-cap` repeated the Finney fault: a rusted chain, a padlocked door and
-warehouse crates for "locked supply", all cut by the user. It also ran ten coin
+warehouse crates for "locked supply", all cut by the editor. It also ran ten coin
 clips in one video, and a coin under every line stopped saying anything. Cap
 coin footage at a handful of shots, each under a line that is about a coin.
 What replaced them: **a concrete analogy the narration actually says** (a
@@ -836,7 +836,7 @@ third fetch.
 ## Real people: Commons photos, and the article's claims are checked first (2026-10-09)
 
 `celebrities-with-tinnitus` was the first tinnitus pair built on named people,
-at the user's request for real names and real photos. The route is the Ruja
+at the editor's request for real names and real photos. The route is the Ruja
 one (`assets/crypto/ruja-ignatova/CREDITS.md`): Wikimedia Commons, public
 domain or CC BY / BY-SA, one `CREDITS.md` per subject folder and the
 attribution block in `Meta.credits`. 1960s network publicity stills (NBC's
@@ -854,7 +854,7 @@ picture this channel has had - instantly recognisable, on the noun.
 - **On a video about named people, the default picture is the person.** The
   first cut filled the Shatner and Streisand sections with stock mood (a
   phone, a man in headphones, a woman at a window, a child at a desk) and the
-  user cut all of it as irrelevant. Commons had four more landscape photos of
+  editor cut all of it as irrelevant. Commons had four more landscape photos of
   the two of them; a real photograph beats a clip that is only near the line.
 - **A stranger's face under a line about a named person reads as that
   person.** The headphones close-up under "he found sound therapy" was swapped
@@ -905,7 +905,7 @@ query folders. **`grep -rl <id> projects/` each pick before writing it in.**
 
 **Physical mining is not bitcoin mining (2026-10-11).** The first halving cut
 put a tunnel excavator and a man digging rock under the "gold mine" analogy
-and the 10.5M line, and the user cut both: a viewer reads them as the video
+and the 10.5M line, and the editor cut both: a viewer reads them as the video
 being about mining ore. A mining *analogy* still needs bitcoin-mining
 footage under it, so the line became "a pay cut every four years, however
 good the miner's machines get" over an open rig. The re-fetch confirmed the
@@ -920,7 +920,7 @@ stacks of falling height, L73).
 
 **A crowd is not "the claim you hear" (2026-10-11).** `crowd-of-people-night-city/36899602`
 (a packed street market) ran under "It is the claim you hear most, every
-four years" and the user cut it as a random street, unrelated. The line's
+four years" and the editor cut it as a random street, unrelated. The line's
 noun is a claim being *read*, so it became `man-reading-newspaper-dark/9564066`
 (a newspaper turned in a dark bar, L47-55). Rejected in the same fetch:
 `10238038` and `6279142` (a legible Instagram feed), `35888104` (a legible
@@ -1085,7 +1085,7 @@ usable stunt clip is grey-sky L65, kept because it is the noun.
 
 ## When the subject is a real thing, its real pictures lead (2026-10-20)
 
-**The user's note on the first GTA 6 cut, and a standing rule for both
+**The editor's note on the first GTA 6 cut, and a standing rule for both
 channels:** a video whose subject is a real, named thing - a game, a
 product, a company, an event, a scam coin - must show that thing, not only
 stock that resembles its world. Twenty-four well-screened stock clips of
@@ -1123,7 +1123,7 @@ material; the description credits it (`Meta.credits`).
   stills and another quarter carry an inset. Stock still carries the act
   (hands, phones, cash); the real pictures carry the nouns.
 - **The thumbnail is the subject's own key art** when there is one; the
-  user picked it over the drawn and stock options.
+  editor picked it over the drawn and stock options.
 
 Assets live in `assets/stock/press/<topic>/` with a committed `SOURCES.md`;
 the bytes are gitignored like the rest of the stock cache.
@@ -1272,7 +1272,7 @@ Every pick was contact-sheeted at 15/50/85%.
 | `steam-rising-dark-background/29686188`, `9694807` | **kept**: steam on black. `6527496` is a street with a car in fog, upside down by the end |
 | `waterfall-at-night-dark/27591404`, `4208224` | **kept**: white water at night, water down a rock face. `18988719` is a red-lit fountain ring - a hotel lobby |
 | `strong-wind-trees-night/5765474` | **kept** (L23): a street lamp in wind and rain. `28777052` is shaky torchlight in a forest (horror-adjacent); `5963246` runs from day to night at L27-111 |
-| `cricket-insect-close-up-night/5612427` | **cut by the user** (2026-10-28): a cricket, macro - "very disturbing". An insect in close-up is not a picture for this channel; draw the "insects" comparison or show machinery. `12044771` is wasps fighting on a flower (L65-70); `38963088` a grasshopper on a sunny fence |
+| `cricket-insect-close-up-night/5612427` | **cut by the editor** (2026-10-28): a cricket, macro - "very disturbing". An insect in close-up is not a picture for this channel; draw the "insects" comparison or show machinery. `12044771` is wasps fighting on a flower (L65-70); `38963088` a grasshopper on a sunny fence |
 | `electric-fan-spinning-dark-room/3069096` | **kept** (L4-7): fan blades lit at the tips. `853772` a filament bulb, fine but unused; `854135` a novelty LED fan on an orange wall |
 | `tuning-fork-vibrating/*` | none is a tuning fork: wind chimes, a glockenspiel (L157), a guitar pedal, marimba mallets |
 | `singing-bowl-ringing-dark/4488445`, `4487438` | **kept**: a brass bowl rung by hand by candlelight - the noun for a ringing tone. A small Ganesha figure stands beside it; `6892465` is a sound-healing session on white |

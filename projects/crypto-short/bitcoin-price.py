@@ -72,7 +72,7 @@ WAVES = STOCK / "videos/abstract-dark-waves-motion/27980029.mp4"       # L2-4 S2
 VOICE = "mia"                   # female, af_heart. Matches the long form from
                                 # the same post. Still a candidate, not approved.
 
-# Every short gets a bed from here on - the user's call. The same track the
+# Every short gets a bed from here on - the editor's call. The same track the
 # long form uses, which is the point of a channel having a small library.
 MUSIC = music.track("night-drift")
 
@@ -222,7 +222,7 @@ EMOJI = {
 GAPS = [0.75, 0.85, 0.60, 0.80, 0.70, 0.85, 0.90, 2.10, 0.75, 0.70,
         0.90, 0.70, 1.30, 0.34]
 
-# The long form's picture and words (2026-10-25), supplied by the user.
+# The long form's picture and words (2026-10-25), supplied by the editor.
 COIN = Path(__file__).resolve().parents[2] / "assets/crypto/bitcoin-price/coin-over-chart.jpg"
 HEADLINE = "Who\nreally\nsets the\n[price?]"
 

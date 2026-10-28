@@ -13,7 +13,7 @@ than from graded drone selects. Two beats, no tag:
 **A rotate-phone tag was cut after the first review**, which puts this back in
 line with `drone-short.md`'s standing "never use rotate your phone". The first
 build argued the rule only bites in the opening second and ran the graphic as a
-closing pointer to a landscape cut; the user's verdict on seeing it was to drop
+closing pointer to a landscape cut; the editor's verdict on seeing it was to drop
 it. Worth knowing if the idea comes back: the black-background key that made it
 work was `lumakey=0.04:0.16:0`, which holds the glyph antialiasing a `colorkey`
 would chew off, and the graphic needed a blurred dark halo under it or the white
@@ -126,7 +126,7 @@ def main() -> None:
     # away from — 1.0 keeps full sensor height and the whole surf line.
     box = pick_crop(proxy, zoom=1.0)
 
-    # White on both beats, the user's call over the template's own sampled ink.
+    # White on both beats, the editor's call over the template's own sampled ink.
     # `bg_luma` is pinned dark rather than measured: it is the only control over
     # the halo, and at a sampled value above 0.62 the halo turns white too and
     # erases white type. Low luma is what keeps the halo black.

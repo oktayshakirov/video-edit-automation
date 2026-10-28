@@ -410,7 +410,7 @@ def thumbs(out: Path) -> Path:
     finger, the whole photograph with no scrim, and the headline in the empty
     lower-left corner on a local dark fade that stays clear of both hands.
 
-    The user replaced the drawn `replicate` still below (`thumbs_beat`); a
+    The editor replaced the drawn `replicate` still below (`thumbs_beat`); a
     scrimmed `render_thumb` crop hid the human hand and set the type over the
     touch, which is the whole picture.
     """

@@ -61,7 +61,7 @@ cheapest to change before the upload and expensive after (`docs/video/demand/REA
   what the article gives that the video could not (the full table, the
   sources, the sessions), not "read more". A bare "read more" or "Full
   article:" line is flagged with a suggested rewrite. Never rewrite it
-  silently - the description is what the user approved at the build.
+  silently - the description is what the editor approved at the build.
 
 The same applies to both channels' Facebook captions: the `facebookCaption`
 link line is the same next step, in the same words.
@@ -100,7 +100,7 @@ instruction.
 the table above, for every video the run covers - not just YouTube and the
 site.** Settled 2026-08-27, after a run stopped short of Instagram, Facebook
 Reels and TikTok on the reasoning that "upload... to the crypto wiki pages"
-meant the site only, and the user corrected it: when they say to run this
+meant the site only, and the editor corrected it: when they say to run this
 skill, run everything the table says that project gets. Do not re-derive a
 narrower scope from the wording of the request - the table is the scope.
 The per-post confirmation in the Gates section still stands for what a
@@ -114,7 +114,7 @@ a platform from the run.
    the long's native Facebook upload need a public URL, so serve the render
    folder and open one tunnel rather than one per video. Stop it after step 4.
    **Stop n8n too once the last workflow has finished** (the long's Telegram
-   share and Facebook video included) - the user's instruction, 2026-10-27:
+   share and Facebook video included) - the editor's instruction, 2026-10-27:
    always stop n8n when you finish using it, whether or not you started it.
 4. **Short: Reels then TikTok. Long: native Facebook upload, then poster,
    `videos.json`, the deploy gate and `npm run sync-content`.** The Reel caption
@@ -154,7 +154,7 @@ a `.py` is a clip it deletes), and if it exits non-zero naming a missing path,
 re-fetch that id rather than swapping in another clip.
 The reasoning is in `docs/video/footage.md`.
 
-**Then everything else the run leaves behind.** The user's instruction,
+**Then everything else the run leaves behind.** The editor's instruction,
 2026-10-14: don't keep files that won't be used again on the laptop.
 
 ```bash
@@ -187,7 +187,7 @@ The whole sequence runs on one "upload". These do not:
   the three check lines, and on a single "go" run the entire
   remainder top to bottom without pausing again. The gate is that one
   confirmation carries the exact wording and happens in this chat; it is not a
-  licence to break the run into phases. The user's instruction: "do all in one
+  licence to break the run into phases. The editor's instruction: "do all in one
   phase always."
 
   **Resuming after an interruption - do not re-confirm. Settled 2026-09-02.**
@@ -197,7 +197,7 @@ The whole sequence runs on one "upload". These do not:
   n8n executions (`?limit`, then `?status=running`), `git log` in the site repo,
   the YouTube channel, the `.secrets/tiktok-tokens.json` mtime - and finish the
   remaining steps without asking again. The captions were already shown and
-  approved; the wording does not change on a resume. The user: "always run all
+  approved; the wording does not change on a resume. The editor: "always run all
   steps in one go, no need to ask me."
 - **The `--apply` dry run is never skipped** on a YouTube upload. Show the plan.
 - **A first post to a brand's Instagram or Facebook page is public the moment it

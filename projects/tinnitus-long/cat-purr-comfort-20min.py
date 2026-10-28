@@ -15,7 +15,7 @@ the video is allowed to be:
   page describes, which this recording does not support. The measurement wins
   over the page.
 
-  **The copy says this positively rather than by disclaimer, at the user's
+  **The copy says this positively rather than by disclaimer, at the editor's
   direction.** An earlier cut opened the third card with "it will not cover
   your tinnitus", which is accurate and is also a negative in the first fifteen
   seconds of a piece meant to settle someone. It is gone. What replaced it is
@@ -41,7 +41,7 @@ the video can actually claim.
 * **`loop=30.0`** (three 10s cycles) with **60s intro, 1110s body, 30s outro**
   = 1200s exactly. 1110 is 37 whole loops, which is the constraint
   `render_asmr_long` raises on.
-* **A 60s intro, the longest on the channel** — the user's brief allowed up to
+* **A 60s intro, the longest on the channel** — the editor's brief allowed up to
   a minute, and a session that introduces a sound on its own terms, rather
   than by what it masks, needs the room to make that case and still arrive
   somewhere warm.

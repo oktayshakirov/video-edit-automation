@@ -20,7 +20,7 @@ replicate / chapter, bars / diagram / steps.
 
 **Opener: `Counter`, the long form's own** - $90B, entering on "joke" and
 landing on "ninety" in sentence 2. The first cut ran the redacted hook
-`[one source]`; the user's note was that the revealed phrase did not fit the
+`[one source]`; the editor's note was that the revealed phrase did not fit the
 idea, and to use the long form's opener (`shorts.md`, "A hidden word must be
 worth revealing"). It opens on the long form's first shot too.
 
@@ -166,7 +166,7 @@ def main() -> None:
         SENTENCES, SHOTS, out, work,
         voice=VOICE, gap=GAPS,
         music=MUSIC, music_gain=0.85,
-        # The long form's opener, so the pair reads as one (the user's call
+        # The long form's opener, so the pair reads as one (the editor's call
         # on the first cut, which ran the redacted hook `[one source]`).
         opener=Counter("$90B", "DOGECOIN AT ITS PEAK, MAY 2021",
                        at_word="ninety", enter_word="joke"),

@@ -1,80 +1,92 @@
 # Video Automation
 
-One engine, three projects. A shared core — voice profiles, TTS, caption
-alignment, type rendering, 9:16 crop and vertical render — with a package per
-project on top.
+A Python engine that turns articles, raw drone footage and a written script
+into finished, platform-ready videos: long-form 16:9 explainers, vertical
+Shorts and Reels, quiz Shorts, 20-minute sound-therapy sessions, and Final Cut
+Pro timelines cut to music. It runs three real channels end to end, from topic
+research to upload.
 
-| project | state | what it makes |
-|---|---|---|
-| **drone** | working | long-form FCPXML montages cut to music; narrated vertical shorts |
-| **crypto** | stub — voices only | thecrypto.wiki article shorts |
-| **tinnitus** | stub — voices only | tinnitushelp.me shorts + ASMR sound therapy |
+| Channel | What it builds |
+|---|---|
+| **The Crypto Wiki** ([thecrypto.wiki](https://thecrypto.wiki)) | An article becomes a narrated long-form explainer and its vertical Short, written together so the Short is not a trailer |
+| **Tinnitus Help** ([tinnitushelp.me](https://tinnitushelp.me)) | The same explainer pair, plus sound-therapy sessions: generated or recorded noise beds with a paced-breathing guide |
+| **Drone** | A Final Cut Pro timeline (FCPXML) cut to the bar grid of a music track, or a vertical quote / POV Short |
 
-Only drone is built. Crypto and tinnitus have their shortlisted voices
-registered in `core/voices.py` and nothing else; their packages say so.
+About 60 long-form videos and their Shorts, around 20 drone Shorts and seven
+drone edits have been built with it.
 
-**Long-form never renders video.** It reads, analyses and writes an XML file for
-Final Cut. Short-form does render finished MP4s — that is the one place output
-is encoded.
+## How a video is made
 
-## Picking up where the last session left off
+1. **Script.** Every video is a hand-written Python file in `projects/`: the
+   narration, the shot list, and a docstring saying why this angle and not
+   another. Scripts are deliberately not generated from the article.
+2. **Voice.** Local [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) TTS
+   through named voice profiles, with a pronunciation layer and word-level
+   caption alignment.
+3. **Picture.** Drawn data beats (bars, grids, checklists, comparisons,
+   annotated photos), screened Pexels stock, site photography and archive
+   images, composed per sentence so the visual always matches the line being
+   spoken.
+4. **Sound.** Generated music beds and sound effects, ambience under footage,
+   and a small library of licensed tracks.
+5. **Render.** FFmpeg and Pillow for 16:9 and 9:16, HDR (HLG) where the source
+   is HDR, thumbnails for both shapes, an SRT and a metadata sidecar.
+6. **Publish.** YouTube via the Data API (from a separate analytics CLI), Instagram and Facebook Reels and
+   Telegram through n8n workflows, TikTok as an inbox draft, and the site's
+   video registry.
 
-**Start at [docs/video/README.md](docs/video/README.md) and `git log`.** The
-build rules are edited as the engine changes, so they are the only description
-of the current state that cannot go stale without somebody noticing.
+Drone long-form takes a different route: it indexes a folder of clips with
+OpenCV, fits a bar grid to the music with librosa, picks clip, length and speed
+for every slot, and writes FCPXML that is validated against Final Cut's own DTD
+before it is opened.
 
-- **A build waiting to be published** is [HANDOFF-PUBLISH.md](HANDOFF-PUBLISH.md),
-  rewritten by every run. That one is current by construction.
-- **Why a rule exists** is the narrowest doc that covers it — `docs/video/`
-  for the engine, `docs/video/projects/<site>.md` for a channel's own limits.
-- [HANDOFF.md](HANDOFF.md) is **a snapshot from 2026-08-19**, not a live
-  document. It is kept because its FCPXML traps and its account of the
-  post-upload corrections are expensive to rediscover and are written down
-  nowhere else. Read it for those; do not read it for what the repo does now.
+## Repository layout
 
-## Status
-
-| Phase | What | State |
-|---|---|---|
-| 1 | Clip index — proxy cache, CV metrics, motion classification | working; motion thresholds **unvalidated guesses** |
-| 2 | Music analysis — tempo, bar grid, downbeat, energy, sections | working; **downbeat phase is heuristic** |
-| 3 | Edit decisions — shot choice, length, speed, variety | working; taste weights tuned by hand against real output |
-| 4 | FCPXML export | working; validated against Final Cut's own DTD |
+```
+video_automation/
+  core/        shared engine: voices, TTS and captions, vertical crop, type,
+               brand, backgrounds, music, sound effects, stock, HDR, datamosh
+  longform/    the 16:9 format shared by both sites: plan, beats, openers,
+               overlays, thumbnails, metadata
+  crypto/      the vertical article format and its fact extraction
+  tinnitus/    vertical article cuts and the sound-therapy sessions
+  quiz/        three-question quiz Shorts with a timed reveal
+  drone/       clip analysis, music analysis, edit decisions, FCPXML export
+  publish/     the TikTok uploader
+projects/      one script per video, one directory per site and format
+docs/video/    every build rule, once: start at docs/video/README.md
+docs/publish/  the per-platform publishing notes
+.claude/skills/ the build, publish and audit workflows as Claude Code skills
+assets/        brand assets, credited archive images, the stock manifest
+tests/         fast checks that never render, synthesise or touch the network
+tools/         asset audits, stock pruning, topic suggestions
+```
 
 ## Setup
 
+Requires macOS (Final Cut Pro for the drone timelines), Python 3.11+ and
+FFmpeg.
+
 ```bash
-brew install ffmpeg
+brew install ffmpeg espeak-ng
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
-
-# make the skills available in any session, from any folder
-for s in video-crypto video-tinnitus video-drone publish-video; do
-  ln -sfn "$PWD/.claude/skills/$s" ~/.claude/skills/$s
-done
+.venv/bin/python -m pytest tests
 ```
 
-The symlinks matter: skills under `.claude/skills/` are project-scoped, so
-without them the commands are invisible when a session starts in a footage
-folder rather than in this repo.
+The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. Footage, renders,
+stock bytes and credentials are never committed.
 
-**One skill per project, three of them, and they only build.**
-**`/video-crypto`** and **`/video-tinnitus`** each turn one article into a
-long-form 16:9 and its vertical Short in a single run - the pair is written
-together so the Short is not a trailer for the long one. `/video-tinnitus` also
-builds sound-therapy sessions. **`/video-drone`** builds either a long-form
-FCPXML timeline finished by hand in Final Cut, or a vertical MP4, usually one
-and not both. **`/publish-video`** is the only thing that uploads anything.
+## Usage
 
-The skills are thin - they carry the *order of the work*. Every rule a build
-needs lives once in `docs/video/`; start at `docs/video/README.md`, which also
-sets out where a new lesson goes so these files cannot drift back into
-duplicating each other.
+Render one video from its script:
 
-Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
-3.11+ (`tomllib`).
+```bash
+PYTHONPATH=. .venv/bin/python projects/crypto-long/bitcoin-price.py
+PYTHONPATH=. .venv/bin/python projects/crypto-short/bitcoin-price.py
+```
 
-## Use
+Cut a drone edit to music:
 
 ```bash
 .venv/bin/python -m video_automation drone index ~/Desktop/Plovdiv          # once per batch
@@ -82,116 +94,32 @@ Requires macOS with Final Cut Pro (its DTD is used for validation) and Python
 .venv/bin/python -m video_automation drone build --project plovdiv
 ```
 
-`index` is incremental — clips are identified by a partial hash (size + first
-and last 1MB), so re-running skips anything already indexed. `--reanalyze`
-keeps the cached proxies but recomputes every metric; that is the flag for
-tuning indexer thresholds, and it costs seconds rather than minutes.
+`build --dry-run` reruns the whole decision engine and prints the edit list
+without writing XML; `--click` writes the track with a click on every bar line
+to check the beat grid by ear.
 
-`build --dry-run` reruns the entire decision engine and prints the edit list
-without writing XML. **This is the tuning loop** — read the list, adjust, repeat.
-`--click` writes a WAV of the track with clicks on every bar line, to check the
-beat grid by ear.
-
-The older explicit form still works: `build <footage> --music <track>`.
-
-## Repository layout
-
-```
-video_automation/
-  cli.py            top-level dispatch: <project> <subcommand>
-  core/             shared by every project
-    voices.py       named voice profiles — the record of what was auditioned
-    voiceover.py    Kokoro TTS, caption alignment, narrated render
-    vertical.py     9:16 crop search, type rendering, vertical export
-    media.py        ffprobe/ffmpeg wrappers, clip hashing, proxy build
-    config.py       constants shared across projects (proxy, container types)
-    brand.py        one Brand per site: palette, wordmark, background
-    frame.py        LANDSCAPE and VERTICAL, and the upscale ceilings
-    backdrop.py     the looping background behind every drawn beat
-    music.py        generated beds, plus the small library of real tracks
-    sfx.py          synthesized risers, impacts and mark sounds
-    stock.py        Pexels photos and clips, cached and screened
-  drone/            the Final Cut pipeline
-    config.py       every drone tunable, GUESS-marked where unvalidated
-    analysis.py     per-frame CV, motion fit, move classification
-    music.py        beat grid, downbeat phase, energy envelope, sections
-    edit.py         slot filling, clip scoring, speed decisions, frame snapping
-    fcpxml.py       Jinja-rendered FCPXML
-    validate.py     DTD + semantic checks before anything reaches Final Cut
-    project.py      per-video TOML loading and config overrides
-    cli.py          subcommands: index, report, build
-  crypto/           the vertical format: shots, the checklist beat, facts.py
-  tinnitus/         the vertical format for the second site, plus ASMR
-  longform/         the 16:9 format, shared by both sites: beats, plan, build
-projects/           one directory per site AND format — see projects/README.md
-  crypto-short/  crypto-long/  tinnitus-short/  tinnitus-long/
-  drone-short/  drone-long/  quiz-crypto/  quiz-tinnitus/  demo/
-.claude/skills/     the build, publish and audit skills — symlink into
-                    ~/.claude/skills/
-docs/video/         every build rule, once — start at docs/video/README.md
-assets/
-  brand/            wordmarks, looping backgrounds, the music library
-  stock/            Pexels cache; bytes gitignored, manifest.json is not
-tests/              what can be checked without rendering — a few seconds
-CHANGELOG.md        approved drone stages and their metrics; the article
-                    videos record their lessons in docs/video/ instead
-```
-
-**The format is in the project directory's name.** `crypto/` and `crypto-long/`
-used to sit side by side and nothing said which held the Shorts.
-
-## Voices
-
-A profile is the whole recipe — voice, Kokoro speed and post chain — because
-those are one decision, not three. `af_nicole` through the energetic chain and
-`af_nicole` pitched through the soft chain are different voices in every way
-that matters.
+Audition and verify voices:
 
 ```bash
 .venv/bin/python -m video_automation voices list
-.venv/bin/python -m video_automation voices show nicole
-.venv/bin/python -m video_automation voices render nicole
 .venv/bin/python -m video_automation voices verify
 ```
 
-Profiles are named after people — the Kokoro voices underneath are an
-implementation detail, and a name like `onyx-nicole-60` told you the recipe but
-never which voice it was. Male-sounding profiles carry male names, female ones
-female names, so the roster reads at a glance.
+A profile is the whole recipe (voice, Kokoro speed and post chain), named
+after a person rather than the model voice underneath. Kokoro's ONNX inference
+is deterministic, so `verify` checks each profile still reproduces its
+audition sample-for-sample.
 
-Kokoro's ONNX inference is deterministic, so `verify` re-renders every profile
-and checks it reproduces its audition WAV sample-for-sample (it reports the
-files as missing once those WAVs are cleared, which is harmless — the recipes
-are the archive now). **`approved` means it has shipped in a finished video;
-`candidate` means it was shortlisted by ear and is waiting on a decision.**
-Drone's `leo` is approved; the rest are candidates.
+## Agent workflows
 
-Footage and proxies are **not** in the repo. Proxies and the SQLite index live
-in `.analysis_cache/` inside each footage folder, so a batch carries its own
-analysis and archiving a shoot keeps it.
+The build and publish steps run as [Claude Code](https://claude.com/claude-code)
+skills in `.claude/skills/`: `/video-crypto`, `/video-tinnitus`, `/video-drone`,
+`/video-quiz` and `/video-glitch` build; `/publish-video` uploads;
+`/video-views-audit` and `/video-performance-review` read the analytics back and
+turn them into rule changes. The skills hold only the order of the work. Every
+rule they rely on lives once in `docs/video/`, with the reason it exists.
 
-## Adding a video
-
-See [projects/README.md](projects/README.md). Short version: copy a `.toml`,
-repoint `footage` and `music`, index, dry-run, tune under `[overrides]`, build.
-
-`config.py` is the shared baseline across all videos. Per-video taste goes in
-that video's project file, never in `config.py`.
-
-## Saving an approved stage
-
-When an edit is good, tag it so it can be returned to exactly:
-
-```bash
-git add -A
-git commit -m "plovdiv: <what changed>"
-git tag plovdiv-v3 -m "49 cuts, 80% coverage, opening order approved"
-```
-
-Record the metrics in `CHANGELOG.md`. Going back is then `git checkout
-plovdiv-v3` instead of reconstructing settings from memory.
-
-## Design notes
+## Design notes: the drone edit engine
 
 - Analysis only ever touches the 320px/10fps proxy. Source files are read for
   hashing (2MB) and proxy generation, never by OpenCV.
@@ -256,5 +184,3 @@ plovdiv-v3` instead of reconstructing settings from memory.
   clustering.
 - `sharpness` measures texture density on a compressed proxy, not focus. Treat
   it as "how much detail is in frame", not as a quality gate.
-- **TikTok profile is declared but not implemented.** Vertical reframing is not
-  built; `profile` currently only labels a project.

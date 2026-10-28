@@ -388,7 +388,7 @@ SECTIONS = [
             Shot(graphic="stat",
                  payload=("1 minute", "TO CHECK IT",
                           "Four questions. She failed all four.", False)),
-            # Disclaimer on screen whenever the line is spoken - user's rule.
+            # Disclaimer on screen whenever the line is spoken - editor's rule.
             Shot(clip=RAIN_WINDOW, clip_at=1.0,
                  payload=("", "This is not financial advice.")),
             Shot(clip=SMOKE, clip_at=2.0),

@@ -8,12 +8,12 @@ radar domes lit against the same sunset, drifting out of frame right) below.
 The turn is "STUPID", so it takes the set-piece size on its own caption, in
 caps at 80px rather than 88: the lowercase "p" descender at 88 hung past the
 100px band, and caps leave room for the shake. The shake is the "triggered"
-jolt, matched to the line's vibe (the user's ask for punchline words).
-Ink karaoke (Iowan italic, the spoken word tinted), the user's call on this
+jolt, matched to the line's vibe (the editor's ask for punchline words).
+Ink karaoke (Iowan italic, the spoken word tinted), the editor's call on this
 cut over the box. No "i read a quote" opener and no quote marks: the line is
-said straight, by the user's call.
+said straight, by the editor's call.
 
-Ungraded on purpose: the user wanted the footage as shot, not corrected.
+Ungraded on purpose: the editor wanted the footage as shot, not corrected.
 
 Crops are hand-set: Sunset 6 is half black ground, so its box is tightened
 and pulled up onto the sky with the sun inside; Teufelsberg 2 is a lateral
@@ -24,7 +24,7 @@ from pathlib import Path
 
 from video_automation.core.voiceover import render_narrated_stack, profile_args
 
-SOURCE_POST = None                      # off-site: the user's own line, no article
+SOURCE_POST = None                      # off-site: the editor's own line, no article
 
 FOOT = Path("~/Desktop/Drone Videos/Footage/Berlin 26 1:4").expanduser()
 TOP = FOOT / "Sunset 6.mp4"

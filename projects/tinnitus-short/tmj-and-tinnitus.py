@@ -10,7 +10,7 @@ video is still playing. It is the one thing in the article a viewer can act
 on inside forty seconds.
 
 **The opener is a `Search`, the same device as the long form**, on the
-user's call after seeing the first cut. The last three Shorts on this
+editor's call after seeing the first cut. The last three Shorts on this
 channel all opened on the redacted hook, so the rotation still holds; what
 changed is that both halves of the pair now open on somebody typing their
 own question, which is what makes them read as one piece. **The query is a
@@ -24,7 +24,7 @@ closing statement is the opener's own type (`outro=`), not a `chapter`
 slate.
 
 **The close is a directive, not an observation.** The first cut ended on
-"two fingers in front of your ear - that is the joint", and the user's note
+"two fingers in front of your ear - that is the joint", and the editor's note
 was that it leaves the end open: it names the thing and then stops, so there
 is nothing for the viewer to do with it. It closes on the instruction the
 video actually earned instead, which is still a cold close
@@ -67,7 +67,7 @@ KETTLE = V / "steam-kettle-hot-water-night-dark-kitchen/35674426.mp4"
 STREET = V / "man-walking-home-late-night-empty-street/7251411.mp4"
 HAND = V / "close-up-hands-stretching-fingers-night-dark/7298371.mp4"
 
-# The user's own pick, by URL, and the same file the long form uses.
+# The editor's own pick, by URL, and the same file the long form uses.
 THUMB_PHOTO = (STOCK / "photos/close-up-shot-of-a-pretty-woman-10648949"
                / "10648949.jpg")
 
@@ -177,7 +177,7 @@ def main() -> None:
         "Can your jaw\nchange your\n[tinnitus?]", image=THUMB_PHOTO,
         accent="red", ax=0.45, zoom=1.0, at=0.34, band="bottom", size=240)
     # **`at=` is inert on this source and that is worth knowing.** The file
-    # the user picked is 6000x4574, so a 9:16 cover crop uses its whole
+    # the editor picked is 6000x4574, so a 9:16 cover crop uses its whole
     # height and keeps ~55% of its width: there is no vertical slack for
     # `at` to place, and only `ax` moves anything. It is the cost of a
     # landscape source on a vertical thumbnail, which is why the rule is to

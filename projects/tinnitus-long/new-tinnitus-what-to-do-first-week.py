@@ -86,7 +86,7 @@ ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 NIGHT_ROOM = (STOCK / "photos/man-sitting-on-edge-of-bed-at-night-dark-room"
               / "6943996.jpg")                       # 6186x4124, L33/S43
 
-# The Short's source too, picked by the user: a man with his hands at his
+# The Short's source too, picked by the editor: a man with his hands at his
 # temples, eyes closed, on a plain studio ground. 5760x3840, L139/S17 - far
 # brighter than this channel's usual stock, which `render_thumb` normalises,
 # and the plain ground is what lets the type sit anywhere.
@@ -369,7 +369,7 @@ META = Meta(
 )
 
 
-# Re-set 2026-10-26 in the current format: the user's own rows, larger, on
+# Re-set 2026-10-26 in the current format: the editor's own rows, larger, on
 # the grey studio wall continued where the first cover laid black.
 HEADLINE = "New tinnitus.\nWhat do you\ndo [first?]"
 

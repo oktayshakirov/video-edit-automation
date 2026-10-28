@@ -58,7 +58,7 @@ def render_tinnitus_short(sentences: list, shots: list[Shot], out: Path,
 
     **`karaoke=True` is the default on this channel now.** The per-word
     highlight is what short-form platforms' own auto-captions do, and the
-    user's note was that a static caption chunk gives the eye nothing to
+    editor's note was that a static caption chunk gives the eye nothing to
     follow. It costs one PNG per word rather than one per chunk, which is a
     few seconds of render on a forty-second piece.
     """

@@ -132,7 +132,7 @@ def tension(sr: int = SR, dur: float = RISER_DUR) -> np.ndarray:
     """The cinematic riser: a big synth swell climbing from low to high.
 
     Second version (2026-10-20). The first was a high Shepard shimmer, and the
-    user's note was that the sound on trailer-style channels starts *low* and
+    editor's note was that the sound on trailer-style channels starts *low* and
     climbs - the whole register in one gesture. So this is the classic trailer
     riser, built from three layers:
 
@@ -489,7 +489,7 @@ def hook_swish(sr: int = SR, dur: float = 0.38) -> np.ndarray:
 
 
 # --------------------------------------------------------------------------
-# Sounds from files (2026-10-21). The user supplied these three after two
+# Sounds from files (2026-10-21). The editor supplied these three after two
 # synthesized risers missed what they meant. They are third-party library
 # sounds, so like the music bed they live in `assets/brand/sfx/` and are
 # gitignored - the repo is public. Each has a synthesized stand-in, used
@@ -757,7 +757,7 @@ KIT_GAIN = {"crypto": 1.0, "tinnitus": 0.72}
 # version of this softened the hook too - the slam became a swell, the glitch
 # became a reveal tick, and the whole thing came down to 0.72 - on the
 # reasoning that a hearing-sensitive audience should not be hit with a
-# transient. The user's call is that the opener is the wrong place to spend
+# transient. The editor's call is that the opener is the wrong place to spend
 # that: a Short lives or dies in its first second, and an opener that does not
 # grab is an opener nobody hears the soft middle of either.
 #

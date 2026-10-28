@@ -373,7 +373,7 @@ META = Meta(
 
 # One bracketed word, BEAR, beside the bear (`thumbnails.md`: one-word accent
 # in the 16:9 column). The first cut asked "why does crypto fall so far?" and
-# the user asked for words about the bear market, since the picture is a bear.
+# the editor asked for words about the bear market, since the picture is a bear.
 HEADLINE = "What is a crypto [bear] market?"
 # The scorer zoomed in and cut the bear's ear at the right edge. A manual
 # crop, shifted right so the whole head sits beside the type on the photo's

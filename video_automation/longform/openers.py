@@ -117,7 +117,7 @@ class _Opener:
         # it** (2026-10-11). By default it slams in on frame one and spins
         # until `at_word`; on the halving Short that was a counter spinning
         # for six seconds over a title question it had nothing to do with,
-        # and the user's note was to wait for "the last one" and only then
+        # and the editor's note was to wait for "the last one" and only then
         # run the reveal. Everything below is drawn in the opener's own
         # clock, shifted by `start`, so a late entrance still gets the full
         # punch-in, slam and spin.
@@ -308,7 +308,7 @@ class Stamp(_Opener):
                   else self.brand.negative)
         # **Measure the text, then draw the box around it.** The first cut
         # drew a fixed box and centred the word inside it separately, so the
-        # word hung outside its own border - which the user caught.
+        # word hung outside its own border - which the editor caught.
         fs = _font(120)
         tw = d.textlength(self.verdict, font=fs)
         bbox = fs.getbbox(self.verdict)
@@ -356,7 +356,7 @@ class Split(_Opener):
     sentence-2 rule records). Pass `winner="left"` or `"right"` with the word
     that names it; omit both to leave it open for the whole video.
 
-    **No divider, and the two sides sit level with the VS disc** (the user's
+    **No divider, and the two sides sit level with the VS disc** (the editor's
     call on `your-tinnitus-as-stressometer`, 2026-10-13). The first layout
     ran a line 250px either side of the centre with the labels 170px above
     it and the question at +200, so the line struck through the question;
@@ -443,12 +443,12 @@ class Search(_Opener):
     types, so this shows the viewer their own question being asked. It shows
     no answer and no autocomplete suggestion - the answer is the video, and
     putting it on screen in the first two seconds is the "complete answer in
-    sentence 2" mistake in picture form (the user's call, 2026-09-24).
+    sentence 2" mistake in picture form (the editor's call, 2026-09-24).
     """
 
     TYPE_AT = 0.30       # the first keystroke, after the slam
 
-    # **A query that asks gets its question mark** (the user's note,
+    # **A query that asks gets its question mark** (the editor's note,
     # 2026-10-27): every `Search` so far typed "did beethoven have tinnitus",
     # "how to manage a tinnitus spike" with no mark, and the bar read as a
     # statement. A query opening on one of these words is a question, so the

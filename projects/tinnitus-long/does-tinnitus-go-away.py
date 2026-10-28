@@ -16,7 +16,7 @@ subject:
   pulsing with the heartbeat, getting louder, dizziness or hearing loss, lasting
   more than a few weeks. These are the reasons to see somebody and they are the
   most useful thirty seconds in the video, so they get the checklist.
-* **`mia`, not `luna`.** The user's call: the same reader as the crypto
+* **`mia`, not `luna`.** The editor's call: the same reader as the crypto
   long-form. `luna` is the sound-therapy voice — SOFT chain, unhurried, for
   a piece the listener is meant to breathe along with. An explainer wants the
   reader who explains.
@@ -54,7 +54,7 @@ NEURONS = STOCK / "videos/brain-neurons-abstract-dark"
 WATER = STOCK / "videos/calm-water-ripple-dark"
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
-VOICE = "mia"                   # the crypto long-form reader, per the user.
+VOICE = "mia"                   # the crypto long-form reader, per the editor.
 MUSIC = "bright"                # warmer and less tense than `pulse`. This
                                 # audience is frequently here *because* sound is
                                 # a problem; the bed should not be one.
@@ -81,7 +81,7 @@ SECTIONS = [
         ],
         shots=[
             # A face, moving, in the first frame. A still of the same idea
-            # was there first and the user's note was that it is not an
+            # was there first and the editor's note was that it is not an
             # engaging way in — a person visibly dealing with it reads
             # instantly and needs no caption.
             # `clip_at=1.6` — the first second of this clip is an ambiguous
@@ -371,7 +371,7 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        # The user's pick over "Which kind do you have?". The type auto-sizes
+        # The editor's pick over "Which kind do you have?". The type auto-sizes
         # down until "GO AWAY?" fits on one line — see thumb.py; an accent that
         # wraps draws two plates and loses the focal point.
         thumb_headline=HEADLINE,

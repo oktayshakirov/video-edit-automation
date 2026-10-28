@@ -11,12 +11,12 @@ outro asks one question and stops.
 
 **The picture matches the noun in the sentence, not the one after it.** The
 first cut opened on his portrait while the voice said "Ethereum" and cut to the
-Ethereum mark while the voice said his name - the user caught the inversion.
+Ethereum mark while the voice said his name - the editor caught the inversion.
 The mark now carries the question and the portrait carries his name.
 
 **No emoji, deliberately.** `add_caption_emoji` re-centres the whole line around
 the glyph, so a caption carrying one falls back to the single-PNG treatment and
-**the per-word karaoke highlight stops on that line** - which the user saw at
+**the per-word karaoke highlight stops on that line** - which the editor saw at
 0:08. Karaoke running unbroken is worth more here than two glyphs.
 
 **Kokoro respellings, spoken half only** (`es()`): `Ethereum` -> `Etheerium`;
@@ -29,7 +29,7 @@ The music bed is automatic - `render_crypto_short` defaults to `night-drift`.
 
 **The opening portrait is shown whole.** `aspect` is set to the source's own
 ratio (1670/2553 = 0.654), which makes `PhotoShot`'s crop a no-op, so the
-photograph is letterboxed into the blurred fill rather than cut into. The user's
+photograph is letterboxed into the blurred fill rather than cut into. The editor's
 note was that it was cropped; the fix is the aspect, not the bias.
 
 Run from the repo root:
@@ -192,7 +192,7 @@ def main() -> None:
         karaoke_box=False, karaoke_upper=False,  # approved before box became default
                                      voice=VOICE, emoji=EMOJI, gap=GAPS)
 
-    # Re-done 2026-10-22 on the user's SF 2017 photo for a catchier hook.
+    # Re-done 2026-10-22 on the editor's SF 2017 photo for a catchier hook.
     # Three forced rows set at 180; two rows capped near 126. `band="bottom"`
     # because his head is in the top half; `ax=0.48` centres his face.
     thumb = render_short_thumb(

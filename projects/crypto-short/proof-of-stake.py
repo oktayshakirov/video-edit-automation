@@ -102,7 +102,7 @@ GPUCOPPER = PH / "graphics-card-gpu-dark-background/34552790.jpg" # L31.6 S23.9
 # it has black margins on every side and no crop of it fills a 9:16 frame.
 # `GPUFANS` is a close-up that already bleeds edge to edge in any aspect ratio,
 # so it needs neither a slide nor a forced crop - a plain cover crop fills both
-# the 1080x1920 and the 1280x720 thumbnail at full sharpness. The user supplied
+# the 1080x1920 and the 1280x720 thumbnail at full sharpness. The editor supplied
 # this exact photo.
 GPUFANS = PH / "gaming-graphics-card-fans-red-lighting/34552811.jpg"  # L47.5 S43.9
 CASH = PH / "banknotes-low-key-photography/10149288.jpg"          # L67.1 S28.4
@@ -257,7 +257,7 @@ GAPS = [0.75, 0.60, 0.55, 0.85, 0.60, 0.55, 0.90, 0.60, 0.90, 0.85,
         0.60, 1.30, 0.34]
 
 
-# The long form's picture and words (2026-10-26), supplied by the user.
+# The long form's picture and words (2026-10-26), supplied by the editor.
 COVER = Path(__file__).resolve().parents[2] / "assets/crypto/proof-of-stake/padlock-bitcoin.jpg"
 HEADLINE = "Mining\nor\n[staking?]"
 
@@ -265,7 +265,7 @@ HEADLINE = "Mining\nor\n[staking?]"
 def thumbs(out: Path) -> Path:
     """The padlock and coin scaled to the width on the bottom; above them the
     board itself, blurred and dimmed so white rows read. Dark ink on the
-    full-brightness blur was hard to read (the user, 2026-10-26)."""
+    full-brightness blur was hard to read (the editor, 2026-10-26)."""
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(COVER).convert("RGB")

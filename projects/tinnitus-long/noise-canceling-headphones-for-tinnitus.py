@@ -78,7 +78,7 @@ P_PRODUCT = PH / "over-ear-headphones-dark-still-life/1649771.jpg"            # 
 P_AIRPODS = PH / "wireless-earbuds-dark-background-product/30981655.jpg"      # L17 - earbuds and case lit in the brand's own peach
 P_AIRPODS2 = PH / "wireless-earbuds-dark-background-product/10885669.jpg"     # L30 - earbuds beside a phone, on black
 
-# The user's own pick. Bright teal where the rest of this channel is near
+# The editor's own pick. Bright teal where the rest of this channel is near
 # black, which is the point of a thumbnail rather than a problem with it: it
 # is the one asset that has to win a grid of dark rectangles, and the
 # headphones are unmistakable at feed size.

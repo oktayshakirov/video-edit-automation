@@ -27,7 +27,7 @@ Run from the repo root:
 
 --- what the third cut changed -----------------------------------------------
 
-**All five playbook items now, not three.** The user's note: cutting the
+**All five playbook items now, not three.** The editor's note: cutting the
 playbook down to three when the long form has five reads as incomplete, and a
 Short is not bound to any runtime ceiling here - "up to a minute or more if
 the content is interesting and relevant". The `steps` beat scales to five
@@ -73,7 +73,7 @@ marks each item false the instant it is spoken, which is right when the
 narration itself carries the verdict ("Not a court ruling."). Here the
 narration never says the claims are wrong — it just states three things a
 viewer already half-believes — so marking them false in real time answered a
-question before it was asked, and the user's note was exactly this: read the
+question before it was asked, and the editor's note was exactly this: read the
 myths first, *then* react, *then* let the strike land. Fixed by dropping
 `flow` (back to the two-phase default: items appear unmarked, verdicts land
 together in the pause after the last one) and adding a fourth caption chunk
@@ -82,12 +82,12 @@ is spoken into the pause the crosses draw during, rather than assumed.
 
 **The causes list got a spoken hinge.** "Aging, medication, even an ear
 infection can trigger it too" used to open cold, right off the checklist.
-The user's ask was a natural lead-in, matching the hinge-sentence rule this
+The editor's ask was a natural lead-in, matching the hinge-sentence rule this
 format already uses for beats: the sentence now opens "So here are some real
 reasons" before the list, in the same continuous utterance rather than a
 separate sentence with its own gap — no new shot needed.
 
-**Thumbnail is the user's own pick**, not a stock search result: a Pexels
+**Thumbnail is the editor's own pick**, not a stock search result: a Pexels
 photo of a woman pressing her temples, fetched by id rather than found by
 query. Bright and pastel, the opposite of this brand's usual dark palette —
 `render_thumb`'s own scrim darkens the type's half regardless, so it composes
@@ -114,7 +114,7 @@ NEURONS = STOCK / "videos/brain-neurons-abstract-dark"              # L26 S46
 LISTEN = STOCK / "videos/man-listening-music-dark-room-night"       # L42 S8
 MEDITATE = STOCK / "videos/man-meditating-dark-room-calm"           # L41 S6
 
-# The user's own pick, fetched by Pexels id rather than a search query.
+# The editor's own pick, fetched by Pexels id rather than a search query.
 # Landscape 5760x3840, bright and pastel - `render_thumb`'s own scrim
 # darkens the type's half regardless of source brightness.
 THUMB_PHOTO = STOCK / "photos/user-picked/3958868.jpg"

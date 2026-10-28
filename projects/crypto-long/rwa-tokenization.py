@@ -292,7 +292,7 @@ HEADLINE = "Own $100\nof this\n[building?]"
 def thumbs(out: Path) -> Path:
     """Cropped so the tower sits on the left and the frame's own night sky
     fills the right, where the headline goes in three rows. No black fade:
-    the sky is already the type's ground (the user's note, 2026-10-25)."""
+    the sky is already the type's ground (the editor's note, 2026-10-25)."""
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(THUMB).convert("RGB")

@@ -285,7 +285,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # here so a future short can opt in — see
                         # `core.vertical.render_caption_karaoke`'s `box=`/
                         # `upper=` and `FONT_KARAOKE_BOX`. Both default ON
-                        # since 2026-09-21 (user's call: box karaoke on every
+                        # since 2026-09-21 (editor's call: box karaoke on every
                         # short); scripts approved before that pin them False. `karaoke_box` also switches the
                         # caption font from `FONT_CAPTION` to `FONT_KARAOKE_BOX`
                         # for *every* caption in the short, karaoke'd or not —
@@ -324,7 +324,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # zero, so a Short opened with two blocks of type
                         # saying the same sentence - one at 34% of the height,
                         # one at 70% - plus the watermark, the static bar and
-                        # its tear. The user's note on the neck-tension pair
+                        # its tear. The editor's note on the neck-tension pair
                         # was that the captions under the hook are distracting
                         # and too much is happening at once, and the long form
                         # reads cleaner in its first seconds for exactly one
@@ -358,7 +358,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # which is the long form's chapter slate: a hairline
                         # rule over a flat brand panel, in the body face. Next
                         # to an opener built from Arial Black, a dark band, a
-                        # brand pill and a slam it reads, in the user's words,
+                        # brand pill and a slam it reads, in the editor's words,
                         # "very old and ugly" - the first and last thing a
                         # viewer sees were drawn by two different videos. This
                         # is the same `HookOverlay`, centred, held to the end
@@ -424,7 +424,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     preset name, a path to a track, or None. Long form has had a bed since it
     was built and the shorts never did, which was a gap rather than a decision:
     both tinnitus short skills recorded it as "requested and not yet built".
-    The user's call is that every short gets one from here on.
+    The editor's call is that every short gets one from here on.
 
     It matters more here than in long form, not less. A short opens with no
     lead-in silence and is judged in its first second; forty seconds of a
@@ -637,7 +637,7 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # with karaoke every *word* is its own sprite, so a sentence that
             # began under the hook came back for its last second or two: the
             # viewer got the tail of a line whose beginning they never saw.
-            # The user's note: "then show them at the end of the sentence for
+            # The editor's note: "then show them at the end of the sentence for
             # a second... always start with the next sentence so we see the
             # whole thing." So the boundary is the first sentence that starts
             # after the hook has gone, and everything before it is muted

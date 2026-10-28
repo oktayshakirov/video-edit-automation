@@ -39,7 +39,7 @@ underneath are an implementation detail.
 ```
 
 **`status` is not a rating.** `approved` means it shipped in a finished video;
-`candidate` means the user shortlisted it by ear and has not decided. Do not
+`candidate` means the editor shortlisted it by ear and has not decided. Do not
 promote one without being told to.
 
 **A voice is a `(510, 1, 256)` style tensor, not a model**, so a weighted sum is
@@ -70,7 +70,7 @@ the writing carries most of it:
 
 ## Sentences are synthesised in runs, not one at a time
 
-**The user's note was that the presentation "doesn't sound human" and that the
+**The editor's note was that the presentation "doesn't sound human" and that the
 breaks are unnatural, and the largest cause was architectural rather than the
 model.** `build_narration_aligned` used to call the synthesiser once per
 sentence and concatenate the results with `anullsrc` silence. Two consequences,
@@ -125,7 +125,7 @@ is unchanged. Anything beyond it is an engine change, and the options
 researched — ElevenLabs (word-level timestamps, `<break>` tags, an IPA
 pronunciation dictionary; needs a paid tier for monetised video), Chatterbox
 (MIT, but CPU-only on Apple Silicon) and Orpheus (Apache, needs a GGUF/LM
-Studio path) — are a decision the user takes by ear, not a default to change.
+Studio path) — are a decision the editor takes by ear, not a default to change.
 `synth_phrase` remains the only place an engine is named, so the swap stays
 cheap whenever they want it.
 
@@ -162,7 +162,7 @@ respell `Eenoo`; `Kabosu` reads ka-BAH-soo - respell `Kahbosoo`. **`Elon`
 shipped wrong into the meme coins pair (2026-10-22) although musk-effect had
 already solved it** - the fix lived only in that script's comment. Grep
 `projects/` for a name before writing it: a solved respelling is reused, not
-rediscovered by the user. `will.i.am` - say
+rediscovered by the editor. `will.i.am` - say
 `Will I Am`. **`habituated` has no respelling that
 works** - six tried, every one wrong on the stress or the vowel - so say "used
 to it" and keep the word on screen only.
@@ -170,7 +170,7 @@ to it" and keep the word on screen only.
 ## Ethereum, and checking a brand name you think you know
 
 `Ethereum` phonemizes to `ˌiːθɚɹˈiːəm` — "ee-thuh-REE-um", stress on the wrong
-syllable and a schwa where the vowel wants to be `ɪɹ`. It shipped, and the user
+syllable and a schwa where the vowel wants to be `ɪɹ`. It shipped, and the editor
 caught it.
 
     espeak-ng -v en-us -q --ipa "Ethereum"    # ˌiːθɚɹˈiːəm   wrong
@@ -207,7 +207,7 @@ file's own "only a hyphen goes on screen" rule.
 "Do not." was written as its own sentence with a 0.90 after it, straight out
 of this doc's own advice about imperatives landing in silence. On the page it
 is the strongest line in the section; read by Kokoro it is **two syllables and
-then nothing**, and the user's note was that it loses the human sound of the
+then nothing**, and the editor's note was that it loses the human sound of the
 voiceover. A person saying "Do not." carries it with emphasis and a falling
 pitch, and there is no emphasis to give.
 
@@ -228,7 +228,7 @@ and punctuation changed:
 | before a comma | 1.067s |
 | ending its own sentence | 0.624s |
 
-The user heard the comma version as "skyy" and flagged it as a glitch in the
+The editor heard the comma version as "skyy" and flagged it as a glitch in the
 voice. It is not a glitch — Kokoro applies phrase-final lengthening, and on an
 open diphthong like `skˈaɪ` it stretches into something that sounds broken.
 Long vowels are exactly what a melancholic script is full of, so this will
@@ -257,7 +257,7 @@ Different from the drag above, and the more common glitch on this voice.
 (Next Trick) both ended in **creaky voice**: on the spectrogram the last
 syllable's harmonics break into widely spaced vertical pulses at ~60 Hz
 against the voice's ~110 Hz, and leo's pitch-down chain turns that into an
-audible crackle. The user heard it as "the last word is glitching". It is the
+audible crackle. The editor heard it as "the last word is glitching". It is the
 falling terminal contour Kokoro gives a full stop; the duration was normal
 (0.62s for "decision"), so the drag check above does not catch it.
 
@@ -290,7 +290,7 @@ line, only the mark changed:
 **The ordering is real but the magnitude is not.** Em dashes and ellipses pause
 longer than a comma by amounts too small to hear: a full render written with
 them came out 10.46s against the comma baseline's 10.55s — *shorter*. They buy
-nothing. The user compared all three and chose the plain-comma version.
+nothing. The editor compared all three and chose the plain-comma version.
 
 **The period is the only mark that moves anything**, at 2–3× a comma. It costs
 what it buys: a period makes Kokoro treat the clause as a sentence and give it
@@ -319,7 +319,7 @@ the spoken half of its sentence, a bare capitalised `IT` phonemizes as the
 initialism: `espeak-ng -v en-us -q --ipa "keeps IT honest"` returns
 `kˈiːps ˌaɪtˈiː ˈɑːnɪst` — "keeps I.T. honest" — where the lower-case version
 returns the correct `ɪɾ`. This shipped audibly on the `perpetual-futures`
-short at 0:34 and the user caught it by ear. **A chapter card's `payload` (the
+short at 0:34 and the editor caught it by ear. **A chapter card's `payload` (the
 on-screen text) and its narration sentence are two different strings, not
 one** — write the sentence chunk as a `(caption, spoken)` pair, caps on
 screen, a normal sentence spoken: `(("NO EXPIRY. JUST A FEE THAT KEEPS IT
@@ -335,7 +335,7 @@ earlier decision, on real output.
 
 Per-phrase synthesis (`phrases=`) gives exact sync by construction, but the
 engine sees each fragment with no context, so every chunk lands with a terminal
-falling contour and its own pause. The user's verdict on the City 1 cut was
+falling contour and its own pause. The editor's verdict on the City 1 cut was
 "very robotic, especially the word 'years' and 'ordinary'" — and the finer the
 captions, the worse it got, which is backwards. **Caption chunking and delivery
 speed must not be the same knob.**
@@ -389,7 +389,7 @@ _kokoro().tokenizer.phonemize("i read a quote that said", lang="en-us")
 
 **`live` is the one on this list that a tech explainer will actually hit, and it
 shipped.** "Ethereum went live in 2015" phonemizes as `wɛnt lˈɪv` — the verb, to
-*live* somewhere — where the sentence wants `lˈaɪv`, the adjective. The user
+*live* somewhere — where the sentence wants `lˈaɪv`, the adjective. The editor
 heard it immediately. `went lyve` returns `wɛnt lˈaɪv`, which is right.
 
 The trap is that espeak gets the *same word* right elsewhere: "the network is
@@ -415,7 +415,7 @@ reported total silently truncates the video — this shipped once, reporting
 
 **Keep the tail to 1–2s.** A short loops, and every second after the last word
 is a second before it comes back around. `tail=1.2` is the working value; 2.2
-was tried and the user cut it for exactly this reason. This is not in tension
+was tried and the editor cut it for exactly this reason. This is not in tension
 with "do not shorten a pause to avoid silence" — that rule is about *dead air*,
 and a fast loop is a different reason with a different answer.
 

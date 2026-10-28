@@ -2,7 +2,7 @@
 
 Sinemorets field hyperlapse on top, Akra Castle sea horizon below. Both
 sources (10.0s / 11.4s) are shorter than the read, so each is a full-length
-boomerang — forward, then reversed, native speed — per the user's ask that the
+boomerang — forward, then reversed, native speed — per the editor's ask that the
 footage "goes back to the beginning" rather than slowing down. Built at 4K
 upstream of the crop, so the crop has to hold for the whole clip.
 """

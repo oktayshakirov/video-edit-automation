@@ -26,7 +26,7 @@ while the mosh keeps moving underneath, slowing to a stop.
 
 ## The signed-off cut
 
-`datamosh.cut()` is the whole thing, and its defaults are the version the user
+`datamosh.cut()` is the whole thing, and its defaults are the version the editor
 approved (forest into the rotating Golden Girl top-down):
 
 | frames | what plays |
@@ -46,10 +46,10 @@ approved script**: approved cuts are locked (`docs/video/projects/drone-long.md`
 
 ## The exit is where every round went
 
-The user liked the entry from the first good test; four of the six rounds
+The editor liked the entry from the first good test; four of the six rounds
 were the exit. In order:
 
-| exit | user's verdict |
+| exit | editor's verdict |
 |---|---|
 | 4-frame snap to clean | "it just disappears" |
 | 0.8s block heal, each block fading over a linear window | the effect was "stopping too quick" |

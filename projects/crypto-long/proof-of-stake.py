@@ -2,7 +2,7 @@
 
 Source: crypto-wiki/content/posts/what-is-proof-of-stake.mdx.
 **Sixth long-form explainer.** Picked over the two higher-demand pages
-(`exchanges/cryptocom` 380, `crypto-etfs-explained` 362) because the user chose
+(`exchanges/cryptocom` 380, `crypto-etfs-explained` 362) because the editor chose
 it directly, and it is the natural companion to the already-shipped
 `mining-rig.py` (proof of work): same underlying question — what keeps a
 stranger honest — answered the other way.
@@ -54,7 +54,7 @@ correctly, exactly as `Binance`/`Bynanse` already does.
 
 **Every picture in this video is fresh, and that is now a rule.** The first
 cut was built entirely from assets already shipped in other crypto videos and
-the user rejected it on exactly that. An inventory across all six crypto
+the editor rejected it on exactly that. An inventory across all six crypto
 projects found the channel recycling a tiny pool: `security-combination-lock.jpg`
 in **nine** videos, `digital-technology.jpg` in eight, `analysis.jpg`,
 `laptop-trading.jpg` and `futuristic-crypto-exchange.jpg` in seven each, and the
@@ -165,7 +165,7 @@ AERIAL = STOCK / "videos/night-highway-traffic-long-exposure-dark/4062948.mp4"  
 SMOKE = STOCK / "videos/smoke-swirling-dark-gold-light/4320605.mp4"             # 30.1s L4-19 S4-10
 
 # **Third fetch: concrete subjects, after the second cut read as wallpaper.**
-# The user's note was that the abstracts "feel more like a background than main
+# The editor's note was that the abstracts "feel more like a background than main
 # footage" and lose attention across a long video, and they were right - the
 # second pass over-corrected toward on-palette abstraction and ended up with
 # gold dust, smoke, particles and geometry carrying whole sections. These are
@@ -194,7 +194,7 @@ GPUCOPPER = PH / "graphics-card-gpu-dark-background/34552790.jpg"   # L31.6 S23.
 # the frame could otherwise carry. This is the opposite kind of source: a
 # close-up that already bleeds edge to edge in both 16:9 and 9:16, so a plain
 # cover crop fills the whole thumbnail with no panel, no fallback, and no
-# quality cost. The user supplied the exact photo.
+# quality cost. The editor supplied the exact photo.
 GPUFANS = PH / "gaming-graphics-card-fans-red-lighting/34552811.jpg"  # L47.5 S43.9
 CHIPS = PH / "motherboard-chip-macro-dark/36169770.jpg"             # L36.0 S14.3
 # Fiat, for the line that says "Money." - see the note in section two.
@@ -529,10 +529,10 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-26 on the user's picture: a Bitcoin leaning on a padlock
+# Re-done 2026-10-26 on the editor's picture: a Bitcoin leaning on a padlock
 # in front of a blurred circuit board - staking locks coins up. White rows on
 # the board, shaded behind them; the plate red so it does not melt into it.
-COVER = Path(__file__).resolve().parents[2] / "assets/crypto/proof-of-stake/padlock-bitcoin.jpg"   # 2000x1333, supplied by the user
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/proof-of-stake/padlock-bitcoin.jpg"   # 2000x1333, supplied by the editor
 HEADLINE = "Mining\nor\n[staking?]"
 
 
@@ -551,7 +551,7 @@ def _cover(path: Path, z: float = 1.0, ax: float = 0.0, ay: float = 0.0):
 def thumbs(out: Path) -> Path:
     """Scaled 1.25x and anchored left so the padlock moves right, whole; the
     rows go on the board to its left in white. Dark ink on the bright board
-    was hard to read (the user, 2026-10-26), so the empty board left of the
+    was hard to read (the editor, 2026-10-26), so the empty board left of the
     padlock is shaded to 0.3 brightness, easing out over 220px before the
     padlock begins - the subject itself is never darkened."""
     import numpy as np
@@ -584,7 +584,7 @@ def main() -> None:
         # **Two attempts at this thumbnail before it was right.** The first
         # cut let the scorer cover-crop `GPUCARDS` and it zoomed into one card
         # and cut the other in half. The fix at the time was `crop_zoom<1.0`
-        # (the fit-mode panel on black) - correct in principle, but the user's
+        # (the fit-mode panel on black) - correct in principle, but the editor's
         # verdict on the result was still "bad quality", and they were right
         # for a reason the fit-mode fix could not reach: a wide product shot
         # with black margins fitted into a frame is a *smaller picture inside

@@ -176,7 +176,7 @@ def main() -> None:
                                      overlays=overlays)
 
     # **The same headline as the long form, word for word.** This shipped
-    # once as "your mood" and the user caught it: `thumbnails.md` asks a pair
+    # once as "your mood" and the editor caught it: `thumbnails.md` asks a pair
     # built from one post to share its headline so a viewer who sees the
     # second one recognises it, and "your" against "crypto's" breaks that for
     # no gain - the video is about the market's mood, not the viewer's.

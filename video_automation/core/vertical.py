@@ -57,7 +57,7 @@ FONT_QUOTE_SIZE = 44
 
 # Avenir Next Demi Bold — the drone channel's single-clip quote face since
 # 2026-10-24. With no black band behind it the type sits on moving footage, so
-# the user asked for something "more simple and easier to read" than the Iowan
+# the editor asked for something "more simple and easier to read" than the Iowan
 # italic: a plain sans with open counters that a stroke cannot clog. The italic
 # stays on the stacked layout, where the band does the legibility work.
 FONT_SIMPLE = "/System/Library/Fonts/Avenir Next.ttc"

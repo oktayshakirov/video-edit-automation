@@ -170,7 +170,7 @@ vertical rule.
 ## Silence is punctuation, and it has to be written
 
 `gaps` on the `Section`, one float per sentence. **Leaving every sentence at the
-default 0.34 is what "monotone" means** — that was the user's word for the first
+default 0.34 is what "monotone" means** — that was the editor's word for the first
 crypto-exchanges cut and it is the correct diagnosis: pace is the only prosody
 a synthesiser has, so a script that never varies the space between sentences is
 a script read at one pitch for four minutes.
@@ -211,7 +211,7 @@ like one sentence.
 ## Phrases that are banned, and why one of them got here
 
 **Never write "here is the question almost nobody asks about it".** It went into
-three scripts before the user caught it. "About it" has nothing to attach to, so
+three scripts before the editor caught it. "About it" has nothing to attach to, so
 it is not English, and the whole clause is a windup that *announces* a question
 instead of asking one — which costs two seconds in the exact stretch where
 retention is decided. Ask the question: "But who is actually holding it?"
@@ -228,7 +228,7 @@ now better-evidenced rule - see "A Short's ending loops; it does not ask"
 below - because a Short is optimised for the replay YouTube counts as watch
 time, not for a comment, and the two goals want opposite last lines.
 
-**The user's standing rule, on every channel.** The closing line is a real
+**The editor's standing rule, on every channel.** The closing line is a real
 question the viewer can answer in their head — "So, what do you think: would you
 have asked to see the blockchain?" — and nothing else. No "let me know in the
 comments", no "the sources are linked below", no "subscribe for more". Those
@@ -240,7 +240,7 @@ below" tail. The description carries the link and the CTA; the narration does
 not.
 
 **The compliance line is long-form only. A Short never carries it.** The
-user's note on the `perpetual-futures` short: shorts on this channel drop the
+editor's note on the `perpetual-futures` short: shorts on this channel drop the
 disclaimer sentence entirely and close clean, with nothing tacked on after
 the video's own last line - a Short has no room to earn the disclaimer's own
 weight, and the long form it is paired with already carries it, so the pair
@@ -326,7 +326,7 @@ Sources: [Shortimize, YouTube Shorts retention](https://www.shortimize.com/blog/
 ## Name the subject in the first sentence, not on the first chapter card
 
 **The myths cut opened on "You have probably heard at least one of these"
-and did not say the word *tinnitus* until the card at 0:14.** The user's note
+and did not say the word *tinnitus* until the card at 0:14.** The editor's note
 was to make it clearer what we are talking about, "specially in the beginning
 of the videos", and they are right in the most expensive possible way: 74% of
 viewers decide whether to keep watching inside the first 15 seconds, and more
@@ -619,7 +619,7 @@ little to withhold that the viewer cares about.
 ## A tip needs a reason before it is a tip
 
 The first cut went straight from the custody beat into "turn on two-factor,
-start small, withdraw the rest" and the user's note was that it arrives with no
+start small, withdraw the rest" and the editor's note was that it arrives with no
 introduction. A list of instructions with nothing saying *why* reads as generic
 advice, and generic advice is the thing an explainer is supposed to not be. One
 sentence fixes it, and it should tie back to the beat above rather than being a

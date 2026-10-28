@@ -20,7 +20,7 @@ class ChapterCard(Beat):
     """The turn between sections: one line, centred, spoken as it appears.
 
     **Typed on behind a caret, with a key click per character** (2026-10-20,
-    the user's call, after a code-tutorial reference). The narration still
+    the editor's call, after a code-tutorial reference). The narration still
     reads the title; the typing only changes how the type arrives. See
     `core/typewriter.py`.
 
@@ -53,7 +53,7 @@ class ChapterCard(Beat):
     payload: (title,) or (title, number)
     """
 
-    # **Arial Black, the thumbnail's face, not the caption face.** The user's
+    # **Arial Black, the thumbnail's face, not the caption face.** The editor's
     # call: a chapter card is the one moment the video is showing a headline
     # rather than speaking a sentence, and it should look like the headline on
     # the thumbnail. Futura Medium is a light wide geometric that goes weak at
@@ -161,7 +161,7 @@ class ChapterCard(Beat):
 
     # --- the band style (experimental, 2026-10-20) -----------------------
     #
-    # After a documentary-channel reference the user liked: a small glowing
+    # After a documentary-channel reference the editor liked: a small glowing
     # "CHAPTER 2" over a solid band in the brand colour, the title in widely
     # tracked condensed caps inside it. No radial glow behind it - the beat's
     # own moving background stays. The band opens from the centre, the title
@@ -170,7 +170,7 @@ class ChapterCard(Beat):
     #
     # **The label is the one numeral this card has ever shown by default.**
     # The docstring above records why a numbered agenda was dropped; this is
-    # the user's call to try it again in a different treatment. If the band
+    # the editor's call to try it again in a different treatment. If the band
     # ships, that paragraph needs revisiting rather than both standing.
 
     BAND_OPEN = 0.38
@@ -216,7 +216,7 @@ class ChapterCard(Beat):
         # **Centre on the ink, not on the advance widths.** `textlength`
         # carries each glyph's side bearings and the tracking after the last
         # letter, so a line centred on it sits visibly right of the band's
-        # middle - the user caught it on the first band render. Each line is
+        # middle - the editor caught it on the first band render. Each line is
         # drawn once here and measured by its real pixel extent.
         inks = []
         for ln in lines:
@@ -569,7 +569,7 @@ class Compare(Beat):
         # the narration can say "Centralized." and have the word appear, then
         # read that column, then say "Decentralized." and have the other
         # appear. Both headings used to be painted at f=0, which left the
-        # viewer to work out which list the voice was on — the user's note was
+        # viewer to work out which list the voice was on — the editor's note was
         # that a comparison must not ask them to interpret, and they are right:
         # a two-column graphic where both labels are already up is a table you
         # are expected to read, not a thing being explained to you.

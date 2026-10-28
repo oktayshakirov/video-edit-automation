@@ -113,7 +113,7 @@ SHOTS = [
     # The carved face sits low in the frame, clear of the stamp at 34%.
     Shot(clip=EGYPT, clip_at=0.5, clip_ax=0.30),
     # Not the same clip twice in a row (`shorts.md`): the carved relief.
-    # At 0.45 the crop held only a hand and a staff (the user's note on the
+    # At 0.45 the crop held only a hand and a staff (the editor's note on the
     # first cut); 0.88 is the carved figure's head and shoulders.
     Shot(clip=STELE, clip_at=2.0, clip_ax=0.88),
     # The plate is near-white, and a full card put the karaoke line on a

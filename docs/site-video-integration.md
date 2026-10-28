@@ -184,7 +184,7 @@ so nothing shifts.
 
 ### Both - the compact card
 
-The user's ask is "compact somewhere if they just want to watch it", which means
+The editor's ask is "compact somewhere if they just want to watch it", which means
 **above the fold, collapsed**. A single horizontal bar directly under the title
 meta row:
 

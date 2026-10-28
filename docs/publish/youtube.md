@@ -75,7 +75,7 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   same day). Studio's "Video language" control does not reach this field - it
   only writes `defaultAudioLanguage` - so that field is API-only to fix.
 - **Nothing here makes a video public.** Say so plainly at the end rather than
-  letting the user assume the site entry published it.
+  letting the editor assume the site entry published it.
 - **A Short's cover cannot be set through the Data API. It is a manual step in
   Studio, and this is settled - the rule flipped twice before landing here, so
   do not move it again without new evidence.** The full matrix, all measured on
@@ -119,7 +119,7 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   **Never send the 1080x1920 to the API as a substitute.** YouTube letterboxes a
   9:16 upload into its 1280x720 slot with a blurred, zoomed copy of the same
   image either side - the silence pair went live as a narrow strip with
-  "DOES ... NCE" bleeding across the bottom in huge soft letters, and the user
+  "DOES ... NCE" bleeding across the bottom in huge soft letters, and the editor
   replaced it by hand. `thumbnails.set` returns success and
   `youtube-audit video <id>` reports a `maxres 1280x720` entry either way, so
   **neither the upload nor the audit can tell you this went wrong - only looking
@@ -127,7 +127,7 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
 
   **Two wrong explanations, recorded so they are not re-derived.** First: the
   four earlier Crypto Wiki shorts carry vertical covers that display correctly,
-  which was read as proof the API should send 9:16. It was not - the user had
+  which was read as proof the API should send 9:16. It was not - the editor had
   set those by hand. *An artifact's appearance says nothing about how it got
   there.* Second: a Partner Programme limit was blamed; also wrong, since covers
   work on this 3-subscriber channel when set manually.

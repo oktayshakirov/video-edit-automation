@@ -1,6 +1,6 @@
 """Next Trick, silent — the same line as a small quote card, no voice.
 
-The user found leo too chill for this line and pointed at a TikTok reference
+The editor found leo too chill for this line and pointed at a TikTok reference
 (122K likes): a small block of plain white type, four or five short lines,
 centred, no box and no stroke, over a calm landscape. This is that card on
 the same Sunset 5 crop as next-trick.py, cut to ~6.5s.
@@ -13,7 +13,7 @@ from pathlib import Path
 
 from video_automation.core.vertical import FONT_SIMPLE, render_short, render_text_png
 
-SOURCE_POST = None                      # off-site: the user's own line, no article
+SOURCE_POST = None                      # off-site: the editor's own line, no article
 
 FOOT = Path("~/Desktop/Drone Videos/Footage/Berlin 26 1:4").expanduser()
 SRC = FOOT / "Sunset 5.mp4"

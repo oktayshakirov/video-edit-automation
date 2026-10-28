@@ -64,7 +64,7 @@ fresh; verdicts in `footage.md`. The one abstract is dark water under the
 disclaimer.
 
 **Thumbnail:** a grinning Shiba Inu (Pexels 16730750) set right, the title's
-question on the left. The first build used the Dogecoin coin; the user's note
+question on the left. The first build used the Dogecoin coin; the editor's note
 was that it is boring and does not make anyone click - a cute dog does.
 
     PYTHONPATH=. .venv/bin/python projects/crypto-long/what-are-memecoins.py

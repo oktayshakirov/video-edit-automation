@@ -15,7 +15,7 @@ core glow that swells on the inhale and holds with the breath.
   session"). No "set it just below your tinnitus" line, and no denial either:
   the copy says what the sound is and how loud to keep it.
 * **4-7-8 kept although a comfort piece usually takes an unnamed pattern** —
-  the user asked for it by name. The intro gives the way out of the holds.
+  the editor asked for it by name. The intro gives the way out of the holds.
 * **`inhale=4.0, hold=7.0, exhale=8.0`**, a 19s cycle, **`loop=57.0`** (three
   cycles). 20 minutes: 34s intro, 1140s body (twenty loops), 26s outro.
 * **The recording is tiled** (`bed_file_loop=True`): 588s of source under a

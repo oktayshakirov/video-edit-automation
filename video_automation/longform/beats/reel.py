@@ -1,6 +1,6 @@
 """`reel` - a strip of cards the camera travels along.
 
-From a reference the user liked (2026-10-22): the "extended screen" move,
+From a reference the editor liked (2026-10-22): the "extended screen" move,
 where the frame is a window onto a wider surface and the camera follows a row
 of cards - clips, photographs or plain text - each with a label, gliding from
 one to the next as the voice reaches it. Our own version, in the brand's

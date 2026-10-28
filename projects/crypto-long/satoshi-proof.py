@@ -10,7 +10,7 @@ study — a claimant with a mathematically valid signature from the wrong addres
 
 **Structure, second pass.** The first cut was a sectioned presentation: seven
 numbered chapter cards over a script written as headings and bullet points. It
-read as a slide deck, which is what the user said and what the reference
+read as a slide deck, which is what the editor said and what the reference
 material independently warns against. This one follows the arc that both the
 reference prompt and the retention research point at:
 
@@ -80,7 +80,7 @@ KEYS = STOCK / "videos/typing-keyboard-night"
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
 VOICE = "mia"                   # female, af_heart. Candidate, not approved.
-MUSIC = "pulse"                 # 112 BPM, plucked, no air layer. The user picked
+MUSIC = "pulse"                 # 112 BPM, plucked, no air layer. The editor picked
                                 # this over `bright` for a piece about proof.
 
 URL = ("https://thecrypto.wiki/posts/"

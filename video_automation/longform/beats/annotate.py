@@ -30,7 +30,7 @@ class Callout(Beat):
     **Nothing lands inside the photo — the leaders stop at the frame.** Three
     versions failed before this one: text on the image fought the picture; a
     disc pinned on a chosen pixel looked arbitrary and defacing; an arrow
-    reaching in to the detail still "pointed at the exact word". The user's
+    reaching in to the detail still "pointed at the exact word". The editor's
     call, and it is right: the label sits in a margin column, and its leader
     runs to a small dot **on the image border** — nothing crosses the edge.
     The dot sits roughly level with the thing it names (`y` places it along
@@ -271,7 +271,7 @@ class Diagram(Beat):
     breath after box `k` lands and travels the whole gap until box `k+1`
     appears on its far end. The line grows while the narrator speaks the
     causal link; the box lands as the line reaches it. That is the synced
-    animation the user asked for, and it is the whole reason the beat is worth
+    animation the editor asked for, and it is the whole reason the beat is worth
     more than a bulleted list.
 
     Three or four nodes. Five sets the labels too narrow to wrap decently
@@ -650,7 +650,7 @@ class Anatomy(Beat):
         self.cutout = False
         # **A picture is required.** This beat used to fall back to a drawn ear
         # when given none. Four versions of that drawing were made and the
-        # user's verdict on the last one was that it is still hard to read and
+        # editor's verdict on the last one was that it is still hard to read and
         # not accurate enough to be worth it - which is the right call: a beat
         # whose whole job is that the viewer knows which part is meant cannot
         # be built on a diagram they have to decode first. It raises now

@@ -158,7 +158,7 @@ SHOTS = [
 GAPS = [0.70, 0.90, 0.80, 0.60, 1.20, 0.70, 1.10, 0.95, 1.30]
 
 
-# The long form's picture (2026-10-26), supplied by the user; the four rows
+# The long form's picture (2026-10-26), supplied by the editor; the four rows
 # the first cover settled on.
 COVER = ROOT / "assets/crypto/whale/whale-over-city.jpg"
 HEADLINE = "The biggest\nwhale\nis not a\n[person]"

@@ -12,12 +12,12 @@ sits there, and the first time you spend, the signature publishes the public
 key onto a permanent record that cannot be un-published.
 
 **Say "quantum computers", not "quantum".** Bare "quantum" as a noun reads as
-jargon and the user flagged it as confusing. Every reference is "quantum
+jargon and the editor flagged it as confusing. Every reference is "quantum
 computers" or "a quantum computer"; "qubit" is kept because the number needs a
 unit and the stat card glosses it.
 
 **Every clip carries an on-screen line.** `payload=("", "…")` puts a big centred
-statement on the footage — the user's note was that stock playing silently under
+statement on the footage — the editor's note was that stock playing silently under
 specific narration is hard to follow, so the point is always on screen, not only
 in the voice. Drawn beats carry their own text.
 
@@ -27,7 +27,7 @@ and `steps` beats had narrative sentences with three chunks against six-plus
 reveals, so the beat filled in out of sync with the voice. The beat sentence is
 now the list; the sentences around it set it up and pay it off.
 
-**A checklist with a struck item spells out why.** The user's note: a lone ✗ in
+**A checklist with a struck item spells out why.** The editor's note: a lone ✗ in
 a list is confusing. The `checklist` here is titled as a yes/no question
 ("CAN IT BE MIGRATED?") and every spoken chunk states its own verdict -
 "doable" three times, then "never" - so the mark is never doing the explaining
@@ -87,7 +87,7 @@ EDITOR = PH / "code-on-screen-dark/256502.jpg"                # 6016x4000 L15 S1
 DESK = PH / "code-on-screen-dark/5380603.jpg"                 # 6000x4000 L22 S3
 CIRCUIT = PH / "encryption-padlock-circuit-dark/3520697.jpg"  # 6016x4000 L16 S0
 BOKEH = PH / "dark-abstract-gold-particles-bokeh/30278259.jpg"  # 6000x4000 L18 S3
-# Thumbnail only - the user's pick. Magnetic field lines round a glowing core:
+# Thumbnail only - the editor's pick. Magnetic field lines round a glowing core:
 # reads as quantum physics, centred subject, dark corners for the type.
 MAGFIELD = PH / "magnetic-field-lines/38032287.jpg"          # 3840x2160 L34 S36
 
@@ -365,7 +365,7 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-26: same picture (the user's call), the old title's
+# Re-done 2026-10-26: same picture (the editor's call), the old title's
 # question in three big rows.
 HEADLINE = "Is Bitcoin\nquantum\n[safe?]"
 

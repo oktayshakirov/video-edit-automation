@@ -28,7 +28,7 @@ practice the article states in its own Best Practices section.
 reads four names and no verdicts, so the badges *are* the answer and holding
 them for the pause is the point. What changed after the first cut is the
 graphic: a list of four names with three crosses and one tick did not say why
-the tick was a tick, and the user found it confusing. Brand cards in a 2x2 —
+the tick was a tick, and the editor found it confusing. Brand cards in a 2x2 —
 two labelled "they hold", two "you hold" — make the split the subject, and the
 custody verdict still lands into each tile's corner in the pause.
 
@@ -69,7 +69,7 @@ VOICE = "mia"                   # female, af_heart. Matches the long form from
 # honest reading of that is still custodial — the wallet is a different product.
 #
 # **Two and two, not three and one.** The first cut listed Coinbase, Binance,
-# Crypto.com and Uniswap, and the user found the beat confusing — rightly: with
+# Crypto.com and Uniswap, and the editor found the beat confusing — rightly: with
 # a single tick at the end there is nothing to tell you the tick means
 # *decentralized* rather than "best one". A balanced pair of pairs makes the
 # split the subject.
@@ -105,12 +105,12 @@ SENTENCES = [
     # The beat. Four names, no verdicts in the voice — the badges are the
     # answer, which is why this is two-phase and takes the long gap below.
     # **"Binance" is spelled for espeak**: the real spelling phonemizes to
-    # `baɪnˈæns`, bye-NANCE, which is what the user heard and called wrong.
+    # `baɪnˈæns`, bye-NANCE, which is what the editor heard and called wrong.
     # **The fourth name is PancakeSwap, not Hyperliquid.** The beat's own
     # payload switched to PancakeSwap when the site gained a real page for it
     # (`content/exchanges/pancakeswap.mdx`), but this line was left reading
     # the old name — voice and visual disagreed on which tile was on screen,
-    # which the user caught. "PancakeSwap" phonemizes cleanly on its own
+    # which the editor caught. "PancakeSwap" phonemizes cleanly on its own
     # (`pˈæŋkeɪk swˈɑːp`) and needs no respelling.
     (("Coinbase.", "Coinbase."),
      ("Binance.", "Bynanse."),
@@ -121,7 +121,7 @@ SENTENCES = [
      "The other two cannot.",
      "That is the whole split."),
 
-    # **The tip needs a reason before it is a tip.** The user's note was that
+    # **The tip needs a reason before it is a tip.** The editor's note was that
     # the three habits arrived with no introduction — a list of instructions
     # with nothing saying why you are being given them. One sentence fixes it,
     # and it also ties the fix back to the beat above rather than leaving it
@@ -144,13 +144,13 @@ SENTENCES = [
     ("Always remember the golden rule.",),
 
     # **A full-screen statement, not a caption over footage.** The line is the
-    # whole argument and the user asked for it big. A `chapter` beat in 9:16
+    # whole argument and the editor asked for it big. A `chapter` beat in 9:16
     # wraps to three lines at 148px and burns no caption over itself, because
     # `build` suppresses captions on any shot carrying a graphic.
     (("NOT YOUR KEYS, NOT YOUR COINS.",
       "Not your keys, not your coins."),),
 
-    # **A hyphen, never an em or en dash.** The user's rule, for every video:
+    # **A hyphen, never an em or en dash.** The editor's rule, for every video:
     # a dash set as "—" reads as a typographic flourish in a burned caption and
     # at caption size the long rule is easy to mistake for a stray mark. Only
     # "-" goes on screen.
@@ -218,7 +218,7 @@ EMOJI = {
 }
 
 # **Pauses are punctuation.** The first cut ran 0.34 everywhere except the two
-# beats and the user's note was that the whole read is monotone. 0.34 inside a
+# beats and the editor's note was that the whole read is monotone. 0.34 inside a
 # thought, 0.55-0.90 at the end of one, and the long gaps only where a beat
 # needs room. The logo beat (index 4) is two-phase and keeps the full 2.10: the
 # four tiles sit unmarked, the voice stops, and the badges land in the silence.
@@ -228,7 +228,7 @@ EMOJI = {
 GAPS = [0.60, 0.80, 0.55, 0.90, 2.10, 0.80, 0.70, 0.90, 0.70, 1.30, 0.34]
 
 
-# The long form's picture and words (2026-10-26), supplied by the user.
+# The long form's picture and words (2026-10-26), supplied by the editor.
 COVER = Path(__file__).resolve().parents[2] / "assets/crypto/exchanges/coin-hand-to-hand.jpg"
 HEADLINE = "Who\nholds\nyour\n[coins?]"
 

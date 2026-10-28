@@ -166,7 +166,7 @@ CLIP_SKIP_RANGES: dict[str, list[list[float]]] = {}
 #
 # The point of it: "these takes are slow, run them at 2x" is a judgement from
 # watching the footage. Left to coverage pressure the engine speeds up whichever
-# clips happen to be long, which is a different set — it sped up a clip the user
+# clips happen to be long, which is a different set — it sped up a clip the editor
 # wanted at real time and left one they had marked at 1.0x.
 #
 # Still speed-up only, and still whole multiples under INTEGER_SPEEDS_ONLY.

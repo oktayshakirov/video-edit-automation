@@ -4,6 +4,10 @@ Four skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
 `/video-drone` - and one publishes them, `/publish-video`. The skills are thin: they hold the
 *order of the work*. Everything a build actually needs to know lives here, once.
 
+"The editor" in these docs and in code comments is the channel owner, who
+reviews every cut before it ships; the skills address the same person as the
+user. A rule credited to the editor's note came out of that review.
+
 ## Map
 
 | Doc | What it owns |

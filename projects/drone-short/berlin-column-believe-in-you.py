@@ -1,6 +1,6 @@
 """Berlin Column / Believe In You — stacked vertical quote, box-karaoke trial.
 
-The user's own affirmation, read over two Victory Column aerials: a
+The editor's own affirmation, read over two Victory Column aerials: a
 long-exposure night pass on top (light trails, the golden angel lit warm) and
 a sunset pass on the bottom (the same column against a coral-and-gold sky).
 Same landmark, two times of day — the contrast is the point, same instinct as
@@ -15,7 +15,7 @@ cut.
 
 The top clip is a boomerang, not a slow-motion stretch. The narration needs
 ~14s and the source is only 7.0s — the first cut covered the gap with a
-~2.8x `slow`, and the user's call was that it reads as laggy. `_build_boomerang`
+~2.8x `slow`, and the editor's call was that it reads as laggy. `_build_boomerang`
 plays the clip forward, then the same span reversed, both at native speed:
 motion stays real, and the reverse half reads as the drone drifting back
 rather than a loop trick. Built once at full 4K into `WORK`, upstream of the
@@ -49,7 +49,7 @@ from video_automation.core.vertical import (FONT_KARAOKE_BOX,
 from video_automation.core.voiceover import (render_narrated_stack,
                                              profile_args)
 
-SOURCE_POST = None                      # off-site: the user's own line, no article
+SOURCE_POST = None                      # off-site: the editor's own line, no article
 
 TOP = Path("~/Desktop/1.mp4").expanduser()       # night pass, light trails
 BOTTOM = Path("~/Desktop/2.mp4").expanduser()    # sunset pass
@@ -61,7 +61,7 @@ START_TOP, START_BOTTOM = 0.0, 0.0
 BOX_TOP = (800, 0, 2564, 2160)   # hand-set — see module docstring
 
 GAP = [0.6, 0.65, 0.85, 0.6]
-TAIL = 1.0              # small gap after the quote for the user's own sound
+TAIL = 1.0              # small gap after the quote for the editor's own sound
 FADE_OUT = 0.8           # quick fade to black over that gap
 
 SENTENCES = [

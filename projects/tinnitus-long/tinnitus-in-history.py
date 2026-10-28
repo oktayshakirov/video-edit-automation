@@ -455,7 +455,7 @@ def main() -> None:
         # channel's limit on a verdict stamp. Shared with the Short.
         opener=Stamp("Tinnitus is a modern problem", "MYTH", at_word="myth"),
         # The Hippocrates engraving: a real face from history.
-        # The Short's own question, so the pair reads as one (the user's
+        # The Short's own question, so the pair reads as one (the editor's
         # call on the first cut).
         thumb_headline="Is tinnitus\na modern\n[problem?]",
         thumb_image=HIPPOCRATES, thumb_accent="orange",

@@ -46,7 +46,7 @@ for it as a fix.
   code - the inbox endpoint takes only `source_info`. Generate the caption
   anyway and print it for the user to paste. Do not offer to set a thumbnail.
 - **No hashtags in that caption at all - including the project/brand tag.**
-  The user's decision, 2026-08-21, reaffirmed 2026-09-01: **do not append
+  Decided 2026-08-21, reaffirmed 2026-09-01: **do not append
   `#cryptowiki`, `#thecryptowiki`, `#tinnitushelp`, `#dronepal` or any other
   brand hashtag** to a TikTok caption. Print plain sentences and stop there -
   the user adds tags in the app, where TikTok's own suggestions are live and a

@@ -4,7 +4,7 @@
        * First authored from a specification, then re-captured after a hand fix
          (Nessebar, 2026-08-09) because a composed stroke rendered the type
          solid black.
-       * RE-CAPTURED from the Berlin export (2026-09-01). The user restyled the
+       * RE-CAPTURED from the Berlin export (2026-09-01). The editor restyled the
          title in Final Cut and moved it to the lower-left to sit under the
          relocated pin. What changed:
            - no longer bold — fontFace="Regular", the `bold="1"` attribute gone

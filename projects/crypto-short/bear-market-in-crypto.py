@@ -5,7 +5,7 @@ the `bear-market-in-crypto` long form, written in the same pass.
 
 **Re-cut 2026-10-13, after the first review.** The first cut did the long
 form's twist on its own (a 40% jump after an 80% fall is still 72% down, and
-the climb back gets steeper) and the user found it confusing and hard to
+the climb back gets steeper) and the editor found it confusing and hard to
 follow: arithmetic heard once, with no definition in front of it, is a sum
 the viewer has to hold in their head. They asked for the long form's opener
 instead - the search, stocks against crypto, the history, whether we are in
@@ -26,7 +26,7 @@ checks). Three different silhouettes, and not the halving Short's `bars` +
 `chart` repeated - the `bars` is shared, the rest is new.
 
 **"Are we in one right now?" is answered with a check, not a verdict.** The
-user asked for it, and it is a question people actually type. But a
+editor asked for it, and it is a question people actually type. But a
 statement about where the market is today is a call on direction, which
 this channel never makes, and it would be stale within weeks of upload. So
 the Short asks it and hands over the article's own test - how far below the

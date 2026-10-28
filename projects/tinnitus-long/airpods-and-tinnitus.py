@@ -10,7 +10,7 @@ real table of figures (level against safe weekly time), which is the `bars` beat
 this site's posts keep earning.
 
 **The voice is `sam`, from the crypto roster, and the tinnitus male profiles
-are not usable for this.** The first cut used `elias` and the user's note was
+are not usable for this.** The first cut used `elias` and the editor's note was
 that `elias`, `felix` and `jonas` are all ASMR voices - which is exactly what
 they are by construction: every "male" profile on this channel is `af_nicole`
 pitched down through the SOFT chain, the chain that exists for sound therapy.

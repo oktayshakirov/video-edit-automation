@@ -108,7 +108,7 @@ built-in browser:
   question in big type over a person with a hand at the ear - ours was the
   same picture with less authority behind it.
 
-**Decision (the user, 2026-10-28): play them.** A 1.6s sample of each sound,
+**Decision (the editor, 2026-10-28): play them.** A 1.6s sample of each sound,
 quiet, the bed dipped under it, in the pause after its name - after a
 lower-your-volume warning said and shown on the notice card, in both cuts
 (`docs/video/audio.md`, "Sound samples"). The drawn spectrum stays, with

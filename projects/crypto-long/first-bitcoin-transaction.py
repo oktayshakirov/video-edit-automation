@@ -125,7 +125,7 @@ BRAND = ROOT / "assets/brand"
 # the single-line sentences, and anything under ~14s is a one-use clip.
 # **The roster is tech-first, and that is a re-cut** (2026-10-02). The first
 # pass was candles, fog, star trails, the moon, a spider web and a lighthouse -
-# every clip screened, every clip on-palette, and the user's verdict was that
+# every clip screened, every clip on-palette, and the editor's verdict was that
 # the footage is irrelevant to the topic. It was: the nouns in this script are
 # a computer, software, code, a ledger, a register, a machine and a payment,
 # and none of those is a candle. **Relevance now outranks palette purity** -
@@ -158,7 +158,7 @@ COIN = V / "coin-spinning-on-dark-table/35996676.mp4"                    # 9s,  
 GRID = V / "city-lights-from-above-at-night/9709111.mp4"                 # 12s, L38-39 S22, a lit grid of streets from above
 RAIN = V / "rain-on-dark-asphalt-street-night/3638386.mp4"               # 8s,  L42-44 S28, a wet street (the compliance line only)
 
-# **Bitcoin itself, as stills** (2026-10-02, the user's call). The rusted
+# **Bitcoin itself, as stills** (2026-10-02, the editor's call). The rusted
 # chain, the hands over an old ledger and the reel-to-reel tape deck are gone:
 # each was a *metaphor* for the noun rather than the noun, which is the same
 # fault as the candles one step less obvious. These are photographs rather
@@ -206,7 +206,7 @@ SECTIONS = [
             # back and the bar come off with nobody saying anything. Naming
             # the subject in sentence one is `narration.md`'s rule anyway.
             # `Finney` phonemizes to `fˈɪni` - correct on paper and wrong in
-            # the mouth. The user picked `Finnee` (`fˈɪniː`) off a synthesised
+            # the mouth. The editor picked `Finnee` (`fˈɪniː`) off a synthesised
             # A/B. The respelling is in the **spoken** half only, so the
             # caption and the SRT still read correctly, and the hook keys on
             # "Hal", which does not change.
@@ -314,7 +314,7 @@ SECTIONS = [
              # **"A.L.S." is read as "of-a DOT el ess".** espeak turns the
              # full stops into the word "dot" once the initialism sits inside
              # a sentence - `He dies of A.L.S.` phonemizes to
-             # `hiː dˈaɪz əvə dˈɑːt ˌɛlˈɛs`, which is the glitch the user
+             # `hiː dˈaɪz əvə dˈɑːt ˌɛlˈɛs`, which is the glitch the editor
              # heard. The disease's full name phonemizes cleanly and is the
              # better line anyway; the card still reads "Dies of ALS".
              ("Two thousand fourteen. He dies of ALS.",
@@ -564,7 +564,7 @@ def main() -> None:
         # and they were worth [nothing]" is handed to you by the grammar.
         # Rotation: the last three long-forms ran Search, Search and a
         # redacted hook, so this is neither.
-        # **The redaction is his name** (the user's call, 2026-10-02). A name
+        # **The redaction is his name** (the editor's call, 2026-10-02). A name
         # is one of the classes `shorts.md`'s cover-the-bar test passes - "the
         # first bitcoin ever sent went to ___" cannot be filled in from the
         # sentence's own grammar, which is exactly what the direction-word

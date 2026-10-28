@@ -54,7 +54,7 @@ and a remembered version is a stale one.
    `video_automation.quiz.build.render_quiz_short` and setting `SOURCE_POST`.
    - **Open on a plain title card.** `title=(caption, spoken)` — "Tinnitus
      Quiz: Myths Edition" and so on. **No number, and no second intro card
-     after it** — both were tried and cut on the user's call (2026-09-08): the
+     after it** — both were tried and cut on the editor's call (2026-09-08): the
      number as an unnecessary flourish, a second stake-setting card as
      redundant with the title. `title_number` and `intro` both still exist as
      parameters if a later run is explicitly asked to bring either back, but
@@ -74,7 +74,7 @@ and a remembered version is a stale one.
 ## Five things that are settled, and are not to be re-litigated per run
 
 - **Three questions, not five.** A question costs ~30s once its pauses are
-  real (see `quiz.md`). Five would run past two and a half minutes. The user
+  real (see `quiz.md`). Five would run past two and a half minutes. The editor
   chose three with that arithmetic in front of them; the countdown is what
   gives way first if a cut needs to come back down, not the pauses.
 - **Cards carry type, not photographs.** Four stock images a question is

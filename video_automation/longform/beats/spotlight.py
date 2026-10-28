@@ -1,6 +1,6 @@
 """`spotlight` - zoom into part of a photograph, one detail per sentence.
 
-A still usually gets a slow, generic Ken Burns. This directs it (the user's
+A still usually gets a slow, generic Ken Burns. This directs it (the editor's
 pick after a demo, 2026-10-23): the camera starts on the whole picture,
 glides into the part the voice is talking about, dims everything else under
 a soft spotlight and rings the detail in the brand colour with a band-style
@@ -8,7 +8,7 @@ label - then moves to the next detail, and can pull back out at the end.
 
 **The ring is snapped to the content, never drawn where the script guessed.**
 The demo's charges box was typed by hand and cut through a line of text that
-ran on past it; the user's note was that this must not happen. `snap()`
+ran on past it; the editor's note was that this must not happen. `snap()`
 finds what the given region actually covers - the ink that differs from the
 picture's plain ground, letters joined into lines - and fits the box to it,
 widening the search until a line that runs off the edge is whole. On a

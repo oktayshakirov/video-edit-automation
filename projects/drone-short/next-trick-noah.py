@@ -1,6 +1,6 @@
 """Next Trick, energetic — the same cut read by noah instead of leo.
 
-The user found leo too chill for this line and asked for one attempt with a
+The editor found leo too chill for this line and asked for one attempt with a
 more energetic voice. Kokoro has no emotion parameter, so "energetic" is the
 roster's punchy recipe: noah (bare am_michael, speed 1.10, ENERGETIC chain:
 slight pitch-up, compression, presence lift, -14 LUFS), with the gaps cut
@@ -30,7 +30,7 @@ from pathlib import Path
 
 from video_automation.core.voiceover import render_narrated, profile_args
 
-SOURCE_POST = None                      # off-site: the user's own line, no article
+SOURCE_POST = None                      # off-site: the editor's own line, no article
 
 FOOT = Path("~/Desktop/Drone Videos/Footage/Berlin 26 1:4").expanduser()
 SRC = FOOT / "Sunset 5.mp4"

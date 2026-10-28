@@ -5,7 +5,7 @@ like` was first cut drawn-only, on the reasoning that a played ringing is the
 last thing a hyperacusis listener at 2am needs. The feed check overturned it:
 every top result for "what does tinnitus sound like" plays examples, so a
 video that only draws them makes a weaker promise on the one search it is
-for. The user's call: play them, short and quiet, with a lower-your-volume
+for. The editor's call: play them, short and quiet, with a lower-your-volume
 card on screen and in the voice before the first one.
 
 So each sample is:

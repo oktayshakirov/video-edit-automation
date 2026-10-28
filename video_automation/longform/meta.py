@@ -50,8 +50,8 @@ def required_credits(credits: list[str]) -> list[str]:
     Every crypto and tinnitus description used to carry "Footage: Pexels
     (Pexels licence, no attribution required)." and a music line ("Music:
     oosongoo, via Pixabay.", "Music: night-drift."). Neither is required: the
-    Pexels licence says so in the line itself, and the user cleared the music
-    with its producer. The user dropped both on 2026-10-20 and swept them from
+    Pexels licence says so in the line itself, and the editor cleared the music
+    with its producer. The editor dropped both on 2026-10-20 and swept them from
     the 56 live videos. New builds copy the nearest project file, so the lines
     would come back by copy-paste; this is where they stop. A credit the video
     actually owes (Commons portraits, game artwork, a CC-BY track) is untouched.
@@ -78,7 +78,7 @@ def is_disclaimer(line: str) -> bool:
 # Kickers that put a payload on the notice card whatever its line says. A
 # disclaimer is detected from its words; a health routing line ("New ringing?
 # Get it checked.") credits nobody and contains no "advice", so it asks by
-# kicker instead - the user wanted it on the notice card, not the statement
+# kicker instead - the editor wanted it on the notice card, not the statement
 # band (tinnitus-in-history, 2026-10-21). The kicker is also the eyebrow.
 NOTICE_KICKERS = {"DISCLAIMER", "NOTICE"}
 

@@ -10,7 +10,7 @@ can be five times the size of a hundred dollar one - and even that number
 depends on which coins you count.
 
 **Re-cut 2026-10-06, after the first review.** The opener was a `Split`
-whose divider ran through the type, and the user asked for the long form's
+whose divider ran through the type, and the editor asked for the long form's
 `Stamp` instead. The question also now says what people actually connect a
 low price with - more room to grow - and the second beat answers that with
 arithmetic (doubling costs the same fifty million at either price; one dollar
@@ -73,7 +73,7 @@ PHONE = V / "hand-phone-glow-dark-night/6611948.mp4"                       # 26s
 STREET = V / "busy-people-walking-city-night/4122942.mp4"                  # 28s, L45-64 S29-36, a packed street at night - clip_at >= 6
 SPIN = V / "coin-spinning-on-table-dark/18977071.mp4"                      # 17s, L37-67 S11-22, a coin spinning down to rest
 
-THUMB = ROOT / "assets/crypto/market-cap/meme-coins.jpg"                   # 1536x1024, supplied by the user - see CREDITS.md
+THUMB = ROOT / "assets/crypto/market-cap/meme-coins.jpg"                   # 1536x1024, supplied by the editor - see CREDITS.md
 BEATGROUND = BRAND / "beat-ground-crypto.jpg"
 
 VOICE = "mia"
@@ -134,7 +134,7 @@ SHOTS = [
 GAPS = [0.70, 0.80, 0.65, 0.55, 1.30, 0.85, 0.60, 1.30, 0.90, 1.20]
 
 
-# The long form's picture and words (2026-10-26), supplied by the user.
+# The long form's picture and words (2026-10-26), supplied by the editor.
 COVER = ROOT / "assets/crypto/market-cap/man-reading-cap-chart.jpg"
 HEADLINE = "Is a $0.05\ncoin\n[cheap?]"
 

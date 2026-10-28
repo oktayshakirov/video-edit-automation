@@ -14,7 +14,7 @@ out rather than compressed.
 your Bitcoin?" - because a Short has no title card, no thumbnail on screen and
 no chapter list.
 
-**Say "quantum computers", not "quantum"** - the user flagged bare "quantum" as
+**Say "quantum computers", not "quantum"** - the editor flagged bare "quantum" as
 a noun as confusing.
 
 **One drawn beat**, a `checklist` (flow=True, each line carries its verdict) -

@@ -11,7 +11,7 @@ script reproduces the audition WAV byte for byte. `python -m video_automation
 voices verify` checks exactly that against the files on the Desktop.
 
 **Status is not a rating.** `approved` means it has shipped in a finished
-video. `candidate` means the user shortlisted it by ear and it is waiting on a
+video. `candidate` means the editor shortlisted it by ear and it is waiting on a
 decision. Nothing here should be promoted without them saying so.
 """
 
@@ -119,7 +119,7 @@ class VoiceProfile:
     script: str                     # key into SCRIPTS
     note: str = ""
     source: str = ""                # audition WAV this profile reproduces
-    folder: str = ""                # where the user filed that WAV
+    folder: str = ""                # where the editor filed that WAV
 
 
 # Profiles are named after people, not after their ingredients — the Kokoro
@@ -148,7 +148,7 @@ PROFILES: dict[str, VoiceProfile] = {
              "mistake**: it is a 60/40 am_michael/af_nicole blend on the "
              "drone SOFT chain, and the 40% breathy-female component makes it "
              "read androgynous rather than male on a real explainer script — "
-             "the user rejected it on the pulsatile-tinnitus cut. The male "
+             "the editor rejected it on the pulsatile-tinnitus cut. The male "
              "article reader is `otis` (bare am_puck, ENERGETIC). Also the "
              "measured af_nicole-blend caveat: they lose most of the bare "
              "voice's slowness — 10.2s at speed 0.95 against 11.7s at 1.05.",
@@ -175,7 +175,7 @@ PROFILES: dict[str, VoiceProfile] = {
              "steadiest of the American males) on the same ENERGETIC chain "
              "mia uses, at speed 1.00 rather than 1.10 — the male voice does "
              "not need the lift and reads a touch calmer for it. Chosen by "
-             "the user by ear from a thirteen-voice demo over am_echo and "
+             "the editor by ear from a thirteen-voice demo over am_echo and "
              "am_liam; picked as a real single-speaker voice after `max` (an "
              "am_michael/af_nicole blend) was rejected for reading "
              "androgynous. First cut: the pulsatile-tinnitus long+short pair. "
@@ -189,7 +189,7 @@ PROFILES: dict[str, VoiceProfile] = {
         projects=("crypto", "tinnitus"), status="candidate", script="crypto",
         note="**The male article reader**, the option alongside mia — mia "
              "stays the default. mia's exact recipe (1.10, ENERGETIC) with "
-             "bare am_michael (C+ on hours of data). Picked by the user by "
+             "bare am_michael (C+ on hours of data). Picked by the editor by "
              "ear on 2026-10-23 from eight male candidates read through the "
              "real narration path on the what-are-memecoins Short script, "
              "over am_fenrir, am_echo, am_eric, am_liam, bm_george, bm_fable "
@@ -248,7 +248,7 @@ APPROVED = {n: p for n, p in PROFILES.items() if p.status == "approved"}
 # and CHANGELOG entries refer to that sound.
 APPROVED_DRONE = PROFILES["leo"]
 
-# Where the user filed the shortlists. Used only by `voices verify`.
+# Where the editor filed the shortlists. Used only by `voices verify`.
 AUDITION_DIRS = [
     Path.home() / "Desktop/Crypto Wiki Voices",
     Path.home() / "Desktop/Drone voices",
@@ -327,7 +327,7 @@ def main(argv: list[str]) -> int:
 
 
 def _verify() -> int:
-    """Re-render every sourced profile and compare to the user's picked WAV.
+    """Re-render every sourced profile and compare to the editor's picked WAV.
 
     Kokoro is deterministic, so a correct profile reproduces its audition file
     exactly. Compares decoded samples rather than bytes, since the WAV header

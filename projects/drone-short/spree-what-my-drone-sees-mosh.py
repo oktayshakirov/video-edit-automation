@@ -11,7 +11,7 @@ is `core/datamosh.py`.
 and the shapes come from the edges in B's motion field: parallax, near towers
 moving against the sky. The hyperlapse is locked-off and has none. The
 push-in tried before it had motion but no edges, so the controller only
-zoomed, which the user called "unrelated". `Spree Buildings 9` orbits the
+zoomed, which the editor called "unrelated". `Spree Buildings 9` orbits the
 Treptowers, so its field is shaped like them.
 
 **Out:** the last `HEAL_FRAMES` heal block by block, B's dark structure first,

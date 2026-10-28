@@ -134,7 +134,7 @@ class ClipOverlay:
 class ImageOverlay:
     """A still image laid **over** the picture for a window, as a panel.
 
-    Built for the proof-of-stake short, where the user's note was that the
+    Built for the proof-of-stake short, where the editor's note was that the
     opening shot has empty space above the footage and the site's own
     architecture diagram should sit in it. Everything else in this format
     either *is* the shot or replaces it; this is the one way to have a diagram
@@ -237,7 +237,7 @@ class TitleOverlay:
     band across the middle third of the frame. It is the right device for *a
     statement the footage illustrates* — "This is not financial advice" over
     rain on a window — and the wrong one for a title, for three reasons the
-    user named on the noise-canceling cut: the hard-edged band is a rectangle
+    editor named on the noise-canceling cut: the hard-edged band is a rectangle
     of black sitting on top of the picture rather than part of it, centred caps
     in a light geometric is the visual language of a 2012 slideshow, and
     nothing moves, so the one moment the video says what it is has no more
@@ -410,7 +410,7 @@ class CinematicTitle:
     """The video's title as a trailer card, over the opening footage.
 
     Replaced `TitleOverlay`'s lower third as the default on 2026-10-20 - the
-    user's note was that it read as boring. A lower third is the language of
+    editor's note was that it read as boring. A lower third is the language of
     a news strap; a title the video has been building to wants the language
     of a film title. Every part of this is borrowed from that grammar:
 
@@ -493,7 +493,7 @@ class CinematicTitle:
         return self.start + self.LAND
 
     def cues(self) -> list[tuple[float, str]]:
-        """The user's two title sounds (2026-10-21): the intro under the
+        """The editor's two title sounds (2026-10-21): the intro under the
         arrival, its swell peaking as the letters finish resolving, and the
         cinematic flashback on the way out, its hit a beat into the fade.
         Times are the files' anchors - see `sfx.FILE_SFX`."""
@@ -759,7 +759,7 @@ class EndCard:
     """The last seconds: "THANKS FOR WATCHING", then "LIKE & COMMENT".
 
     **Built from the chapter card, not from the reference** (2026-10-21).
-    The user's reference screenshots were for content only - "recreate it
+    The editor's reference screenshots were for content only - "recreate it
     natively with our fonts and colours and transitions" - so this is the
     band card's own grammar, end to end:
 
@@ -932,7 +932,7 @@ class EndCard:
 class TvOff:
     """The video's last half second: the picture switches off like a CRT.
 
-    The user's call (2026-10-21): no exit move on the end card's text - the
+    The editor's call (2026-10-21): no exit move on the end card's text - the
     video itself ends, "like turning off the tv". The whole frame - text,
     watermark and all, which is why this is the **last** overlay - squeezes
     to a bright horizontal line, the line shrinks to a dot, the dot dies.
@@ -1058,7 +1058,7 @@ class HookOverlay:
         # be guessed from the rest of the line (`shorts.md`). When it can -
         # every direction word this channel has hidden, `[up]`, `[louder]`,
         # `[worse]` - the viewer fills it in within half a second and then
-        # waits for the video to catch up, which is what the user reported on
+        # waits for the video to catch up, which is what the editor reported on
         # the neck-tension pair. Writing the line without brackets keeps the
         # slam, the band and the type and drops the bar, the static, the tear
         # and the swell: the stake is on frame zero, muted, and the piece
@@ -1154,7 +1154,7 @@ class HookOverlay:
         y = oy
         for ln, ln_w in lines:
             x = (block_w - ln_w) / 2          # centred line
-            # **One box per bracketed run, not per word** (the user's note on
+            # **One box per bracketed run, not per word** (the editor's note on
             # the Beethoven Short, 2026-10-24): `[not silence]` drew NOT and
             # SILENCE as two pills and read as two separate things. The words
             # of a run share one bar while hidden and one pill once revealed.
@@ -1340,7 +1340,7 @@ class HookOverlay:
 class InsetOverlay:
     """A still laid over one shot: a logo bug, a press still, a ticker card.
 
-    Built for the GTA 6 pair, where the user's note on the first cut was that
+    Built for the GTA 6 pair, where the editor's note on the first cut was that
     an all-stock video about a real game "gets boring and monotone" and needs
     real references to the thing it is about. `Shot(image=)` already makes a
     real still the whole shot; this is the other half - **the real thing

@@ -136,7 +136,7 @@ VERTICAL = Frame(
 LANDSCAPE = Frame(
     name="landscape",
     w=1920, h=1080,
-    safe_top=40,                  # The title gradient is transient and the user
+    safe_top=40,                  # The title gradient is transient and the editor
                                   # confirms nothing sits over the mark in a
                                   # 16:9 player. 120 was the first guess and it
                                   # pushed the watermark down into the pictures
@@ -148,7 +148,7 @@ LANDSCAPE = Frame(
     safe_bottom=950,              # GUESS — control bar + gradient
     safe_right=1920,              # no right rail in 16:9
     caption_floor=0.86,           # GUESS — clears safe_bottom by ~20px
-    # 250 -> 212, the user's call: 15% off the landscape mark. It is `logo_w`
+    # 250 -> 212, the editor's call: 15% off the landscape mark. It is `logo_w`
     # rather than `Brand.mark_scale` because that scale is shared with the
     # vertical frame, where 0.42 was settled separately and the mark is not too
     # big. Changing the frame changes only the long form, which is what was

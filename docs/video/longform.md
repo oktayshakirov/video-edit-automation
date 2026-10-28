@@ -74,7 +74,7 @@ why they are here:
   metric is % still watching at 30s; above 50% is outperforming.
 - **Say the point, then show the graphic.** A beat that arrives before its own
   thesis has to be decoded rather than read. The mining rig cut put "this is who
-  you are bidding against" *after* the comparison it introduced and the user
+  you are bidding against" *after* the comparison it introduced and the editor
   found it confusing — by then they had already read both columns and did not
   need telling what they were. One line of setup, then the beat.
 - **Make the retention call out loud, early.** "Stay to the end and you will know
@@ -116,7 +116,7 @@ back-to-back on a single query). Full reasoning in the `video-views-audit` skill
 
 ## The screen has to say what the voice is saying
 
-**The user's standing note, from the quantum-computers cut, where they flagged
+**The editor's standing note, from the quantum-computers cut, where they flagged
 three separate spots by timestamp: "we need to make sure the visuals and the
 voice over match and the whole video is easy to follow and easy to understand —
 this is the main idea, all topics should be easy to understand".** An explainer
@@ -129,7 +129,7 @@ screen reinforcing each beat. Three rules come out of it:
   payload=("", "one short line"))` draws a 96px centred statement. This file used to say *every* clip carries
   one, and the Ethereum cut followed it literally: twenty-five labelled clips
   plus six chapter cards plus five drawn beats, so almost every frame of a
-  four-minute video had a big line of type on it. The user's verdict was **"we
+  four-minute video had a big line of type on it. The editor's verdict was **"we
   have too many titles after each other and the script is very hard to
   follow"**, and they were right — a statement every four seconds stops reading
   as emphasis and starts reading as a slideshow, and each one duplicates the
@@ -143,14 +143,14 @@ screen reinforcing each beat. Three rules come out of it:
   **Write the payload only when it adds something the narration does not say.**
   The title stamp. The name of an event the script deliberately never
   pronounces on air (`2016 - the DAO hack`, because "DAO" phonemizes as "dow").
-  The compliance line, which the user requires on screen. A figure the voice
+  The compliance line, which the editor requires on screen. A figure the voice
   gives without a unit. Everything else runs clean.
 
   **Never two labelled shots in a row**, and budget roughly **one payload per
   minute**. The Ethereum re-cut ships four across 3:52 and reads far better for
   it. If a slot seems to need a label, try replacing the picture first.
 - **Match the noun.** The picture names the same thing the sentence does, or it
-  is labelled so it does. An image the user calls "not fitting" gets replaced,
+  is labelled so it does. An image the editor calls "not fitting" gets replaced,
   not defended — `footage.md`'s "say the noun the narration says", enforced.
 - **Drawn beats and labelled clips lead; unlabelled photos are connective
   texture only.** A `PhotoShot` cannot take the centred statement without it
@@ -196,7 +196,7 @@ speaks it.
 ## Chapter cards
 
 **The band card is the default (2026-10-21), long form and Shorts.** After a
-documentary-channel reference the user liked: the title in widely tracked DIN
+documentary-channel reference the editor liked: the title in widely tracked DIN
 Condensed caps inside a band of the brand colour (`Brand.band` - crypto gold
 with near-black type, tinnitus a lifted app purple with white), a small
 glowing label above it, no backdrop of its own. The band opens from the
@@ -207,7 +207,7 @@ on either builder brings back the centred typed card.
 - **The label is `Section(kicker=)`** - two or three words naming the stake
   ("THE REJECTION", "THE CATCH"). Without one, the long form shows
   "CHAPTER n" and a Short shows nothing: one argument in sixty seconds has no
-  chapters to count. This is the user's call, and it overrides the
+  chapters to count. This is the editor's call, and it overrides the
   "no numbers" rule below for the band card only.
 - **Centre on the ink, not on `textlength`.** Advance widths carry side
   bearings and the trailing tracking, and the first band render sat visibly
@@ -234,7 +234,7 @@ rule is unchanged.** A numbered agenda tells the viewer they are being
 lectured. `number` is the one deliberate exception: a script that is
 genuinely enumerating something and *says the number out loud* ("myth one",
 "myth two") gets it on screen too, because the viewer is already tracking the
-count — the user's note on the myths cut was exactly this, that the count
+count — the editor's note on the myths cut was exactly this, that the count
 should show when the narration says it.
 
 Pass `Section(number=1)` only on sections where `spoken_title` (or the
@@ -248,7 +248,7 @@ vertical middle rather than pushing the title down.
 ## Statements over footage, and the opener
 
 **A line on a clip goes big and centred, never in a corner.** The first build
-set a 34px kicker and a 58px line in the lower left and the user called it
+set a 34px kicker and a 58px line in the lower left and the editor called it
 boring and confusing — correctly, because a small label in a corner reads as a
 caption for footage that does not need captioning. Set at 96px, centred, over a
 scrim band, with the same rule the chapter cards use, the same line stops being
@@ -276,7 +276,7 @@ otherwise sits over the card's band.
 own title, and that was the wrong device.** `payload` draws a 96px line
 centred inside a flat black band across the middle third of the frame. It is
 right for *a statement the footage illustrates* — the compliance line over
-rain on a window — and wrong for a title, which the user called "very ugly"
+rain on a window — and wrong for a title, which the editor called "very ugly"
 on the noise-canceling cut and then asked for a modern animated one "for both
 tinnitus and crypto videos also in the future". Three separate faults: a
 hard-edged scrim band is a rectangle sitting *on* the picture rather than part
@@ -314,7 +314,7 @@ of this video"). Nothing decorative goes in 0–20s; that is where the drop is.
 
 **Open on motion. Frame one is a clip, not a photograph.** All three pilots
 opened on a still held seven or eight seconds under a Ken Burns move, and the
-user's word for it was boring — correctly. A slow push on a photograph is the
+editor's word for it was boring — correctly. A slow push on a photograph is the
 slowest thing this format has, and putting it exactly where the retention drop
 is steepest is the worst available use of it. A clip is already moving on frame
 one and costs nothing else. Keep the still for later, where a change of pace
@@ -404,8 +404,8 @@ have pointed at different sentences every time they have been compared.
 
 **The stock sting below is retired** - its arrow pointed down and right, and
 YouTube's subscribe element is not on that side. Two drawn versions followed
-in one session: a centred cinematic "LIKE & SUBSCRIBE", then a copy of the
-user's reference screenshots (black italic, two-tone). The note on the second
+the same day: a centred cinematic "LIKE & SUBSCRIBE", then a copy of the
+editor's reference screenshots (black italic, two-tone). The note on the second
 was that **the references were for content only** - "recreate it natively
 with our fonts and colours and transitions". So `overlay.EndCard` is the band
 chapter card's grammar: the footage fades almost to black, "THANKS FOR"
@@ -413,7 +413,7 @@ glows over a band that opens in `Brand.band`, "WATCHING" types in on key
 clicks, then the band backspaces it, resizes, the label becomes a glowing
 thumbs-up (`overlay.thumbs_up`, drawn in code) and "LIKE & COMMENT" types in.
 
-**The text never leaves.** The user's call: no exit move - the video ends
+**The text never leaves.** The editor's call: no exit move - the video ends
 like a TV switching off. `overlay.TvOff` is the last overlay on every long
 form, over the watermark too: the whole frame squeezes to a bright line, the
 line to a dot, black, on the synthesized `tv_off` zap.
@@ -463,7 +463,7 @@ off, a number scales it). **It is an underlay** (`render_shots(underlays=)`,
 and every overlay, so all type stays clean - grain over the Shorts' karaoke
 words made them fizz.
 **No vertical scratches** - the first version had a wandering scratch line
-and the user disliked it. Adds ~55ms a frame.
+and the editor disliked it. Adds ~55ms a frame.
 
 ## The disclaimer is a notice card, on the notification chime (2026-10-21)
 
@@ -472,13 +472,13 @@ or "not affiliated") is detected and drawn by `VideoShot._notice` instead of
 the statement band: the picture dims, and a dark glass card pops in centred,
 with a brand-colour alert mark, a `DISCLAIMER` eyebrow (or the payload's
 kicker) and the line in SF Pro Heavy. It lands 0.2s after the cut on the
-user's `notification.mp3` (`sfx.FILE_SFX`, gitignored with the other file
+editor's `notification.mp3` (`sfx.FILE_SFX`, gitignored with the other file
 sounds). No script changes: `payload=("", "This is not financial advice.")`
 already gets it.
 
 **A routing line asks for the card by kicker** (2026-10-21). "New ringing,
 or ringing that changed? Get it checked." credits nobody and has no
-"advice" in it, so it drew the statement band; the user wanted the notice
+"advice" in it, so it drew the statement band; the editor wanted the notice
 card for it. `payload=("NOTICE", "...")` (or `"DISCLAIMER"`) takes the card
 whatever the line says, with the kicker as the eyebrow - `meta.is_notice`,
 which the clip, the chime cue and the film plan all read.
@@ -525,7 +525,7 @@ time than a fade that has to reach 50% before it reads as anything.
 
 ## Glitch and TV-static cuts, placed by meaning (2026-10-21)
 
-The user's ask: glitch and TV-noise transitions "used sometimes, not too
+The editor's ask: glitch and TV-noise transitions "used sometimes, not too
 often". `transitions.plan_special` places them on both builders
 (`special_cuts=True`, the default; `False` off, a number sets the count):
 
@@ -670,10 +670,10 @@ than a sound on none.
 replaced — verified frame by frame across the whole 0..1 range before the
 change landed, because the shorts are reproducible against a baseline.
 
-## The navigation layer is off, and that is the user's call (2026-10-02)
+## The navigation layer is off, and that is the editor's call (2026-10-02)
 
 **`render_long(chrome_nav=...)` now defaults to `False`.** The ticked
-progress rule along the bottom of the frame was not wanted - the user's note
+progress rule along the bottom of the frame was not wanted - the editor's note
 on `tinnitus-in-musicians`: do not put the chapter lines along the bottom for
 the timeline, on this video or on future ones. `chrome_nav=False` drops the
 bar and the "3 of 5" counter together; nothing else in the frame changes, and
@@ -717,7 +717,7 @@ the frame.
 
 ## Benchmark a re-cut against the pair that is working
 
-`market-cap`'s first cut ran 3:21 on 511 words and the user pointed at
+`market-cap`'s first cut ran 3:21 on 511 words and the editor pointed at
 `first-bitcoin-transaction`, which was performing. Measured side by side
 (words, sentences, holds, beats, what the roster shows) the gap was plain:
 ~620 words in ~40 sentences, six `None` holds, and footage that was the
@@ -739,8 +739,8 @@ does not bind a long form.
 **No Pexels line and no music line.** Every description used to carry
 "Footage: Pexels (Pexels licence, no attribution required)." and "Music:
 oosongoo, via Pixabay." (or "night-drift"). Neither is required: the Pexels
-licence asks for none, and the user cleared the music with its producer. The
-user dropped both on 2026-10-20, and they were swept from all 56 live
+licence asks for none, and the editor cleared the music with its producer. The
+editor dropped both on 2026-10-20, and they were swept from all 56 live
 crypto and tinnitus videos, longs and Shorts. `meta.required_credits` filters
 them out of any project that still lists them, so a copied project file
 cannot bring them back, and the "Credits" heading only prints when a real

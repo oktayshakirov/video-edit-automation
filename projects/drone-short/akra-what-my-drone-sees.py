@@ -2,7 +2,7 @@
 
 Built on `spree-what-my-drone-sees.py`. HLG out, like Spree, but with an
 exact SDR-to-HLG conversion — see *Colour*.
-Cut to a TikTok sound the user supplied, every cut on one of its strong hits
+Cut to a TikTok sound the editor supplied, every cut on one of its strong hits
 (~2.527s apart); see `HITS`.
 
 1. **what i see** — the first 4s of a phone clip of the RC controller held by
@@ -12,7 +12,7 @@ Cut to a TikTok sound the user supplied, every cut on one of its strong hits
 3. `Coast 8`, top-down along the cliffs.
 4. `Castle Bulgarian Flag`, the ruins and the flag against the sunset.
 
-The user's brief: first 4s of the controller, then parts of the other three
+The editor's brief: first 4s of the controller, then parts of the other three
 sped up, 15-20s overall. Revised on review: every shot at normal speed.
 
 ## Colour: HLG out, drone clips converted exactly
@@ -36,11 +36,11 @@ source, at the source's brightness. The drone clips get no grade.
 
 **`DRONE_WHITE` is 400 nits.** The old conversion put drone midtones at about
 the brightness of a 260-nit white and highlights near 1000; 400 keeps the
-brightness the user had seen (mean 83 nits on Coast 2 against the old 93)
+brightness the editor had seen (mean 83 nits on Coast 2 against the old 93)
 without pushing the sky into the peak. The iPhone clip runs brighter, ~180
 nits mean, which is the phone's HDR look; raise `DRONE_WHITE` to close the gap.
 
-The controller clip stays native HLG with the grade the user approved in
+The controller clip stays native HLG with the grade the editor approved in
 round two. Labels: the drone label goes through the LUT with the picture, so
 its white lands at `DRONE_WHITE`; the controller label is dimmed to the same
 HLG signal.
@@ -49,7 +49,7 @@ HLG signal.
 
 **Crops are hand-set and fixed.** The first cuts tracked the subject at 40-50
 px/s, which is 1.3-1.7px a frame, and a yuv420 crop can only land on even
-pixels. The box stepped 2, 2, 0 and the user saw it as lag; per-frame YDIF
+pixels. The box stepped 2, 2, 0 and the editor saw it as lag; per-frame YDIF
 showed the dip every third frame. At normal speed nothing leaves a fixed box
 within its beat. If a pan is ever needed, it must not be an integer crop.
 

@@ -415,7 +415,7 @@ def main() -> None:
         # The title carries the search phrase, so the thumbnail asks what the
         # title does not.
         #
-        # **The source is the user's call, against the scorer.** `_layout` puts
+        # **The source is the editor's call, against the scorer.** `_layout` puts
         # keynote at -0.02 and stage at -0.01 clean, and this one at +0.91
         # busy — but keynote is Saylor twenty years ago and the thumbnail is a
         # promise about who the video is about. The +0.91 is the CPAC backdrop's
