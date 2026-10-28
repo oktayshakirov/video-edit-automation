@@ -112,7 +112,7 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
     # sits at one flat multiplier while everything inside is still changing —
     # a plateau butting up against a gradient reads as an edge, and it is
     # what made PLUM's blobs look like discrete "clouds" rather than one
-    # continuous field (the user's "we can see where each color starts and
+    # continuous field (the editor's "we can see where each color starts and
     # ends" on the myths cut). The gentler pair still darkens the corners, it
     # just never stops changing before the frame edge.
     r2 = (x - 0.5) ** 2 + (y - 0.5) ** 2
@@ -121,7 +121,7 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
 
 
 # **Retired, and kept only as a worked example of a generated spec.**
-# `tinnitus-aurora` shipped as the tinnitus background and the user's call was
+# `tinnitus-aurora` shipped as the tinnitus background and the editor's call was
 # that it is the purple they had already said they did not want. It is replaced
 # by `tinnitus-violet`, a ping-pong of a mesh-gradient clip they supplied, and
 # the asset is deleted rather than left in the folder for somebody to point a
@@ -136,13 +136,13 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
 #     needed dimming to 0.55 before peach type held, and still read as a flat
 #     magenta wall.
 #   * `tinnitus-galaxy` - a supplied nebula starfield at L27. It shipped, and
-#     the user's note on the first cut using it was simply that they were not
+#     the editor's note on the first cut using it was simply that they were not
 #     happy with it. The stars were the problem the "soft, low-frequency only"
 #     rule had already predicted: high-frequency detail behind type competes
 #     with the type, and "its detail turns to mush attractively" turned out to
 #     be a defence of the asset rather than a test it passed.
 #
-# What was actually asked for, in the user's own words, is "a high quality dark
+# What was actually asked for, in the editor's own words, is "a high quality dark
 # purple background which makes the text pop and looks clean". `PLUM` is that:
 # a near-black plum base with soft blooms and the same vignette every generated
 # spec uses, so the frame has depth without having *content*. Judged the only
@@ -155,7 +155,7 @@ def aurora(t: float, size: int, base: tuple, blobs: list) -> np.ndarray:
 # **v2: two blobs at `sigma` 0.62/0.70, not three at 0.26-0.36.** The first
 # version's blobs were individually wide but still small enough relative to
 # the frame that each one read as a distinct "cloud" with a visible edge where
-# it faded into the next — precisely the fault the user flagged on the myths
+# it faded into the next — precisely the fault the editor flagged on the myths
 # cut ("we can see where each color starts and ends"), and worst in a
 # `compare` or `chapter` beat's empty half, where nothing else on screen
 # competes for the eye's attention. `sigma` past about 0.6 puts a blob's

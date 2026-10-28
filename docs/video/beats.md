@@ -17,7 +17,7 @@ a picture column right; `grid` and `steps` span the full width. Video clips
 (`Shot(clip=...)`) and the end-screen sting are the two things that are not
 beats; see `longform/clip.py` and `longform/overlay.py`.
 
-- **Vary the layout across the channel, not just within a video.** The user's
+- **Vary the layout across the channel, not just within a video.** The editor's
   note on the mining rig cut was that every list in every video looks the same,
   and they were right: `checklist` and `compare` both set type in a left column
   with a ragged right edge, so a four-item list and a three-a-side comparison
@@ -68,7 +68,7 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
   heading becomes its own revealed item, so the order on screen is the order in
   the mouth: "Centralized", three items, "Decentralized", three items. Without
   it both headings are painted at f=0 and the viewer has to work out which
-  column the voice is on — the user's note was that a comparison must never ask
+  column the voice is on — the editor's note was that a comparison must never ask
   them to interpret, and they are right. Write the heading as its own caption
   chunk. It is opt-in only because the shipped mining-rig cut is written
   against the old reveal count.
@@ -96,7 +96,7 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
   order, nothing else in the span. `reveals` come from the caption starts of
   that sentence, so a line appears exactly as it is spoken. The quantum cut
   broke this on `steps` (a 5-node track under a three-chunk narrative sentence)
-  and the beat filled in visibly out of sync with the voice — the user's "the
+  and the beat filled in visibly out of sync with the voice — the editor's "the
   visuals don't match the script" note, three times in one video. A
   `name_columns` `compare` counts its two headings as reveals too, so its
   sentence is 8 chunks for 3+3 items. Write the beat sentence as the enumeration
@@ -109,7 +109,7 @@ beats; see `longform/clip.py` and `longform/overlay.py`.
 ## `compare` has no picture column, and now refuses one
 
 **It raises on `picture=` as of the noise-canceling cut, where it shipped a
-right-hand column printed straight through a photograph** — the user's note
+right-hand column printed straight through a photograph** — the editor's note
 was that the second column "is generated over the image and is super messy",
 and it was exactly that. Every other split-layout beat keeps its content in
 the left half and the photo in `pic_box` on the right; a comparison uses
@@ -125,7 +125,7 @@ take the split layout's column.
 
 ## A struck item has to explain itself
 
-**The user's note on the quantum cut: a lone ✗ in a list is confusing —
+**The editor's note on the quantum cut: a lone ✗ in a list is confusing —
 "sometimes when we do this it is confusing. We need proper check for those
 lists."** A cross draws the eye and then makes the viewer work out what it
 *means*, and under a bare title ("WHAT A QUANTUM-SAFE SWITCH NEEDS") a struck
@@ -146,7 +146,7 @@ only thing saying which items are good and which are bad. Never ship that.
 **An all-✗ list still needs a question for a title, and a noun phrase over one
 is a double negative.** The Ethereum short shipped `WHAT THE FOUNDER CONTROLS`
 over four items that were then all struck, which asks the viewer to read "what
-he controls" and then subtract every line of it — the user's note was that the
+he controls" and then subtract every line of it — the editor's note was that the
 whole list was confusing. `CAN HE DO IT ALONE?` over the same four items fixes
 it with no other change: the title poses the question, the crosses are the
 answer, and no item has to be interpreted against its heading. So the rule
@@ -256,7 +256,7 @@ supply figure.
 
 ## `compare` with two columns: `name_columns=True`, always, and name the column before its items
 
-**Reinforced by the Ruja pair — the user's note was that the bullets were read
+**Reinforced by the Ruja pair — the editor's note was that the bullets were read
 without it being clear which side they belonged to.** Without `name_columns`
 both headings are painted at `f=0`, so as the voice lists the left column the
 right heading is already sitting there and the viewer is working out which one
@@ -327,7 +327,7 @@ what the `(caption, spoken)` split exists for.
 **Built, and it closes the skill's own oldest open request.** A `grid` card
 takes an emoji as a third element - `("Sound therapy", "makes it less
 noticeable", "🌊")` - and a `steps` item takes one as a pair -
-`("Hearing aids", "🦻")`. The user's note on the myths cut was to put "small
+`("Hearing aids", "🦻")`. The editor's note on the myths cut was to put "small
 image boxes or icons, vectors" under the listed items; an emoji is the only
 icon set on this machine that is already licensed, already colour, and
 already solved for the Apple Color Emoji bitmap-strike problem.
@@ -440,7 +440,7 @@ underneath. See the short's skill.
 
 `assets/brand/backgrounds/`, named by `Brand.backdrop`, loaded by
 `core/backdrop.py`. **tinnitushelp.me is `tinnitus-galaxy`** — a nebula
-starfield the user supplied, ping-ponged — and thecrypto.wiki is
+starfield the editor supplied, ping-ponged — and thecrypto.wiki is
 `crypto-blackwater`.
 
 ### `Shot(backdrop=)` overrides the brand default per beat — use it to keep the water for the chapter cards only
@@ -462,7 +462,7 @@ cards; the beats get a ground that is on-palette but visibly *not* the water,
 and the two together read as a system rather than a rerun.
 
 **`tinnitus-galaxy` is gone too, and the brand is now `tinnitus-plum`.** The
-galaxy shipped on the silence cut and the user's note was simply that they
+galaxy shipped on the silence cut and the editor's note was simply that they
 were not happy with it; what they asked for instead is "a high quality dark
 purple background which makes the text pop and looks clean". `tinnitus-plum`
 is generated - a near-black plum base, three very wide very soft blooms, the
@@ -489,8 +489,8 @@ by name a second time. `crypto-blackwater` is untouched; this change is
 tinnitus-only.
 
 **`tinnitus-aurora` is gone and must not come back.** It was a *generated*
-purple mesh gradient, and it shipped on the AirPods cut after the user had
-already ruled that particular purple out in an earlier session. The asset is
+purple mesh gradient, and it shipped on the AirPods cut after the editor had
+already ruled that particular purple out in an earlier review. The asset is
 **deleted from the folder**, not merely unreferenced — leaving it there is how
 a rejected background gets pointed at by name a second time. Its spec survives
 in `backdrop.py` as `_RETIRED_TINNITUS_AURORA`, renamed so it reads as an
@@ -552,7 +552,7 @@ a normal frame.
 
 ## Three new beats, and the measurement that asked for them
 
-**`gauge`, `callout` and `diagram` were added 2026-09-07** after the user's
+**`gauge`, `callout` and `diagram` were added 2026-09-07** after the editor's
 note that the explainers on both channels look repetitive and generic. Before
 writing any of them the shipped scripts were counted, because "repetitive"
 should be checkable rather than a feeling, and it turned out to be worse than
@@ -613,7 +613,7 @@ nothing raises.
 
 #### The connectors draw against the voice, not in a pop (2026-09-10)
 
-**The user's note on the first cut: the arrows should draw live, while we
+**The editor's note on the first cut: the arrows should draw live, while we
 speak, matching the script - and everything should animate smooth and synced,
 not snap.** The first version drew every connector in a fixed 0.28s the moment
 its node's caption began, so the whole diagram was a burst of motion at the
@@ -1053,7 +1053,7 @@ the alternating labels do the rest.
 
 **An upper label now stands on its stem.** It started a fixed 96px above
 the stem's end, so a two-line label hung over the stem and the line ran up
-through the text - the user caught it on the GTA 6 cut. The block is
+through the text - the editor caught it on the GTA 6 cut. The block is
 measured and placed above the stem. Older timelines with one-line labels
 shift up a few pixels on a re-render.
 
@@ -1094,7 +1094,7 @@ full. Reach for it on any DEX swap, liquidity pool or bank run.
 
 ## `reel` - a strip of cards the camera travels along (2026-10-22)
 
-From a reference the user liked: the "extended screen", where the frame is a
+From a reference the editor liked: the "extended screen", where the frame is a
 window onto a wider surface and the camera follows a row of cards, each with
 a label, gliding to the next as the voice names it. `longform/beats/reel.py`,
 both formats.
@@ -1234,7 +1234,7 @@ Shot(graphic="spotlight", payload=(POSTER, [
 - **One region per sentence** - hold the shot across them with `None`
   shots. Regions are fractions of the image and can be rough.
 - **The ring is snapped to the content** (`snap`). The first demo's charges
-  box was typed by hand and cut through a line that ran past it; the user's
+  box was typed by hand and cut through a line that ran past it; the editor's
   note was that this must not happen. On a plain ground (a document, a
   poster, a screenshot) the box is fitted to the ink the region touches,
   letters joined into lines and a paragraph's lines into a block, widening
@@ -1271,7 +1271,7 @@ multisig, a DAO's signers.
 - Give its sentence a `gap` of ~2.0s: the lines travel up to 1.6s after the
   last chunk starts and the lock opens at the end of that.
 
-**The user's verdict: "very nice", and build more custom visuals like it
+**The editor's verdict: "very nice", and build more custom visuals like it
 when possible.** What made it work: line art in the brand colour, one object
 per spoken phrase, then a single state change (the lock opening) that is the
 sentence's point. Use that as the template for the next topic-specific beat.

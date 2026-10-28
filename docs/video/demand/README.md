@@ -1,7 +1,7 @@
 # Demand maps - what the market already chooses to watch
 
 Added 2026-10-25, from a talk by Jake Trenda (a YouTube agency running 100+
-channels) that the user reviewed. **External research: a hypothesis until
+channels) that the editor reviewed. **External research: a hypothesis until
 this channel's numbers agree** (`video-performance-review`, evidence
 standards). It is being tested as E11.
 

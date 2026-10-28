@@ -67,7 +67,7 @@ def render_long(sections: list[Section], out: Path, workdir: Path,
                 thumb_grain: bool = False,
                 # The navigation layer: a ticked progress bar along the
                 # bottom and "3 of 5" under each chapter card. **Off since
-                # 2026-10-02, by the user's call** - the bar along the bottom
+                # 2026-10-02, by the editor's call** - the bar along the bottom
                 # was not wanted on these videos, and the A/B `chrome.py`
                 # argues for is settled by that rather than by a curve. Pass
                 # True to put it back on one video.
@@ -544,7 +544,7 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             # transition. The transition owns the cut when one is set, because
             # its cue is timed to the move it is actually covering.
             #
-            # **The user's cinematic flashback, not the synthesized whoosh**
+            # **The editor's cinematic flashback, not the synthesized whoosh**
             # (2026-10-21) - the same exit sound as the opening title, its hit
             # landing in the card's own close (`sfx.FILE_SFX` anchors it).
             end = sh.start + sh.hold

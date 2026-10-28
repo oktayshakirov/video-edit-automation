@@ -105,7 +105,7 @@ SHOTS = [
 GAPS = [0.70, 0.60, 0.55, 0.60, 1.10, 0.60, 0.55, 1.00, 0.60, 0.60, 1.30]
 
 
-# The long form's picture and words (2026-10-26), supplied by the user.
+# The long form's picture and words (2026-10-26), supplied by the editor.
 COVER = Path(__file__).resolve().parents[2] / "assets/crypto/miners-ai/ai-card-hands.jpg"
 HEADLINE = "What AI\nwants\nfrom\n[miners]"
 

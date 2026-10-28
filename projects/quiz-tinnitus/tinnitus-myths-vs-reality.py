@@ -3,7 +3,7 @@
 Source: tinnitus-blog/content/posts/tinnitus-myths-vs-reality.mdx, which is
 already structured as eight myth/reality pairs. That structure is why this
 article was picked over every other quiz-eligible post: **the wrong options
-are the article's own named myths, not this session's judgement about what
+are the article's own named myths, not the script writer's judgement about what
 sounds wrong.** Every option below traces to one paragraph of the source.
 
 **This replaces `tinnitus-basics.py`, and the reason is worth keeping.** That
@@ -14,7 +14,7 @@ answer against "the brain fills the gap" as the only right one, and that is a
 false choice: hair-cell damage is the standard cited *cause*, "the brain fills
 the gap" is the *mechanism* by which that cause produces a sound. Marking the
 cause wrong read as the channel getting a basic fact wrong. Building from an
-article this session did not have to invent a defensible-sounding wrong answer
+article the script writer did not have to invent a defensible-sounding wrong answer
 for is what closes that gap — every option here is something the source
 already states as true or names as a myth.
 
@@ -37,7 +37,7 @@ none of the four cards on any question is invented.
 
 **Opens on "Tinnitus Quiz: Myths Edition", no number and no second intro
 card.** Both were tried on an earlier cut of this same video and cut on the
-user's call (2026-09-08) — the number as an unnecessary flourish, the second
+editor's call (2026-09-08) — the number as an unnecessary flourish, the second
 card as redundant with the title.
 
 **A card shows its letter but never speaks it.** Seven earlier cuts of this

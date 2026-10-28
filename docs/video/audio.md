@@ -6,7 +6,7 @@ Everything under the voice. Sound-therapy beds are a different product - see
 ## Music — a small shared library, or generated
 
 `assets/brand/music/` holds real tracks picked by ear, and **it serves both
-sites**: the tracks are brand-neutral and the user's call is one library, not
+sites**: the tracks are brand-neutral and the editor's call is one library, not
 one per channel. `music.track("night-drift")` is what the crypto-exchanges cut
 uses. Add another with `music.prepare_track(src, name)`, which trims both ends
 and stores WAV — **an mp3 decodes with encoder delay bolted to the front and
@@ -27,7 +27,7 @@ choice when nobody has picked a track.
 instead to use a real track.
 
 - **Pads alone read as creepy.** The first bed was three chords and a filter
-  and the user's word for it was "creepy mysterious". What makes a bed feel
+  and the editor's word for it was "creepy mysterious". What makes a bed feel
   dynamic is *note events on a grid* — an arpeggio and a kick give the piece
   a tempo, and tempo is what the ear reads as momentum rather than
   atmosphere. Brightness alone does not fix it.
@@ -57,12 +57,12 @@ time, which is a brand rather than a different stock track each video.
 ## Music: the generated presets are retired
 
 **`bright`, `pulse` and `tension` are not to be used on this channel again.**
-The myths cut shipped with `bright` and the user's note was that it is "the
+The myths cut shipped with `bright` and the editor's note was that it is "the
 one which we decided to not use anymore, delete it and never use it again".
 Every video, long and short, uses `music.track("night-drift")` — the prepared
 track that lives in `assets/brand/music/` and is shared with thecrypto.wiki.
 
-It needs no credit line in the description: the user cleared it with the
+It needs no credit line in the description: the editor cleared it with the
 producer (2026-10-20). See the `Meta.credits` section in `longform.md`.
 
 The presets stay in `core/music.py` because they are the safer licence story
@@ -73,7 +73,7 @@ becomes an audible hole in the bed once per loop.
 
 ## Music can be a real track, and it must be stored trimmed
 
-`assets/brand/music/`, via `music.track(name)`. `night-drift` is the user's
+`assets/brand/music/`, via `music.track(name)`. `night-drift` is the editor's
 pick over the generated `bright` preset.
 
 **`render_bed` loops a short track to fill the video, so silence on either end
@@ -90,13 +90,13 @@ new track's loop before using it** — trimming fixes silence, not a piece that
 was never written to loop.
 
 **Do not let stock footage become wallpaper.** The first sleep cut used the
-calm-water stock four times with nothing on it and the user called it out: the
+calm-water stock four times with nothing on it and the editor called it out: the
 script is about bedrooms, so unlabelled water illustrates nothing. Two rules
 came out of it. **Footage should be the subject of the line it sits under** —
 rain on a window earned its place in the "what to play" section because rain is
 one of the sounds the post recommends. And **if a clip is only atmosphere, it
 needs a line on it**, which is the `Shot(clip=..., payload=("", "..."))`
-treatment the format already has. The user's phrasing: use it less often, and
+treatment the format already has. The editor's phrasing: use it less often, and
 only with text over it.
 
 **Music is `bright`**, not `pulse`. Warmer and less tense. This audience is
@@ -115,7 +115,7 @@ only when the clip's stock folder names a place in `KEYWORDS` (abstract
 footage, faces and hands get none), never under a drawn beat, and only when
 the place stays on screen at least `MIN_RUN` (3s) - consecutive shots of one
 place share one continuous bed rather than restarting. The approved A/B was
-at -22dB; the user asked for 5-10% quieter, so `LEVEL_DB` is -22.8. The
+at -22dB; the editor asked for 5-10% quieter, so `LEVEL_DB` is -22.8. The
 tinnitus kit takes it down a further 20%. Add a place by adding a bed
 function and its folder keywords - not by raising the level.
 
@@ -131,7 +131,7 @@ A beat names them in `Shot(samples=)`, one per reveal; see `beats.md`.
 card** ("Quiet sound samples next. Lower your volume if sounds bother
 you."), over a hand turning a volume knob. The first `what-does-tinnitus-
 sound-like` cut drew the sounds only; the feed check showed every top result
-for the query plays examples, and the user chose to play them.
+for the query plays examples, and the editor chose to play them.
 
 - **Short and quiet**: 1.6s (the pulse 2.2s), long fades, nothing that
   starts as a transient. Levels in `sfx.LEVELS` are ear-weighted from equal
@@ -144,9 +144,9 @@ for the query plays examples, and the user chose to play them.
 
 ## Sound effects
 
-### The title and chapter sounds are the user's files (2026-10-21)
+### The title and chapter sounds are the editor's files (2026-10-21)
 
-Two synthesized risers in a row missed what the user meant - a high Shepard
+Two synthesized risers in a row missed what the editor meant - a high Shepard
 shimmer, then a low-to-high synth sweep - and they supplied library sounds
 instead: `assets/brand/sfx/chapter-riser.mp3`, `title-intro.mp3`,
 `title-flashback.mp3`. **They are gitignored** (third-party, public repo), like
@@ -161,7 +161,7 @@ rather than dropping it. **Never anchor the synthesized `whoosh`**: every
 transition cue is timed as its start, and anchoring it once shifted all of
 them 0.31s early.
 
-Both channels get the files, including the riser on tinnitus - the user did
+Both channels get the files, including the riser on tinnitus - the editor did
 not split them, and `KIT_GAIN` still takes the tinnitus kit down. The Short
 builder fires the same chapter set (riser, impact, keys, flashback) as the
 long form.
@@ -291,7 +291,7 @@ the *body*: `impact` becomes `loop_close`, `drop` becomes `link`, and
 everything the kit touches sits at 0.72 of the crypto levels.
 
 **The opening hook is exempt, on both channels.** The first version of this
-softened the hook too and it was the wrong trade — the user's call, and it is
+softened the hook too and it was the wrong trade — the editor's call, and it is
 right: a Short lives or dies in its first second, and an opener that does not
 grab is an opener nobody hears the soft middle of either. `hook_slam`,
 `hook_glitch`, `hook_pop`, `hook_swish` and `hook_swell` pass through

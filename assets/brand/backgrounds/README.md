@@ -13,7 +13,7 @@ The moving ground behind a drawn beat, one per brand, named by
 
 The tinnitus background used to be `tinnitus-aurora`, a *generated* mesh
 gradient built from `backdrop.TINNITUS_AURORA`. It was replaced because the
-user had already ruled that particular purple out in an earlier session and it
+editor had already ruled that particular purple out in an earlier review and it
 shipped anyway. **The asset is deleted, not just unreferenced** — a background
 left in this folder is one somebody points a `Brand` at by name later, which is
 exactly how it survived the first rejection. The spec that drew it is still in
@@ -24,7 +24,7 @@ example of `generate()`'s argument shape rather than as a live preset.
 at **L89 / S201**, which needed dimming to 0.55 before peach type held against
 it and still read as a flat magenta wall.
 
-**`tinnitus-galaxy` is the current one** — a nebula starfield the user
+**`tinnitus-galaxy` is the current one** — a nebula starfield the editor
 supplied, at **L27 / S242** before any grading, which is already inside the
 range the water and the old aurora sit in. It needs almost no dimming as a
 result:

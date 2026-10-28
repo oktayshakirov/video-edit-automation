@@ -26,7 +26,7 @@ before it. Looked at, not assumed.
 
 **Voice is `sam`**, matching the long form from this post - a short and a long
 on one channel in two voices is two channels. The first cut used `elias` and
-the user's note was that `elias`, `felix` and `jonas` are all ASMR voices,
+the editor's note was that `elias`, `felix` and `jonas` are all ASMR voices,
 which is what they are by construction: every "male" profile on this channel is
 `af_nicole` pitched down through the SOFT chain. `sam` is `am_puck` from the
 crypto roster - a real male voice, not a processed one.

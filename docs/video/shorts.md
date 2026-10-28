@@ -42,7 +42,7 @@ checklist's two-phase payoff while being a completely different silhouette.
 
 **A judged lineup needs balanced sides.** The first cut of this short listed
 Coinbase, Binance, Crypto.com and Uniswap and marked three crosses and one
-tick, and the user found it confusing — correctly: with a single tick at the
+tick, and the editor found it confusing — correctly: with a single tick at the
 end there is nothing to say the tick means *decentralized* rather than "the
 best one". Two and two, with the labels spelling out which is which, makes the
 split the subject. **Check the site actually owns the logo first** — the
@@ -63,7 +63,7 @@ the voice reads a sentence.
 
 **This reverses "do not reach for a stock API", which this doc used to state
 flatly.** The reversal was made on the mining rig short: it was built from eight
-site photographs exactly as the rule required, and the user's verdict was that
+site photographs exactly as the rule required, and the editor's verdict was that
 it looked boring and not engaging. Both halves of that were true and neither was
 a scripting problem.
 
@@ -164,7 +164,7 @@ past `MAX_UPSCALE = 1.45`.
   crop is a no-op and the picture is letterboxed into the blurred fill instead
   of cut into. The default 1.15 is a *crop* target, and on an already-tall
   portrait it takes the top of the head and the chest off — which is what the
-  user saw as "cropped" on the Ethereum short's opening face. **`bias` cannot
+  editor saw as "cropped" on the Ethereum short's opening face. **`bias` cannot
   fix this; it only slides the same-sized window.** Reach for the source ratio
   whenever the subject is a person and the shot is the one the viewer decides
   on: `FACE_ASPECT = 1670 / 2553` reads far better than a tighter crop, and the
@@ -244,7 +244,7 @@ and stock-footage-with-narration.
 
 **Exception, and it is about intonation rather than structure (2026-09-20).**
 Kokoro reads a question mark with a rising contour, and on
-`new-tinnitus-what-to-do-first-week` the user's note was that the opener
+`new-tinnitus-what-to-do-first-week` the editor's note was that the opener
 "sounds like a question but would be better to sound as advice statement in
 this case". A how-to Short whose whole proposition is *do this tonight* is
 weakened by an opener that asks rather than tells. So the rule is really
@@ -255,7 +255,7 @@ still leaves sentence two to answer. Keep the question for a Short whose
 proposition is a claim being tested ("Does silence make tinnitus worse?");
 reach for the statement when the piece is an instruction.
 
-**The user's standing instruction, from the silence pair.** A short that opens
+**The editor's standing instruction, from the silence pair.** A short that opens
 on the first line of its argument reads as random and confusing, and the
 reason is structural rather than stylistic: a Short arrives with **no title
 card, no thumbnail on screen and no chapter list**. Long form gets a title
@@ -334,7 +334,7 @@ reward exactly where the audience used to leave.
 ### Revised 2026-09-24: two modes, and the gap closes by three seconds
 
 **The redaction is not the default any more, and the reason is the reveal
-nobody was waiting for.** The user's note on the neck-tension pair:
+nobody was waiting for.** The editor's note on the neck-tension pair:
 *"we are waiting just to reveal the word up"*, plus *"the karaoke captions
 under it are distracting"* and *"too much happening in the beginning"*. Three
 separate faults, and only one of them was the mechanism.
@@ -414,7 +414,7 @@ the one result that would teach us nothing.
 were drawn by two different videos.** `ChapterCard` is the long form's chapter
 slate: a hairline rule over a flat brand panel, set in the body face, with no
 motion and no sound. Against an opener built from Arial Black, a dark band, a
-brand pill and a slam, the user's verdict on the closing card was **"very old
+brand pill and a slam, the editor's verdict on the closing card was **"very old
 and ugly"** — and the first and last thing a viewer sees are the two frames
 that decide whether the piece reads as made or as generated.
 
@@ -488,7 +488,7 @@ else and this section should say so.
 no crop that works.** A 9:16 cut keeps about **32% of a landscape source's
 width**, so a wide shot whose subject occupies a third of the frame arrives as
 a frame of wall. The neck-tension Short's first cut opened on three of them
-and the user's note was that the opening clips are irrelevant and "cropping
+and the editor's note was that the opening clips are irrelevant and "cropping
 the main part and showing the empty part" — a silhouette in the bottom corner
 with four seconds of lit wall beside it, and a top-down keyboard whose hands
 sat outside the crop. Every one had been approved on a landscape contact sheet
@@ -514,7 +514,7 @@ atmospheric.
 
 ## Choosing the opener
 
-**The user's preference, 2026-10-24: `Search` over the redacted hook**
+**The editor's preference, 2026-10-24: `Search` over the redacted hook**
 whenever the title is something people type - "it's cleaner and easier to
 understand". The Beethoven Short shipped with the long form's `Search` in
 place of its first cut's `[not silence]` hook. Reach for the redacted hook
@@ -528,7 +528,7 @@ same rule. This overrides "default" in the table below.
 redacted hook (`hook=`) which stays the default and the control. They share
 the hook's language - Arial Black upper case, the brand pill, the camera
 punch-in, the `hook_*` kit - so the channel still reads as one thing while
-the first two seconds differ. Added 2026-09-24, after the user asked for
+the first two seconds differ. Added 2026-09-24, after the editor asked for
 variety so every video does not open identically.
 
 ```python
@@ -564,13 +564,13 @@ Rules that apply to all of them:
   the article, a verdict the cut never argues, a flash of a picture that never
   returns: all the same fault as a hidden word that is never revealed.
 - **A `Search` query that asks ends on a question mark, automatically**
-  (2026-10-27). The user's note: the bar typed "did beethoven have
+  (2026-10-27). The editor's note: the bar typed "did beethoven have
   tinnitus" and "how to manage a tinnitus spike" with no mark. A query
   opening on a question word (how, what, why, does, did, can, is...) gets
   `?` from `Search.as_question`, typed as the last keystroke. Write the
   query plainly; do not add the mark by hand and do not strip it.
 - **`Search` shows the question only.** No autocomplete answer, no result - the
-  user's call, 2026-09-24, and it is the "complete answer in sentence 2"
+  editor's call, 2026-09-24, and it is the "complete answer in sentence 2"
   mistake in picture form: answer it on screen at 2s and the viewer has what
   they came for.
 - **`Split` does not answer itself.** Leave `winner` unset unless the
@@ -587,7 +587,7 @@ Rules that apply to all of them:
   a frame from the footage.
   **And only when the payoff stays withheld.** Its chip says "LATER IN THIS
   VIDEO", so a narration that names the flashed thing in sentence two spoils
-  the tease five seconds in - the user's note on `celebrities-with-tinnitus`
+  the tease five seconds in - the editor's note on `celebrities-with-tinnitus`
   (2026-10-09), which flashed Kirk and Spock and then said "Kirk and Spock got
   theirs on the same day". If the picture *is* the subject being named up
   front, it is not a `Flash`; reach for `Search` or the hook.
@@ -603,7 +603,7 @@ did before this existed, so nothing that does not set one changed.
 
 It exists because a **16:9 source into a 9:16 frame keeps about 32% of the
 width**, and `VideoShot._prepare` took that slice from the middle with a hard
-`// 2`. The user's note on the silence short was the whole problem in one
+`// 2`. The editor's note on the silence short was the whole problem in one
 line: "if there is a person we dont see it, if there is object we dont see
 it". Its closing shot was a man standing at 0.80 of the source frame, so the
 video ended on a brick wall and a plant with his shoulder clipped at the edge.
@@ -647,7 +647,7 @@ Everything `longform.md` now records about clip casting is true in
 minute, nothing held past about eight seconds, and adjacent Pexels ids are
 the same shoot.** The myths short's first cut opened on the same over-used
 studio clip the long form opened on and then used it again two shots later —
-so the note the user gave on the long form landed on both files at once.
+so the note the editor gave on the long form landed on both files at once.
 
 **When the pair is built from one post, deliberately share the opening
 face.** The myths short opens on the same low-key portrait the long form
@@ -659,7 +659,7 @@ viewer who sees both should recognise the second one.
 **`karaoke=True` is the default on both `render_crypto_short` and
 `render_tinnitus_short`.** The word being spoken is lit in `brand.primary` at a
 slight scale while the rest of the phrase stays white - what every short-form
-platform's own auto-captions do, and what the user asked for ("a lot of tiktok
+platform's own auto-captions do, and what the editor asked for ("a lot of tiktok
 videos do this"). Asked for on the tinnitus channel first and shipped there as
 the default; flipped on for crypto 2026-08-27 after the drone stack-vs-cuts A/B,
 same instinct - give the viewer more to track on screen. Pass `karaoke=False` to
@@ -732,7 +732,7 @@ Captions carrying an emoji keep the single-PNG treatment, because
 per-word layout does not model.
 
 **Which means an emoji silently switches karaoke off for that line, and a viewer
-reads that as the effect breaking.** The user caught it by timestamp on the
+reads that as the effect breaking.** The editor caught it by timestamp on the
 Ethereum short — the highlight ran for seven seconds, stopped dead on the one
 caption carrying a 🏢, and came back afterwards. It is not a bug; it is the
 trade, and it was never written down as one.
@@ -746,10 +746,10 @@ line in the first fifteen seconds.
 ## Box karaoke is the default: a coloured box instead of a coloured word
 
 Trialled on the drone channel first (`berlin-column-believe-in-you`, 2026-09-16
-— see `projects/drone-short.md`), then ported here the same session so both
+— see `projects/drone-short.md`), then ported here the same day so both
 channels can reach for it: `render_crypto_short(..., karaoke_box=True,
 karaoke_upper=True)` (and `render_tinnitus_short`, which forwards both
-straight through). **On by default since 2026-09-21** — the user's call, for
+straight through). **On by default since 2026-09-21** — the editor's call, for
 every short with karaoke text on all three channels (crypto, tinnitus, drone).
 Every script approved before that date pins `karaoke_box=False,
 karaoke_upper=False` so a re-render of a locked cut does not change style.
@@ -891,7 +891,7 @@ cross-dissolve the phrase against a near-identical copy of itself.
 
 ## A drawn beat in a short needs a hinge sentence in front of it, exactly like the long form
 
-**The caffeine short listed its `grid` cards with no lead-in and the user's
+**The caffeine short listed its `grid` cards with no lead-in and the editor's
 note was that it "starts listing the 4 bullet points without good transition
 ... Make sure we have good flow always before listing those things like we do
 in the long."** The long form's "say the point, then show the graphic" rule
@@ -997,7 +997,7 @@ in the abstract and was wrong by 1.5:1 on the frame.
 
 ## Captions never run under an opener (2026-10-02)
 
-**The user's standing rule, and it replaces the split decision recorded
+**The editor's standing rule, and it replaces the split decision recorded
 below.** On `tinnitus-in-musicians` the Short ran a `Stamp` opener with
 `hook_mutes_captions=False` - which is what the 2026-09-27 note told it to do
 - and the verdict was that the karaoke captions must not be on screen while an
@@ -1018,7 +1018,7 @@ two blocks of type at once, which is the whole point of the rule.
 ### A segment that explains itself needs no captions (2026-10-02)
 
 **The other half of the same instruction, and it generalises past the
-opener.** The user's note on `tinnitus-in-musicians`: list the musicians the
+opener.** The editor's note on `tinnitus-in-musicians`: list the musicians the
 way the long form does, with the band on the card, and no karaoke captions
 over that part - "we dont have to always show captions in the shorts, the
 exception is when we have a special segment which is self explanatory".
@@ -1074,7 +1074,7 @@ justified it entirely in terms of the hook, and openers were added later.
 
 The divider runs down the middle of the frame and the labels sit either side
 of it, so a label that wraps ("A 5 CENT COIN" went to four rows) runs into the
-line and the VS disc. The user's note on `market-cap` was to drop it for the
+line and the VS disc. The editor's note on `market-cap` was to drop it for the
 long form's `Stamp`. Until the layout is fixed, keep `Split` labels to one
 short word or figure a side, or pick `Stamp` when the topic is a belief.
 
@@ -1082,7 +1082,7 @@ short word or figure a side, or pick `Stamp` when the topic is a belief.
 disc (2026-10-13).** On `your-tinnitus-as-stressometer` the line first ran
 straight through the question ("SAME EARS?"), which had happened on earlier
 Splits too; shortening it left the disc hanging low on a line with both
-labels floating above it. The user's call: drop the line, the disc is the
+labels floating above it. The editor's call: drop the line, the disc is the
 divider. Each label's cap height now centres on the disc, a two-word label
 centring its whole block, and the question sits under the disc. Nothing to
 pass per video, in either aspect; labels can still collide with the disc if
@@ -1103,7 +1103,7 @@ sentence 2 starts after the clear: 1.20 there.
 Every opener slams in on frame one and runs until `at_word`. On the halving
 Short that was a `Counter` spinning for six seconds under a title question
 it had nothing to do with ("why was half of all bitcoin mined...") before
-landing on 2140. The user's note: wait until the voice mentions the last
+landing on 2140. The editor's note: wait until the voice mentions the last
 bitcoin, then show the reveal. `Counter(..., at_word="2140",
 enter_word="last")` now enters on "the last one" and spins for the two
 seconds until "2140". The opener draws on its own clock from that point, so
@@ -1119,7 +1119,7 @@ to prevent. (`Flash` draws on its own clock and refuses it.)
 
 `bear-market-in-crypto`'s first Short did the long form's twist and nothing
 else - a 40% jump after an 80% fall is still 72% down, and the climb back
-gets steeper - which is what `workflow.md` asks for. The user found it
+gets steeper - which is what `workflow.md` asks for. The editor found it
 confusing and hard to follow, and asked for the long form's opener instead:
 the search, stocks against crypto, the history, whether we are in one, what
 causes it. **Their rule: Shorts should be generally easier to follow.**
@@ -1143,7 +1143,7 @@ where the platform's own title and description overlay sits anyway.
 ## A pair may share its opener (2026-10-20)
 
 The GTA 6 Short first ran `Search` to rotate away from the long form's
-`Stamp`; the user asked for the long form's RUMOR stamp instead, so the
+`Stamp`; the editor asked for the long form's RUMOR stamp instead, so the
 pair reads as one. When the opener is a belief both cuts overturn, give the
 Short the same `Stamp` and land it in sentence 2 ("The Bitcoin was a
 rumor..."), with sentence 1 still the title question. Rotation is across
@@ -1168,7 +1168,7 @@ against the caption band, not on its own.
 
 The meme coins Short opened on `hook="A meme coin's price has [one
 source]"`. It passed every rule above - not the answer, not guessable, said
-early in sentence 2 - and the user's verdict was that the reveal does not
+early in sentence 2 - and the editor's verdict was that the reveal does not
 work: **the words did not fit the idea**, and this has happened before. The
 reveal is the hook's payoff - static wipes off, the pill lands, a chime -
 and `ONE SOURCE` in the pill is a placeholder. The viewer waited three

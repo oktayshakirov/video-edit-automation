@@ -43,7 +43,7 @@ diagram (stress). Here:
 samples.py`). The first cut drew them only, because much of this audience
 has hyperacusis or is listening at night. The feed check reversed it: every
 top result for this query plays examples, so drawn-only was the weaker
-promise. The user's call (2026-10-28): a 1.6s sample of each, well under the
+promise. The editor's call (2026-10-28): a 1.6s sample of each, well under the
 voice, the bed dipped under it, after the warning is said and shown on the
 notice card over a hand turning a volume knob. Each sound is its own
 sentence so its sample sits in the pause after the name, never under it.
@@ -56,7 +56,7 @@ specialist are never named by an initialism.
 **Footage.** Fetched fresh on 2026-10-28, contact-sheeted at 15/50/85%
 (verdicts in `docs/video/footage.md`). The nouns are the article's own
 comparisons: steam, machinery, a waterfall, a singing bowl's tone, TV
-static. No insect close-ups: the user cut the cricket as disturbing.
+static. No insect close-ups: the editor cut the cricket as disturbing.
 
 Run from the repo root:
 
@@ -124,7 +124,7 @@ SOUNDS = [(5200, 6800, "RINGING"),
 
 # Thumbnail - the title's own question, never its answer.
 THUMB_HEADLINE = "What does\ntinnitus\n[sound like?]"
-THUMB_PHOTO = STOCK / "photos/young-man-paper-cup-phone/3761514.jpg"   # the user's pick, Pexels 3761514
+THUMB_PHOTO = STOCK / "photos/young-man-paper-cup-phone/3761514.jpg"   # the editor's pick, Pexels 3761514
 
 
 SECTIONS = [
@@ -193,7 +193,7 @@ SECTIONS = [
             Shot(clip=WAVEFORM, clip_at=1.0),
             Shot(clip=BOWL2, clip_at=1.0),
             Shot(clip=KETTLE, clip_at=4.0),
-            # The machinery: the user cut the cricket close-up as disturbing
+            # The machinery: the editor cut the cricket close-up as disturbing
             # (2026-10-28). Later in the fan clip than THE RHYTHM's use of it.
             Shot(clip=FAN, clip_at=8.0),
             Shot(clip=WATER, clip_at=1.0),
@@ -361,7 +361,7 @@ META = Meta(
 
 
 def thumbs(out: Path) -> Path:
-    """The user's pick (2026-10-28): a man on the floor against a white wall,
+    """The editor's pick (2026-10-28): a man on the floor against a white wall,
     a paper-cup phone at his ear, its string running in from the left. Cut to
     16:9 from the left edge, so the string leads from the headline to the
     cup; three dark rows on the plain wall to his left, under the string -

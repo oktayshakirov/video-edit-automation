@@ -19,7 +19,7 @@ other rather than repeating; a viewer who sees both gets the economics and the
 hazard, not the same script twice.
 
 **Rebuilt on motion after review.** The first cut was eight site photographs
-and a checklist, and the user's verdict was that it looked boring and not
+and a checklist, and the editor's verdict was that it looked boring and not
 engaging. It was: eight Ken Burns pushes in a row is one move repeated eight
 times, and the site owns no photograph of a riser, an adapter or a graphics
 card, so the pictures were also generic. Half the shots are stock clips now and
@@ -108,7 +108,7 @@ SENTENCES = [
      "Never through an adapter."),
 
     # **The close.** The old ending asked "would you have caught that before
-    # switching it on?", which the user found confusing — fairly: "that" has
+    # switching it on?", which the editor found confusing — fairly: "that" has
     # three possible referents by then, and the question asks the viewer to
     # audit a build they have not made. This lands the rule instead, echoing
     # the opening line's own arithmetic, and asks for the one engagement a

@@ -10,7 +10,7 @@ What is different here is arithmetic, not taste. A three-minute video needs
 about thirty shots and a post owns three to five images, so **every long-form
 video built only from the site library will contain most of the same
 photographs as every other one** — which is its own kind of sameness, and the
-one the user actually noticed. The rule that survives is the real one:
+one the editor actually noticed. The rule that survives is the real one:
 
 > Stock is a *supporting* layer. The site's own images and the drawn beats lead.
 

@@ -69,7 +69,7 @@ TIREDM = STOCK / "videos/tired-man-rubbing-temples-dark"
 BEDW = STOCK / "videos/caucasian-woman-awake-in-bed-night-dark-bedroom"
 TIREDP = STOCK / "videos/stressed-man-dark-studio-portrait-grey"
 
-# **Same source the long form uses, and back to the user's original pick.**
+# **Same source the long form uses, and back to the editor's original pick.**
 # It is landscape (6720x4480), which the earlier version of this file called
 # structurally unworkable for 9:16 — that turned out to be true for a
 # different landscape photo (a woman lying fully horizontal, so the crop had
@@ -191,10 +191,10 @@ def main() -> None:
     path, total = render_tinnitus_short(SENTENCES, SHOTS, out, work,
                                         voice=VOICE)
     # **Same headline as the long form from this post**, so the pair reads as
-    # one. "Your room got quieter" was tried and the user kept this one.
+    # one. "Your room got quieter" was tried and the editor kept this one.
     # **`band="bottom"`, not the default `"top"`.** In this crop her face
     # sits in the top half and the pillow below it is empty — the default put
-    # "SLEEPING" directly over her forehead, which the user caught: "the text
+    # "SLEEPING" directly over her forehead, which the editor caught: "the text
     # is over her face, should be on the bottom". The scrim follows the band,
     # so the type still has ground under it against the pillow.
     thumb = render_short_thumb(

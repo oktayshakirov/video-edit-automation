@@ -59,7 +59,7 @@ from video_automation.tinnitus.article import render_tinnitus_short
 # Screened across their length by the long-form build from this post; the
 # trailing comment is the luma/saturation range over the whole clip.
 # **The old `woman-sitting-alone.../6073058` is out.** It screened as an
-# empty dark room and plays as a woman shaving her head; the user caught it at
+# empty dark room and plays as a woman shaving her head; the editor caught it at
 # 0:04. Screen a clip by watching it, not by looking at one frame of it.
 ALONE = STOCK / "videos/man-sitting-alone-dark-apartment-night"
 MEDIT = STOCK / "videos/man-meditating-dark-room-calm"
@@ -88,7 +88,7 @@ VOICE = "mia"                   # af_heart, the same reader as the long form
 MUSIC = music.track("night-drift")
 
 SENTENCES = [
-    # **Every short opens by asking its own title question.** The user's
+    # **Every short opens by asking its own title question.** The editor's
     # standing note: without it a short starts mid-thought and reads as
     # random, because a Short has no title card, no thumbnail on screen and
     # no chapter list - the viewer arrives with nothing. One line, spoken
@@ -226,7 +226,7 @@ def main() -> None:
     # a 9:16 upload into its 1280x720 slot with a blurred, zoomed copy of the
     # same image either side - so the live thumbnail was a narrow strip of
     # picture with "DOES ... NCE" bleeding across the bottom in huge soft
-    # letters, and the user had to replace it by hand. Same headline, same
+    # letters, and the editor had to replace it by hand. Same headline, same
     # source, same treatment, correct shape.
     yt = render_thumb(
         out.with_name(out.stem + "-thumb-yt.jpg"), TINNITUS,

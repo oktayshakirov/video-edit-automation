@@ -776,7 +776,7 @@ def _force_pad(audio, at: float, want: float,
 # is byte-for-byte the same text in the same voice.
 #
 # Kokoro is local and unlimited, so this was never a bill. It is wall-clock in
-# the one loop the user actually sits through.
+# the one loop the editor actually sits through.
 #
 # The key is every input that can change a sample: the sentences, the voice,
 # the mood, the per-sentence gaps, the tail, the run-break threshold, the
@@ -1309,7 +1309,7 @@ def render_narrated(src: Path, out: Path, start: float,
     same pattern as `font_size`.
 
     Defaults to Avenir Next Demi Bold (`FONT_SIMPLE`) since 2026-10-24: with no
-    band behind it the type sits on the footage, and the user wanted a plainer
+    band behind it the type sits on the footage, and the editor wanted a plainer
     face than the stack's Iowan italic there. `karaoke` lights the spoken word
     the way `render_narrated_stack` does, in an `accent` pulled from the crop
     (`"auto"`), a fixed `(r,g,b,a)`, or `None` for white. A caption set at a
@@ -1568,7 +1568,7 @@ def render_narrated_stack(top: tuple,
     word (its own `font_size`), a colour-inked word or an emoji caption always
     keep the single PNG — the karaoke renderer models none of those.
 
-    `karaoke_box` (default on 2026-09-21, back off 2026-10-15 by the user's
+    `karaoke_box` (default on 2026-09-21, back off 2026-10-15 by the editor's
     call on You Are the Problem; ink is the drone default again) is a rounded rectangle in `accent`
     behind the active word instead of colouring it (the TikTok auto-caption
     look). `karaoke_upper` uppercases every karaoke'd caption to match — see
@@ -1582,7 +1582,7 @@ def render_narrated_stack(top: tuple,
     decays into a small tremble for as long as the word holds.
 
     `hold_last_caption` and `fade_out` are a one-off pair for a cut that hands
-    off to something added after the fact — the user's own music or a VO drop
+    off to something added after the fact — the editor's own music or a VO drop
     over the last few seconds. Both default off; nothing shipped moves.
 
     * `hold_last_caption=True` keeps the final caption on screen from where it

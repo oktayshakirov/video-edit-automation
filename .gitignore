@@ -58,3 +58,10 @@ assets/stock/**/*.jpg
 assets/stock/press/**
 !assets/stock/press/**/
 !assets/stock/press/**/SOURCES.md
+
+# Working notes stay local: the per-build publish handoff, the old session
+# handoff, and the performance review's experiment log and run history.
+HANDOFF.md
+HANDOFF-PUBLISH.md
+.claude/skills/video-performance-review/experiments.md
+.claude/skills/video-performance-review/history/

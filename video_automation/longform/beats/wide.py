@@ -74,7 +74,7 @@ class Grid(Beat):
         #
         # **Three landscape cards go in one column, not 2+1.** A 2x2 grid with
         # its last cell empty reads as a layout that failed to fill rather than
-        # as a set of three, and the user called it exactly that. One column of
+        # as a set of three, and the editor called it exactly that. One column of
         # full-width cards has no hole in it, and at 16:9 a card 1800px wide
         # with a label and a note is a better shape than a 880px one anyway.
         # Four still take the 2x2, which is a complete rectangle.
@@ -160,7 +160,7 @@ class Logos(Beat):
     **The narration names companies; the screen should show them.** A script
     that says "Coinbase. Binance. Crypto.com." over a stock photograph of a
     trading desk is asking the viewer to hold three names in their head with no
-    help, and the names are the content. The user's note on the first
+    help, and the names are the content. The editor's note on the first
     crypto-exchanges cut was exactly this, and it is general: whenever a beat's
     items are *brands*, the brand mark is the strongest possible item art.
 
@@ -400,7 +400,7 @@ class Steps(Beat):
     the labels tight.
 
     **An item may carry an icon**, written as `(text, emoji)` instead of a
-    bare string. The user's note on the myths cut was that a bare numbered
+    bare string. The editor's note on the myths cut was that a bare numbered
     track is "a list of words" and wanted something under each item; an emoji
     is the cheapest icon that is already licensed, already colour, and already
     solved — `core.vertical.emoji_image` does the Apple Color Emoji

@@ -31,7 +31,7 @@ Photo, a second or two of frames with nowhere else to go. This is a 17.7s
 handheld clip, played straight at 1x. A boomerang on footage that has a real
 forward direction reads as a stutter, not as a held moment.
 
-**The beat is 5.0-9.0, the user's pick, and it took three tries to find.**
+**The beat is 5.0-9.0, the editor's pick, and it took three tries to find.**
 0.2-2.6 is the span where the controller sits whole in frame before the camera
 drifts onto the phone, but at 2.4s it was too short. 11.0 to the end is a
 6.7s push-in back onto the controller, which was long enough but opened on the
@@ -48,7 +48,7 @@ is the subject:
 | controller, iPhone, 10-bit | 67 (≈17 of 255) | 135 (≈34) | 7.9 | shadows already where they belong; only the saturation is off |
 | hyperlapse, 8-bit | 21 | 54 | 21.6 | blacks near clean, blue hour slightly flat |
 
-**The hyperlapse ships ungraded, on the user's call, and the measurement did
+**The hyperlapse ships ungraded, on the editor's call, and the measurement did
 not see it coming.** SATAVG 21.6 is inside the band that says "lift this", and
 a 1.30 lift is what the Vienna cut would have done. On a night frame it is
 wrong: the colour that is there is already concentrated in the few lit things —
@@ -115,7 +115,7 @@ WORK = Path("~/Desktop/.work-golden-girl-what-my-drone-sees").expanduser()
 
 FPS = 30
 
-# The user's span. Played straight: real video, no boomerang.
+# The editor's span. Played straight: real video, no boomerang.
 POV_START, POV_SPAN = 5.0, 4.0
 POV_SPEED = 1.0
 POV_PASSES = 1

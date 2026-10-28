@@ -19,7 +19,7 @@ from pathlib import Path
 
 from video_automation.core.voiceover import render_narrated, profile_args
 
-SOURCE_POST = None                      # off-site: the user's own line, no article
+SOURCE_POST = None                      # off-site: the editor's own line, no article
 
 FOOT = Path("~/Desktop/Drone Videos/Footage/Berlin 26 1:4").expanduser()
 SRC = FOOT / "Sunset 5.mp4"

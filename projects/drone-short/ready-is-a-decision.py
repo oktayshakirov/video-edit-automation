@@ -1,6 +1,6 @@
 """Ready Is a Decision — stacked vertical quote, one Berlin sunset clip.
 
-A test of a smaller caption: the user noticed the quote shorts with smaller
+A test of a smaller caption: the editor noticed the quote shorts with smaller
 type pull more views, so this is You Are the Problem's ink karaoke (Iowan
 italic, the spoken word tinted, leo) with the body at 36px instead of 44 and
 no set-piece word, so nothing on screen is set larger than the test size.
@@ -17,7 +17,7 @@ from pathlib import Path
 
 from video_automation.core.voiceover import render_narrated_stack, profile_args
 
-SOURCE_POST = None                      # off-site: the user's own line, no article
+SOURCE_POST = None                      # off-site: the editor's own line, no article
 
 FOOT = Path("~/Desktop/Drone Videos/Footage/Berlin 26 1:4").expanduser()
 SRC = FOOT / "Sunset 5.mp4"

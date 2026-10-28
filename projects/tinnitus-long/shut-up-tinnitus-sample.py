@@ -40,7 +40,7 @@ BADGES = [Path.home() / "Coding/tinnitus-blog/public/spotify-badge.png",
           Path.home() / "Coding/tinnitus-blog/public/google-play-badge.png"]
 
 OUT = DESKTOP / "shut-up-tinnitus-sample-long.mp4"
-THUMB = DESKTOP / "shut-up-tinnitus.png"     # the user's own, not rendered here
+THUMB = DESKTOP / "shut-up-tinnitus.png"     # the editor's own, not rendered here
 WORK = DESKTOP / ".shut-up-tinnitus-sample-work"
 
 # The book's page on the site, which carries the streaming links and this

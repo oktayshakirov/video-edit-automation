@@ -83,7 +83,7 @@ IMG = Path.home() / "Coding/tinnitus-blog/public/images"
 # It screens beautifully - L13-14 S8, an empty dark room under one bulb - and
 # on a contact sheet at 1s that is all it is. Played, the woman in the chair
 # is shaving her head, which is a specific and arresting thing to be doing
-# under a line about a quiet room, and the user caught it at 0:05. The luma
+# under a line about a quiet room, and the editor caught it at 0:05. The luma
 # box cannot see subject and neither can a single frame: **screen a clip by
 # watching a few seconds of it, not by looking at one thumbnail of it.**
 ALONE = STOCK / "videos/man-sitting-alone-dark-apartment-night"
@@ -220,7 +220,7 @@ SECTIONS = [
             # **Not `neurons.jpg`.** At 900x599 it cannot reach 1920 under
             # `max_upscale=1.90`, so it rendered *fitted* - a letterboxed
             # panel with a hairline and black bands above and below it - and
-            # the user's note was to drop that treatment entirely and show
+            # the editor's note was to drop that treatment entirely and show
             # the picture full screen the way the portrait at 3:27 is. A
             # photograph in this format either bleeds off every edge or it
             # does not belong in a full-frame shot; the site library is too
@@ -495,7 +495,7 @@ def main() -> None:
         # cannot act on without the video, which is the whole job of the line.
         # **The headline is the video's own title now.** "Silence is not
         # neutral" was written to the old rule that a thumbnail must not
-        # answer its own title, and the user's call is that it reads as
+        # answer its own title, and the editor's call is that it reads as
         # boring - the question is what makes somebody curious enough to
         # click. Asking the title is not the fault that rule was about;
         # answering it is.

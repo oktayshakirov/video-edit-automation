@@ -51,7 +51,7 @@ five questions would run past two and a half minutes.
 
 **The original estimate was 60s; the format has landed at ~96s across three
 more rounds of real pauses.** That is the cost of the pauses being real, and
-it was the user's call each time, after watching a cut that ran them
+it was the editor's call each time, after watching a cut that ran them
 together. The only silence this engine can give a script is a scripted gap,
 and each one is paid for in runtime; nothing recovers that time without
 cutting a pause back to inaudible. The countdown moved the other way: it came
@@ -65,14 +65,14 @@ format was first built on a second, reserved-for-quiz male profile, on the
 reasoning that both channels' explainers read in `mia` or `otis`, so a quiz in
 either of those is the same show with a gimmick and a distinct reader is what
 makes it register as a separate format. That reasoning was fine and it was
-still wrong: on a full rendered cut the user's note was that the voice sounded
+still wrong: on a full rendered cut the editor's note was that the voice sounded
 weird and had glitches. The quiz moved to `otis` — the male article reader for
 both channels — on 2026-09-07, and the reserved profile was retired from the
 roster rather than kept around unused. **Sounding like the channel beats
 sounding distinct from it.** The format already reads as its own thing from
 the cards and the countdown; it never needed the voice to carry that.
 
-**No long form, for now.** The user's call. A twelve-question, four-minute quiz
+**No long form, for now.** The editor's call. A twelve-question, four-minute quiz
 is a real format and the engine would carry it, but the Short ships first and
 earns it. `QuizShot`'s sizes scale with `frame.w`, so a 16:9 render *works* —
 but the stack is portrait-shaped (a header over a 2x2 over a timer), and a
@@ -94,7 +94,7 @@ landscape version wants a different layout rather than the same one wider.
    the reason only, and `Question.answer_line` puts the letter on the card.
 
 **The outro asks the question and stops.** "How many did you get?" — and
-nothing after it. It carried "Tell me in the comments" and the user cut it:
+nothing after it. It carried "Tell me in the comments" and the editor cut it:
 a quiz that has just scored the viewer generates comments on its own, and
 saying the ask out loud is the one line in the format that sounds like a
 channel asking for engagement rather than a quiz ending.
@@ -108,7 +108,7 @@ sentence of five caption chunks, and `gap` (the only silence
 `build_narration_aligned` knows how to give a script) is silence **between
 sentences**, never inside one. A chunk gets nothing but the model's own
 punctuation-length pause, which on the ENERGETIC chain is close to nothing —
-one option ran straight into the next, and the user's own word for it was
+one option ran straight into the next, and the editor's own word for it was
 "instantly following."
 
 The fix is more sentences: the question, each card, and each half of the
@@ -340,13 +340,13 @@ light, and the eye goes to the red because there is more of it.
 first question: "Tinnitus Quiz: Myths Edition" and so on, one per channel.
 There is no second card after it either — the first video carried a stake
 card ("Three tinnitus myths. Most people believe at least one.") between the
-title and the first question, and the user cut it (2026-09-08) as redundant
+title and the first question, and the editor cut it (2026-09-08) as redundant
 with the title alone.
 
 **A numbered version shipped first and was cut on the same call.** The beat
 supports it — `title_number` still exists, drawing a large numeral above the
 title via `ChapterCard`'s own numbered mode ("a script that is genuinely
-counting something the narration also counts out loud") — but the user asked
+counting something the narration also counts out loud") — but the editor asked
 for the plain, un-numbered template instead. Leave `title_number` unset unless
 a later run is explicitly asked to bring it back.
 
@@ -372,7 +372,7 @@ knows what it says.
 ## No thumbnail render
 
 Every article explainer calls `render_short_thumb` with a site photo or, at
-worst, a headline card. A quiz project script does neither, on the user's
+worst, a headline card. A quiz project script does neither, on the editor's
 call (2026-09-08): the video's own picture is already four drawn cards, and a
 generated headline plate would just restate the hook a viewer is about to see
 anyway in the first two seconds. The Reel cover comes from a frame pulled out

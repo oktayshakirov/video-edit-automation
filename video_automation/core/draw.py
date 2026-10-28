@@ -10,7 +10,7 @@ The two that carry real hard-won behaviour are `subpixel` and `partial`:
 
 * **`subpixel`** is why a slow move reads as a move. At the speeds used here a
   layer travels tens of pixels a second, so an integer crop jumps a whole pixel
-  every few frames and holds still in between — the user's word for the first
+  every few frames and holds still in between — the editor's word for the first
   build that did it was "laggy".
 
 * **`partial`** draws the first fraction of a polyline. Marks are built from
@@ -147,7 +147,7 @@ def shadow_text(d: ImageDraw.ImageDraw, xy: tuple[float, float], text: str,
     **This replaced `stroke_width=` on every drawn beat and every statement
     over footage**, on both channels. A stroke traces each glyph at constant
     width, so at display size it reads as an *outline around* the type rather
-    than as type sitting on something - the user's note on the thumbnails was
+    than as type sitting on something - the editor's note on the thumbnails was
     that solid borders "look very unprofessional", and the identical treatment
     inside the video drew the identical note on a chapter card. The thumbnail
     renderer already solved this with a blurred layer (`thumb._headline`); this

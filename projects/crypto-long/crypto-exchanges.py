@@ -105,7 +105,7 @@ ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 VOICE = "mia"                   # female, af_heart. Candidate, not approved.
 
 # **A real track, shared with tinnitushelp.me.** `night-drift` was picked by
-# ear for `tinnitus-and-sleep` and the user's call is that the small library in
+# ear for `tinnitus-and-sleep` and the editor's call is that the small library in
 # `assets/brand/music/` serves both channels rather than one — which is the
 # right shape for it: the tracks are brand-neutral, they are stored trimmed so
 # they loop without a hole, and a bed a human chose beats a generated one that
@@ -128,7 +128,7 @@ SECTIONS = [
             ("You bought your first crypto.",
              "You can see the balance on the screen."),
             # **Not "here is the question almost nobody asks about it".** That
-            # construction went into three scripts before the user called it
+            # construction went into three scripts before the editor called it
             # out, and they are right that it is bad English — "about it" has
             # nothing to attach to, and the whole clause is a windup that
             # announces a question instead of asking one. Ask the question.
@@ -172,7 +172,7 @@ SECTIONS = [
                  pan=(0.02, 0.01), aspect=A, bias=0.5),
         ],
         # **Silence is punctuation, and this script had none.** Every sentence
-        # ran at the same 0.34 and the user's note was that the whole thing is
+        # ran at the same 0.34 and the editor's note was that the whole thing is
         # monotone — correctly, because pace is the only prosody an AI voice
         # has. The convention now: 0.34 inside a thought, 0.55-0.70 at the end
         # of one, 0.90-1.20 before a line that has to land, and 2.10-2.40 for a
@@ -235,7 +235,7 @@ SECTIONS = [
             # **"Binance" is spelled for espeak, not for the reader.** Kokoro
             # phonemizes through espeak-ng, which reads the real spelling as
             # `baɪnˈæns` — bye-NANCE, stress on the second syllable, which is
-            # what the user heard and called wrong. "Bynanse" comes back
+            # what the editor heard and called wrong. "Bynanse" comes back
             # `bˈaɪnæns`, which is the brand's own BY-nance.
             (("Coinbase.", "Coinbase."),
              ("Binance.", "Bynanse."),
@@ -468,7 +468,7 @@ SECTIONS = [
             # two-phase version held all five verdicts for a pause at the end,
             # which is right when the list is a question — and this list is
             # not. Every item here is already a thing you *should* have, the
-            # voice says so as it names them, and the user asked for the check
+            # voice says so as it names them, and the editor asked for the check
             # to land after each one. The pause drops from 2.40 to 1.20
             # accordingly: the silence that bought room for the marks is dead
             # air once the marks are landing on the words.
@@ -527,10 +527,10 @@ META = Meta(
 )
 
 
-# Re-done 2026-10-26 on the user's picture: one hand passing a Bitcoin into
+# Re-done 2026-10-26 on the editor's picture: one hand passing a Bitcoin into
 # another, on white. The question is the hook's ("But who is actually holding
 # it?"); the old "Your crypto is [not yours]" gave the answer away.
-COVER = Path(__file__).resolve().parents[2] / "assets/crypto/exchanges/coin-hand-to-hand.jpg"   # 2000x1333, supplied by the user
+COVER = Path(__file__).resolve().parents[2] / "assets/crypto/exchanges/coin-hand-to-hand.jpg"   # 2000x1333, supplied by the editor
 HEADLINE = "Who\nholds\nyour\n[coins?]"
 
 

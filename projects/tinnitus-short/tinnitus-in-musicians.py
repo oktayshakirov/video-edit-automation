@@ -3,7 +3,7 @@
 Source: tinnitus-blog/content/posts/tinnitus-in-musicians.mdx, the same post
 as the `tinnitus-in-musicians` long form.
 
-**This one is the long form condensed, and that is deliberate** (the user's
+**This one is the long form condensed, and that is deliberate** (the editor's
 call, 2026-10-02). Every other pair on this channel writes the Short on a
 different angle from the long - `shorts.md`'s "it does not compress the long
 cut" - and here the long form's own opening was judged the stronger piece of
@@ -18,7 +18,7 @@ rather than the long form's question (`narration.md`, "A Short's ending
 loops; it does not ask"). **If this approach reads better than the
 write-them-apart rule, `shorts.md` gets rewritten around it.**
 
-**One drawn beat, and it is the long form's `grid` of names** (the user's
+**One drawn beat, and it is the long form's `grid` of names** (the editor's
 call on the first cut: list the musicians the way the long form does, with
 the band on the card, and no karaoke captions over it). A drawn beat burns no
 captions already, so that falls out of using the beat rather than needing a
@@ -109,7 +109,7 @@ SENTENCES = [
     # would say rather than a name read off a list. **The beat burns no
     # captions and that is the point here**: three cards naming three people
     # and their bands do not need a second copy of the same words along the
-    # bottom of the frame. The user's note, generalised: a Short does not
+    # bottom of the frame. The editor's note, generalised: a Short does not
     # have to carry captions through a segment that explains itself.
     ("Pete Townshend of The Who has talked about it for years.",
      "So has Chris Martin of Coldplay.",
@@ -125,7 +125,7 @@ SENTENCES = [
     # into "for headphones, sixty sixty", which is a different subject
     # arriving with no sentence saying why - `shorts.md`'s "anything that
     # changes the register of the video needs a sentence saying why it is
-    # happening", and the user's note on this cut. This is that sentence.
+    # happening", and the editor's note on this cut. This is that sentence.
     ("And you do not need a stage for that to matter.",),
     # The cold close, drawn by `outro=`.
     ("Your headphones run the same rule. Sixty percent of the volume, "

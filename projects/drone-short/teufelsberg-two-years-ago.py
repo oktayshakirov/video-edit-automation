@@ -1,6 +1,6 @@
 """Teufelsberg Two Years Ago — stacked vertical quote, two Teufelsberg clips.
 
-The user's overheard line, built in the approved Sunset Sea Stack layout: two
+The editor's overheard line, built in the approved Sunset Sea Stack layout: two
 golden-hour Teufelsberg drone clips (the abandoned listening station, radar
 domes lit by the setting sun) stacked into one 9:16 frame, the quote read on
 the black band between them.

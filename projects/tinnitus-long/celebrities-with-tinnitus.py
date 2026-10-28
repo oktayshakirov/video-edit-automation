@@ -3,7 +3,7 @@
 Source: tinnitus-blog/content/posts/celebrities-with-tinnitus.mdx.
 
 **Why this post.** "Celebrities with tinnitus" is the phrase people type, and
-the user asked for it with real names and real photographs - which on a
+the editor asked for it with real names and real photographs - which on a
 channel whose subject cannot be photographed is the rare case where the
 picture can say the noun exactly. The photographs are Wikimedia Commons,
 public domain or CC BY / BY-SA, credited in
@@ -46,7 +46,7 @@ review: it showed Kirk and Spock as "later in this video" and sentence two
 said it outright five seconds later, so the tease spoiled itself. The title
 already is the phrase people type, which is what `Search` is for.
 
-**And the names, at the end.** The user asked for the rest of the list as
+**And the names, at the end.** The editor asked for the rest of the list as
 names only, so the video closes on a `grid` of nine - each checked against a
 public account (CREDITS.md). It is the one `grid` in the cut and the reason
 the rotation rule above bends.
@@ -160,7 +160,7 @@ SECTIONS = [
             # The partial answer: a name and a fact, true on its own, and it
             # opens the bigger question of what happened next.
             # Names the actors, not only the characters: not everybody has
-            # watched Star Trek (the user's note on the first cut).
+            # watched Star Trek (the editor's note on the first cut).
             S("Start with the strangest one.",
               "Two Star Trek actors, the men who played Kirk and Spock, got "
               "theirs on the same day."),
@@ -380,7 +380,7 @@ SECTIONS = [
         gaps=[0.85, 0.90],
     ),
 
-    # --- the rest of the list, names only (the user's call on the first cut) -
+    # --- the rest of the list, names only (the editor's call on the first cut) -
     # Every name checked against a public account of their own tinnitus;
     # Sting, Hetfield and Moby were left off as only second-hand. See
     # assets/tinnitus/celebrities/CREDITS.md.
@@ -452,14 +452,14 @@ def main() -> None:
         title_at=8.5, title_hold=5.4,
         # `Search`, not `Flash`: the flash showed Kirk and Spock as "later in
         # this video" and the voice then gave it away five seconds later, so
-        # the tease spoiled itself (the user's note on the first cut). The
+        # the tease spoiled itself (the editor's note on the first cut). The
         # title already is the phrase people type.
         opener=Search("celebrities with tinnitus"),
         # The thumbnail asks the title's question about the two faces on it.
         # Portrait source, panelled beside the type rather than cropped
         # through, so both faces stay whole (`thumbnails.md`).
         # "Two Star Trek actors", not "Kirk and Spock": not everybody has
-        # watched it (the user's note on the first cut).
+        # watched it (the editor's note on the first cut).
         # Forced rows, so STAR TREK cannot split across two (it did).
         thumb_headline="How did two\nStar Trek actors\nget [tinnitus?]",
         thumb_image=KIRK_SPOCK, thumb_accent="red",

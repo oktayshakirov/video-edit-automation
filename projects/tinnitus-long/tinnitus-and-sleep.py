@@ -108,8 +108,8 @@ ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 # section's work without a caption.
 AWAKE_PHOTO = STOCK / "photos/woman-awake-in-bed-at-night-dark-room-insomnia/6943991.jpg"
 
-# **Same source as the Short's thumbnail — the user's rule is to always match
-# the pair.** This is the photo from the user's own Pexels pick
+# **Same source as the Short's thumbnail — the editor's rule is to always match
+# the pair.** This is the photo from the editor's own Pexels pick
 # (pexels.com/photo/9787924), an overhead shot of a woman asleep beside her
 # phone. `side="left"` puts the type over the plain pillow and leaves the
 # phone visible on the picture side, which ties the type directly to what the
@@ -136,7 +136,7 @@ VOICE = "mia"                   # was `mia-calm` (af_heart at 1.00, the same
                                 # `ivy` was tried before mia-calm and cut —
                                 # the British read was not wanted.
 
-# Picked by ear by the user, over the generated `bright` preset. Stored trimmed
+# Picked by ear by the editor, over the generated `bright` preset. Stored trimmed
 # in `assets/brand/music/` because it is 7.7s and loops twenty-nine times
 # across this cut — see `core/music.py` for why the trim is not optional.
 MUSIC = music.track("night-drift")
@@ -360,7 +360,7 @@ SECTIONS = [
             # **The only water shot in the video, and it carries a line.**
             # The first cut used this footage four times with nothing on it,
             # and unlabelled water under a script about bedrooms is wallpaper
-            # — it illustrates nothing and the user called it out. One shot,
+            # — it illustrates nothing and the editor called it out. One shot,
             # on the section's punch line, is what the footage is good for.
             Shot(clip=WATER / "11028763.mp4",            # L28-31 S6-7
                  payload=("", "Just below. Not on top.")),
@@ -495,7 +495,7 @@ META = Meta(
 
 
 # The thumbnail's photograph is `AWAKE_PHOTO`, used full-frame in the video
-# too — the user asked for one picture doing both jobs.
+# too — the editor asked for one picture doing both jobs.
 #
 # **The scorer picked a frame with no subject in it, twice, before this.**
 # `_layout` searches zoom x pan for space quiet enough to take type, and on a
@@ -519,7 +519,7 @@ def main() -> None:
         # post.** They are published as a pair and should look like one; the
         # type is drawn by `thumb._headline` for both aspects so they cannot
         # drift. "Your room got quieter" tested as the answer to the title's
-        # question; the user's call was to keep this one instead, closer to
+        # question; the editor's call was to keep this one instead, closer to
         # the video's own reframe.
         thumb_headline="Stop sleeping in [silence]",
         thumb_image=THUMB_PHOTO,

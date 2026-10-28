@@ -60,7 +60,7 @@ triggering anything** - a workflow that starts against a dead tunnel fails
 halfway, and the Instagram half is not safely re-runnable.
 
 **This used to be blocked by the permission classifier**, on 2026-08-23, and
-the tunnel was the one part of the run the user had to start by hand. That is
+the tunnel was the one part of the run the editor had to start by hand. That is
 fixed: the project settings file above allowlists both commands, verified by
 running them. If a future session is denied anyway, check that
 `.claude/settings.json` still exists in `video-edit-automation` and that the
@@ -151,9 +151,9 @@ the video is the de-facto title, and the caption's first line is the rest of it.
 
 One n8n form workflow per site. n8n must be running at `http://localhost:5678`.
 **If it is not, start it yourself** - just run `n8n` in the terminal. The
-user's instruction, 2026-08-23; do not stop and ask them to do it.
+editor's instruction, 2026-08-23; do not stop and ask them to do it.
 **And stop it when the run is done** - after the last workflow execution has
-finished, not just the tunnel. The user's instruction, 2026-10-27: always stop
+finished, not just the tunnel. The editor's instruction, 2026-10-27: always stop
 n8n when you finish using it.
 
 **The workflows are version-controlled**, one JSON per workflow at the root of
@@ -207,7 +207,7 @@ believing a run is the one you started.
   container and reached Facebook **not at all** - the Reels finish phase takes
   `video_state` and `description` and has no cover parameter, so every Facebook
   Reel published before 2026-08-23 went up with an auto-picked frame and the
-  user set the cover by hand. `FB Fetch Cover` pulls the image as binary and
+  editor set the cover by hand. `FB Fetch Cover` pulls the image as binary and
   `FB Set Reel Cover` POSTs it multipart to
   `/{video_id}/thumbnails?is_preferred=true`.
 

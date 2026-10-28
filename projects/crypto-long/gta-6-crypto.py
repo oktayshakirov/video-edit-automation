@@ -63,11 +63,11 @@ plus the act of the scam: thumbs on phones, hands at a laptop at night,
 banknotes counted. Every clip fresh, verdicts in `footage.md`. The one
 abstract is the dark surf under the disclaimer.
 
-**Thumbnail:** the user's pick - Rockstar's own key art of Jason and Lucia -
+**Thumbnail:** the editor's pick - Rockstar's own key art of Jason and Lucia -
 set right, with the title's question in two rows on the left, clear of both
 faces.
 
-**Real references (the user's note on the first cut).** All-stock about a
+**Real references (the editor's note on the first cut).** All-stock about a
 real game was "boring and monotone", so official GTA VI art and in-game
 screenshots from rockstargames.com/VI replace stock under the lines about
 the game, the launch trailer's real DacityCoin frame sits under the line
@@ -119,7 +119,7 @@ DESK = V / "laptop-screen-dark-room/36392511.mp4"              # 9s,  L35, a fig
 CASH = V / "counting-cash-hands-dark/6266425.mp4"              # 10s, L56, banknotes counted at a desk
 SURF = V / "ocean-waves-night/40200251.mp4"                    # 34s, L24, dark surf from above - the one abstract
 
-# Real references (the user's note on the first cut: all-stock about a real
+# Real references (the editor's note on the first cut: all-stock about a real
 # game is monotone). Official GTA VI art and screenshots from
 # rockstargames.com/VI, and the launch trailer's DacityCoin frame as
 # published by the press - used for commentary, credited in the description.
@@ -404,13 +404,13 @@ META = Meta(
 )
 
 # The title's own question; the plate on CRYPTO.
-# Four short rows in a narrow left column (the user's call: one row along
+# Four short rows in a narrow left column (the editor's call: one row along
 # the bottom, then two wide rows, both took too much of the art).
 HEADLINE = "Will\nGTA\u00a06\nhave\n[crypto?]"
 
 
 def thumbs(out: Path) -> Path:
-    """The key art the user picked - Jason and Lucia, bandanas, Leonida at
+    """The key art the editor picked - Jason and Lucia, bandanas, Leonida at
     dusk - cropped to the pair and set against the right edge, with the
     title's question in four short rows on the black it uncovers at the left. The
     300px ramp blends the art into the black, so no seam shows."""

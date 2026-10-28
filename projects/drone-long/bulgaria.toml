@@ -30,7 +30,7 @@ music = [
 
 [overrides]
 # --- the medley ----------------------------------------------------------
-# Three songs, in the order the user picked. They share no tempo, so the bar
+# Three songs, in the order the editor picked. They share no tempo, so the bar
 # grid is piecewise: 3.200s bars, then 3.000s, then 2.637s.
 #
 #   Miss You     75.00 BPM   bars   0-52   0.1-166.5s
@@ -48,7 +48,7 @@ music = [
 # LENGTH IS SET BY THE FOOTAGE, not by the songs. All three played whole is
 # 437s, and the library can only fund ~443s at a coverage of 100% that never
 # happens — the first attempt at that ran dry and ended 5 minutes short. What
-# the clips actually yield at the speeds the user set is ~158s of Akra and
+# the clips actually yield at the speeds the editor set is ~158s of Akra and
 # ~276s of Akutino, so the timeline is built to 365s and lands near 83%.
 #
 # Holding Lost rather than I'm Falling is what keeps every seam calm-to-calm:
@@ -65,21 +65,21 @@ MUSIC_MEDLEY_HOLD_BARS = [52, 24, 45]
 SLOT_BARS_BY_ENERGY = [[0.33, 4], [0.66, 2], [1.01, 1]]
 MAX_SHOT_SECONDS = 13.0
 
-# --- the user's per-clip trims -------------------------------------------
+# --- the editor's per-clip trims -------------------------------------------
 # Watched and called by hand. Everything here is "start later than the head",
 # which is what CLIP_HEAD_SKIP is for; the tail side is handled by the skip
 # ranges below, since there is no "stop early" knob and a range the engine may
 # not touch is the same instruction stated the other way round.
 CLIP_HEAD_SKIP = { "Akra Coast 7" = 10.0, "Akutino Island 2" = 5.0, "Akutino Forest Coast Houses" = 2.0, "Akutino Coast Forest Above 2" = 6.0 }
 
-# Source the user marked as unusable — the parts of each trimmed clip outside
+# Source the editor marked as unusable — the parts of each trimmed clip outside
 # the window they picked. Without these the engine keeps the head skip but
 # still runs off the end of the good material on a later use of the same clip,
 # because slices are handed out by an advancing cursor.
 CLIP_SKIP_RANGES = { "Akra Coast 7" = [[18.0, 24.3]], "Akra Coast 6" = [[8.0, 11.8]], "Akra Coast 5" = [[12.0, 20.0]], "Akra Coast 2" = [[39.0, 46.2]], "Akra Coast 4" = [[17.0, 26.6]], "Akutino Coast 1" = [[18.0, 21.7]], "Akutino Sea 1" = [[10.0, 19.4]], "Akutino Beach" = [[10.0, 13.5]], "Akutino Island 2" = [[13.0, 16.9]], "Akutino Forest Sunset 1" = [[13.0, 16.6]], "Akutino Coast 6" = [[21.0, 33.7]], "Akutino Forest Coast Houses" = [[36.0, 49.0]], "Akutino Coast Forest Above 2" = [[36.0, 40.0]] }
 
 # --- speed ---------------------------------------------------------------
-# The user named exactly which clips may be sped up and which stay at real
+# The editor named exactly which clips may be sped up and which stay at real
 # time, so the scorer gets no say: SPEED_CHOICES is 1.0 only, and every
 # speed-up below is a forced instruction. Left to itself the engine chose a
 # different set entirely — 3x on Coast 10 and Sea 1, which were never marked,
@@ -97,7 +97,7 @@ CLIP_SPEED = { "Akra Coast 1.mp4" = 3.0, "Akra Coast 2.mp4" = 3.0, "Akra Coast 9
 # --- clips that are out ------------------------------------------------
 # Coast Beach Above: litter on the sand, visible throughout — no range of it is
 # usable, so it is excluded rather than trimmed.
-# Coast Forest Above 1: dropped on the user's call.
+# Coast Forest Above 1: dropped on the editor's call.
 CLIP_EXCLUDE = ["Akutino Coast Beach Above", "Akutino Coast Forest Above 1"]
 
 # The opener plays whole and never returns. An absolute cap, so the scorer
@@ -186,7 +186,7 @@ LOCATION_PINS = [
 # Three Akutino clips read cooler and flatter than the rest of that location.
 # The LUT is the one captured from Final Cut into
 # assets/fcpxml/custom-lut-filter.xml; this only sets its opacity, and the
-# captured 0.2157 is the low-opacity golden-hour setting the user dialled in.
+# captured 0.2157 is the low-opacity golden-hour setting the editor dialled in.
 #
 # It will not rescue clipped highlights — see the note in the review.
 CLIP_LUT = { "Akutino Coast 3.mp4" = 0.2157, "Akutino Beach.mp4" = 0.2157, "Akutino Sea 1.mp4" = 0.2157 }

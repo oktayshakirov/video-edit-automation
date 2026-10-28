@@ -1,6 +1,6 @@
 """Sunset 5, clean — the vertical crop with no text and no voice.
 
-The user rejected both the narrated and the silent-card cuts of Next Trick
+The editor rejected both the narrated and the silent-card cuts of Next Trick
 and will add their own text and audio in-app. Same 9:16 window as
 next-trick.py, ~13.5s, ungraded, no audio track.
 """

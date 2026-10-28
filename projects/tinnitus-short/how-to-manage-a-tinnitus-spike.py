@@ -5,7 +5,7 @@ post as the `how-to-manage-a-tinnitus-spike` long form - a re-angle of the
 2026-08-28 `why-does-tinnitus-spike` pair onto the promise that stands out
 on five channels (`docs/video/demand/teardowns/manage-a-tinnitus-spike.md`).
 
-**Opener: `Search`, like the long form, on its own query.** The user's
+**Opener: `Search`, like the long form, on its own query.** The editor's
 preference since 2026-10-24 is `Search` whenever the title is something
 people type, and "what to do during a tinnitus spike" is - a different angle
 from the long form's "how to manage". Sentence 1 is that question.
@@ -62,7 +62,7 @@ PEN = V / "hand-writing-in-journal-dark-moody/7612023.mp4"
 SITTING = V / "man-meditating-eyes-closed-dark-room/6447702.mp4"
 
 # The long form's still and headline - one source for both aspects.
-THUMB_PHOTO = STOCK / "photos/user-pick-woman-laptop/5908779.jpg"   # the user's pick
+THUMB_PHOTO = STOCK / "photos/user-pick-woman-laptop/5908779.jpg"   # the editor's pick
 THUMB_HEADLINE = "Tinnitus\n[spike?]\nDo this\nfirst"
 
 VOICE = "noah"          # the noah test, pair 2 of 5 - same voice as the long form
@@ -131,7 +131,7 @@ def thumbs(out: Path) -> Path:
     """Her side of the photo on the bottom of the frame; the busy room is
     continued above as a blur (`thumbnails.md`, rule 6). The rows are white
     over that blur shaded by half, easing off before her headphones - dark
-    ink on the light blur was still hard to read (the user, 2026-10-27)."""
+    ink on the light blur was still hard to read (the editor, 2026-10-27)."""
     import numpy as np
     from PIL import Image
     from video_automation.longform import thumb as T

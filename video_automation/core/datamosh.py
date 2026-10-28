@@ -27,7 +27,7 @@ a sped-up copy of B (`_segment(speed=...)`; 3-4x) and heal into B at 1x.
 motion field has edges where B's objects are: near towers moving against the
 sky. A locked-off shot (a hyperlapse) gives near-zero vectors and the mosh
 reads as a crossfade. `push_zoom` (a synthetic push-in) has motion but no
-edges: A only zooms, which the user called "unrelated" - it is kept as a
+edges: A only zooms, which the editor called "unrelated" - it is kept as a
 fallback, not a fix. When the incoming shot is static, mosh into a shot that
 moves (an orbit) instead, or borrow a moving shot's vectors for `mosh(b=...)`.
 
@@ -293,7 +293,7 @@ def cut(a: Path, b_src: Path, b_start: float, b_x: float, dst: Path, *,
 
     `build` frames of A broken up by B's motion at `speed`x, then a
     `heal_frames` heal into clean B while the motion slows to 1x, then clean B.
-    The defaults are the ones the user signed off on the forest-to-circle test.
+    The defaults are the ones the editor signed off on the forest-to-circle test.
     """
     work = dst.parent
     clean = _segment(b_src, work / f"{dst.stem}-clean.mkv", b_start,

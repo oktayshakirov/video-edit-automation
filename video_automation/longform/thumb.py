@@ -346,7 +346,7 @@ def _wrap_balanced(words: list[tuple[str, bool]], d: ImageDraw.ImageDraw,
     # phrase.** Minimum raggedness on its own only knows about slack, so on
     # "Headphones on. Ringing louder?" it happily produced HEADPHONES / ON.
     # RINGING / LOUDER? - even line lengths, and the sentence torn in half
-    # across two of the three rows. The user's note was that this keeps
+    # across two of the three rows. The editor's note was that this keeps
     # happening: "we are separating important parts of the text in new rows".
     # A line that ends where the writing ends reads as one idea per row, so
     # the DP gets a discount for landing there and only overrides it when the
@@ -617,7 +617,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
     dx, dy = drop
     lay = Image.new("L", base.size, 0)
     ld = ImageDraw.Draw(lay)
-    # **The coloured plate casts no shadow** (the user, 2026-10-26). Only the
+    # **The coloured plate casts no shadow** (the editor, 2026-10-26). Only the
     # bare white words get one; a plate is already a solid shape on the
     # picture, and a dark halo under it reads as a sticker.
     light = sum(text) / 3 > 128
@@ -755,7 +755,7 @@ def render_thumb(out: Path, brand: Brand, headline: str,
     #
     # `shift` translates the picture toward the far edge as a fraction of the
     # width and fills what it uncovers with black, blending over `FADE` px so
-    # the join is a falloff rather than a seam. That is the user's own
+    # the join is a falloff rather than a seam. That is the editor's own
     # suggestion and it is the right one: a thumbnail is allowed to be a
     # picture on one side and a plate on the other, and the type gets a real
     # black ground instead of a scrim over detail.
@@ -1268,7 +1268,7 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     on every letter. Reviewed against what large channels actually ship, two
     things were wrong with it: Futura is a light, wide geometric face that goes
     weak at feed size, and a hard stroke around every glyph is the single
-    clearest tell of an amateur thumbnail. The user's words were "the font is
+    clearest tell of an amateur thumbnail. The editor's words were "the font is
     not good and looks very generic" and "our solid color borders make it look
     very unprofessional".
 

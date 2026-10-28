@@ -164,7 +164,7 @@ def main() -> None:
         voice=VOICE, gap=GAPS,
         music=MUSIC, music_gain=0.85,
         # The payoff is a number. Enters when the voice says "the last one"
-        # and lands on "2140" - the user's note was that a counter spinning
+        # and lands on "2140" - the editor's note was that a counter spinning
         # from frame one under the title question took too long.
         opener=Counter("2140", "THE LAST BITCOIN", at_word="2140",
                        enter_word="last"),

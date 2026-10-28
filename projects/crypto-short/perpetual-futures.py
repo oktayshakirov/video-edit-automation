@@ -4,7 +4,7 @@ Source: crypto-wiki/content/posts/what-are-perpetual-futures.mdx, the same
 post as the `perpetual-futures-long` explainer.
 
 **Second pass, after review.** The first cut opened straight on the funding-
-rate mechanism and the user's note was that it read as confusing - a Short
+rate mechanism and the editor's note was that it read as confusing - a Short
 still has to explain what the thing *is* before it can explain how it
 behaves, the same way the long form does, just in fewer words. So this cut
 now spends two sentences saying plainly what a perpetual future is (leverage,
@@ -26,7 +26,7 @@ judged list - neither is right or wrong, they are just the two halves of one
 rule - so `grid` is the correct silhouette, not `checklist`.
 
 **No financial advice line, and that is now the standing rule for every
-Short on this channel, not just this one.** The user's note: shorts don't
+Short on this channel, not just this one.** The editor's note: shorts don't
 carry the disclaimer, only the long-form videos do - a Short has no room to
 earn the line's own weight, and the long form it is paired with already
 carries it. The script still names no price level, no platform, no

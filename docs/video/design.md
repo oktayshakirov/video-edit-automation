@@ -5,7 +5,7 @@ What goes on screen as graphics rather than footage.
 ## Type sits on a blurred shadow, never inside a stroke
 
 **`core.draw.shadow_text` replaced `stroke_width=` on every drawn beat and
-every statement over footage, on both channels.** The user's note on a
+every statement over footage, on both channels.** The editor's note on a
 chapter card was that "the solid border makes it look ugly, use a similar one
 like the thumbnails" - and the thumbnails had already been through this
 exact argument, where an 8px stroke around every glyph was called out as the
@@ -30,7 +30,7 @@ doing real legibility work rather than decoration.
 
 ## Only a hyphen goes on screen
 
-**Never an em or en dash in a spoken line or a caption.** The user's rule, for
+**Never an em or en dash in a spoken line or a caption.** The editor's rule, for
 every video on every channel: write `-`. At caption size a long rule is easy to
 read as a stray mark, and it is a typographic flourish in a place that wants
 plain type. It also survives being pasted into a YouTube description, a TikTok
@@ -110,7 +110,7 @@ bug:**
 
 ## A background's blobs need `sigma` past ~0.6, or they read as separate clouds
 
-**`tinnitus-plum` shipped once at `sigma` 0.26-0.36 per blob and the user's
+**`tinnitus-plum` shipped once at `sigma` 0.26-0.36 per blob and the editor's
 note was "we can see where each color starts and ends".** That is not 8-bit
 banding — the dithering already fixes that — it is the blobs themselves:
 individually wide, but still small enough relative to the frame that each one

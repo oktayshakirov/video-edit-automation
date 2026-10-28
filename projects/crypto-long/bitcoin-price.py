@@ -525,7 +525,7 @@ META = Meta(
 )
 
 
-# The user's picture (2026-10-25): a gold Bitcoin floating over a phone
+# The editor's picture (2026-10-25): a gold Bitcoin floating over a phone
 # showing a chart. The coin already says "Bitcoin", so the headline spends its
 # rows on the question the title asks and the hook opens ("So who did that?").
 COIN = _P(__file__).resolve().parents[2] / "assets/crypto/bitcoin-price/coin-over-chart.jpg"
@@ -535,7 +535,7 @@ HEADLINE = "Who really\nsets the\n[price?]"
 def thumbs(out: Path) -> Path:
     """The picture's own white backdrop is the type's ground, in dark ink, and
     nothing is faded. A first version ramped the backdrop into black and hid
-    half the coin and most of the phone; the user rejected it. Scaled to 1.2x
+    half the coin and most of the phone; the editor rejected it. Scaled to 1.2x
     and anchored left, the coin moves right and stays whole, the phone's
     chart runs along the bottom, and the top-left white holds three rows."""
     from PIL import Image
@@ -581,7 +581,7 @@ def main() -> None:
         # read. Scored clean at -0.07, right/top, and the type sits on genuine
         # black rather than on a scrim.
         #
-        # Replaced 2026-10-25 by the user's coin-over-chart picture and the
+        # Replaced 2026-10-25 by the editor's coin-over-chart picture and the
         # hand-built `thumbs()` below.
         thumb_headline=HEADLINE,
         thumb_image=COIN,

@@ -23,7 +23,7 @@ repeat one video apart, with a different subject.
 
 **Opener: `Stamp`, the long form's own** - RUMOR over "GTA 6 pays you in
 Bitcoin", landing on "rumor" in sentence 2. The first cut ran `Search`; the
-user asked for the long form's opener so the pair reads as one.
+editor asked for the long form's opener so the pair reads as one.
 
 **Cold close**, the long form's middle line made the whole verdict - held to
 the last frame by `outro=` so it loops back into the title question. **No
@@ -182,7 +182,7 @@ def main() -> None:
         SENTENCES, SHOTS, out, work,
         voice=VOICE, gap=GAPS,
         music=MUSIC, music_gain=0.85,
-        # The long form's opener, so the pair reads as a pair (the user's
+        # The long form's opener, so the pair reads as a pair (the editor's
         # call on the first cut). It lands on "rumor" in sentence 2.
         opener=Stamp("GTA 6 pays you in Bitcoin", "RUMOR", at_word="rumor"),
         outro="GTA 6's only crypto is a [joke].")

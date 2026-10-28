@@ -1,10 +1,10 @@
 """Golden Girl / 100 Rejections — stacked vertical quote, two Golden Girl clips.
 
-The user's overheard line, built straight in the approved Sunset Sea Stack
+The editor's overheard line, built straight in the approved Sunset Sea Stack
 layout: two golden-hour drone clips stacked into one 9:16 frame, the quote read
 on the black band between them.
 
-Two set-piece words rather than the usual one, on the user's call: `excited`
+Two set-piece words rather than the usual one, on the editor's call: `excited`
 and `no` both take the 88px size against the 44px body and each get their own
 caption to hold the beat. They are the two turns in the line — the reframe
 (`excited`) and the word it reframes (`no`).

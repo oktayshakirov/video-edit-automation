@@ -353,7 +353,7 @@ def plan_special(shots, lines, total: float, *, short: bool = False,
                  budget: int | None = None) -> list:
     """Put a glitch or a TV-static cut on a few cuts that mean something.
 
-    The user's ask: glitch and TV-noise transitions "used sometimes, not too
+    The editor's ask: glitch and TV-noise transitions "used sometimes, not too
     often". **A special cut is punctuation, and punctuation on every cut is
     noise**, so this picks a handful by what the cut means and leaves every
     other cut the default:

@@ -1,7 +1,7 @@
 """What every Love Swipe pick-a-truth Short shares: its title, its outro,
 and how it renders. A video script is its rounds and its backdrop.
 
-**Titled "Love Swipe", the app's name, on the user's call (2026-10-27).**
+**Titled "Love Swipe", the app's name, on the editor's call (2026-10-27).**
 The card shows the name; "pick a truth" and the instruction to pause are
 spoken only. The same call asked for a batch of six with a different
 background each - the backdrops are `core.backdrop.LOVESWIPE_BACKDROPS` -

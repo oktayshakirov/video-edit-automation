@@ -84,7 +84,7 @@ SENTENCES = [
     ("Why is your tinnitus louder on some days?",),
     # The task. Nothing here answers the title.
     ("Quick check - from zero to ten, how loud is it right now?",),
-    # The reframe inside the first ten seconds (the user's call on the first
+    # The reframe inside the first ten seconds (the editor's call on the first
     # cut), in the article's own words: "your very own stress-o-meter",
     # "this shift in perspective". It names stress at ~7s, a sentence after
     # the task - sentence 2 still keeps the answer back.

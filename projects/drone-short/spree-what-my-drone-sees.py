@@ -14,7 +14,7 @@ Built on `golden-girl-what-my-drone-sees.py`.
 
 ## The loop: four phrases of the track, a cut on every phrase
 
-**The user's brief:** a perfect loop to the sound from a TikTok they supplied,
+**The editor's brief:** a perfect loop to the sound from a TikTok they supplied,
 which breaks the format's silent-always rule on their call. It took four
 versions: 10s, then cuts on the beat's own repeats with one more phrase and
 Buildings 9 filling it (~13.4s), then this order with a silent second on the
@@ -39,7 +39,7 @@ too:
 
 Whole-frame cuts sit within 12ms of the hits, under half a frame.
 
-**The last second is silent, on the user's call, and it is what makes the
+**The last second is silent, on the editor's call, and it is what makes the
 loop.** The music ends at 13.38s on the near-silence before the next phrase's
 hit, and the orbit runs one more second with no sound. The wrap then lands on
 frame one and the phrase hit together: the restart reads as the beat coming
@@ -55,7 +55,7 @@ measured at four points. The sun goes behind it early in the shot.
 
 ## Colour
 
-**The controller is lifted to sit with the drone shots, on the user's call:
+**The controller is lifted to sit with the drone shots, on the editor's call:
 "pop colors a bit more like the second video".** In the tone-mapped check its
 SATAVG was 15 against the hyperlapse's 28. `eq` saturation 1.55 and contrast
 1.06 take it to ~24. At 1.70 (SATAVG 27) the grey controller body starts to
@@ -82,12 +82,12 @@ to be converted, and the direction is what the three renders were about.
 1. **SDR file, HLG tags leaking.** Encoded as 8-bit 709, but segment a carried
    its HLG tags through the filter graph despite the `-color_*` output flags,
    and the concat stamped them on the whole file. Players read the untouched
-   709 hyperlapse as BT.2020 HLG and the user saw it oversaturated.
+   709 hyperlapse as BT.2020 HLG and the editor saw it oversaturated.
 2. **SDR file, tagged right.** `setparams` fixed the tags. The hyperlapse
    looked right, and the controller now looked drained: HLG pixels shown as
    709 with no tone map are flat and grey, which is what "the colours were
    removed" was. There is no `zscale` in this ffmpeg to tone-map it down.
-3. **HLG file (this one), the user's call: keep the HDR.** The controller
+3. **HLG file (this one), the editor's call: keep the HDR.** The controller
    clip stays native HLG and is not touched beyond the scale. The hyperlapse
    is brought *up* into HLG, and that took two tries of its own.
 
@@ -115,7 +115,7 @@ grade. Its only job is to make the converted file look like the source.
 reads as a glare on an HDR screen. BT.2408's 75% looked grey after tone
 mapping, so they go in at 85%.
 
-**Labels sit dead centre, on the user's call**, and are only on the first
+**Labels sit dead centre, on the editor's call**, and are only on the first
 two beats. The orbit runs unlabelled.
 """
 
@@ -170,7 +170,7 @@ HLG_PARAMS = ("setparams=color_primaries=bt2020:color_trc=arib-std-b67:"
 POV_LABEL_SIZE = 42
 DRONE_LABEL_SIZE = 34
 LABEL_LUMA = 0.0                        # white ink, dark halo
-LABEL_Y = 0.50                          # the user's call: centred
+LABEL_Y = 0.50                          # the editor's call: centred
 HLG_WHITE = 0.85                        # labels: below HLG peak, see above
 DRONE_LABEL_OUT = 2.5
 

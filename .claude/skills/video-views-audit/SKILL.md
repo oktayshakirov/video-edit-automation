@@ -35,7 +35,7 @@ metadata change.
 
 **Scope.** YouTube is read *and* write (metadata edits, uploads - see "Editing
 metadata"). **Every other platform is read-only**: never like, comment,
-follow, post, or change a setting. The browser work runs in the user's own
+follow, post, or change a setting. The browser work runs in the editor's own
 logged-in Chrome (`claude-in-chrome`); close every tab opened.
 
 ## Pick the platform by the question
@@ -188,7 +188,7 @@ across platforms give each its own row.
 
 ## Reading a video the way the market reads it (2026-10-25)
 
-From a talk by Jake Trenda (YouTube agency, 100+ channels) the user
+From a talk by Jake Trenda (YouTube agency, 100+ channels) the editor
 reviewed. **External research, a hypothesis until these channels agree** -
 the method is `docs/video/demand/README.md` in video-edit-automation, and
 the demand-led topic picking it drives is experiment E11. What it changes
@@ -252,7 +252,7 @@ satisfaction drops. Check whether the hit's viewers came back - subscribers
 around its publish date, and whether the next uploads took suggested
 traffic from it. GTA 6 on crypto is the open case.
 
-**Site traffic from the videos is parked (the user, 2026-10-27).** Do not
+**Site traffic from the videos is parked (the editor, 2026-10-27).** Do not
 ask for Google Analytics numbers; judge a video on reach, retention and the
 satisfaction signals above.
 
@@ -311,7 +311,7 @@ product, different retention curve.
 "Footage: Pexels (Pexels licence, no attribution required)." and "Music:
 oosongoo, via Pixabay." (and its variants: "Additional footage: Pexels",
 "Music: night-drift", "licensed/generated for this channel") are not required -
-Pexels asks for no attribution and the user cleared the music with its
+Pexels asks for no attribution and the editor cleared the music with its
 producer. Swept from all 56 live crypto and tinnitus videos, longs and Shorts,
 on 2026-10-20; `meta.required_credits` in video-edit-automation filters them at
 build time. Do not add them back. A credit a specific video owes (Commons
@@ -723,7 +723,7 @@ title, description or tags, so this is enforced rather than remembered; `set` do
 not check, so it still relies on you. This applies to everything written to YouTube, including the
 drone title template's separator. It does not apply to this file or to chat prose.
 
-Writing is gated, and these gates exist because the user asked for them:
+Writing is gated, and these gates exist because the editor asked for them:
 
 - **Never write without explicit approval of that exact change.** Show the dry run,
   let the user read the diff, and wait for a clear yes naming the video. A general
@@ -773,7 +773,7 @@ Dry run unless `--apply`, exactly like `set` — it prints the whole plan includ
 full description, and validates against YouTube's limits before a byte is sent.
 
 - **Defaults are `--privacy unlisted` and `--category 27`** (Education). Uploading
-  straight to public is possible but is not what this pipeline does; the user
+  straight to public is possible but is not what this pipeline does; the editor
   publishes from Studio after seeing the video live.
 - **An upload costs 1600 quota units** against a 10,000/day project, so roughly six
   a day, shared with every other call. Do not retry an upload speculatively — check
@@ -815,7 +815,7 @@ assumption.
 | The bio link | Also a constant through the good weeks. |
 | The n8n workflow / Graph API | `publish_reel.json` changed on 08-24, 09-01, 09-22 - nothing at the cutoff. And Meta documents no down-ranking for API-published content; a Hootsuite controlled experiment had scheduled posts *beating* native (8.19% vs 6.44%). |
 | The render itself | The same file, same workflow run, same day, takes **227-274 views on Facebook Reels**. |
-| Manual native posting | **The decisive test.** The user posted three reels by hand, no captions, 2026-09-29. Still 0 after 48 hours. This kills the entire publish-path class of explanation. |
+| Manual native posting | **The decisive test.** The editor posted three reels by hand, no captions, 2026-09-29. Still 0 after 48 hours. This kills the entire publish-path class of explanation. |
 
 **What it actually is.** Instagram's audition system gives each Reel a small
 non-follower test pool and expands only on watch time and sends. The August

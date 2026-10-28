@@ -6,7 +6,7 @@ short is noise.
 
 ## Telegram, on the long form only
 
-**Added 2026-08-23, on the user's instruction.** Both sites' Telegram channels
+**Added 2026-08-23, on the editor's instruction.** Both sites' Telegram channels
 now get a link post for every long-form video - `@thecryptowiki` and
 `@tinnitushelpme`, on the same credentials the article workflows use.
 
@@ -35,11 +35,11 @@ Its form fields are `title, hook, youtubeUrl` at
 `/form/share-video-telegram-{crypto,tinnitus}`.
 
 **Prefer the standalone, and do not wait for the video to be public.** The
-user's instruction, 2026-09-26: "no need to wait for me to make it public, it
+editor's instruction, 2026-09-26: "no need to wait for me to make it public, it
 can be shared always unlisted". An unlisted video plays for anyone with the
 link, and `i.ytimg.com/vi/<id>/maxresdefault.jpg` serves for one too (verified
 200, 102 KB on `9RsZalv6zC8`), so the photo card renders normally. Holding the
-announcement bought nothing but a step left hanging on the user. **This
+announcement bought nothing but a step left hanging on the editor. **This
 replaces the advice that used to sit here**, which called holding it back until
 Studio said Public "the case worth planning for".
 

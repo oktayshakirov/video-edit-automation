@@ -137,7 +137,7 @@ SENTENCES = [
     # opens the bigger question (so what did he build, and why did it fail?)
     # rather than handing over the verdict.
     # `Finney` phonemizes to `fˈɪni` - correct on paper and wrong in the
-    # mouth. `Finnee` returns `fˈɪniː`, the user's pick off a synthesised
+    # mouth. `Finnee` returns `fˈɪniː`, the editor's pick off a synthesised
     # A/B. Spoken half only: the caption and the burned karaoke line still
     # read "Hal Finney", and the hook keys on "Hal" either way.
     (("Hal Finney.", "Hal Finnee."),
@@ -256,7 +256,7 @@ def main() -> None:
         # The hidden token is a duration, which passes the cover-the-bar test:
         # the sentence's own grammar does not hand it to you. Sentence 2 says
         # it five words in.
-        # **The redaction is his name** (the user's call, 2026-10-02). A name
+        # **The redaction is his name** (the editor's call, 2026-10-02). A name
         # passes `shorts.md`'s cover-the-bar test outright: "the first bitcoin
         # ever sent went to ___" cannot be filled in from the sentence's own
         # grammar. `hook_reveal_time` keys on the first bracketed word, "Hal",

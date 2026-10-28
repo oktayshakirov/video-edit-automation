@@ -106,7 +106,7 @@ ENDCARD = V / "subscribe/4928934.mp4"
 PROFILE_PHOTO = (STOCK / "photos/man-face-profile-side-view-dark-black-background-landscape"
                  / "7248190.jpg")
 
-# One source for both aspects. **The user picked this file by URL** after the
+# One source for both aspects. **The editor picked this file by URL** after the
 # first cut, replacing a near-black portrait: a jaw and cheek in three-quarter
 # profile, filling the frame. It is far brighter than this channel's usual
 # thumbnail source (L124/S27 against L20), which is a deliberate break - the

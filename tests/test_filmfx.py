@@ -1,6 +1,6 @@
 """The film surface's arrangement (`core/filmfx.py`).
 
-The user's rules: a couple of clean clips per video, some with one layer only,
+The editor's rules: a couple of clean clips per video, some with one layer only,
 not everything everywhere - and no texture on drawn data beats.
 """
 

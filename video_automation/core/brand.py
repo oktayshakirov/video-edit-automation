@@ -131,7 +131,7 @@ CRYPTO = Brand(
     negative=(196, 84, 84),
     strike=(230, 96, 96),
     grid=(40, 38, 26),
-    # **Black water, not the gold grid.** The user's call, and it is the better
+    # **Black water, not the gold grid.** The editor's call, and it is the better
     # ground: gold type on a near-black surface with slow specular movement
     # reads as depth, where ruled lines read as a template. Ping-ponged from
     # the calm-water stock so the loop has no seam.
@@ -163,7 +163,7 @@ TINNITUS = Brand(
     # picture.** A photograph that fits the frame has to clear the lockup's
     # whole height, so a 159px mark pushed the top hairline to y=272 in a 1080
     # frame: a quarter of the video was empty, the photo was scaled down to fit
-    # what was left, and the user's note on the shipped gaming cut was exactly
+    # what was left, and the editor's note on the shipped gaming cut was exactly
     # that. At 0.42 the lockup is 113x110 and the same shot starts at y=220 and
     # renders larger, because the band it is scaled into is bigger.
     #

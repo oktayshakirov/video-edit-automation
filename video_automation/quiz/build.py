@@ -47,7 +47,7 @@ from ..crypto.shots import Shot
 from .cards import LETTERS, QuizShot
 
 # The default wait. Started at eight seconds and came down to six on the
-# user's call (2026-09-08) once the format had shipped and the eight-second
+# editor's call (2026-09-08) once the format had shipped and the eight-second
 # version had actually been watched — still long enough on a phone that the
 # viewer either answers or leaves, which is the trade the format is making.
 COUNTDOWN = 6.0
@@ -369,7 +369,7 @@ def render_quiz_short(questions: list[Question], outro: tuple,
 
     `title` opens the video — the series card, a full-frame `chapter` beat:
     "Tinnitus Quiz: Myths Edition" and so on. **No number by default, on the
-    user's call (2026-09-08).** The format tried a large numeral above the
+    editor's call (2026-09-08).** The format tried a large numeral above the
     title for exactly one video — `title_number`, `ChapterCard`'s own field
     for "a script that is genuinely counting something the narration also
     counts out loud" — before it was dropped; the parameter still works if a
@@ -380,14 +380,14 @@ def render_quiz_short(questions: list[Question], outro: tuple,
 
     `intro` is optional and off by default. The first video carried a second
     card between the title and the first question, stating the stake ("Three
-    tinnitus myths. Most people believe at least one.") — the user cut it as
+    tinnitus myths. Most people believe at least one.") — the editor cut it as
     redundant with the title (2026-09-08). Pass it to bring a stake-setting
     card back for a quiz where the title alone does not carry enough context.
 
     `outro` is required and always renders, unlike `intro`.
 
     **The outro just asks the question** — "How many did you get?" and stop.
-    It used to add "Tell me in the comments", and the user cut it: a quiz that
+    It used to add "Tell me in the comments", and the editor cut it: a quiz that
     has just scored the viewer generates comments on its own, and spelling the
     ask out loud is the one line in the format that sounds like a channel
     asking for engagement rather than a quiz ending.
@@ -396,7 +396,7 @@ def render_quiz_short(questions: list[Question], outro: tuple,
     the male article reader for both channels. An earlier build read the quiz
     in a second, reserved-for-this-format voice, on the reasoning that a
     distinct reader is what stops a quiz sounding like the explainers with a
-    gimmick. That reasoning lost to the user's ear: the cut was rejected as
+    gimmick. That reasoning lost to the editor's ear: the cut was rejected as
     weird and glitchy (2026-09-07), the alternate profile was retired from the
     roster, and the format has read in `otis` since. Sounding like the channel
     beats sounding distinct from it.

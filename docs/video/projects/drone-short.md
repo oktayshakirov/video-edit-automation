@@ -42,7 +42,7 @@ is TikTok's *strongest* material rather than off-audience, and plain scenery
 beats angle-driven quote videos on engagement — the reverse of YouTube.
 
 Like-for-like on TikTok, same weeks: scenery posts run ~2–5% likes, narrated
-quote shorts ~0.4–0.9%. The user has seen this and chose to keep posting quotes
+quote shorts ~0.4–0.9%. The editor has seen this and chose to keep posting quotes
 to both, because one asset for two platforms is worth more than the delta.
 **Do not re-litigate that; do not quote YouTube numbers as if they cover TikTok.**
 
@@ -129,7 +129,7 @@ landscape. Nothing is upscaled at that value — 1490 lines going into a 910-lin
 tile — so it costs no sharpness.
 
 **The band is 100px, down from the 140 Sunset Sea Stack approved.** Trimmed on
-Golden Girl / 100 Rejections — the user asked for a shorter strip twice and
+Golden Girl / 100 Rejections — the editor asked for a shorter strip twice and
 then to make it the default. Karaoke words and an 88px set-piece word still
 clear the tile edges at 100; go tighter only if a specific cut needs it. Keep
 any override a multiple of 4 (`1920 - band` must divide by 4) or both tiles
@@ -140,7 +140,7 @@ retention on an instruction. Cropping and stacking both perform; friction does n
 
 **Tested once as a closing tag and dropped.** The first Burgas POV cut argued
 the rule only bites in the *opening* second and ran a keyed rotate-phone
-animation at the end, as a pointer to a landscape version. The user's verdict on
+animation at the end, as a pointer to a landscape version. The editor's verdict on
 seeing it was to cut it, so the rule stands whole rather than gaining an
 exception. Two things are worth keeping from the attempt if it ever comes back:
 key a black-background graphic with `lumakey=0.04:0.16:0`, which holds the glyph
@@ -159,7 +159,7 @@ from video_automation.core.voiceover import (render_narrated, render_narrated_cu
 **Given two clips for a narrated quote, stack them by default** — see
 *One clip vs. two stacked* below. Cut sequentially only when the user says so.
 
-**Given one clip, use `render_narrated` — no black band** (user's call,
+**Given one clip, use `render_narrated` — no black band** (editor's call,
 2026-10-24, on Ready Is a Decision, which stacked the same clip twice to get
 the band). One clip fills the 9:16 frame and the captions sit on the footage.
 That layout has its own type rules, all defaults of `render_narrated` now:
@@ -169,7 +169,7 @@ That layout has its own type rules, all defaults of `render_narrated` now:
   White ink, black stroke 4, the spoken word lit in the auto accent
 - **Karaoke on**, same per-word highlight as the stack (`karaoke=True`,
   `accent="auto"`)
-- **`y_frac=0.50`**, centre, per the user's standing preference
+- **`y_frac=0.50`**, centre, per the editor's standing preference
 - **Sentence case** — see *Text* below; applies to every drone quote
 
 The stack keeps the Iowan italic: the band is what lets a light serif survive
@@ -301,7 +301,7 @@ The synthesis engine behind all of this - backends, style-tensor mixing, what Ko
 
 **`render_narrated_stack` now does the same per-word highlight the crypto and
 tinnitus shorts do** — the whole phrase holds on the black band and the word
-being spoken is lit and lifted a touch (`grow=1.08`). Asked for by the user on
+being spoken is lit and lifted a touch (`grow=1.08`). Asked for by the editor on
 the Berlin map/way-home stack, same instinct as the other channels: give the
 eye something to track on the type. `karaoke=True` is the default; pass
 `karaoke=False` for a specific cut to go back to one still PNG per caption.
@@ -328,7 +328,7 @@ wire the same way if a sequential cut ever needs it.
 
 ## A second karaoke style: a coloured box behind the word, not a coloured word
 
-**Ink is the drone default again** (user's call, 2026-10-15, on You Are the
+**Ink is the drone default again** (editor's call, 2026-10-15, on You Are the
 Problem: "use the other karaoke font effect, it should be default").
 `render_narrated_stack` now defaults `karaoke_box` and `karaoke_upper` off, so
 an unset call gets the Iowan italic, mixed case, the spoken word tinted. The
@@ -337,7 +337,7 @@ approved while box was the default re-renders unchanged. This is the drone
 stack only; the crypto and tinnitus builders keep their own box default.
 The paragraphs below are the history of how the box got here.
 
-**Now the default on every short, all channels** (user's call, 2026-09-21,
+**Now the default on every short, all channels** (editor's call, 2026-09-21,
 on Medicine or Poison). `render_narrated_stack` defaults `karaoke_box` and
 `karaoke_upper` on, and with `font_path`/`stroke` left unset picks Arial Black
 at stroke 5 (Iowan italic at 4 when the box is off). Earlier scripts pin the
@@ -345,7 +345,7 @@ flags False so locked cuts re-render unchanged. See `shorts.md`.
 
 **Both styles stay live — this is a per-cut choice, not a migration**
 (settled 2026-09-27). The box is the default because it suits most cuts, but
-the user's standing note is that a deep or melancholic quote often reads better
+the editor's standing note is that a deep or melancholic quote often reads better
 in the older treatment: the Iowan Old Style italic, mixed case, the spoken word
 tinted rather than boxed. A pill in a saturated accent is loud, and loud fights
 a quiet line. So on a reflective quote, reach for:
@@ -373,7 +373,7 @@ which carries the shared mechanics (why the box sits on a separate layer,
 the font/case pairing) so it is not repeated here.
 
 **Shipped once with the pill overlapping its neighbours** — "STAND" on this
-same cut, caught by the user from a frame grab, not from anything a still-PNG
+same cut, caught by the editor from a frame grab, not from anything a still-PNG
 review would flag on its own. Two compounding causes, both in
 `render_caption_karaoke`: every word's own `d.text` already draws a
 `stroke`-px halo past its plain advance on both sides, so the genuinely blank
@@ -395,7 +395,7 @@ have overflowed exactly the same way. `shorts.md` has the full note on why
 crypto/tinnitus leave this off.
 
 **`hold_last_caption` and `fade_out` are a one-off pair, not a new default.**
-The user wanted their own sound dropped in after "I believe in you," with
+The editor wanted their own sound dropped in after "I believe in you," with
 that line held (unhighlighted, not cleared per the usual `caption_window`
 behaviour) while the picture fades to black — the opposite of this doc's own
 "no fade to black, a short should end on picture." Both default off;
@@ -403,7 +403,7 @@ behaviour) while the picture fades to black — the opposite of this doc's own
 
 **The boomerang fix for a clip shorter than the narration.** The first cut of
 this same short used a ~2.8x `slow` factor to stretch a 7s clip to a ~14-16s
-read, and the user's verdict was that it read as laggy. The fix was not a
+read, and the editor's verdict was that it read as laggy. The fix was not a
 smaller `slow` — it was no `slow` at all: play the clip forward at native
 speed, then the same span reversed, also at native speed (`_build_boomerang`
 in the project script, one ffmpeg call — `trim` twice off the same input,
@@ -423,7 +423,7 @@ the crypto and tinnitus shorts got it at the same time.
 
 ## The punchline word gets a motion that matches the line
 
-**The user's standing ask (2026-10-15, You Are the Problem):** when a quote has
+**The editor's standing ask (2026-10-15, You Are the Problem):** when a quote has
 a set-piece punchline word, give it an effect that fits the vibe.
 `render_narrated_stack(..., effect=lambda c: "shake" if c == BIG else None)`;
 names live in `CAPTION_EFFECTS` in `voiceover.py`. Only a single-PNG caption
@@ -464,7 +464,7 @@ on Sunset Sea Stack
   `render_narrated_cuts` and `render_narrated_stack` all default `font_path`
   to `FONT_QUOTE`/`FONT_QUOTE_INDEX` from `video_automation.core.vertical`.
   Chosen over Futura on the Sunset Sea Stack cut and kept as the standing
-  default by the user's own call, on one clip or stacked — this **supersedes**
+  default by the editor's own call, on one clip or stacked — this **supersedes**
   the earlier "serifs and a stroke do not mix" finding below, which was true of
   Futura-vs-serif on that specific City 1 frame but was never re-tested once a
   flat band existed. Also tested against Gill Sans SemiBold, Seravek Medium,
@@ -480,7 +480,7 @@ on Sunset Sea Stack
   where the horizon sits low; 0.34 on City 1, to clear the sun and skyline and
   put the type in open sky. Sample the crop and place the block in the emptiest
   band above the bottom UI — dead centre is a default, not a rule.
-  **But the user's stated preference is centre**: 0.64 on Sunset Sea 2 was
+  **But the editor's stated preference is centre**: 0.64 on Sunset Sea 2 was
   rejected as "lower half", and 0.50 approved in its place. Treat the emptiest
   band as the tie-breaker among centre-ish values, not a licence to drop low
 - **White ink, solid black border.** Not the halo: captions move, so the type
@@ -503,7 +503,7 @@ on Sunset Sea Stack
   caption — a set-piece word does not want punctuation hanging off it — but keep
   it in the spoken half so the engine still takes the breath. Usually one per
   script, on the same turn that would otherwise get its own small caption —
-  Golden Girl / 100 Rejections ran **two** (`excited` and `no`) on the user's
+  Golden Girl / 100 Rejections ran **two** (`excited` and `no`) on the editor's
   call, because the line has two turns: the reframe and the word it reframes.
   Two is the ceiling and needs a reason; the closing `”` may stay on the second
   one (`no”`) since a quote delimiter is not punctuation hanging off
@@ -513,7 +513,7 @@ never a single orphan; that is the usual tell that a card was generated.
 
 Copy style: conversational, six to twelve words.
 
-**Sentence case on screen** (user's call, 2026-10-24, for every future drone
+**Sentence case on screen** (editor's call, 2026-10-24, for every future drone
 quote): each sentence opens with a capital, and `I` is capitalised, the rest
 lowercase. "And for my next trick," / "I'm going to set a goal,". This
 replaces the old all-lowercase captions. It is the caption half only; the
@@ -521,7 +521,7 @@ spoken half can stay lowercase, Kokoro does not care. A set-piece word in caps
 (STUPID) is still an emphasis choice, not a case rule. Payoff in the second
 half so the eye has to finish — that is what drives the rewatch.
 
-**Open a narrated quote with "i read a quote that said".** Approved by the user
+**Open a narrated quote with "i read a quote that said".** Approved by the editor
 on City 1. It does more than add warmth: it promises a payoff, so the first
 second buys the next nineteen, and it frames the line as something overheard
 rather than something the channel is preaching.
@@ -566,7 +566,7 @@ before reaching for `render_narrated_cuts`.**
 
 **Caption the kicker.** `("this is not about the sky, btw", "this is not about
 the sky, by the way.")` — screen keeps the abbreviation, the engine gets the
-words. The user asked for this on Sunset Sea Stack, and it reverses the earlier
+words. The editor asked for this on Sunset Sea Stack, and it reverses the earlier
 rule: the kicker used to be an empty caption (`("", "...")`), voice only, so the
 frame cleared and the line landed on the ear alone. It reads better on screen —
 a muted viewer gets the payoff too, and on a looping short the last frame is
@@ -613,7 +613,7 @@ for after. The cut lands because the first thing it hands over is the thing it
 already promised; anything the viewer has not been shown works better second.
 
 **Silent, always, and with no audio track at all.** `-an`, not a silent track —
-TikTok then treats a trending sound as the only audio, and the user lays their
+TikTok then treats a trending sound as the only audio, and the editor lays their
 own music under the YouTube copy by hand. There is no narration in this format
 and adding one would spend the trending-sound lever on an AI voice reading two
 labels.
@@ -699,7 +699,7 @@ show each frame twice and judder no more than the source.
 
 ## Grade from the measurement, not from the look
 
-**Raw drone footage off this aircraft ships flat, and the user notices.** The
+**Raw drone footage off this aircraft ships flat, and the editor notices.** The
 verdict on the first Vienna cut was "very faded, not sure if its missing
 shadows or is underexposed". Half right, and the half that was wrong would have
 made it worse: `signalstats` said both clips averaged *brighter* than mid
@@ -729,7 +729,7 @@ is about to throw away.
 
 **A night shot may want no grade at all, and SATAVG will not tell you.** The
 rule above is daylight's. On Golden Girl's night hyperlapse SATAVG read 21.6 —
-inside the band that says lift it — and the user's verdict on a 1.30 lift was
+inside the band that says lift it — and the editor's verdict on a 1.30 lift was
 that it oversaturated. The reading is an average over a frame that is mostly
 dark sky, so it understates what the lit parts already carry, and the colour
 in a night frame is concentrated in a few objects rather than spread: lifting

@@ -21,7 +21,7 @@ def test_search_types_on_the_shared_schedule():
 
 
 def test_a_query_that_asks_gets_its_question_mark():
-    """The user's note (2026-10-27): the bar typed questions with no mark."""
+    """The editor's note (2026-10-27): the bar typed questions with no mark."""
     from video_automation.longform.openers import Search
     assert Search.as_question("how to manage a tinnitus spike") == \
         "how to manage a tinnitus spike?"

@@ -1,6 +1,6 @@
 """Where glitch and TV-static cuts go (`transitions.plan_special`).
 
-The user's rule: used sometimes, not too often - and on cuts that mean
+The editor's rule: used sometimes, not too often - and on cuts that mean
 something.
 """
 

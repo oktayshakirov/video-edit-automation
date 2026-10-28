@@ -1,11 +1,11 @@
 """Quiet place-sound under footage: a city, rain, an office, a server room.
 
 The film surface gave the picture texture; this does it for the sound
-(2026-10-23, the user's pick after an A/B). A footage shot of a place gets a
+(2026-10-23, the editor's pick after an A/B). A footage shot of a place gets a
 quiet bed of that place, crossfaded at the cuts; drawn beats get nothing, so
 a chart still sits in clean air.
 
-**Restraint is the rule** - the user's words were "make sure we don't
+**Restraint is the rule** - the editor's words were "make sure we don't
 overdo it, only if it helps the delivery of the script". So a bed plays only
 when all of these hold, and otherwise the shot is left as it was:
 
@@ -32,7 +32,7 @@ import numpy as np
 
 SR = 48000
 LEVEL_DB = -22.8        # under the finished mix's RMS. The approved A/B mixed
-                        # at -22.0; the user asked for 5-10% quieter, and
+                        # at -22.0; the editor asked for 5-10% quieter, and
                         # -0.8dB is 9% in amplitude.
 MIN_RUN = 3.0           # seconds a place has to stay on screen to get a bed
 XF = 0.6                # crossfade at each end of a bed

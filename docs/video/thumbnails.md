@@ -5,8 +5,8 @@ from one article they share a source image.
 
 ## The current format, in one place (settled 2026-10-26)
 
-Thirteen covers were re-done across both channels in one session and every
-one the user kept followed these. The dated sections further down say why;
+Thirteen covers were re-done across both channels in one pass and every
+one the editor kept followed these. The dated sections further down say why;
 read them when a cover fights back.
 
 1. **The subject stays whole and is never faded.** No black ramp, no `shift`
@@ -28,7 +28,7 @@ read them when a cover fights back.
    **On a busy light ground under dark type, blur the type's side**
    (2026-10-27, the spike cover): Gaussian ~22 with a 15% lift toward white
    over the type area, smoothstepped back to sharp before the subject. The
-   first cover set black rows straight on a bookshelf and the user found it
+   first cover set black rows straight on a bookshelf and the editor found it
    hard to read; the blur keeps the room's colour and only takes its detail.
    On a Short whose rows sit on a `bleed_portrait` blur of a light room,
    dark ink was still hard to read: use white rows and shade the blur by
@@ -56,7 +56,7 @@ watermark** — the first two are searched and the third was removed.
 
 ## The landscape headline fills the empty half vertically — many big rows, not two small ones
 
-**The user's rule, from the Ruja pair, against a reference set (The Code
+**The editor's rule, from the Ruja pair, against a reference set (The Code
 Report's "WHERE / DID THE / MONEY / COME / FROM?").** A headline sitting small
 in one or two lines with dead space around it looks amateur; the type should
 grow until it fills the empty half top to bottom, wrapping to four or five
@@ -130,7 +130,7 @@ headline and change only the layout.
 
 ### A row is a phrase - never split one idea across two rows
 
-**The user's standing note, and they flagged it as a repeat offence: "often
+**The editor's standing note, and they flagged it as a repeat offence: "often
 we make this mistake ... we are separating important parts of the text in new
 rows".** `Headphones on. Ringing louder?` shipped as HEADPHONES / ON. RINGING
 / LOUDER? - three tidy, evenly-ragged rows with both sentences torn in half.
@@ -156,7 +156,7 @@ Two things now push against it, and the first usually suffices:
 outcome**, which on a two-sentence headline is always.
 
 **Reach for it for phrase integrity too, not only for two sentences**
-(2026-09-20). The user's standing complaint is that the fitter "tries to use
+(2026-09-20). The editor's standing complaint is that the fitter "tries to use
 the whole row for the whole sentence" and tears phrases apart - their own
 example: `NEW TINNITUS.` / `WHAT DO YOU` / `DO FIRST` is right and `NEW` /
 `TINNITUS` / `WHAT DO YOU` / `DO FIRST` is wrong. The phrase-end discount in
@@ -178,7 +178,7 @@ whenever the note is "make the type bigger". Two knock-on effects:
 
 ### Check three things on every thumbnail before shipping it
 
-The user's standing list, from reviewing the crypto-exchanges pair:
+The editor's standing list, from reviewing the crypto-exchanges pair:
 
 1. **The subject fits.** Half a face against the frame edge is not a promise
    about who the video is about. `_layout` now penalises a face the crop cuts —
@@ -270,7 +270,7 @@ looks like the default being ignored.
    `band="top"` because the Shorts player puts its chrome along the bottom, and
    that default is wrong the moment the subject's head is in the top half of the
    crop — which is most crops of a landscape source. Pass `band="bottom"` and
-   look at the render. The user has now caught this twice.
+   look at the render. This has been caught on review twice.
 2. **The subject fits.** No half faces at the frame edge.
 3. **The words are the script's words.** "Your crypto", not "your coins".
 
@@ -284,7 +284,7 @@ pairing and the angle are independent questions.
 was written against a thumbnail that *answered* its own title ("Not the
 earbuds. The volume."), leaving no reason to watch - and that part still
 holds. But the silence pair shipped with "Silence is not neutral" to satisfy
-it, and the user's verdict was that it is "kinda boring", while "does silence
+it, and the editor's verdict was that it is "kinda boring", while "does silence
 make tinnitus worse" makes the viewer curious.
 
 They are right, and the distinction is clean: **asking the question is not
@@ -298,7 +298,7 @@ What survives of the old rule: **never put the answer on the thumbnail.**
 
 ## If the video has no person in it, the thumbnail has no person in it
 
-**The user's rejection of the `fear-greed-index` thumbnail, in their words:
+**The editor's rejection of the `fear-greed-index` thumbnail, in their words:
 "just some black guy which is also super irrelevant."** Both halves of that
 are right and they are separate faults.
 
@@ -363,7 +363,7 @@ a market being read.
 
 ## The landscape thumbnail shows the same whole face the vertical one does
 
-**The user's standing rule, and it is now a check on every pair.** The
+**The editor's standing rule, and it is now a check on every pair.** The
 silence cut's long thumbnail was called "zoomed in too much on the woman" -
 and it was not a bad `ay`, it was arithmetic. Her head spans 1036px of the
 scaled source against a **720px window**, so no crop of that source could
@@ -393,7 +393,7 @@ Short's cover. That reasoning was correct as a fact about YouTube, but wrong as
 a reason to make it a **build** output: it is a platform quirk to solve at
 publish time, in Studio, by hand or however `/publish-video` solves it - not a
 second file this doc hands over unasked. Producing it by default meant every
-short generated a thumbnail the user had not asked for and did not want.
+short generated a thumbnail the editor had not asked for and did not want.
 
 Check it the same way any thumbnail is checked: the subject fits, the type is
 not over a face, and the words are the script's own words.
@@ -424,7 +424,7 @@ it. Fetch the Short's picture with `orientation=portrait`.
 ## Fit the subject and fill the gap. Never zoom to make it fill the frame.
 
 **The proof-of-stake thumbnail shipped with one graphics card zoomed into and
-the second cut in half, and the user's words were "too zoomed in and the
+the second cut in half, and the editor's words were "too zoomed in and the
 quality is terrible".** The source was 6750x4500, so nothing was upscaled - the
 softness was the *crop*, not the resolution. A hard zoom into a wide subject
 throws away the composition and leaves the eye nothing whole to land on, and at
@@ -449,7 +449,7 @@ space filled deliberately.** Two mechanisms, and both already existed:
 - **And this is not a hypothetical - it shipped.** The noise-canceling
   Short's cover was built with `zoom=0.78`, reasoning by analogy from
   `render_thumb`'s `crop_zoom` (where under-1.0 is a real fit mode): the
-  result was black bars top and bottom, which the user caught. `zoom=1.0` is
+  result was black bars top and bottom, which the editor caught. `zoom=1.0` is
   the straight cover crop; go *above* 1.0 for more slack to place the
   subject with `ax`/`at`, never below.
 
@@ -536,7 +536,7 @@ everywhere else in this pipeline.
 
 `render_short_thumb`'s `band="bottom"` margin is `int(VH * 0.16) + 20`. At the
 bare 0.16 the last line of type ran straight through the play count YouTube
-draws across the bottom of a Short's grid tile, and the user was opening the
+draws across the bottom of a Short's grid tile, and the editor was opening the
 artwork and lifting it by hand before every upload. **It is composed against a
 platform overlay that is not in the file**, so a bottom-banded thumbnail that
 looks marginally high in isolation is correct. `band="top"` is unchanged.
@@ -544,7 +544,7 @@ looks marginally high in isolation is correct. `band="top"` is unchanged.
 ## The landscape thumbnail must resample with `INTER_AREA`, not `INTER_LANCZOS4`
 
 **The caffeine pair shipped with a visibly grainy face on the 16:9 thumbnail
-and a clean one on the 9:16 - from the same 7952px source photo.** The user's
+and a clean one on the 9:16 - from the same 7952px source photo.** The editor's
 note: "the person in the short thumbnail is very good quality but in the long
 is noisy". It is not the source, the crop or the JPEG quality (both save at
 92).
@@ -590,7 +590,7 @@ inter-word `space` the size search settles on is routinely *smaller than two
 pads* — so an accent run with a plain word in front of it drew its left edge
 within a couple of pixels of that word's last glyph. `IS NOT A [PERSON]`
 shipped with the `A` apparently welded to the yellow box, which is what the
-user saw.
+editor saw.
 
 `_headline` now clamps each side of a plate to whatever leaves a real run of
 background (`min_gap = max(10, size * 0.09)`), and **only where there is a
@@ -644,7 +644,7 @@ origin in that asset folder's `CREDITS.md`.
 
 ## A real subject's key art is the thumbnail, headline two rows on the left (2026-10-20)
 
-On the GTA 6 pair the user supplied the game's own key art (Rockstar's
+On the GTA 6 pair the editor supplied the game's own key art (Rockstar's
 Jason and Lucia) and it replaced the stock palm avenue on both covers - the
 rule in `footage.md`, "When the subject is a real thing", applied to the
 frame that sells the click. Two layout notes from it:
@@ -655,7 +655,7 @@ frame that sells the click. Two layout notes from it:
   the subject (`0.15-0.84` of the width there), set it against the right
   edge, and blend its left edge into black over a 300px ramp; the headline
   goes in the black, `band="middle"`, forced rows. Two wide rows (560px
-  column) crossed into the art; the user's pick was **four short rows in a
+  column) crossed into the art; the editor's pick was **four short rows in a
   ~400px column** (`"Will\nGTA\u00a06\nhave\n[crypto?]"`), which leaves the
   art alone. The plate may cross an arm, never a face.
 - **The Short uses the owner's portrait cut of the same art** when one
@@ -665,7 +665,7 @@ frame that sells the click. Two layout notes from it:
 ## A cute animal beats the object it stands for (2026-10-22)
 
 The meme coins pair first shipped a physical Dogecoin on black - on-palette,
-real, sharp, and the user's verdict was "boring and not clickbaiting
+real, sharp, and the editor's verdict was "boring and not clickbaiting
 enough". The coin is the *noun*; the Shiba Inu is what the viewer feels
 about the noun. A grinning Shiba Inu, tongue out, on a dark background
 (Pexels 16730750) replaced it on both covers. When the subject has a face
@@ -701,7 +701,7 @@ same crop: only the styling differs between A and B.
 ## A person in the scene beats the object, on an abstract topic too (2026-10-24)
 
 `crypto-when-you-die` first shipped its covers on a safe's dial and keypad -
-dark, on-palette, and the literal noun. The user replaced both with a man in
+dark, on-palette, and the literal noun. The editor replaced both with a man in
 a trench coat standing at a grave (Pexels 10499499): the moment the topic is
 about, not the thing that stores it. Same lesson as the Shiba Inu, from a
 topic with no mascot: pick the picture of the situation the viewer pictures,
@@ -724,7 +724,7 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
   rule, `IS NOT A` / `PERSON`); a two-word plate row (`[crypto scam]`) is
   the longest row and caps the size, so it set small.
 - **Use the picture's own empty space before laying a black ramp over it**
-  (the user, same day). The first coin cover cropped the picture against the
+  (the editor, same day). The first coin cover cropped the picture against the
   right edge and ramped its white backdrop into black, which hid half the
   coin and most of the phone. The fix: scale 1.2x anchored left so the coin
   moves right and stays whole, and set the headline on the white in dark
@@ -779,7 +779,7 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
   right of "MINING OR STAKING?". Check the subject's far edge still fits.
 - **Dark ink only on a flat light ground (studio white), never on a busy
   bright one.** Proof of stake first set dark rows on the yellow circuit
-  board and the user found them hard to read. The fix: white rows, with only
+  board and the editor found them hard to read. The fix: white rows, with only
   the *empty* board behind them shaded (a horizontal mask, 70% black easing
   to 0 over 220px before the padlock), and on the Short the blur fill dimmed
   to `dim=0.45`. The subject is never darkened.
@@ -791,7 +791,7 @@ writes a second 1280x720 file (a Short's cover is one vertical file).
 - **Text under a centred subject is centred, with a real gap above it**
   (`_headline(..., align="center")`, new). The miners-AI cover first set
   two left-aligned rows at the plain cover crop and they ran into the palms;
-  the user flagged it. Lifting the picture 120px and continuing its own
+  the editor flagged it. Lifting the picture 120px and continuing its own
   smooth bottom edge underneath gave the rows clear ground. Lift only when
   the top has spare room - at 220px the card's frame hit the top edge.
 
@@ -834,7 +834,7 @@ what the audience wants from the subject.
 
 ### A photo instead of a drawn dial (stress, 2026-10-27)
 
-The user replaced the stress-meter dial cover with a photo of a stressed
+The editor replaced the stress-meter dial cover with a photo of a stressed
 woman at a laptop (Pexels 4226218) - the person-in-the-situation rule again.
 Two notes: **sliding her right to widen the white wall pushed the laptop out
 of frame**, so the plain cover crop with five short rows won; and **on the

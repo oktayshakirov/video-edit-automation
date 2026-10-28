@@ -19,7 +19,7 @@ behind every beat of every video on both sites.
 `core/backdrop.py` replaces it with a looping asset per brand, named by
 `Brand.backdrop` and living in `assets/brand/backgrounds/`. **thecrypto.wiki is
 `crypto-blackwater`** — black water, ping-ponged from the calm-water stock,
-dimmed and desaturated. The user's call, and it is the better ground: gold type
+dimmed and desaturated. The editor's call, and it is the better ground: gold type
 on a near-black surface with slow specular movement reads as depth where ruled
 lines read as a template.
 
@@ -43,7 +43,7 @@ Over a photograph the backdrop still drifts instead; that path is unchanged.
 
 **A ping-pong background must not fold at frame zero, and must not repeat a
 frame at either fold.** Both were true of the first `crypto-blackwater` and
-together they are what the user saw as "the animation starts rewound and sorts
+together they are what the editor saw as "the animation starts rewound and sorts
 itself out in the first second". A palindrome turns around at frame 0 and again
 at its midpoint; a naive forward-plus-reverse also *repeats* the frame at each
 turn, and a repeated frame is a dead frame — motion stops. Measured on the old
@@ -89,7 +89,7 @@ espeak-ng -v en-us -q --ipa "Binance"
 ```
 
 `Binance` comes back `baɪnˈæns` — bye-NANCE, stress on the second syllable —
-which is what shipped and what the user caught. `Bynanse` comes back
+which is what shipped and what the editor caught. `Bynanse` comes back
 `bˈaɪnæns`, which is the brand's own BY-nance. Put the respelling in the
 **spoken** half of a `(caption, spoken)` pair so the screen still reads
 correctly. Same trick for `USD` (`jˌuːˌɛsdˈiː`, the three letters, which is what
@@ -130,7 +130,7 @@ starts says nothing about where it ends.
 ## The karaoke lag, and why it was invisible in testing
 
 **The first myths short shipped with every word lighting up late**, and the
-user could see it as a real lag rather than a rounding error. The bug was in
+editor could see it as a real lag rather than a rounding error. The bug was in
 the one place a still-frame check of `render_caption_karaoke` could never
 have caught it: `_karaoke_sprites` computed "where the voice stops inside
 this caption" by looking for the next caption's `start` — but

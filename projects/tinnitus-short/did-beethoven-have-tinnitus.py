@@ -3,7 +3,7 @@
 Source: tinnitus-blog/content/posts/did-beethoven-have-tinnitus.mdx, the same
 post as the `did-beethoven-have-tinnitus` long form.
 
-**Opener: the long form's `Search`** - the user's call on the first cut
+**Opener: the long form's `Search`** - the editor's call on the first cut
 (2026-10-24), so the pair opens identically (`shorts.md`, "A pair may share
 its opener"). The first cut opened on the redacted hook, `[not silence]`,
 over "What did Beethoven hear, day and night?".

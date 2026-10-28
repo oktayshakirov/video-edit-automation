@@ -41,7 +41,7 @@ class Section:
 
     `number` draws a big numeral above the card's rule — for a video that is
     explicitly counting things ("myth one", "myth two"), a bare question
-    reads as one more chapter, and the user's note was to put the count on
+    reads as one more chapter, and the editor's note was to put the count on
     screen where the narration says it. This is deliberately not the same as
     a numbered agenda: `ChapterCard`'s own docstring bans a small numeral
     *before* every title because it turns the video into a lecture; `number`

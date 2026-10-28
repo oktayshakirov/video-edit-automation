@@ -113,7 +113,7 @@ BANDS = [("Silence", 0.25, "#ffdab9"),
          ("Drowning it out", 1.00, "#e76f51")]
 
 # Thumbnail - the video's own question, never its answer. The plate is on
-# the word that tells a sufferer the video is for them. The user's pick
+# the word that tells a sufferer the video is for them. The editor's pick
 # (2026-10-27): Pexels 5908779, a woman in headphones at a laptop, fingers
 # to her temples (Kaboompics) - one source for both aspects.
 THUMB_HEADLINE = "Tinnitus\n[spike?]\nDo this\nfirst"
@@ -395,7 +395,7 @@ def thumbs(out: Path) -> Path:
     """Scaled 1.15x and anchored left so she sits right, face and hands
     whole; four rows in dark ink on the light room, ending clear of her
     raised hand. The left side is blurred and lifted a little so the black
-    type reads, easing back to sharp before her hand (the user's note on the
+    type reads, easing back to sharp before her hand (the editor's note on the
     first cover: hard to read on the busy shelves)."""
     import numpy as np
     from PIL import Image, ImageFilter

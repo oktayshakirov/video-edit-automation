@@ -1,6 +1,6 @@
 """Sea Bench Brick — stacked dark-humour one-liner over two Sinemorets bench clips.
 
-No opener, no quote marks, no karaoke (user's call): "this", a short beat, then
+No opener, no quote marks, no karaoke (editor's call): "this", a short beat, then
 the whole punchline on the band as one caption.
 """
 

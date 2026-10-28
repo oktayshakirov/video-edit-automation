@@ -1,6 +1,6 @@
 """`post` - a pulled-out post, headline or transaction, highlighted as read.
 
-The documentary channels' most-used device (the user's pick, 2026-10-22):
+The documentary channels' most-used device (the editor's pick, 2026-10-22):
 the thing someone actually wrote - a post, a news headline, an on-chain
 transaction - lifted out of the video onto its own card, with the line that
 matters highlighted as the voice reads it. Three kinds, one grammar:
@@ -50,7 +50,7 @@ from .base import Beat, _smooth
 
 SF = "/System/Library/Fonts/SFNS.ttf"
 SERIF = "/System/Library/Fonts/NewYork.ttf"
-# The letter's line. New York italic was the first pick and the user found it
+# The letter's line. New York italic was the first pick and the editor found it
 # hard to read on a phone: at display size it takes its high-contrast optical
 # cut, hairlines vanish and the italic joins up. Georgia was drawn for
 # screens; Charter was tried too and showed seams inside the highlight.

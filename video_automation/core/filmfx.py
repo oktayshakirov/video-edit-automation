@@ -1,6 +1,6 @@
 """An old-film surface over chosen parts of a video: grain, dust, a light leak.
 
-The user's note (2026-10-21), from a documentary channel: a very slight grainy
+The editor's note (2026-10-21), from a documentary channel: a very slight grainy
 overlay with particles, "reminding of old movie" - and **placed strategically,
 not over the whole video**. So this is four independent layers, each with its
 own strength, and a policy that decides per shot which ones apply:
@@ -11,7 +11,7 @@ own strength, and a policy that decides per shot which ones apply:
   fizzing like digital sensor noise.
 * **dust** - white specks and short streaks that live one frame, and the odd
   hair. This is the "particles" in the reference. (A wandering vertical
-  scratch was in the first version; the user disliked it and it is gone.)
+  scratch was in the first version; the editor disliked it and it is gone.)
 * **leak** - a soft warm glow breathing up from the bottom edge, the bloom in
   the reference frame. Slow, so it reads as light, not as an effect.
 * **flicker** - the exposure wavering by a percent or two.
@@ -58,7 +58,7 @@ ROTATION = ("grain", "clean", "dust", "full")
 def plan(shots) -> list[str]:
     """A recipe per shot - the arrangement, not a blanket.
 
-    The user's note (2026-10-21): a couple of clips per video with no
+    The editor's note (2026-10-21): a couple of clips per video with no
     overlay, some with just one layer, not all of them with everything. The
     rules, in order:
 

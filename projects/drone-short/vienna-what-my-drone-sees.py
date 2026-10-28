@@ -27,7 +27,7 @@ scoring an interest map, and on these two frames the densest texture is not the
 subject:
 
 * *Donauinsel* — it chose x=1632, which puts the island down the left edge and
-  fills the right of the frame with the far skyline. The user asked for the
+  fills the right of the frame with the far skyline. The editor asked for the
   island centred, and its axis actually sits at about x 0.47 of the sensor, so
   x=1198 runs it down the middle of the vertical frame with water either side.
   That symmetry is the whole reason the shot works in 9:16.
@@ -43,7 +43,7 @@ have walked off it eleven seconds of source later.
 Full sensor height on both (no `zoom`): these are vistas, and the sky and the
 receding horizon are the subject rather than dead air.
 
-**Both drone clips are graded, and the numbers say why.** The user read them as
+**Both drone clips are graded, and the numbers say why.** The editor read them as
 "faded, maybe underexposed"; `signalstats` says not underexposed at all — YAVG
 145 and 138, if anything slightly bright, with YMAX up at 247 and 237. What is
 actually wrong is two things at once:
@@ -125,7 +125,7 @@ SHARPEN = "unsharp=5:5:0.9:5:5:0"
 ISLAND_DUR = 6.20
 
 # "Very small text in the middle", carried over from the Burgas cut — but the
-# POV label is a size up on the user's call, since a controller filling the
+# POV label is a size up on the editor's call, since a controller filling the
 # frame gives the type more to fight than open water did.
 POV_LABEL_SIZE = 42
 DRONE_LABEL_SIZE = 34
@@ -143,7 +143,7 @@ LABEL_DRONE = "what my drone sees"
 
 # Clears inside the island shot, so the cut to the towers lands on clean
 # picture rather than pulling the type off mid-thought. Pulled in a second on
-# the user's call — three seconds is long enough to read four small words.
+# the editor's call — three seconds is long enough to read four small words.
 LABEL_OUT = 3.20
 
 

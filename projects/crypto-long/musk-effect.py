@@ -18,9 +18,9 @@ under which this topic is both safe and more interesting than the profile.
 know why the same post shakes one coin and barely moves another; the `compare`
 in chapter five is that answer, and the close echoes it.
 
-**He appears in the cut and on the thumbnail, at the user's direction.** The
+**He appears in the cut and on the thumbnail, at the editor's direction.** The
 first pass used no photograph of him at all, reasoning that the subject is a
-queue of offers and that a face is a promise about the subject; the user's
+queue of offers and that a face is a promise about the subject; the editor's
 call is that the Musk effect is the hook and he should be seen. What does not
 bend is licensing: a portrait of a named individual comes from **Wikimedia
 Commons**, screened, stored in `assets/crypto/musk/` and credited there and in

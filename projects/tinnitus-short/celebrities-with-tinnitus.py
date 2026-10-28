@@ -144,7 +144,7 @@ def main() -> None:
                                         outro=OUTRO, tail=2.0)
 
     # Same source and headline as the long form - "two Star Trek actors",
-    # not "Kirk and Spock", because not everybody has watched it (the user's
+    # not "Kirk and Spock", because not everybody has watched it (the editor's
     # note on the first cut). The faces are in the top half, so the type
     # takes the bottom band.
     thumb = render_short_thumb(

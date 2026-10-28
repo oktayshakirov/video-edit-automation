@@ -72,7 +72,7 @@ a downscale at 660px.
 
 **The background is a new generation, not a new asset.** `tinnitus-plum`'s
 three small blobs (`sigma` 0.26-0.36) each read as a distinct "cloud" with a
-visible edge where it faded into the next — the user's note, "we can see
+visible edge where it faded into the next — the editor's note, "we can see
 where each color starts and ends" — worst behind an empty `compare` or
 `chapter` card, where nothing else on screen competes for attention. Replaced
 with two blobs at `sigma` 0.62/0.70, wide enough that their falloff mostly
@@ -469,7 +469,7 @@ def main() -> None:
         SECTIONS, out, work, brand=TINNITUS, meta=META, voice=VOICE,
         music=MUSIC, callouts=None,
         endcard=ENDCARD, endcard_lead=7.0,
-        # **The user's own pick, fetched by Pexels id (3958868) rather than a
+        # **The editor's own pick, fetched by Pexels id (3958868) rather than a
         # search query.** Landscape 5760x3840, bright and pastel — the
         # opposite of every other thumbnail on this channel — but
         # `render_thumb`'s own scrim darkens the type's half regardless of

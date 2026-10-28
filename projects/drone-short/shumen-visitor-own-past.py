@@ -1,6 +1,6 @@
 """Shumen Visitor / Own Past — stacked vertical quote, two Shumen clips.
 
-The user's own line, built straight in the approved Sunset Sea Stack layout:
+The editor's own line, built straight in the approved Sunset Sea Stack layout:
 two Shumen drone clips stacked into one 9:16 frame, the quote read on the
 black band between them. A complete thought with no turn, so no kicker and no
 reveal format — the deflation is in the last word.

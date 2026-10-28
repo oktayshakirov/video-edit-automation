@@ -46,7 +46,7 @@ most on-topic photographs it owns — are both out on brightness, and the hero
 `mining-rig.jpg` (L102, over the ~L82 working ceiling) is a woman in safety
 goggles holding a bare motherboard, which is not a mining rig. Six screened
 stock stills carry the hardware inside the video instead; the hero is kept for
-the thumbnail on the user's instruction, where it is the picture the article
+the thumbnail on the editor's instruction, where it is the picture the article
 already trained its readers to recognise. This is the strategy doc's picture
 constraint at its sharpest, arriving on the post that needed the pictures most.
 
@@ -117,7 +117,7 @@ SECTIONS = [
     # that decides whether anybody stays. --------------------------------
     #
     # **It opens on motion, not on a photograph.** The first cut held one still
-    # image for the first seven seconds and the user's word for it was boring —
+    # image for the first seven seconds and the editor's word for it was boring —
     # correctly, because a Ken Burns move on a still is the slowest thing in the
     # format and putting it where the drop is steepest is the worst possible
     # place for it. A clip is moving on frame one.
@@ -185,7 +185,7 @@ SECTIONS = [
              "It is an energy business",
              "wearing a hardware costume."),
             # **The point, then the list.** This line sat *after* the
-            # comparison in the first cut and the user found it confusing —
+            # comparison in the first cut and the editor found it confusing —
             # rightly: a viewer who has already read both columns does not need
             # to be told what they were, and a graphic that arrives before its
             # own thesis has to be decoded rather than read.
@@ -259,7 +259,7 @@ SECTIONS = [
             ("Six parts carry the build.",),
             # **A `grid`, not a checklist** — see `beats.Grid`. Six ticked rows
             # in a left column is the same silhouette as the four-item
-            # checklist forty seconds earlier, and the user saw the two as one
+            # checklist forty seconds earlier, and the editor saw the two as one
             # graphic. Cards across the full width read as objects, and the
             # second line on each is room a list does not have.
             ("A motherboard with enough slots.",
@@ -479,11 +479,11 @@ def main() -> None:
         # typed into YouTube verbatim — so the thumbnail asks what the title
         # does not, and asks the question that actually decides it.
         #
-        # **The user's call, against both the scorer and the skill's own
+        # **The editor's call, against both the scorer and the skill's own
         # "ask what the title does not" rule.** `mining-rig.jpg` scores +0.82
         # busy and is a woman holding a bare board rather than a rig, and the
         # first cut therefore used a stock GPU with an electricity headline.
-        # The user wants the article's own hero and a headline about building,
+        # The editor wants the article's own hero and a headline about building,
         # and that is the right call for a reason the scorer cannot see: this
         # thumbnail sits on the article page as well as in the YouTube feed,
         # where a picture the reader has already scrolled past is recognition

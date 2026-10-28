@@ -138,7 +138,7 @@ def thumbs(out: Path) -> Path:
     grey extended upward with a dark fade under the headline.
 
     A cover crop (`render_short_thumb`) of a landscape source is a third of
-    its width, and the user rejected it: the hands were lost. Fitting the
+    its width, and the editor rejected it: the hands were lost. Fitting the
     width keeps both hands and the touch whole; the photo's backdrop is a
     flat grey, so the extension has no seam. Replaced the drawn beat in
     `thumbs_beat`.

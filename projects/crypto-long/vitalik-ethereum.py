@@ -13,14 +13,14 @@ bare compliance line, which is on screen while it is spoken.
 
 **Four statement cards in the whole video, and that is the point.** The first
 cut put a big centred `payload` line on all twenty-five clips, because
-`longform.md` had "every clip carries a payload line" as a hard rule. The user's
+`longform.md` had "every clip carries a payload line" as a hard rule. The editor's
 verdict was "we have too many titles after each other and the script is very
 hard to follow". The rule was written to stop *generic stock playing silent
 under a specific claim* - and the real fix for that is a picture that names the
 noun, not a caption bolted onto a picture that does not. So a payload survives
 here only where it **adds something the narration does not say**: the title
 stamp, the name of an event the script deliberately does not pronounce, and the
-compliance line the user requires on screen. Never two in a row.
+compliance line the editor requires on screen. Never two in a row.
 
 **Kokoro respellings, spoken half only** (`es()`): `Ethereum` -> `Etheerium`;
 `Vitalik Buterin` -> `Veetalik Booterin`; `went live` -> `went lyve` (Kokoro
@@ -357,7 +357,7 @@ SECTIONS = [
             Shot(image=ETH_MARK, zoom=1.05, pan=(0.01, 0.0), aspect=A, bias=0.5),
             Shot(clip=CIRCUIT, clip_at=1.0),
             # payload 4 of 4 - the compliance line is on screen while it is
-            # spoken, over a quiet clip. The user's standing rule.
+            # spoken, over a quiet clip. The editor's standing rule.
             Shot(clip=GOLD_A, clip_at=8.0,
                  payload=("", "This is not financial advice.")),
             Shot(clip=NET_SPARK, clip_at=8.0),
@@ -398,8 +398,8 @@ def main() -> None:
         SECTIONS, out, work, brand=CRYPTO, meta=META, voice=VOICE,
         music=music.track("night-drift"),
         callouts=None,
-        # Re-done 2026-10-22 on the user's SF 2017 photo for a catchier hook.
-        # The user picked this from four options: the script's "They turned
+        # Re-done 2026-10-22 on the editor's SF 2017 photo for a catchier hook.
+        # The editor picked this from four options: the script's "They turned
         # him down" is a sharper hook than his age ("He was 19" was rejected).
         thumb_headline="They\nsaid no.\nHe built\n[Ethereum]",
         thumb_image=P_SF,
