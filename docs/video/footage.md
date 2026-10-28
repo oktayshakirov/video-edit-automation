@@ -1272,7 +1272,7 @@ Every pick was contact-sheeted at 15/50/85%.
 | `steam-rising-dark-background/29686188`, `9694807` | **kept**: steam on black. `6527496` is a street with a car in fog, upside down by the end |
 | `waterfall-at-night-dark/27591404`, `4208224` | **kept**: white water at night, water down a rock face. `18988719` is a red-lit fountain ring - a hotel lobby |
 | `strong-wind-trees-night/5765474` | **kept** (L23): a street lamp in wind and rain. `28777052` is shaky torchlight in a forest (horror-adjacent); `5963246` runs from day to night at L27-111 |
-| `cricket-insect-close-up-night/5612427` | **kept** (L41-46): a cricket, macro. `12044771` is wasps fighting on a flower (L65-70); `38963088` a grasshopper on a sunny fence |
+| `cricket-insect-close-up-night/5612427` | **cut by the user** (2026-10-28): a cricket, macro - "very disturbing". An insect in close-up is not a picture for this channel; draw the "insects" comparison or show machinery. `12044771` is wasps fighting on a flower (L65-70); `38963088` a grasshopper on a sunny fence |
 | `electric-fan-spinning-dark-room/3069096` | **kept** (L4-7): fan blades lit at the tips. `853772` a filament bulb, fine but unused; `854135` a novelty LED fan on an orange wall |
 | `tuning-fork-vibrating/*` | none is a tuning fork: wind chimes, a glockenspiel (L157), a guitar pedal, marimba mallets |
 | `singing-bowl-ringing-dark/4488445`, `4487438` | **kept**: a brass bowl rung by hand by candlelight - the noun for a ringing tone. A small Ganesha figure stands beside it; `6892465` is a sound-healing session on white |

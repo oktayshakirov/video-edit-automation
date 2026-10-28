@@ -54,7 +54,7 @@ DEMAND = ("'what does tinnitus sound like': MUSC Health Short 593k (4820x), "
 # minute, so no clip appears twice in it.
 V = STOCK / "videos"
 BOWL = V / "singing-bowl-ringing-dark/4488445.mp4"
-CRICKET = V / "cricket-insect-close-up-night/5612427.mp4"
+WATER = V / "waterfall-at-night-dark/27591404.mp4"
 WAVEFORM = V / "oscilloscope-sine-wave/34645273.mp4"
 AMBER = V / "quiet-bedroom-at-night-window-light/36244322.mp4"
 CHEST = V / "hand-on-chest-heartbeat-dark/9737994.mp4"
@@ -126,9 +126,9 @@ GAPS = [1.25,   # into sentence 2, after the opener has gone
 SHOTS = [
     # A brass bowl low in the frame, clear of the search bar.
     Shot(clip=BOWL, clip_at=0.5, clip_ax=0.35),
-    # The user cut the kettle (2026-10-28); the cricket is one of the other
-    # three - the article's "insects" - its face kept whole in the 9:16 crop.
-    Shot(clip=CRICKET, clip_at=2.0, clip_ax=0.42),
+    # The user cut the kettle, then the cricket close-up as disturbing
+    # (2026-10-28): the waterfall, the roar - one of the other three.
+    Shot(clip=WATER, clip_at=1.0, clip_ax=0.50),
     Shot(clip=WAVEFORM, clip_at=1.0, clip_ax=0.50),
     Shot(clip=AMBER, clip_at=1.0, clip_ax=0.60),
     Shot(clip=KNOB, clip_at=1.0, clip_ax=0.50,
