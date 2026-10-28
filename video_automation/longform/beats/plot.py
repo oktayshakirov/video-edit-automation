@@ -310,6 +310,15 @@ class Spectrum(Beat):
     def __init__(self, band: tuple, title: str = "", note: str = "",
                  mode: str = "notch", **kw):
         super().__init__(**kw)
+        # **A list of `(low_hz, high_hz, label)` is a set of sounds, named one
+        # at a time** (2026-10-28, `what-does-tinnitus-sound-like`). One peak
+        # glides from each band to the next as the voice names it - ringing,
+        # hissing, humming - so the viewer watches a sound move rather than
+        # reading four cards. See `_sounds`.
+        self.sounds = ([tuple(b) for b in band]
+                       if band and isinstance(band[0], (tuple, list)) else None)
+        if self.sounds:
+            band = self.sounds[0][:2]
         self.band, self.title, self.note, self.mode = band, title, note, mode
 
     def _x(self, hz: float, x0: int, x1: int) -> float:
@@ -317,11 +326,26 @@ class Spectrum(Beat):
         q = (math.log10(max(self.LO, min(self.HI, hz))) - lo) / (hi - lo)
         return x0 + (x1 - x0) * q
 
-    def content(self, out: Image.Image, f: float) -> None:
-        fr, br = self.frame, self.brand
-        top = self.heading(out, self.title, f)
+    def _box(self, top: int) -> tuple[int, int, int, int]:
+        fr = self.frame
         x0, x1 = self.margin, fr.w - self.margin
         y0, y1 = top + 40, fr.h - int(fr.h * 0.16)
+        if fr.h > fr.w:
+            # Portrait pins the plot to 0.66 of its width and centres it, for
+            # the reason `Chart` does: the band is taller than the frame is
+            # wide, and a frequency plot drawn into it is a wall of spikes.
+            # Landscape is untouched.
+            ph = min(y1 - y0, int((x1 - x0) * 0.66))
+            mid = (y0 + y1) / 2
+            y0, y1 = int(mid - ph / 2), int(mid + ph / 2)
+        return x0, x1, y0, y1
+
+    def content(self, out: Image.Image, f: float) -> None:
+        if self.sounds:
+            return self._sounds(out, f)
+        fr, br = self.frame, self.brand
+        top = self.heading(out, self.title, f)
+        x0, x1, y0, y1 = self._box(top)
 
         d = ImageDraw.Draw(out, "RGBA")
         e = self.open_p(f, 0.7)
@@ -388,4 +412,109 @@ class Spectrum(Beat):
             d.text(((bx0 + bx1) / 2, y0 - 6), self.note, font=_font(38),
                    fill=br.ink + (a,), anchor="ma")
 
+    def _sounds(self, out: Image.Image, f: float) -> None:
+        """The sounds mode: reveal 0 draws a quiet floor across the axis, and
+        each later reveal moves one peak to the band that sound sits in.
 
+        **The axis says LOW and HIGH, not Hz.** The single-band mode labels
+        hertz because the notch it draws is a number this repo cuts. Where a
+        ringing or a hum sits is a description, and the sources describe it
+        in words - "high-pitched", "low-frequency" - so a kHz scale under it
+        would be a precision nobody measured.
+
+        The floor is flat and low rather than the 1/f slope, so a peak at the
+        bass end reads as a sound rising out of quiet, the same as one at the
+        treble end, instead of a bump on a hill."""
+        fr, br = self.frame, self.brand
+        top = self.heading(out, self.title, f)
+        x0, x1, y0, y1 = self._box(top)
+
+        d = ImageDraw.Draw(out, "RGBA")
+        e = self.open_p(f, 0.7)
+        d.line([(x0, y1), (x0 + (x1 - x0) * e, y1)],
+               fill=br.primary + (90,), width=3)
+        for hz in (100, 500, 1000, 2000, 4000, 8000, 16000):
+            gx = self._x(hz, x0, x1)
+            d.line([(gx, y0), (gx, y1)], fill=br.primary + (24,), width=1)
+        ends = _font(30)
+        a_end = int(160 * e)
+        d.text((x0, y1 + 16), "LOW", font=ends, fill=br.ink + (a_end,),
+               anchor="la")
+        d.text((x1, y1 + 16), "HIGH", font=ends, fill=br.ink + (a_end,),
+               anchor="ra")
+        d.text(((x0 + x1) / 2, y1 + 16), "PITCH", font=ends,
+               fill=br.ink + (int(a_end * 0.6),), anchor="ma")
+
+        # Which sound is current, and how far the glide into it has gone.
+        cur, g = -1, 0.0
+        for i in range(len(self.sounds)):
+            p = self.span_p(i + 1, f, cap=0.8)
+            if p > 0:
+                cur, g = i, p
+        if cur < 0:
+            lo_hz = hi_hz = None
+            depth = 0.0
+        elif cur == 0:
+            lo_hz, hi_hz = self.sounds[0][:2]
+            depth = g
+        else:
+            (plo, phi, _), (clo, chi, _) = self.sounds[cur - 1], self.sounds[cur]
+            # In log space, so a glide from 6 kHz to 150 Hz moves at an even
+            # speed across the axis rather than dashing through the treble.
+            lo_hz = 10 ** (math.log10(plo) + (math.log10(clo) - math.log10(plo)) * g)
+            hi_hz = 10 ** (math.log10(phi) + (math.log10(chi) - math.log10(phi)) * g)
+            depth = 1.0
+
+        t = self.at(f)
+        n = 240
+        xs, ys = [], []
+        for i in range(n + 1):
+            q = i / n
+            hz = self.LO * (self.HI / self.LO) ** q
+            v = 0.16 - 0.04 * q
+            v += 0.03 * math.sin(t * 1.7 + q * 22) + 0.02 * math.sin(t * 2.9 + q * 51)
+            if depth > 0 and lo_hz <= hz <= hi_hz:
+                mid = (math.log10(hz) - math.log10(lo_hz)) / max(
+                    1e-6, math.log10(hi_hz) - math.log10(lo_hz))
+                # A breath of movement on the peak too, so it is a sound and
+                # not a bar.
+                v += math.sin(mid * math.pi) * depth * (
+                    0.66 + 0.04 * math.sin(t * 3.3))
+            xs.append(x0 + (x1 - x0) * q)
+            ys.append(y1 - (y1 - y0) * max(0.02, v))
+
+        pts = list(zip(xs, ys))
+        p = self.span_p(0, f, cap=2.2)
+        if p <= 0:
+            return
+        k = max(2, int(len(pts) * p))
+        fill = Image.new("RGBA", fr.size, (0, 0, 0, 0))
+        ImageDraw.Draw(fill).polygon(
+            pts[:k] + [(pts[k - 1][0], y1), (pts[0][0], y1)],
+            fill=br.primary + (54,))
+        out.paste(Image.alpha_composite(out.convert("RGBA"), fill
+                                        ).convert("RGB"), (0, 0))
+        d = ImageDraw.Draw(out, "RGBA")
+        partial(d, pts, p, br.primary, 5)
+
+        if cur < 0:
+            return
+        bx0, bx1 = self._x(lo_hz, x0, x1), self._x(hi_hz, x0, x1)
+        a = int(255 * min(1.0, depth))
+        for bx in (bx0, bx1):
+            d.line([(bx, y0), (bx, y1)], fill=br.primary + (int(a * 0.7),),
+                   width=3)
+        # The old name is gone before the new one arrives: a crossfade sets
+        # two words on one spot and mid-glide reads as neither. Held inside
+        # the plot so a sound at either end of the axis is not cut off.
+        lab = _font(44)
+        names = [(self.sounds[cur][2], max(0.0, 2 * g - 1) if cur else 1.0)]
+        if cur:
+            names.append((self.sounds[cur - 1][2], max(0.0, 1 - 2 * g)))
+        for text, w8 in names:
+            if not text or w8 <= 0:
+                continue
+            half = lab.getlength(text) / 2
+            cx = min(max((bx0 + bx1) / 2, x0 + half), x1 - half)
+            d.text((cx, y0 - 10), text, font=lab,
+                   fill=br.ink + (int(a * w8),), anchor="md")

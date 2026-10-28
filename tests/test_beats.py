@@ -205,6 +205,21 @@ def test_chart_marker_changes_the_reveal_count():
     assert item_count("chart", ([1, 2, 3], "t", None, "")) == 1
 
 
+def test_spectrum_sounds_reveal_one_per_sound():
+    """A list of bands is the sounds mode: the floor, then one reveal per
+    sound. A count of 2 would put every sound after the first on the wrong
+    words. It renders in both frames, because the Short uses it."""
+    sounds = [(5500, 7000, "RINGING"), (3000, 12000, "HISSING"),
+              (110, 220, "HUMMING")]
+    assert item_count("spectrum", (sounds, "T", "", "peak")) == 4
+    for frame in (LANDSCAPE, VERTICAL):
+        beat = BEATS["spectrum"](sounds, "T", "", "peak", brand=TINNITUS,
+                                 frame=frame, reveals=[0.5, 2.0, 3.5, 5.0],
+                                 start=0.0, hold=7.0)
+        for f in (0.1, 0.4, 0.6, 0.95):
+            assert beat.draw(f).size == frame.size
+
+
 # --- the package surface ---------------------------------------------------
 #
 # `beats` was one 3,124-line module until 2026-09-27. Splitting it into

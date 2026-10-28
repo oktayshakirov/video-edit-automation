@@ -701,9 +701,22 @@ def key(sr: int = SR, dur: float = 0.055, variant: int = 0) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+from . import samples as _samples
+
 _MAKERS_EXTRA = {"sweep": sweep, "drop": drop, "count": count,
                  **{f"key{i}": (lambda sr, i=i: key(sr, variant=i))
-                    for i in range(4)}}
+                    for i in range(4)},
+                 **_samples.MAKERS}
+
+# The tinnitus sound samples (`core/samples.py`) are cued on their **end**, so
+# each finishes just before the next caption whatever its length. Levels are
+# against equal-RMS sources and set by ear-weighting, not by taste: the ear is
+# most sensitive around the ringing's 6 kHz, so it sits lowest, and the hum
+# carries least energy where a phone can play it, so it sits highest.
+ANCHOR.update({k: _samples.DUR[k[7:]] for k in _samples.MAKERS})
+LEVELS.update({"sample_ringing": 0.45, "sample_hissing": 0.60,
+               "sample_humming": 0.95, "sample_roaring": 0.85,
+               "sample_clicking": 0.80, "sample_pulsing": 0.95})
 
 
 # One kit per site. A cue name is looked up here first, so a script and a beat

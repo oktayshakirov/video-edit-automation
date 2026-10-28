@@ -954,6 +954,26 @@ one thing the fourteen before them cannot:
   Unlike `chart`, its x axis *is* labelled: 4 kHz is 4 kHz forever, and it is
   the number the viewer came for.
 
+  **The sounds mode (2026-10-28, `what-does-tinnitus-sound-like`).** Pass a
+  list of `(low_hz, high_hz, label)` as the band and the beat becomes a set
+  of sounds named one at a time: reveal 0 draws a quiet flat floor, and each
+  later reveal glides one peak (in log space) to the next sound's band, the
+  old name fading out before the new one fades in - a crossfade on one spot
+  reads as neither word. Its reveal count is `len(sounds) + 1`, so the beat
+  sentence is a hinge chunk ("Put four of them on one picture, from low to
+  high.") plus one chunk per sound. **The axis reads LOW / PITCH / HIGH, not
+  Hz**: where a ringing or a hum sits is a description the sources give in
+  words, and a kHz scale would claim a measurement nobody made. Portrait pins
+  the plot box to 0.66 of its width, as `chart` does, which is what put
+  `spectrum` on the Short whitelist.
+
+  **Any beat can play a sample per reveal** - `Shot(samples=(None,
+  "ringing", ...))`, one name per reveal, `None` for silence. Each sample
+  ends just before the next caption, so the script buys its room: in long
+  form give each sound its own sentence (shots held with `None`) and a
+  2.3s gap; in a Short, where it is one shot per sentence, `chunk_pad`
+  after each naming chunk. `docs/video/audio.md`, "Sound samples".
+
 
 ## Where a beat lives (2026-09-27)
 

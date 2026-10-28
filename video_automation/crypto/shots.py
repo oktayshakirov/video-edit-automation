@@ -113,6 +113,9 @@ class Shot:
                                         # over this shot: a logo bug, a press
                                         # still, a ticker card. See
                                         # `longform/overlay.InsetOverlay`.
+    samples: tuple | None = None        # a sound sample per reveal, played in
+                                        # the pause after it is named - see
+                                        # `core/samples.py`. None plays nothing.
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:

@@ -12,7 +12,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from ..core import sfx
+from ..core import samples, sfx
 from ..core.brand import CRYPTO, Brand
 from ..core.frame import VERTICAL, Frame
 from ..core.vertical import (add_caption_emoji, render_caption_karaoke,
@@ -112,14 +112,19 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # on every line, so a label would print the same words twice in two
         # places — which is the exact fault the drawn-beat branch below already
         # avoids by suppressing captions. The caption is the statement here.
+        # **The notice card is the exception** (2026-10-28): it is a warning,
+        # not a statement, and the sound samples' lower-your-volume card has
+        # to be on screen in the Short too.
+        from ..longform.meta import is_notice
+        label = shot.payload if is_notice(shot.payload) else None
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
                          zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
-                         label=None, note=shot.note, begin=shot.clip_at,
+                         label=label, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
-                        "spotlight", "blindsign"):
+                        "spotlight", "blindsign", "spectrum"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -136,9 +141,11 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # 1080x1300 plot box turns the same series into a wall and a cliff.
         # Its reveal count is 1 or 2 depending on whether a `marker` was
         # given, which `item_count` already knew — so nothing below needed
-        # touching. `timeline`, `map`, `anatomy` and `spectrum` are still
-        # landscape-only: none has been asked for in a Short yet and none
-        # should be whitelisted until it is, and looked at on a frame.
+        # touching. `timeline`, `map` and `anatomy` are still landscape-only:
+        # none has been asked for in a Short yet and none should be
+        # whitelisted until it is, and looked at on a frame. **`spectrum`
+        # joined 2026-10-28** for its sounds mode, with the plot box pinned
+        # the way `chart`'s is.
         #
         # **`diagram` joined this set 2026-09-10.** Its portrait layout runs
         # the causal chain down the frame with the feedback arrow (`loop=True`)
@@ -205,6 +212,12 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
     for sh in shots:
         if sh is None:
             continue
+        if sh.clip is not None and sh.payload:
+            # The notice card lands on the notification chime, as in long form.
+            from ..longform.clip import VideoShot
+            from ..longform.meta import is_notice
+            if is_notice(sh.payload):
+                cues.append((sh.start + VideoShot.NOTICE_IN, "notification"))
         if sh.graphic == "chapter":
             cues += [(sh.start, "chapter_riser"), (sh.start, "impact")]
             cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
@@ -719,6 +732,14 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             track = sfx.mix(track, workdir / "track-sfx.wav", cues,
                             kit=brand.name)
 
+    # Sound samples a beat names (`core/samples.py`), in the pause after each
+    # is spoken - and the bed dips under them below.
+    sample_cues = (samples.cues(shots, [c.start for c in captions], total)
+                   if sound else [])
+    if sample_cues:
+        track = sfx.mix(track, workdir / "track-samples.wav", sample_cues,
+                        kit=brand.name)
+
     if sound and (hook_ov is not None or outro_ov is not None):
         cues = [c for ov in (hook_ov, outro_ov) if ov is not None
                 for c in ov.cues()]
@@ -744,6 +765,9 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                                    gain=music_gain,
                                    **({} if music_lufs is None
                                       else {"lufs": music_lufs}))
+        if sample_cues:
+            bed = audio_mod.dip(bed, workdir / "bed-dip.wav",
+                                samples.windows(sample_cues))
         track = audio_mod.mix_voice_over_bed(bed, track, workdir / "mix.wav",
                                              total)
 

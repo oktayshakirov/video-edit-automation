@@ -144,8 +144,11 @@ _COUNT = {
     "chart": lambda p: 2 if len(p) > 2 and p[2] is not None else 1,
     "map": lambda p: len(p[0]),
     "anatomy": lambda p: len(p[0]),
-    # The sweep, then the notch.
-    "spectrum": lambda p: 2,
+    # The sweep, then the notch - or, given a list of sounds, the sweep and
+    # then one reveal per sound.
+    "spectrum": lambda p: (len(p[0]) + 1
+                           if p[0] and isinstance(p[0][0], (tuple, list))
+                           else 2),
     # One card per caption: the camera arrives as each is named.
     "reel": lambda p: len(p[0]),
     # The card arriving, then its marked line highlighted.

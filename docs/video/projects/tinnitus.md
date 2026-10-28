@@ -359,7 +359,7 @@ the fifth row, go back to `mia` until the user decides.
 | --- | --- | --- |
 | 1 | `did-beethoven-have-tinnitus` | 2026-10-24 |
 | 2 | `how-to-manage-a-tinnitus-spike` | 2026-10-27 |
-| 3 | | |
+| 3 | `what-does-tinnitus-sound-like` | 2026-10-28 |
 | 4 | | |
 | 5 | | |
 
