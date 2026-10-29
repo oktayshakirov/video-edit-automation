@@ -138,13 +138,13 @@ it is built. After the fifth row, go back to `mia` until the user decides.
 | --- | --- | --- |
 | 1 | crypto-when-you-die (long 3:57, Short 41.5s) | 2026-10-24 |
 | 2 | north-korea-crypto (long 4:14, Short 48.2s) | 2026-10-27 |
-| 3 | | |
+| 3 | prediction-markets (long 3:52, Short 53.4s) | 2026-10-28 |
 | 4 | | |
 | 5 | | |
 
-**`noah` reads ~6% slower than `mia`** (43.3s against 40.7s on the
+**`noah` runs at speed 1.16 from pair 4 on** (2026-10-29: the editor heard pair 3 as slow; it was 1.10, mia's speed). At 1.10 it **read ~6% slower than `mia`** (43.3s against 40.7s on the
 `what-are-memecoins` Short), so for a `noah` script use `words / 3.05 +
-sum(gaps)` rather than 3.25 below. One script's worth of measurement —
+sum(gaps)` rather than 3.25 below — at 1.16 that is likely nearer 3.2; re-measure on pair 4. One script's worth of measurement —
 correct the figure from the first shipped cut. `max` is **not** an article
 voice — it is a drone blend that was briefly mislisted here and reads
 androgynous on a real script; see `voice.md` and

@@ -635,6 +635,20 @@ off-by-one is harder to spot than a wrong picture, because every shot looks
 correct in isolation and only the *pairing* is wrong. Reading the two lists
 side by side as pairs catches it; reading the shot list alone never will.
 
+### A word's other meaning is not the noun (2026-10-29)
+
+The prediction-markets pair cut ballot boxes and VOTE / I AM A VOTER buttons
+(`voting-ballot-box`, `election-results-tv-night`) under "UMA token holders
+vote" and the market lines, and the editor rejected them: **the vote in the
+script is a token vote on a blockchain, and an election picture is
+irrelevant there.** The word matched; the thing did not. Before a clip goes
+in, ask what *kind* of the noun the sentence means - a token vote, a
+governance proposal, a "bet" on an outcome - and search for that, or draw it
+(a `diagram`, a `post`) when stock has no picture of it. Civic imagery (polls,
+ballots, flags, campaign rallies) is off for a crypto video unless the line
+is about a real election, and even then it shows the event the line names,
+not voting in general.
+
 ## Show the thing the line is about
 
 **A concert line gets a concert.** The AirPods cut ran an empty night street
@@ -1128,6 +1142,13 @@ material; the description credits it (`Meta.credits`).
 Assets live in `assets/stock/press/<topic>/` with a committed `SOURCES.md`;
 the bytes are gitignored like the rest of the stock cache.
 
+**A white press card is an inset, not a full-bleed still** (2026-10-28).
+Polymarket's own odds card (white, green Yes, red No) went in as
+`Shot(image=)` and was the brightest frame in a gold-on-black video by far.
+As `inset=(card, "right", 0.46)` over a dark clip it reads as the real thing
+without the glare. Brand material is designed for a white page; ours is not
+one.
+
 ## The meme coins fetch: verdicts (2026-10-22)
 
 **Every Shiba Inu clip is bright** (L90-157): Pexels shoots dogs in daylight
@@ -1293,3 +1314,28 @@ Every pick was contact-sheeted at 15/50/85%.
 | `woman-sitting-by-window-at-night/17673702` | **kept** (L31): a woman reading in a lit window. `6236416` red curtains; `6654157` L112-144 |
 | `power-lines-at-dusk/*`, `mixing-console-knob-turning-dark/*` | power lines all L78-192 sunsets; the dark knobs `12213085`, `12213088` are the first spike pair's shoot |
 | `person-putting-on-headphones-night/6890229` | the spike pair's. `6952860` L126-141; `8513622` a woman putting in earbuds, close on the ear - out under the ear rule |
+
+## The prediction-markets fetch: verdicts (2026-10-28)
+
+**Polymarket's own assets lead**: the official logo pack from
+`polymarket.com/brand` (`polymarket-logos.zip` on their S3) and its social
+card (`/images/homepage-twitter-card.png`), cropped to the odds panel ("Will
+___ happen this year? 51%, Yes 51c, No 49c") - the card's other half is a
+grid of politicians' faces, kept out. `assets/stock/press/polymarket/`.
+
+| clip | verdict |
+| --- | --- |
+| `stock-trading-app-phone-dark/7681176`, `34473008` | **kept**: two hands on a trading app; a finger on a candle chart. `7578628` is a bright window, `7947486` too short for a 7s slot |
+| `trading-charts-monitor-dark/38736275`, `38771102` | **kept**: candles on a monitor, L12; one line in purple light |
+| `newspaper-headlines/2752278` | **kept**: a typewriter printing BREAKING NEWS - "every piece of news". `40178980` is Portuguese newsprint, `10802584` a fireplace |
+| `crowd-watching-big-screen-night/7986778` | **kept**: an audience lit by a screen - "the crowd". `7984165`/`7984175` are 3D-glasses cinema |
+| `stadium-crowd-night-lights/34671875` | **kept**: a stadium crowd at night |
+| `election-results-tv-night/7103542`, `voting-ballot-box/7103424` | **kept**: VOTE buttons; a ballot going in (L112-136, bright, the noun). The rest of that shoot is a smiling voter to camera |
+| `kyiv-city-night/12399500` | **kept**: Kyiv and the Dnipro, the pedestrian bridge in frame - the place |
+| `raw-minerals-ore-rocks/31100164` | **kept**: an open quarry from above - the minerals. `6768265` L178 |
+| `signing-document-pen-close-up/5778854`, `business-people-shaking-hands/5977121` | **kept**: the deal signed; the approval |
+| `clock-ticking-dark-close-up/7033779`, `hourglass-sand-dark/37223275` | **kept**: the two-hour window; the deadline |
+| `reading-news-on-phone-at-night/854765`, `35888104`, `7986973` | **kept**: reading the news on a phone |
+| `person-thinking-laptop-night/30445082`, `rain-on-window-night/5930874` | **kept**: weighing a price; the disclaimer |
+| `betting-odds-screen/*` | casino tables, a roulette wheel, a slot machine - the gambling register this channel avoids |
+| `counting-cash-hands-dark/34579094`, `34579097` | the shoot of `34579096`, already cut |

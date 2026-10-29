@@ -1307,3 +1307,31 @@ one state change.
   after the third chunk starts.
 - A finished still makes the concept thumbnail (`reveals=[0, 3, 6]`,
   `f` near 1.0) - both covers of the North Korea pair are it.
+
+## `shares` - a dollar split into YES and NO, read as odds (2026-10-28)
+
+`payload: (question, yes, title, outcome)`. **Four reveals, or five with an
+outcome**, one caption chunk each: the question card and a "$1" coin ("Each
+share in it is worth one dollar, or nothing."); the coin coming apart into
+YES and NO ("It comes as a pair..."); the price bar filling to the split
+while each price counts up ("If yes trades at sixty-two cents..."); the YES
+price turning into a percentage, THE CROWD'S ODDS under the bar ("So the
+crowd puts the odds at..."); and, with `outcome="YES"`/`"NO"`, the winner
+filling to $1 while the loser greys to $0 and is struck.
+
+Built for `what-are-prediction-markets`, because nothing here drew a price
+becoming a probability - `split` is equal claims, `bars` sizes, `gauge` one
+reading. Reuse it for any binary market, an options payoff, any "the price
+is the odds" claim. `quorum`'s template again: line art in the brand colour,
+one object per phrase, one state change.
+
+- **Portrait-safe**, whitelisted in `crypto/build.py`. The question card
+  raises on a line wider than itself: break a portrait question with `\n`
+  ("Will it happen\nby 31 December?").
+- Cues: `pan` on the card, `reveal` on the split, `tick` on the prices,
+  `emph` on the odds, `tick` on the outcome (`settle_time`).
+- Give its sentence a `gap` of ~1.4-1.8s so the outcome lands before the cut.
+- **Text on the RGB frame ignores its fill alpha** - PIL blends a shape's
+  alpha there but inks type at full strength, so every text fade snapped
+  (and a "faded out" caption overlapped its replacement). Draw a beat whose
+  type fades onto an RGBA layer and paste it, as this beat and `blindsign` do.

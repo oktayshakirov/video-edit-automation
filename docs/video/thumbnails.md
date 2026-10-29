@@ -850,3 +850,12 @@ card on the North Korea cover, and lowering `size` changed nothing. When the
 type has to stop at an object, pass `(edge - x_text - gap) / 1.38`.
 `thumb_image` must be a still: a clip failed in `cv2.imread` after the MP4
 had rendered, and `render_long` now refuses one before synthesis.
+
+### Draw a beat cover at a settled reveal, never mid-fade (2026-10-29)
+A cover built from `Beat.draw(t)` freezes whatever the animation is doing at
+`t`. The prediction-markets Short cover sat inside the `shares` 62c->62% morph
+and the outcome fade, so "62%" and "RESOLVED YES" shipped half transparent and
+unreadable. Pick `t` after the last reveal's settle time and look at the
+frame at full size. When the long form's cover card already reads, reuse it
+for the Short: scale it to the frame's width, stacked wordmark / card /
+headline (`projects/crypto-short/prediction-markets.py`, `thumbs`).

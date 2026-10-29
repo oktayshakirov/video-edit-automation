@@ -93,6 +93,8 @@ PAYLOADS = {
     "blindsign": ([("Action", "Routine transfer"), ("To", "Hot wallet")],
                   [("Action", "Replace wallet code"), ("To", "Attacker")],
                   ["SIGNER", "CEO"], "WHAT THEY SAW"),
+    # (question, yes, title, outcome): portrait-safe.
+    "shares": ("Will it happen by 31 Dec?", 62, "ONE QUESTION", "YES"),
 }
 
 
@@ -239,7 +241,7 @@ def test_every_beat_class_is_registered():
 
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
-                "spotlight", "blindsign"):
+                "spotlight", "blindsign", "shares"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from
