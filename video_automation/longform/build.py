@@ -572,6 +572,16 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "shares":
+            # The card on a pan, the split on a reveal, the prices on a tick,
+            # the odds on an impact, the outcome on a tick (`beats.shares`).
+            from .beats.shares import settle_time
+            rv = sh.reveals or []
+            for i, k in enumerate(("pan", "reveal", "tick", "emph")):
+                if i < len(rv):
+                    cues.append((rv[i] + (0.05 if i else -0.05), k))
+            if len(rv) > 4:
+                cues.append((settle_time(rv[4]), "tick"))
         elif sh.graphic == "reel":
             # A pan whoosh as the camera leaves for each next card, and the
             # label's tick as it lands (`beats.reel.Reel`).

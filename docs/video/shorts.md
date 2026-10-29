@@ -1210,3 +1210,13 @@ caption. Under a Short's caption line, a screen clip wants its screen to be
 a glow (`footage.md`, "check what is *on* the prop's screen"); a
 backlit keyboard replaced it. The same pair's stylus clip lost its tablet
 to the 9:16 crop - two clips the long form kept, swapped in the Short.
+
+## Close on the opening shot's clip, and keep the outro off a face (2026-10-28)
+
+The prediction-markets Short first closed its `outro=` over a ballot clip
+whose woman's face sat right where the statement lands, and the line read
+across her chin. It now closes on the clip it opened on (the trading app,
+later in the file), which keeps the statement on hands and a phone and
+makes the last frame match the first - the image half of the loop
+`narration.md` describes, for free. Check the closing clip's 9:16 crop
+against the outro band, not only the opening one against the hook.

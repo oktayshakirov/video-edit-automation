@@ -185,7 +185,7 @@ PROFILES: dict[str, VoiceProfile] = {
         source="P1_am_puck_energetic.wav", folder="Crypto Wiki Voices",
     ),
     "noah": VoiceProfile(
-        voice="am_michael", speed=1.10, chain=ENERGETIC,
+        voice="am_michael", speed=1.16, chain=ENERGETIC,
         projects=("crypto", "tinnitus"), status="candidate", script="crypto",
         note="**The male article reader**, the option alongside mia — mia "
              "stays the default. mia's exact recipe (1.10, ENERGETIC) with "
@@ -198,7 +198,9 @@ PROFILES: dict[str, VoiceProfile] = {
              "exposition. Reads ~6% slower than mia on the same script "
              "(43.3s against 40.7s). No `source`: the audition was the "
              "full aligned Short narration, not the reference script, so "
-             "`verify` could never reproduce it. On test for the next 10 article pairs, "
+             "`verify` could never reproduce it. Raised 1.10 -> 1.16 on "
+             "2026-10-29: the editor heard pair 3 (prediction-markets) as "
+             "slow, and 1.16 closes the ~6% gap to mia. On test for the next 10 article pairs, "
              "5 crypto + 5 tinnitus, to compare retention against mia.",
         folder="Male Explainer Voices",
     ),

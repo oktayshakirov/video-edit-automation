@@ -146,3 +146,10 @@ One line per branch: date, the term or channel, what it added.
   twice at 11x ("What Is A SEED Phrase?? How It Is Generated", "...VS
   Private Keys"), Hipo 4.9x Short; "Your Seed Phrase Wasn't Stolen - It Was
   Guessed" 1.1x (the fear angle did not stand out).
+- 2026-10-28, "what is polymarket" / "prediction markets for dummies" (`yt-dlp`
+  search, no units): besides the map's rows, Art of the Problem "The
+  Polymarket Paradox" 776k (mechanism-first, drawn), Good Work "So we're
+  betting on everything now?" 1.8M (culture essay), CreditNinja "Exposing the
+  Impossible Odds of Winning on Prediction Markets" 155k (the sceptic's
+  angle). DGFantasy's 104x is a Kalshi/Polymarket how-to-bet tutorial -
+  closed to us. Teardown: `teardowns/what-are-prediction-markets.md`.

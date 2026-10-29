@@ -124,7 +124,8 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
-                        "spotlight", "blindsign", "spectrum"):
+                        "spotlight", "blindsign", "spectrum",
+                        "shares"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -243,6 +244,16 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "shares":
+            # The card on a pan, the split on a reveal, the prices on a tick,
+            # the odds on an impact, the outcome on a tick (`beats.shares`).
+            from ..longform.beats.shares import settle_time
+            rv = sh.reveals or []
+            for i, k in enumerate(("pan", "reveal", "tick", "emph")):
+                if i < len(rv):
+                    cues.append((rv[i] + (0.05 if i else -0.05), k))
+            if len(rv) > 4:
+                cues.append((settle_time(rv[4]), "tick"))
         elif sh.graphic == "reel":
             for i, t in enumerate((sh.reveals or [])[:12]):
                 if i:
