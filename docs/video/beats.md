@@ -1335,3 +1335,39 @@ one object per phrase, one state change.
   alpha there but inks type at full strength, so every text fade snapped
   (and a "faded out" caption overlapped its replacement). Draw a beat whose
   type fades onto an RGBA layer and paste it, as this beat and `blindsign` do.
+
+## `sweep` - a wallet handed to someone else's code, then left open (2026-10-30)
+
+`payload: (wallet, attacker, link, drained, deposits, title)`, `wallet` and
+`attacker` as `(name, sub)`, `deposits` three to eight short strings.
+**Four reveals, four caption chunks**: the wallet ("one transaction reached
+Binance's hot wallet"), the hand-over ("fifty signed authorizations..."),
+the drain ("...the wallet was empty"), the deposits ("every new deposit was
+swept straight out"). The wallet draws round with a full balance; the
+attacker's card arrives, a line draws into it with `link` on a red label and
+the wallet turns `brand.negative`; the balance runs out along the line and
+reads `drained`; then each deposit lights its time in the log, drops into
+the wallet and leaves along the line, 0.48s apart.
+
+Built for the Binance hack, because TRM's account of it - one transaction,
+fifty pre-signed authorizations, a hot wallet delegated to a sweeper that
+kept emptying deposits for hours - is a mechanism with a *duration*, and
+nothing here drew "it kept happening". `blindsign` is a screen disagreeing
+with its payload; this is a wallet whose own code now works for someone
+else. Reuse it for any drainer or hijacked delegation. `quorum`'s template
+again: line art, one object per phrase, one state change per phrase.
+
+- **Portrait-safe** and whitelisted in `crypto/build.py`: the log, the
+  wallet and the attacker run down the frame. Landscape keeps the log over
+  the wallet and the attacker on the right - three cards in one row left
+  the link label ~190px and it sat on both cards.
+- `__init__` raises on a card name wider than its card and on a label wider
+  than the line it rides.
+- Cues: `pan` on the wallet, `glitch_cut` on the hand-over, `cross` as the
+  balance empties, a `tick` per deposit - from `hand_time`, `drain_span`,
+  `deposit_times`, one clock for sound and picture.
+- Give its sentence a gap of ~1.9-2.0s: six deposits take ~3s from the
+  fourth chunk's start.
+- A cover: draw it at `f` near 1.0 with every deposit landed, and crop from
+  the log's corner to the attacker's.
+

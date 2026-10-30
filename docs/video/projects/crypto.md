@@ -139,7 +139,7 @@ it is built. After the fifth row, go back to `mia` until the user decides.
 | 1 | crypto-when-you-die (long 3:57, Short 41.5s) | 2026-10-24 |
 | 2 | north-korea-crypto (long 4:14, Short 48.2s) | 2026-10-27 |
 | 3 | prediction-markets (long 3:52, Short 53.4s) | 2026-10-28 |
-| 4 | | |
+| 4 | binance-hack (long 3:52 preflight, Short ~45s) | 2026-10-30 |
 | 5 | | |
 
 **`noah` runs at speed 1.16 from pair 4 on** (2026-10-29: the editor heard pair 3 as slow; it was 1.10, mia's speed). At 1.10 it **read ~6% slower than `mia`** (43.3s against 40.7s on the
