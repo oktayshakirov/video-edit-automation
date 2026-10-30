@@ -1280,6 +1280,36 @@ Korean flag. All rejected: on this subject that pairing is a factual error.
 | `hong-kong-night-street/10244484` | fine, unused once the cash-out became a reel card; `10244478` has a McDonald's sign |
 | `usb-security-key-laptop/*`, `conference-hall-delegates/*`, `ice-freezing-close-up-dark/*` | white desks, EU flags, bright ice |
 
+## The Binance-hack fetch: verdicts (2026-10-30)
+
+**The first North Korea pair's roster is unavailable to the second**, so
+every clip here is new. Half of every query came back already used - the
+"dark laptop" and "rain on a window" classes are exhausted on this channel.
+**No Pexels photo of a hardware wallet exists that is not coins, Scrabble
+tiles or a price app**, so the line became "a wallet you hold yourself" over
+a person at home. "Hand holding usb stick" returned burning palo santo.
+
+| clip | verdict |
+| --- | --- |
+| `trading-screens-dark-night/38736270`, `38440688` | **kept**: line charts on a dark monitor (opens and closes both cuts); candlesticks over an RGB keyboard |
+| `stock-ticker-screen-night/9421909`, `7578632`, `38222819` | **kept**: an order book; red and green prices, close; candle bars on a wall screen. `38725029` is a bright green grid |
+| `crypto-chart-monitor-dark-room/38440686` | **kept**: chart monitors in a dark room. `38540416` L121 |
+| `cryptocurrency-app-phone-dark/39494572`, `8480231` | **kept**: a hand with a chart on a phone; two hands on a trading app over a laptop (L48-54) |
+| `man-phone-night-city-dark/19538764`, `34796502` | **kept**: a man in a beanie on his phone at night (subject at ~0.2 of the width, `clip_ax=0.10` in 9:16); a man at home with his phone |
+| `office-night-empty-monitors/34492303` | **kept**: a man at a laptop at home at night - the engineer's laptop |
+| `computer-screen-code-dark-close-up/18382358`, `keyboard-backlit-typing-close-up/9972272` | **kept**: hands on a laptop with code; a backlit keyboard in near-black |
+| `cyber-security-analyst-screens/7534243` | **kept**: a hand at a keyboard under green screens - the attackers' side; green, but dimmed it holds. `6964235` is the hooded-hacker cliche, `5474274` L121 |
+| `earth-from-space-night-lights/3125448`, `20481076` | **kept**: a globe with network arcs (ten chains at once); the Earth turning |
+| `server-rack-blinking-lights-close-up/1085656` | **kept**: a network switch's lights, L52 - the signing systems |
+| `hardware-wallet-usb-crypto/10243082` | **kept**: one Ether coin on black under "On Ethereum" - the one coin in the cut. `38933456` coins over a chart, `8369920` bright |
+| `candle-flame-dark/19726028` | **kept**: a candle on black - the disclaimer |
+| `engineer-laptop-night-office-dark/8212373` | a green-lit room, green against gold |
+| `trading-screens-dark-night/38581103` | green Matrix code |
+| `red-alarm-light-dark/29862379` | an alarm clock that turns to a bright green set by 3s |
+| `police-lights-night/10476426` | an arrest - nobody has been arrested; off-message |
+| `door-opening-dark-light/10577436`, `office-building-night-windows/*`, `clock-night-dark/8322041` | a teal doorway with no door, green windows, a woman under a clock |
+| `hand-holding-usb-stick-dark/6448151` | burning palo santo, not a USB stick |
+
 ## The tinnitus-sounds fetch: verdicts (2026-10-28)
 
 `what-does-tinnitus-sound-like` fetched its roster fresh (about 110 clips in

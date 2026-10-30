@@ -859,3 +859,14 @@ unreadable. Pick `t` after the last reveal's settle time and look at the
 frame at full size. When the long form's cover card already reads, reuse it
 for the Short: scale it to the frame's width, stacked wordmark / card /
 headline (`projects/crypto-short/prediction-markets.py`, `thumbs`).
+
+### A drawn beat card is noise at 320px; the real logo is not (2026-10-30)
+The Binance-hack long cover first carried the finished `sweep` card, as the
+first North Korea pair carried `blindsign`. Beside the top three results for
+"binance hack explained" at 320px (Meet Kevin, Hidden Economy, ABC) its
+five boxes and small labels were unreadable, while the flag was the only
+thing on the page saying "North Korea". Binance's own site card replaced
+it: flag plus tile reads as who and whom before a word. A beat card makes a
+cover only when it has one large element; a multi-box beat stays in the
+video.
+

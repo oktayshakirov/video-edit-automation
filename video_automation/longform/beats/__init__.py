@@ -65,6 +65,7 @@ from .base import (DRAW, POP, RISE, Beat, _display, _font, _hex,  # noqa: F401
                    _mark_bottom, _round_corners, _smooth, _unit)
 from .annotate import Anatomy, Callout, Diagram, Map, Quorum
 from .blindsign import BlindSign
+from .sweep import Sweep
 from .shares import Shares
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
@@ -84,7 +85,7 @@ __all__ = [
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
-    "Spotlight", "BlindSign", "Shares",
+    "Spotlight", "BlindSign", "Shares", "Sweep",
     "DRAW", "POP", "RISE",
 ]
 
@@ -115,6 +116,7 @@ BEATS = {
     "spotlight": Spotlight,
     "quorum": Quorum,
     "blindsign": BlindSign,
+    "sweep": Sweep,
     "shares": Shares,
 }
 
@@ -161,6 +163,8 @@ _COUNT = {
     "quorum": lambda p: len(p[0]) + 1,
     # The card, the approvals, then what was really signed.
     "blindsign": lambda p: 3,
+    # The wallet, the hand-over, the drain, the deposits.
+    "sweep": lambda p: 4,
     # The coin, its split, the prices, the odds - and the outcome, if set.
     "shares": lambda p: 5 if len(p) > 3 and p[3] else 4,
 }

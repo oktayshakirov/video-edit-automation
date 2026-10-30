@@ -125,7 +125,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",
-                        "shares"):
+                        "shares", "sweep"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -244,6 +244,19 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "sweep":
+            # The wallet on a pan, the hand-over on a glitch, the empty
+            # balance on a cross, a tick per deposit (`beats.sweep`).
+            from ..longform.beats.sweep import hand_time, drain_span, deposit_times
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues.append((hand_time(rv[1]), "glitch_cut"))
+            if len(rv) > 2:
+                cues.append((drain_span(rv[2])[1] - 0.05, "cross"))
+            if len(rv) > 3:
+                cues += [(t, "tick") for t in deposit_times(rv[3], len(sh.payload[4]))]
         elif sh.graphic == "shares":
             # The card on a pan, the split on a reveal, the prices on a tick,
             # the odds on an impact, the outcome on a tick (`beats.shares`).

@@ -572,6 +572,19 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "sweep":
+            # The wallet on a pan, the hand-over on a glitch, the empty
+            # balance on a cross, a tick per deposit (`beats.sweep`).
+            from .beats.sweep import hand_time, drain_span, deposit_times
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues.append((hand_time(rv[1]), "glitch_cut"))
+            if len(rv) > 2:
+                cues.append((drain_span(rv[2])[1] - 0.05, "cross"))
+            if len(rv) > 3:
+                cues += [(t, "tick") for t in deposit_times(rv[3], len(sh.payload[4]))]
         elif sh.graphic == "shares":
             # The card on a pan, the split on a reveal, the prices on a tick,
             # the odds on an impact, the outcome on a tick (`beats.shares`).
