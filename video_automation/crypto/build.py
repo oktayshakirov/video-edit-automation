@@ -125,7 +125,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",
-                        "shares", "sweep"):
+                        "shares", "sweep", "mnemonic"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -257,6 +257,22 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
                 cues.append((drain_span(rv[2])[1] - 0.05, "cross"))
             if len(rv) > 3:
                 cues += [(t, "tick") for t in deposit_times(rv[3], len(sh.payload[4]))]
+        elif sh.graphic == "mnemonic":
+            # Clicks while the coin flips settle, a tick on the checksum, a
+            # reveal on the numbers, a pan on the words and an impact when
+            # the last word lands (`beats.mnemonic`).
+            from ..longform.beats.mnemonic import row_times, settle_span
+            rv = sh.reveals or []
+            if rv:
+                t0, t1 = settle_span(rv[0])
+                cues += [(t0 + k * 0.15, "count") for k in range(int((t1 - t0) / 0.15))]
+            if len(rv) > 1:
+                cues.append((rv[1] + 0.15, "tick"))
+            if len(rv) > 2:
+                cues.append((rv[2] + 0.05, "reveal"))
+            if len(rv) > 3:
+                cues.append((rv[3] + 0.05, "pan"))
+                cues.append((row_times(rv[3])[-1] + 0.10, "emph"))
         elif sh.graphic == "shares":
             # The card on a pan, the split on a reveal, the prices on a tick,
             # the odds on an impact, the outcome on a tick (`beats.shares`).

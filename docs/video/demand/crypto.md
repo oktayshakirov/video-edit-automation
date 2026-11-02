@@ -153,3 +153,18 @@ One line per branch: date, the term or channel, what it added.
   Impossible Odds of Winning on Prediction Markets" 155k (the sceptic's
   angle). DGFantasy's 104x is a Kalshi/Polymarket how-to-bet tutorial -
   closed to us. Teardown: `teardowns/what-are-prediction-markets.md`.
+- 2026-11-02, "how do ai agents pay with crypto" (`outliers`, 130 units):
+  **thin**. One small standout on a named term: Blockchain & Crypto "x402
+  Explained: How AI Agents Pay APIs with Stablecoins" 12.9x (1.2k views).
+  The big views are below their channels' medians - Fireship "AI agents are
+  paying each other now…" 489k at 0.2x, CNBC "Why Crypto Is Betting Big On
+  AI Agents" 60k at 0.2x - and the rest are trading bots (closed to us). So:
+  attention exists, no channel has won it yet; the named term (x402) is the
+  E8-shaped way in.
+- 2026-11-02, feed check for "What Is a Seed Phrase? How 12 Words Control
+  Your Crypto": the query returns real views (CoinGecko 54k and 57k,
+  CryptoSnake 108k on top). **Every top cover is a bright illustrated word
+  card** (a BIP39 list, a wallet, keys); ours is the dark one, a hand writing
+  by a candle with the hook's question. Same promise as CoinGecko's (how the
+  words are made), with more proof (the real bits, indices and words drawn).
+  Whether dark-among-bright wins the eye is the thing to read in `traffic`.

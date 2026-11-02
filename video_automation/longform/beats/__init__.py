@@ -66,6 +66,7 @@ from .base import (DRAW, POP, RISE, Beat, _display, _font, _hex,  # noqa: F401
 from .annotate import Anatomy, Callout, Diagram, Map, Quorum
 from .blindsign import BlindSign
 from .sweep import Sweep
+from .mnemonic import Mnemonic
 from .shares import Shares
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
@@ -85,7 +86,7 @@ __all__ = [
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
-    "Spotlight", "BlindSign", "Shares", "Sweep",
+    "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic",
     "DRAW", "POP", "RISE",
 ]
 
@@ -118,6 +119,7 @@ BEATS = {
     "blindsign": BlindSign,
     "sweep": Sweep,
     "shares": Shares,
+    "mnemonic": Mnemonic,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -167,6 +169,8 @@ _COUNT = {
     "sweep": lambda p: 4,
     # The coin, its split, the prices, the odds - and the outcome, if set.
     "shares": lambda p: 5 if len(p) > 3 and p[3] else 4,
+    # The flips, the checksum, the numbers, the words.
+    "mnemonic": lambda p: 4,
 }
 
 

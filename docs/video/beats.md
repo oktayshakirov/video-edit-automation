@@ -1371,3 +1371,31 @@ again: line art, one object per phrase, one state change per phrase.
 - A cover: draw it at `f` near 1.0 with every deposit landed, and crop from
   the log's corner to the attacker's.
 
+
+## `mnemonic` - 128 coin flips becoming twelve words (2026-11-02)
+
+`payload: (entropy, title)`, entropy 32 hex characters. **Four reveals,
+four caption chunks**: the flips ("Each flip is one bit, a one or a
+zero."), the checksum ("It adds four more bits as a checksum, and cuts the
+line into twelve groups of eleven."), the numbers ("Each group is a number,
+from zero to two thousand and forty-seven."), the words ("And each number
+picks one word..."). A 12x11 table: the 128 cells flicker as coins in the
+air and settle row by row into the real bits; the last four set in white as
+the checksum; each row reads out its number; each number lights its word.
+
+Built for `what-is-a-seed-phrase`, because the standout's most replayed
+stretch is this step and its top comment is "confusing as hell" - nothing
+here drew a number becoming a word. **The phrase is computed, never typed**:
+the beat reads the official BIP39 list (`assets/crypto/seed-phrase/`,
+hash in its CREDITS.md), so every bit, index and word on screen agrees. Use
+a fixed demo entropy and say on air that a phrase seen on a screen is not
+secret. `quorum`'s template again: one object per phrase, one state change.
+
+- **Portrait-safe**, whitelisted in `crypto/build.py`; the portrait table
+  ends at x=940, clear of the platforms' button rail.
+- Cues from `settle_span` and `row_times`: a `count` click every 0.15s while
+  the flips settle, `tick` on the checksum, `reveal` on the numbers, `pan`
+  on the words and `emph` as the last word lands.
+- Give its sentence a gap of ~1.6-1.7s: the twelve words cascade over ~1.2s
+  from the fourth chunk's start.
+- `__init__` raises on a word wider than its column.
