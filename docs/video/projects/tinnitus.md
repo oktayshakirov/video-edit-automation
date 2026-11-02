@@ -363,7 +363,18 @@ the fifth row, go back to `mia` until the user decides.
 | 4 | `is-tinnitus-in-the-ear-or-the-brain` | 2026-11-02 |
 | 5 | | |
 
-**`noah` reads ~6% slower than `mia`** (43.3s against 40.7s on the same
+**Pace, measured 2026-11-02, and `noah` now runs at 1.21.** Speech rate
+from the narration cache (syllables a second inside each caption's speech,
+pauses excluded): at 1.16 `noah` read 4.35-4.52 on both channels alike -
+crypto seed-phrase 4.46 / 4.35, tinnitus ear-or-brain 4.52 / 4.44 - against
+`mia`'s ~4.55-4.75 on recent cuts, still ~4% slower, and the editor heard
+the seed-phrase pair as very slow. **The voice was never slower on one
+channel than the other**: one profile, one speed, and the silence share is
+~19% on both. Raised to 1.21 for both (1.10 -> 1.16 bought ~5%, so 1.21
+should land on `mia`); re-measure on the first 1.21 cut. Pairs rendered
+before 2026-11-02 keep the old pace.
+
+**At 1.10, `noah` read ~6% slower than `mia`** (43.3s against 40.7s on the same
 Short script) — about 2.9 words/sec where `mia` reads 3.06 — so **re-run the
 preflight**; a script cut to `mia`'s pace runs long. One script's worth of
 measurement; correct it from the first shipped cut.

@@ -99,6 +99,8 @@ PAYLOADS = {
     "sweep": (("HOT WALLET", "ETHEREUM"), ("ATTACKER CONTRACT", "SWEEPER"),
               "50 SIGNED AUTHORIZATIONS", "EMPTY IN 3 MIN 24 S",
               ["20:41", "20:59", "21:04", "21:44"], "ONE TRANSACTION"),
+    # (entropy, title): portrait-safe.
+    "mnemonic": ("8f3a0c2e5b7d9146a1c3e5f708192a3b", "TWELVE WORDS"),
 }
 
 
@@ -245,7 +247,7 @@ def test_every_beat_class_is_registered():
 
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
-                "spotlight", "blindsign", "shares", "sweep"):
+                "spotlight", "blindsign", "shares", "sweep", "mnemonic"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from

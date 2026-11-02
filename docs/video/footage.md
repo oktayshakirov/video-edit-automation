@@ -1369,3 +1369,31 @@ grid of politicians' faces, kept out. `assets/stock/press/polymarket/`.
 | `person-thinking-laptop-night/30445082`, `rain-on-window-night/5930874` | **kept**: weighing a price; the disclaimer |
 | `betting-odds-screen/*` | casino tables, a roulette wheel, a slot machine - the gambling register this channel avoids |
 | `counting-cash-hands-dark/34579094`, `34579097` | the shoot of `34579096`, already cut |
+
+## The seed-phrase fetch: verdicts (2026-11-02)
+
+Domain: self-custody - writing words down, a phone, a coin flip for the
+randomness, the three thefts (a photo, a resold device, a fake support
+chat). **Pexels has no seed-phrase card, metal backup plate or hardware
+wallet clip** that is not coins or bright product shots; the drawn
+`mnemonic` beat carries the words themselves. Paper-burning came back as
+green-screen plates.
+
+| clip | verdict |
+| --- | --- |
+| `typing-on-phone-dark-close-up/33942937` | **kept**: a thumb over a lit phone in near-black, L11-14 - opens and closes both cuts, the screen an indistinct glow |
+| `typing-on-phone-dark-close-up/5925287`, `39494892` | **kept**: hands with a phone over a laptop; a chat open on a phone - the fake support (green UI, dims fine). `6414098` an emoji keyboard, `4052876` a sofa by a bright window |
+| `hand-writing-notebook-close-up-night/39425741`, `6037421` | **kept**: a hand writing in a notebook, close (warm, L62/S54); a notebook by a candle - a face enters by 85%, so `clip_at` under 12s. `6734222` jumps L30-126, `6326847` L113 |
+| `pen-writing-paper-candlelight/11137423`, `12123578` | **kept**: a nib on paper by a candle (both covers); a typewriter by a candle, L5-12 - the disclaimer. `8741905` a face over a candle, `6037661` drifts to a face |
+| `person-writing-list-desk-lamp-night/8631662` | **kept**: a hand writing under a desk lamp, L42. `7062986` a man posing at a green banker's lamp |
+| `coin-flip-slow-motion/30882814`, `18977071` | **kept**: a coin flipping on pure black (5.9s - one-line slots only); a coin spinning down onto a table. `856219`, `853779`, `31949451` are white studio, L200+ |
+| `scrolling-photo-gallery-phone/6756650`, `6756651` | **kept**: a thumb scrolling a photo grid; a photo grid on a tablet - the screenshot in the cloud. `5045514` a portrait on screen |
+| `smartphone-camera-close-up-dark/3649788` | **kept**: a phone's camera lens in the dark - "never photograph them" |
+| `safe-vault-door-closing/6573544`, `39060937` | **kept**: a hand on a safe's keypad; a key into a deposit box - past ~11s a hand lifts banknotes out and the box ends empty ("lose the whole tree"); under 9s it is only the key. `31750573` coins spilling, `4169882` L145 |
+| `phishing-email-laptop/39191965`, `laptop-login-screen-dark/36036732`, `34771078`, `5281595` | **kept**: hands on a laptop in the dark (37s); a laptop alone in a dark room (38s); hands typing near black; fingers on keys. `27348287` red marketing laptop, `15872811` purple-lit keys |
+| `searching-google-laptop-night/6258096` | **kept, long form only**: a figure at a screen of results - searching for support. In 9:16 it crops onto the bright results grid, as `36036732` crops onto a desktop of icons - the Short took `34771078` and `3649788` instead |
+| `usb-device-plugged-into-laptop/40304895` | **kept**: a cable into a laptop - the resold device being connected |
+| `dice-rolling-dark/*` | magenta 3D dice, off-palette and a different randomness |
+| `unboxing-package-hands-dark/*`, `cardboard-box-delivery-doorstep/*` | bright, or a man in a white shirt holding a bottle - no parcel worth the slot |
+| `hacker-typing-dark-room/*` | the hooded-hacker cliche (`5378133`, `5377646`, `6330778`, `36036810`) and a balaclava (`32831021`) |
+| `live-chat-support-laptop/*`, `phone-taking-photo-of-document/*`, `metal-stamping-letters/*` | bright office white, vegetables, a leather stamp - none of them the noun |

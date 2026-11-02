@@ -140,9 +140,23 @@ it is built. After the fifth row, go back to `mia` until the user decides.
 | 2 | north-korea-crypto (long 4:14, Short 48.2s) | 2026-10-27 |
 | 3 | prediction-markets (long 3:52, Short 53.4s) | 2026-10-28 |
 | 4 | binance-hack (long 3:52 preflight, Short ~45s) | 2026-10-30 |
-| 5 | | |
+| 5 | seed-phrase (long 3:47, Short ~51s) | 2026-11-02 |
 
-**`noah` runs at speed 1.16 from pair 4 on** (2026-10-29: the editor heard pair 3 as slow; it was 1.10, mia's speed). At 1.10 it **read ~6% slower than `mia`** (43.3s against 40.7s on the
+**The five rows are full (2026-11-02): the next crypto pair goes back to
+`mia`** until the user decides from the views audit.
+
+**Pace, measured 2026-11-02, and `noah` now runs at 1.21.** Speech rate
+from the narration cache (syllables a second inside each caption's speech,
+pauses excluded): at 1.16 `noah` read 4.35-4.52 on both channels alike -
+crypto seed-phrase 4.46 / 4.35, tinnitus ear-or-brain 4.52 / 4.44 - against
+`mia`'s ~4.55-4.75 on recent cuts, still ~4% slower, and the editor heard
+the seed-phrase pair as very slow. **The voice was never slower on one
+channel than the other**: one profile, one speed, and the silence share is
+~19% on both. Raised to 1.21 for both (1.10 -> 1.16 bought ~5%, so 1.21
+should land on `mia`); re-measure on the first 1.21 cut. Pairs rendered
+before 2026-11-02 keep the old pace.
+
+**`noah` ran at speed 1.16 from pair 4 on** (2026-10-29: the editor heard pair 3 as slow; it was 1.10, mia's speed). At 1.10 it **read ~6% slower than `mia`** (43.3s against 40.7s on the
 `what-are-memecoins` Short), so for a `noah` script use `words / 3.05 +
 sum(gaps)` rather than 3.25 below — at 1.16 that is likely nearer 3.2; re-measure on pair 4. One script's worth of measurement —
 correct the figure from the first shipped cut. `max` is **not** an article
