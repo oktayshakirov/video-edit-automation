@@ -133,3 +133,9 @@ One line per branch: date, the term or channel, what it added.
 - 2026-10-28, "lenire tinnitus" (118 units): ten standouts, five channels.
 - 2026-10-28, "menopause tinnitus" (122 units): five small standouts; Sound
   Relief's research read-through at 0.4x.
+- 2026-11-02, "is tinnitus in the ear or the brain" (124 units): 12 standouts
+  of 15, the densest page yet - UCI "ear problem or brain problem?" 343x,
+  Treble "The SHOCKING Truth About Tinnitus And Your Brain" 7.4x, Berg 4.8x,
+  plus generic "what is tinnitus" explainers at 95-2274x. Teardown
+  `teardowns/is-tinnitus-in-the-ear-or-the-brain.md`; built as the
+  `is-tinnitus-in-the-ear-or-the-brain` pair.
