@@ -253,6 +253,22 @@ the pattern). If the title is there, set the cover the same way: fetch
 `/{video_id}/thumbnails?is_preferred=true`, then verify the pixels as
 described below. Post Telegram with the standalone workflow.
 
+**`/me/videos` does not list a video until Facebook has finished fetching
+it, so an empty listing right after the timeout proves nothing.** On
+2026-11-03 the 1.04 GB, 60-minute `wild-echoes-478-breathing` timed out the
+same way. Facebook opened its single GET of the mp4 at 16:15:06Z and held the
+tunnel connection for about 20 minutes (~0.85 MB/s, the uplink). Ten minutes
+of polling `/me/videos` showed nothing, the run was written off as failed, and
+a "skip Facebook for anything over an hour" rule was committed and then reverted.
+The video was there all along: `1799493624630369`, published, with a
+`created_time` of 16:15:06, the second the fetch began. **Length is not the
+problem; the synchronous `file_url` POST is.** It only returns the id once
+Facebook has the whole file, so any long render that takes more than ~120s to
+pull through the tunnel loses the id and the cover node every time. While
+Facebook is still fetching, `lsof -nP -iTCP:8765 -sTCP:ESTABLISHED` shows the
+open connection, and the video is listed only after it closes. Keep the tunnel
+up until then, list again, and set the cover from `maxresdefault.jpg` as above.
+
 ## The native Page video's cover
 
 **`thumb_url` on `/me/videos` does nothing, and every long form published
