@@ -856,6 +856,26 @@ changed from the earlier session.
 | 4 | 2:1 (4-8) | `path` | - | 60 | 60 (30 + 30) |
 | 5 | coherent 6-6 (5 breaths a minute) | `path` | - | 60 | 60 (30 + 30) |
 | 6 | 4-7-8 or 4-4-4-4 | `clock` | the row 1 or 2 session | as above | as above |
+| 7 | triangle 4-4-4 (inhale, hold, exhale) | `path` | - | 60 | 60 (30 + 30) |
+| 8 | box 4-4-4-4, **visual only** | `box` | the row 2 session | 64 | 80 (40 + 40) |
+| 9 | physiological sigh (two inhales, a long exhale) | `path` | - | set at build | set at build |
+
+Rows 7-9 were added on 2026-11-03 from the reviewer's suggestions, at the
+user's request to test all of them:
+
+- **Row 8, visual only:** `intro=None, outro=None`, so there is no
+  narration and no instruction cards, only the guide and the sound. The
+  model is "Square Breathing Visual" (1.4M, a silent visual). Judge it
+  against row 2: same exercise, same guide, with and without the voice.
+  The Short keeps its usual short narration unless the build finds it
+  works without.
+- **Row 9, physiological sigh, needs a build step first.** The breath is a
+  full inhale, a short second inhale on top of it, then a long exhale. The
+  renderers know four phases (inhale, hold, exhale, rest), so add a second
+  inhale ("top-up") to `guides.Pattern`, `_breath` and `breathing_phases`
+  before building it, with the path drawing a step on the rise. Keep the
+  copy plain: it is a breathing pattern people use to settle, never "the
+  fastest way to calm down".
 
 `render_asmr_long` raises unless the body (`minutes * 60` minus the two
 bookends) is a whole number of loops. The last two columns are lengths
