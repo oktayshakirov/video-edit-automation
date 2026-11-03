@@ -121,7 +121,9 @@ PYTHONPATH=. .venv/bin/python tools/opening_check.py projects/<project>-short/<n
 ```
 
 It prints the title question, sentence 2, the opener and the word it lands
-on, and flags the shapes that cliffed every time they shipped. Then answer
+on, and flags the shapes that cliffed every time they shipped. It also
+prints the last line and flags one that asks (gated 2026-11-03: a Short
+shipped ending on a question after the 09-11 rule). Then answer
 its last question in one line in the handover: *can the title question be
 answered from sentences 1-2, and if so, is that answer a plain reversal with
 the next question already open?* If the answer is "yes, and it confirms" or
