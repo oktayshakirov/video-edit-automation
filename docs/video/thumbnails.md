@@ -871,18 +871,26 @@ cover only when it has one large element; a multi-box beat stays in the
 video.
 
 
-## A session's cover leads with the exercise; the name goes in the chip (settled 2026-11-03)
+## A session's cover leads with whatever a viewer would click: a real sound, or else the exercise (settled 2026-11-03)
 
-`render_session_thumb(headline=..., pattern=...)`: **`headline` is the
-breathing exercise in big letters ("4-7-8 Breathing", "Box Breathing"),
-and `pattern`, the small orange chip, carries the session's own name
-("Nebula Pulse", "Forest Chorus").** Every session before this did it the
-other way round.
+`render_session_thumb(headline=..., pattern=...)` has two slots, the big
+`headline` and the small orange `pattern` chip. Which goes where depends
+on the session's name:
 
-The editor's call after the Nebula Pulse Test & Compare (E10): Studio
+- **The name is a real sound people know** ("Bird Chirps", "Rain Sounds",
+  "Cat Purring", "Waterfall"): the name leads, the exercise goes in the
+  chip ("5-in, 5-out breathing"). The sound is itself a reason to click.
+- **The name is invented or abstract** ("Nebula Pulse", "Star Drift"): the
+  exercise leads in big letters ("4-7-8 Breathing") and the name goes in
+  the chip. An abstract name tells a viewer nothing about what they will
+  hear.
+- **No breathing exercise:** the sound leads alone.
+
+The test for a name: would someone type it or picture it? "Bird chirps"
+yes, "nebula pulse" no.
+
+The editor's call after the Nebula Pulse Test & Compare (E10). Studio
 called it inconclusive, but the exercise-first cover took 52.3% of watch
-time against 47.7% for the name-first one, and the editor prefers it. Weak
-evidence, so it is a convention, not a measured win; no further thumbnail
-test on sessions is planned. A session with no breathing exercise (cat
-purring, plain rain) leads with the sound people know instead, which is
-what those covers already do.
+time against 47.7% for the name-first one. That is weak evidence, so this
+is a convention, not a measured win, and no further session-thumbnail
+test is planned.
