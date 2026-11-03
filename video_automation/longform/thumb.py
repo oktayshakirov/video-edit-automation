@@ -844,7 +844,9 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
 
     `headline` is two or three words, no brackets — the accent here is the
     duration, so a second highlight would only compete with it. `pattern` is
-    the breath spec ("4 IN / 6 OUT"), drawn as a chip under the headline.
+    drawn as a chip under the headline. Since 2026-11-03 the headline is the
+    exercise ("4-7-8 Breathing") and the chip the session's name ("Nebula
+    Pulse"); `docs/video/thumbnails.md` has why.
 
     The nebula comes from the video's own generator at the same `seed`, so the
     thumbnail is a picture of this video rather than of the format. Pass the
