@@ -870,3 +870,19 @@ it: flag plus tile reads as who and whom before a word. A beat card makes a
 cover only when it has one large element; a multi-box beat stays in the
 video.
 
+
+## A session's cover leads with the exercise; the name goes in the chip (settled 2026-11-03)
+
+`render_session_thumb(headline=..., pattern=...)`: **`headline` is the
+breathing exercise in big letters ("4-7-8 Breathing", "Box Breathing"),
+and `pattern`, the small orange chip, carries the session's own name
+("Nebula Pulse", "Forest Chorus").** Every session before this did it the
+other way round.
+
+The editor's call after the Nebula Pulse Test & Compare (E10): Studio
+called it inconclusive, but the exercise-first cover took 52.3% of watch
+time against 47.7% for the name-first one, and the editor prefers it. Weak
+evidence, so it is a convention, not a measured win; no further thumbnail
+test on sessions is planned. A session with no breathing exercise (cat
+purring, plain rain) leads with the sound people know instead, which is
+what those covers already do.
