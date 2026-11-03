@@ -314,7 +314,7 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
     `look` replaces the nebula with a `core.looks` picture (a `Look` subclass
     or a shelf name). Pass the long form's look and its `loop` as
     `look_period` so the Short is the same picture. The look's clock starts with the first breath rather than the
-    video, so a look that moves with the breath (`fern-breath`) stays in step
+    video, so a look that moves with the breath (`FernBreath`) stays in step
     with the ring.
 
     `guide` swaps the ring for a `tinnitus.guides` path, box or clock (E13).

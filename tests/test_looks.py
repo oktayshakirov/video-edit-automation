@@ -21,6 +21,7 @@ import pytest
 
 from video_automation.core import looks
 from video_automation.tinnitus import session_looks
+from video_automation.tinnitus.session_looks.wild_echoes_478 import FernBreath
 
 SIZES = [(320, 180), (180, 320)]          # landscape and portrait layouts
 
@@ -63,10 +64,10 @@ def test_a_used_look_is_not_on_the_shelf():
 
 
 def test_fern_breath_refuses_a_period_the_breath_does_not_divide():
-    if not _available(looks.SHELF["fern-breath"]):
-        pytest.skip("fern-breath: stock source not in the local Pexels cache")
+    if not _available(FernBreath):
+        pytest.skip("FernBreath: stock source not in the local Pexels cache")
     with pytest.raises(ValueError):
-        looks.make("fern-breath", 320, 180, 60.0, (4.0, 7.0, 8.0))
+        looks.make(FernBreath, 320, 180, 60.0, (4.0, 7.0, 8.0))
 
 
 def test_an_unknown_look_names_the_shelf():
