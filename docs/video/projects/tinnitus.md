@@ -746,9 +746,9 @@ fresh in its own style. So:
   looks are made from (`Mist`, `Fireflies`, `orbit`, `vignette`, `cover`,
   `fbm`, `ease`). Start a new look there.
 - **The shelf (`looks.SHELF`) holds looks built and approved but not yet
-  used** — `cascade-still` and `fern-breath`, left over from the 2026-10-15
-  test round. A video may take one instead of building fresh. (`canopy-fog`
-  went to `forest-chorus-box-breathing`.)
+  used** — `cascade-still`, left over from the 2026-10-15 test round. A
+  video may take it instead of building fresh. (`canopy-fog` went to
+  `forest-chorus-box-breathing`, `fern-breath` to `wild-echoes-478-breathing`.)
 - **A used look moves off the shelf into that video's own module** under
   `tinnitus/session_looks/` (`jungle_waterfall_478.py` holds `NightFronds`,
   `forest_chorus_box.py` holds `CanopyFog`),
@@ -900,6 +900,17 @@ sound completely is what most people do and what the post argues against.
 
 Same medical rule as mode 1, and it bites harder here because a session looks
 like a treatment. It is a sound to listen to. Say that.
+
+### The album is named in the description, not in the narration (2026-11-03)
+
+**When the user names the album a recording comes from** ("the sound is from
+zen/jungle-stillness"), **that is for the description's link** - the album's
+page on tinnitushelp.me - and not a line for `luna` to read. The intro and
+outro name the sound ("an hour of jungle sounds") and say nothing about the
+album or where to find it. The user's note after `wild-echoes-478-breathing`,
+which still says "from our album, Jungle Stillness" and "the whole album is
+on our website" and shipped that way. Earlier sessions (Feathered Tunes) did
+the same; do not copy their lines.
 
 ### The Short's outro asks for a save
 
