@@ -72,7 +72,7 @@ link line is the same next step, in the same words.
 | --- | --- | --- | --- | --- | --- |
 | crypto long | yes | no | yes, native video | no | yes |
 | crypto short | yes | Reel | Reel | yes (draft) | no |
-| tinnitus long | yes | no | yes, native video (under 1 hour only) | no | yes |
+| tinnitus long | yes | no | yes, native video | no | yes |
 | tinnitus short | yes | Reel | Reel | yes (draft) | no |
 | drone long | yes | no | no | no | no |
 | drone short | yes | no | no | yes (draft) | no |
@@ -83,18 +83,6 @@ workflow). A long goes up as a **native video** on the Page feed (16:9, no
 duration cap, the Publish Facebook Video workflow). A 2 to 4 minute explainer is
 not a Reel and must never be squeezed into one; a vertical short posted as a
 feed video wastes the format. Pick by the video, not by the site.
-
-**A video of 1 hour or more skips Facebook entirely.** The editor's decision,
-2026-11-03. Facebook gets 20 to 30 minute sessions; the hour-long ones stay on
-YouTube, where the "tinnitus at night" demand behind them lives (E12). The
-evidence was one-sided: a 20-minute session reached ~40k Facebook views, and a
-Page feed is scrolled, not left playing. It is also a practical limit - the
-first 1-hour session (`wild-echoes-478-breathing`, 1.04 GB) was dropped by
-Facebook after a 20-minute fetch through the tunnel and never reached the Page,
-because `file_url` makes Facebook pull the whole file in one request. Do not
-cut a 20-minute Facebook version of an hour-long session unless asked; skip the
-row's Facebook column, and say so in the closing report. The Short's Reel is
-unaffected.
 
 **Instagram is shorts only.** It has no long-form equivalent here - a 16:9
 explainer has nowhere sensible to go on that account.
