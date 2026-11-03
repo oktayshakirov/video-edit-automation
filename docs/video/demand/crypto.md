@@ -11,10 +11,10 @@ millions-of-subscribers channels: a 30k video there may be below their median.
 The words a newcomer or a sceptic types. Tick a term (`[x]`) when its branch
 is exhausted, with the date.
 
-- [ ] how does bitcoin work
+- [x] how does bitcoin work (2026-11-03, proven, old and crowded)
 - [ ] is crypto a scam / crypto scams
 - [ ] [named token] explained / is [token] a scam
-- [ ] crypto wallet / seed phrase / self custody
+- [x] crypto wallet / seed phrase / self custody (2026-11-02, teardown `what-is-a-seed-phrase`)
 - [ ] how to not lose money in crypto
 - [x] what happens to crypto when you die (2026-10-25, no demand found)
 - [ ] who is satoshi nakamoto / crypto mysteries
@@ -29,12 +29,21 @@ is exhausted, with the date.
 
 | date seen | title | channel | views | median | ratio | subject | title format | execution |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 09-04 | The Pi Network & Pi Token - A Daily Clicking Scam or HUGE airdrop? | Whiteboard Crypto | 113k | ? | ? | a named project people are unsure of | "[Named thing] - [scam] or [opportunity]?" | animation, one analogy per concept |
-| 09-04 | TRUMP Coin & MELANIA Memecoin (Explained with Animation) | Whiteboard Crypto | 62k | ? | ? | a named coin in the news | "[Named thing] (Explained with Animation)" | animation |
-| 09-04 | Earn Crypto With Political Predictions - Polymarket Explained | Whiteboard Crypto | 42k | ? | ? | a named platform | "[What it lets you do] - [Name] Explained" | animation |
-| 09-04 | The Real Reason Bitcoin EXPLODED Today | Coin Bureau | 112k | ? | ? | today's price move (news) | "The real reason [X] [CAPS verb] today" | news - closed to us (evergreen first, no price talk) |
-| 09-04 | The Financial System Is BREAKING. Bitcoin Isn't. | Coin Bureau | 85k | ? | ? | a big-picture shift | "[Old thing] is [CAPS]. [New thing] isn't." | opinion |
-| 09-04 | Germany Is Coming For YOUR Bitcoin. | Coin Bureau | 29k | ? | ? | a named antagonist, the viewer's own stake | "[Antagonist] is coming for YOUR [thing]" | news |
+| 09-04 | The Pi Network & Pi Token - A Daily Clicking Scam or HUGE airdrop? | Whiteboard Crypto | 113k | 27,204 | 4.2x | a named project people are unsure of | "[Named thing] - [scam] or [opportunity]?" | animation, one analogy per concept |
+| 09-04 | TRUMP Coin & MELANIA Memecoin (Explained with Animation) | Whiteboard Crypto | 62k | 27,204 | 2.3x | a named coin in the news | "[Named thing] (Explained with Animation)" | animation |
+| 09-04 | Earn Crypto With Political Predictions - Polymarket Explained | Whiteboard Crypto | 42k | 27,204 | 1.5x | a named platform | "[What it lets you do] - [Name] Explained" | animation |
+| 09-04 | The Real Reason Bitcoin EXPLODED Today | Coin Bureau | 112k | 33,414 | 3.4x | today's price move (news) | "The real reason [X] [CAPS verb] today" | news - closed to us (evergreen first, no price talk) |
+| 09-04 | The Financial System Is BREAKING. Bitcoin Isn't. | Coin Bureau | 85k | 33,414 | 2.5x | a big-picture shift | "[Old thing] is [CAPS]. [New thing] isn't." | opinion |
+| 09-04 | Germany Is Coming For YOUR Bitcoin. | Coin Bureau | 29k | 33,414 | 0.9x | a named antagonist, the viewer's own stake | "[Antagonist] is coming for YOUR [thing]" | news |
+
+| 11-03 | Explain BITCOIN to Complete Beginners: Ultimate Guide | Coin Bureau | 1.7M | 33,414 | 50.6x (3.4 yrs) | how Bitcoin works, from zero | "Explain [X] to complete beginners: ultimate guide" | long, a full guide |
+| 11-03 | Bitcoin Explained in 45 Seconds | Peter H. Diamandis | 397k | 7,915 | 50.2x (3.7 yrs) | how Bitcoin works | "[X] explained in N seconds" | Short |
+| 11-03 | The Greatest Bitcoin Explanation of ALL TIME (in Under 10 Minutes) | Altcoin Daily | 3.7M | 99,861 | 36.6x (3.1 yrs) | how Bitcoin works | "The greatest [X] explanation of ALL TIME (in under N minutes)" | long, a clip of someone else explaining |
+| 11-03 | What is BITCOIN?? Explained for Beginners | CoinGecko | 84k | 5,729 | 14.7x (2.5 yrs) | how Bitcoin works | "What is [X]?? Explained for beginners" | long |
+| 11-03 | But how does bitcoin actually work? | 3Blue1Brown | 18.1M | 1.6M | 11.3x (9 yrs) | the mechanism, done properly | "But how does [X] actually work?" | long, drawn, 26 min |
+| 11-03 | What is Cryptocurrency and How Does it Work? | Explains 101 | 1.4M | 132,104 | 10.3x (2 yrs) | how crypto works | plain question | long |
+
+*The 09-04 rows' medians were filled 2026-11-03 (Whiteboard Crypto from RSS, Coin Bureau from `outliers`); their views are as of 09-04, so those ratios run low.*
 
 **Proven subjects (2+ channels):** none yet. Named-project explainers recur
 on Whiteboard Crypto alone; a second channel is needed.
@@ -47,6 +56,9 @@ on Whiteboard Crypto alone; a second channel is needed.
 | What Was the First Bitcoin Transaction? (long) | 176 (10-11) | 148 browse, 20 search | not search; a story with a known name in it |
 | How Would You Prove You're Satoshi Nakamoto? (Short) | 52, 82% retention (09-02) | Shorts feed | an unsolved identity mystery, framed as a challenge |
 | Halving (Short) | 335 (10-23) | Shorts feed | a known event with a number ("2140") |
+| GTA 6 / Dacity Coin (long), update | **1,274 (11-02)**, 4,937 impressions, CTR 8.73% | 1,008 of 1,214 search ("dacity coin" 314, "dacity" 139) | still search, still growing before the 11-19 game launch. Off-audience: crypto subscribers 9 on 10-23 and 9 on 11-02, and no later upload took more than 2 suggested views from it |
+| What Are Meme Coins and How Do They Work? (long) | 86 (11-02); **11,478 impressions at 0.05% CTR** | 77 of 86 search, on "meme coin launch", "how to launch a meme coin", "rug pull" | YouTube shows it for launch/rug-pull searches (the video's pool beat) and almost nobody clicks a "What are meme coins?" title there. The searchers want how a launch and a rug pull work |
+| How Did North Korea Take $6 Billion From Binance? (Short) | 131, **opens 338%**, still 240% at the last frame | Shorts feed | a heavy loop on a small sample; 4 likes. One or a few viewers replaying can do this at 131 views, so wait for it to hold |
 
 **The off-topic warning applies to GTA 6.** Its viewers searched a game's
 coin. Whether any of them watched a second video or subscribed is the
@@ -168,3 +180,9 @@ One line per branch: date, the term or channel, what it added.
   by a candle with the hook's question. Same promise as CoinGecko's (how the
   words are made), with more proof (the real bits, indices and words drawn).
   Whether dark-among-bright wins the eye is the thing to read in `traffic`.
+- 2026-11-03, "how does bitcoin work" (`outliers`, 132 units, the review's
+  branch): 9 standouts of 15, every one 2-12 years old on a large channel
+  (Coin Bureau 50.6x, Diamandis Short 50x, Altcoin Daily 37x, CoinGecko
+  15x, 3Blue1Brown 11x). Proven and evergreen, and crowded by channels with
+  100x our reach. Our way in would be a narrower question inside it (a
+  sub-mechanism no standout answers), not the beginner guide itself.

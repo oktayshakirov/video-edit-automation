@@ -276,9 +276,9 @@ ranking and no winner.
   needed, send only the description. The baseline is in
   `video-performance-review/history/2026-10-11.md`. Remove this bullet when
   the user says the test has ended.
-- **Live from 2026-10-24: a Studio thumbnail Test & Compare on the tinnitus
-  session Nebula Pulse `r7NqyOv5_9Y`** (experiment E10). Do not write its
-  title or thumbnail through the API until the user says it has ended.
+- **Ended 2026-11-03: the Nebula Pulse `r7NqyOv5_9Y` thumbnail test (E10)**
+  came out inconclusive (A 47.7% / B 52.3%, A kept). Its title and
+  thumbnail can be written through the API again.
 
 ## Channel context — crypto and tinnitus
 

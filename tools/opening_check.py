@@ -19,11 +19,17 @@ file that will be rendered:
 It cannot judge the answer; that is the writer's call. It flags the shapes
 that were verdicts every time they shipped, and exits 1 when it does:
 
-- a **yes/no title question** - any natural sentence 2 is "yes";
+- a **yes/no title question** - any natural sentence 2 is "yes". An
+  either/or question ("Is it X or Y?") is not one: its answer is X or Y,
+  never yes, so it is not flagged (2026-11-03, two false flags in a run);
 - sentence 2 **opening on a verdict** - "Yes", "It can", "Usually";
 - a **very short first clause after a who/what question** - "Hal Finney.";
 - a **redacted hook hiding only a placeholder** - `[one source]`,
-  `[two things]` - which keeps the verdict back and reveals nothing.
+  `[two things]` - which keeps the verdict back and reveals nothing;
+- a **last line that asks** - a Short's ending loops, it does not ask
+  (`narration.md`, 2026-09-11). "Is Tinnitus Ringing or Buzzing?" shipped
+  ending on a question on 2026-10-28, after the rule, because nothing read
+  the ending (`video-performance-review/history/2026-11-03.md`).
 
 It also prints the word the opener lands on, without flagging it: `hook=`
 and `at_word=` are meant to be said in sentence 2, so the word is always
@@ -136,9 +142,13 @@ def check(path: Path) -> list[str]:
     if word:
         print(f"  lands on        {word!r}")
 
+    last = text(sentences[-1]).strip()
+    print(f"  last line       {last}")
+
     flags = []
     first = s1.split()[0].lower().strip("?,") if s1.split() else ""
-    if first in YES_NO:
+    either_or = re.search(r"\bor\b", s1, re.I)
+    if first in YES_NO and not either_or:
         flags.append("yes/no title question - sentence 2 must not say, or "
                      "let the viewer infer, the yes")
     if VERDICT_START.match(s2) or VERDICT_ANY.search(s2):
@@ -153,6 +163,9 @@ def check(path: Path) -> list[str]:
         flags.append(f"the hidden word {word!r} is a placeholder - the reveal "
                      f"shows nothing worth seeing. Use the pair's opener, a "
                      f"Counter/Stamp, or a statement hook")
+    if last.endswith("?"):
+        flags.append("the last line asks - a Short's ending loops, it does "
+                     "not ask. End on a flat statement or a directive")
     for f in flags:
         print(f"  ! {f}")
     if word:

@@ -810,6 +810,20 @@ to set the level**. The bed sidechains under it and returns to full afterwards.
 `luna` and not `mia`: SOFT chain, unhurried, no pitch shift. An explainer
 wants the reader who explains; this wants the one the listener settles under.
 
+### Length: one session at an hour (E12, from 2026-11-03)
+
+Every session so far is 20 minutes. The 11-03 demand branch ("tinnitus at
+night") shows the standouts for this subject are hours long on three
+channels (Doctor Cliff 10 hours 442x, Treble 10-hour crickets 67x, Sound
+Relief 10 hours 7.6x), and all seven of our older sessions now grow on
+suggested. **The next session renders at `minutes=60`, with everything
+else as usual** (a new look, the usual bed rules, the same thumbnail
+layout with "60 MINUTES" or "1 HOUR" in the circle). Render cost stays flat
+because the picture loops; the file is the cost, so check disk before the
+render. The Short is unchanged. Judged in
+`video-performance-review/experiments.md` E12; go to 3 hours only if it
+holds.
+
 ## Copy for a session
 
 **The angle is partial masking**, straight out of

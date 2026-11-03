@@ -12,11 +12,11 @@ exhausted, with the date.
 
 - [ ] tinnitus
 - [ ] ringing in ears
-- [ ] tinnitus at night / can't sleep tinnitus
+- [x] tinnitus at night / can't sleep tinnitus (2026-11-03, proven: multi-hour beds and night tips)
 - [x] tinnitus spikes (2026-10-25) / [ ] tinnitus suddenly louder
 - [ ] does tinnitus go away
 - [ ] tinnitus relief sounds / tinnitus masking
-- [ ] tinnitus in one ear
+- [x] tinnitus in one ear (2026-10-28)
 - [ ] tinnitus and anxiety / stress
 - [ ] tinnitus treatment / new tinnitus treatment
 - [ ] pulsatile tinnitus
@@ -28,14 +28,14 @@ exhausted, with the date.
 
 | date seen | title | channel | views | median | ratio | subject | title format | execution |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 09-04 | Lenire Tinnitus Device: An Honest Review (2026) | Treble Health | 64k | ? | ? | a named treatment device | "[Named thing]: An Honest Review (year)" | long-form review |
-| 09-04 | BEST Mountain Stream Sounds for Deep Sleep & Tinnitus Relief, No Ads, 10 Hours | Sound Relief | 44k | ? | ? | sleep sound bed | "BEST [sound] for [sleep] & Tinnitus, No Ads, N Hours" | multi-hour audio, still picture |
-| 09-04 | Liam's Tinnitus Score Dropped From 47 to 5: Here's How | Sound Relief | 9.7k | ? | ? | someone else's improvement | "[Name]'s [measure] went from X to Y: here's how" | patient story (real patient - closed to us) |
-| 09-04 | Menopause Caused My Tinnitus, Here's What Research Says | Sound Relief | 5.7k | ? | ? | a cause the viewer suspects | "[Cause] caused my tinnitus, here's what research says" | research read-through |
-| 09-04 | Does Tinnitus Cause Dementia? What the Research ACTUALLY Shows | Treble Health | 5.5k | ? | ? | a health fear | "Does tinnitus cause [fear]? What the research ACTUALLY shows" | sober research answer |
-| 09-04 | Random TINNITUS SPIKES explained! | Treble Health | 4.5k | ? | ? | spikes | plain question, search words in CAPS | Short |
-| 09-04 | (spike video) | Sound Relief | 6.5k | ? | ? | spikes | - | - |
-| 09-04 | Are Earplugs Making Your Tinnitus Worse? | Sound Relief | 1.7k | ? | ? | a habit that backfires | "Are [habit] making your tinnitus worse?" | myth-flip |
+| 09-04 | Lenire Tinnitus Device: An Honest Review (2026) | Treble Health | 64k | 8,291 | 7.7x | a named treatment device | "[Named thing]: An Honest Review (year)" | long-form review |
+| 09-04 | BEST Mountain Stream Sounds for Deep Sleep & Tinnitus Relief, No Ads, 10 Hours | Sound Relief | 44k | 5,808 | 7.6x | sleep sound bed | "BEST [sound] for [sleep] & Tinnitus, No Ads, N Hours" | multi-hour audio, still picture |
+| 09-04 | Liam's Tinnitus Score Dropped From 47 to 5: Here's How | Sound Relief | 9.7k | 5,808 | 1.7x | someone else's improvement | "[Name]'s [measure] went from X to Y: here's how" | patient story (real patient - closed to us) |
+| 09-04 | Menopause Caused My Tinnitus, Here's What Research Says | Sound Relief | 5.7k | 5,808 | 0.4x (10-28 `outliers`) | a cause the viewer suspects | "[Cause] caused my tinnitus, here's what research says" | research read-through |
+| 09-04 | Does Tinnitus Cause Dementia? What the Research ACTUALLY Shows | Treble Health | 5.5k | 8,291 | 0.7x | a health fear | "Does tinnitus cause [fear]? What the research ACTUALLY shows" | sober research answer |
+| 09-04 | Random TINNITUS SPIKES explained! | Treble Health | 4.5k | not measured | not measured (Short) | spikes | plain question, search words in CAPS | Short |
+| 09-04 | (spike video) | Sound Relief | 6.5k | 5,808 | 1.1x | spikes | - | - |
+| 09-04 | Are Earplugs Making Your Tinnitus Worse? | Sound Relief | 1.7k | 5,808 | 0.3x | a habit that backfires | "Are [habit] making your tinnitus worse?" | myth-flip |
 | 10-25 | How to Manage a Tinnitus Spike | Julian Cowan Hill | 47k | 1,067 | 44x (11 yrs old, inflated) | what to do during a spike | "How to manage a tinnitus spike" | long talk |
 | 10-25 | How To Manage Tinnitus Spikes: My Experience | Alice Moyle | 6.2k | 875 | 7.0x | what to do during a spike | "How to manage X: my experience" | personal story (closed to us) |
 | 10-25 | How to Manage a Tinnitus Spike (And What Causes Them) | Treble Health | 35k | 6,090 | 5.8x | what to do during a spike | "How to manage X (and what causes it)" | 14:27, 8 techniques; teardown `teardowns/manage-a-tinnitus-spike.md` |
@@ -62,6 +62,15 @@ exhausted, with the date.
 | 10-28 | Let's Talk Menopause & Tinnitus! | Morphus | 2.4k | 254 | 9.4x | menopause and tinnitus | - | Short |
 | 10-28 | Menopause & The Surprising Link to Your Ears | Dr. Carolyn Moyers | 1.5k | 206 | 7.5x | menopause and tinnitus | "X and the surprising link to Y" | long |
 
+| 11-03 | BEST Tinnitus Relief Sound Therapy Treatment \| 10 Hours | Doctor Cliff, AuD | 3.9M | 8,755 | 442x (5.5 yrs) | a sound bed to sleep with | "BEST [sound/therapy] for tinnitus, N hours" | 10-hour audio, still picture |
+| 11-03 | 10 HOUR TINNITUS SOUND THERAPY \| Crickets Chirping | Treble Health | 693k | 10,282 | 67.4x (4.6 yrs) | a sound bed to sleep with | "N HOUR [sound] \| [named sound]" | 10-hour audio |
+| 11-03 | How to Deal With Tinnitus at Night: 9 Pro Tips | HearingTracker | 21k | 3,802 | 5.5x | sleeping with tinnitus | "How to deal with X at night: N pro tips" | long, a 9-point list |
+| 11-03 | How to Sleep Better with Tinnitus | Doctor Cliff, AuD | 45k | 8,755 | 5.1x | sleeping with tinnitus | "How to sleep better with X" | long |
+| 11-03 | Tinnitus 7500 Hz Tone (What Does Tinnitus Sound Like) | Sound Relief | 3.2M | 1,124 | 2863x (5.6 yrs) | what tinnitus sounds like | "[Tone] (What does tinnitus sound like)" | Short, a pure tone |
+| 11-03 | One Move for Instant Tinnitus Relief #Shorts | SpineCare Decompression | 3.2M | 34,011 | 95x | instant relief | "One move for instant X relief" | Short - **closed to us** (promises relief) |
+
+*The 09-04 rows' medians were filled 2026-11-03 from each channel's RSS (last 15 uploads); their views are as of 09-04, so those ratios run low.*
+
 **Proven subjects (2+ channels):**
 
 - **What to do during a spike** - five channels at 3.5x-44x (10-25). The
@@ -85,6 +94,16 @@ exhausted, with the date.
   09-04 row above was raw views, not a standout. Proven by count, small by
   size.
 
+- **Multi-hour sound beds for sleep** - Doctor Cliff 442x, Treble 67x,
+  Sound Relief 7.6x (11-03, "tinnitus at night"). Three channels, so proven,
+  and every one is hours long. Ours run 20 minutes. Our own 4-7-8 session
+  is the one tinnitus long-form still growing, on suggested.
+- **How to sleep with tinnitus (tips)** - HearingTracker 5.5x, Doctor Cliff
+  5.1x (11-03). Seen failing on the same page: Treble's "BEST Ways to Reduce
+  Tinnitus at Night" 1.6x and "How To Manage Tinnitus At Night" 0.6x, Sleep
+  Doctor 0.9x, Metro Hearing 0.4x. The winners name a number of tips or
+  promise better sleep; the losers promise to reduce or manage tinnitus.
+
 Everything else above is one channel so far - a clue, not proof.
 
 ## Our own standouts
@@ -98,6 +117,9 @@ channel. Read `traffic` before crediting a title.
 | 4-7-8 breathing session `09-05` | 388 YouTube (10-23) | suggested | a technique people already know by name |
 | Does Silence Make Tinnitus Worse? (Short) | 220 at 09-01, loops (opens 190%) | Shorts feed | overturns a belief the sufferer holds; cold close loops |
 | How to Sleep With Tinnitus (long) | 167 at 10-23 | 129 suggested, 7 search | not search, despite its title (10-23 correction) |
+| 4-7-8 breathing session `09-05`, update | 440 YouTube (11-02), 4,075 impressions, CTR 5.84% | 272 suggested, 130 browse, 7 search | still the one session growing; CTR is the best of the sessions bar Cat Purring's 7.8% on 245 impressions |
+| Nebula Pulse session `10-22` | 5 at 10-23, **186 at 11-02**, CTR 4.60% on 2,368 | 130 of 147 suggested | rose during the E10 thumbnail test, which ended inconclusive (11-03): both covers drew it, so the cover was not the reason |
+| What Do You Do During a Tinnitus Spike? (Short, the spike re-angle) | YouTube 38, opens 150%, half gone 27.9s; **Facebook Reel 404** | Shorts feed / Facebook | the best article Short curve since Halving, on the re-angled promise; its long has 3 YouTube views |
 
 ## Formats, and whether they fit this channel
 
@@ -139,3 +161,10 @@ One line per branch: date, the term or channel, what it added.
   plus generic "what is tinnitus" explainers at 95-2274x. Teardown
   `teardowns/is-tinnitus-in-the-ear-or-the-brain.md`; built as the
   `is-tinnitus-in-the-ear-or-the-brain` pair.
+- 2026-11-03, "tinnitus at night" (`outliers`, 114 units, the review's
+  branch): 7 standouts of 15. Multi-hour sound therapy dominates (Doctor
+  Cliff 10 hours 442x, Treble 10-hour crickets 67x), then night tips at 5x
+  (HearingTracker, Doctor Cliff). Treble's own night explainers 0.6-1.6x.
+  Plus the usual doctor Shorts (7500 Hz tone 2863x, UCI 924x). The bare
+  "tinnitus" / "ringing in ears" seeds were skipped: the 10-28 and 11-02
+  pages show the same generic Shorts top every tinnitus query.
