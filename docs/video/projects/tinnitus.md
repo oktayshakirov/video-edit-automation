@@ -816,13 +816,59 @@ Every session so far is 20 minutes. The 11-03 demand branch ("tinnitus at
 night") shows the standouts for this subject are hours long on three
 channels (Doctor Cliff 10 hours 442x, Treble 10-hour crickets 67x, Sound
 Relief 10 hours 7.6x), and all seven of our older sessions now grow on
-suggested. **The next session renders at `minutes=60`, with everything
-else as usual** (a new look, the usual bed rules, the same thumbnail
-layout with "60 MINUTES" or "1 HOUR" in the circle). Render cost stays flat
+suggested. **Sessions render at `minutes=60`** (a new look, the usual
+bed rules, the same thumbnail layout with "60 MINUTES" or "1 HOUR" in the
+circle), each with the guide and exercise from the queue under "Guides"
+below. Render cost stays flat
 because the picture loops; the file is the cost, so check disk before the
 render. The Short is unchanged. Judged in
 `video-performance-review/experiments.md` E12; go to 3 hours only if it
 holds.
+
+### Guides: a path, a box or a clock instead of the ring (E13, from 2026-11-03)
+
+`guide=` on `render_asmr_long` and `render_asmr_short` (`tinnitus/guides.py`)
+draws the breath one of four ways. Pass the same value to both cuts.
+
+| `guide` | what it draws | patterns |
+| --- | --- | --- |
+| `"ring"` | the original: grows on the inhale, shrinks on the exhale | any; the default, so old scripts are unchanged |
+| `"path"` | a line scrolling under a fixed dot: rise, flat top, fall, flat bottom, widths in proportion to the seconds, each side labelled "INHALE 4" | any |
+| `"box"` | a square, one labelled side per phase, the dot going round it | four phases only (box, 6-6-6-6); raises otherwise |
+| `"clock"` | a dial in sectors sized by the seconds, a hand that sweeps it once a breath, the active sector lit | any |
+
+**Why:** the breathing channels that stand out draw the breath as a shape
+the eye can read ahead of time. A ring only shows the current moment. On
+11-03, "box breathing" returned 13 standouts of 15 (a plain "Square
+Breathing Visual" at 1.4M), and "6-6-6-6 breathing" returned 7, across
+four channels. The guide is the experiment; the exercise is demand.
+
+**The queue: each next session is 60 minutes (E12) with one guide and one
+exercise.** It is ordered so that each new guide first runs on an exercise
+we have already shipped with the ring, so the guide is the only thing that
+changed from the earlier session.
+
+| # | exercise | guide | already shipped with the ring | `loop` | `intro_len` + `outro_len` |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 4-7-8 | `path` | 4-7-8 + White Noise, Waterfall, Jungle, Nebula | 57 | 66 (e.g. 36 + 30) |
+| 2 | box 4-4-4-4 | `box` | Forest Chorus | 64 | 80 (40 + 40) |
+| 3 | 6-6-6-6 | `clock` | - | 72 | 72 (38 + 34) |
+| 4 | 2:1 (4-8) | `path` | - | 60 | 60 (30 + 30) |
+| 5 | coherent 6-6 (5 breaths a minute) | `path` | - | 60 | 60 (30 + 30) |
+| 6 | 4-7-8 or 4-4-4-4 | `clock` | the row 1 or 2 session | as above | as above |
+
+`render_asmr_long` raises unless the body (`minutes * 60` minus the two
+bookends) is a whole number of loops. The last two columns are lengths
+that pass at 60 minutes.
+
+**Copy:**
+- **The title leads with the exercise as people type it:** "6-6-6-6 Box
+  Breathing + Rain for Tinnitus (1 Hour)".
+- **The thumbnail follows the session-cover rule in `thumbnails.md`.**
+- **"2:1 breathing" is described, never sold.** "Lower your heart rate",
+  which leads that format elsewhere, is a health claim and is closed to us.
+- **Patterns with holds of 6 seconds or more say once in the intro to
+  breathe normally if a hold is uncomfortable.**
 
 ## Copy for a session
 

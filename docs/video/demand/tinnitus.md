@@ -168,3 +168,12 @@ One line per branch: date, the term or channel, what it added.
   Plus the usual doctor Shorts (7500 Hz tone 2863x, UCI 924x). The bare
   "tinnitus" / "ringing in ears" seeds were skipped: the 10-28 and 11-02
   pages show the same generic Shorts top every tinnitus query.
+- 2026-11-03, "box breathing" (128 units) and "6-6-6-6 breathing" (114),
+  for the session guides (E13): box breathing returns 13 standouts of 15,
+  mostly health-system Shorts at 650-12,000x plus "Square Breathing Visual"
+  (UAB, a silent visual, 1.4M) and Pocket Breath Coach "4-4-4-4 Breathing
+  Exercise" 135x. 6-6-6-6: Free Your Breath 70x, Breathing Around The World
+  68x, Pocket Breath Coach's coherent "6-6 Breathing" 40x long / 8.9x
+  Short, Neil Tranter's coherent breathing timer 11.7x. **Proven: box
+  breathing and coherent (6-6, 5 breaths a minute) breathing**, as
+  exercises a viewer plays along with, with or without sound.

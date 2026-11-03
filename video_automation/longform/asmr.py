@@ -46,6 +46,7 @@ from ..core.draw import subpixel, wrap
 from ..core.frame import LANDSCAPE, Frame
 from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 from ..tinnitus import asmr as short_asmr
+from ..tinnitus import guides
 from ..tinnitus.asmr import _ring_sprite, nebula_canvas
 
 # The ring breathes on a 4-in / 6-out cycle, the pattern paced-breathing
@@ -186,7 +187,8 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
                 exhale: float = EXHALE, rest: float = REST,
                 palette: tuple | None = None,
                 logo_w: int | None = None,
-                look: "str | type | None" = None) -> Path:
+                look: "str | type | None" = None,
+                guide: str = "ring") -> Path:
     """One seamless loop of picture: drifting nebula, breathing ring, mark.
 
     `loop` must be a whole number of `inhale + hold + exhale` cycles or the
@@ -204,6 +206,11 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
     subclass (a video's own, from `tinnitus.session_looks`) or a shelf name.
     It is built with `period=loop`, so it closes on the same frame the ring
     does; the ring takes the look's own tint unless `palette` says otherwise.
+
+    **`guide` picks what draws the breath**: `"ring"` (the default, every
+    session before 2026-11-03), or `"path"`, `"box"`, `"clock"` from
+    `tinnitus.guides` (E13). Each is periodic in the breath, so the loop
+    closes the same way.
     """
     breath = inhale + hold + exhale + rest
     if abs(loop / breath - round(loop / breath)) > 1e-6:
@@ -217,6 +224,9 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
                                   (inhale, hold, exhale))
     sprite = _ring_sprite(r_max, _ring_tint(palette, bg_look))
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
+    drawn = guides.make(guide, frame.w, frame.h,
+                        guides.Pattern(inhale, hold, exhale, rest),
+                        _ring_tint(palette, bg_look))
 
     # Type scaled off the ring, so the label and count keep the proportions the
     # short established (52 and 116 against r_max=330) at whatever radius a
@@ -250,6 +260,14 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
         watch()
         t = i / fps
         img = _bg_frame(bg_look, canvas, t, loop, cw, ch, frame)
+
+        if drawn is not None:
+            img = img.convert("RGBA")
+            drawn.draw(img, t)
+            if mark is not None:
+                _mark_at(img, mark, t, logo_at, logo_float, float_period)
+            proc.stdin.write(img.convert("RGB").tobytes())
+            continue
 
         r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale, rest)
         # `2r + 80`, the short's sizing, not `r / r_max * sprite.width`. The
@@ -286,7 +304,8 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
                    logo_w: int | None = None,
                    look: "str | type | None" = None,
                    inhale: float = INHALE, hold: float = HOLD,
-                   exhale: float = EXHALE) -> Path:
+                   exhale: float = EXHALE, rest: float = REST,
+                   guide: str = "ring") -> Path:
     """The intro or the outro: instruction cards, and the ring's entrance.
 
     **The intro does not open on the circle.** A breathing ring is an
@@ -307,6 +326,10 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
     the watermark carry straight through both cuts. The intro's `t` runs
     negative up to zero; the outro's runs forward from zero, which is where the
     body left the circle.
+
+    A `guide` other than the ring fades in over the same `reveal` instead of
+    growing: it is already moving on the shared clock, so it arrives
+    mid-breath exactly where the body picks it up.
     """
     if kind not in ("intro", "outro"):
         raise ValueError(f"kind must be 'intro' or 'outro', got {kind!r}")
@@ -317,6 +340,9 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
                                   (inhale, hold, exhale))
     sprite = _ring_sprite(r_max, _ring_tint(palette, bg_look))
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
+    drawn = guides.make(guide, frame.w, frame.h,
+                        guides.Pattern(inhale, hold, exhale, rest),
+                        _ring_tint(palette, bg_look))
 
     text_size = 68
     text_lead = int(text_size * 1.34)
@@ -356,7 +382,9 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
             f = _ease(max(0.0, (u - (length - reveal)) / reveal))
         else:
             f = _ease(max(0.0, 1.0 - u / reveal))
-        if f > 0.004:
+        if drawn is not None:
+            drawn.draw(img, t, f)
+        elif f > 0.004:
             s = max(2, int(r_min * f * 2 + 80 * f))
             ring = sprite.resize((s, s), Image.LANCZOS)
             if f < 0.999:
@@ -411,6 +439,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      exhale: float = EXHALE, rest: float = REST,
                      palette: tuple | None = None,
                      look: "str | type | None" = None,
+                     guide: str = "ring",
                      keep_work: bool = False,
                      frame: Frame = LANDSCAPE) -> dict:
     """A full sound-therapy video: looped picture, generated bed, long fades.
@@ -437,6 +466,9 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     **`look` swaps the nebula for a `core.looks` picture** (a `Look` subclass
     or a shelf name) in the loop and both bookends, on the same clock, so the
     cuts carry straight through.
+
+    **`guide`** draws the breath as a ring (default), path, box or clock
+    (`tinnitus.guides`, E13) in the loop and both bookends.
 
     **The picture is three segments, not one.** `intro_len` seconds of
     instruction cards with no ring, then `total - intro_len - outro_len`
@@ -502,7 +534,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                           frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max,
                           inhale=inhale, hold=hold, exhale=exhale, rest=rest,
-                          palette=palette, look=look)
+                          palette=palette, look=look, guide=guide)
 
     if bed_files is not None:
         low, high = bed_files
@@ -616,12 +648,14 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                           "intro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
                           caption_at=intro_at, palette=palette,
-                          look=look, inhale=inhale, hold=hold, exhale=exhale)
+                          look=look, inhale=inhale, hold=hold, exhale=exhale,
+                          rest=rest, guide=guide)
     tail = render_bookend(workdir / "outro.mp4", brand, outro_len, outro_caps,
                           "outro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
                           caption_at=outro_at, palette=palette,
-                          look=look, inhale=inhale, hold=hold, exhale=exhale)
+                          look=look, inhale=inhale, hold=hold, exhale=exhale,
+                          rest=rest, guide=guide)
 
     # The body, as its own file — `-stream_loop` and the concat demuxer cannot
     # be combined in one pass, and re-encoding the loop N times to stitch it
