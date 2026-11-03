@@ -295,7 +295,8 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
                   palette: tuple | None = None,
                   look: "str | type | None" = None, look_period: float = 60.0,
                   font_path: str = FONT_CAPTION,
-                  font_index: int = FONT_CAPTION_INDEX) -> Path:
+                  font_index: int = FONT_CAPTION_INDEX,
+                  guide: str = "ring") -> Path:
     """Drifting nebula with the breathing ring, straight into ffmpeg.
 
     Frames are piped as rawvideo rather than written out — a minute at 1080x1920
@@ -315,6 +316,10 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
     `look_period` so the Short is the same picture. The look's clock starts with the first breath rather than the
     video, so a look that moves with the breath (`fern-breath`) stays in step
     with the ring.
+
+    `guide` swaps the ring for a `tinnitus.guides` path, box or clock (E13).
+    It runs on the block's own clock and fades over half a second at each
+    end of the block, where the ring simply appears.
     """
     pad_x, pad_y = 220, 320
     cw, ch = OUT_W + pad_x, OUT_H + pad_y
@@ -340,6 +345,21 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
         sprite = _ring_sprite(r_max)
     label_font = ImageFont.truetype(font_path, 52, index=font_index)
     count_font = ImageFont.truetype(font_path, 116, index=font_index)
+
+    drawn = None
+    if guide != "ring" and phases:
+        from . import guides
+        spans = {}
+        for p in phases:                 # one cycle's spans, read back
+            if p.kind in spans:
+                break
+            spans[p.kind] = p.end - p.start
+        tint = (palette[3] if palette else
+                bg_look.ring if bg_look is not None else RING)
+        drawn = guides.make(guide, OUT_W, OUT_H, guides.Pattern(
+            spans.get("inhale", 0.0), spans.get("hold", 0.0),
+            spans.get("exhale", 0.0), spans.get("rest", 0.0)), tint)
+        block = (phases[0].start, phases[-1].end)
 
     brand = brand_lockup(mascot_h, mascot_opacity, wordmark,
                          font_path, font_index)
@@ -427,7 +447,12 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
                                 (1, 0, 0, 0, 1, iy - by),
                                 resample=Image.BILINEAR),
                 (ax, iy))
-        if label:
+        if drawn is not None:
+            a = min(1.0, (t - block[0]) / 0.5, (block[1] - t) / 0.5)
+            if a > 0:
+                frame = frame.convert("RGBA")
+                drawn.draw(frame, t - block[0], a)
+        elif label:
             k = int(r * 2 + 80)
             frame.alpha_composite(sprite.resize((k, k), Image.LANCZOS),
                                   (OUT_W // 2 - k // 2, OUT_H // 2 - k // 2))
@@ -537,6 +562,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
                       roam: bool = False, logo_hold: float = 13.0,
                       palette: tuple | None = None,
                       look: "str | type | None" = None, look_period: float = 60.0,
+                      guide: str = "ring",
                       keep_work: bool = False) -> tuple[Path, float]:
     """Narration, breathing block, bed and picture into one vertical MP4.
 
@@ -559,7 +585,8 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
     identically across all three.
 
     `look`/`look_period` swap the nebula for a `core.looks` picture; see
-    `render_visual`. Pass the long form's `look` and `loop`.
+    `render_visual`. Pass the long form's `look` and `loop`, and its
+    `guide`, so the Short draws the breath the same way.
     """
     from ..core.vertical import render_text_png
     from ..core.voiceover import SHORT_CAPTION_MAX_W
@@ -641,7 +668,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
                             fps=fps, seed=seed,
                             brand_roam=roam, brand_hold=logo_hold,
                             palette=palette, look=look,
-                            look_period=look_period)
+                            look_period=look_period, guide=guide)
 
     pngs = []
     for i, (text, _, _) in enumerate(captions):
