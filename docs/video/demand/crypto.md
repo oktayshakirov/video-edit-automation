@@ -81,6 +81,7 @@ against the no-financial-advice rule (`projects/crypto.md`).
 | "[Antagonist] is coming for YOUR [thing]" | a threat to their own stake | **careful** - true and sourced only; fear without a mechanism is the pitch register we avoid | not yet looked |
 | "The real reason [X] exploded today" | today's move | **no** - news and price | - |
 | "so fast it feels like cheating" | a wanted result, faster than expected | **no** - implies gains | - |
+| "How to launch a meme coin" / "how I rug pull a meme coin (+$N)" | they want to run a launch or a rug pull themselves | **no** - the audience wants to commit the fraud our videos warn about; ranking there is impressions, never viewers (Meme coins: 11,478 impressions, 0.05% CTR) | - |
 | "I did N of X and learned this" | proof by volume of experience | **no** - a faceless channel has no N to claim; never invent one | - |
 
 ## Branches explored
@@ -186,3 +187,11 @@ One line per branch: date, the term or channel, what it added.
   15x, 3Blue1Brown 11x). Proven and evergreen, and crowded by channels with
   100x our reach. Our way in would be a narrower question inside it (a
   sub-mechanism no standout answers), not the beginner guide itself.
+- 2026-11-03, feed check for "What Are Meme Coins and How Do They Work?",
+  on the two queries YouTube shows it for ("how to launch a meme coin" 128
+  units, "meme coin rug pull" 112): both pages are launch guides and
+  rug-pull tutorials ("HOW I RUG PULL A MEME COIN IN 11 MINUTES (+$203,941)"
+  4.8x, pump.fun $0 launch guides up to 51x). Searchers who want to run a
+  rug pull. **No retitle**: the 0.05% CTR is the right result for that
+  audience. A victim-side angle ("how to spot a rug pull") has no demand
+  evidence yet; search it before proposing one.
