@@ -257,7 +257,7 @@ the viewer into the section instead of annotating it. `Shot(clip=...,
 payload=("KICKER", "The line"))`; the kicker is optional and usually better
 empty.
 
-## The title is a cinematic card by default (2026-10-21)
+## The cinematic title card (2026-10-21, default until 2026-11-04 - see the glitch slate below)
 
 The lower third below was called boring, so `render_long(title_at=...)` now
 draws `overlay.CinematicTitle`: letterbox bars slide in, the picture darkens
@@ -750,3 +750,18 @@ What still goes in: the credits a specific video does owe - Commons
 portraits (CC BY / BY-SA attribution), game or company artwork used for
 commentary, a named photo source - plus the disclaimers. A Short's
 description follows the same rule: do not copy a stock or music line into it.
+
+## `title_style="glitch"` - the title as a glitched slate (2026-11-04)
+
+The editor found the cinematic title's tracked SF Pro caps hard to read and
+asked for a more cinematic look, maybe with a glitch. `overlay.GlitchTitle`
+splits the title at its colon: the search phrase large in DIN Condensed
+Bold, the promise smaller in the brand colour under a hairline, over a
+near-black vignette with letterbox bars and faint scanlines. It glitches in
+(an RGB split closing from ~26px, torn slices, two flicker frames), tears
+for three frames every ~1.7s, and glitches out; a `glitch_cut` on each tear.
+**The default for every long form on both channels since 2026-11-04**
+(the editor: "very good, add it to all future videos"); `title_style=
+"cinematic"` is the old card. It splits at a colon, after a question mark
+(kept), or at a spaced dash, and a head too long for one line goes to two
+balanced lines before it goes small.

@@ -113,6 +113,10 @@ class Shot:
                                         # over this shot: a logo bug, a press
                                         # still, a ticker card. See
                                         # `longform/overlay.InsetOverlay`.
+    name: str | None = None             # a person's photograph shown whole and
+                                        # smaller, over its own blurred copy,
+                                        # with this name on a pill under it
+                                        # (2026-11-04) - never a cropped face.
     samples: tuple | None = None        # a sound sample per reveal, played in
                                         # the pause after it is named - see
                                         # `core/samples.py`. None plays nothing.
@@ -136,6 +140,30 @@ def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot
 # --- the frame -----------------------------------------------------------
 
 
+def _name_pill(name: str, frame: Frame, brand: Brand) -> Image.Image:
+    """The reel's label pill - DIN Condensed caps, tracked, on `Brand.band`
+    - for a named portrait, so the two read as one family."""
+    from PIL import ImageFont
+    size = int(frame.w * (0.050 if frame.h > frame.w else 0.024))
+    f = ImageFont.truetype("/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf", size)
+    text = name.upper()
+    probe = ImageDraw.Draw(Image.new("RGB", (4, 4)))
+    track = size * 0.12
+    tw = sum(probe.textlength(c, font=f) for c in text) + track * (len(text) - 1)
+    bb = probe.textbbox((0, 0), "H", font=f)
+    cap = bb[3] - bb[1]
+    pw, ph = tw + size * 1.1, cap + size * 0.75
+    pill = Image.new("RGBA", (int(pw) + 2, int(ph) + 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(pill)
+    fill = brand.band or brand.primary
+    d.rounded_rectangle([0, 0, pw, ph], radius=int(ph * 0.22), fill=(*fill, 255))
+    x = (pw - tw) / 2
+    for c in text:
+        d.text((x, (ph - cap) / 2 - bb[1]), c, font=f, fill=(*brand.band_ink, 255))
+        x += d.textlength(c, font=f) + track
+    return pill
+
+
 class PhotoShot:
     """A prepared image shot. Layers are built once; frames are cheap crops."""
 
@@ -152,8 +180,9 @@ class PhotoShot:
                  aspect: float = 1.15, bias: float = 0.5,
                  frame: Frame = VERTICAL,
                  logo_box: tuple[int, int, int, int] | None = None,
-                 brand: Brand = CRYPTO):
+                 brand: Brand = CRYPTO, name: str | None = None):
         src = Image.open(path).convert("RGB")
+        self.name = name
         self.zoom, self.pan = zoom, pan
         self.frame = frame
         # The hairline is the site's accent, so it is the brand's. It was
@@ -195,17 +224,29 @@ class PhotoShot:
         crop_w = min(src.width, src.height * aspect)
         crop_w = min(src.width, max(crop_w, frame.w / self.MAX_UPSCALE))
         crop_h = min(src.height, crop_w / aspect)
+        if name:
+            # **A named portrait is shown whole** (2026-11-04): full-bleed
+            # 16:9 cropped Dorsey's, Durov's and the twins' heads. No crop,
+            # sized to ~two thirds of the frame, the blurred copy behind.
+            crop_w, crop_h = src.width, src.height
         left = (src.width - crop_w) / 2
         top = (src.height - crop_h) * bias
         crop = src.crop((int(left), int(top),
                          int(left + crop_w), int(top + crop_h)))
 
         target_w = min(int(frame.w * zoom), int(crop.width * self.MAX_UPSCALE))
+        if name:
+            portrait = frame.h > frame.w
+            fit = min(frame.w * (0.84 if portrait else 0.62) / crop.width,
+                      frame.h * (0.48 if portrait else 0.64) / crop.height)
+            target_w = min(int(crop.width * fit * zoom),
+                           int(crop.width * self.MAX_UPSCALE))
         self.sharp = crop.resize(
             (target_w, max(1, int(crop.height * target_w / crop.width))),
             Image.LANCZOS)
 
-        self.dy = self._dodge(logo_box, frame)
+        self.dy = 0.0 if name else self._dodge(logo_box, frame)
+        self.pill = _name_pill(name, frame, brand) if name else None
         # After the dodge, which may have resized it. `draw` warps this array
         # directly rather than resizing a PIL image per frame.
         self.sharp_px = np.ascontiguousarray(np.asarray(self.sharp))
@@ -340,7 +381,13 @@ class PhotoShot:
                          (int(round(x * u)), int(round(edge * u))),
                          (int(round((x + w) * u)), int(round(edge * u))),
                          self.brand.primary, 3, lineType=cv2.LINE_AA, shift=SH)
-        return Image.fromarray(canvas)
+        out = Image.fromarray(canvas)
+        if self.pill is not None:
+            # The name rides the photograph's bottom edge, centred.
+            px = int(x + w / 2 - self.pill.width / 2)
+            py = int(y + h - self.pill.height / 2)
+            out.paste(self.pill, (px, py), self.pill)
+        return out
 
 
 
@@ -710,7 +757,7 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
         if s.image is not None:
             prepared.append(PhotoShot(s.image, s.zoom, s.pan, s.aspect, s.bias,
                                       frame=frame, logo_box=logo_box,
-                                      brand=brand))
+                                      brand=brand, name=s.name))
         elif factory is not None:
             prepared.append(factory(s, frame))
         else:

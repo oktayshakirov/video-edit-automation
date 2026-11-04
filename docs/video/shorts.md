@@ -1220,3 +1220,13 @@ later in the file), which keeps the statement on hands and a phone and
 makes the last frame match the first - the image half of the loop
 `narration.md` describes, for free. Check the closing clip's 9:16 crop
 against the outro band, not only the opening one against the hook.
+
+## A list Short walks every name, on reels (2026-11-04)
+
+The billionaires Short first did one move (the two richest own the toll
+booths) and a `bars`; the editor asked for every figure the long form
+names, each with how they got rich, on the reel, plus the long form's
+`stake` graphic. Built as two reels - the owners (4 cards), then the
+holders and buyers (8) - with the stake between, one short phrase per card
+(~2s; "Vitalik Buterin co-founded Ethereum."). That pushes a Short to ~60s;
+keep each phrase under ten words to stay there.

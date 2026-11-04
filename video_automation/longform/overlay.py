@@ -22,6 +22,8 @@ only ever *add* light. For a glowing button on black that is exactly right.
 
 from __future__ import annotations
 
+import re
+
 from pathlib import Path
 
 import cv2
@@ -602,6 +604,216 @@ class CinematicTitle:
         out = pic.convert("RGBA")
         out.alpha_composite(bloom)
         out.alpha_composite(deco)
+        out.alpha_composite(layer)
+        return out.convert("RGB")
+
+
+class GlitchTitle:
+    """The title as a glitched cinematic slate (2026-11-04, `title_style="glitch"`).
+
+    The editor's note on `CinematicTitle` for the billionaires cut: wanted a
+    more cinematic look in an easier font, maybe with a glitch. Tracked-out
+    SF Pro Heavy caps in one size read as a strap at 1080. So:
+
+    * **Two sizes, split at the colon.** The search phrase large in DIN
+      Condensed Bold (the band card's face - narrow letters read big), the
+      promise under it smaller, in the brand colour, under a hairline.
+    * **The picture goes to near-black** behind a vignette and letterbox
+      bars, with faint scanlines, so the type owns the frame.
+    * **It glitches in**: an RGB split that closes from ~26px, torn
+      horizontal slices, two flicker frames - then holds crisp, tearing for
+      three frames every ~1.7s, and glitches back out.
+
+    Seeded by frame time, so a re-render is identical. `cues()`: the title
+    intro under the arrival, a glitch cut on each tear, the flashback out.
+    """
+
+    IN = 0.55
+    OUT = 0.45
+    TEAR_EVERY = 1.7
+    TEAR_LEN = 0.10
+
+    def __init__(self, title: str, start: float, hold: float, brand,
+                 frame: Frame = LANDSCAPE, eyebrow: str | None = None):
+        from PIL import ImageFont
+        self.start, self.end, self.hold = start, start + hold, hold
+        self.brand, self.frame = brand, frame
+        W, H = frame.size
+        portrait = H > W
+        # Split into the search phrase and the promise: at a colon, after a
+        # question mark (kept), or at a spaced dash - whichever comes first.
+        m = re.search(r":\s|\?\s|\s[-\u2013\u2014]\s|\s\|\s", title)
+        if m:
+            cut = m.end() if title[m.start()] == "?" else m.start()
+            head, tail = title[:cut], title[m.end():]
+            if title[m.start()] == "?":
+                head = title[:m.start() + 1]
+        else:
+            head, tail = title, ""
+        self.head = head.strip().upper()
+        self.tail = tail.strip().upper()
+        self.eyebrow = (eyebrow if eyebrow is not None
+                        else (brand.site or brand.name)).upper()
+        din = "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf"
+        probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        avail = W * (0.88 if portrait else 0.84)
+        size = int(H * (0.085 if portrait else 0.17))
+        self.head_lines = [self.head]
+        while size > 30 and max(probe.textlength(
+                ln, font=ImageFont.truetype(din, size))
+                for ln in self.head_lines) > avail:
+            size -= 2
+            # A long head goes to two balanced lines before it goes small.
+            words = self.head.split(" ")
+            if (len(self.head_lines) == 1 and len(words) > 2
+                    and size < H * (0.075 if portrait else 0.13)):
+                k = min(range(1, len(words)), key=lambda i: abs(
+                    len(" ".join(words[:i])) - len(" ".join(words[i:]))))
+                self.head_lines = [" ".join(words[:k]), " ".join(words[k:])]
+                size = int(H * (0.085 if portrait else 0.17))
+        self.font = ImageFont.truetype(din, size)
+        self.size = size
+        sub = int(size * 0.34)
+        self.sub_font = _sf(sub, "Semibold")
+        while sub > 16 and probe.textlength(self.tail, font=self.sub_font) \
+                + sub * 0.18 * len(self.tail) > avail:
+            sub -= 1
+            self.sub_font = _sf(sub, "Semibold")
+        self.sub = sub
+        self.eb_font = _sf(max(16, int(size * 0.17)), "Semibold")
+        self.bar_h = int(H * (0.07 if portrait else 0.11))
+        yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+        r = np.sqrt(((xx - W / 2) / (W * 0.60)) ** 2
+                    + ((yy - H / 2) / (H * 0.60)) ** 2)
+        self.vig = np.clip(0.55 + 0.40 * r ** 1.5, 0.0, 0.95)[:, :, None]
+        lines = np.ones((H, 1, 1), np.float32)
+        lines[::3] = 0.86
+        self.scan = lines
+        self.card = self._card()
+
+    def _card(self) -> Image.Image:
+        """The settled type, once: eyebrow, title, hairline, promise."""
+        W, H = self.frame.size
+        im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        lh = int(self.size * 0.98)
+        boxes = [d.textbbox((0, 0), ln, font=self.font) for ln in self.head_lines]
+        hw = max(b[2] - b[0] for b in boxes)
+        hh = boxes[0][3] - boxes[0][1] + lh * (len(self.head_lines) - 1)
+        gap = int(self.size * 0.30)
+        sh = int(self.sub * 1.0) if self.tail else 0
+        block = hh + (gap * 2 + sh if self.tail else 0)
+        top = (H - block) / 2
+        # The eyebrow, tracked, in the brand colour, above the title.
+        etr = self.eb_font.size * 0.45
+        ew = (sum(d.textlength(c, font=self.eb_font) for c in self.eyebrow)
+              + etr * (len(self.eyebrow) - 1))
+        _tracked(d, ((W - ew) / 2, top - self.eb_font.size * 2.0),
+                 self.eyebrow, self.eb_font, (*self.brand.primary, 255), etr)
+        # Soft shadow under the title so it holds over any footage.
+        sh_l = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        sd = ImageDraw.Draw(sh_l)
+        for i, (ln, hb) in enumerate(zip(self.head_lines, boxes)):
+            lw = hb[2] - hb[0]
+            y = top + i * lh - boxes[0][1]
+            sd.text(((W - lw) / 2 - hb[0], y + 6), ln, font=self.font,
+                    fill=(0, 0, 0, 200))
+        im.alpha_composite(sh_l.filter(ImageFilter.GaussianBlur(10)))
+        for i, (ln, hb) in enumerate(zip(self.head_lines, boxes)):
+            lw = hb[2] - hb[0]
+            d.text(((W - lw) / 2 - hb[0], top + i * lh - boxes[0][1]), ln,
+                   font=self.font, fill=(255, 255, 255, 255))
+        if self.tail:
+            ry = top + hh + gap
+            half = hw * 0.36
+            d.rectangle([W / 2 - half, ry - 2, W / 2 + half, ry + 2],
+                        fill=(*self.brand.primary, 255))
+            tr = self.sub * 0.18
+            tw = (sum(d.textlength(c, font=self.sub_font) for c in self.tail)
+                  + tr * (len(self.tail) - 1))
+            sb = d.textbbox((0, 0), "H", font=self.sub_font)
+            _tracked(d, ((W - tw) / 2, ry + gap - sb[1]), self.tail,
+                     self.sub_font, (*self.brand.primary, 255), tr)
+        return im
+
+    @property
+    def land(self) -> float:
+        return self.start + self.IN
+
+    def _tears(self) -> list[float]:
+        out, t = [], self.start + self.IN + 0.9
+        while t < self.end - self.OUT - 0.3:
+            out.append(t)
+            t += self.TEAR_EVERY
+        return out
+
+    def cues(self) -> list[tuple[float, str]]:
+        out = [(self.start, "title_intro"), (self.start + 0.02, "glitch_cut")]
+        out += [(t, "glitch_cut") for t in self._tears()]
+        if self.end - self.OUT > self.land:
+            out.append((self.end - self.OUT + 0.05, "title_flashback"))
+        return out
+
+    def _glitch(self, layer: Image.Image, amt: float, seed: int) -> Image.Image:
+        """RGB split by `amt` (0..1) plus torn slices, deterministic."""
+        if amt <= 0.01:
+            return layer
+        W, H = self.frame.size
+        a = np.asarray(layer).copy()
+        rng = np.random.default_rng(seed)
+        shift = int(26 * amt)
+        out = np.zeros_like(a)
+        out[..., 3] = a[..., 3]
+        out[..., 0] = np.roll(a[..., 0], -shift, axis=1)
+        out[..., 1] = a[..., 1]
+        out[..., 2] = np.roll(a[..., 2], shift, axis=1)
+        # The split channels carry their own alpha so the fringes show.
+        alpha = np.maximum.reduce([a[..., 3], np.roll(a[..., 3], -shift, 1),
+                                   np.roll(a[..., 3], shift, 1)])
+        out[..., 3] = alpha
+        for _ in range(int(3 + 9 * amt)):
+            y0 = int(rng.integers(0, H - 8))
+            h = int(rng.integers(4, max(6, int(H * 0.05 * amt) + 6)))
+            dx = int(rng.integers(-1, 2) * rng.integers(10, 30 + int(120 * amt)))
+            out[y0:y0 + h] = np.roll(out[y0:y0 + h], dx, axis=1)
+        return Image.fromarray(out)
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if not (self.start <= t < self.end):
+            return pic
+        from .beats.base import _smooth
+        W, H = self.frame.size
+        e = t - self.start
+        in_p = _smooth(min(1.0, e / 0.45))
+        out_p = _smooth(max(0.0, (e - (self.hold - self.OUT)) / self.OUT))
+        k = in_p * (1.0 - out_p)
+        base = np.asarray(pic).astype(np.float32)
+        base *= 1.0 - self.vig * k
+        base *= 1.0 - (1.0 - self.scan) * k
+        bh = int(round(self.bar_h * k))
+        if bh > 0:
+            base[:bh] = 0.0
+            base[H - bh:] = 0.0
+        pic = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8))
+
+        # How much glitch: high on the way in, a short tear now and then,
+        # rising again on the way out.
+        amt = max(0.0, 1.0 - e / self.IN) if e < self.IN else 0.0
+        for tt in self._tears():
+            if tt <= t < tt + self.TEAR_LEN:
+                amt = max(amt, 0.45)
+        amt = max(amt, out_p)
+        # Two flicker frames in the arrival, and the fade out.
+        vis = 1.0
+        if 0.08 <= e < 0.12 or 0.22 <= e < 0.25:
+            vis = 0.25
+        vis *= min(1.0, e / 0.10) * (1.0 - out_p)
+        if vis <= 0.01:
+            return pic
+        layer = self._glitch(self.card, amt, int(t * 30))
+        if vis < 1.0:
+            layer.putalpha(layer.getchannel("A").point(lambda v: int(v * vis)))
+        out = pic.convert("RGBA")
         out.alpha_composite(layer)
         return out.convert("RGB")
 

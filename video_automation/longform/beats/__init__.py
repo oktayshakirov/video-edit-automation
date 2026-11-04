@@ -68,6 +68,7 @@ from .blindsign import BlindSign
 from .sweep import Sweep
 from .mnemonic import Mnemonic
 from .shares import Shares
+from .stake import Stake
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
 from .plot import Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
@@ -86,7 +87,7 @@ __all__ = [
     "Bars", "Gauge", "Dial",
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
-    "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic",
+    "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
     "DRAW", "POP", "RISE",
 ]
 
@@ -120,6 +121,7 @@ BEATS = {
     "sweep": Sweep,
     "shares": Shares,
     "mnemonic": Mnemonic,
+    "stake": Stake,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -171,6 +173,8 @@ _COUNT = {
     "shares": lambda p: 5 if len(p) > 3 and p[3] else 4,
     # The flips, the checksum, the numbers, the words.
     "mnemonic": lambda p: 4,
+    # The company, each holder, then each further valuation.
+    "stake": lambda p: len(p[2]) + len(p[1]),
 }
 
 

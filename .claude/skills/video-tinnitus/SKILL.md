@@ -136,8 +136,12 @@ These are on without asking - a script only supplies the words. Detail in
   carded section** - two or three words naming the stake ("THE REJECTION",
   "THE CATCH"). Without one the long form shows "CHAPTER n" and a Short
   shows no label.
-- **The opening title is the cinematic card** (`title_at=`), on the title
-  intro sound. Keep its hold clear of the first chapter card.
+- **The opening title is the glitch slate** (`title_at=`, default since
+  2026-11-04): the title split at its colon / question mark / dash, the
+  search phrase big in DIN Condensed, the promise under it in the brand
+  colour, glitching in and out on the title intro sound. Keep its hold
+  clear of the first chapter card. `title_style="cinematic"` brings back
+  the old card.
 - **A disclaimer `payload` becomes the notice card** on the notification
   chime - no flag needed.
 - **The video ends on the band end card** - THANKS FOR WATCHING, retyped as

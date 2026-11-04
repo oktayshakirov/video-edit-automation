@@ -857,6 +857,11 @@ attribution block in `Meta.credits`. 1960s network publicity stills (NBC's
 *Star Trek* portraits) are public domain on Commons and are the strongest
 picture this channel has had - instantly recognisable, on the noun.
 
+- **Commons answers 429 to a bare user agent.** Two searches and the
+  API refused every call; with `User-Agent: <Name>/1.0 (https://thecrypto.wiki)`
+  and one batched `titles=A|B|C` imageinfo query (with `iiurlwidth=2400`,
+  so the thumbs come back sized) plus ~2.5s between downloads, thirteen
+  files came down in one pass (2026-11-04).
 - **Check every claim about a person before scripting it.** The article
   hedged half its own entries ("reportedly", "if accurate"), and one was
   plainly wrong against the sources (Streisand "around age seven"; Walters
@@ -1397,3 +1402,45 @@ green-screen plates.
 | `unboxing-package-hands-dark/*`, `cardboard-box-delivery-doorstep/*` | bright, or a man in a white shirt holding a bottle - no parcel worth the slot |
 | `hacker-typing-dark-room/*` | the hooded-hacker cliche (`5378133`, `5377646`, `6330778`, `36036810`) and a balaclava (`32831021`) |
 | `live-chat-support-laptop/*`, `phone-taking-photo-of-document/*`, `metal-stamping-letters/*` | bright office white, vegetables, a leather stamp - none of them the noun |
+
+## The crypto-billionaires fetch: verdicts (2026-11-04)
+
+Domain: the owners' world - trading screens, a trade on a phone, money,
+towers at night - plus Commons portraits for every named person
+(`assets/crypto/billionaires/CREDITS.md`). **The people carry the nouns**;
+stock carries the act. Pexels has no usable US Treasury at night (every
+clip is the building in daylight, L97-136) and no dark money-counting
+machine (L104-132).
+
+| clip | verdict |
+| --- | --- |
+| `trading-app-phone-close-up-night/39494572` | **kept**: a hand with a phone of red candles on purple, L31 - opens and closes both cuts |
+| `trading-app-phone-close-up-night/35886692`, `8480231` | **kept**: two hands on a phone chart, red side light; a phone held sideways over a laptop. `7681176` L76-100, a bright desk |
+| `stock-exchange-trading-screens-dark/38440687`, `39212846`, `38498180` | **kept**: a desk of monitors (L47); walls of candles (L17); monitors in a dark room (L12) |
+| `stock-market-crash-screen-red/38557069`, `38859052`, `39558578` | **kept**: purple-lit screens; a red chart close; candles turning down. **`38687558` would not decode** (OpenCV "couldn't read video stream") - re-fetch before trusting it |
+| `toll-booth-highway-night/10072842` | **kept**: a lit toll plaza at night from above - "the places everyone else has to pass through"; ~12s, so two uses at 1.0 and 5.0 only. The other three results are daylight (L78-110) |
+| `skyscraper-office-lights-night/11589653`, `9921281`, `2852289` | **kept**: towers reflected in water; towers at night; looking up a lit tower (L60-75) |
+| `private-office-city-view-night/17153904`, `18569319` | **kept**: a city from high up (L10); a dense city (L40). `10216513` carries a lit "bank" sign; `28872831` a bright window |
+| `conference-stage-spotlight-speaker-dark/19197406` | **kept**: a keynote stage out of focus - founders' world without a stranger's face. `20320583` is a stranger's face - never under a named person's line |
+| `hands-counting-dollar-bills-dark/4524511`, `calculator-hands-desk-dark/6266425` | **kept**: hands counting bills on black; hands with cash by a calculator. `5466769`, `4275306` L104-178 |
+| `luxury-yacht-night/37169294` | **kept, once**: yachts moored at night, "another league". The aerial marinas are blue-neon |
+| `old-computer-monitor-code-dark/34160292`, `18382358` | **kept**: code on a dark monitor; hands over a keyboard - Satoshi's coins. `854137` a woman's face in the monitor |
+| `rain-on-window-night-close-up/15161525` | **kept**: the disclaimer. `5930874` L104 |
+| `magazine-printing-press/*`, `bank-vault-door-dark/*` | bright newsstands and magazines; a cartoon bank, and `39060937` is seed-phrase's vault |
+
+## A named person is shown whole, with their name, every time (2026-11-04)
+
+The editor's notes on the billionaires cut: full-bleed 16:9 stills cropped
+Dorsey's, Durov's and the twins' heads, and the reel's 16:9 card cut CZ's
+portrait at the mouth. Two fixes, both now defaults:
+
+- **`Shot(image=..., name="Jack Dorsey · Block")`** shows the photograph
+  whole at about two thirds of the frame, over its own blurred copy, with
+  the name on the reel's pill under it. Use it for every person's still in
+  either format; full-bleed is for places and things.
+- **Reel cards fit a still whose shape is off the card's** (`reel._fit_still`)
+  instead of cover-cropping it.
+- **Every person the script names gets their photo where one is licensed**
+  - on reel cards too. When none exists (Giancarlo Devasini: nothing on
+  Commons, Wikipedia or Tether's site, only agency press shots), the card
+  is a text card and the handover says so.

@@ -454,3 +454,15 @@ Short asks it and hands over the article's own test as a `steps` procedure
 (how far below the last peak, whether every high is lower than the last,
 months not weeks) for the viewer to run. Any "is it X now?" topic - a bull
 market, a bubble, an altcoin season - takes the same shape.
+
+## Tickers are spelled out loud (2026-11-04)
+
+espeak reads `USDT` as one word (`ʌst`), and the billionaires cut shipped
+it that way. Respell any ticker in the **spoken** half of a `(caption,
+spoken)` pair: "U S D T" reads `jˈuː ˈɛs dˈiː tˈiː`. Check every ticker the
+script names with `espeak-ng -v en-us -q --ipa`, the same check as
+`Binance`.
+
+**`Elon` reads ih-LAHN** (`ᵻlˈɑːn`) and the editor heard it as off; the
+spoken half says "Eelon" (`ˈiːlən`). The billionaires long form shipped
+before this was caught; its Short carries the fix.
