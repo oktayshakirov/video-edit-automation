@@ -1399,3 +1399,56 @@ secret. `quorum`'s template again: one object per phrase, one state change.
 - Give its sentence a gap of ~1.6-1.7s: the twelve words cascade over ~1.2s
   from the fourth chunk's start.
 - `__init__` raises on a word wider than its column.
+
+## `stake` - a fortune as a slice of a company, then the company re-valued (2026-11-04)
+
+`payload: (company, valuations, holders, title)`, `company` as `(name,
+sub)`, `valuations` as `[(value_in_billions, "$200B", "Forbes' valuation"),
+...]`, `holders` as `[(name, stake 0..1, "$89.3B"), ...]` (one to three).
+**Reveals: one for the company, one per holder, one per further
+valuation**, one caption chunk each: "Forbes valued Tether at around two
+hundred billion dollars." / "Devasini owns an estimated forty-five
+percent, so eighty-nine billion." / "Ardoino owns about nineteen, so
+thirty-eight." / "Value Tether at five hundred billion instead, and both
+fortunes more than double overnight." The block is sized by the valuation;
+each slice fills on its holder's chunk with a leader to their name and
+fortune; on a re-valuation the block grows, the slices with it, the
+valuation crossfades and every fortune becomes stake x value.
+
+Built for `which-billionaires-own-crypto`, because the largest crypto
+fortunes are stakes in private companies and nothing here drew a share
+staying the same while what it is a share *of* changes. Reuse it for any
+founder's paper wealth, a token treasury, a "worth X at the last round"
+claim. `quorum`'s template: line art, one object per phrase, one state
+change.
+
+- **The first fortune is the source's own figure**, not stake x value
+  (Forbes' $89.3B is not 45% of $200B exactly); later ones are computed.
+- **The valuation has its own row above the company's name.** The first
+  render put it at the block's top-right, and on a block 40% wide it
+  overprinted "TETHER". The note ("FORBES' VALUATION") rides beside it,
+  not under the block, where the leaders run.
+- **Labels sit side by side when they fit** (both frames with two
+  holders); a column is the fallback, and its leaders share one line.
+- Fortunes pop in, never count (`count=False`'s reason: `$40B` on the way
+  to `$89B` reads as a figure). Portrait-safe, whitelisted in
+  `crypto/build.py`. Cues: `pan` on the block, `reveal` per slice, `emph`
+  as a re-valuation settles (`grow_span`). Give its sentence ~1.8s.
+
+## A reel text card wraps and shrinks its label (2026-11-04)
+
+A `(None, label)` card used to set the label on one line at the big size
+whatever its length; "GIANCARLO DEVASINI · TETHER" ran off both edges of a
+4:5 portrait card and nothing raised. `Reel._text_card` now breaks at
+spaces (" · " keeps its next word), steps the font down until the widest
+line fits 84% of the card, and centres the block. A person with no free
+photograph is a text card, which is also the honest picture of a name
+"most users have never heard".
+
+## A reel's camera sway is bounded (2026-11-04)
+
+The reel camera crept right at a constant 10px/s "to keep it alive", so on
+a long reel every card landed further left than the last - the
+billionaires Short's 8-card, ~20s reel ended ~200px off centre, which the
+editor caught. It is now a ±14px sine sway: alive, and every card lands
+centred however many there are.

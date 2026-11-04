@@ -112,6 +112,35 @@ class _Media:
         return self.last[1] if self.last else None
 
 
+def _fit_still(rgb: np.ndarray, card_aspect: float) -> np.ndarray:
+    """A still whose shape is well off the card's, shown whole.
+
+    **Added 2026-11-04.** Cards cover-crop their media, which is right for
+    footage and wrong for a portrait photograph: CZ's 3:4 portrait in a
+    16:9 card kept his mouth and shirt and cut his eyes off the top. Off by
+    more than ~15%, the still is laid whole over a blurred, dimmed cover of
+    itself at the card's shape - the Shorts' blurred-fill layout - so a
+    face is never cropped. Built at up to 2400px wide, so a dive stays
+    sharp enough.
+    """
+    h, w = rgb.shape[:2]
+    if abs(math.log((w / h) / card_aspect)) < 0.15:
+        return rgb
+    W = min(2400, max(w, int(h * card_aspect)))
+    H = int(W / card_aspect)
+    src = Image.fromarray(rgb)
+    k = max(W / w, H / h)
+    back = src.resize((max(1, int(w * k)), max(1, int(h * k))), Image.LANCZOS)
+    back = back.crop(((back.width - W) // 2, (back.height - H) // 2,
+                      (back.width - W) // 2 + W, (back.height - H) // 2 + H))
+    back = back.filter(ImageFilter.GaussianBlur(W / 40))
+    back = Image.eval(back, lambda v: int(v * 0.42))
+    k2 = min(W / w, H / h)
+    fg = src.resize((max(1, int(w * k2)), max(1, int(h * k2))), Image.LANCZOS)
+    back.paste(fg, ((W - fg.width) // 2, (H - fg.height) // 2))
+    return np.asarray(back)
+
+
 def _grade(rgb: np.ndarray) -> np.ndarray:
     """`VideoShot._prepare`'s grade, the same function, so a dive's last frame and
     the clip's first agree. Applied to the on-screen crop only - grading the
@@ -198,19 +227,53 @@ class Reel(Beat):
         self.big_font = ImageFont.truetype(
             FONT_LABEL, int(min(self.card_w * 9 / 16, self.card_h) * 0.52))
         self.media = [_Media(m, off) for m, _, off in self.items]
+        for md in self.media:
+            if md.still is not None:
+                md.still = _fit_still(md.still, self.card_w / self.card_h)
         self._text = {}
         self._maps = None
 
     def _text_card(self, label: str) -> np.ndarray:
-        """A text card's picture, drawn at twice its resting size."""
+        """A text card's picture, drawn at twice its resting size.
+
+        **Wrapped by word and shrunk to fit** (2026-11-04). It used to set
+        the label on one line at `big_font` whatever its length, and
+        "GIANCARLO DEVASINI · TETHER" on a 4:5 portrait card ran off both
+        edges with nothing raising. Lines break at spaces (a lone "·" joins
+        the next word), the font steps down until the widest line fits 84%
+        of the card, and the block is centred.
+        """
         if label not in self._text:
             w, h = self.card_w * 2, self.card_h * 2
             im = Image.new("RGB", (w, h), tuple(int(c) for c in self.brand.panel))
             d = ImageDraw.Draw(im)
-            bb = d.textbbox((0, 0), label.upper(), font=self.big_font)
-            d.text(((w - (bb[2] - bb[0])) / 2 - bb[0],
-                    (h - (bb[3] - bb[1])) / 2 - bb[1]),
-                   label.upper(), font=self.big_font, fill=self.brand.ink)
+            text = label.upper()
+            words = text.replace(" · ", " ·\u00a0").split(" ")
+            font = self.big_font
+            path = getattr(font, "path", None)
+            size = getattr(font, "size", 0)
+            while True:
+                lines, cur = [], ""
+                for wd in words:
+                    trial = (cur + " " + wd).strip()
+                    if cur and d.textlength(trial, font=font) > w * 0.84:
+                        lines.append(cur)
+                        cur = wd
+                    else:
+                        cur = trial
+                lines.append(cur)
+                widest = max(d.textlength(ln, font=font) for ln in lines)
+                if widest <= w * 0.84 or not path or size <= 24:
+                    break
+                size = int(size * 0.9)
+                font = ImageFont.truetype(path, size)
+            lh = int(font.size * 1.15) if hasattr(font, "size") else 60
+            y = (h - lh * len(lines)) / 2
+            for ln in lines:
+                bb = d.textbbox((0, 0), ln, font=font)
+                d.text(((w - (bb[2] - bb[0])) / 2 - bb[0], y - bb[1]), ln,
+                       font=font, fill=self.brand.ink)
+                y += lh
             self._text[label] = np.asarray(im)
         return self._text[label]
 
@@ -240,7 +303,11 @@ class Reel(Beat):
             p = _smooth((t - (r - self.LEAD)) / self.TRAVEL)
             cam += self.pitch * p
             zoom -= self.PULL * math.sin(math.pi * p)
-        cam += 10.0 * e                     # a slow drift keeps it alive
+        # A slow sway keeps it alive. **Bounded** (2026-11-04): it was a
+        # constant 10px/s creep, so on the billionaires Short's 8-card, ~20s
+        # reel every card landed further left than the one before - ~200px
+        # off centre by the last.
+        cam += 14.0 * math.sin(e * 0.7)
 
         imm = 0.0
         if self.emerge:

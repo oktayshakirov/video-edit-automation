@@ -894,3 +894,12 @@ called it inconclusive, but the exercise-first cover took 52.3% of watch
 time against 47.7% for the name-first one. That is weak evidence, so this
 is a convention, not a measured win, and no further session-thumbnail
 test is planned.
+
+## A list video's cover can be a stranger, so the click is the list (2026-11-04)
+
+For "Richest Crypto Billionaires 2026" the editor replaced the CZ cover with
+an AI image they supplied - a man fanning cash in a car, no real person -
+because the click should be *to find out who is on the list*, which a named
+face on the cover answers. Rows: "Who are / crypto's / [richest?]", the
+same question on both covers. An editor-supplied AI image needs no credit;
+it lives with the video's assets (`assets/crypto/billionaires/`).

@@ -43,9 +43,15 @@ is exhausted, with the date.
 | 11-03 | But how does bitcoin actually work? | 3Blue1Brown | 18.1M | 1.6M | 11.3x (9 yrs) | the mechanism, done properly | "But how does [X] actually work?" | long, drawn, 26 min |
 | 11-03 | What is Cryptocurrency and How Does it Work? | Explains 101 | 1.4M | 132,104 | 10.3x (2 yrs) | how crypto works | plain question | long |
 
+| 11-04 | Top Crypto Billionaires 2025 \| Binance, Ethereum, Bitcoin & Beyond | Data Face | 36k | 236 | 152x (14 mo) | who is richest from crypto | "Top [N] [group] [year]" | silent ranked visual, music only |
+| 11-04 | Biggest Bitcoin Holders 2024 | Gravity | 1.24M | 174,634 | 7.1x (22 mo) | who holds the most bitcoin | "Biggest [X] holders [year]" | silent 3D scale comparison |
+| 11-04 | Top 5 wealthiest crypto billionaires | Boomnix | 9.9k | 19 | 519x (2.4 yrs) | the same list | "Top N wealthiest [group]" | Short |
+| 11-04 | Top 10 Crypto Billionaires In The World | Top 10 Galaxy | 11k | 1,337 | 8.3x (2.3 yrs) | the same list | "Top 10 [group] in the world" | Short |
+| 11-04 | The Controversial Twins Who Own All The Bitcoin | MagnatesMedia | 2.3M | 510,184 | 4.5x (4.3 yrs) | one fortune as a story | "The [adjective] [people] who own all the [X]" | long story, 22 min |
+
 *The 09-04 rows' medians were filled 2026-11-03 (Whiteboard Crypto from RSS, Coin Bureau from `outliers`); their views are as of 09-04, so those ratios run low.*
 
-**Proven subjects (2+ channels):** none yet. Named-project explainers recur
+**Proven subjects (2+ channels):** crypto billionaires / rich lists (2026-11-04: Data Face, Gravity, Boomnix, Top 10 Galaxy, MagnatesMedia). Named-project explainers recur
 on Whiteboard Crypto alone; a second channel is needed.
 
 ## Our own standouts
@@ -195,3 +201,11 @@ One line per branch: date, the term or channel, what it added.
   rug pull. **No retitle**: the 0.05% CTR is the right result for that
   audience. A victim-side angle ("how to spot a rug pull") has no demand
   evidence yet; search it before proposing one.
+- 2026-11-04, "richest crypto billionaires" and "which billionaires own
+  bitcoin" (`outliers`, ~250 units): **proven** - the rows above. The
+  standouts are ranked *pictures of scale* with no narration (Data Face
+  152x, Gravity 7.1x at 1.2M) or one fortune told as a story
+  (MagnatesMedia, Mo Vlogs); the narrated "Top 10 richest" slideshows on
+  the same pages sit at 0.0-0.4x. Forbes' own "The Richest Crypto And
+  Bitcoin Billionaires" has 24k. Teardown:
+  `teardowns/richest-crypto-billionaires.md`.
