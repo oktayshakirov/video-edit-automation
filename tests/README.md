@@ -28,6 +28,7 @@ What they cover:
 | `test_breath.py` | the breathing ring's phases agree, long form and Short, on every pattern |
 | `test_card_cues.py` | chapter cards and reels sound the same in every Short, the quiz too |
 | `test_chrome.py` | the navigation overlays, and the cue collision rule |
+| `test_emoji_anim.py` | animated emoji off is the static glyph exactly; on plays the frame for the time, keeps one size, remembers a missing animation, and owes the credit only when something moved |
 | `test_filmfx.py` | the film surface's per-shot arrangement |
 | `test_guard.py` | a render refuses a full disk and aborts on critical memory pressure |
 | `test_hdr.py` | SDR-to-HLG keeps colour, and the SDR renderers refuse an HLG clip |

@@ -40,7 +40,22 @@ from .thumb import render_thumb
 
 
 
-def render_long(sections: list[Section], out: Path, workdir: Path,
+def render_long(sections: list[Section], out: Path, workdir: Path, *args,
+                animated_emoji: bool = False, **kw) -> dict:
+    """Build the video and everything that ships with it - see `_render_long`.
+
+    `animated_emoji=True` plays Noto's animation for any beat icon that has
+    one (`core/emoji_anim.py`) and adds its CC BY credit to `meta` - only if
+    an icon in the script actually animates. Off, nothing changes.
+    """
+    from ..core import emoji_anim
+    if animated_emoji and kw.get("meta") is not None:
+        kw["meta"] = emoji_anim.credit_meta(kw["meta"], sections)
+    with emoji_anim.enabled(animated_emoji):
+        return _render_long(sections, out, workdir, *args, **kw)
+
+
+def _render_long(sections: list[Section], out: Path, workdir: Path,
                 brand: Brand, meta: Meta | None = None,
                 voice: str = "mia",
                 music: str | Path | None = "tension",

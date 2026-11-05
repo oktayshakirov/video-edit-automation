@@ -611,8 +611,13 @@ EMOJI_STRIKE = 160
 _EMOJI_CACHE: dict = {}
 
 
-def emoji_image(char: str, height: int) -> "Image.Image":
+def emoji_image(char: str, height: int, t: float | None = None) -> "Image.Image":
     """One emoji as an RGBA image `height` px tall, cropped to its ink.
+
+    Given `t` (the beat's clock) and a build with animated emoji on, an emoji
+    that has a Noto animation returns that animation's frame at `t` instead
+    (`core/emoji_anim.py`); with it off, or for an emoji with no animation,
+    this is the static glyph exactly as before.
 
     The same bitmap-strike dance `add_caption_emoji` does — render at
     `EMOJI_STRIKE` and scale — factored out so a drawn beat can put an icon
@@ -621,6 +626,11 @@ def emoji_image(char: str, height: int) -> "Image.Image":
     ~480 frames, and re-rendering a 160px glyph and LANCZOS-scaling it each
     time is pure waste.
     """
+    if t is not None:
+        from . import emoji_anim
+        moving = emoji_anim.frame(char, height, t)
+        if moving is not None:
+            return moving
     key = (char, height)
     hit = _EMOJI_CACHE.get(key)
     if hit is not None:
