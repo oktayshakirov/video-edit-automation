@@ -190,6 +190,98 @@ def test_behind_never_hides_more_of_the_word_than_it_allows():
     assert np.abs(mid - np.array(CRYPTO.primary)).sum() > 120
 
 
+def _gold(img, brand):
+    a = np.asarray(img.convert("RGB"), np.int16)
+    return np.abs(a - np.array(brand.primary)).sum(axis=2) < 60
+
+
+@pytest.mark.parametrize("frame", [LANDSCAPE, VERTICAL], ids=["16x9", "9x16"])
+def test_behind_shows_the_whole_word_before_the_subject_covers_it(frame):
+    # The editor's note (2026-11-05): the word has to be read whole at some
+    # point. Mid-read it is in front - gold where the subject stands - and
+    # every letter is inside the frame; by the end the subject covers it.
+    import test_beats
+    from video_automation.core.brand import CRYPTO
+    from video_automation.longform.beats import BEATS
+    b = BEATS["behind"](test_beats.CUTOUT, "ETHEREUM", brand=CRYPTO,
+                        frame=frame, start=0.0, hold=4.0, reveals=[0.2])
+    r0, ts = b._phases()
+    assert ts - (r0 + b.ARRIVE) >= b.READ - 1e-9     # a full read on a 4s beat
+    W = frame.w
+    rows = slice(b.text_y, b.text_y + b.size)
+    centre = slice(int(W * 0.45), int(W * 0.55))
+    read = _gold(b.draw((r0 + b.ARRIVE + b.READ / 2 - b.start) / b.hold), CRYPTO)
+    end = _gold(b.draw(1.0), CRYPTO)
+    assert read[rows, centre].sum() > 1000           # in front of the subject
+    assert end[rows, centre].sum() == 0              # behind it
+    cols = np.nonzero(read[rows].any(axis=0))[0]
+    assert cols.min() > 0 and cols.max() < W - 1     # the whole word on screen
+
+
+@pytest.mark.parametrize("frame", [LANDSCAPE, VERTICAL], ids=["16x9", "9x16"])
+def test_behind_rise_shows_the_word_then_brings_the_subject_up_in_front(frame):
+    # entry="rise" (2026-11-05): the word lands on the empty room and is read
+    # whole; then the subject comes up from below the frame, in front of it.
+    import test_beats
+    from video_automation.core.brand import CRYPTO
+    from video_automation.longform.beats import BEATS
+    b = BEATS["behind"](test_beats.CUTOUT, "ETHEREUM", "", "rise", brand=CRYPTO,
+                        frame=frame, start=0.0, hold=4.0, reveals=[0.2])
+    r0, ts = b._phases()
+    assert ts + b.RISE_IN <= b.start + b.hold - 0.3 + 1e-9
+    W = frame.w
+    rows = slice(b.text_y, b.text_y + b.size)
+    centre = slice(int(W * 0.45), int(W * 0.55))
+    before = b.draw(0.0)                                  # nobody there yet
+    read = _gold(b.draw((r0 + b.ARRIVE + b.READ / 2 - b.start) / b.hold), CRYPTO)
+    end = _gold(b.draw(1.0), CRYPTO)
+    assert read[rows, centre].sum() > 1000                # the whole word, read
+    assert end[rows, centre].sum() == 0                   # the subject in front
+    # Before the rise the subject's place is the filled room, not the subject.
+    still = np.asarray(before, np.int16)
+    after = np.asarray(b.draw(1.0), np.int16)
+    y = int(frame.h * 0.75)
+    assert np.abs(still[y, centre] - after[y, centre]).mean() > 10
+
+
+def test_behind_refuses_an_unknown_entry():
+    import test_beats
+    from video_automation.core.brand import CRYPTO
+    from video_automation.longform.beats import BEATS
+    with pytest.raises(ValueError):
+        BEATS["behind"](test_beats.CUTOUT, "ETHEREUM", "", "drop", brand=CRYPTO,
+                        frame=LANDSCAPE, start=0.0, hold=4.0)
+
+
+def test_behind_finishes_its_tuck_inside_a_short_beat():
+    import test_beats
+    from video_automation.core.brand import CRYPTO
+    from video_automation.longform.beats import BEATS
+    b = BEATS["behind"](test_beats.CUTOUT, "ETHEREUM", brand=CRYPTO,
+                        frame=LANDSCAPE, start=0.0, hold=2.0, reveals=[0.2])
+    r0, ts = b._phases()
+    assert ts >= r0 + b.ARRIVE                       # the arrival is never cut
+    assert ts + b.TUCK <= b.start + b.hold - 0.3 + 1e-9
+
+
+def test_behind_takes_a_light_placement_when_there_is_one(tmp_path):
+    # A narrow subject: the word can sit where it hides only a sliver, and
+    # that beats the heavier 38% rule.
+    import test_beats
+    from video_automation.core.brand import CRYPTO
+    from video_automation.longform.beats import BEATS
+    im = Image.open(test_beats.PHOTO).convert("RGBA")
+    a = Image.new("L", im.size, 0)
+    w, h = im.size
+    ImageDraw.Draw(a).ellipse([w * 0.47, h * 0.08, w * 0.53, h * 1.2], fill=255)
+    im.putalpha(a)
+    p = tmp_path / "narrow.png"
+    im.save(p)
+    b = BEATS["behind"](p, "ETHEREUM", brand=CRYPTO, frame=LANDSCAPE,
+                        start=0.0, hold=4.0, reveals=[0.2])
+    assert b.MIN_COVER <= b.cover <= b.LIGHT_COVER
+
+
 @pytest.mark.skipif(not (vision.model_path("depth").exists()
                          and vision.model_path("matte").exists()),
                     reason="vision models not installed (`vision fetch`)")

@@ -101,7 +101,8 @@ sequence drifted into four copies that disagreed.
    the announcement - capture it with `screencap` and let the camera ring
    the line the voice reads (`footage.md`, "A real page"). **A photo that
    carries a line can move in depth** (`parallax=`, `isolate=`, `pop=`), or
-   put its one word behind the person with the `behind` beat. Money moving
+   put its one word behind the person with the `behind` beat (`"fly"` or
+   `"rise"`; a rise always takes a different background, `room=`). Money moving
    in or out of something is a `pile` (coins pour in; `drain` opens the
    floor). `beats.md` and `design.md` also have animated icons and per-shot
    GPU effects; `tools/visual_demo.py` renders every one of these to look at.

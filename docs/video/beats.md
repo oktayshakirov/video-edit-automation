@@ -1455,7 +1455,7 @@ centred however many there are.
 
 ## `behind` - one word between the room and the subject (2026-11-05)
 
-`Shot(graphic="behind", payload=(image, word, line))`. The subject is cut out
+`Shot(graphic="behind", payload=(image, word, line, entry, room))`. The subject is cut out
 (`vision.matte`, or the alpha of an RGBA PNG used as given), the hole is
 filled, and the word is set *between* the two layers, in the brand colour:
 the head crosses the word. A slow push moves the subject faster than the
@@ -1465,16 +1465,73 @@ word and the word faster than the room. `line`, if given, is a second reveal
 **For the line that names what the person *is* to the story** - the thing
 they made ("ETHEREUM" behind Buterin), the stake ("BILLIONS" behind Saylor),
 the one word a chapter turns on. A face with room around it, not a crowd,
-and a word of about ten letters or fewer: it is sized to 92% of the frame's
-width, so a long word comes out small.
+and a word of about ten letters or fewer. The word starts at 34% of the
+frame's height (17% in 9:16) and shrinks only if it is wider than 92% of the
+frame, so a long word comes out small.
 
-**The word's height is searched, never typed.** It takes the highest
-position under the watermark where the subject covers between 4% and 38% of
-the word's ink - across the top of the head. 38% is measured: the prototype
-frame that read well hid 37%, and a 30% cap drove the word down across
-Buterin's mouth. A subject so large that every height hides more gets the
-least-covered one; look at that frame, and use a wider picture if the word
-stops reading.
+**The word is read whole first, then it goes behind** (2026-11-05). The
+first version only ever showed the word behind the head: on the Mac,
+ETHEREUM sat across Buterin's face from eyes to chin and read "ETH..EUM"
+from first frame to last. DIN Condensed is narrow, so a 16:9 word sets at
+48-64% of the width, and the same head hides more of it. The editor's call:
+there must be a phase where the whole word is seen. Now, on its reveal:
+
+1. **Arrive** (0.45s) - the word flies in from the camera *in front of* the
+   subject, from 1.35x to its reading size, fading in.
+2. **Read** (0.8s) - it holds in front, every letter on screen. Its scale
+   here is capped (`front`) so the widest word still fits the frame.
+3. **Tuck** (0.5s) - it shrinks back to 1.0x while the subject steps
+   forward 3%. The depth order flips in the middle of that move, over about
+   0.15s. Flipped over the whole tuck, the letters sat half-through the face
+   like a double exposure.
+
+On a short beat the read shortens so the tuck ends 0.3s before the cut; the
+arrival is never cut. Write the word's sentence so the read lands on it:
+the word arrives on its chunk and goes behind about 1.25s later.
+
+**Two entries, both in use** (`entry`, the payload's fourth item):
+
+- **`"fly"`** (the default) - the three phases above: the word comes in
+  front of the subject, is read, and tucks behind.
+- **`"rise"`** - the word is there first: it lands on the empty room (a
+  small upward drift and fade, 0.45s) and is read whole (0.8s), with nobody
+  in the picture. Then the subject comes up from below the frame (0.7s,
+  easing out) and settles in front of it. For a line where the person
+  *arrives* at the thing: "and then Saylor bought billions", the founder
+  walking into what they built. Pick `"fly"` when the word is the news and
+  `"rise"` when the person is.
+
+**Rule: `"rise"` always gets a different background - `room=`, the
+payload's fifth item** (the editor, 2026-11-05). The subject is never
+removed perfectly: the filled hole keeps traces, and because the rise shows
+the room empty for over a second, the blurred silhouette reads at the start
+(Buterin's outline on the TechCrunch wall, even after the fill was reworked
+row by row and feathered). Give it another picture of a fitting place - the
+same kind of stage, office or city, never the subject's own photo:
+
+```python
+Shot(graphic="behind", payload=(SAYLOR, "BILLIONS", "Bought with borrowed money",
+                                "rise", STAGE_DARK))
+```
+
+It is covered to the subject layer's size, softened and dimmed like the
+filled room, and has no hole at all. A rise without `room=` still renders
+but prints a warning. `"fly"` does not need it - the subject stands in
+front of the hole the whole time the room shows.
+
+**The word's height is searched, never typed.** It takes, in order:
+
+- the highest position where the subject hides 4-20% of the word's ink
+  (`LIGHT_COVER`) - the word then reads almost whole even once behind;
+- else the highest where it hides 4-38% - across the top of the head. 38%
+  is measured: the prototype frame that read well hid 37%, and a 30% cap
+  drove the word down across Buterin's mouth;
+- else the least-covered height anywhere. Look at that frame, and use a
+  wider picture if the word stops reading behind the head.
+
+`Behind(...).cover` says which one it got. On the demo pictures: ETHEREUM
+behind Buterin 0.381, BILLIONS behind Saylor (9:16) 0.306, both read whole
+in the read phase.
 
 The first frame costs ~1s once the matte is cached (the room fill is
 memoised per picture), then ~120ms a frame.
@@ -1505,6 +1562,13 @@ simply vanished emptied the pile in half a second, too fast to see.
 Coins shrink to fit the count (about 60 reads well; past ~120 they turn to
 gravel). `glyph` is drawn on the coin face in `band_ink` - one character.
 
+**The heading is drawn last, over the coins, with a dark edge.** Coins spawn
+above the frame, and in 9:16 they fall straight through the kicker's row. In
+the first Mac demo a coin covered "EY" of WHERE THE MONEY GOES (2026-11-05).
+Drawing the heading last was not enough on its own: gold type on a gold coin
+face vanished, so `pile` adds a dark 3px stroke. The shared `heading` is
+unchanged. The batch label was always drawn over the coins.
+
 ## Animated emoji icons (2026-11-05)
 
 `render_long(..., animated_emoji=True)` / `render_crypto_short(...,
@@ -1524,10 +1588,9 @@ drawing style next to Noto's. Check first and prefer a set that all moves:
 One moving icon among still ones draws the eye to it - use that on purpose
 (the item the line is about), not by accident.
 
-**It owes a credit.** Noto Emoji Animation is CC BY 4.0. A long form with a
-`meta` gets "Animated emoji: Google Noto Emoji Animation (CC BY 4.0)" added
-to its credits automatically - only when an icon actually animated; a Short
-prints the line at the end of the build for the publish step to carry.
+**No licence line goes into the video for them** - not a long form's
+credits, not a Short's description. The first version added one
+automatically; the editor removed it (2026-11-05).
 
 Files are fetched once into `~/.local/share/video-automation/emoji/`
 (~200KB each); a missing animation is remembered as `<code>.none` and never

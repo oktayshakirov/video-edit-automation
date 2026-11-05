@@ -29,7 +29,7 @@ What they cover:
 | `test_breath.py` | the breathing ring's phases agree, long form and Short, on every pattern |
 | `test_card_cues.py` | chapter cards and reels sound the same in every Short, the quiz too |
 | `test_chrome.py` | the navigation overlays, and the cue collision rule |
-| `test_emoji_anim.py` | animated emoji off is the static glyph exactly; on plays the frame for the time, keeps one size, remembers a missing animation, and owes the credit only when something moved |
+| `test_emoji_anim.py` | animated emoji off is the static glyph exactly; on plays the frame for the time, keeps one size, remembers a missing animation, and adds no credit line to a build |
 | `test_filmfx.py` | the film surface's per-shot arrangement |
 | `test_guard.py` | a render refuses a full disk and aborts on critical memory pressure |
 | `test_hdr.py` | SDR-to-HLG keeps colour, and the SDR renderers refuse an HLG clip |
@@ -48,7 +48,7 @@ What they cover:
 | `test_shaderfx.py` | bloom glows only what is bright, a leak never darkens, aberration spares the centre, a vignette keeps the middle; no effect never makes a GL context |
 | `test_spotlight_ambience.py` | the spotlight's box fits the content; place-sound stays restrained |
 | `test_transitions.py` | `push` stays byte-identical; every mode returns a frame |
-| `test_vision.py` | depth moves near more than far, `isolate` dims only the room, `pop` puts the head over the edge, `behind` keeps its word readable - on stub maps, no model needed |
+| `test_vision.py` | depth moves near more than far, `isolate` dims only the room, `pop` puts the head over the edge, `behind` keeps its word readable, shows it whole in front before tucking it behind, fits its tuck into a short beat, takes a light placement first, and with `entry="rise"` shows the word on the empty room before the subject comes up in front - on stub maps, no model needed |
 | `test_docs.py` | the docs and skills point at files that exist, and this table lists every test |
 
 **What they deliberately do not cover** is whether anything *looks* right.

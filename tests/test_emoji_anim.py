@@ -1,5 +1,5 @@
 """Animated emoji: off changes nothing, on plays the right frame, a miss is
-remembered, and the credit is added only when something animates.
+remembered, and a build never adds a credit line for them.
 
 No network: a three-frame WebP written here stands in for Noto's file, and
 the CDN is replaced when a test needs a 404.
@@ -8,6 +8,7 @@ the CDN is replaced when a test needs a 404.
 from __future__ import annotations
 
 import urllib.error
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
@@ -78,20 +79,15 @@ def test_a_missing_animation_is_asked_for_once(tmp_path, monkeypatch):
     assert len(calls) == 1 and (tmp_path / "1f4b0.none").exists()
 
 
-def test_the_credit_only_when_an_icon_animates(fake_noto):
+def test_animated_emoji_adds_no_credit_line(monkeypatch):
+    # The editor's call (2026-11-05): no licence line for the icons, in a long
+    # form's credits or anywhere else. `render_long` hands `meta` on untouched.
+    from video_automation.longform import build
+    seen = {}
+    monkeypatch.setattr(build, "_render_long",
+                        lambda *a, **kw: seen.update(kw) or {})
     meta = SimpleNamespace(credits=["Photo: someone"])
-    import dataclasses
-
-    @dataclasses.dataclass
-    class M:
-        credits: list
-
-    def secs(icon):
-        shot = SimpleNamespace(graphic="grid", payload=([("A", "b", icon)], "T"))
-        return [SimpleNamespace(shots=[shot])]
-
-    m = M(["Photo: someone"])
-    assert emoji_anim.CREDIT in emoji_anim.credit_meta(m, secs("🔥")).credits
-    assert emoji_anim.credit_meta(m, secs("🔑")) is m        # static: nothing owed
-    assert m.credits == ["Photo: someone"]                   # never mutated
-    assert meta.credits == ["Photo: someone"]
+    build.render_long([], Path("out.mp4"), Path("work"), meta=meta,
+                      animated_emoji=True)
+    assert seen["meta"] is meta and meta.credits == ["Photo: someone"]
+    assert not hasattr(emoji_anim, "CREDIT")
