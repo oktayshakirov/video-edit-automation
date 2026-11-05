@@ -59,7 +59,8 @@ docs/publish/  the per-platform publishing notes
 .claude/skills/ the build, publish and audit workflows as Claude Code skills
 assets/        brand assets, credited archive images, the stock manifest
 tests/         fast checks that never render, synthesise or touch the network
-tools/         asset audits, stock pruning, topic suggestions
+tools/         asset audits, stock pruning, topic suggestions, script checks,
+               cloud setup
 ```
 
 ## Setup
@@ -76,6 +77,10 @@ python3 -m venv .venv
 
 The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. Footage, renders,
 stock bytes and credentials are never committed.
+
+Off the Mac - a Claude Code cloud session, or CI, which runs the suite on
+every push - `bash tools/cloud_setup.sh` sets up everything short of a render.
+What that covers is in `docs/video/cloud.md`.
 
 ## Usage
 

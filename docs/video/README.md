@@ -1,7 +1,9 @@
 # The video docs
 
-Four skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
-`/video-drone` - and one publishes them, `/publish-video`. The skills are thin: they hold the
+Five skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
+`/video-drone` and the experimental `/video-glitch` - one publishes them,
+`/publish-video`, and two read the analytics back, `/video-views-audit` and
+`/video-performance-review`. The skills are thin: they hold the
 *order of the work*. Everything a build actually needs to know lives here, once.
 
 "The editor" in these docs and in code comments is the channel owner, who
@@ -17,12 +19,13 @@ user. A rule credited to the editor's note came out of that review.
 | `voice.md` | Synthesis: Kokoro backends, profiles, pronunciation, caption sync |
 | `longform.md` | The 16:9 explainer: shape, chapters, timing, opener, outro |
 | `shorts.md` | The 9:16 cut: crop, captions, the four beats that transfer |
-| `beats.md` | The drawn graphics - `bars`, `grid`, `steps`, `checklist`, `compare`, `logos` |
+| `beats.md` | The drawn graphics - every beat in `longform.beats.BEATS`, and when to reach for each |
 | `footage.md` | Stock and site photos: screening, contact sheets, reuse, motion |
 | `design.md` | Type, colour, layout, backgrounds |
 | `audio.md` | Music, generated beds, sound effects |
 | `thumbnails.md` | One per video, and how the pair share a source image |
 | `troubleshooting.md` | Engine faults that already cost a re-cut once |
+| `cloud.md` | What a cloud session can do before the render, and what it cannot |
 | `demand/README.md` | Demand maps: proving people already watch a subject before it is picked, and the formats that fit each channel |
 | `demand/tinnitus.md`, `demand/crypto.md` | Each channel's map - standouts, proven subjects, formats |
 | `projects/crypto.md` | thecrypto.wiki: voice, copy, what the site gives you |

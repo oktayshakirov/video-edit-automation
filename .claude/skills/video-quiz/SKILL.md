@@ -48,7 +48,9 @@ and a remembered version is a stale one.
    only, never "the answer is B." The format itself says the letter
    ("The correct answer is B.", a beat, then `answer`); do not put a letter in
    the text you write. The wrong options come from the article, never from
-   invention.
+   invention. Then run `tools/script_check.py` on the script: it reads every
+   question, option and answer against the channel's rule, and caught a
+   spoken "CBT" and a "can help" option in the tinnitus myths quiz.
 3. **Build** - `projects/quiz-crypto/<name>.py` or
    `projects/quiz-tinnitus/<name>.py`, calling
    `video_automation.quiz.build.render_quiz_short` and setting `SOURCE_POST`.
