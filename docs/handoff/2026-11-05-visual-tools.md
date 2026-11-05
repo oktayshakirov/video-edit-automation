@@ -40,12 +40,12 @@ Then the three downloads:
 .venv/bin/python -m pytest tests -q
 ```
 
-In the cloud: 814 passed, 19 skipped. On the Mac expect *more* to run (real
+In the cloud: 818 passed, 16 skipped. On the Mac expect *more* to run (real
 fonts, CGL for the shader tests, the real-model test after `vision fetch`).
 Expected skips on the Mac: the tests that need a clip in the local Pexels
-cache when it is not there, and in `test_script_check.py` four scripts
-reported as "saves ... at import" (they draw cards into `assets/` when
-imported - see section 5). Anything else skipping is worth a look.
+cache when it is not there, and the two read-along sample scripts that need
+the `audiobook_automation` sibling package. Anything else skipping is worth
+a look.
 
 Then look at everything new with the real fonts - this is the part the
 cloud could not do:
@@ -126,12 +126,17 @@ what really exists, and `tests/test_docs.py` keeps them true.
 
 - `screencap` was only ever run against local pages: external sites were
   blocked from the cloud session. The first real capture should be watched.
-- Four project scripts draw and save cards into `assets/` *at import*
-  (`ticker_card` in both `gta-6-crypto` scripts and `what-are-memecoins`,
-  and `crypto-short/crypto-exchanges`). Every tool that imports a script
-  re-writes those files; under the test font shim this once overwrote the
-  committed `squid.png` with a stand-in face (restored). A suggested task
-  "Stop project scripts drawing cards at import" describes the fix.
+- *(Fixed in a follow-up the same day.)* Three scripts - both
+  `gta-6-crypto` scripts and `crypto-long/what-are-memecoins` - drew and
+  saved their ticker cards on import, so every gate that imported them
+  rewrote the files; under the test font shim one import overwrote the
+  committed `squid.png` with a stand-in face (restored). They now draw in a
+  `cards()` function that `main()` calls, with the same `ticker_card` calls
+  and arguments, so the cards are unchanged; the import test fails any
+  script that saves on import, and `ticker_card` refuses to write in a
+  process that used stand-in fonts. Rule: `workflow.md` step 3. **Check on
+  the Mac:** render one of the three (or just call its `cards()`) and
+  confirm `git status` shows `squid.png` unchanged.
 - Animated emoji only cover some emoji; the rest stay Apple's style. Caption
   emoji in Shorts are not animated (they are pre-rendered PNGs).
 - GPU effects are deterministic on one machine but not across GPUs.

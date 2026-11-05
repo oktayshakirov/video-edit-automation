@@ -1662,6 +1662,17 @@ def ticker_card(name: str, line: str, sub: str, brand, out: Path,
     d.text((x, 40), "$" + name.upper(), font=ft, fill=(255, 255, 255, 255))
     d.text((x, 118), line, font=fs, fill=gold + (255,))
     d.text((x, 162), sub, font=fs, fill=(205, 205, 205, 255))
+    # **A card drawn in stand-in fonts never reaches a file.** Under the test
+    # font shim, importing a script that drew its card at module level once
+    # rewrote the committed `squid.png` in the wrong typeface (2026-11-05).
+    # The shim is looked up, never imported: the render path does not use it.
+    import sys
+    shim = sys.modules.get("video_automation.core.fontshim")
+    if shim is not None and shim.substitutions():
+        raise RuntimeError(
+            f"ticker_card: not writing {out} - this process drew with "
+            f"stand-in fonts ({', '.join(Path(p).name for p in shim.substitutions())}). "
+            f"Draw cards on the Mac.")
     out.parent.mkdir(parents=True, exist_ok=True)
     im.save(out)
     return out
