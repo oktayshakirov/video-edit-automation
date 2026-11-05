@@ -1504,3 +1504,31 @@ simply vanished emptied the pile in half a second, too fast to see.
 
 Coins shrink to fit the count (about 60 reads well; past ~120 they turn to
 gravel). `glyph` is drawn on the coin face in `band_ink` - one character.
+
+## Animated emoji icons (2026-11-05)
+
+`render_long(..., animated_emoji=True)` / `render_crypto_short(...,
+animated_emoji=True)`: any `grid`, `steps` or `diagram` icon that has a
+Google Noto animation plays it, looping on the beat's clock - the fire
+flickers, the lock clicks shut (`core/emoji_anim.py`). Off by default, and
+off is the static glyph exactly.
+
+**Only some emoji animate**: 🔥 and 🔒 do; 💰, 📋 and 🔑 do not (measured
+2026-11-05). The rest stay Apple's static glyph, which is a different
+drawing style next to Noto's. Check first and prefer a set that all moves:
+
+```bash
+.venv/bin/python -m video_automation emoji check 🔥 🔒 🔑
+```
+
+One moving icon among still ones draws the eye to it - use that on purpose
+(the item the line is about), not by accident.
+
+**It owes a credit.** Noto Emoji Animation is CC BY 4.0. A long form with a
+`meta` gets "Animated emoji: Google Noto Emoji Animation (CC BY 4.0)" added
+to its credits automatically - only when an icon actually animated; a Short
+prints the line at the end of the build for the publish step to carry.
+
+Files are fetched once into `~/.local/share/video-automation/emoji/`
+(~200KB each); a missing animation is remembered as `<code>.none` and never
+asked for again.

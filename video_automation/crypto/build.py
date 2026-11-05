@@ -306,7 +306,23 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
     return [(t, k) for t, k in cues if 0.0 <= t < total]
 
 
-def render_crypto_short(sentences: list, shots: list[Shot], out: Path,
+def render_crypto_short(sentences: list, shots: list[Shot], out: Path, *args,
+                        animated_emoji: bool = False, **kw):
+    """The vertical cut - see `_render_crypto_short`.
+
+    `animated_emoji=True` plays Noto's animation for beat icons that have one
+    (`core/emoji_anim.py`). A Short has no sidecar credits of its own here,
+    so the build prints the credit line for the publish step to carry.
+    """
+    from ..core import emoji_anim
+    with emoji_anim.enabled(animated_emoji):
+        result = _render_crypto_short(sentences, shots, out, *args, **kw)
+    if animated_emoji and emoji_anim.used():
+        print(f"  credit for the description: {emoji_anim.CREDIT}")
+    return result
+
+
+def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         workdir: Path, voice: str = "mia",
                         gap: "float | list[float]" = 0.34, tail: float = 1.2,
                         font_size: int = 46, y_frac: float = 0.70,
