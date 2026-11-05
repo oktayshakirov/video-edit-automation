@@ -153,12 +153,19 @@ SALE = 10
 # share each name, so no DEX logo can be trusted to be the right one.
 from video_automation.longform.overlay import ticker_card  # noqa: E402
 CARDS = ROOT / "assets/stock/press/gta6/cards"
-CARD_LEAK = ticker_card("cyberleek", "Leak meme coin, Aug 2026",
-                        "not affiliated with Rockstar", CRYPTO,
-                        CARDS / "cyberleek.png")
-CARD_DACITY = ticker_card("dacity", "Copycat meme coin, Oct 2026",
-                          "not affiliated with Rockstar", CRYPTO,
-                          CARDS / "dacity.png")
+CARD_LEAK = CARDS / "cyberleek.png"
+CARD_DACITY = CARDS / "dacity.png"
+
+
+def cards() -> None:
+    """Draw the ticker cards. `main()` calls this before the render - never
+    at import: every gate imports a script (opening_check, script_check,
+    preflight), and an import that drew cards once rewrote a committed one
+    in the wrong typeface (2026-11-05, `workflow.md` step 3)."""
+    ticker_card("cyberleek", "Leak meme coin, Aug 2026",
+                "not affiliated with Rockstar", CRYPTO, CARD_LEAK)
+    ticker_card("dacity", "Copycat meme coin, Oct 2026",
+                "not affiliated with Rockstar", CRYPTO, CARD_DACITY)
 
 
 SECTIONS = [
@@ -438,6 +445,7 @@ def thumbs(out: Path) -> Path:
 
 
 def main() -> None:
+    cards()
     out = Path.home() / "Desktop/gta-6-crypto-long.mp4"
     work = Path.home() / "Desktop/.gta-6-crypto-long-work"
     made = render_long(

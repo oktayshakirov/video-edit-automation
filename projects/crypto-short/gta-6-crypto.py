@@ -73,9 +73,16 @@ KEYART_V = PRESS / "img/extended-look.0f0-3vo3w9u26.jpg"      # the key art, por
 BUG = (LOGO, "tr", 0.22)
 
 from video_automation.longform.overlay import ticker_card  # noqa: E402
-CARD_LEAK = ticker_card("cyberleek", "Leak meme coin, Aug 2026",
-                        "not affiliated with Rockstar", CRYPTO,
-                        PRESS / "cards/cyberleek.png")
+CARD_LEAK = PRESS / "cards/cyberleek.png"
+
+
+def cards() -> None:
+    """Draw the ticker card. `main()` calls this before the render - never
+    at import: every gate imports a script (opening_check, script_check,
+    preflight), and an import that drew cards once rewrote a committed one
+    in the wrong typeface (2026-11-05, `workflow.md` step 3)."""
+    ticker_card("cyberleek", "Leak meme coin, Aug 2026",
+                "not affiliated with Rockstar", CRYPTO, CARD_LEAK)
 
 BEATGROUND = BRAND / "beat-ground-crypto.jpg"
 
@@ -176,6 +183,7 @@ def thumbs(out: Path) -> Path:
 
 
 def main() -> None:
+    cards()
     out = Path.home() / "Desktop/gta-6-crypto-short.mp4"
     work = Path.home() / "Desktop/.gta-6-crypto-short-work"
     out, total = render_crypto_short(

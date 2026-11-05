@@ -18,7 +18,8 @@ about half a minute, which is the only reason it will actually get run.
 `conftest.py` installs `core.fontshim`, which answers the missing macOS fonts
 with free ones; on the Mac it does nothing, and no test asserts a typeface.
 What needs the Mac skips with the reason: the Kokoro weights, the stock
-cache, the crypto-wiki checkout, a script that saves a card at import.
+cache, the crypto-wiki checkout, a script that measures text in a macOS
+font when it loads.
 
 What they cover:
 
@@ -40,7 +41,7 @@ What they cover:
 | `test_reel.py` | the `reel` beat's dives into and out of a card, and `post`'s highlighter on every frame |
 | `test_samples.py` | the tinnitus sound samples: synthesis, placement and the bed dip |
 | `test_screencap.py` | a capture records where its element is and hides what it was told to; the camera lands on the element and rings it - on a local page taller than cv2's 32,767px limit |
-| `test_script_check.py` | `tools/script_check.py` flags what the docs forbid and passes the honest sentence - and every project script still imports |
+| `test_script_check.py` | `tools/script_check.py` flags what the docs forbid and passes the honest sentence; every project script still imports and writes nothing on import; `ticker_card` never saves in stand-in fonts |
 | `test_search_opener.py` | the Search opener types on the shared rhythm |
 | `test_sfx_kits.py` | the per-site sound kits, and the cue set no kit may touch |
 | `test_special_cuts.py` | where the glitch and TV-static cuts are placed |
