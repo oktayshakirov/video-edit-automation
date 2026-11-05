@@ -41,7 +41,7 @@ white noise" is a legitimate article *and* a legitimate session.
 
 # Mode 1 — article videos
 
-**Read `.claude/skills/docs/video/longform.md` first.** It is the same
+**Read `docs/video/longform.md` first.** It is the same
 engine and the same rules: the narrative arc, the three-phase opening, second
 person, no burned captions, push transitions, unnumbered question cards, the
 checklist's two timing modes, scene holds, screened stock, the thumbnail layout.
