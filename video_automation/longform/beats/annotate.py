@@ -370,7 +370,7 @@ class Diagram(Beat):
         ty = (y0 + y1) // 2 - block // 2
         if icon:
             from ...core.vertical import emoji_image
-            im = emoji_image(icon, 58)
+            im = emoji_image(icon, 58, getattr(self, "t_now", None))
             if a < 255:
                 im = im.copy()
                 im.putalpha(im.getchannel("A").point(lambda v: v * a // 255))

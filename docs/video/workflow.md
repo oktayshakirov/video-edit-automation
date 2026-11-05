@@ -131,6 +131,26 @@ the next question already open?* If the answer is "yes, and it confirms" or
 The rule lived in `narration.md` for ten days and four Shorts still broke
 it, because it was checked from memory rather than against the file.
 
+**Gate: run the script check on both scripts of the pair, with the opening
+check (2026-11-05).** It reads what each script will show and say and flags
+the shapes the docs already forbid: a direction on crypto, a promise of
+relief on tinnitus, a spoken `CBT` / `ENT` / `TMJ`, the banned windup, a
+long form's outro asking for a subscribe, a Short carrying the disclaimer, a
+question title with no question mark, a carded chapter with no kicker, no
+`SOURCE_POST` or `DEMAND`.
+
+```bash
+PYTHONPATH=. .venv/bin/python tools/script_check.py \
+    projects/<project>-long/<name>.py projects/<project>-short/<name>.py
+```
+
+A flag is a prompt to look, the same as the opening check: answer each one
+in the handover in a line, or rewrite. `--rules` lists every rule and the
+doc it comes from. Run against the back catalogue on 2026-11-05 it found the
+banned windup in `vitalik-ethereum`, a "subscribe" outro in
+`pulsatile-tinnitus` after that rule, and a spoken "CBT" plus "can help" in
+the tinnitus myths quiz - each shipped after the rule it breaks.
+
 **Pick the opener deliberately.** The redacted `hook=` is the default and the
 control; `longform.openers` has Counter / Stamp / Split / Search / Flash for a
 number, a belief, a comparison, a search phrase or a picture payoff. Choose by
@@ -241,3 +261,62 @@ used to be duplicated into every build skill; the copies drifted, disagreed
 about what a Short gets, and cost a registry entry that had to be reverted and
 a social post that could not be un-sent. Do not restate those steps, pre-empt
 them, or re-derive them from memory.
+
+## What every article build draws by default (2026-10-21)
+
+For the two article channels, long form and Short. These are on without
+asking - a script only supplies the words. Detail in `longform.md` and
+`audio.md`. (Moved here from `/video-crypto` and `/video-tinnitus`
+2026-11-05, where it was the same 56 lines twice and every engine change
+had to edit both copies.)
+
+- **Chapter cards are the band card**, long form and Short: the title typed
+  into a band of the brand colour on key clicks, the riser into it and the
+  cinematic flashback out of it. **Write a `Section(kicker=)` for every
+  carded section** - two or three words naming the stake ("THE REJECTION",
+  "THE CATCH"). Without one the long form shows "CHAPTER n" and a Short
+  shows no label.
+- **The opening title is the glitch slate** (`title_at=`, default since
+  2026-11-04): the title split at its colon / question mark / dash, the
+  search phrase big in DIN Condensed, the promise under it in the brand
+  colour, glitching in and out on the title intro sound. Keep its hold
+  clear of the first chapter card. `title_style="cinematic"` brings back
+  the old card.
+- **A disclaimer `payload` becomes the notice card** on the notification
+  chime - no flag needed.
+- **The video ends on the band end card** - THANKS FOR WATCHING, retyped as
+  LIKE & COMMENT - **and switches off like a TV.** `endcard=` turns the card
+  on; the TV-off is always there.
+- **The old-film surface is arranged, not blanketed** (`core/filmfx.py`):
+  the first shot clean, a section's first clip full, the rest rotating
+  grain-only / clean / dust-only / full, nothing on drawn beats. `film=False`
+  turns it off for one video, a number scales it.
+- **A few cuts become glitch or TV static on their own**
+  (`transitions.plan_special`): a glitch into a sentence that turns ("But…"),
+  static or glitch alternating into chapter cards, static on a jump in time -
+  about one per 45 seconds. **Open a turning sentence with "But" or
+  "Actually" when it really turns**; that is what places the glitch. A
+  transition set by hand on a shot always wins.
+- **`reel` is the beat for a sequence the viewer should feel move** - days,
+  versions, dates, steps: a strip of cards (clips, photos or text) the camera
+  travels along, one card per sentence (a Short: one phrase per card, ~2s
+  each). It can **dive into its last card and continue as that clip**, or
+  open out of the previous clip (`enter` / `emerge`) - use it where the
+  script moves from an overview into one example. `docs/video/beats.md`.
+- **`post` puts what someone actually wrote on screen** - a post, a news
+  headline, a transaction - and highlights the `[bracketed]` line as it is
+  read. Real, sourced wording only; write its sentence as two phrases, the
+  lead-in and the quote. `docs/video/beats.md`, "`post`".
+- **`emphasis=[...]` punches the word a sentence hinges on onto the screen**
+  as it is spoken, long form only, once or twice a minute. Pick one word or
+  short phrase per minute that the whole sentence turns on.
+- **`spotlight` directs a still**: the camera glides into the part of a
+  photo the voice names (a line of a document, one face), one region per
+  sentence; the ring snaps to the content, so regions can be rough.
+  `docs/video/beats.md`, "`spotlight`".
+- **Footage of a place gets a quiet bed of it** (city, rain, office,
+  servers) automatically, only on clips of 3s or more - nothing to write.
+  Pick clips whose folder names the place when the sound would help.
+- **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
+  of git. On a machine without them the build falls back to synthesized
+  stand-ins - copy them over before a build that ships.

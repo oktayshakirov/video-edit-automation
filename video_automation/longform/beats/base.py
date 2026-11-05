@@ -345,6 +345,9 @@ class Beat:
     EMBLEM = False
 
     def draw(self, f: float) -> Image.Image:
+        # The beat's clock for anything drawn below that animates on its own
+        # time rather than on `f` - an animated emoji icon.
+        self.t_now = self.at(f)
         out = self.background(f)
         if self.pic is not None:
             self.paint_picture(out, f)

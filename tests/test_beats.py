@@ -102,6 +102,11 @@ PAYLOADS = {
               ["20:41", "20:59", "21:04", "21:44"], "ONE TRANSACTION"),
     # (entropy, title): portrait-safe.
     "mnemonic": ("8f3a0c2e5b7d9146a1c3e5f708192a3b", "TWELVE WORDS"),
+    # (image, word, line): a ready RGBA cutout, so no model is needed here.
+    "behind": ("<cutout>", "ETHEREUM", "The world computer"),
+    # (drops, title, drain): two batches, then the floor opens.
+    "pile": ([(12, "Buyers pay in", "$"), (8, "More buyers")], "WHERE IT GOES",
+             "Liquidity pulled"),
 }
 
 
@@ -118,10 +123,34 @@ def test_every_beat_has_a_payload():
 PHOTO = Path(__file__).resolve().parents[1] / "assets/brand/beat-ground-crypto.jpg"
 
 
+def _cutout() -> Path:
+    """`PHOTO` with an alpha: an upright ellipse standing in for a person.
+
+    A drawn matte is used as given (`vision.alpha_of`), which is what lets
+    `behind` render here without the matte model installed.
+    """
+    import tempfile
+    from PIL import ImageDraw
+    out = Path(tempfile.gettempdir()) / "va-test-cutout.png"
+    if not out.exists():
+        im = Image.open(PHOTO).convert("RGBA")
+        a = Image.new("L", im.size, 0)
+        w, h = im.size
+        ImageDraw.Draw(a).ellipse([w * 0.38, h * 0.08, w * 0.62, h * 1.2], fill=255)
+        im.putalpha(a)
+        im.save(out)
+    return out
+
+
+CUTOUT = _cutout()
+
+
 def _payload(name):
     def sub(v):
         if v == "<photo>":
             return PHOTO
+        if v == "<cutout>":
+            return CUTOUT
         if isinstance(v, list):             # `reel` nests its media in items
             return [tuple(PHOTO if x == "<photo>" else x for x in it)
                     if isinstance(it, tuple) else it for it in v]
@@ -135,6 +164,11 @@ PICTURE_KW = {"anatomy"}
 
 
 def _build(name, brand, frame):
+    # `logos` draws the site's own exchange cards and raises on a missing one,
+    # by design. On a machine without the crypto-wiki checkout at
+    # ~/Coding/crypto-wiki that is a missing sibling repo, not a beat bug.
+    if name == "logos" and not BEATS["logos"].DIR.is_dir():
+        pytest.skip(f"no crypto-wiki checkout at {BEATS['logos'].DIR}")
     n = item_count(name, _payload(name))
     hold = 9.0
     # Reveals spaced the way a real narration would land them, which is what
@@ -172,7 +206,7 @@ def test_beat_renders_on_both_brands(name):
 # coverage at all from the landscape cases above.
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
-            "post", "spotlight"]
+            "post", "spotlight", "behind", "pile"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -248,7 +282,8 @@ def test_every_beat_class_is_registered():
 
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
-                "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake"):
+                "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
+                "behind", "pile"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from

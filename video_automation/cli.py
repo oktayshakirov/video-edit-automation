@@ -22,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not argv or argv[0] in ("-h", "--help"):
         print(__doc__.strip())
-        print(f"\nprojects: {', '.join(PROJECTS)}\nalso: voices")
+        print(f"\nprojects: {', '.join(PROJECTS)}\nalso: voices, vision, screencap, emoji")
         return 0 if argv else 1
 
     name, rest = argv[0], argv[1:]
@@ -30,6 +30,18 @@ def main(argv: list[str] | None = None) -> int:
     if name == "voices":
         from .core.voices import main as voices_main
         return voices_main(rest)
+
+    if name == "vision":
+        from .core.vision import main as vision_main
+        return vision_main(rest)
+
+    if name == "emoji":
+        from .core.emoji_anim import main as emoji_main
+        return emoji_main(rest)
+
+    if name == "screencap":
+        from .core.screencap import main as screencap_main
+        return screencap_main(rest)
 
     if name == "drone":
         from .drone.cli import main as drone_main

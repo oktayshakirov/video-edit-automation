@@ -120,6 +120,20 @@ class Shot:
     samples: tuple | None = None        # a sound sample per reveal, played in
                                         # the pause after it is named - see
                                         # `core/samples.py`. None plays nothing.
+    # On a still (`image=`) only, all off by default - an approved cut renders
+    # byte for byte as it did (2026-11-05, `footage.md`, "A still can move in
+    # depth"). Each needs `python -m video_automation vision fetch` once.
+    parallax: float = 0.0               # 1.0 = the standard depth move: near
+                                        # things travel and grow more than far
+    isolate: float = 0.0                # 1.0 = the room dims and softens over
+                                        # the first part of the shot, the
+                                        # subject stays as it is
+    pop: bool = False                   # the subject's head breaks out over
+                                        # the photo's top edge (a framed photo)
+    # Any shot: a GPU effect on its own frames, before captions and the mark
+    # go on - "bloom", "leak", "aberration", "vignette", ("leak", 0.6), or a
+    # list chained in order (`core/shaderfx.py`). None creates no GL context.
+    shader: "str | tuple | list | None" = None
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:
@@ -180,9 +194,16 @@ class PhotoShot:
                  aspect: float = 1.15, bias: float = 0.5,
                  frame: Frame = VERTICAL,
                  logo_box: tuple[int, int, int, int] | None = None,
-                 brand: Brand = CRYPTO, name: str | None = None):
+                 brand: Brand = CRYPTO, name: str | None = None,
+                 parallax: float = 0.0, isolate: float = 0.0,
+                 pop: bool = False):
         src = Image.open(path).convert("RGB")
         self.name = name
+        self.parallax, self.isolate, self.pop = float(parallax), float(isolate), bool(pop)
+        if self.pop and self.parallax:
+            raise ValueError(
+                f"{path}: pop= and parallax= cannot share a shot - the head "
+                f"above the frame and the picture under it would move apart")
         self.zoom, self.pan = zoom, pan
         self.frame = frame
         # The hairline is the site's accent, so it is the brand's. It was
@@ -245,11 +266,69 @@ class PhotoShot:
             (target_w, max(1, int(crop.height * target_w / crop.width))),
             Image.LANCZOS)
 
+        # The still effects (`core/stillfx.py`), all off by default. Their
+        # maps come from the *whole* source, cached by content, then take the
+        # same crop and scale as the picture - so a re-cut that changes zoom
+        # or aspect never re-runs a model.
+        self.depth_move = self.pop_layer = self.alpha = None
+        box = (int(left), int(top), int(left + crop_w), int(top + crop_h))
+        full = self.sharp.size
+        alpha = depth = None
+        if self.isolate or self.pop or self.parallax:
+            from ..core import vision
+
+            def fit(m):
+                c = m[box[1]:box[3], box[0]:box[2]]
+                return cv2.resize(c, full, interpolation=cv2.INTER_LINEAR)
+            if self.isolate or self.pop:
+                alpha = fit(vision.matte(src))
+            if self.parallax:
+                depth = fit(vision.depth(src))
+        self.pop_cut = 0
+        if self.pop:
+            from ..core.stillfx import pop_cut
+            cut = pop_cut(alpha)
+            if cut:
+                # The frame drops to `cut`; the full picture, keyed by the
+                # matte, is what rises over its top edge in `draw`.
+                self.pop_cut = cut
+                self.pop_layer = np.dstack(
+                    [np.asarray(self.sharp), (alpha * 255).astype(np.uint8)])
+                self.sharp = self.sharp.crop((0, cut, full[0], full[1]))
+                alpha = alpha[cut:]
+            else:
+                print(f"  ! pop: no subject found in {Path(path).name} - "
+                      f"shown as a plain photo")
+        before = self.sharp.size
+
         self.dy = 0.0 if name else self._dodge(logo_box, frame)
         self.pill = _name_pill(name, frame, brand) if name else None
         # After the dodge, which may have resized it. `draw` warps this array
         # directly rather than resizing a PIL image per frame.
         self.sharp_px = np.ascontiguousarray(np.asarray(self.sharp))
+
+        if self.sharp.size != before:           # the dodge shrank the picture
+            k = self.sharp.width / before[0]
+            if self.pop_layer is not None:
+                self.pop_layer = cv2.resize(
+                    self.pop_layer, (self.sharp.width,
+                                     int(round(self.pop_layer.shape[0] * k))),
+                    interpolation=cv2.INTER_AREA)
+                self.pop_cut = int(round(self.pop_cut * k))
+        size = self.sharp.size
+        if alpha is not None:
+            self.alpha = cv2.resize(alpha, size, interpolation=cv2.INTER_LINEAR)
+        if self.isolate:
+            from ..core.stillfx import isolate_room
+            self.room = isolate_room(self.sharp_px)
+        if depth is not None:
+            from ..core.stillfx import DepthMove
+            depth = depth if self.pop_cut == 0 else depth[self.pop_cut:]
+            self.depth_move = DepthMove(
+                cv2.resize(depth, size, interpolation=cv2.INTER_LINEAR),
+                self.parallax, zoom, pan)
+        self._fx = bool(self.isolate or self.depth_move is not None
+                        or self.pop_layer is not None)
 
     def _dodge(self, logo_box, frame: Frame) -> float:
         """How far to push the whole shot down to clear the watermark.
@@ -349,6 +428,8 @@ class PhotoShot:
         edge you cannot see cannot be seen to jump. Bringing both edges inside
         the frame, so the hairline clears the watermark, is what exposed it.
         """
+        if self._fx:
+            return self._draw_fx(f)
         # Backdrop drifts one way, sharp layer the other. Opposed moves at
         # different rates is what makes a still photograph read as a shot.
         fr = self.frame
@@ -384,6 +465,90 @@ class PhotoShot:
         out = Image.fromarray(canvas)
         if self.pill is not None:
             # The name rides the photograph's bottom edge, centred.
+            px = int(x + w / 2 - self.pill.width / 2)
+            py = int(y + h - self.pill.height / 2)
+            out.paste(self.pill, (px, py), self.pill)
+        return out
+
+    def _draw_fx(self, f: float) -> Image.Image:
+        """`draw` with `parallax`, `isolate` or `pop` on (`core/stillfx.py`).
+
+        The same backdrop drift, the same float photo box, the same hairline
+        and pill as `draw`, so a shot with an effect cuts against its
+        neighbours exactly as a plain one does. Kept as its own method rather
+        than threaded through `draw`, so the shipped path cannot change.
+        """
+        from ..core import stillfx
+        fr = self.frame
+        bx = (self.back.shape[1] - fr.w) * (0.5 + 0.42 * (f - 0.5))
+        by = (self.back.shape[0] - fr.h) * (0.5 - 0.42 * (f - 0.5))
+        canvas = np.ascontiguousarray(_subpixel(self.back, bx, by, fr.w, fr.h))
+
+        x, y, w, h = self.photo_box(f)
+        sh, sw = self.sharp_px.shape[:2]
+        s = w / sw
+        src = self.sharp_px
+        if self.isolate:
+            # The mix holds once the ramp is done, so it is only recomputed
+            # when its weight actually changes.
+            wgt = round(stillfx.isolate_weight(f, self.isolate), 4)
+            if getattr(self, "_iso", (None,))[0] != wgt:
+                self._iso = (wgt, stillfx.isolate_blend(src, self.room,
+                                                        self.alpha, wgt))
+            src = self._iso[1]
+
+        if self.depth_move is None:
+            m = np.float32([[s, 0.0, x], [0.0, s, y]])
+            cv2.warpAffine(src, m, fr.size, dst=canvas,
+                           flags=cv2.INTER_LANCZOS4,
+                           borderMode=cv2.BORDER_TRANSPARENT)
+        else:
+            # Only the photo's own box is remapped. Its coverage comes from
+            # the same float affine as the plain path, so the edges keep
+            # their subpixel position and the hairline still sits on them.
+            x0, y0 = max(0, int(math.floor(x))), max(0, int(math.floor(y)))
+            x1 = min(fr.w, int(math.ceil(x + w)))
+            y1 = min(fr.h, int(math.ceil(y + h)))
+            if x1 > x0 and y1 > y0:
+                X, Y = np.meshgrid(np.arange(x0, x1, dtype=np.float32),
+                                   np.arange(y0, y1, dtype=np.float32))
+                u, v = self.depth_move.sample((X - x) / s, (Y - y) / s, f)
+                roi = cv2.remap(src, u, v, cv2.INTER_CUBIC,
+                                borderMode=cv2.BORDER_REFLECT)
+                m = np.float32([[s, 0.0, x - x0], [0.0, s, y - y0]])
+                cover = cv2.warpAffine(np.full((sh, sw), 255, np.uint8), m,
+                                       (x1 - x0, y1 - y0),
+                                       flags=cv2.INTER_LINEAR)
+                a = (cover.astype(np.float32) / 255.0)[:, :, None]
+                part = canvas[y0:y1, x0:x1]
+                canvas[y0:y1, x0:x1] = (roi * a + part * (1.0 - a)).astype(np.uint8)
+
+        SH, u16 = 4, 16.0
+        for edge in (y, y + h):
+            if 0 < edge < fr.h:
+                cv2.line(canvas,
+                         (int(round(x * u16)), int(round(edge * u16))),
+                         (int(round((x + w) * u16)), int(round(edge * u16))),
+                         self.brand.primary, 3, lineType=cv2.LINE_AA, shift=SH)
+
+        if self.pop_layer is not None:
+            # The full picture, keyed by its matte, placed so its row `cut`
+            # lands on the frame's top edge - and drawn only above that edge
+            # (plus the hairline's width), so the head crosses the line and
+            # everything inside the frame is still the photograph itself.
+            top = y - self.pop_cut * s
+            r0, r1 = max(0, int(math.floor(top))), min(fr.h, int(math.ceil(y + 3)))
+            if r1 > r0:
+                m = np.float32([[s, 0.0, x], [0.0, s, top - r0]])
+                rgba = cv2.warpAffine(self.pop_layer, m, (fr.w, r1 - r0),
+                                      flags=cv2.INTER_LINEAR,
+                                      borderMode=cv2.BORDER_CONSTANT)
+                a = rgba[:, :, 3:4].astype(np.float32) / 255.0
+                part = canvas[r0:r1]
+                canvas[r0:r1] = (rgba[:, :, :3] * a + part * (1.0 - a)).astype(np.uint8)
+
+        out = Image.fromarray(canvas)
+        if self.pill is not None:
             px = int(x + w / 2 - self.pill.width / 2)
             py = int(y + h - self.pill.height / 2)
             out.paste(self.pill, (px, py), self.pill)
@@ -757,7 +922,9 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
         if s.image is not None:
             prepared.append(PhotoShot(s.image, s.zoom, s.pan, s.aspect, s.bias,
                                       frame=frame, logo_box=logo_box,
-                                      brand=brand, name=s.name))
+                                      brand=brand, name=s.name,
+                                      parallax=s.parallax, isolate=s.isolate,
+                                      pop=s.pop))
         elif factory is not None:
             prepared.append(factory(s, frame))
         else:
@@ -765,6 +932,13 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                                           reveals=s.reveals, marks=s.marks,
                                           start=s.start, hold=s.hold,
                                           frame=frame, brand=brand))
+
+    # `Shot(shader=)` wraps the prepared shot; without it nothing here runs.
+    if any(s is not None and getattr(s, "shader", None) for s in shots):
+        from ..core.shaderfx import ShaderShot
+        prepared = [ShaderShot(p, s.shader, s.hold, brand)
+                    if s is not None and getattr(s, "shader", None) else p
+                    for p, s in zip(prepared, shots)]
 
     if mark is not None:
         if len(anchors) == 1:

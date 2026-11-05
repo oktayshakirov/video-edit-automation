@@ -64,6 +64,8 @@ from ...core.frame import Frame
 from .base import (DRAW, POP, RISE, Beat, _display, _font, _hex,  # noqa: F401
                    _mark_bottom, _round_corners, _smooth, _unit)
 from .annotate import Anatomy, Callout, Diagram, Map, Quorum
+from .behind import Behind
+from .pile import Pile
 from .blindsign import BlindSign
 from .sweep import Sweep
 from .mnemonic import Mnemonic
@@ -88,6 +90,7 @@ __all__ = [
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
+    "Behind", "Pile",
     "DRAW", "POP", "RISE",
 ]
 
@@ -122,6 +125,8 @@ BEATS = {
     "shares": Shares,
     "mnemonic": Mnemonic,
     "stake": Stake,
+    "behind": Behind,
+    "pile": Pile,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -175,6 +180,10 @@ _COUNT = {
     "mnemonic": lambda p: 4,
     # The company, each holder, then each further valuation.
     "stake": lambda p: len(p[2]) + len(p[1]),
+    # The word arriving, then the band label if there is one.
+    "behind": lambda p: 2 if len(p) > 2 and p[2] else 1,
+    # One batch per reveal, then the floor opening if there is a drain.
+    "pile": lambda p: len(p[0]) + (1 if len(p) > 2 and p[2] else 0),
 }
 
 
