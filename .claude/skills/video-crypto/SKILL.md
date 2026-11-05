@@ -96,7 +96,12 @@ sequence drifted into four copies that disagreed.
    with `Shot(inset=)`, and use its key art for the thumbnail. All-stock
    about a real game was rejected as monotone (2026-10-20). Never a token
    logo you cannot tie to the right contract - draw a `ticker_card`.
-   `footage.md`, "When the subject is a real thing".
+   `footage.md`, "When the subject is a real thing". **When the real thing
+   is a page** - the explorer showing the transaction, the market's odds,
+   the announcement - capture it with `screencap` and let the camera ring
+   the line the voice reads (`footage.md`, "A real page"). **A photo that
+   carries a line can move in depth** (`parallax=`, `isolate=`, `pop=`), or
+   put its one word behind the person with the `behind` beat.
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`

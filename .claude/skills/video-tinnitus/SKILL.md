@@ -118,7 +118,10 @@ copies that disagreed with each other.
    it (`Shot(image=)`) or over the stock (`Shot(inset=)`), and credit them in
    the description. All-stock about a real subject was rejected on the crypto
    channel as monotone (2026-10-20). `footage.md`, "When the subject is a
-   real thing".
+   real thing". A study's abstract or a guideline's page is captured with
+   `screencap`, the sentence the narration quotes ringed. A photograph of a
+   person or a room can move in depth or dim around its subject
+   (`parallax=`, `isolate=`) - never on an ear, which stays out of frame.
 5. **Preflight, then build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for
    a session).

@@ -52,6 +52,12 @@ assets/stock/**/*.jpg
 .secrets/
 .publish-serve/
 
+# Screen captures: a third party's page, re-capturable from the committed
+# record (`screencap regrab NAME`), so only NAME.json is kept.
+assets/stock/captures/**
+!assets/stock/captures/**/
+!assets/stock/captures/**/*.json
+
 # Press and official assets (game art, trailer stills, drawn ticker cards):
 # third-party bytes, re-fetchable from the URLs in each folder's SOURCES.md,
 # which is the committed record.

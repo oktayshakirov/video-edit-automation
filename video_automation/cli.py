@@ -35,6 +35,10 @@ def main(argv: list[str] | None = None) -> int:
         from .core.vision import main as vision_main
         return vision_main(rest)
 
+    if name == "screencap":
+        from .core.screencap import main as screencap_main
+        return screencap_main(rest)
+
     if name == "drone":
         from .drone.cli import main as drone_main
         return drone_main(rest)
