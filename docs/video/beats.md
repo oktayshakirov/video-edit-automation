@@ -1452,3 +1452,29 @@ a long reel every card landed further left than the last - the
 billionaires Short's 8-card, ~20s reel ended ~200px off centre, which the
 editor caught. It is now a ±14px sine sway: alive, and every card lands
 centred however many there are.
+
+## `behind` - one word between the room and the subject (2026-11-05)
+
+`Shot(graphic="behind", payload=(image, word, line))`. The subject is cut out
+(`vision.matte`, or the alpha of an RGBA PNG used as given), the hole is
+filled, and the word is set *between* the two layers, in the brand colour:
+the head crosses the word. A slow push moves the subject faster than the
+word and the word faster than the room. `line`, if given, is a second reveal
+- a band label low in the frame, in front of everything. Portrait-safe.
+
+**For the line that names what the person *is* to the story** - the thing
+they made ("ETHEREUM" behind Buterin), the stake ("BILLIONS" behind Saylor),
+the one word a chapter turns on. A face with room around it, not a crowd,
+and a word of about ten letters or fewer: it is sized to 92% of the frame's
+width, so a long word comes out small.
+
+**The word's height is searched, never typed.** It takes the highest
+position under the watermark where the subject covers between 4% and 38% of
+the word's ink - across the top of the head. 38% is measured: the prototype
+frame that read well hid 37%, and a 30% cap drove the word down across
+Buterin's mouth. A subject so large that every height hides more gets the
+least-covered one; look at that frame, and use a wider picture if the word
+stops reading.
+
+The first frame costs ~1s once the matte is cached (the room fill is
+memoised per picture), then ~120ms a frame.

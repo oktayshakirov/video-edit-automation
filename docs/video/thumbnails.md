@@ -903,3 +903,23 @@ because the click should be *to find out who is on the list*, which a named
 face on the cover answers. Rows: "Who are / crypto's / [richest?]", the
 same question on both covers. An editor-supplied AI image needs no credit;
 it lives with the video's assets (`assets/crypto/billionaires/`).
+
+## The subject in front of the headline: `subject_front` (2026-11-05)
+
+Draw the headline as usual, then lay the picture's subject back over it:
+
+```python
+before = im.copy()
+T._headline(im, "Who owns\n[Telegram?]", ...)
+im = T.subject_front(im, before)
+```
+
+The type passes behind the head - the cover's version of the `behind` beat,
+and it makes the person and the words one picture instead of a caption on a
+photo. The matte is cached by content, so trying another headline is free.
+
+**It can hide the word the click depends on.** On the Durov test cover the
+person in the left chair covered "TEL" of TELEGRAM. Run the three checks
+after it, and move the headline (`band=`, `margin=`) or pass `amount=0.6`
+to let the type show through, before shipping a cover where a face sits on
+the title's key word.
