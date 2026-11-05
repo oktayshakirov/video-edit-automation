@@ -17,9 +17,9 @@ icons that all animate (`emoji check`). A miss is remembered (`.none`) so it
 is not asked for again on every frame of every build.
 
 Files are fetched once into `~/.local/share/video-automation/emoji/` - 512px
-animated WebP, ~200KB, 30ms a frame. **Credit**: Noto Emoji Animation is
-published by Google under CC BY 4.0; a video that shows them carries
-"Animated emoji: Google Noto Emoji Animation (CC BY 4.0)" in its credits.
+animated WebP, ~200KB, 30ms a frame. **No credit line is added to a
+video** for them - not to a long form's `Meta.credits`, not to a Short's
+description (the editor's call, 2026-11-05).
 """
 
 from __future__ import annotations
@@ -37,11 +37,9 @@ from PIL import Image
 CDN = "https://fonts.gstatic.com/s/e/notoemoji/latest/{code}/512.webp"
 DIR = Path(os.environ.get("VIDEO_AUTOMATION_EMOJI",
                           Path.home() / ".local/share/video-automation/emoji"))
-CREDIT = "Animated emoji: Google Noto Emoji Animation (CC BY 4.0)"
 
 _on = False
 _clips: dict[str, "Clip | None"] = {}
-_used: set[str] = set()
 
 
 @contextmanager
@@ -143,41 +141,7 @@ def frame(char: str, height: int, t: float) -> Image.Image | None:
     c = clip(char)
     if c is None:
         return None
-    _used.add(char)
     return c.at(t, height)
-
-
-def _icons(obj, found: set[str]) -> None:
-    """Every short string in a payload that is an emoji, recursively."""
-    if isinstance(obj, str):
-        if 0 < len(obj) <= 8 and any(ord(c) >= 0x1F000 or 0x2600 <= ord(c) <= 0x27BF
-                                     for c in obj):
-            found.add(obj)
-    elif isinstance(obj, (tuple, list)):
-        for x in obj:
-            _icons(x, found)
-
-
-def credit_meta(meta, sections):
-    """`meta` with the CC BY credit added - if an icon in `sections` animates.
-
-    A copy, never the script's own object; and nothing added when every icon
-    is static (`Meta.credits` holds only what the video owes, `longform.md`).
-    """
-    import dataclasses
-    found: set[str] = set()
-    for sec in sections:
-        for sh in getattr(sec, "shots", []):
-            if sh is not None and getattr(sh, "graphic", None):
-                _icons(sh.payload, found)
-    if any(fetch(ch) for ch in sorted(found)) and CREDIT not in meta.credits:
-        return dataclasses.replace(meta, credits=[*meta.credits, CREDIT])
-    return meta
-
-
-def used() -> set[str]:
-    """Every emoji that played animated in this process - for the credit."""
-    return set(_used)
 
 
 def main(argv: list[str]) -> int:

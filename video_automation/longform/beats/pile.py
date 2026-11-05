@@ -214,7 +214,6 @@ class Pile(Beat):
                font=f, fill=(*ink, a))
 
     def content(self, out: Image.Image, f: float) -> None:
-        self.heading(out, self.title, f)
         t = self.at(f) - self.start
         br = self.brand
         layer = Image.new("RGBA", self.frame.size, (0, 0, 0, 0))
@@ -261,3 +260,15 @@ class Pile(Beat):
                     fill = br.band or br.primary
                     self._pill(d, text, label_y, fill, br.band_ink, q)
         out.paste(layer, (0, 0), layer)
+        # **The heading goes on last, over the coins, with a dark edge.**
+        # Coins spawn above the frame and, in 9:16, fall straight through the
+        # kicker's row: drawn first, a coin covered "EY" of "WHERE THE MONEY
+        # GOES" in the Mac demo (2026-11-05). Drawn last it was still gone -
+        # gold type on a gold coin face - so it gets a dark stroke here, the
+        # same colour as the coin's own "$". Local to `pile`: the shared
+        # `heading` is in every approved cut and stays as it is.
+        if self.title:
+            ImageDraw.Draw(out).text(
+                (self.col[0], self.head_y), self.title.upper(), font=_font(34),
+                fill=br.primary, stroke_width=3, stroke_fill=(20, 20, 20))
+        self.heading(out, self.title, f)

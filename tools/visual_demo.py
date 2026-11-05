@@ -99,9 +99,12 @@ def demo_behind():
     for name, img, word, line, frame in (
             ("behind-16x9", VITALIK, "Ethereum", "The world computer", LANDSCAPE),
             ("behind-9x16", SAYLOR, "Billions", "Bought with borrowed money", VERTICAL)):
-        b = BEATS["behind"](img, word, line, brand=CRYPTO, frame=frame,
-                            reveals=[0.4, 2.2], start=0.0, hold=5.0)
-        write(name, lambda i, b=b: b.draw(i / 149), 150, frame)
+        # Both entries: the word flies in front then tucks behind ("fly"),
+        # or it is there first and the subject rises into it ("rise").
+        for entry, suffix in (("fly", ""), ("rise", "-rise")):
+            b = BEATS["behind"](img, word, line, entry, brand=CRYPTO, frame=frame,
+                                reveals=[0.4, 2.2], start=0.0, hold=5.0)
+            write(name + suffix, lambda i, b=b: b.draw(i / 149), 150, frame)
 
 
 def demo_pile():

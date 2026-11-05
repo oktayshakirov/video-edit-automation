@@ -716,7 +716,15 @@ slightly smoother and hash differently.
 
 Three options on any `Shot(image=...)`, long form and Short. All three are
 off by default and an approved cut renders byte for byte as it did (checked
-on 36 frames against the previous commit). Each needs the vision models once:
+on 36 frames against the previous commit). On the Mac the whole seed-phrase
+Short was rendered at the merge's parent and at `main`, and its decoded
+frames (`ffmpeg -f framemd5`) match bit for bit for the first 49.7s, as does
+the thumbnail. **The last ~1.5s of any two renders differ, even on the same
+engine**: the final `-shortest` mux keeps a frame or so more or less from run
+to run (1541, 1544 and 1543 frames over three runs), and x264 then encodes
+the last group of frames differently (PSNR ~47-51dB, invisible). Compare
+frames up to the tail, never file hashes (2026-11-05). Each needs the vision
+models once:
 `python -m video_automation vision fetch` (~320MB, `core/vision.py`).
 
 - **`parallax=1.0`** - the Ken Burns in depth. `vision.depth` says how near
@@ -745,6 +753,16 @@ parallax shots add seconds, not minutes.
 **Not on a face close-up that fills the frame.** Depth on a face is a
 smooth bulge, and a bulge pushed in reads as a lens distortion, not as
 depth. Parallax wants the subject to have something behind it.
+
+**It tears at a hard depth step late in the move - check the last frame at
+full size** (Mac, 2026-11-05). On the NYC skyline demo at `parallax=1.0` the
+corner of a near tower against open sky grew a smeared copy of its edge, and
+a scrap of the tower behind it floated in the sky. It is visible from about
+70% of the shot, worst on the last frame. At 0.5 it is smaller but still
+there. The middle of the move is clean, and the 640px contact sheet hid it.
+On a picture whose near subject cuts a sharp edge against a flat sky, keep
+the amount at 0.5 or under and look at the final frame at 1:1 before
+shipping.
 
 ## A real page: `screencap` (2026-11-05)
 
@@ -782,7 +800,9 @@ the line says, the same rule as every other picture. Credit the site in the
 description as for any real picture.
 
 **The browser is a separate install** on a new machine:
-`.venv/bin/python -m playwright install chromium` (~150MB).
+`.venv/bin/python -m playwright install chromium`. It is ~570MB on disk in
+`~/Library/Caches/ms-playwright` (Chromium, its headless shell and an
+ffmpeg build - measured on the Mac 2026-11-05), not the ~150MB download.
 
 ## Motion on a video shot — three things that all caused visible glitches
 

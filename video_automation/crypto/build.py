@@ -311,15 +311,11 @@ def render_crypto_short(sentences: list, shots: list[Shot], out: Path, *args,
     """The vertical cut - see `_render_crypto_short`.
 
     `animated_emoji=True` plays Noto's animation for beat icons that have one
-    (`core/emoji_anim.py`). A Short has no sidecar credits of its own here,
-    so the build prints the credit line for the publish step to carry.
+    (`core/emoji_anim.py`). No credit line goes with it (2026-11-05).
     """
     from ..core import emoji_anim
     with emoji_anim.enabled(animated_emoji):
-        result = _render_crypto_short(sentences, shots, out, *args, **kw)
-    if animated_emoji and emoji_anim.used():
-        print(f"  credit for the description: {emoji_anim.CREDIT}")
-    return result
+        return _render_crypto_short(sentences, shots, out, *args, **kw)
 
 
 def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,

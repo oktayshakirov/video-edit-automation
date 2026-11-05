@@ -45,12 +45,10 @@ def render_long(sections: list[Section], out: Path, workdir: Path, *args,
     """Build the video and everything that ships with it - see `_render_long`.
 
     `animated_emoji=True` plays Noto's animation for any beat icon that has
-    one (`core/emoji_anim.py`) and adds its CC BY credit to `meta` - only if
-    an icon in the script actually animates. Off, nothing changes.
+    one (`core/emoji_anim.py`). Off, nothing changes. It adds no credit line
+    to `meta` (the editor's call, 2026-11-05).
     """
     from ..core import emoji_anim
-    if animated_emoji and kw.get("meta") is not None:
-        kw["meta"] = emoji_anim.credit_meta(kw["meta"], sections)
     with emoji_anim.enabled(animated_emoji):
         return _render_long(sections, out, workdir, *args, **kw)
 
