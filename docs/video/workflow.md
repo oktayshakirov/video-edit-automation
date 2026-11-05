@@ -15,9 +15,7 @@ mistakable for each other, and following the same five steps is not what would
 make them so.
 
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
-`PYTHONPATH=.`. In a cloud session the repo is the working directory and
-only part of this run is possible there - steps 1 and 2 and the checks, not
-a render; see `cloud.md`.
+`PYTHONPATH=.`.
 
 ## 1. Suggest topics, do not pick one
 

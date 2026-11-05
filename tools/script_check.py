@@ -392,7 +392,7 @@ def environmental(e: Exception) -> bool:
     A sibling package (`audiobook_automation` for the read-along samples) or a
     macOS font loaded at import time - `ticker_card` draws and *saves* a card
     when its script is imported. `core.fontshim` is deliberately not installed
-    here, so that a cloud session never writes a stand-in-font card into
+    here, so that a machine without the fonts never writes a stand-in card into
     `assets/stock/press/`.
     """
     if isinstance(e, ModuleNotFoundError):

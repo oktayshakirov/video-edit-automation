@@ -14,12 +14,11 @@ about half a minute, which is the only reason it will actually get run.
 
     .venv/bin/python -m pytest tests -q
 
-**It runs off the Mac too** - in CI on every push (`.github/workflows/tests.yml`)
-and in a cloud session after `tools/cloud_setup.sh` (`docs/video/cloud.md`).
+**Off the Mac** (a Linux box, a remote session checking an engine change),
 `conftest.py` installs `core.fontshim`, which answers the missing macOS fonts
-with free ones; no test asserts a typeface. What needs the Mac skips with the
-reason: the Kokoro weights, the stock cache, the crypto-wiki checkout, a
-script that saves a card at import.
+with free ones; on the Mac it does nothing, and no test asserts a typeface.
+What needs the Mac skips with the reason: the Kokoro weights, the stock
+cache, the crypto-wiki checkout, a script that saves a card at import.
 
 What they cover:
 
