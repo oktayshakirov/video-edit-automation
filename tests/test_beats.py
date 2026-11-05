@@ -135,6 +135,12 @@ PICTURE_KW = {"anatomy"}
 
 
 def _build(name, brand, frame):
+    # `logos` draws the site's own exchange cards and raises on a missing one,
+    # by design. On a machine without the crypto-wiki checkout (a CI runner, a
+    # fresh cloud session) that is a missing sibling repo, not a beat bug -
+    # `tools/cloud_setup.sh` clones it.
+    if name == "logos" and not BEATS["logos"].DIR.is_dir():
+        pytest.skip(f"no crypto-wiki checkout at {BEATS['logos'].DIR}")
     n = item_count(name, _payload(name))
     hold = 9.0
     # Reveals spaced the way a real narration would land them, which is what
