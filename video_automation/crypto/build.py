@@ -130,7 +130,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",
                         "shares", "sweep", "mnemonic", "stake",
-                        "behind"):
+                        "behind", "pile"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds

@@ -50,6 +50,9 @@ scipy==1.18.0
 # `.venv/bin/python -m playwright install chromium` once (~150MB).
 playwright==1.63.0
 
+# The `pile` beat's physics (MIT): collisions recorded once at build time.
+pymunk==7.3.1
+
 # Tests. Nothing in tests/ renders, synthesises or reaches the network - the
 # suite runs in a few seconds, which is the only reason it gets run at all.
 pytest>=8
