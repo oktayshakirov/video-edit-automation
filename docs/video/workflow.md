@@ -181,6 +181,16 @@ the lesson more useful? If not, it is a plug, and a plug is skipped.
 Run `tools/audit_assets.py` before rendering. Outputs go to the Desktop; they
 are uploads, not repo artifacts.
 
+**A script draws its generated files in a function `main()` calls, never at
+module level** - a `ticker_card`, a slide, anything saved to disk. Every gate
+imports the script (`opening_check`, `script_check`, preflight), and three
+scripts that drew their cards on import rewrote them each time; under the
+test font shim one import overwrote the committed `squid.png` in the wrong
+typeface (2026-11-05). Keep the path as a constant for the shot list and do
+the drawing in `cards()`; `test_every_project_script_still_imports` fails a
+script that saves on import, and `ticker_card` refuses to write in a process
+that drew with stand-in fonts.
+
 **Preflight a long form before you render it.** `clip.py` raises on the
 *first* shot whose footage cannot fill its slot, and it raises from inside
 `render_long` - after the narration has been synthesised. A cut with four
