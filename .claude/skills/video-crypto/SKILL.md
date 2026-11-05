@@ -96,7 +96,15 @@ sequence drifted into four copies that disagreed.
    with `Shot(inset=)`, and use its key art for the thumbnail. All-stock
    about a real game was rejected as monotone (2026-10-20). Never a token
    logo you cannot tie to the right contract - draw a `ticker_card`.
-   `footage.md`, "When the subject is a real thing".
+   `footage.md`, "When the subject is a real thing". **When the real thing
+   is a page** - the explorer showing the transaction, the market's odds,
+   the announcement - capture it with `screencap` and let the camera ring
+   the line the voice reads (`footage.md`, "A real page"). **A photo that
+   carries a line can move in depth** (`parallax=`, `isolate=`, `pop=`), or
+   put its one word behind the person with the `behind` beat. Money moving
+   in or out of something is a `pile` (coins pour in; `drain` opens the
+   floor). `beats.md` and `design.md` also have animated icons and per-shot
+   GPU effects; `tools/visual_demo.py` renders every one of these to look at.
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
@@ -107,61 +115,12 @@ sequence drifted into four copies that disagreed.
    narrowest doc, a few lines each, in the same commit. Short and specific
    beats long and general.
 
-## What every build draws by default (2026-10-21)
+## What every build draws by default
 
-These are on without asking - a script only supplies the words. Detail in
-`docs/video/longform.md` and `docs/video/audio.md`.
-
-- **Chapter cards are the band card**, long form and Short: the title typed
-  into a band of the brand colour on key clicks, the riser into it and the
-  cinematic flashback out of it. **Write a `Section(kicker=)` for every
-  carded section** - two or three words naming the stake ("THE REJECTION",
-  "THE CATCH"). Without one the long form shows "CHAPTER n" and a Short
-  shows no label.
-- **The opening title is the glitch slate** (`title_at=`, default since
-  2026-11-04): the title split at its colon / question mark / dash, the
-  search phrase big in DIN Condensed, the promise under it in the brand
-  colour, glitching in and out on the title intro sound. Keep its hold
-  clear of the first chapter card. `title_style="cinematic"` brings back
-  the old card.
-- **A disclaimer `payload` becomes the notice card** on the notification
-  chime - no flag needed.
-- **The video ends on the band end card** - THANKS FOR WATCHING, retyped as
-  LIKE & COMMENT - **and switches off like a TV.** `endcard=` turns the card
-  on; the TV-off is always there.
-- **The old-film surface is arranged, not blanketed** (`core/filmfx.py`):
-  the first shot clean, a section's first clip full, the rest rotating
-  grain-only / clean / dust-only / full, nothing on drawn beats. `film=False`
-  turns it off for one video, a number scales it.
-- **A few cuts become glitch or TV static on their own**
-  (`transitions.plan_special`): a glitch into a sentence that turns ("But…"),
-  static or glitch alternating into chapter cards, static on a jump in time -
-  about one per 45 seconds. **Open a turning sentence with "But" or
-  "Actually" when it really turns**; that is what places the glitch. A
-  transition set by hand on a shot always wins.
-- **`reel` is the beat for a sequence the viewer should feel move** - days,
-  versions, dates, steps: a strip of cards (clips, photos or text) the camera
-  travels along, one card per sentence (a Short: one phrase per card, ~2s
-  each). It can **dive into its last card and continue as that clip**, or
-  open out of the previous clip (`enter` / `emerge`) - use it where the
-  script moves from an overview into one example. `docs/video/beats.md`.
-- **`post` puts what someone actually wrote on screen** - a post, a news
-  headline, a transaction - and highlights the `[bracketed]` line as it is
-  read. Real, sourced wording only; write its sentence as two phrases, the
-  lead-in and the quote. `docs/video/beats.md`, "`post`".
-- **`emphasis=[...]` punches the word a sentence hinges on onto the screen**
-  as it is spoken, long form only, once or twice a minute. Pick one word or
-  short phrase per minute that the whole sentence turns on.
-- **`spotlight` directs a still**: the camera glides into the part of a
-  photo the voice names (a line of a document, one face), one region per
-  sentence; the ring snaps to the content, so regions can be rough.
-  `docs/video/beats.md`, "`spotlight`".
-- **Footage of a place gets a quiet bed of it** (city, rain, office,
-  servers) automatically, only on clips of 3s or more - nothing to write.
-  Pick clips whose folder names the place when the sound would help.
-- **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
-  of git. On a machine without them the build falls back to synthesized
-  stand-ins - copy them over before a build that ships.
+On without asking, and listed once in `docs/video/workflow.md`, "What
+every article build draws by default". Read it before writing: two of its
+items are the script's job - a `Section(kicker=)` on every carded section,
+and a real "But" or "Actually" where a sentence turns.
 
 ## The line that outranks everything else
 

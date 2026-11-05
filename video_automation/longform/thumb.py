@@ -1357,3 +1357,31 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     out.parent.mkdir(parents=True, exist_ok=True)
     base.save(out, quality=92)
     return out
+
+
+def subject_front(im: Image.Image, before: Image.Image,
+                  amount: float = 1.0) -> Image.Image:
+    """Put the subject of `before` back in front of whatever `im` drew over it.
+
+    The headline is drawn as usual; then the person (or the object) from the
+    picture as it was *before* the headline is laid back over it, keyed by
+    `core.vision.matte`. The type passes behind the head - the look of the
+    `behind` beat, on the cover (2026-11-05):
+
+        before = im.copy()
+        _headline(im, "Can anyone\\nguess your\\n[12 words?]", ...)
+        im = subject_front(im, before)
+
+    The matte is cached by the picture's content, so a re-run with a new
+    headline costs nothing. Check the three thumbnail checks after it: a face
+    over the one word the title turns on loses the click it was there for.
+    `amount` below 1 lets the type show through the subject a little.
+    """
+    from ..core import vision
+    if im.size != before.size:
+        raise ValueError(f"subject_front: {im.size} vs {before.size} - pass the "
+                         f"picture as it was just before the type went on")
+    a = vision.matte(before)[:, :, None] * float(amount)
+    top = np.asarray(before.convert("RGB"), np.float32)
+    base = np.asarray(im.convert("RGB"), np.float32)
+    return Image.fromarray((top * a + base * (1.0 - a)).astype(np.uint8))

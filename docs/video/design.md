@@ -169,3 +169,26 @@ wrapper is used (the title overlay, the beats). Pass the glued string as
 `render_long(title=...)`, never in `Meta.title`, which is the YouTube
 title. The thumbnail fitter has its own wrap: force the rows with `\n`.
 The hook/outro card: reword so the pair leads ("GTA 6's only crypto...").
+
+## GPU effects on a shot: `Shot(shader=)` (2026-11-05)
+
+`Shot(shader="bloom")`, `("leak", 0.6)`, or a list chained in order - on
+any shot, picture or beat (`core/shaderfx.py`, ModernGL, GLSL 330). The
+effect runs on that shot's own frames *before* the crossfade, captions and
+watermark, so the type a viewer reads is never smeared by it.
+
+| effect | use it for | not for |
+| --- | --- | --- |
+| `bloom` | gold or white type on black, a lit screen, a city at night | a bright daytime still - everything glows and nothing does |
+| `leak` | an opener, a chapter's first shot, a look back in time | a drawn beat being read - it washes the contrast |
+| `aberration` | a glitch cut, a line where something is wrong; kicks at the cut, settles in ~0.5s | a whole video |
+| `vignette` | a still that should feel looked at; sessions | a beat whose items reach the corners |
+
+**One effect is a choice; every shot is a filter.** The film surface is
+already arranged per shot (`longform.md`); these are for the shot the line
+turns on, a few a video.
+
+Bloom thresholds at full resolution, then adds its blurred mip levels back:
+the first version blurred first and thin white type averaged into its black
+ground, so nothing glowed. ~20-40ms a frame per effect on a CPU renderer,
+far less on the Mac's GPU. A shot without `shader` never makes a GL context.

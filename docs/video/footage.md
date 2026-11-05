@@ -712,6 +712,78 @@ the judder, and `crypto/shots.py` has claimed subpixel motion in its own
 docstring since it was written. If a short is ever re-rendered it will look
 slightly smoother and hash differently.
 
+## A still can move in depth: `parallax=`, `isolate=`, `pop=` (2026-11-05)
+
+Three options on any `Shot(image=...)`, long form and Short. All three are
+off by default and an approved cut renders byte for byte as it did (checked
+on 36 frames against the previous commit). Each needs the vision models once:
+`python -m video_automation vision fetch` (~320MB, `core/vision.py`).
+
+- **`parallax=1.0`** - the Ken Burns in depth. `vision.depth` says how near
+  each pixel is; near things grow and slide more than far ones, so the shot
+  reads as a camera moving through the place instead of a print being
+  zoomed. Best on a picture with layers: a skyline, a person in a room, a
+  street. **It does nothing for a flat source** - an engraving, a
+  screenshot, a document - and those want `spotlight` anyway. 0.5 is
+  subtler, 1.5 is a lot; the move follows `zoom` and `pan`.
+- **`isolate=1.0`** - the room dims and softens over the first 40% of the
+  shot while the subject (`vision.matte`) stays as it was. For the line that
+  is *about that person*: the eye goes where the voice already is. Two
+  people in the frame both stay - the matte keeps every subject it finds.
+- **`pop=True`** - for a framed photo (the Short's box, a named portrait):
+  the frame's top edge drops through the subject and the head rises over the
+  gold line. **It cannot share a shot with `parallax`** and raises if asked
+  to: the head above the line and the picture under it would move apart. A
+  picture with no clear subject is shown plain, with a printed note.
+
+**What it costs.** The matte is ~17s a picture on a CPU and depth ~1s, both
+cached by the picture's content (`~/.cache/video-automation/vision`), so a
+re-cut never re-runs them. Drawing is ~70ms a frame for `isolate` and
+~120ms for `parallax` at 1080p, against ~40ms for a plain still - a few
+parallax shots add seconds, not minutes.
+
+**Not on a face close-up that fills the frame.** Depth on a face is a
+smooth bulge, and a bulge pushed in reads as a lens distortion, not as
+depth. Parallax wants the subject to have something behind it.
+
+## A real page: `screencap` (2026-11-05)
+
+When the subject is a page - a block explorer's transaction, a market's
+odds, an exchange's announcement, a study's abstract, the article the video
+links to - capture the page itself rather than pasting a screenshot:
+
+```bash
+.venv/bin/python -m video_automation screencap grab URL NAME \
+    --select tx="css=#tx-hash" --hide ".promo-bar" [--mobile]
+.venv/bin/python -m video_automation screencap clip NAME \
+    --path top,tx --ring tx --secs 7 [--vertical]
+```
+
+`grab` takes one full-page capture (2x desktop, 3x `--mobile` for a Short),
+with reduced motion and a fixed viewport, and records where each `--select`
+element sits. `clip` moves a camera over that capture offline - an eased
+glide per framing, a slow push, the `spotlight` ring in the brand colour -
+and writes an MP4 for `Shot(clip=)`. For a still to direct with `spotlight`
+instead, `screencap.still(NAME, "tx")` cuts a screen around the element and
+returns every selected box as fractions of it.
+
+**One framing per spoken line, the ring on the words being read.** A ring
+on a whole page section is a highlighter on a paragraph nobody is reading.
+
+**The record is committed, the page is not.** `NAME.json` (URL, date,
+viewport, selectors) is what reproduces it with `screencap regrab NAME`;
+the PNG is somebody else's page and is gitignored like the press folder. A
+regrab shows today's page - the record's date says which one shipped.
+
+**What may go on screen.** Public pages only: never a logged-in view, an
+account, a balance, an email or anybody's private data. Consent banners are
+hidden, never clicked on the viewer's behalf. The page has to say the noun
+the line says, the same rule as every other picture. Credit the site in the
+description as for any real picture.
+
+**The browser is a separate install** on a new machine:
+`.venv/bin/python -m playwright install chromium` (~150MB).
+
 ## Motion on a video shot — three things that all caused visible glitches
 
 Stock is **25fps against this 30fps timeline**, which is where all of this comes

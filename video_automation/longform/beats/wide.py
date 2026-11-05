@@ -144,7 +144,7 @@ class Grid(Beat):
             icon = self.items[i][2]
             if icon and icon_h:
                 from ...core.vertical import emoji_image
-                im = emoji_image(icon, icon_h)
+                im = emoji_image(icon, icon_h, getattr(self, "t_now", None))
                 if a < 255:
                     im = im.copy()
                     im.putalpha(im.getchannel("A").point(
@@ -435,7 +435,7 @@ class Steps(Beat):
         icon = self.steps[i][1]
         if icon:
             from ...core.vertical import emoji_image
-            im = emoji_image(icon, int(rr * 1.15))
+            im = emoji_image(icon, int(rr * 1.15), getattr(self, "t_now", None))
             if alpha < 255:
                 # Never mutate the cached glyph — fade a copy's alpha instead.
                 im = im.copy()

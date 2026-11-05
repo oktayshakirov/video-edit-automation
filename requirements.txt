@@ -46,6 +46,16 @@ Pillow==12.3.0             # text rendering for vertical exports (this ffmpeg
 soundfile==0.14.0
 scipy==1.18.0
 
+# Scripted screen captures (`core/screencap.py`). The browser is separate:
+# `.venv/bin/python -m playwright install chromium` once (~150MB).
+playwright==1.63.0
+
+# The `pile` beat's physics (MIT): collisions recorded once at build time.
+pymunk==7.3.1
+
+# GPU effects on a shot (`core/shaderfx.py`, MIT). Pulls in glcontext.
+moderngl==5.13.0
+
 # Tests. Nothing in tests/ renders, synthesises or reaches the network - the
 # suite runs in a few seconds, which is the only reason it gets run at all.
 pytest>=8

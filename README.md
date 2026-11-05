@@ -59,7 +59,7 @@ docs/publish/  the per-platform publishing notes
 .claude/skills/ the build, publish and audit workflows as Claude Code skills
 assets/        brand assets, credited archive images, the stock manifest
 tests/         fast checks that never render, synthesise or touch the network
-tools/         asset audits, stock pruning, topic suggestions
+tools/         asset audits, stock pruning, topic suggestions, script checks
 ```
 
 ## Setup
@@ -74,7 +74,11 @@ python3 -m venv .venv
 .venv/bin/python -m pytest tests
 ```
 
-The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. Footage, renders,
+The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. The two vision
+models behind depth parallax and subject cutouts (~320MB) are fetched once
+with `.venv/bin/python -m video_automation vision fetch`, and the browser
+for scripted screen captures with `.venv/bin/python -m playwright install
+chromium`. Footage, renders,
 stock bytes and credentials are never committed.
 
 ## Usage

@@ -1452,3 +1452,83 @@ a long reel every card landed further left than the last - the
 billionaires Short's 8-card, ~20s reel ended ~200px off centre, which the
 editor caught. It is now a ±14px sine sway: alive, and every card lands
 centred however many there are.
+
+## `behind` - one word between the room and the subject (2026-11-05)
+
+`Shot(graphic="behind", payload=(image, word, line))`. The subject is cut out
+(`vision.matte`, or the alpha of an RGBA PNG used as given), the hole is
+filled, and the word is set *between* the two layers, in the brand colour:
+the head crosses the word. A slow push moves the subject faster than the
+word and the word faster than the room. `line`, if given, is a second reveal
+- a band label low in the frame, in front of everything. Portrait-safe.
+
+**For the line that names what the person *is* to the story** - the thing
+they made ("ETHEREUM" behind Buterin), the stake ("BILLIONS" behind Saylor),
+the one word a chapter turns on. A face with room around it, not a crowd,
+and a word of about ten letters or fewer: it is sized to 92% of the frame's
+width, so a long word comes out small.
+
+**The word's height is searched, never typed.** It takes the highest
+position under the watermark where the subject covers between 4% and 38% of
+the word's ink - across the top of the head. 38% is measured: the prototype
+frame that read well hid 37%, and a 30% cap drove the word down across
+Buterin's mouth. A subject so large that every height hides more gets the
+least-covered one; look at that frame, and use a wider picture if the word
+stops reading.
+
+The first frame costs ~1s once the matte is cached (the room fill is
+memoised per picture), then ~120ms a frame.
+
+## `pile` - coins pour in and settle; the floor can open (2026-11-05)
+
+`Shot(graphic="pile", payload=(drops, title, drain))` where `drops` is
+`[(count, label) | (count, label, glyph), ...]`, one batch per reveal, and
+`drain` (optional) labels a last reveal on which the floor's two trapdoors
+swing down and the pile pours out. Portrait-safe.
+
+**For an amount the viewer should feel rather than read**: money flowing
+into a pool, deposits stacking up, a supply growing - and with `drain`, the
+moment it leaves (a rug pull, a hack, a liquidation). Two or three batches
+is the shape; the pile visibly doubling is the point, so label each batch
+with what it *is* ("BUYERS PAY IN"), never with a figure the coins do not
+stand for. A coin is not a unit of anything - say the number in the
+narration or put it on a `bars` beat.
+
+**The physics is real and runs once** (`pymunk`, MIT): coins collide, bounce
+and stack, recorded at 120Hz with a fixed seed at build time, so a re-render
+is identical and the frame rate cannot change the motion. Coins drop in
+lanes and never two in the same lane in a row: the first test, with every
+coin due at once, overlapped them and the solver flung one off the frame.
+The trapdoors are kinematic for the same kind of reason - a floor that
+simply vanished emptied the pile in half a second, too fast to see.
+
+Coins shrink to fit the count (about 60 reads well; past ~120 they turn to
+gravel). `glyph` is drawn on the coin face in `band_ink` - one character.
+
+## Animated emoji icons (2026-11-05)
+
+`render_long(..., animated_emoji=True)` / `render_crypto_short(...,
+animated_emoji=True)`: any `grid`, `steps` or `diagram` icon that has a
+Google Noto animation plays it, looping on the beat's clock - the fire
+flickers, the lock clicks shut (`core/emoji_anim.py`). Off by default, and
+off is the static glyph exactly.
+
+**Only some emoji animate**: 🔥 and 🔒 do; 💰, 📋 and 🔑 do not (measured
+2026-11-05). The rest stay Apple's static glyph, which is a different
+drawing style next to Noto's. Check first and prefer a set that all moves:
+
+```bash
+.venv/bin/python -m video_automation emoji check 🔥 🔒 🔑
+```
+
+One moving icon among still ones draws the eye to it - use that on purpose
+(the item the line is about), not by accident.
+
+**It owes a credit.** Noto Emoji Animation is CC BY 4.0. A long form with a
+`meta` gets "Animated emoji: Google Noto Emoji Animation (CC BY 4.0)" added
+to its credits automatically - only when an icon actually animated; a Short
+prints the line at the end of the build for the publish step to carry.
+
+Files are fetched once into `~/.local/share/video-automation/emoji/`
+(~200KB each); a missing animation is remembered as `<code>.none` and never
+asked for again.
