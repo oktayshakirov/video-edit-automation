@@ -1,8 +1,8 @@
 """Stand-in fonts for machines that are not the Mac the videos are built on.
 
 Every face the engine draws with is a macOS system font, named by its
-absolute path (`/System/Library/Fonts/...`). On Linux - a cloud session, a CI
-runner - none of those files exist, every `ImageFont.truetype` raises
+absolute path (`/System/Library/Fonts/...`). On Linux - a remote session checking
+an engine change - none of those files exist, every `ImageFont.truetype` raises
 `OSError: cannot open resource`, and 147 of the test suite's checks fail
 before they test anything. They were never about the typeface: a beat that
 lays out its rows, a reel that fills the frame, an overlay that leaves on
@@ -17,8 +17,7 @@ installed.
 **Never install this for a render that ships.** The stand-ins have other
 metrics: lines wrap at other widths, DIN Condensed becomes a wider sans, and
 the Apple emoji become Noto's. It is for checks that do not depend on the
-face - `tests/conftest.py`, and tools that draw a frame to look at layout in
-a cloud session. Nothing in the render path imports it.
+face - `tests/conftest.py`. Nothing in the render path imports it.
 """
 
 from __future__ import annotations

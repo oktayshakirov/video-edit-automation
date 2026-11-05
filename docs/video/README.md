@@ -25,7 +25,6 @@ user. A rule credited to the editor's note came out of that review.
 | `audio.md` | Music, generated beds, sound effects |
 | `thumbnails.md` | One per video, and how the pair share a source image |
 | `troubleshooting.md` | Engine faults that already cost a re-cut once |
-| `cloud.md` | What a cloud session can do before the render, and what it cannot |
 | `demand/README.md` | Demand maps: proving people already watch a subject before it is picked, and the formats that fit each channel |
 | `demand/tinnitus.md`, `demand/crypto.md` | Each channel's map - standouts, proven subjects, formats |
 | `projects/crypto.md` | thecrypto.wiki: voice, copy, what the site gives you |

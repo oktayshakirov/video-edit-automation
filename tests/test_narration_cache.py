@@ -101,8 +101,8 @@ def test_the_voice_packages_are_in_the_model_identity():
     for name in vo._VOICE_PACKAGES:
         assert f"{name}=" in ident, f"{name} missing from {ident}"
     # And the weights are still in there - the packages are an addition, not
-    # a replacement. Only checkable where the weights are installed: a CI
-    # runner or a cloud session without the ~350MB model has none to key on.
+    # a replacement. Only checkable where the weights are installed: a
+    # machine without the ~350MB model has none to key on.
     if (vo.KOKORO_DIR / "kokoro-v1.0.onnx").exists():
         assert "weights=" in ident
 
