@@ -390,10 +390,10 @@ def environmental(e: Exception) -> bool:
     """An import that fails for want of this machine, not of the script.
 
     A sibling package (`audiobook_automation` for the read-along samples) or a
-    macOS font loaded at import time - `ticker_card` draws and *saves* a card
-    when its script is imported. `core.fontshim` is deliberately not installed
-    here, so that a machine without the fonts never writes a stand-in card into
-    `assets/stock/press/`.
+    macOS font used at import time - `crypto-short/crypto-exchanges` measures
+    its `compare` text when it loads. `core.fontshim` is deliberately not
+    installed here: what a script draws should be judged in the real fonts.
+    (No script *writes* at import any more - `workflow.md` step 3.)
     """
     if isinstance(e, ModuleNotFoundError):
         return not (e.name or "").startswith("video_automation")

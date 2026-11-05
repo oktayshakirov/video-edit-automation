@@ -120,9 +120,16 @@ SHIBA = STOCK / "photos/shiba-inu/16730750.jpg"   # 7143x4762, L53, the dog at ~
 
 from video_automation.longform.overlay import ticker_card  # noqa: E402
 # A dozen copycat contracts carry the name, so no logo - a drawn card.
-CARD_SQUID = ticker_card("squid", "Squid Game token, Nov 2021",
-                         "unrelated to Netflix", CRYPTO,
-                         REAL / "cards/squid.png")
+CARD_SQUID = REAL / "cards/squid.png"
+
+
+def cards() -> None:
+    """Draw the ticker card. `main()` calls this before the render - never
+    at import: every gate imports a script (opening_check, script_check,
+    preflight), and an import that drew cards once rewrote a committed one
+    in the wrong typeface (2026-11-05, `workflow.md` step 3)."""
+    ticker_card("squid", "Squid Game token, Nov 2021",
+                "unrelated to Netflix", CRYPTO, CARD_SQUID)
 
 BEATGROUND = BRAND / "beat-ground-crypto.jpg"
 ENDCARD = V / "subscribe/4928934.mp4"
@@ -434,6 +441,7 @@ def thumbs(out: Path) -> Path:
 
 
 def main() -> None:
+    cards()
     out = Path.home() / "Desktop/what-are-memecoins-long.mp4"
     work = Path.home() / "Desktop/.what-are-memecoins-long-work"
     made = render_long(

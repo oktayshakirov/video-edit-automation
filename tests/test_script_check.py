@@ -206,12 +206,13 @@ class WritesAtImport(Exception):
 
 @pytest.mark.parametrize("path", SCRIPTS, ids=lambda p: f"{p.parent.name}/{p.stem}")
 def test_every_project_script_still_imports(path, monkeypatch):
-    """**Importing a script must not write anything.** A few draw a card at
-    module level and save it into `assets/` (`ticker_card`, the memecoin
-    cards) - and the first version of this test, run under the font shim,
-    overwrote the committed `squid.png` with a stand-in face. So the shim is
-    off for the import, and any image save inside it is refused: a script
-    that writes at import is skipped with the path, never allowed to write.
+    """**Importing a script must not write anything.** Three drew their
+    ticker cards at module level and saved them into `assets/` - and the
+    first version of this test, run under the font shim, overwrote the
+    committed `squid.png` with a stand-in face. They draw in `cards()` from
+    `main()` now (`workflow.md` step 3), so a save at import is a failure.
+    The shim stays off for the import and the save is refused either way:
+    this test never writes, even when it fails.
     """
     from PIL import Image
     from video_automation.core import fontshim
@@ -224,10 +225,24 @@ def test_every_project_script_still_imports(path, monkeypatch):
     try:
         sc.load(path)
     except WritesAtImport as e:
-        pytest.skip(f"saves {e} at import")
+        pytest.fail(f"{path.name} saves {e} at import - draw it in a function "
+                    f"main() calls (workflow.md step 3)")
     except Exception as e:
         if sc.environmental(e):
             pytest.skip(f"needs the build Mac: {type(e).__name__}: {e}")
         raise
     finally:
         fontshim.install()
+
+
+def test_a_stand_in_font_never_reaches_a_card(tmp_path, monkeypatch):
+    """`ticker_card` refuses to write once this process has drawn with a
+    stand-in font - the second guard behind the import rule."""
+    from video_automation.core import fontshim
+    from video_automation.core.brand import CRYPTO
+    from video_automation.longform.overlay import ticker_card
+    monkeypatch.setattr(fontshim, "_used", {"/System/Library/Fonts/x.ttf": "dejavu"})
+    out = tmp_path / "card.png"
+    with pytest.raises(RuntimeError, match="stand-in fonts"):
+        ticker_card("squid", "a line", "a sub", CRYPTO, out)
+    assert not out.exists()
