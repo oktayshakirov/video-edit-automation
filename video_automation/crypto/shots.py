@@ -130,6 +130,10 @@ class Shot:
                                         # subject stays as it is
     pop: bool = False                   # the subject's head breaks out over
                                         # the photo's top edge (a framed photo)
+    # Any shot: a GPU effect on its own frames, before captions and the mark
+    # go on - "bloom", "leak", "aberration", "vignette", ("leak", 0.6), or a
+    # list chained in order (`core/shaderfx.py`). None creates no GL context.
+    shader: "str | tuple | list | None" = None
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:
@@ -928,6 +932,13 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
                                           reveals=s.reveals, marks=s.marks,
                                           start=s.start, hold=s.hold,
                                           frame=frame, brand=brand))
+
+    # `Shot(shader=)` wraps the prepared shot; without it nothing here runs.
+    if any(s is not None and getattr(s, "shader", None) for s in shots):
+        from ..core.shaderfx import ShaderShot
+        prepared = [ShaderShot(p, s.shader, s.hold, brand)
+                    if s is not None and getattr(s, "shader", None) else p
+                    for p, s in zip(prepared, shots)]
 
     if mark is not None:
         if len(anchors) == 1:
