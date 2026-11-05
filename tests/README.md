@@ -44,6 +44,7 @@ What they cover:
 | `test_search_opener.py` | the Search opener types on the shared rhythm |
 | `test_sfx_kits.py` | the per-site sound kits, and the cue set no kit may touch |
 | `test_special_cuts.py` | where the glitch and TV-static cuts are placed |
+| `test_shaderfx.py` | bloom glows only what is bright, a leak never darkens, aberration spares the centre, a vignette keeps the middle; no effect never makes a GL context |
 | `test_spotlight_ambience.py` | the spotlight's box fits the content; place-sound stays restrained |
 | `test_transitions.py` | `push` stays byte-identical; every mode returns a frame |
 | `test_vision.py` | depth moves near more than far, `isolate` dims only the room, `pop` puts the head over the edge, `behind` keeps its word readable - on stub maps, no model needed |
