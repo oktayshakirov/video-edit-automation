@@ -1,0 +1,40 @@
+# The fast suite, on every push and pull request. It is the same command the
+# build skills run locally (`workflow.md` step 5); here it also runs for a
+# change made from a cloud session, which has no Mac to watch a render on.
+#
+# Nothing here renders, synthesises or reaches the network beyond setup. The
+# macOS fonts are answered by `core.fontshim` (tests/conftest.py), and the
+# two site repos are sparse-cloned by tools/cloud_setup.sh, the same script a
+# cloud session uses - so this job is also the check that the script works.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: System packages
+        # ffmpeg for test_hdr's lavfi clip; espeak-ng for the phonemizer
+        # import; the fonts are what the shim falls back to.
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -yq --no-install-recommends \
+            ffmpeg espeak-ng fonts-dejavu-core fonts-liberation fonts-noto-color-emoji
+
+      - name: Venv, pins and site repos
+        run: bash tools/cloud_setup.sh
+
+      - name: pytest
+        run: .venv/bin/python -m pytest tests -q
