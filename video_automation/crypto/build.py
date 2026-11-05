@@ -71,8 +71,12 @@ def caption_line(shots: list[Shot], y_frac: float,
             continue
         # Measured at f=0.5, the middle of the Ken Burns move; the drift over a
         # five-second shot is small next to the margin below.
+        # `pop` is passed because it moves the frame's top edge; `parallax`
+        # and `isolate` change nothing about the box and are left off, so
+        # measuring never runs a model it does not need.
         _, y, _, h = PhotoShot(sh.image, sh.zoom, sh.pan,
-                               sh.aspect, sh.bias, frame=frame).photo_box(0.5)
+                               sh.aspect, sh.bias, frame=frame,
+                               pop=getattr(sh, "pop", False)).photo_box(0.5)
         lows.append((y + h + 96) / frame.h)
     return min(max(lows), floor)
 
@@ -125,7 +129,8 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",
-                        "shares", "sweep", "mnemonic", "stake"):
+                        "shares", "sweep", "mnemonic", "stake",
+                        "behind"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds

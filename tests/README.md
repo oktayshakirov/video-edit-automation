@@ -43,6 +43,7 @@ What they cover:
 | `test_special_cuts.py` | where the glitch and TV-static cuts are placed |
 | `test_spotlight_ambience.py` | the spotlight's box fits the content; place-sound stays restrained |
 | `test_transitions.py` | `push` stays byte-identical; every mode returns a frame |
+| `test_vision.py` | depth moves near more than far, `isolate` dims only the room, `pop` puts the head over the edge, `behind` keeps its word readable - on stub maps, no model needed |
 | `test_docs.py` | the docs and skills point at files that exist, and this table lists every test |
 
 **What they deliberately do not cover** is whether anything *looks* right.

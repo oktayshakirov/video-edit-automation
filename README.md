@@ -74,7 +74,9 @@ python3 -m venv .venv
 .venv/bin/python -m pytest tests
 ```
 
-The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. Footage, renders,
+The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. The two vision
+models behind depth parallax and subject cutouts (~320MB) are fetched once
+with `.venv/bin/python -m video_automation vision fetch`. Footage, renders,
 stock bytes and credentials are never committed.
 
 ## Usage

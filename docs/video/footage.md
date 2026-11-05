@@ -712,6 +712,40 @@ the judder, and `crypto/shots.py` has claimed subpixel motion in its own
 docstring since it was written. If a short is ever re-rendered it will look
 slightly smoother and hash differently.
 
+## A still can move in depth: `parallax=`, `isolate=`, `pop=` (2026-11-05)
+
+Three options on any `Shot(image=...)`, long form and Short. All three are
+off by default and an approved cut renders byte for byte as it did (checked
+on 36 frames against the previous commit). Each needs the vision models once:
+`python -m video_automation vision fetch` (~320MB, `core/vision.py`).
+
+- **`parallax=1.0`** - the Ken Burns in depth. `vision.depth` says how near
+  each pixel is; near things grow and slide more than far ones, so the shot
+  reads as a camera moving through the place instead of a print being
+  zoomed. Best on a picture with layers: a skyline, a person in a room, a
+  street. **It does nothing for a flat source** - an engraving, a
+  screenshot, a document - and those want `spotlight` anyway. 0.5 is
+  subtler, 1.5 is a lot; the move follows `zoom` and `pan`.
+- **`isolate=1.0`** - the room dims and softens over the first 40% of the
+  shot while the subject (`vision.matte`) stays as it was. For the line that
+  is *about that person*: the eye goes where the voice already is. Two
+  people in the frame both stay - the matte keeps every subject it finds.
+- **`pop=True`** - for a framed photo (the Short's box, a named portrait):
+  the frame's top edge drops through the subject and the head rises over the
+  gold line. **It cannot share a shot with `parallax`** and raises if asked
+  to: the head above the line and the picture under it would move apart. A
+  picture with no clear subject is shown plain, with a printed note.
+
+**What it costs.** The matte is ~17s a picture on a CPU and depth ~1s, both
+cached by the picture's content (`~/.cache/video-automation/vision`), so a
+re-cut never re-runs them. Drawing is ~70ms a frame for `isolate` and
+~120ms for `parallax` at 1080p, against ~40ms for a plain still - a few
+parallax shots add seconds, not minutes.
+
+**Not on a face close-up that fills the frame.** Depth on a face is a
+smooth bulge, and a bulge pushed in reads as a lens distortion, not as
+depth. Parallax wants the subject to have something behind it.
+
 ## Motion on a video shot — three things that all caused visible glitches
 
 Stock is **25fps against this 30fps timeline**, which is where all of this comes
