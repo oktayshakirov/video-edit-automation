@@ -34,6 +34,7 @@ What they cover:
 | `test_looks.py` | every session look is a loop that closes |
 | `test_meta.py` | a disclaimer becomes the notice card; a routing line asks by kicker |
 | `test_narration_cache.py` | the cache key, and the shadowing bug that poisoned it |
+| `test_pile.py` | `pile`'s physics is identical every build, settles inside the container, empties on a drain, and drops nothing before its reveal |
 | `test_readalong.py` | the read-along picks the scripted gaps, not the voice's own pauses |
 | `test_reel.py` | the `reel` beat's dives into and out of a card, and `post`'s highlighter on every frame |
 | `test_samples.py` | the tinnitus sound samples: synthesis, placement and the bed dip |

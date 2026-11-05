@@ -1478,3 +1478,29 @@ stops reading.
 
 The first frame costs ~1s once the matte is cached (the room fill is
 memoised per picture), then ~120ms a frame.
+
+## `pile` - coins pour in and settle; the floor can open (2026-11-05)
+
+`Shot(graphic="pile", payload=(drops, title, drain))` where `drops` is
+`[(count, label) | (count, label, glyph), ...]`, one batch per reveal, and
+`drain` (optional) labels a last reveal on which the floor's two trapdoors
+swing down and the pile pours out. Portrait-safe.
+
+**For an amount the viewer should feel rather than read**: money flowing
+into a pool, deposits stacking up, a supply growing - and with `drain`, the
+moment it leaves (a rug pull, a hack, a liquidation). Two or three batches
+is the shape; the pile visibly doubling is the point, so label each batch
+with what it *is* ("BUYERS PAY IN"), never with a figure the coins do not
+stand for. A coin is not a unit of anything - say the number in the
+narration or put it on a `bars` beat.
+
+**The physics is real and runs once** (`pymunk`, MIT): coins collide, bounce
+and stack, recorded at 120Hz with a fixed seed at build time, so a re-render
+is identical and the frame rate cannot change the motion. Coins drop in
+lanes and never two in the same lane in a row: the first test, with every
+coin due at once, overlapped them and the solver flung one off the frame.
+The trapdoors are kinematic for the same kind of reason - a floor that
+simply vanished emptied the pile in half a second, too fast to see.
+
+Coins shrink to fit the count (about 60 reads well; past ~120 they turn to
+gravel). `glyph` is drawn on the coin face in `band_ink` - one character.
