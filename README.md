@@ -76,7 +76,9 @@ python3 -m venv .venv
 
 The Kokoro model (~350MB) lives in `~/.local/share/kokoro`. The two vision
 models behind depth parallax and subject cutouts (~320MB) are fetched once
-with `.venv/bin/python -m video_automation vision fetch`. Footage, renders,
+with `.venv/bin/python -m video_automation vision fetch`, and the browser
+for scripted screen captures with `.venv/bin/python -m playwright install
+chromium`. Footage, renders,
 stock bytes and credentials are never committed.
 
 ## Usage

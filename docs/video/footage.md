@@ -746,6 +746,44 @@ parallax shots add seconds, not minutes.
 smooth bulge, and a bulge pushed in reads as a lens distortion, not as
 depth. Parallax wants the subject to have something behind it.
 
+## A real page: `screencap` (2026-11-05)
+
+When the subject is a page - a block explorer's transaction, a market's
+odds, an exchange's announcement, a study's abstract, the article the video
+links to - capture the page itself rather than pasting a screenshot:
+
+```bash
+.venv/bin/python -m video_automation screencap grab URL NAME \
+    --select tx="css=#tx-hash" --hide ".promo-bar" [--mobile]
+.venv/bin/python -m video_automation screencap clip NAME \
+    --path top,tx --ring tx --secs 7 [--vertical]
+```
+
+`grab` takes one full-page capture (2x desktop, 3x `--mobile` for a Short),
+with reduced motion and a fixed viewport, and records where each `--select`
+element sits. `clip` moves a camera over that capture offline - an eased
+glide per framing, a slow push, the `spotlight` ring in the brand colour -
+and writes an MP4 for `Shot(clip=)`. For a still to direct with `spotlight`
+instead, `screencap.still(NAME, "tx")` cuts a screen around the element and
+returns every selected box as fractions of it.
+
+**One framing per spoken line, the ring on the words being read.** A ring
+on a whole page section is a highlighter on a paragraph nobody is reading.
+
+**The record is committed, the page is not.** `NAME.json` (URL, date,
+viewport, selectors) is what reproduces it with `screencap regrab NAME`;
+the PNG is somebody else's page and is gitignored like the press folder. A
+regrab shows today's page - the record's date says which one shipped.
+
+**What may go on screen.** Public pages only: never a logged-in view, an
+account, a balance, an email or anybody's private data. Consent banners are
+hidden, never clicked on the viewer's behalf. The page has to say the noun
+the line says, the same rule as every other picture. Credit the site in the
+description as for any real picture.
+
+**The browser is a separate install** on a new machine:
+`.venv/bin/python -m playwright install chromium` (~150MB).
+
 ## Motion on a video shot — three things that all caused visible glitches
 
 Stock is **25fps against this 30fps timeline**, which is where all of this comes
