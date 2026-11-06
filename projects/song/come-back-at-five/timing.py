@@ -208,34 +208,132 @@ def _fill(words: list[dict]) -> None:
         i = j
 
 
-# What the take sings where the sheet and Whisper's vocal-stem pass disagree,
-# timed by hand from a Whisper pass over the full mix (2026-11-06). The take
-# merged two hook-3 lines into one, and sang only "I went outside" of the
-# bridge's last line; the screen shows what is sung, in the sheet's words.
-# Each entry: (section, text, adlibs, [word start times], end, replaces).
-OVERRIDES = [
-    ("verse", "I wrote one line by hand and I'm already sick", [],
-     [64.0, 64.16, 64.44, 64.66, 64.92, 65.08, 65.28, 65.42, 65.56, 65.8], 66.2, None),
-    ("hook", "Five o'clock hit, back in and I typed one line", ["one line"],
-     [100.48, 100.88, 101.36, 102.34, 102.58, 102.8, 102.98, 103.18, 103.38, 103.58], 103.9,
-     "Logged back in and I typed one line"),
-    ("bridge - spoken word", "I went outside", ["wow"],
-     [85.08, 85.18, 85.28], 85.9, "I went outside, the graphics are insane"),
+# What the take sings, where it differs from the sheet (checked by ear and by
+# Whisper over the full mix, 2026-11-06). Each edit removes the aligned lines
+# that start inside [a, b) and puts in the sung lines, with a rough window
+# only - forced alignment times the words. The screen shows what is sung, in
+# the sheet's spelling, and **a repeat is its own line** (the user's note: a
+# line repeated by the take must start fresh, not wait half-lit mid-line).
+EDITS = [
+    # "refactor everything" is not sung
+    (6.0, 11.0, [("intro - spoken word", "Fix the bug, write the tests", ["yeah"], 6.3, 10.7)]),
+    # sounds like "B-Bye" here (the user's ear, 2026-11-06); hook 2 says "bye"
+    (24.0, 25.5, [("hook", "Paid for the Max and it still told me B-Bye", [], 24.7, 27.7)]),
+    # sung twice, the first time ending on the previous line's "bar climb"
+    (52.0, 53.0, [("verse", "Twenty one percent, then a hundred, bar climb", [], 52.2, 53.95),
+                  ("verse", "Twenty one percent, then a hundred, one prompt", [], 53.95, 55.8)]),
+    # Whisper missed it on the vocal stem; it is there on the mix
+    (63.95, 64.05, [("verse", "I wrote one line by hand and I'm already sick", [], 63.9, 66.25)]),
+    # only "I went outside" of the line is sung
+    (83.5, 84.5, [("bridge - spoken word", "I went outside", ["wow"], 84.9, 86.2)]),
+    # hook 3: the take doubles the second line and runs "almost" into "only five"
+    (86.0, 100.0, [("hook", "Limit reached, come back at five", ["five!"], 86.6, 90.1),
+                   ("hook", "Limit reached, limit reached, come back at five", [], 90.1, 93.45),
+                   ("hook", "Had a startup at noon, it was almost… it's only five", [], 93.45, 96.95),
+                   ("hook", "Limit reached, come back at five", [], 96.95, 100.45)]),
+    # two sheet lines merged into one
+    (100.0, 102.0, [("hook", "Five o'clock hit, back in and I typed one line", ["one line"], 100.45, 103.9)]),
 ]
 
 
-def apply_overrides(lines: list[dict]) -> list[dict]:
-    for section, text, adlibs, starts, end, replaces in OVERRIDES:
-        words = text.split()
-        assert len(words) == len(starts), text
-        ends = starts[1:] + [end]
-        entry = {"section": section, "text": text, "adlibs": adlibs,
-                 "words": [{"w": w, "s": a, "e": b} for w, a, b in zip(words, starts, ends)],
-                 "s": starts[0], "e": end, "heard": "by hand"}
-        if replaces:
-            lines = [ln for ln in lines if ln["text"] != replaces]
-        lines.append(entry)
+def apply_edits(lines: list[dict]) -> list[dict]:
+    for a, b, sung in EDITS:
+        lines = [ln for ln in lines if not (a <= ln["s"] < b)]
+        for section, text, adlibs, s, e in sung:
+            lines.append({"section": section, "text": text, "adlibs": adlibs, "s": s, "e": e,
+                          "words": [{"w": w, "s": s, "e": e} for w in text.split()],
+                          "heard": "edit"})
     return sorted(lines, key=lambda ln: ln["s"])
+
+
+# Forced alignment: wav2vec2 (torchaudio WAV2VEC2_ASR_BASE_960H) fits each
+# line's own words into its window on the vocal stem. Whisper's word times
+# ran late and stretched, so the sweep lagged the voice and lines changed
+# before they were lit (the user's note, 2026-11-06).
+FORCE = r'''
+import json, sys, torch, torchaudio, soundfile as sf
+import torchaudio.functional as F
+bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+model = bundle.get_model().eval()
+labels = bundle.get_labels(); idx = {c: i for i, c in enumerate(labels)}
+x, sr = sf.read(sys.argv[1], dtype="float32"); x = x.mean(1) if x.ndim > 1 else x
+x = torchaudio.functional.resample(torch.from_numpy(x), sr, 16000)
+jobs = json.load(open(sys.argv[2])); out = []
+for job in jobs:
+    a, b = int(job["a"] * 16000), int(job["b"] * 16000)
+    seg = x[a:b][None]
+    with torch.inference_mode():
+        em, _ = model(seg)
+    lp = torch.log_softmax(em, -1)
+    toks, owner = [], []
+    for wi, w in enumerate(job["words"]):
+        for c in w:
+            toks.append(idx[c]); owner.append(wi)
+    ali, scores = F.forced_align(lp, torch.tensor([toks], dtype=torch.int32), blank=0)
+    spans = F.merge_tokens(ali[0], scores[0].exp())
+    ratio = seg.shape[1] / lp.shape[1] / 16000
+    words = [[None, None] for _ in job["words"]]
+    for k, sp in enumerate(spans):
+        w = words[owner[k]]
+        t0, t1 = job["a"] + sp.start * ratio, job["a"] + sp.end * ratio
+        w[0] = t0 if w[0] is None else min(w[0], t0)
+        w[1] = t1 if w[1] is None else max(w[1], t1)
+    out.append(words)
+json.dump(out, open(sys.argv[3], "w"))
+'''
+
+
+def _letters(word: str) -> str:
+    w = word.upper().replace("’", "'")
+    for k, v in {"AI'S": "A IS", "B-BYE": "BBYE"}.items():
+        w = w.replace(k, v)
+    return "".join(c for c in w if c.isalpha() or c == "'")
+
+
+def force_align(lines: list[dict], vocal: Path) -> list[dict]:
+    """Time every word by aligning whole runs of lines at once.
+
+    Aligned one line per window, the first and last words reached into the
+    neighbours and consecutive lines overlapped by ~0.3s. A run of lines
+    with no real gap goes in as one transcript - ad-libs included, since
+    they are sung and would otherwise be pinned onto a lyric word - so the
+    model itself decides where each line ends.
+    """
+    groups, cur = [], [0]
+    for i in range(1, len(lines)):
+        if lines[i]["s"] - lines[i - 1]["e"] > 0.9:
+            groups.append(cur)
+            cur = []
+        cur.append(i)
+    groups.append(cur)
+    jobs, slots = [], []
+    for g in groups:
+        a = max(0.0, lines[g[0]]["s"] - 0.5)
+        b = lines[g[-1]]["e"] + 0.6
+        words, slot = [], []
+        for i in g:
+            for wi, w in enumerate(lines[i]["words"]):
+                words.append(_letters(w["w"]) or "A")
+                slot.append((i, wi))
+            for ad in lines[i]["adlibs"]:
+                for piece in ad.split():
+                    if _letters(piece):
+                        words.append(_letters(piece))
+                        slot.append(None)
+        jobs.append({"a": a, "b": b, "words": words})
+        slots.append(slot)
+    tmp_in, tmp_out = CACHE / "force-in.json", CACHE / "force-out.json"
+    tmp_in.write_text(json.dumps(jobs))
+    subprocess.run([str(DEMUCS_PY), "-c", FORCE, str(vocal), str(tmp_in), str(tmp_out)], check=True)
+    for slot, words in zip(slots, json.loads(tmp_out.read_text())):
+        for where, (s, e) in zip(slot, words):
+            if where is None:
+                continue
+            w = lines[where[0]]["words"][where[1]]
+            w["s"], w["e"] = round(s, 3), round(e, 3)
+    for ln in lines:
+        ln["s"], ln["e"] = ln["words"][0]["s"], ln["words"][-1]["e"]
+    return lines
 
 
 def main() -> int:
@@ -249,7 +347,8 @@ def main() -> int:
     if not heard_json.exists() or "--fresh" in sys.argv:
         print("transcribing")
         subprocess.run([str(WHISPER_PY), "-c", TRANSCRIBE, str(vocal), str(heard_json)], check=True)
-    lines = apply_overrides(align(sheet_lines(SHEET), json.loads(heard_json.read_text())))
+    lines = apply_edits(align(sheet_lines(SHEET), json.loads(heard_json.read_text())))
+    lines = force_align(lines, vocal)
     (HERE / "timing.json").write_text(json.dumps(
         {"source": str(FINAL.name), "lines": lines}, indent=1))
     for line in lines:

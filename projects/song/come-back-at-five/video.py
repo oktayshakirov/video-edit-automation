@@ -40,8 +40,10 @@ from video_automation.core import emoji_anim, shaderfx  # noqa: E402
 from video_automation.core.brand import BRANDS, Brand  # noqa: E402
 from video_automation.core.frame import LANDSCAPE, VERTICAL, Frame  # noqa: E402
 from video_automation.core.vertical import emoji_image  # noqa: E402
+from video_automation.longform.overlay import TvOff  # noqa: E402
 
 FPS = 30
+END = 121.83                 # the video's last frame time; the TV switches off into it
 AUDIO = Path.home() / "Desktop/songs/come-back-at-five-final.flac"
 MIX = Path.home() / ".cache/video-automation/song/come-back-at-five/mix.wav"
 OUT = Path.home() / "Desktop/songs/video"
@@ -162,13 +164,13 @@ class Ctx:
 
     @property
     def cx(self):           # the safe centre, left of a Short's button rail
-        return (60 + self.frame.safe_right) / 2 if self.tall else self.W / 2
+        return self.W / 2       # centred in both formats (the user's note, 2026-11-06)
 
     @property
     def stage(self):
         """(x0, y0, x1, y1): where a scene's picture goes, clear of the karaoke."""
         if self.tall:
-            return (70, self.frame.safe_top + 20, self.frame.safe_right - 10, 1090)
+            return (70, self.frame.safe_top + 20, self.W - 70, 1090)
         return (120, 70, self.W - 120, int(self.H * 0.66))
 
 
@@ -268,17 +270,47 @@ def _split(ix, n, width):
     return best[1]
 
 
+# When each line is on screen, and when each word's sweep runs (2026-11-06,
+# the user's note: the sweep lagged the voice and a line left before it was
+# lit). A word sweeps from its own start to the next word's start, a touch
+# ahead of the voice; a line comes in 0.3s early but never before the last
+# one is fully sung, and leaves as the next one comes in.
+LEAD = 0.08
+
+
+def _schedule():
+    out = []
+    for i, ln in enumerate(TIMING):
+        appear = ln["s"] - 0.3
+        if i:
+            appear = max(appear, TIMING[i - 1]["e"] + 0.02)
+        ws = ln["words"]
+        sweeps = []
+        for k, w in enumerate(ws):
+            a = w["s"] - LEAD
+            nxt = ws[k + 1]["s"] if k + 1 < len(ws) else None
+            b = (nxt - LEAD) if nxt is not None and nxt - w["s"] < 0.9 else w["e"] + 0.12 - LEAD
+            sweeps.append((a, max(a + 0.06, b)))
+        out.append({"ln": ln, "appear": appear, "sweeps": sweeps})
+    for i, sch in enumerate(out):
+        nxt = out[i + 1]["appear"] if i + 1 < len(out) else 1e9
+        sch["leave"] = min(nxt, sch["ln"]["e"] + 0.8)
+    return out
+
+
+SCHEDULE = _schedule()
+
+
 def karaoke(img: Image.Image, ctx: Ctx, size=None, y=None, upper=False):
     t = ctx.t
-    cur = None
-    for ln in TIMING:
-        if ln["s"] - 0.25 <= t <= ln["e"] + 0.45:
-            cur = ln if cur is None or ln["s"] > cur["s"] else cur
-    if cur is None:
+    sch = next((x for x in SCHEDULE if x["appear"] <= t < x["leave"]), None)
+    if sch is None:
         return
-    nxt = next((ln for ln in TIMING if ln["s"] > cur["s"]), None)
+    cur = sch["ln"]
+    i_cur = SCHEDULE.index(sch)
+    nxt = SCHEDULE[i_cur + 1]["ln"] if i_cur + 1 < len(SCHEDULE) else None
     W = ctx.W
-    max_w = (ctx.frame.safe_right - 80) if ctx.tall else W * 0.84
+    max_w = (W - 160) if ctx.tall else W * 0.84
     size = size or (88 if ctx.tall else 84)
     y = y or (1250 if ctx.tall else ctx.H * 0.80)
     words = [w["w"].upper() if upper else w["w"] for w in cur["words"]]
@@ -296,12 +328,12 @@ def karaoke(img: Image.Image, ctx: Ctx, size=None, y=None, upper=False):
         return karaoke(img, ctx, int(size * 0.9), y, upper)
     lh = size * 1.18
     top = y - lh * (len(rows) - 1) / 2
-    life_in = ease((t - (cur["s"] - 0.25)) / 0.25)
-    life_out = 1 - ease((t - (cur["e"] + 0.15)) / 0.3)
+    life_in = ease((t - sch["appear"]) / 0.15)
+    life_out = 1 - ease((t - (sch["leave"] - 0.12)) / 0.12)
     a = max(0.0, min(life_in, life_out))
     if a <= 0:
         return
-    lift = (1 - life_in) * 24 * ctx.u - (1 - life_out) * 30 * ctx.u
+    lift = (1 - life_in) * 20 * ctx.u - (1 - life_out) * 20 * ctx.u
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     sp = f.getlength(" ")
@@ -319,12 +351,12 @@ def karaoke(img: Image.Image, ctx: Ctx, size=None, y=None, upper=False):
         for i in row:
             w, info = words[i], cur["words"][i]
             wl = f.getlength(w)
-            prog = clamp((t - info["s"]) / max(0.08, info["e"] - info["s"]))
-            # shadow, then the unsung word, then the sung part swept in
-            for dx, dy in ((0, 5), (3, 6)):
-                d.text((x + dx * ctx.u, yy + dy * ctx.u), w, font=f, fill=(0, 0, 0, 150),
-                       anchor="lm")
-            d.text((x, yy), w, font=f, fill=(*INK, 120), anchor="lm")
+            a0, a1 = sch["sweeps"][i]
+            prog = clamp((t - a0) / (a1 - a0))
+            # the unsung word dimmed, then the sung part swept in. No drop
+            # shadow: the user found it muddy (2026-11-06); the band behind
+            # the lines carries the contrast.
+            d.text((x, yy), w, font=f, fill=(*INK, 110), anchor="lm")
             if prog > 0:
                 sweep = Image.new("RGBA", img.size, (0, 0, 0, 0))
                 sd = ImageDraw.Draw(sweep)
@@ -339,8 +371,8 @@ def karaoke(img: Image.Image, ctx: Ctx, size=None, y=None, upper=False):
                 layer.alpha_composite(sweep)
             x += wl + sp
     # ad-libs: small stickers once the line is sung
-    if cur["adlibs"] and t > cur["e"] - 0.2:
-        q = pop((t - (cur["e"] - 0.2)) / 0.3)
+    if cur["adlibs"] and t > cur["e"] - 0.1:
+        q = pop((t - (cur["e"] - 0.1)) / 0.3)
         tag = "  ".join(f"({x})" for x in cur["adlibs"])
         fs = font(F_HEAVY, size * 0.55)
         tw = fs.getlength(tag) + 40 * ctx.u
@@ -474,7 +506,10 @@ def terminal(img, ctx: Ctx, rows: list[tuple], box=None, title="~/startup — zs
     for i, c in enumerate(((255, 95, 87), (255, 189, 46), (40, 200, 64))):
         d.ellipse([x0 + (24 + 28 * i) * u, y0 + 22 * u, x0 + (40 + 28 * i) * u, y0 + 38 * u], fill=c)
     text(d, ((x0 + x1) / 2, y0 + 30 * u), title, font(F_MONO, 22 * u), DIM, "mm")
-    f = font(F_MONO, (34 if ctx.tall else 32) * u)
+    size = (34 if ctx.tall else 32) * u
+    room = (x1 - x0) - 34 * u - 50 * u
+    longest = max((r[1] for r in rows), key=len, default="")
+    f = fit_font(F_MONO, longest + " ", room, int(size))
     y = y0 + 80 * u
     last = None
     for t0, s, col, cps in rows:
@@ -494,24 +529,37 @@ def terminal(img, ctx: Ctx, rows: list[tuple], box=None, title="~/startup — zs
 # props
 
 def clock(img, ctx: Ctx, cx, cy, r, hh, mm, face=PANEL, hot=False):
-    d = ImageDraw.Draw(img)
-    u = ctx.u
-    rr = r * (1 + 0.03 * ctx.kick)
-    d.ellipse([cx - rr - 8 * u, cy - rr - 8 * u, cx + rr + 8 * u, cy + rr + 8 * u],
-              fill=(*(RED if hot else ACCENT), 255))
-    d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=(*face, 255))
+    """Drawn at 3x on its own tile and reduced, so its edges are smooth and
+    its 808 swell is sub-pixel. Drawn straight onto the frame, the rim and
+    hands were aliased and the swell stepped a whole pixel at a time (the
+    user's note, 2026-11-06)."""
+    SS = 3
+    u = ctx.u * SS
+    R = r * SS
+    rr = R * (1 + 0.025 * ctx.kick)
+    pad = int(R * 0.12 + 12 * u)
+    size = int(2 * R + 2 * pad)
+    tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(tile)
+    c = size / 2
+    rim = RED if hot else ACCENT
+    d.ellipse([c - rr - 8 * u, c - rr - 8 * u, c + rr + 8 * u, c + rr + 8 * u], fill=(*rim, 255))
+    d.ellipse([c - rr, c - rr, c + rr, c + rr], fill=(*face, 255))
+
+    def stroke(a, l0, l1, w, col):
+        x0, y0 = c + math.sin(a) * l0, c - math.cos(a) * l0
+        x1, y1 = c + math.sin(a) * l1, c - math.cos(a) * l1
+        d.line([x0, y0, x1, y1], fill=col, width=int(w))
+        for x, y in ((x0, y0), (x1, y1)):           # round caps
+            d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=col)
     for k in range(12):
         a = k / 12 * 2 * math.pi
-        l0 = rr * (0.80 if k % 3 else 0.72)
-        d.line([cx + math.sin(a) * l0, cy - math.cos(a) * l0, cx + math.sin(a) * rr * 0.9,
-                cy - math.cos(a) * rr * 0.9], fill=(*INK, 255), width=int((6 if k % 3 == 0 else 3) * u))
-    ah = ((hh % 12) + mm / 60) / 12 * 2 * math.pi
-    am = (mm / 60) * 2 * math.pi
-    d.line([cx, cy, cx + math.sin(ah) * rr * 0.5, cy - math.cos(ah) * rr * 0.5], fill=(*INK, 255),
-           width=int(14 * u))
-    d.line([cx, cy, cx + math.sin(am) * rr * 0.75, cy - math.cos(am) * rr * 0.75],
-           fill=(*(RED if hot else ACCENT), 255), width=int(8 * u))
-    d.ellipse([cx - 12 * u, cy - 12 * u, cx + 12 * u, cy + 12 * u], fill=(*INK, 255))
+        stroke(a, rr * (0.80 if k % 3 else 0.72), rr * 0.9, (6 if k % 3 == 0 else 3) * u, (*INK, 255))
+    stroke(((hh % 12) + mm / 60) / 12 * 2 * math.pi, 0, rr * 0.5, 14 * u, (*INK, 255))
+    stroke((mm / 60) * 2 * math.pi, 0, rr * 0.75, 8 * u, (*rim, 255))
+    d.ellipse([c - 12 * u, c - 12 * u, c + 12 * u, c + 12 * u], fill=(*INK, 255))
+    small = tile.resize((size // SS, size // SS), Image.LANCZOS)
+    img.alpha_composite(small, (int(round(cx - small.width / 2)), int(round(cy - small.height / 2))))
 
 
 def big_label(img, ctx: Ctx, s, cx, cy, size, color=INK, t0=None, rot=0.0, box=None, ink_on=(20, 16, 12)):
@@ -606,7 +654,7 @@ def sc_intro(ctx: Ctx, img):
 
 def _chat_box(ctx):
     if ctx.tall:
-        return (60, ctx.frame.safe_top + 40, ctx.frame.safe_right, 1400)
+        return (60, ctx.frame.safe_top + 40, ctx.W - 60, 1400)
     return (ctx.W * 0.18, 60, ctx.W * 0.82, ctx.H - 60)
 
 
@@ -635,9 +683,9 @@ def sc_hook(n):
         side = r * 1.55
 
         def spot(left: bool, dy: float = 0.0):
-            """Beside the clock in 16:9; above it, left or right, in 9:16."""
+            """Beside the clock, clear of its rim, in both formats."""
             if ctx.tall:
-                return (cx + (-1 if left else 1) * r * 0.95, cy - r - 30 * ctx.u + dy * 0.3)
+                return (cx + (-1 if left else 1) * (r + 150 * ctx.u), cy - r * 0.55 + dy * 0.2)
             return (cx + (-1 if left else 1) * side, cy + dy)
         for ln in g:
             txt = ln["text"].lower()
@@ -649,17 +697,17 @@ def sc_hook(n):
                           int(64 * ctx.u), t0=s, box=RED, ink_on=(255, 255, 255),
                           rot=-4 if (hook.index(ln) % 2) else 4)
                 emo(img, ctx, "⏰" if hook.index(ln) % 2 else "⏳", *spot(True, -r * 0.3),
-                    200 * ctx.u, s, until=e)
+                    (200 if not ctx.tall else 170) * ctx.u, s, until=e)
             elif "startup" in txt:
-                emo(img, ctx, "🚀", *spot(False, -r * 0.4), 230 * ctx.u, s, until=e, rot=-10)
+                emo(img, ctx, "🚀", *spot(False, -r * 0.4), (230 if not ctx.tall else 170) * ctx.u, s, until=e, rot=-10)
             elif "staring" in txt:
-                emo(img, ctx, "👀", *spot(True), 230 * ctx.u, s, until=e)
+                emo(img, ctx, "👀", *spot(True), (230 if not ctx.tall else 170) * ctx.u, s, until=e)
             elif "paid for the max" in txt:
-                emo(img, ctx, "💸", *spot(True, -r * 0.2), 210 * ctx.u, s, until=e)
-                emo(img, ctx, "👋", *spot(False, r * 0.1), 210 * ctx.u, s + 1.2, until=e, rot=-8)
+                emo(img, ctx, "💸", *spot(True, -r * 0.2), (210 if not ctx.tall else 170) * ctx.u, s, until=e)
+                emo(img, ctx, "👋", *spot(False, r * 0.1), (210 if not ctx.tall else 170) * ctx.u, s + 1.2, until=e, rot=-8)
             elif "five o'clock" in txt:
-                emo(img, ctx, "🎉", *spot(True, -r * 0.4), 230 * ctx.u, s, until=e)
-                emo(img, ctx, "🥳", *spot(False), 230 * ctx.u, s + 0.25, until=e)
+                emo(img, ctx, "🎉", *spot(True, -r * 0.4), (230 if not ctx.tall else 170) * ctx.u, s, until=e)
+                emo(img, ctx, "🥳", *spot(False), (230 if not ctx.tall else 170) * ctx.u, s + 0.25, until=e)
     return draw
 
 
@@ -689,11 +737,12 @@ def sc_grass(word="GRASS"):
 def sc_woke(ctx, img):
     ln = L("Woke up")
     x0, y0, x1, y1 = ctx.stage
-    box = (x0, y0, x1 - (0 if ctx.tall else ctx.W * 0.18), y1)
-    terminal(img, ctx, [(ln["s"], "$ ai --agents 10 --goal \"build a startup\"", INK, 40),
+    box = (x0, y0, x1 - ctx.W * 0.18, y1) if not ctx.tall else (x0, y0 + 230 * ctx.u, x1, y1)
+    terminal(img, ctx, [(ln["s"], "$ ai --agents 10 --goal startup", INK, 40),
                         (ln["s"] + 1.0, "> 10 agents online", GREEN, 0)], box=box)
-    emo(img, ctx, "☕", (x1 - 90 * ctx.u) if not ctx.tall else ctx.cx + 230 * ctx.u,
-        y1 - 120 * ctx.u, 220 * ctx.u, ln["s"] + 0.2)
+    emo(img, ctx, "☕", (x1 - 90 * ctx.u) if not ctx.tall else ctx.cx,
+        (y1 - 120 * ctx.u) if not ctx.tall else (y0 + 110 * ctx.u), (220 if not ctx.tall else 180) * ctx.u,
+        ln["s"] + 0.2)
 
 
 def sc_agents(ctx, img):
@@ -718,14 +767,16 @@ def sc_horse(ctx, img):
 def sc_laptop(ctx, img):
     ln = L("Laptop on my lap")
     x0, y0, x1, y1 = ctx.stage
-    cy = (y0 + y1) / 2 + 40 * ctx.u
-    for k in range(5):
-        ph = (ctx.t * 1.3 + k * 0.37) % 1
-        emo(img, ctx, "🔥", ctx.cx + (k - 2) * 120 * ctx.u, cy + 130 * ctx.u - ph * 300 * ctx.u,
-            (150 - 60 * ph) * ctx.u, ln["s"] + 0.6 + k * 0.08, bounce=False)
-    emo(img, ctx, "💻", ctx.cx, cy, 360 * ctx.u, ln["s"])
-    emo(img, ctx, "🥵", ctx.cx + (330 if not ctx.tall else 220) * ctx.u, cy - 200 * ctx.u, 200 * ctx.u,
-        ln["s"] + 1.6)
+    u = ctx.u
+    cy = (y0 + y1) / 2 + 30 * u
+    emo(img, ctx, "💻", ctx.cx, cy, 330 * u, ln["s"])
+    side = 290 * u
+    for k, sgn in enumerate((-1, 1)):
+        ph = (ctx.t * 1.4 + k * 0.5) % 1
+        emo(img, ctx, "🔥", ctx.cx + sgn * side, cy + 40 * u - ph * 50 * u, (170 + 30 * math.sin(ph * math.pi)) * u,
+            ln["s"] + 0.5 + k * 0.1, bounce=False)
+    words = {w["w"].lower(): w["s"] for w in ln["words"]}
+    emo(img, ctx, "🥵", ctx.cx, cy - 290 * u, 180 * u, words.get("thighs", ln["s"] + 1.6))
 
 
 def sc_fan(ctx, img):
@@ -733,23 +784,24 @@ def sc_fan(ctx, img):
     x0, y0, x1, y1 = ctx.stage
     cy = (y0 + y1) / 2
     shake = 10 * ctx.u * math.sin(ctx.t * 70)
-    emo(img, ctx, "🌀", ctx.cx - (260 if not ctx.tall else 0) * ctx.u + shake,
-        cy + (40 if not ctx.tall else 160) * ctx.u, 300 * ctx.u, ln["s"], rot=-ctx.t * 720)
-    emo(img, ctx, "😵", ctx.cx + (260 if not ctx.tall else 230) * ctx.u, cy + (40 if not ctx.tall else -60) * ctx.u,
-        200 * ctx.u, ln["s"] + 1.1)
+    emo(img, ctx, "🌀", ctx.cx - 220 * ctx.u + shake, cy + (60 if not ctx.tall else 160) * ctx.u,
+        260 * ctx.u, ln["s"], rot=-ctx.t * 720)
+    emo(img, ctx, "😵", ctx.cx + 220 * ctx.u, cy + (60 if not ctx.tall else 160) * ctx.u, 200 * ctx.u, ln["s"] + 1.1)
     p = clamp((ctx.t - (ln["s"] + 0.5)) / 1.8)
     if 0 < p < 1:
         x = x0 - 200 * ctx.u + (x1 - x0 + 400 * ctx.u) * p
-        paste(img, emoji("✈️", int(200 * ctx.u), ctx.t), x, y0 + 90 * ctx.u + 60 * ctx.u * (1 - p), 1, 0)
+        paste(img, emoji("✈️", int(170 * ctx.u), ctx.t), x,
+              cy - (170 if not ctx.tall else 180) * ctx.u + 40 * ctx.u * (1 - p), 1, 0)
 
 
 def sc_snack(ctx, img):
     ln = L("Went to grab a snack")
     x0, y0, x1, y1 = ctx.stage
     cy = (y0 + y1) / 2
-    emo(img, ctx, "🍿", ctx.cx - 260 * ctx.u, cy, 240 * ctx.u, ln["s"])
-    emo(img, ctx, "💻", ctx.cx + 180 * ctx.u, cy + 40 * ctx.u, 280 * ctx.u, ln["s"] + 0.6)
-    emo(img, ctx, "😴", ctx.cx + 300 * ctx.u, cy - 170 * ctx.u, 170 * ctx.u, ln["s"] + 1.0)
+    gap = (330 if not ctx.tall else 300) * ctx.u
+    emo(img, ctx, "🍿", ctx.cx - gap, cy, 210 * ctx.u, ln["s"])
+    emo(img, ctx, "💻", ctx.cx, cy, 240 * ctx.u, ln["s"] + 0.6)
+    emo(img, ctx, "😴", ctx.cx + gap, cy, 190 * ctx.u, ln["s"] + 1.0)
 
 
 def sc_interrupted(ctx, img):
@@ -759,8 +811,9 @@ def sc_interrupted(ctx, img):
                         (ln["s"] - 1.9, "  * building...  [##########---] 83%", DIM, 0),
                         (ln["s"] + 0.2, "x Task interrupted.", RED, 0),
                         (ln["s"] + 0.9, "$ ai build --everything   # again", INK, 30)],
-             box=(x0, y0, x1, y1))
-    emo(img, ctx, "❌", x1 - 110 * ctx.u, y0 + 150 * ctx.u, 170 * ctx.u, ln["s"] + 0.2)
+             box=(x0, y0, x1 - 230 * ctx.u, y1) if not ctx.tall else (x0, y0 + 200 * ctx.u, x1, y1))
+    emo(img, ctx, "❌", (x1 - 100 * ctx.u) if not ctx.tall else ctx.cx,
+        (y0 + 150 * ctx.u) if not ctx.tall else (y0 + 90 * ctx.u), 160 * ctx.u, ln["s"] + 0.2)
 
 
 def sc_shipped(ctx, img):
@@ -778,24 +831,31 @@ def sc_shipped(ctx, img):
 
 
 def sc_usage(ctx, img):
-    a, b = L("Then I watched"), L("Twenty one percent")
+    """The bar climbs to 21%, jumps to 100% - and, because the take sings
+    that line twice, drops back and does it again."""
+    a = L("Then I watched")
+    runs = [L("Twenty one percent", 1), L("Twenty one percent", 2)]
     x0, y0, x1, y1 = ctx.stage
     t = ctx.t
     w = (x1 - x0) * 0.85
-    words = {w_["w"].lower().strip(","): w_["s"] for w_ in b["words"]}
-    t21, t100 = words.get("percent", b["s"] + 0.6), words.get("hundred", b["s"] + 1.6)
+    run = runs[1] if t >= runs[1]["s"] - 0.1 else runs[0]
+    words = {w_["w"].lower().strip(","): w_["s"] for w_ in run["words"]}
+    t21, t100 = words.get("percent", run["s"] + 0.6), words.get("hundred", run["s"] + 1.4)
+    start = a["s"] if run is runs[0] else run["s"] - 0.1
     if t < t21:
-        frac = 0.21 * ease((t - a["s"]) / max(0.3, t21 - a["s"]))
+        frac = 0.21 * ease((t - start) / max(0.3, t21 - start))
     elif t < t100:
         frac = 0.21
     else:
         frac = 0.21 + 0.79 * ease((t - t100) / 0.25)
     shake = (8 * ctx.u * math.sin(t * 90)) if frac > 0.99 and t < t100 + 0.8 else 0
-    bar(img, ctx, ctx.cx + shake, (y0 + y1) / 2, w, frac)
+    cy = (y0 + y1) / 2 + 40 * ctx.u
+    bar(img, ctx, ctx.cx + shake, cy, w, frac)
     if t > t100:
-        emo(img, ctx, "🤯", ctx.cx, (y0 + y1) / 2 - 230 * ctx.u, 210 * ctx.u, t100 + 0.1)
-        big_label(img, ctx, "1 prompt", ctx.cx + w * 0.3, (y0 + y1) / 2 + 120 * ctx.u, int(46 * ctx.u),
-                  t0=t100 + 0.3, box=PANEL2, ink_on=INK, rot=-5)
+        emo(img, ctx, "🤯", ctx.cx, cy - 250 * ctx.u, 180 * ctx.u, t100 + 0.1, until=run["e"] + 0.15)
+        if run is runs[1]:
+            big_label(img, ctx, "1 prompt", ctx.cx, cy + 130 * ctx.u, int(46 * ctx.u),
+                      t0=words.get("prompt", t100 + 0.4), box=PANEL2, ink_on=INK, rot=-4)
 
 
 def sc_compact(ctx, img):
@@ -830,8 +890,8 @@ def sc_compact(ctx, img):
     tg = words.get("genius", ln["s"] + 1.2)
     if t > tg - 0.3:
         k = ease((t - tg) / 0.9)
-        paste(img, emoji("🧠", int(200 * u), t), ctx.cx + (420 if not ctx.tall else 220) * u,
-              cy + 130 * u - k * 200 * u, 1 - 0.6 * k, k * 120, 1 - k * 0.85)
+        paste(img, emoji("🧠", int(170 * u), t), ctx.cx + k * (x1 - ctx.cx - 60 * u),
+              cy + 150 * u - k * 260 * u, 1 - 0.6 * k, k * 120, 1 - k * 0.85)
 
 
 def sc_max(ctx, img):
@@ -888,8 +948,8 @@ def sc_byhand(ctx, img):
     x0, y0, x1, y1 = ctx.stage
     terminal(img, ctx, [(ln["s"], "1  const fix = ", INK, 6)], box=(x0, y0, x1, y1),
              title="fix.ts — written by hand")
-    emo(img, ctx, "✍️", x1 - 300 * ctx.u, y1 - 140 * ctx.u, 190 * ctx.u, ln["s"])
-    emo(img, ctx, "🤢", x1 - 110 * ctx.u, y1 - 160 * ctx.u, 190 * ctx.u, ln["s"] + 1.0)
+    emo(img, ctx, "✍️", x1 - 380 * ctx.u, y1 - 140 * ctx.u, 170 * ctx.u, ln["s"])
+    emo(img, ctx, "🤢", x1 - 130 * ctx.u, y1 - 140 * ctx.u, 170 * ctx.u, ln["s"] + 1.0)
 
 
 def sc_refresh(ctx, img):
@@ -904,7 +964,7 @@ def sc_refresh(ctx, img):
             big_label(img, ctx, "refresh", ctx.cx + 40 * ctx.u, cy + 170 * ctx.u, int(60 * ctx.u), t0=t0,
                       box=ACCENT)
             emo(img, ctx, "🔄", ctx.cx - 170 * ctx.u, cy + 170 * ctx.u, 90 * ctx.u, t0, bounce=False)
-    emo(img, ctx, "⏳", ctx.cx + (440 if not ctx.tall else 0) * ctx.u,
+    emo(img, ctx, "⏳", ctx.cx + (600 if not ctx.tall else 0) * ctx.u,
         cy + (-40 if not ctx.tall else -330) * ctx.u, 170 * ctx.u, a["s"])
 
 
@@ -949,7 +1009,7 @@ def sc_outside(ctx, img):
         except Exception:
             pass
     img.alpha_composite(pic)
-    emo(img, ctx, "🤩", ctx.W * (0.82 if not ctx.tall else 0.62), ctx.H * (0.22 if not ctx.tall else 0.6),
+    emo(img, ctx, "🤩", ctx.W * (0.86 if not ctx.tall else 0.80), ctx.H * (0.56 if not ctx.tall else 0.50),
         200 * ctx.u, ln["e"] + 0.1)
 
 
@@ -960,7 +1020,7 @@ def sc_weekly(ctx, img):
         {"who": "banner", "t0": ln["s"] + 0.1, "text": "Weekly limit reached · resets Thursday"},
     ]
     chat_window(img, ctx, msgs, box=(ctx.W * 0.2, 50, ctx.W * 0.8, ctx.H * 0.66) if not ctx.tall else
-                (60, ctx.frame.safe_top + 40, ctx.frame.safe_right, 1080))
+                (60, ctx.frame.safe_top + 40, ctx.W - 60, 1080))
     emo(img, ctx, "😱", ctx.W * 0.88 if not ctx.tall else ctx.cx, (ctx.H * 0.36) if not ctx.tall else 560,
         260 * ctx.u, ln["s"] + 1.4)
 
@@ -989,23 +1049,29 @@ def sc_again(ctx, img):
 
 
 def sc_end(ctx, img):
+    """The title and a clock at five, centred as one block, nothing else."""
     t0 = 114.0
     q = ease((ctx.t - t0) / 0.6)
-    cy = ctx.H * (0.40 if ctx.tall else 0.42)
-    f = fit_font(F_COND, "COME BACK AT FIVE", (ctx.frame.safe_right - 100) if ctx.tall else ctx.W * 0.8,
-                 int(170 * ctx.u))
     d = ImageDraw.Draw(img)
+    u = ctx.u
+    r = 120 * u
     if ctx.tall:
-        for k, s in enumerate(("COME BACK", "AT FIVE")):
-            f2 = font(F_COND, int(200 * ctx.u))
-            d.text((ctx.cx, cy + (k - 0.5) * 210 * ctx.u), s, font=f2,
+        f2 = fit_font(F_COND, "COME BACK", ctx.W - 160, int(200 * u))
+        lh = f2.size * 1.02
+        block = 2 * lh + 70 * u + 2 * r
+        top = ctx.H * 0.45 - block / 2
+        for k, s_ in enumerate(("COME BACK", "AT FIVE")):
+            d.text((ctx.cx, top + lh * (k + 0.5)), s_, font=f2,
                    fill=(*(ACCENT if k else INK), int(255 * q)), anchor="mm")
+        ccy = top + 2 * lh + 70 * u + r
     else:
-        d.text((ctx.cx, cy), "COME BACK AT FIVE", font=f, fill=(*INK, int(255 * q)), anchor="mm")
-    clock(img, ctx, ctx.cx, cy + (420 if ctx.tall else 250) * ctx.u, 110 * ctx.u, 5, 0) if q > 0.5 else None
-    sub = "a song about usage limits"
-    d.text((ctx.cx, cy + (600 if ctx.tall else 400) * ctx.u), sub, font=font(F_MED, 38 * ctx.u),
-           fill=(*DIM, int(255 * q)), anchor="mm")
+        f = fit_font(F_COND, "COME BACK AT FIVE", ctx.W * 0.8, int(170 * u))
+        block = f.size + 70 * u + 2 * r
+        top = ctx.H / 2 - block / 2
+        d.text((ctx.cx, top + f.size / 2), "COME BACK AT FIVE", font=f, fill=(*INK, int(255 * q)), anchor="mm")
+        ccy = top + f.size + 70 * u + r
+    if q > 0.3:
+        clock(img, ctx, ctx.cx, ccy, r, 5, 0)
 
 
 def scenes() -> list[tuple[float, float, object, dict]]:
@@ -1053,6 +1119,23 @@ def scenes() -> list[tuple[float, float, object, dict]]:
 HITS = [13.35, 0.0]
 
 
+TV_OFF = {f.name: TvOff(END, f) for f in (LANDSCAPE, VERTICAL)}
+
+
+def soundtrack() -> Path:
+    """The final mix with the TV-off zap laid in under the switch-off."""
+    import soundfile as sf
+    from video_automation.core import sfx
+    x, sr = sf.read(AUDIO, dtype="float32")
+    zap = sfx.tv_off(sr) * sfx.LEVELS["tv_off"]
+    at = int(TV_OFF["landscape"].start * sr)
+    end = min(len(x), at + len(zap))
+    x[at:end] += zap[:end - at, None]
+    out = MIX.parent / "soundtrack.wav"
+    sf.write(out, np.clip(x, -1, 1), sr, subtype="PCM_24")
+    return out
+
+
 def render_frame(frame: Frame, t: float, kick: float, S) -> Image.Image:
     ctx = Ctx(frame, t, kick)
     sc = next(s for s in S if s[0] <= t < s[1])
@@ -1080,10 +1163,8 @@ def render_frame(frame: Frame, t: float, kick: float, S) -> Image.Image:
     # fade in from black, out to black
     if t < 0.4:
         out = Image.blend(Image.new("RGB", out.size), out, t / 0.4)
-    end = 121.85
-    if t > end - 1.5:
-        out = Image.blend(out, Image.new("RGB", out.size), clamp((t - (end - 1.5)) / 1.5))
-    return out
+    # the end: the picture switches off like a CRT, as on the channels' Shorts
+    return TV_OFF[frame.name].draw(out, t)
 
 
 def main() -> int:
@@ -1114,7 +1195,7 @@ def main() -> int:
         out = OUT / f"come-back-at-five-{a.fmt}{suffix}.mp4"
         cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
                "-s", f"{frame.w}x{frame.h}", "-r", str(FPS), "-i", "-",
-               "-ss", f"{i0 / FPS:.4f}", "-t", f"{(i1 - i0) / FPS:.4f}", "-i", str(AUDIO),
+               "-ss", f"{i0 / FPS:.4f}", "-t", f"{(i1 - i0) / FPS:.4f}", "-i", str(soundtrack()),
                "-map", "0:v", "-map", "1:a",
                "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
                "-c:a", "aac", "-b:a", "320k", "-movflags", "+faststart", "-shortest", str(out)]
