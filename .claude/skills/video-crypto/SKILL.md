@@ -106,6 +106,26 @@ sequence drifted into four copies that disagreed.
    in or out of something is a `pile` (coins pour in; `drain` opens the
    floor). `beats.md` and `design.md` also have animated icons and per-shot
    GPU effects; `tools/visual_demo.py` renders every one of these to look at.
+
+   **These are required, not a menu** (`workflow.md`, "The toolbox is not
+   optional"). The first pair after they landed used none of them and the
+   editor asked whether the skill knew they existed (2026-11-06). Before
+   writing the shot list, write down which slots take: a captured page, the
+   site's photo of the named object with `behind` / `isolate` / `parallax`,
+   a `pile` where money moves, a shader on the turning shot. When Pexels has
+   nothing on topic, these come before a second fetch. **No phone clip whose
+   screen is a social feed** - a scrolling-phone search returns feeds, and
+   four of them were cut as irrelevant (`footage.md`). **The disclaimer
+   sits on this video's subject, never rain** (`stillclip`). `script_check`
+   flags all three (`toolbox`, `feed-clip`, `disclaimer-bg`). A stock clip
+   with a **blank lit screen** can carry the page the narration names
+   (`core/screenfill.py`), and Wikimedia Commons has real objects Pexels
+   lacks (a hardware wallet) - credit them unless CC0.
+
+   **The Short ends on a plain sentence - no `outro=` card** (2026-11-06,
+   `shorts.md`, "No outro card on a Short"). The closing line is the last
+   entry in `SENTENCES`, captioned like the rest; the card slowed the end
+   where viewers leave. `script_check` flags it (`short-outro`).
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`

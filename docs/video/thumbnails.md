@@ -923,3 +923,20 @@ person in the left chair covered "TEL" of TELEGRAM. Run the three checks
 after it, and move the headline (`band=`, `margin=`) or pass `amount=0.6`
 to let the type show through, before shipping a cover where a face sits on
 the title's key word.
+
+## The editor's own image, and the catchier question on both (2026-11-06)
+
+For `random-tokens-in-wallet` the editor supplied the cover picture (an
+AI-generated stranger holding out coins, no credit owed, kept in
+`assets/crypto/random-tokens/`) and asked for the Short's words on the long
+cover too - "Free crypto from a stranger?" over the long's own question,
+because it is the catchier one. When the pair's Short question is the
+stronger hook, both covers carry it; the long form's search phrase is the
+title's job, not the cover's.
+
+**`bleed_portrait` streaks a subject that touches the top edge.** The
+stranger's head meets the source's top, so continuing that edge upward
+painted a skin-coloured column up the Short cover. On a dark studio
+portrait use the picture's own near-black as the ground and feather the cut
+hairline into it over ~110px instead (the Short's `thumbs()`).
+

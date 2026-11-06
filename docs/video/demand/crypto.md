@@ -49,6 +49,12 @@ is exhausted, with the date.
 | 11-04 | Top 10 Crypto Billionaires In The World | Top 10 Galaxy | 11k | 1,337 | 8.3x (2.3 yrs) | the same list | "Top 10 [group] in the world" | Short |
 | 11-04 | The Controversial Twins Who Own All The Bitcoin | MagnatesMedia | 2.3M | 510,184 | 4.5x (4.3 yrs) | one fortune as a story | "The [adjective] [people] who own all the [X]" | long story, 22 min |
 
+| 11-05 | Do You NEED a Cold Wallet? (Watch This First) | Cyber Scrilla | 327k | 20,067 | 16.3x (16 mo) | whether a hardware wallet is needed | "Do you NEED [X]? (Watch this first)" | long |
+| 11-05 | After 7 Years, Why I Won't Buy Another Ledger Wallet | Nordic Crypto | 73k | 2,958 | 24.6x (6 mo) | distrust of a named wallet brand | "After N years, why I won't [X]" | long, personal - closed to us (rates a product, claims experience) |
+| 11-05 | If you find random Crypto in your wallet... DO THIS | Cyber Scrilla | 235k | 20,067 | 11.7x (10 mo) | an unsolicited token in your wallet | "If you find [X]... DO THIS" | long |
+| 11-05 | 3 Crypto Scams YOU WILL Fall For & How To Avoid | Adam Venture Crypto | 411k | 15,501 | 26.5x (3.7 yrs) | scams incl. fake airdrops | "N [X] YOU WILL fall for" | long |
+| 11-05 | What is Ethereum Gas? (Examples + Easy Explanation) | Whiteboard Crypto | 144k | 24,598 | 5.8x (5.5 yrs) | gas fees | "What is [X]? (Examples + easy explanation)" | animation |
+
 *The 09-04 rows' medians were filled 2026-11-03 (Whiteboard Crypto from RSS, Coin Bureau from `outliers`); their views are as of 09-04, so those ratios run low.*
 
 **Proven subjects (2+ channels):** crypto billionaires / rich lists (2026-11-04: Data Face, Gravity, Boomnix, Top 10 Galaxy, MagnatesMedia). Named-project explainers recur
@@ -209,3 +215,27 @@ One line per branch: date, the term or channel, what it added.
   the same pages sit at 0.0-0.4x. Forbes' own "The Richest Crypto And
   Bitcoin Billionaires" has 24k. Teardown:
   `teardowns/richest-crypto-billionaires.md`.
+- 2026-11-05, four `outliers` runs (~506 units) for topic suggestions.
+  "do i need a hardware wallet": **proven** - Cyber Scrilla "Do You NEED a
+  Cold Wallet?" 16.3x (327k), Nordic Crypto 24.6x and 9.8x (brand distrust
+  and a brand vs brand - both closed to us), VirtualBacon's "Do you need a
+  Crypto Hardware Wallet?" Short 220k. The open promise is the yes/no with
+  its threat model. "crypto airdrop scam": the winner is the **victim-side
+  moment**, Cyber Scrilla "If you find random Crypto in your wallet... DO
+  THIS" 11.7x (235k), plus Adam Venture 26.5x on scams generally; the
+  "how to spot a fake airdrop" titles sit at 0-2x. "what are gas fees":
+  proven but old - Whiteboard 5.8x and Finematics 4.3x are 5+ years old,
+  CryptoGX 10x on 1.5k; no recent winner. "genius act stablecoin
+  explained": **thin** - the standouts are on 21-2,314-view channels;
+  Payments Professor's Short 13k (5.6x) is the only real number.
+- 2026-11-05, feed check for "Random Tokens in Your Crypto Wallet? Don't
+  Touch Them" (browser, no units): the query returns real views - Cyber
+  Scrilla 234k and 101k ("This Crypto SCAM is likely waiting for you in
+  YOUR wallet"), Crypto Dev 36k ("The Crypto Scam That's Draining
+  Thousands of Metamask and Phantom Wallets"), The CryptoDad 20k ("Why
+  Your Balance Is Suddenly $100,000+"). **Every top cover is a face beside
+  a bright wallet screen with the token circled**, "DON'T TOUCH" in caps;
+  ours is the dark one, two hands on a phone and the video's question. Same
+  promise as Cyber Scrilla's, with more proof (the look-alike drawn, the
+  real headline, the hardware-wallet correction). Dark-among-bright again,
+  as with the seed phrase - read the two together in `traffic`.

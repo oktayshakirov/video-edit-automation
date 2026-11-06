@@ -122,6 +122,20 @@ copies that disagreed with each other.
    `screencap`, the sentence the narration quotes ringed. A photograph of a
    person or a room can move in depth or dim around its subject
    (`parallax=`, `isolate=`) - never on an ear, which stays out of frame.
+
+   **These are required, not a menu** (`workflow.md`, "The toolbox is not
+   optional", 2026-11-06): plan the captured page, the depth or cutout
+   shot and the shader before the shot list, ahead of a second stock
+   fetch. No phone clip whose screen is a social feed; the disclaimer sits
+   on this video's own subject, never rain (`stillclip`). `script_check`
+   flags all three (`toolbox`, `feed-clip`, `disclaimer-bg`). A stock clip
+   with a blank lit screen can carry the page the narration names
+   (`core/screenfill.py`).
+
+   **The Short ends on a plain sentence - no `outro=` card** (2026-11-06,
+   `shorts.md`, "No outro card on a Short"). The closing line is the last
+   entry in `SENTENCES`, captioned like the rest; the card slowed the end
+   where viewers leave. `script_check` flags it (`short-outro`).
 5. **Preflight, then build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for
    a session).

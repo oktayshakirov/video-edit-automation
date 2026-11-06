@@ -104,6 +104,10 @@ PAYLOADS = {
     "mnemonic": ("8f3a0c2e5b7d9146a1c3e5f708192a3b", "TWELVE WORDS"),
     # (image, word, line): a ready RGBA cutout, so no model is needed here.
     "behind": ("<cutout>", "ETHEREUM", "The world computer"),
+    # (real, fake, title, ends): portrait-safe.
+    "lookalike": ("0x4b9e1c7d2a3f8e6b5c0d9a1f7e2b3c4d5a6e7f8b",
+                  "0x4b9e5f20c8a1d7e3b96f0c2a4d8e1b7f3c9a7f8b",
+                  "THE LOOK-ALIKE", (4, 4)),
     # (drops, title, drain): two batches, then the floor opens.
     "pile": ([(12, "Buyers pay in", "$"), (8, "More buyers")], "WHERE IT GOES",
              "Liquidity pulled"),
@@ -283,7 +287,7 @@ def test_every_beat_class_is_registered():
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
-                "behind", "pile"):
+                "behind", "pile", "lookalike"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from
@@ -337,3 +341,24 @@ def test_timeline_places_bc_dates_before_ad_ones():
     assert Timeline._year("1543") == 1543.0
     assert Timeline._year("Today") > 2000
     assert Timeline._year("Feb 2026") == 2026 + 1 / 12
+
+
+@pytest.mark.parametrize("frame", [LANDSCAPE, VERTICAL], ids=["16x9", "9x16"])
+def test_behind_without_cutout_runs_no_matte(frame, monkeypatch):
+    """`cut=False` shows the photo whole with the word on top: the matte model
+    is never asked for, and a plain RGB photo is enough (2026-11-06)."""
+    from video_automation.core import vision
+    from video_automation.longform.beats.behind import Behind, _LAYERS
+
+    def boom(*a, **k):
+        raise AssertionError("cut=False must not run the matte")
+    monkeypatch.setattr(vision, "matte", boom)
+    _LAYERS.clear()
+    b = Behind(PHOTO, "OFFLINE", "a line", "fly", None, False, brand=CRYPTO,
+               frame=frame, start=0.0, hold=4.0, reveals=[0.2, 2.0])
+    assert (b.person[:, :, 3] == 0).all()
+    for f in (0.0, 0.3, 0.9):
+        assert b.draw(f).size == frame.size
+    with pytest.raises(ValueError):
+        Behind(PHOTO, "OFFLINE", "", "rise", None, False, brand=CRYPTO,
+               frame=frame, start=0.0, hold=4.0)

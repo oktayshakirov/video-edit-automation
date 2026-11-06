@@ -453,8 +453,23 @@ is the same failure as the branded exchange homepage already documented above,
 arriving through a prop rather than through a screenshot: a screen in shot is
 read, not merely seen, and it either says the noun or contradicts it. **Prefer
 a clip whose screen is an indistinct glow** — a thumb over the edge of a
-phone, a feed scrolling too fast to identify — over a better composition whose
+phone, a phone face down or lit from the side — over a better composition whose
 screen says something else.
+
+### A phone's screen is part of the picture: no social feed (2026-11-06)
+
+**Reversal of "a thumb on a feed" above.** The first random-tokens cut ran
+four phone clips whose screens were social feeds - a TikTok scroll in front
+of a monitor, an Instagram grid by a candle, a feed in bed by a 4:23 clock -
+and a fifth that was a messaging app in Cyrillic, all under lines about a
+wallet. The editor flagged every one as irrelevant, by timestamp. A feed is
+legible at 1080p even mid-scroll: the faces and video tiles read, and they
+say *social media*, not *your wallet*. **A search for a scrolling phone
+returns feeds**, so `script_check`'s `feed-clip` rule flags any clip from a
+`scroll` / `feed` / `social` folder: look at its screen and answer the flag.
+What replaced them: the real page (`screencap` of a public address on a
+block explorer), the site's own photograph of the object, a drawn beat, or
+hands on a phone whose screen cannot be read.
 
 **Which quietly solves the casting problem this file already documented.**
 The section above records that screening on `MAX_LUMA` against dark backdrops
@@ -798,6 +813,21 @@ account, a balance, an email or anybody's private data. Consent banners are
 hidden, never clicked on the viewer's behalf. The page has to say the noun
 the line says, the same rule as every other picture. Credit the site in the
 description as for any real picture.
+
+**Which pages capture (2026-11-06).** Etherscan answers a headless browser
+with Cloudflare's "Just a moment..." - the capture is the challenge page.
+**Blockscout** (`eth.blockscout.com`, open source) serves the same public
+address data, has a dark theme that follows `--dark`, and hides cleanly:
+`--hide "div.css-1p365vr"` (the price bar - **never let a live price on
+screen**), `".chakra-alert__root"`, `"div:has(> .sevioads)"` (ads),
+`"header"`. Its class names are build hashes, so check them on a regrab.
+CoinDesk captured, but a paywall banner covered the headline and a price
+ticker ran above it; the real headline went in as a `post` instead. **A
+framing as wide as the page is unreadable**: `--select` a row, a heading or
+a token's name, not the whole table - the camera fits the box, and a full
+table fits at a scale nobody can read. A public address that is nobody's
+(the burn address `0x...dEaD`) shows "anyone can send to any address"
+without showing anybody's wallet.
 
 **The browser is a separate install** on a new machine:
 `.venv/bin/python -m playwright install chromium`. It is ~570MB on disk in
@@ -1519,6 +1549,62 @@ machine (L104-132).
 | `old-computer-monitor-code-dark/34160292`, `18382358` | **kept**: code on a dark monitor; hands over a keyboard - Satoshi's coins. `854137` a woman's face in the monitor |
 | `rain-on-window-night-close-up/15161525` | **kept**: the disclaimer. `5930874` L104 |
 | `magazine-printing-press/*`, `bank-vault-door-dark/*` | bright newsstands and magazines; a cartoon bank, and `39060937` is seed-phrase's vault |
+
+## The random-tokens fetch: verdicts (2026-11-05)
+
+Domain: a phone in the dark, the moment a token arrives, a history being
+scrolled, a claim site, a hardware wallet's button, a graphics card for the
+vanity address. **Pexels has no mail slot, signature or envelope clip dark
+enough** (every one L80-200); the email analogy and the signature are
+carried by the narration and the drawn beats. No hardware wallet either, as
+the seed-phrase fetch found - a finger on a red-lit device's buttons stands
+in for "press the button".
+
+| clip | verdict |
+| --- | --- |
+| `holding-smartphone-dark-background-close-up/13358555` | **kept**: two hands on a glowing phone in black, L14 - opens and closes both cuts, both covers |
+| `holding-smartphone-dark-background-close-up/7534329` | **kept**: hands turning a phone over, dark, no screen to read |
+| `holding-smartphone-dark-background-close-up/38410500` | **cut on review** (2026-11-06): a TikTok-style feed scrolled before a monitor. `6611941` L69 |
+| `phone-vibrating-on-table-dark/35999376` | **kept**: a phone lighting up on a nightstand (10s, one use) - the token arriving. `36017452` is the same shoot and goes black at the end; `1860275`, `6611950` L90+ |
+| `cryptocurrency-app-on-phone/8480231` | **kept**: a trading app on a phone over a laptop (11s). `39494572` is 320 ids from seed-phrase's `39494892` - same shoot, skipped; `34473008`, `8275994` L75-90 |
+| `thumb-scrolling-phone-close-up/17586687` | **kept**: a hand at a phone on a dark desk. `6756650` is seed-phrase's; `853794`, `853985` L130+ |
+| `smartphone-in-hands-at-night-city/28828935` | **cut on review**: a messaging app's chat list in Cyrillic, not a wallet history. The real history replaced it - the top row of a public address's transfers on Blockscout, ringed |
+| `laptop-screen-glow-dark-room-hands/13522186`, `6611947` | **kept**: a laptop of code, hands at the keys (long form only - small bright text); hands on a laptop with a blank lit screen - **its empty white screen was flagged on review (2026-11-06)**, and it now carries our drawn claim page (`screenfill`, below). `34771069/77/86` are seed-phrase's `34771078` shoot |
+| `using-laptop-at-night-dark-room/7272375` | **kept**: hands at a laptop under a lamp, closed at the end. `8311535` a face; `5495846` a hooded figure (the hacker cliche) |
+| `scrolling-phone-in-dark-room/6279142`, `6943542` | **cut on review** (2026-11-06): an Instagram grid by a candle; a social feed in bed by a 4:23 clock. Both read as social media. `8212368` a face; `10238038` L80+ |
+| `woman-hands-phone-dark-room/5617952` | **cut on review** (2026-11-06): its chat reads "im lonely" from about 4.5s. The Ether coin (`crypto-wallet-qr-code/10243081`) took the open-address line; the recovery offer went to `hacker-hands-keyboard-dark-hoodie/6964023`, a hooded figure holding out keycaps that spell SCAM |
+| `graphics-card-fan-spinning/3147349` | **kept**: a graphics card's fan, purple-lit (S60, graded down) - the vanity-address search. `5467579`, `5467612` L60-70 or S106; `14904105` near black |
+| `circuit-board-macro-dark/6755158` | **cut on review** (2026-11-06): a chip is not a wallet. The site's wallets photo (`isolate`) opens the chapter, and a Trezor asking "Hold to sign" from Wikimedia Commons (CC0) carries "it signs whatever you approve" |
+| `pressing-button-usb-device/7206558` | **cut on review**: a red-lit device that is not a hardware wallet. The site's own `ledger.jpeg` (`behind`) and `what-is-a-hardware-wallet.jpg` (`isolate`) replaced it. `7701962` an elevator panel; `30728672`, `34770141` L84 |
+| `settings-toggle-on-phone/7326142` | **cut on review** (2026-11-06): it is a calendar, not settings. Revoke.cash captured on the same address replaced it - Revoke Selected ringed, then APPROVALS 0 / VALUE AT RISK $0 |
+| `scanning-qr-code-with-phone/*`, `qr-code-on-phone-screen-dark/*`, `crypto-wallet-qr-code/*` | no receive screen: bright counters (L100-160), code screens, coins on a candle chart, a Dogecoin. The receive screen went into the checklist as a ticked item |
+| `rain-on-window-night/15161525` | **cut on review**: weather under the disclaimer, in every video - see `narration.md`. The editor's stranger image replaced it (`stillclip`) |
+| `smartphone-notification-dark-hands/6414244` | a video call with a face on the phone |
+| `clicking-link-laptop-night/7986755`, `phone-screen-light-in-darkness/7986753`, `person-on-phone-in-bed-at-night/*` | faces |
+| `magnifying-glass-reading-screen/*`, `pen-signing-document-close-up/*`, `fountain-pen-signature-dark/*`, `letters-through-mail-slot/*`, `envelope-in-dark/*` | L78-200; `11137422` is seed-phrase's `11137423` shoot |
+| `copy-paste-keyboard-close-up/19791475` | a typewriter, not a keyboard |
+| `mailbox-at-night/*` | street utility boxes, not mailboxes |
+
+## A blank screen carries the page; Commons has the object (2026-11-06)
+
+Two ways out when Pexels has nothing on topic, from the random-tokens
+re-cut:
+
+- **A stock clip with a blank, lit screen is a screen we can fill.**
+  `core/screenfill.py` finds the brightest quad in a search box on every
+  frame, smooths its corners, and warps our picture into it under the
+  panel's own light. The claim site the narration describes went onto the
+  white laptop the editor flagged. It needs a screen nobody's hand
+  crosses; give `search` a box that keeps a lit keyboard out. Draw the page
+  ourselves, made up and said so in the credits - never a real site's look.
+- **Wikimedia Commons has the real object.** A Trezor showing "Hold to
+  sign" (CC0) did what no Pexels hardware-wallet search did. Crop it to
+  16:9 into the project's assets with a `CREDITS.md`, and credit any
+  licence that asks for it in the description.
+
+Before either, check what is *on* a phone or laptop screen at every second
+the shot plays, not just at its first frame: the chat clip read "im
+lonely" from 4.5s, and a "settings" search returned a calendar.
 
 ## A named person is shown whole, with their name, every time (2026-11-04)
 

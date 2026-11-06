@@ -252,9 +252,18 @@ other.)
 
 **When that compliance line is spoken, put the disclaimer on screen too.** The
 shot under it carries a payload statement — `Shot(clip=..., payload=("", "This
-is not financial advice."))` — so it is seen as well as heard, every time. Run
-it over a quiet contemplative clip (rain on a window, dark water), never a
-person or a stage.
+is not financial advice."))` — so it is seen as well as heard, every time.
+
+**Its background belongs to this video (2026-11-06), not to the weather.**
+It used to run over "a quiet contemplative clip (rain on a window, dark
+water)", and every long form ended up on the same rain; the editor's note:
+"the final disclaimer screen always has rain on the background which is not
+relevant to crypto, it should be relevant to each video". Put it on the
+video's own subject - the cover's picture, the thing the video is about -
+and when that is a still, `core/stillclip.make()` turns it into the slow
+push the notice card needs (it only rides on a clip). Name the clip with
+`stillclip.path()` in the shot list and call `make()` in `main()`.
+`script_check`'s `disclaimer-bg` rule flags weather and water.
 
 ## A Short's ending loops; it does not ask
 
@@ -319,6 +328,11 @@ replacement for it.** Long form wants the viewer to sit with a thought and
 comment; a Short is judged on completion and replay, and a question that
 would be the right close on the long form is the thing costing the Short its
 loop. Keep both rules; apply the one that matches the format.
+
+**The last line is said, not stamped (2026-11-06).** A Short's close is a
+plain sentence in the script, captioned like the rest - no `outro=` card
+(`shorts.md`, "No outro card on a Short"). The card slowed the one moment
+the viewer was deciding to leave.
 
 Sources: [Shortimize, YouTube Shorts retention](https://www.shortimize.com/blog/youtube-shorts-retention-rate),
 [Virvid, looping structure](https://virvid.ai/blog/looping-structure-shorts-retention-2026).

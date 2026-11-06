@@ -369,12 +369,37 @@ class Checklist(Beat):
 
     FLOW_LAG = 0.30             # a mark lands just after the word that earns it
 
+    # --- the note card (2026-11-06) ----------------------------------------
+    #
+    # The editor's note on `random-tokens-in-wallet`: the list "is visually not
+    # appealing - use bigger font, center them on the screen, make it look like
+    # notes or use the typing effect". So with no picture column the list is a
+    # note card centred on the frame: a dark sheet with faint ruled lines and a
+    # margin rule in the brand colour, each item typed in at 96px behind a
+    # caret, on the chapter card's key clicks, its verdict landing in the
+    # margin. A checklist given a `picture=` keeps the column layout below.
+    NOTE_SIZE = 96
+    NOTE_PITCH = 160
+    NOTE_PAD = 64               # card edge to the margin marks
+    NOTE_MARGIN = 112           # card edge to the margin rule
+    NOTE_LEAD = 0.05            # typing starts just after the caption does
+    NOTE_SHARE = 0.75           # of the time to the next item the typing may take
+
     def __init__(self, items: list[tuple[str, bool]], title: str = "",
                  flow: bool = False, **kw):
         super().__init__(**kw)
         self.items, self.title, self.flow = items, title, flow
+        self.note = self.pic is None and not self.portrait
+
+    def type_times(self, i: int) -> list[float]:
+        """When each character of item `i` appears - shared with the key-click
+        cues in the builder, so a click never lands on an empty frame."""
+        return note_type_times(self.items, self.reveals, self.start,
+                               self.hold, i)
 
     def content(self, out: Image.Image, f: float) -> None:
+        if self.note:
+            return self._note(out, f)
         d = ImageDraw.Draw(out)
         x, w = self.col
         top = self.heading(out, self.title, f)
@@ -413,6 +438,91 @@ class Checklist(Beat):
                     d.line([(x + gutter, mid),
                             (x + gutter + (bbox[2] - x - gutter) * s, mid)],
                            fill=self.brand.negative, width=5)
+
+    def _note(self, out: Image.Image, f: float) -> None:
+        fr, br = self.frame, self.brand
+        top = self.heading(out, self.title, f)
+        font = _font(self.NOTE_SIZE)
+        n = len(self.items)
+        probe = ImageDraw.Draw(out)
+        text_w = max(probe.textlength(t, font=font) for t, _ in self.items)
+        cw = int(min(fr.w - 2 * 80, self.NOTE_MARGIN + 44 + text_w + 90))
+        ch = n * self.NOTE_PITCH + 56 + 30
+        x0 = (fr.w - cw) // 2
+        y0 = max(top + 30, (fr.h - ch) // 2 + 20)
+        t = self.at(f)
+        enter = min(1.0, max(0.0, (t - self.start) / 0.45))
+        if enter <= 0:
+            return
+        e = ease_out(enter)
+        rise = int(26 * (1 - e))
+
+        layer = Image.new("RGBA", fr.size, (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer, "RGBA")
+        d.rounded_rectangle([x0, y0 + rise, x0 + cw, y0 + ch + rise],
+                            radius=22, fill=(18, 18, 18, int(232 * e)),
+                            outline=br.primary + (int(70 * e),), width=2)
+        # Ruled lines under every row, and the margin rule.
+        for i in range(n):
+            ly = y0 + rise + 56 + i * self.NOTE_PITCH + self.NOTE_SIZE + 22
+            d.line([(x0 + 24, ly), (x0 + cw - 24, ly)],
+                   fill=(255, 255, 255, int(22 * e)), width=2)
+        mx = x0 + self.NOTE_MARGIN
+        d.line([(mx, y0 + rise + 20), (mx, y0 + ch + rise - 20)],
+               fill=br.primary + (int(150 * e),), width=3)
+
+        tx = mx + 44
+        caret_at = None
+        for i, (text, ok) in enumerate(self.items):
+            times = self.type_times(i)
+            k = typewriter.shown(times, t)
+            if k <= 0:
+                continue
+            y = y0 + rise + 56 + i * self.NOTE_PITCH
+            part = text[:k]
+            shadow_text(d, (tx, y), part, font, br.ink + (255,), alpha=255)
+            # Only the line typed last owns the caret: a finished line's
+            # blink must not outlive the next line starting (it sat after
+            # "history" on the first render, 2026-11-06).
+            caret_at = (tx + d.textlength(part, font=font), y, times, k,
+                        len(text))
+            m = self.marked(i, f)
+            if m < 0:
+                continue
+            colour = br.primary if ok else br.negative
+            mark(d, x0 + self.NOTE_PAD - 22, y + 26, 56, ok,
+                 colour + (255,), progress=m)
+            if not ok:
+                bb = d.textbbox((tx, y), text, font=font)
+                mid = (bb[1] + bb[3]) // 2
+                s = ease_out(min(1.0, (t - self.marks[i] - 0.05) / DRAW))
+                if s > 0:
+                    d.line([(tx, mid), (tx + (bb[2] - tx) * s, mid)],
+                           fill=br.negative + (255,), width=6)
+        # One caret, on the line being typed - or blinking after it once it
+        # is done, until the next line starts.
+        if caret_at is not None:
+            x, y, times, k, L = caret_at
+            if k < L or typewriter.caret_on(times, t):
+                cx = x + self.NOTE_SIZE * 0.08
+                d.rectangle([cx, y + self.NOTE_SIZE * 0.18,
+                             cx + 5, y + self.NOTE_SIZE * 1.0],
+                            fill=br.primary + (255,))
+        out.paste(layer, (0, 0), layer)
+
+
+def note_type_times(items: list, reveals: list | None, start: float,
+                    hold: float, i: int) -> list[float]:
+    """The note checklist's typing schedule for item `i`: it starts on the
+    item's caption and takes at most `NOTE_SHARE` of the time to the next
+    one (or to the shot's end), so a short sentence types fast rather than
+    running over the next item."""
+    n = len(items)
+    rv = reveals or [start + hold * (j / max(n, 1)) * 0.85 for j in range(n)]
+    s0 = rv[i] + Checklist.NOTE_LEAD
+    nxt = rv[i + 1] if i + 1 < len(rv) else start + hold
+    return typewriter.schedule(items[i][0], s0,
+                               max_dur=max(0.3, (nxt - s0) * Checklist.NOTE_SHARE))
 
 
 class Stat(Beat):
