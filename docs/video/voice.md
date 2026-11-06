@@ -489,3 +489,17 @@ scripts would both compute, which means one video being served another's
 narration. It surfaced only because a parallel build stored 49 seconds of a
 different script under it. The variable is `cache_key`, and
 `tests/test_narration_cache.py` asserts it stays that way.
+
+## A fixed phrase with "and" in it can split (2026-11-06)
+
+"Stay to the end for the copy and paste that cost one person sixty-eight
+million dollars" read with a long hole between *copy* and *paste* - the
+editor flagged it at 0:17. The caption splitter never breaks there
+(`split_phrases` gave "copy and paste that cost one" as one chunk), so it is
+Kokoro hesitating on a binomial inside a long sentence. "copy-paste" still
+left a 0.17s gap at the same place (measured with `silencedetect` on the
+cached narration). What shipped was a rewrite with no compound at all: "the
+pasted address that cost...". Treat "copy and paste", "buy and sell", "pump
+and dump" the same way in a long sentence: rewrite, then measure the
+narration cache before rendering.
+

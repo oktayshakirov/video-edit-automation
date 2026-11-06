@@ -303,7 +303,41 @@ RULES = {
                    ("long", "short"), since="2026-10-25"),
     "kicker": Rule("kicker", "video-crypto / video-tinnitus skills, 'Chapter cards are "
                    "the band card'", ("crypto", "tinnitus"), ("long",), since="2026-10-21"),
+    # The editor's notes on `random-tokens-in-wallet` (2026-11-06): the new
+    # tools went unused, the disclaimer sat on rain again, and four phone
+    # clips showed a social feed.
+    "toolbox": Rule("toolbox", "workflow.md, 'The toolbox is not optional'",
+                    ("crypto", "tinnitus"), ("long",), since="2026-11-06"),
+    "disclaimer-bg": Rule("disclaimer-bg", "narration.md, 'The compliance line is "
+                          "long-form only' (its background)", ("crypto", "tinnitus"),
+                          ("long",), since="2026-11-06"),
+    "feed-clip": Rule("feed-clip", "footage.md, 'A phone's screen is part of the "
+                      "picture'", ("crypto", "tinnitus"), ("long", "short"),
+                      since="2026-11-06"),
+    # The editor (2026-11-06): the closing card is slow and viewers already
+    # leave before the end - the last line is a plain captioned sentence.
+    "short-outro": Rule("short-outro", "shorts.md, 'No outro card on a Short'",
+                        ("crypto", "tinnitus"), ("short",), since="2026-11-06"),
 }
+
+# `outro=` given anything but None, in code (not a comment or docstring).
+OUTRO_KW = re.compile(r"^[^#\n]*\boutro\s*=\s*(?!None\b)\S", re.M)
+
+# A depth move, a cutout, physics, or a captured page - any one of these.
+TOOL_GRAPHICS = ("behind", "pile")
+# Weather and water: the disclaimer's old default, which has nothing to do
+# with any one video.
+WEATHER = re.compile(r"rain|water|ocean|sea-|waves?|storm|fog|mist", re.I)
+# A stock search for a scrolling phone returns social feeds.
+FEED = re.compile(r"scroll|feed|social|instagram|tiktok|reels", re.I)
+
+
+def shots_of(mod) -> list:
+    out = []
+    for sec in getattr(mod, "SECTIONS", None) or []:
+        out += [sh for sh in getattr(sec, "shots", []) if sh is not None]
+    out += [sh for sh in getattr(mod, "SHOTS", None) or [] if sh is not None]
+    return out
 
 
 @dataclass
@@ -375,6 +409,55 @@ def check(sc: Script) -> list[Finding]:
     if "demand" in on and not hasattr(sc.mod, "DEMAND"):
         f.append(Finding("demand", "module", "no DEMAND - the review cannot "
                          "tag this video (None when it had no evidence)"))
+    shots = shots_of(sc.mod)
+    if "toolbox" in on and shots:
+        used = [sh for sh in shots
+                if getattr(sh, "graphic", None) in TOOL_GRAPHICS
+                or getattr(sh, "parallax", 0) or getattr(sh, "isolate", 0)
+                or getattr(sh, "pop", False)
+                or "captures/" in str(getattr(sh, "clip", "") or "")]
+        if not used:
+            f.append(Finding("toolbox", "shots", "no captured page, depth move, "
+                             "cutout or pile anywhere - a real page "
+                             "(`screencap`), the site's photo with `behind`/"
+                             "`isolate`/`parallax`, or `pile` for money moving"))
+    if "disclaimer-bg" in on:
+        from video_automation.longform.meta import is_disclaimer
+        for sh in shots:
+            pay = getattr(sh, "payload", ()) or ()
+            line = pay[1] if (isinstance(pay, tuple) and len(pay) > 1
+                              and isinstance(pay[1], str)) else ""
+            clip = getattr(sh, "clip", None)
+            if line and is_disclaimer(line) and clip is not None \
+                    and WEATHER.search(Path(clip).parent.name):
+                f.append(Finding("disclaimer-bg", Path(clip).parent.name,
+                                 "the disclaimer sits on weather - put it on "
+                                 "this video's own subject (`stillclip`)"))
+    if "short-outro" in on:
+        try:
+            src = sc.path.read_text()
+        except OSError:
+            src = ""
+        # Drop the module docstring, which may quote the old call.
+        doc = getattr(sc.mod, "__doc__", None) or ""
+        if doc:
+            src = src.replace(doc, "", 1)
+        if OUTRO_KW.search(src):
+            f.append(Finding("short-outro", "render call",
+                             "an `outro=` closing card - say the last line as an "
+                             "ordinary sentence instead"))
+    if "feed-clip" in on:
+        seen = set()
+        for sh in shots:
+            clip = getattr(sh, "clip", None)
+            if clip is None or "captures/" in str(clip):
+                continue
+            slug = Path(clip).parent.name
+            if FEED.search(slug) and clip not in seen:
+                seen.add(clip)
+                f.append(Finding("feed-clip", f"{slug}/{Path(clip).name}",
+                                 "from a scrolling-phone search - look at what is "
+                                 "on its screen; a social feed is off-topic"))
     if "kicker" in on:
         for sec in getattr(sc.mod, "SECTIONS", None) or []:
             if getattr(sec, "card", True) and not getattr(sec, "kicker", ""):

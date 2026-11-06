@@ -154,6 +154,30 @@ above is not only for mixed lists — **title every marked beat as the question
 its marks answer**, and keep the items as plain noun phrases with the verdict
 nowhere but the mark.
 
+## The long-form checklist is a note card, typed in (2026-11-06)
+
+The editor's note on the random-tokens cut: the list "is visually not
+appealing - use bigger font, center them on the screen, make it look like
+notes or use the typing effect, update it for future using too". The left
+column of 52px items on an empty frame read as a slide. So a landscape
+`checklist` with no `picture=` is now a **note card centred on the frame**:
+a dark sheet with faint ruled lines and a margin rule in the brand colour,
+each item **typed in at 96px behind a caret** on the chapter card's key
+clicks (`typewriter`), its cross or tick landing in the margin and the
+strike drawing through it. Default for every long form; nothing to pass.
+
+- The typing starts on the item's caption and takes at most 75% of the time
+  to the next one (`note_type_times`, shared with the key-click cues), so a
+  short sentence types fast rather than running over the next item.
+- Items still say their verdict in the narration (`flow=True`) or wait for
+  it (`flow=False`), as below.
+- About 32 characters is the longest item that keeps the card inside the
+  frame at 96px (the first render, at 76px, still read small - 2026-11-06);
+  past that the card widens to the frame's margin and the
+  text is cut. Write the items as notes, not sentences.
+- A checklist given `picture=` keeps the old column layout; a Short keeps
+  its own vertical checklist.
+
 ## Checklist: two timing modes
 
 `flow=False` (default) is the shorts' original — every item appears unmarked, so
@@ -1536,6 +1560,18 @@ in the read phase.
 The first frame costs ~1s once the matte is cached (the room fill is
 memoised per picture), then ~120ms a frame.
 
+### `cut=False` - the photo whole, the word on top (2026-11-06)
+
+The editor on the random-tokens Ledger, in both cuts: "Use the original
+image without the cutout effect and the same big yellow font saying offline
+on top of it ... the hands dont work that well." The matte frays round
+fingers holding a small object, and the depth trick only works if its edge
+is clean. `payload=(image, word, line, "fly", None, False)` skips the
+cutout: no model runs, the photo is shown whole (dimmed to 0.88), and the
+word flies in and settles on top without tucking. **Use it for hands, hair
+against a busy room, or any subject the matte frays on** - look at the
+cutout's edge on a frame before keeping the default.
+
 ## `pile` - coins pour in and settle; the floor can open (2026-11-05)
 
 `Shot(graphic="pile", payload=(drops, title, drain))` where `drops` is
@@ -1569,13 +1605,46 @@ Drawing the heading last was not enough on its own: gold type on a gold coin
 face vanished, so `pile` adds a dark 3px stroke. The shared `heading` is
 unchanged. The batch label was always drawn over the coins.
 
+## `lookalike` - two addresses that match where people look (2026-11-05)
+
+`payload: (real, fake, title, ends, labels)`, `ends=(head, tail)` - how
+many characters after `0x` match at the front and at the back (default
+4, 4). **Four reveals, four caption chunks**: the real address ("Your real
+address."), the look-alike under it ("Their look-alike."), the ends
+lighting up in `Brand.band` on both rows ("The same start, and the same
+end."), and the look-alike's middle turning `brand.negative` wherever it
+differs, a bracket and DIFFERENT under it, while the real middle dims
+("And a different middle, where nobody looks."). Each address types in
+behind a caret on its own reveal.
+
+Built for `random-tokens-in-wallet`, because address poisoning is the
+whole climax of that pair and nothing here set two strings against each
+other character by character - `blindsign` is a screen disagreeing with
+its payload, `post` a quoted line. Reuse it for any look-alike: a
+clipboard swap, a spoofed domain, a vanity address. `quorum`'s template:
+line art, one object per phrase, one state change.
+
+- `__init__` raises if the two strings are not the same length, do not
+  actually match on their ends, or have identical middles - so a typo in
+  a made-up address fails at import, not on the frame.
+- **Portrait-safe** and whitelisted in `crypto/build.py`: each address
+  breaks into two rows of 21 at 60px mono (SF Mono). Landscape is one row
+  of 42 at 54px.
+- Cues: a `pan` on each address, a `reveal` on the ends, a `cross` on the
+  middle.
+- Give its sentence a gap of ~1.3-1.5s so the bracket lands before the cut.
+- The addresses are made up for the picture; say so in the description.
+
 ## Animated emoji icons (2026-11-05)
 
-`render_long(..., animated_emoji=True)` / `render_crypto_short(...,
-animated_emoji=True)`: any `grid`, `steps` or `diagram` icon that has a
-Google Noto animation plays it, looping on the beat's clock - the fire
-flickers, the lock clicks shut (`core/emoji_anim.py`). Off by default, and
-off is the static glyph exactly.
+Any `grid`, `steps` or `diagram` icon that has a Google Noto animation
+plays it, looping on the beat's clock - the fire flickers, the lock clicks
+shut (`core/emoji_anim.py`). **On by default since 2026-11-06**: the editor
+asked, of the random-tokens diagram, why the new animated icons were not
+used, and an opt-in nobody remembers to pass is a tool nobody uses.
+`animated_emoji=False` on `render_long` / `render_crypto_short` gives the
+static glyph exactly. **So pick icons that animate**: run the check below
+on every icon set before writing it into a script.
 
 **Only some emoji animate**: 🔥 and 🔒 do; 💰, 📋 and 🔑 do not (measured
 2026-11-05). The rest stay Apple's static glyph, which is a different

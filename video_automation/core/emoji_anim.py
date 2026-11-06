@@ -3,9 +3,9 @@
 `grid`, `steps` and `diagram` draw an emoji as an item's icon
 (`core.vertical.emoji_image`). With animated emoji on, an icon that has a Noto
 animation plays it - the fire flickers, the lock clicks - looping in step
-with the beat's own clock. **Off by default**: a build passes
-`animated_emoji=True` to `render_long` / `render_crypto_short`, and with it
-off every frame is what it always was.
+with the beat's own clock. **On by default since 2026-11-06** (the editor
+asked why a diagram's icons were still static): `animated_emoji=False` on
+`render_long` / `render_crypto_short` gives every frame as it always was.
 
     python -m video_automation emoji check 🔥 🔒 💰    # which ones animate
     python -m video_automation emoji fetch 🔥 🔒

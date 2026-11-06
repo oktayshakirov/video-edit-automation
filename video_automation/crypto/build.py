@@ -130,7 +130,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",
                         "shares", "sweep", "mnemonic", "stake",
-                        "behind", "pile"):
+                        "behind", "pile", "lookalike"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -249,6 +249,15 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "lookalike":
+            # Each address on a pan, the matching ends on a reveal tick,
+            # the different middle on a cross (`beats.lookalike`).
+            rv = sh.reveals or []
+            cues += [(t - 0.05, "pan") for t in rv[:2]]
+            if len(rv) > 2:
+                cues.append((rv[2] + 0.05, "reveal"))
+            if len(rv) > 3:
+                cues.append((rv[3] + 0.15, "cross"))
         elif sh.graphic == "sweep":
             # The wallet on a pan, the hand-over on a glitch, the empty
             # balance on a cross, a tick per deposit (`beats.sweep`).
@@ -307,11 +316,12 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
 
 
 def render_crypto_short(sentences: list, shots: list[Shot], out: Path, *args,
-                        animated_emoji: bool = False, **kw):
+                        animated_emoji: bool = True, **kw):
     """The vertical cut - see `_render_crypto_short`.
 
-    `animated_emoji=True` plays Noto's animation for beat icons that have one
-    (`core/emoji_anim.py`). No credit line goes with it (2026-11-05).
+    `animated_emoji` (on by default since 2026-11-06) plays Noto's animation
+    for beat icons that have one (`core/emoji_anim.py`); `False` gives the
+    static glyphs. No credit line goes with it (2026-11-05).
     """
     from ..core import emoji_anim
     with emoji_anim.enabled(animated_emoji):

@@ -272,6 +272,30 @@ about what a Short gets, and cost a registry entry that had to be reverted and
 a social post that could not be un-sent. Do not restate those steps, pre-empt
 them, or re-derive them from memory.
 
+## The toolbox is not optional (2026-11-06)
+
+The 2026-11-05 tools - `screencap`, `parallax=` / `isolate=` / `pop=`,
+`behind`, `pile`, animated icons, `shader=` - were documented in the skill
+as one long optional paragraph, and the first pair built after them used
+none. The editor asked whether they were implemented in the skill at all.
+They were documented, never required. So, for every article long form:
+
+- **A real page when the subject has one** - a public address on an
+  explorer, the article that broke the story, a study's abstract - with
+  `screencap` (`footage.md`, "A real page").
+- **The site's own photograph of the named object**, moved: `behind` for
+  the word the line turns on, `isolate` for "this one", `parallax` for a
+  place. The site's images are licensed and already on topic.
+- **`pile`** wherever money moves in or out of something.
+- **Icons that animate** - on by default now; pick them with `emoji check`.
+- **A shader on the one or two shots a line turns on** - `aberration` on
+  the "Actually" cut, `bloom` on gold type on black.
+
+When Pexels has nothing on topic (it had no receive screen, no hardware
+wallet, no mail slot dark enough), go to these before a second fetch, and
+draw what is left. `script_check`'s `toolbox` rule flags a long form that
+uses none of them; answer it in the handover.
+
 ## What every article build draws by default (2026-10-21)
 
 For the two article channels, long form and Short. These are on without
@@ -327,6 +351,12 @@ had to edit both copies.)
 - **Footage of a place gets a quiet bed of it** (city, rain, office,
   servers) automatically, only on clips of 3s or more - nothing to write.
   Pick clips whose folder names the place when the sound would help.
+- **A long form's `checklist` is a note card**, typed in at 96px and
+  centred (2026-11-06, `beats.md`).
+- **Beat icons animate** where Noto has an animation (2026-11-06,
+  `beats.md`, "Animated emoji icons") - choose icons that do.
+- **The disclaimer sits on this video's subject**, never weather
+  (2026-11-06, `narration.md`; `stillclip` for a still).
 - **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
   of git. On a machine without them the build falls back to synthesized
   stand-ins - copy them over before a build that ships.

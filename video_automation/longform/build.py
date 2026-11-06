@@ -41,12 +41,13 @@ from .thumb import render_thumb
 
 
 def render_long(sections: list[Section], out: Path, workdir: Path, *args,
-                animated_emoji: bool = False, **kw) -> dict:
+                animated_emoji: bool = True, **kw) -> dict:
     """Build the video and everything that ships with it - see `_render_long`.
 
-    `animated_emoji=True` plays Noto's animation for any beat icon that has
-    one (`core/emoji_anim.py`). Off, nothing changes. It adds no credit line
-    to `meta` (the editor's call, 2026-11-05).
+    `animated_emoji` (on by default since 2026-11-06, the editor's note on
+    `random-tokens-in-wallet`) plays Noto's animation for any beat icon that
+    has one (`core/emoji_anim.py`); `False` gives the static glyphs. It adds
+    no credit line to `meta` (the editor's call, 2026-11-05).
     """
     from ..core import emoji_anim
     with emoji_anim.enabled(animated_emoji):
@@ -588,6 +589,15 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "lookalike":
+            # Each address on a pan, the matching ends on a reveal tick,
+            # the different middle on a cross (`beats.lookalike`).
+            rv = sh.reveals or []
+            cues += [(t - 0.05, "pan") for t in rv[:2]]
+            if len(rv) > 2:
+                cues.append((rv[2] + 0.05, "reveal"))
+            if len(rv) > 3:
+                cues.append((rv[3] + 0.15, "cross"))
         elif sh.graphic == "sweep":
             # The wallet on a pan, the hand-over on a glitch, the empty
             # balance on a cross, a tick per deposit (`beats.sweep`).
@@ -673,6 +683,14 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             from .meta import is_notice
             if is_notice(sh.payload):
                 cues.append((sh.start + VideoShot.NOTICE_IN, "notification"))
+        elif sh.graphic == "checklist" and getattr(sh, "picture", None) is None:
+            # The note card types each item in: a key click per character,
+            # on the beat's own schedule (`beats.column.note_type_times`).
+            from .beats.column import note_type_times
+            items = sh.payload[0]
+            for i, (text, _) in enumerate(items):
+                cues += typewriter.cues(text, note_type_times(
+                    items, sh.reveals, sh.start, sh.hold, i))
         elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
                             "callout", "replicate", "pool"):
             for t in (sh.reveals or [])[:8]:

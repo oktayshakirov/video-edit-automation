@@ -1,0 +1,52 @@
+{
+  "name": "revoke-dead",
+  "url": "https://revoke.cash/address/0x000000000000000000000000000000000000dEaD?chainId=1",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": true,
+  "select": {
+    "stats": "div.flex.justify-start.items-start",
+    "table": "table",
+    "revoke": "th button",
+    "spender": "thead th:nth-child(5)"
+  },
+  "hide": [
+    "footer"
+  ],
+  "captured": "2026-11-06",
+  "title": "Address 0x000000...00dEaD's Approvals on Ethereum | Revoke.cash",
+  "size": [
+    2560,
+    1600
+  ],
+  "boxes": {
+    "stats": [
+      1716.9375,
+      423.78125,
+      2086.6875,
+      499.78125
+    ],
+    "table": [
+      66,
+      829.78125,
+      2494,
+      990.78125
+    ],
+    "revoke": [
+      195.0625,
+      925.78125,
+      422.71875,
+      973.78125
+    ],
+    "spender": [
+      1141.78125,
+      829.78125,
+      1466.84375,
+      909.78125
+    ]
+  }
+}

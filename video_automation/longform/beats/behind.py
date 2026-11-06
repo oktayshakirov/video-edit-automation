@@ -25,9 +25,20 @@ where the subject covers between `MIN_COVER` and `MAX_COVER`, which puts the
 word across the top of the head; a subject so large that every position
 hides too much gets the least-covered one.
 
-payload: (image, word, line="") - `image` is a photo (cut out by the model)
-or an RGBA PNG (its alpha used as given). `line`, if set, is a second reveal:
-a band label in front of everything, low in the frame.
+payload: (image, word, line="", entry="fly", room=None, cut=True) - `image`
+is a photo (cut out by the model) or an RGBA PNG (its alpha used as given).
+`line`, if set, is a second reveal: a band label in front of everything, low
+in the frame.
+
+**`cut=False`: no cutout, the word stays on top** (2026-11-06). The editor on
+the random-tokens Ledger: "Use the original image without the cutout effect
+and the same big yellow font saying offline on top of it ... the hands dont
+work that well." A matte round fingers holding a small device is ragged, and
+the depth trick is worth nothing if its edge shows. With `cut=False` the
+photograph is shown whole, only lightly dimmed (`PLAIN_DIM`), no model runs,
+and the word flies in exactly as before, settles to its size and never
+tucks. Use it whenever the subject is hands, hair against a busy room, or
+anything the matte frays on.
 """
 
 from __future__ import annotations
@@ -84,13 +95,20 @@ class Behind(Beat):
     RISE_IN = 0.70          # s: the subject from below the frame to its place
     LAND = 0.10             # the word's small upward drift as it lands (x size)
 
-    def __init__(self, image, word, line="", entry="fly", room=None, **kw):
+    PLAIN_DIM = 0.88        # `cut=False`: the photo whole, a touch darker for the word
+
+    def __init__(self, image, word, line="", entry="fly", room=None, cut=True,
+                 **kw):
         if entry not in self.ENTRIES:
             raise ValueError(f"behind: entry={entry!r}, not one of {self.ENTRIES}")
-        self.entry = entry
+        if not cut and (entry != "fly" or room is not None):
+            raise ValueError("behind: cut=False has no subject to rise or to "
+                             "stand in front of a room= - use entry='fly'")
+        self.entry, self.cut = entry, bool(cut)
         super().__init__(**kw)
         self.word, self.line = word.upper(), line
-        key = (str(image), Path(image).stat().st_mtime_ns, self.frame.size)
+        key = (str(image), Path(image).stat().st_mtime_ns, self.frame.size,
+               self.cut)
         if key not in _LAYERS:
             _LAYERS.clear()             # one picture at a time is plenty
             _LAYERS[key] = self._layers(image)
@@ -125,7 +143,10 @@ class Behind(Beat):
         pil = Image.open(image)
         alpha = vision.alpha_of(pil)
         rgb = vision.as_rgb(pil)
-        if alpha is None:
+        if not self.cut:
+            # No subject: the whole picture is the room, nothing goes in front.
+            alpha = np.zeros(rgb.shape[:2], np.float32)
+        elif alpha is None:
             alpha = vision.matte(rgb)
 
         # Cover the frame with headroom for the push, the subject centred
@@ -141,6 +162,9 @@ class Behind(Beat):
         ox = float(np.clip(W / 2 - cx, W - sw, 0))
         oy = float((H - sh) / 2)
         person = np.dstack([rgb, (alpha * 255).astype(np.uint8)])
+        if not self.cut:
+            room = (rgb.astype(np.float32) * self.PLAIN_DIM).astype(np.uint8)
+            return person, room, alpha, ox, oy
         return person, self._room(rgb, alpha), alpha, ox, oy
 
     def _backdrop(self, path, sw, sh):

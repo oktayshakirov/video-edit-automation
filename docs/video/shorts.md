@@ -410,6 +410,10 @@ the one result that would teach us nothing.
 
 ### The outro is the opener's twin — `outro=`, added 2026-09-24
 
+> **Retired for Shorts on 2026-11-06** - see "No outro card on a Short"
+> below. `outro=` still works and is kept for the record; `script_check`
+> flags it on a crypto or tinnitus Short.
+
 **A Short used to close on a `chapter` card and open on the hook, and they
 were drawn by two different videos.** `ChapterCard` is the long form's chapter
 slate: a hairline rule over a flat brand panel, set in the body face, with no
@@ -1220,6 +1224,30 @@ later in the file), which keeps the statement on hands and a phone and
 makes the last frame match the first - the image half of the loop
 `narration.md` describes, for free. Check the closing clip's 9:16 crop
 against the outro band, not only the opening one against the hook.
+
+## No outro card on a Short (2026-11-06)
+
+**The editor, on `random-tokens-in-wallet`: "lets remove the stamp outros
+from the shorts (we really struggle to keep the viewers till the end and
+they are slow), just add it to the script."** The closing statement card
+(`outro=`, above) holds the last line in the opener's band and pill, mutes
+the captions under it, and waits for the payoff word's slam - a second or
+more of a frame that is already over, at the exact point the curve shows
+viewers leaving. Shorts lose most of their audience before the end, so the
+end has to be the fastest part, not a ceremony.
+
+**The rule, both channels:** the last line is an ordinary sentence in
+`SENTENCES`, on its clip, captioned like every other line. No `outro=`,
+no closing card, no slam. Everything else from the old section still
+holds: close on a fact or a rule that answers the opening (never a
+question, `narration.md`), and on the clip the Short opened on, so the
+last frame matches the first and the loop is free. `script_check` flags
+`outro=` on a crypto or tinnitus Short committed after 2026-11-06 (rule
+`short-outro`).
+
+Whether the plain close keeps more viewers to the end is the review's
+**E14** (`video-performance-review/experiments.md`): last-frame % and
+half-gone second, against the outro-card Shorts.
 
 ## A list Short walks every name, on reels (2026-11-04)
 

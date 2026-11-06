@@ -68,6 +68,7 @@ from .behind import Behind
 from .pile import Pile
 from .blindsign import BlindSign
 from .sweep import Sweep
+from .lookalike import Lookalike
 from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
@@ -90,7 +91,7 @@ __all__ = [
     "Timeline", "Chart", "Spectrum",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
-    "Behind", "Pile",
+    "Behind", "Pile", "Lookalike",
     "DRAW", "POP", "RISE",
 ]
 
@@ -127,6 +128,7 @@ BEATS = {
     "stake": Stake,
     "behind": Behind,
     "pile": Pile,
+    "lookalike": Lookalike,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -184,6 +186,8 @@ _COUNT = {
     "behind": lambda p: 2 if len(p) > 2 and p[2] else 1,
     # One batch per reveal, then the floor opening if there is a drain.
     "pile": lambda p: len(p[0]) + (1 if len(p) > 2 and p[2] else 0),
+    # The real address, the look-alike, the matching ends, the middle.
+    "lookalike": lambda p: 4,
 }
 
 

@@ -1,0 +1,29 @@
+{
+  "name": "coindesk-poisoning",
+  "url": "https://www.coindesk.com/business/2024/05/03/exploiter-steals-68m-worth-of-crypto-through-address-poisoning",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": true,
+  "select": {
+    "head": "css=h1"
+  },
+  "hide": [],
+  "captured": "2026-11-06",
+  "title": "Exploiter Steals $68M Worth of Crypto Through Address Poisoning",
+  "size": [
+    2560,
+    10214
+  ],
+  "boxes": {
+    "head": [
+      248,
+      1052,
+      1608,
+      1228
+    ]
+  }
+}
