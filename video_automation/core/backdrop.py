@@ -210,6 +210,30 @@ LOVESWIPE_BACKDROPS = {
     "loveswipe-midnight": dict(base=(6, 6, 22), blobs=[
         (0.36, 0.40, 0.10, 1, 0.00, (72, 34, 150), 0.30, 0.60),
         (0.66, 0.60, 0.12, 1, 0.50, (20, 56, 140), 0.30, 0.66)]),
+    # **Batch two (2026-11-07), "try different colours".** Same two-bloom
+    # recipe; each ground is paired with its own card neons and panel in
+    # `projects/truthdare-loveswipe/series.LOOKS`, so these were picked as
+    # pairs - a warm ground under cool-and-warm cards, and so on.
+    "loveswipe-ember": dict(base=(16, 5, 3), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (190, 52, 18), 0.24, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (150, 18, 58), 0.24, 0.66)]),
+    "loveswipe-lagoon": dict(base=(3, 12, 16), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (10, 118, 108), 0.28, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (78, 38, 150), 0.28, 0.66)]),
+    "loveswipe-blush": dict(base=(16, 6, 10), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (176, 70, 96), 0.26, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (186, 104, 70), 0.20, 0.66)]),
+    # The control: nearly black, one faint pink bloom. Tests whether the
+    # colour of the ground matters at all next to the neon cards.
+    "loveswipe-noir": dict(base=(6, 4, 8), blobs=[
+        (0.40, 0.42, 0.10, 1, 0.00, (110, 20, 80), 0.18, 0.60),
+        (0.62, 0.62, 0.12, 1, 0.50, (24, 20, 60), 0.18, 0.66)]),
+    "loveswipe-grove": dict(base=(3, 12, 6), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (22, 100, 42), 0.26, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (124, 92, 12), 0.20, 0.66)]),
+    "loveswipe-electric": dict(base=(4, 4, 20), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (40, 62, 205), 0.30, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (124, 20, 160), 0.26, 0.66)]),
 }
 
 
