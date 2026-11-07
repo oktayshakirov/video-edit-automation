@@ -15,6 +15,10 @@ description: Build tinnitushelp.me videos - either an article explainer as a lon
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
 `PYTHONPATH=.`. **Source site:** `~/Coding/tinnitus-blog`.
 
+**No long dashes, ever:** a single `-` in every title, description, tag and
+caption you write. The picture is enforced in code - see
+[design.md](../../../docs/video/design.md#only-a-hyphen-goes-on-screen).
+
 ## What this channel is
 
 Read this before the steps, because it is what the steps are in service of.

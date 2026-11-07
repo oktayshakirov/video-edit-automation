@@ -12,6 +12,10 @@ its docstring is the reference, read it first.
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
 `PYTHONPATH=. .venv/bin/python` (system `python3` has no `cv2`).
 
+**No long dashes, ever:** a single `-` in every title, description, tag and
+caption you write. The picture is enforced in code - see
+[design.md](../../../docs/video/design.md#only-a-hyphen-goes-on-screen).
+
 Not the `glitch` mode in `core/transitions.py`, which is a drawn RGB-split
 cut for the article videos. This one breaks the codec.
 
