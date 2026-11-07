@@ -69,5 +69,6 @@ assets/stock/press/**
 # handoff, and the performance review's experiment log and run history.
 HANDOFF.md
 HANDOFF-PUBLISH.md
+HANDOFF-PUBLISH-*.md
 .claude/skills/video-performance-review/experiments.md
 .claude/skills/video-performance-review/history/
