@@ -1585,6 +1585,44 @@ in for "press the button".
 | `copy-paste-keyboard-close-up/19791475` | a typewriter, not a keyboard |
 | `mailbox-at-night/*` | street utility boxes, not mailboxes |
 
+## The tokenized-stocks fetch: verdicts (2026-11-07)
+
+Domain: a share you never see, a custodian, a stock app, the exchange
+closed for the night and the weekend, a regulator. **Pexels' "stock
+certificate" is adoption and award certificates** (L110-170, the wrong
+paper), and "bank vault" / "vault door" returned daylight arcades, a
+cartoon safe and a smashed pane - the custodian is drawn in the `diagram`
+and stood in for by a padlocked steel door and two dark corridors. Every
+phone-and-app query returns the same dozen ids the channel already used.
+
+| clip | verdict |
+| --- | --- |
+| `investing-app-phone-hands-night/34453449` | **kept**: a finger on a stock app, charts behind (L64-80) - opens and closes the long form and the Short |
+| `buying-stocks-on-phone-app/34408391` | **kept**: a thumb on a phone over trading monitors |
+| `stock-app-smartphone-dark-room/7947481` | **kept**: a phone showing a retail app's "Investing" balance (L77, 7s) - under "Robinhood sold tokens of OpenAI". `32246883` a face on the phone; `38586218`, `24973035` a calculator |
+| `nasdaq-times-square-night/38905686` | **kept**: a market heat map of real tickers (S66, graded) - "a company's share". `38841404` **kept**: a price chart on a monitor in the dark, L18. `28224515`, `3202634` crowds and billboards |
+| `stock-market-closed-sign/39416191` | **kept**: a candlestick chart on a tablet in the dark, L20. `7580445`, `7413680`, `7947425` printed charts on a desk, L56-157 |
+| `gold-network-nodes-dark-abstract/35002501` | **kept**: white nodes and links, the one abstract (the blockchain). `35008786` blue, `34994351` orange molecules |
+| `bank-vault-corridor-dark/7598737`, `19217898` | **kept**: dark corridors to a lit end - an account you never see, what sits behind it. `36909064` a sunlit arcade; `12191462` workers in a basement |
+| `legal-documents-folder-dark-desk/8061377` | **kept**: a hand laying paperwork on a desk (L88) - the register, the SPV. `8135728`, `8814711` white desks L135-180; `8731555` a face |
+| `vault-door-dark-metal/4183797` | **kept**: a padlocked steel door (6s) - held for you, and "refuse". `29038650` a door handle; `8106399` smashed glass |
+| `new-york-stock-exchange-facade-night/5631778` | **kept**: the NYSE facade with its flags (L132, daylight, graded) - the exchange that shuts. `4319342` is the channel's (`new-york-stock-exchange/4319342`, two videos) under a new folder - **match used clips by Pexels id, not by path**: the same id lands in every query folder that returns it, and a path check let four used clips through on the first pass |
+| `closing-shop-shutter-night/3150371` | **kept**: "Market lane", shutters down, the camera walking into the dark - the market closed. `36470746` **kept**: a city road at night, traffic - after hours. `38986057` a bright underpass; `26233703` a green-lit cleaner |
+| `empty-city-street-early-morning/39618428` | **kept**: an empty shopping street at dawn (L99) - a Saturday. `3894934` neon; `3701084` a sunrise road; `40820008` monochrome seafront |
+| `government-building-columns-night/35120905` | **kept**: a capitol dome lit at night, L10-24 - the regulator. `26772966` the Panthéon by day; `35691262` columns, daylight |
+| `stock-certificate-paper/*` | adoption certificates |
+| `safe-deposit-boxes-wall-dark/*` | a cartoon safe, a courier's face, a RELAX lightbox |
+| `wall-street-sign-night/*` | a ONE WAY sign, an alley, East 53rd St - none is Wall Street |
+
+**The real page was Robinhood's own help article** ("About Classic Stock
+Tokens", `captures/robinhood-stock-tokens/`). Its 16:9 clip reads well -
+the ring on "derivatives", then on "you are not buying the actual stocks",
+the rest dimmed - but **the 9:16 clip of a desktop help page is unreadable**
+(the line is ~25px wide type at phone size); the Short uses a drawn `post`
+instead. `screencap grab --select` takes **CSS only** (`text=` raises), and
+Robinhood's help page has hashed class names: walk up from the text in a
+headless page to an `#id` with `:nth-of-type` steps to find a selector.
+
 ## A blank screen carries the page; Commons has the object (2026-11-06)
 
 Two ways out when Pexels has nothing on topic, from the random-tokens

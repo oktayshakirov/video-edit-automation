@@ -940,3 +940,23 @@ painted a skin-coloured column up the Short cover. On a dark studio
 portrait use the picture's own near-black as the ground and feather the cut
 hairline into it over ~110px instead (the Short's `thumbs()`).
 
+
+## An arrow and a ring on the named thing (2026-11-08)
+
+The tokenized-stocks covers' first version (the site's hands on a tablet,
+"TOKEN OR SHARE?") was turned down; the editor asked for "something new,
+maybe using arrows white or red pointing on something", on a picture they
+picked: a Tesla Supercharger's lit wordmark on black (Pexels 258083). The
+cover that shipped is the real named thing on its own black, the video's
+question in three rows in the empty space, a **ring round the word the
+video is about** and a **curved arrow from the question to it**.
+
+- `thumb.arrow_layer` / `thumb.ring_layer` draw them on RGBA layers, scaled
+  per aspect (16:9 width 18, head 52; 9:16 width 26, head 74), the arrow
+  with a soft shadow. `_arrow` is the older fixed-weight callout arrow.
+- **White on a red subject.** A red arrow crossing a red object vanished on
+  the draft sheet; pick the colour the subject is not.
+- The arrow starts under the question and ends just outside the ring - the
+  eye reads question, arrow, thing, in that order.
+- The pair shares the picture and the question (`Do you own [this?]`), the
+  Short with the charger full width at the bottom and the arrow coming down.

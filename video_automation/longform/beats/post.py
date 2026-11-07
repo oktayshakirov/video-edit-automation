@@ -78,7 +78,12 @@ def _words(text: str) -> list[tuple[str, bool]]:
     out = []
     for chunk in re.split(r"(\[[^\]]*\])", text):
         mark = chunk.startswith("[")
-        for w in chunk.strip("[]").split():
+        words = chunk.strip("[]").split()
+        # Punctuation straight after a `]` ("[...stocks], bringing") belongs
+        # to the word before it; split off, it drew as "stocks ," (2026-11-07).
+        if words and out and not mark and not chunk[0].isspace():
+            out[-1] = (out[-1][0] + words.pop(0), out[-1][1])
+        for w in words:
             out.append((w, mark))
     return out
 

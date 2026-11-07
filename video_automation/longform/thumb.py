@@ -1164,6 +1164,64 @@ def _arrow(d: ImageDraw.ImageDraw, start: tuple[float, float],
               fill=colour)
 
 
+
+def arrow_layer(size: tuple[int, int], start: tuple[float, float],
+                end: tuple[float, float], colour=(255, 255, 255),
+                width: int = 18, head: int = 52, bow: float = -0.30,
+                shadow: bool = True) -> Image.Image:
+    """A curved pointing arrow on its own RGBA layer, to composite onto a cover.
+
+    `_arrow` above draws straight onto a canvas at one fixed weight, which is
+    a callout's arrow; this one is a cover's (2026-11-08, the tokenized-stocks
+    covers, the editor's "arrows white or red pointing on something"): scaled
+    by `width` and `head` so a 9:16 cover gets a heavier stroke, with a soft
+    dark shadow so a white arrow still reads where it crosses a lit object.
+    `bow` sets the curve and its side - negative bends it the other way.
+    White reads on a red subject; a red arrow on red vanishes.
+    """
+    lay = Image.new("RGBA", size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    (x0, y0), (x1, y1) = start, end
+    cx = (x0 + x1) / 2 - (y1 - y0) * bow
+    cy = (y0 + y1) / 2 + (x1 - x0) * bow
+    pts = []
+    for i in range(61):
+        t = i / 60
+        u = 1 - t
+        pts.append((u * u * x0 + 2 * u * t * cx + t * t * x1,
+                    u * u * y0 + 2 * u * t * cy + t * t * y1))
+    rgba = tuple(colour) + (255,)
+    d.line(pts[:-4], fill=rgba, width=width, joint="curve")
+    r = width / 2
+    d.ellipse((x0 - r, y0 - r, x0 + r, y0 + r), fill=rgba)
+    ax, ay = pts[-1]
+    bx, by = pts[-8]
+    m = max(((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5, 1.0)
+    vx, vy = (ax - bx) / m, (ay - by) / m
+    d.polygon([(ax + vx * head * 0.25, ay + vy * head * 0.25),
+               (ax - vx * head - vy * head * 0.62, ay - vy * head + vx * head * 0.62),
+               (ax - vx * head + vy * head * 0.62, ay - vy * head - vx * head * 0.62)],
+              fill=rgba)
+    if not shadow:
+        return lay
+    alpha = np.asarray(lay)[..., 3]
+    sh = Image.new("RGBA", size, (0, 0, 0, 0))
+    sh.putalpha(Image.fromarray((alpha * 0.75).astype("uint8")))
+    sh = sh.filter(ImageFilter.GaussianBlur(width * 0.9))
+    out = Image.new("RGBA", size, (0, 0, 0, 0))
+    out.alpha_composite(sh, (int(width * 0.4), int(width * 0.6)))
+    out.alpha_composite(lay)
+    return out
+
+
+def ring_layer(size: tuple[int, int], box: tuple[float, float, float, float],
+               colour=(255, 255, 255), width: int = 10) -> Image.Image:
+    """An ellipse round the thing the arrow points at, on an RGBA layer."""
+    lay = Image.new("RGBA", size, (0, 0, 0, 0))
+    ImageDraw.Draw(lay).ellipse(box, outline=tuple(colour) + (255,), width=width)
+    return lay
+
+
 # --- vertical thumbnails, for Shorts -------------------------------------
 
 VW, VH = 1080, 1920
