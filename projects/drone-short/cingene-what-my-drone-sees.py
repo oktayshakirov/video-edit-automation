@@ -36,13 +36,22 @@ SOURCE_POST = None                      # off-site: a format piece, no article
 POV = Path("~/Desktop/Drone Videos/Controller/IMG_1430.MOV").expanduser()
 DRONE = Path("~/Desktop/Drone Videos/Footage/Cingene/Sunset Sea 3.mp4").expanduser()
 
-# Two label inks, built side by side for the editor to pick one:
+# Label variants, built side by side; each is (bg_luma, file suffix,
+# controller label px, drone label px, stroke px):
 #   white - white ink, dark halo (bg_luma 0), the approved POV look
 #   black - near-black ink, soft white halo (bg_luma 1, the renderer's own
 #           dark-text mode), asked for 2026-11-07 against the bright sunset
-INKS = {"white": (0.0, ""), "black": (1.0, "-black")}
-INK = sys.argv[1] if len(sys.argv) > 1 else "white"
-LABEL_LUMA, _SUFFIX = INKS[INK]
+#   big   - white, ~50% bigger. The editor picked white, then found the 42/34px
+#           labels smeared and hard to read after TikTok's re-encode
+#   big-stroke - the same sizes with a solid black outline instead of the soft
+#           halo: a hard edge is what survives a low-bitrate re-encode
+VARIANTS = {"white":      (0.0, "", 42, 34, 0),
+            "black":      (1.0, "-black", 42, 34, 0),
+            "big":        (0.0, "-big", 62, 56, 0),
+            "big-stroke": (0.0, "-big-stroke", 62, 56, 3)}
+VARIANT = sys.argv[1] if len(sys.argv) > 1 else "big"
+(LABEL_LUMA, _SUFFIX, POV_LABEL_SIZE, DRONE_LABEL_SIZE,
+ LABEL_STROKE) = VARIANTS[VARIANT]
 
 OUT = Path(f"~/Desktop/cingene-what-my-drone-sees{_SUFFIX}.mp4").expanduser()
 WORK = Path("~/Desktop/.work-cingene-what-my-drone-sees").expanduser()
@@ -63,8 +72,6 @@ DRONE_WHITE = 400                       # nits SDR white lands at in the HLG fil
 HLG_PARAMS = ("setparams=color_primaries=bt2020:color_trc=arib-std-b67:"
               "colorspace=bt2020nc:range=tv")
 
-POV_LABEL_SIZE = 42
-DRONE_LABEL_SIZE = 34
 POV_LABEL_Y = 0.62                      # on the feed at 0:03
 DRONE_LABEL_Y = 0.50
 DRONE_LABEL_OUT = 2.5
@@ -130,10 +137,10 @@ def main() -> None:
 
     pov_png = render_text_png(LABEL_POV, WORK / f"label-pov{_SUFFIX}.png",
                               size=POV_LABEL_SIZE, y_frac=POV_LABEL_Y,
-                              bg_luma=LABEL_LUMA)
+                              bg_luma=LABEL_LUMA, stroke=LABEL_STROKE)
     drone_png = render_text_png(LABEL_DRONE, WORK / f"label-drone{_SUFFIX}.png",
                                 size=DRONE_LABEL_SIZE, y_frac=DRONE_LABEL_Y,
-                                bg_luma=LABEL_LUMA)
+                                bg_luma=LABEL_LUMA, stroke=LABEL_STROKE)
 
     cube = write_sdr_to_hlg_cube(WORK / f"sdr-to-hlg-{DRONE_WHITE}.cube",
                                  DRONE_WHITE)
