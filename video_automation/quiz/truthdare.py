@@ -127,8 +127,10 @@ class TruthDareShot:
                  ask: str = "PICK ONE",
                  hint: str | None = "Pause if you need more time",
                  start: float = 0.0, hold: float = 1.0,
-                 frame: Frame = VERTICAL, brand: Brand | None = None):
+                 frame: Frame = VERTICAL, brand: Brand | None = None,
+                 colors: tuple = CARD_COLORS):
         self.rnd, self.index, self.total = rnd, index, total
+        self.colors = colors
         self.reveals = reveals
         self.countdown_at = countdown_at
         self.exit_at = exit_at
@@ -208,7 +210,7 @@ class TruthDareShot:
         if i in self._sprites:
             return self._sprites[i]
         br, k = self.brand, self.k
-        colour = CARD_COLORS[i]
+        colour = self.colors[i]
         glow = int(28 * k)
         w, h = self.card_w + 2 * glow, self.card_h + 2 * glow
         radius = int(30 * k)
@@ -380,22 +382,34 @@ def render_truth_dare_short(rounds: list[Round], title: tuple, outro: tuple,
                             voice: str = "mia", frame: Frame = VERTICAL,
                             ask: str = "PICK ONE",
                             hint: str | None = "Pause if you need more time",
+                            title_gap: float = TITLE_GAP,
+                            card_colors: tuple = CARD_COLORS,
                             **kw) -> tuple[Path, float]:
     """One pick-a-card Short: a title card, `rounds`, an outro card.
 
     `title` is one sentence of `(caption, spoken)` chunks; the caption of the
     first is what the card shows, and the rest are spoken only - which is
     where the "pause if you need more time" instruction goes.
+
+    **`title=None` is a cold open** (2026-11-07, the second batch): the first
+    card lands on frame zero and the round header is the only framing. The
+    first batch spent ~8s on the title before a card, and the editor's call
+    for the second was to get to the cards as fast as possible. The on-screen
+    pause hint under the ring still carries the instruction.
     """
     if not rounds:
         raise ValueError("a pick-a-card short needs at least one round")
     _check_fits(rounds, frame, brand)
 
-    first = title[0]
-    sentences: list[tuple] = [tuple(title)]
-    shots: list[Shot] = [Shot(graphic="chapter", payload=(
-        first if isinstance(first, str) else first[0], None))]
-    gaps: list[float] = [TITLE_GAP]
+    sentences: list[tuple] = []
+    shots: list[Shot] = []
+    gaps: list[float] = []
+    if title is not None:
+        first = title[0]
+        sentences.append(tuple(title))
+        shots.append(Shot(graphic="chapter", payload=(
+            first if isinstance(first, str) else first[0], None)))
+        gaps.append(title_gap)
     groups: list[tuple[Round, Shot, Shot]] = []
     state: dict[int, dict] = {}
 
@@ -429,7 +443,9 @@ def render_truth_dare_short(rounds: list[Round], title: tuple, outro: tuple,
                 state[id(sh)].update(reveals=reveals, exit_at=exit_at,
                                      countdown_at=countdown_at
                                      if sh is b else None)
-            if n == 0:
+            # A cold open has no room for the lead-in whoosh - it would sit
+            # on the first word rather than ahead of it.
+            if n == 0 and a.start >= WHOOSH_LEAD:
                 cues.append((max(0.0, a.start - WHOOSH_LEAD), "whoosh"))
             cues.append((a.start, "reveal"))
             cues.append((b.start, "reveal"))
@@ -448,7 +464,7 @@ def render_truth_dare_short(rounds: list[Round], title: tuple, outro: tuple,
                              countdown_at=st.get("countdown_at"),
                              exit_at=st.get("exit_at"), ask=ask, hint=hint,
                              start=sh.start, hold=sh.hold, frame=fr,
-                             brand=brand)
+                             brand=brand, colors=card_colors)
 
     kw.setdefault("music_lufs", MUSIC_LUFS)
     return render_crypto_short(
