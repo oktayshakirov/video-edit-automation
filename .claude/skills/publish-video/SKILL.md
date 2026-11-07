@@ -12,6 +12,10 @@ identical for all three projects, and a copy per project would drift.
 
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with `PYTHONPATH=.`.
 
+**No long dashes, ever:** a single `-` in every title, description, tag and
+caption you write. The picture is enforced in code - see
+[design.md](../../../docs/video/design.md#only-a-hyphen-goes-on-screen).
+
 ## Read these
 
 The order of the job, the platform table and the gates are here. Everything

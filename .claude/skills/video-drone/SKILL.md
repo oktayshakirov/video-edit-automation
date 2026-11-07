@@ -26,6 +26,10 @@ The two are different products with different audiences:
 **Repo:** `~/Coding/video-edit-automation`. Run Python from there with
 `PYTHONPATH=.`.
 
+**No long dashes, ever:** a single `-` in every title, description, tag and
+caption you write. The picture is enforced in code - see
+[design.md](../../../docs/video/design.md#only-a-hyphen-goes-on-screen).
+
 ## Read these, in this order
 
 The steps live in `docs/video/workflow.md` - read it first, though a drone run

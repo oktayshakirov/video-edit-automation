@@ -38,6 +38,20 @@ caption and the site's transcript unchanged, which "—" does not always.
 
 This applies to the script's own strings, not to prose in a docstring.
 
+**Enforced in code since 2026-11-07, because a rule on scripts missed text
+that never came from a script.** Love Swipe batch two put the app's own card
+text on screen unchanged ("Who texts first after an argument — you or your
+partner?"), and the editor widened the rule to everything a video skill makes.
+`core/dashes.py` is installed by the package `__init__` and wraps Pillow's
+`text`, `textbbox` and `textlength`, so whatever is drawn or measured comes
+out with a spaced hyphen ("a - b"), or a tight one in a number range
+("2010-2020"). Drone FCPXML titles go through `dashes.plain()`. The spoken
+line is left alone.
+
+**What the code cannot see is copy that never reaches Pillow**: titles,
+descriptions, tags, TikTok and Reel captions, `*.meta.json` sidecars. Check
+those for `—` and `–` before showing a dry run.
+
 ## The watermark sits high
 
 `logo_at=(64, 62)` with `safe_top=40`. It was at y=150 and collided with both

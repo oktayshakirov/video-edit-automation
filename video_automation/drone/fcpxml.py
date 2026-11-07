@@ -44,6 +44,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from xml.sax.saxutils import escape
 
+from ..core.dashes import plain
+
 from .config import (
     EVENT_NAME,
     LOCATION_PIN,
@@ -258,7 +260,7 @@ def _location_title(text: str, offset_frames: int, dur_frames: int, fps: int,
     body = raw[raw.index("<title"):raw.rindex("</title>") + len("</title>")]
     effect = re.search(r"<effect\b[^>]*/>", raw).group(0)
 
-    body = body.replace("@@TEXT@@", escape(text))
+    body = body.replace("@@TEXT@@", escape(plain(text)))
     body = body.replace('ref="r7"', f'ref="{effect_id}"', 1)
     # The captured fragment defines its text style as "ts1". With more than one
     # title in the document that id repeats, and Final Cut rejects the whole
