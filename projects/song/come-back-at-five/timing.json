@@ -1,5 +1,5 @@
 {
- "source": "come-back-at-five-final.flac",
+ "source": "come-back-at-five-final.flac (v3; fan line re-timed 2026-11-07, the rest as aligned on v2)",
  "lines": [
   {
    "section": "intro - spoken word",
@@ -753,23 +753,23 @@
     },
     {
      "w": "a",
-     "s": 43.062,
-     "e": 43.082
+     "s": 43.122,
+     "e": 43.142
     },
     {
      "w": "jet",
-     "s": 43.082,
-     "e": 43.162
-    },
-    {
-     "w": "about",
-     "s": 43.202,
+     "s": 43.262,
      "e": 43.502
     },
     {
+     "w": "about",
+     "s": 43.682,
+     "e": 43.983
+    },
+    {
      "w": "to",
-     "s": 43.542,
-     "e": 43.582
+     "s": 44.023,
+     "e": 44.103
     },
     {
      "w": "fly",
@@ -779,7 +779,7 @@
    ],
    "s": 42.022,
    "e": 44.323,
-   "heard": 0.62
+   "heard": 1.0
   },
   {
    "section": "verse",
