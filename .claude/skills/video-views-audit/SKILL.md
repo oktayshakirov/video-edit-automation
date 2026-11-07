@@ -709,6 +709,38 @@ bottom-right left clear for the duration stamp.
 Shorts are judged differently — there is no thumbnail in the Shorts feed, so for
 `crypto` and `tinnitus` the first frame and the first spoken line are what matter.
 
+### Testing cover devices - arrows, rings and the like (E15, 2026-11-08)
+
+The article long forms now test **pointing devices** on the cover: a ring
+round the named thing and a curved arrow from the question to it (the
+editor's ask, first on `tokenized-stocks`; the rules are in
+`docs/video/thumbnails.md`, "An arrow and a ring on the named thing").
+When reviewing a crypto or tinnitus long-form's cover, or proposing a new
+one:
+
+- **Name the cover's device** in the report - arrow+ring, plain, or the
+  next one in E15's queue (red arrow on a dark subject, circle-and-cross on
+  the wrong belief, before/after split, underline, the object alone). A
+  CTR read that does not say which device it was is not usable for E15.
+- **Test one device at a time, with Studio Test & Compare.** A is the cover
+  with the device, B the same cover without it; every build file's
+  `thumbs()` has `--thumb-plain` for exactly this. Never change the
+  picture or the words in the same test. Studio is the user's - propose
+  the test with both files' paths and let them start it.
+- **Propose a device test** when a long form is 14+ days old, its CTR is
+  under the channel's long-form median (Studio CSV), and the feed check
+  says ours is not where the eye lands. A cover with no device is the
+  natural A/B for an arrow; one that already has an arrow tests the next
+  device in the queue.
+- **While a test runs, write nothing to that video's thumbnail through
+  the API**, and read the result from Studio before proposing anything
+  else on it. Record the winner and both shares in E15.
+- **Judge it at the feed size and at full size.** At 320px: does the arrow
+  lead the eye from the question to the thing? At full size, cropped 2x:
+  are the ring and arrow clean (the first pass had stepped edges)? A
+  device in the subject's own colour (a red arrow on a red object) is a
+  fail before any test.
+
 ## Editing metadata — the rules that replaced the read-only guarantee
 
 The tool can write titles, descriptions and tags (`set`) and upload new videos

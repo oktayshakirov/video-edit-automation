@@ -132,6 +132,20 @@ sequence drifted into four copies that disagreed.
    where viewers leave. `script_check` flags it (`short-outro`).
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
+
+   **The covers point at the real thing** (2026-11-08, the editor kept
+   these over a dark photo with a question beside it). Put the named
+   object - its wordmark, its app, its coin, its page - on its own dark
+   ground, the video's question in three big rows in the empty space, a
+   **ring round the thing** and a **curved arrow from the question to
+   it** (`thumb.ring_layer`, `thumb.arrow_layer`, drawn at 4x so they are
+   clean at full size). White on a red or warm subject, red on a dark or
+   cool one - never the subject's own colour. The pair shares the picture
+   and the question. Give each `thumbs()` a plain variant (no ring, no
+   arrow) behind `--thumb-plain`, so the views audit can run the Test &
+   Compare in E15. Worked example: `projects/crypto-long/tokenized-stocks.py`;
+   rules in `docs/video/thumbnails.md`, "An arrow and a ring on the named
+   thing".
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
    steps 4 and 5. Before a re-cut, measure the draft against the channel's
    best-performing recent pair (words, sentences, holds, roster) - that is

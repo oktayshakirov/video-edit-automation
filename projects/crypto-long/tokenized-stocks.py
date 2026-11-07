@@ -430,10 +430,13 @@ HEADLINE = "Do you\nown\n[this?]"
 TESLA = ROOT / "assets/crypto/tokenized-stocks/tesla-sign.jpg"
 
 
-def thumbs(out: Path) -> Path:
+def thumbs(out: Path, marks: bool = True) -> Path:
     """The charger at full height on the left, the video's question in three
     rows on its black, a white ring round TESLA and a white arrow from the
-    question to it. White, not red: a red arrow vanishes on the red charger."""
+    question to it. White, not red: a red arrow vanishes on the red charger.
+
+    `marks=False` (`--thumb-plain`) is the same cover with no ring and no
+    arrow - the B side of the E15 Test & Compare, one variable apart."""
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(TESLA).convert("RGB")
@@ -443,6 +446,9 @@ def thumbs(out: Path) -> Path:
     T._headline(im, HEADLINE, 200, int(500 / 1.38), 770, fill, ink,
                 max_lines=3, leading=1.0, band="top", margin=48,
                 shadow=12, drop=(5, 6))
+    if not marks:
+        im.save(out, quality=92)
+        return out
     im = im.convert("RGBA")
     # the wordmark sits at x ~181-602, y ~324-382 in this placement
     # ~70px clear of the letters each side, ~55 above and below - the
@@ -478,7 +484,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    if "--thumb" in sys.argv:
+    if "--thumb-plain" in sys.argv:
+        print(thumbs(Path.home() / "Desktop/tokenized-stocks-long-thumb-plain.jpg",
+                     marks=False))
+    elif "--thumb" in sys.argv:
         print(thumbs(Path.home() / "Desktop/tokenized-stocks-long-thumb.jpg"))
     else:
         main()
