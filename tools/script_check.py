@@ -318,6 +318,20 @@ RULES = {
     # leave before the end - the last line is a plain captioned sentence.
     "short-outro": Rule("short-outro", "shorts.md, 'No outro card on a Short'",
                         ("crypto", "tinnitus"), ("short",), since="2026-11-06"),
+    # The editor (2026-11-08): no one cover style is forced - pick per topic
+    # and picture - but every video says which it used, so the review can
+    # compare views and clicks by style.
+    "cover-style": Rule("cover-style", "thumbnails.md, 'Cover styles are a choice, "
+                        "and every video says which'", ("crypto", "tinnitus"),
+                        ("long", "short"), since="2026-11-08"),
+}
+
+# The cover styles a build may declare in `COVER_STYLE`. Add a name here
+# when a new kind of cover ships, with a line in thumbnails.md.
+COVER_STYLES = {
+    "text": "a picture and the headline, no marks",
+    "arrow": "an arrow and/or a ring pointing at something in the picture",
+    "beat": "a drawn graphic from the video as the cover",
 }
 
 # `outro=` given anything but None, in code (not a comment or docstring).
@@ -409,6 +423,17 @@ def check(sc: Script) -> list[Finding]:
     if "demand" in on and not hasattr(sc.mod, "DEMAND"):
         f.append(Finding("demand", "module", "no DEMAND - the review cannot "
                          "tag this video (None when it had no evidence)"))
+    if "cover-style" in on:
+        style = getattr(sc.mod, "COVER_STYLE", None)
+        if style is None:
+            f.append(Finding("cover-style", "module",
+                             "no COVER_STYLE - the review cannot compare this "
+                             f"cover's style ({', '.join(COVER_STYLES)})"))
+        elif style not in COVER_STYLES:
+            f.append(Finding("cover-style", "module",
+                             f"COVER_STYLE {style!r} is not one of "
+                             f"{', '.join(COVER_STYLES)} - add it to "
+                             "COVER_STYLES and thumbnails.md if it is new"))
     shots = shots_of(sc.mod)
     if "toolbox" in on and shots:
         used = [sh for sh in shots

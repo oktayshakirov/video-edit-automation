@@ -133,19 +133,17 @@ sequence drifted into four copies that disagreed.
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 
-   **The covers point at the real thing** (2026-11-08, the editor kept
-   these over a dark photo with a question beside it). Put the named
-   object - its wordmark, its app, its coin, its page - on its own dark
-   ground, the video's question in three big rows in the empty space, a
-   **ring round the thing** and a **curved arrow from the question to
-   it** (`thumb.ring_layer`, `thumb.arrow_layer`, drawn at 4x so they are
-   clean at full size). White on a red or warm subject, red on a dark or
-   cool one - never the subject's own colour. The pair shares the picture
-   and the question. Give each `thumbs()` a plain variant (no ring, no
-   arrow) behind `--thumb-plain`, so the views audit can run the Test &
-   Compare in E15. Worked example: `projects/crypto-long/tokenized-stocks.py`;
-   rules in `docs/video/thumbnails.md`, "An arrow and a ring on the named
-   thing".
+   **Pick the cover style that fits the topic and the picture** - no
+   style is forced (the editor, 2026-11-08). An arrow and a ring pointing
+   at the named thing when the picture has one (`tokenized-stocks`: a
+   Tesla wordmark, `thumb.arrow_layer` / `ring_layer`, drawn at 4x so they
+   are clean); the picture and the headline alone when it already says it;
+   a drawn beat when there is no photograph. A second version is fine when
+   the choice is close - show both. **Set `COVER_STYLE`** (`"text"`,
+   `"arrow"`, `"beat"`) next to `DEMAND` in both scripts, so the views
+   audit can compare views and clicks by style; `script_check` flags it
+   missing. `docs/video/thumbnails.md`, "Cover styles are a choice, and
+   every video says which".
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
    steps 4 and 5. Before a re-cut, measure the draft against the channel's
    best-performing recent pair (words, sentences, holds, roster) - that is

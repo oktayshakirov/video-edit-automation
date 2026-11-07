@@ -79,6 +79,9 @@ SOURCE_POST = "what-are-tokenized-stocks"
 DEMAND = ("Kraken 'Tokenized equities explained' 32.4x (13.7k); Finance Simply "
           "Explained 'Tokenized Stocks Are Back: Do You Really Own the "
           "Shares?' 9.1x")
+# The cover's style, for the review to compare views and clicks by
+# (`thumbnails.md`, "Cover styles are a choice, and every video says which").
+COVER_STYLE = "arrow"
 
 V = STOCK / "videos"
 ROOT = _P(__file__).resolve().parents[2]
@@ -436,7 +439,7 @@ def thumbs(out: Path, marks: bool = True) -> Path:
     question to it. White, not red: a red arrow vanishes on the red charger.
 
     `marks=False` (`--thumb-plain`) is the same cover with no ring and no
-    arrow - the B side of the E15 Test & Compare, one variable apart."""
+    arrow - a "text" version, kept so either can be picked."""
     from PIL import Image
     from video_automation.longform import thumb as T
     src = Image.open(TESLA).convert("RGB")

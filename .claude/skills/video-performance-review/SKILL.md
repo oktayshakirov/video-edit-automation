@@ -79,6 +79,10 @@ when the run itself changes order or gains a step.
      SOUNDS") or a name we invented ("NEBULA PULSE"), roughly how many words
      it has, the layout, and anything that is unreadable at 320px. Put its
      impressions and CTR next to it when the CSV is in.
+     **Tag its cover style** from the script's `COVER_STYLE` (`text`,
+     `arrow`, `beat`; by eye before 2026-11-08), and in the snapshot put
+     the per-style table from `video-views-audit`, "Comparing cover
+     styles";
 4. **Write the snapshot** to `history/<today>.md` in the shape of the last
    one: totals table, per-platform rows, the retention cohort with tags.
    **Then extend each channel's demand map by one branch** - the next

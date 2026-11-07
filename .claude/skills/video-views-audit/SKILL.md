@@ -709,37 +709,32 @@ bottom-right left clear for the duration stamp.
 Shorts are judged differently — there is no thumbnail in the Shorts feed, so for
 `crypto` and `tinnitus` the first frame and the first spoken line are what matter.
 
-### Testing cover devices - arrows, rings and the like (E15, 2026-11-08)
+### Comparing cover styles - arrow, text, beat (2026-11-08)
 
-The article long forms now test **pointing devices** on the cover: a ring
-round the named thing and a curved arrow from the question to it (the
-editor's ask, first on `tokenized-stocks`; the rules are in
-`docs/video/thumbnails.md`, "An arrow and a ring on the named thing").
-When reviewing a crypto or tinnitus long-form's cover, or proposing a new
-one:
+Covers are not A/B tested and no style is the rule: each video gets the
+style that fits its topic and picture (the editor, 2026-11-08). What the
+audit does is **say which style did better**. Every crypto and tinnitus
+script built from 2026-11-08 sets `COVER_STYLE` - `"text"` (picture and
+headline), `"arrow"` (an arrow and/or ring pointing at something), `"beat"`
+(a drawn graphic) - and `docs/video/thumbnails.md` has the list.
 
-- **Name the cover's device** in the report - arrow+ring, plain, or the
-  next one in E15's queue (red arrow on a dark subject, circle-and-cross on
-  the wrong belief, before/after split, underline, the object alone). A
-  CTR read that does not say which device it was is not usable for E15.
-- **Test one device at a time, with Studio Test & Compare.** A is the cover
-  with the device, B the same cover without it; every build file's
-  `thumbs()` has `--thumb-plain` for exactly this. Never change the
-  picture or the words in the same test. Studio is the user's - propose
-  the test with both files' paths and let them start it.
-- **Propose a device test** when a long form is 14+ days old, its CTR is
-  under the channel's long-form median (Studio CSV), and the feed check
-  says ours is not where the eye lands. A cover with no device is the
-  natural A/B for an arrow; one that already has an arrow tests the next
-  device in the queue.
-- **While a test runs, write nothing to that video's thumbnail through
-  the API**, and read the result from Studio before proposing anything
-  else on it. Record the winner and both shares in E15.
-- **Judge it at the feed size and at full size.** At 320px: does the arrow
-  lead the eye from the question to the thing? At full size, cropped 2x:
-  are the ring and arrow clean (the first pass had stepped edges)? A
-  device in the subject's own colour (a red arrow on a red object) is a
-  fail before any test.
+- **Find each video's style** from its build script's `COVER_STYLE` (match
+  the script by its `Meta.title` or `SOURCE_POST`). A script from before
+  2026-11-08 has none: look at the cover at 320px and tag it by eye -
+  nearly all are `"text"`. Say which tags were read and which were judged.
+- **Compare long forms by style**: views, impressions, CTR (from the Studio
+  CSV - the API refuses impressions and CTR) and views per day since
+  publish, each as a median per style, with the count of videos behind it.
+  Same channel only, long forms only - a Short has no cover in the feed,
+  so its style is recorded but not compared.
+- **The sample rule still holds.** Under 5 videos in a style, report the
+  numbers and say the sample is too small; never call a winner. Subject
+  and title vary between videos, so a style gap is a lead, not a proof -
+  say so, and note any outlier (GTA 6's search traffic) that would carry a
+  median on its own.
+- **Report it as one table per channel**, style | videos | median views |
+  median CTR | median views/day, and one line on what it suggests for the
+  next cover. That is input for the build, not a rule.
 
 ## Editing metadata — the rules that replaced the read-only guarantee
 

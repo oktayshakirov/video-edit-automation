@@ -969,7 +969,34 @@ video is about** and a **curved arrow from the question to it**.
   eye reads question, arrow, thing, in that order.
 - The pair shares the picture and the question (`Do you own [this?]`), the
   Short with the charger full width at the bottom and the arrow coming down.
-- **It is on test, E15** (`video-performance-review/experiments.md`).
-  Every long form's `thumbs()` takes `marks=False` behind `--thumb-plain`:
-  the same cover without the ring and arrow, the B side of a Studio Test &
-  Compare. Ship A; the views audit proposes the test.
+
+## Cover styles are a choice, and every video says which (2026-11-08)
+
+The editor, after the arrow covers: "we dont need ab testing or force one
+type of thumbnails, we should pick whichever fits better to the current
+topic and image, just we need to be able to have different versions and
+also when we run views audit to be able to say if video with arrow
+thumbnail or just text has more or less views and clicks."
+
+So **no style is the default.** Pick the one the topic and the picture
+want: an arrow and a ring when there is one named thing in the picture to
+point at (a wordmark, a coin, a line on a page); a picture and the
+headline alone when the picture already says it; a drawn beat when the
+subject has no photograph. Building a second version (`thumbs(marks=False)`,
+`--thumb-plain` in `tokenized-stocks`) is fine when the choice is close -
+show both and let the editor pick.
+
+**Every crypto and tinnitus long form and Short sets `COVER_STYLE`** next
+to `DEMAND`, to the style of the cover that shipped:
+
+| `COVER_STYLE` | the cover |
+| --- | --- |
+| `"text"` | a picture and the headline, no marks |
+| `"arrow"` | an arrow and/or a ring pointing at something in the picture |
+| `"beat"` | a drawn graphic from the video as the cover |
+
+`script_check` flags a script without it, or with a name not in that list
+(`COVER_STYLES` in `tools/script_check.py` - add a new style there and
+here). Scripts built before 2026-11-08 have no tag; the review reads their
+cover by eye, and almost all are `"text"`. If the editor swaps a cover
+after publishing, change the tag in the same commit.
