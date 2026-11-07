@@ -655,6 +655,19 @@ halo, and at a sampled value above 0.62 the halo turns white too and erases
 white type. Lowercase, and the wording does not change — it is a format, not a
 caption.
 
+**Small with a soft halo does not survive TikTok's re-encode, at least on
+bright footage.** On the Cingene sunset cut (2026-11-07) the editor posted the
+42/34px white labels and found them smeared and hard to read on TikTok. The
+letter strokes are ~4px, the halo is a blur, and a low-bitrate encode wipes
+out soft edges first. Over a bright sky white-on-bright has no contrast left
+to lose. `cingene-what-my-drone-sees.py` builds the fixes side by side: `big`
+(62/56px, same halo) and `big-stroke` (62/56px with `stroke=3`, a solid black
+outline, the renderer's stroke mode). The hard edge is what survives the
+encode. Black ink (`bg_luma=1`) was tried on the same cut and the editor
+preferred white. **Until a pick settles it, use at least 56px on any POV cut
+going to TikTok, and reach for the outline when the labels sit on a bright
+sky.**
+
 **`y_frac` per beat, not one number for the cut.** 0.50 is right over open
 footage and wrong over the controller, where dead centre is the C/N/S switch
 and the screen bezel; 0.62 is the one clean band in that frame, the open sky of
