@@ -13,7 +13,7 @@ is exhausted, with the date.
 
 - [x] how does bitcoin work (2026-11-03, proven, old and crowded)
 - [ ] is crypto a scam / crypto scams
-- [ ] [named token] explained / is [token] a scam
+- [ ] [named token] explained / is [token] a scam (2026-11-07: squid game, see branches)
 - [x] crypto wallet / seed phrase / self custody (2026-11-02, teardown `what-is-a-seed-phrase`)
 - [ ] how to not lose money in crypto
 - [x] what happens to crypto when you die (2026-10-25, no demand found)
@@ -239,3 +239,19 @@ One line per branch: date, the term or channel, what it added.
   promise as Cyber Scrilla's, with more proof (the look-alike drawn, the
   real headline, the hardware-wallet correction). Dark-among-bright again,
   as with the seed phrase - read the two together in `traffic`.
+- 2026-11-07, three `outliers` runs (378 units) for topic suggestions.
+  "squid game crypto scam": **proven, old** - TheClipZone "Live RUG PULL
+  of $SQUID" 978.8x Short (1.8M), Anant Ladha "Squid Game Scam - 310000%
+  returns in 11 days" 15.5x Short (1.5M), WHO'S JULIA 7.9x long; all ~5
+  years old. Coffeezilla's own (508k) is 0.1x of his median. The Shorts
+  that won show the moment it went to zero; the long explainers sit at
+  0.4-2.3x. "tokenized stocks explained": **proven, recent (5
+  channels)** - Kraken "Tokenized equities explained: How xStocks are
+  changing..." 32.4x, Finance Simply Explained "Tokenized Stocks Are
+  Back: Do You Really Own the Share?" 9.1x, Breakdownvideos 8.1x,
+  Binance and CoinGecko 3.7x each; Coin Bureau 1.1x (63 days). The
+  sceptic's question ("do you really own it?") stands out on a 28-median
+  channel. "what is crypto staking": **proven, crowded** - Kraken 85.4x,
+  CoinGecko 49x and 29.3x ("How It ACTUALLY Works"), Whiteboard 32.9x;
+  the "earn N%" and "is it worth it" titles are closed to us (yield as a
+  promise) and the latter sits at 0.4-1.1x anyway.
