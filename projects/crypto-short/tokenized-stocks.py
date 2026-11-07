@@ -51,6 +51,9 @@ from video_automation.longform.openers import Split
 SOURCE_POST = "what-are-tokenized-stocks"
 DEMAND = ("Finance Simply Explained 'Tokenized Stocks Are Back: Do You Really "
           "Own the Shares?' 9.1x; Kraken 'Tokenized equities explained' 32.4x")
+# The cover's style, for the review to compare views and clicks by
+# (`thumbnails.md`, "Cover styles are a choice, and every video says which").
+COVER_STYLE = "arrow"
 
 V = STOCK / "videos"
 POSTS = _P.home() / "Coding/crypto-wiki/public/images/posts"

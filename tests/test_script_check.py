@@ -33,7 +33,8 @@ def script(channel: str, fmt: str, sentences=(), sections=None, title=None,
            questions=None, **attrs) -> "sc.Script":
     """A Script as `load` would build it, without a file or git."""
     d = f"quiz-{channel}" if fmt == "quiz" else f"{channel}-{fmt}"
-    mod = SimpleNamespace(SOURCE_POST="x", DEMAND=None, **attrs)
+    mod = SimpleNamespace(**{"SOURCE_POST": "x", "DEMAND": None,
+                             "COVER_STYLE": "text", **attrs})
     if sentences:
         mod.SENTENCES = list(sentences)
     if sections is not None:
@@ -190,6 +191,18 @@ def test_missing_bookkeeping_is_flagged():
     del s.mod.SOURCE_POST, s.mod.DEMAND
     s.path = REPO / "tests/test_script_check.py"   # has no /posts/ URL in it
     assert {"source-post", "demand"} <= set(rules(s))
+
+
+def test_every_video_says_its_cover_style():
+    """No style is forced, but the review compares views and clicks by it."""
+    s = script("crypto", "long", [("A.",)])
+    del s.mod.COVER_STYLE
+    assert "cover-style" in rules(s)
+    assert "cover-style" in rules(script("tinnitus", "short", [("A.",)],
+                                         COVER_STYLE="sparkles"))
+    for style in ("text", "arrow", "beat"):
+        assert "cover-style" not in rules(script("crypto", "short", [("A.",)],
+                                                 COVER_STYLE=style))
 
 
 # --- the back catalogue ----------------------------------------------------
