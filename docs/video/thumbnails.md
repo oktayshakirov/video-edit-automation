@@ -969,3 +969,7 @@ video is about** and a **curved arrow from the question to it**.
   eye reads question, arrow, thing, in that order.
 - The pair shares the picture and the question (`Do you own [this?]`), the
   Short with the charger full width at the bottom and the arrow coming down.
+- **It is on test, E15** (`video-performance-review/experiments.md`).
+  Every long form's `thumbs()` takes `marks=False` behind `--thumb-plain`:
+  the same cover without the ring and arrow, the B side of a Studio Test &
+  Compare. Ship A; the views audit proposes the test.
