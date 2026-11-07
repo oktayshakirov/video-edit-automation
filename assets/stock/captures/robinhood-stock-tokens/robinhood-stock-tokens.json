@@ -1,0 +1,43 @@
+{
+  "name": "robinhood-stock-tokens",
+  "url": "https://robinhood.com/eu/en/support/articles/about-stock-tokens/",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "deriv": "css=div#__next > div:nth-of-type(1) > div:nth-of-type(1) > div > div > div > div:nth-of-type(3) > div:nth-of-type(3) > div:nth-of-type(2) > span > p",
+    "line": "css=div#__next > div:nth-of-type(1) > div:nth-of-type(1) > div > div > div > div:nth-of-type(3) > div:nth-of-type(3) > div:nth-of-type(4) > span > p:nth-of-type(1)",
+    "body": "css=div#__next > div:nth-of-type(1) > div:nth-of-type(1) > div > div > div > div:nth-of-type(3) > div:nth-of-type(3)"
+  },
+  "hide": [],
+  "captured": "2026-11-07",
+  "title": "About Classic Stock Tokens | Robinhood",
+  "size": [
+    2560,
+    9482
+  ],
+  "boxes": {
+    "deriv": [
+      890,
+      558,
+      2282,
+      654
+    ],
+    "line": [
+      890,
+      910,
+      2282,
+      1006
+    ],
+    "body": [
+      890,
+      338,
+      2282,
+      6642
+    ]
+  }
+}
