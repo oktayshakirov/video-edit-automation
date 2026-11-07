@@ -954,6 +954,15 @@ video is about** and a **curved arrow from the question to it**.
 - `thumb.arrow_layer` / `thumb.ring_layer` draw them on RGBA layers, scaled
   per aspect (16:9 width 18, head 52; 9:16 width 26, head 74), the arrow
   with a soft shadow. `_arrow` is the older fixed-weight callout arrow.
+- **Drawn at 4x and box-filtered down** (the editor, same day: "make it
+  and also the arrow good quality, currently there are some issues in the
+  details"). Pillow does not anti-alias `line`, `ellipse` or `polygon`:
+  the first pass had stepped edges and notches where a thick curve's
+  segments joined. The shaft is now overlapping discs and the ring a cut
+  ellipse - check both cropped at 2x, not at feed size, where they hide.
+- **Give the ring room**: ~70px clear of the word each side on 16:9, ~90 on
+  9:16, ~55-70 above and below. ~30px read as crowding the letters. Leave a
+  gap between the arrow's tip and the ring, too - touching reads as a slip.
 - **White on a red subject.** A red arrow crossing a red object vanished on
   the draft sheet; pick the colour the subject is not.
 - The arrow starts under the question and ends just outside the ring - the
