@@ -595,6 +595,11 @@ Star Trek) answer a yes/no title, where any natural sentence 2 is "yes".
 Either title the Short as a how or why question, or let sentence 2 skip the
 yes and open the how. A yes the viewer can infer is still a yes - unless the
 honest answer is *no*, in which case it is a reversal and rule 2 applies.
+**Even then, do not lead with the no** (2026-11-07): "Usually not. You own
+a token..." on the tokenized-stocks Short was flagged by `opening_check` as
+opening on a verdict. Say what *is* true instead - "You own a token. The
+share, if there even is one, has someone else's name on it." - which is the
+same reversal with the next question in it and no "no" to leave on.
 
 Reach is a separate matter. The four highest-reach Shorts in this cohort are
 all verdicts, because reach comes from the title and topic. Keep the title

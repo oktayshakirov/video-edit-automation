@@ -362,3 +362,14 @@ def test_behind_without_cutout_runs_no_matte(frame, monkeypatch):
     with pytest.raises(ValueError):
         Behind(PHOTO, "OFFLINE", "", "rise", None, False, brand=CRYPTO,
                frame=frame, start=0.0, hold=4.0)
+
+
+def test_post_words_keep_punctuation_after_a_highlight():
+    """`[...stocks], bringing` drew as "stocks ," - the comma split off the
+    highlighted run into a word of its own (tokenized-stocks, 2026-11-07)."""
+    from video_automation.longform.beats.post import _words
+    assert _words("SEC [clears path for tokenized stocks], bringing") == [
+        ("SEC", False), ("clears", True), ("path", True), ("for", True),
+        ("tokenized", True), ("stocks,", True), ("bringing", False)]
+    assert _words("on brink of [second bailout] for banks")[-2:] == [
+        ("for", False), ("banks", False)]

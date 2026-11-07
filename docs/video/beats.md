@@ -1216,6 +1216,13 @@ Shot(graphic="post", payload=("tx",
   in ~16% toward the highlight, clamped so the card never leaves the frame
   (it slid off 9:16 before the clamp). Vertical cards get larger type.
 - Sounds: a `pan` on arrival, a `reveal` tick on the highlight.
+- **Punctuation after `]` stays on its word** (2026-11-07): CNBC's
+  "[...tokenized stocks], bringing" drew as "stocks ," until `_words`
+  glued it back. Write the source's wording as it is.
+- **In a Short, keep the lead-in to a few words** (2026-11-07). "When
+  Robinhood sold tokens of OpenAI in 2025, OpenAI answered:" held the card
+  ~10s; the case went onto its own clip and the card's lead-in became
+  "OpenAI's answer:".
 
 **`"letter"` is the fourth kind (2026-10-24)**, for a line someone wrote by
 hand: paper, the writer and recipient over a hairline (`name`, `to`, an
