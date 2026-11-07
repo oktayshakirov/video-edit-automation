@@ -445,9 +445,11 @@ def thumbs(out: Path) -> Path:
                 shadow=12, drop=(5, 6))
     im = im.convert("RGBA")
     # the wordmark sits at x ~181-602, y ~324-382 in this placement
-    im.alpha_composite(T.ring_layer(im.size, (150, 286, 640, 422), width=10))
-    im.alpha_composite(T.arrow_layer(im.size, (960, 520), (668, 392),
-                                     width=18, head=52, bow=-0.30))
+    # ~70px clear of the letters each side, ~55 above and below - the
+    # first ring sat ~30px off them and crowded the word (2026-11-08)
+    im.alpha_composite(T.ring_layer(im.size, (110, 268, 672, 438), width=10))
+    im.alpha_composite(T.arrow_layer(im.size, (955, 525), (692, 402),
+                                     width=18, head=54, bow=-0.30))
     im.convert("RGB").save(out, quality=92)
     return out
 

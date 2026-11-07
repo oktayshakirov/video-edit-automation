@@ -168,11 +168,12 @@ def thumbs(out: Path) -> Path:
                 max_lines=3, max_block=1920 * 0.32, leading=1.02,
                 band="top", margin=int(1920 * 0.17), shadow=14, drop=(6, 8))
     im = im.convert("RGBA")
+    # ~90px clear of the letters each side, ~70 above and below (2026-11-08)
     im.alpha_composite(T.ring_layer(
-        im.size, (tx0 - 68, ty0 - 54, tx1 + 68, ty1 + 54), width=14))
+        im.size, (tx0 - 90, ty0 - 70, tx1 + 90, ty1 + 70), width=14))
     im.alpha_composite(T.arrow_layer(
-        im.size, (880, ty0 - 420), (tx1 + 40, ty0 - 70),
-        width=26, head=74, bow=-0.25))
+        im.size, (885, ty0 - 450), (tx1 + 58, ty0 - 74),
+        width=26, head=76, bow=-0.25))
     im.convert("RGB").save(out, quality=92)
     return out
 
