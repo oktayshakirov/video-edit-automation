@@ -38,7 +38,24 @@ the quota arithmetic, the em dash rule the tool now enforces, and why
   **list the tracks before concluding anything**, and never upload a second
   copy by hand.
 - **Reuse the `Meta` the long-form build already generated** - the `.md` sidecar
-  in `<project>/transcripts/` - rather than re-deriving the description.
+  next to the MP4 (the handoff gives its path) - rather than re-deriving the
+  description.
+
+  **Never pass the sidecar itself to `--description-file`.** It is a whole
+  markdown file - the `#` title, the list of local paths and tags, the
+  `## Description` heading and the code fence - and `upload` sends every byte
+  of it as the description. Caught by the dry run on 2026-11-08
+  (`tokenized-stocks`), which showed `2625/5000` characters starting with
+  `# What Are...` and `/Users/...` paths. Extract the fenced block first:
+
+  ```bash
+  python3 -c "import re,sys; s=open(sys.argv[1]).read(); \
+  print(re.search(r'## Description\n\n\`\`\`\n(.*?)\n\`\`\`', s, re.S)[1].strip())" \
+    ~/Desktop/<name>-long.md > <scratchpad>/long-desc.txt
+  ```
+
+  Then read the dry run's description preview: it must start with the hook
+  sentence, not a `#`.
 - **Drone long form has no sidecar** - the handoff carries its description. Before
   uploading, check it already follows the drone channel's settled format (two
   prose paragraphs, `What you'll see`, gear/location, `More cities from above`
