@@ -29,6 +29,7 @@ user. A rule credited to the editor's note came out of that review.
 | `demand/tinnitus.md`, `demand/crypto.md` | Each channel's map - standouts, proven subjects, formats |
 | `projects/crypto.md` | thecrypto.wiki: voice, copy, what the site gives you |
 | `projects/tinnitus.md` | tinnitushelp.me: article explainers *and* sound-therapy sessions |
+| `projects/tinnitus-sounds.md` | which zen album tracks a session has used, and which are still free |
 | `projects/quiz.md` | The quiz Short: three questions, four cards, a countdown - both channels |
 | `projects/drone-long.md` | Drone: the Final Cut FCPXML edit |
 | `projects/drone-short.md` | Drone: the vertical cut |

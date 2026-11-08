@@ -662,6 +662,9 @@ which is what they mean to this audience anyway. `tinnitus` itself is safe.
 
 `video_automation/longform/asmr.py`.
 
+**Which album tracks are used is in [`tinnitus-sounds.md`](tinnitus-sounds.md).**
+Check it before a build and add the row when a dropped file goes in.
+
 ```python
 from video_automation.core import soundbed
 from video_automation.core.brand import TINNITUS
