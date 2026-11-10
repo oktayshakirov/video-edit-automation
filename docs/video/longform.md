@@ -765,3 +765,13 @@ for three frames every ~1.7s, and glitches out; a `glitch_cut` on each tear.
 "cinematic"` is the old card. It splits at a colon, after a question mark
 (kept), or at a spaced dash, and a head too long for one line goes to two
 balanced lines before it goes small.
+
+
+## Running from 2026-11-10: 3 minutes or less (E18)
+
+Article long forms on both channels run **2:30-3:00**, down from 3:19-4:15:
+three chapters, not four or five, with the same opening (promise, proof,
+plan) and the same cold close. Cut a chapter whole rather than trimming
+every one; a thinned chapter still costs its card and its transition.
+Sessions are not part of it. Judged on average view duration in seconds,
+which must not fall (`retention.md`, `video-performance-review/experiments.md`).
