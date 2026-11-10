@@ -1258,3 +1258,22 @@ names, each with how they got rich, on the reel, plus the long form's
 holders and buyers (8) - with the stake between, one short phrase per card
 (~2s; "Vitalik Buterin co-founded Ethereum."). That pushes a Short to ~60s;
 keep each phrase under ten words to stay there.
+
+
+## Running from 2026-11-10: length and the loop, one per channel
+
+The goal is viewers who stay to the end (`retention.md`). Two tests run on
+article Shorts, one per channel so each is the only change on its channel:
+
+- **Crypto Shorts run 30-40 seconds (E17)** - about 85-110 spoken words.
+  Keep the title question, sentence 2, the payoff beat and the close; cut
+  the middle. Never shorten sentence 2 or the close to make the time.
+- **Tinnitus Shorts close on a line that hands back to the title (E16).**
+  As the Short loops, the last line runs straight into the question on
+  screen - "So next time it gets louder, ask yourself one thing." over a
+  title that asks it. Still a plain sentence, no card, and not a question
+  of its own (`narration.md`, the cold close).
+
+Session Shorts are not part of either. The fail lines are in
+`video-performance-review/experiments.md`; tell the editor which one a
+build carried in the handover.
