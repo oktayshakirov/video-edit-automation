@@ -25,6 +25,26 @@ numbers behind every claim below are in that skill's
 - **Sentence 2 decides the first exit:** a body-check task or a withheld
   answer holds, a verdict does not (`narration.md`).
 
+## The first eight seconds, measured (2026-11-10, second pass)
+
+Frames pulled from three of our own Shorts, and 32 curves joined to their
+scripts (`tools/retention_check.py --lab`):
+
+- **Sentence 2 starting at 4.0s or later: 8 of 9 held** (half the opening
+  audience still there at 11s; median half-gone 19.8s, 7.9s a counted
+  view). **Earlier: 9 of 23** (10.1s, 6.2s a view). It is the strongest
+  script-side split found, beside replay (9 of 11 against 8 of 21).
+- **The frame goes bare at the cliff.** The opener leaves at ~4.5s and the
+  captions wait for the next whole sentence, so 2-4 seconds have no type
+  on screen. Nearly every Short with an opener has had this, so the
+  curves cannot yet compare with and without; `opener_holds=True` closes
+  it and E22 reads the difference.
+- **Stock share and length cannot be read yet:** 30 of 32 are over half
+  stock, 31 of 32 over 40 seconds. E17 and the stock limit make the other
+  side of each split.
+
+What a build does about each is in `shorts.md`, "The first eight seconds".
+
 ## What the market does - external, a hypothesis until our curves agree
 
 **MrBeast's production handbook** (leaked 2024, authenticity alleged, read
@@ -72,12 +92,15 @@ Subscriber counts are approximate, from 2026 third-party lists.
 
 ## How a build uses this
 
-1. **Shorts:** sentence 2 by `narration.md`; length and ending per the
+1. **Shorts:** a full title question and `opener_holds=True`
+   (`shorts.md`, "The first eight seconds"); sentence 2 by `narration.md`; length and ending per the
    experiment running on that channel (E16 tinnitus, E17 crypto); no outro
    card (`shorts.md`).
 2. **Long forms:** length per E18; packaging per `longform.md` and
    `thumbnails.md`; titles per E19 when the editor runs a Studio test.
-3. **Every video:** stock clips are at most half the shots, and a stock clip
+3. **Every script:** `tools/retention_check.py` before the build
+   (`workflow.md`, step 2).
+4. **Every video:** stock clips are at most half the shots, and a stock clip
    can sit in a window (`footage.md`); `tools/script_check.py` checks the
    share.
 

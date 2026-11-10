@@ -151,6 +151,21 @@ banned windup in `vitalik-ethereum`, a "subscribe" outro in
 `pulsatile-tinnitus` after that rule, and a spoken "CBT" plus "can help" in
 the tinnitus myths quiz - each shipped after the rule it breaks.
 
+**Gate: run the retention check on both scripts (2026-11-10).** It times
+the opening from the script and flags what the curves punished: sentence 2
+starting before 4s, an opener with no `opener_holds=True`, a crypto Short
+outside 30-40s (E17), an article long form over 3:00 (E18). It also prints
+what the voice is saying at 5.5s, the stock share, and the last line
+running into the first, which is how the loop reads (E16).
+
+```bash
+PYTHONPATH=. .venv/bin/python tools/retention_check.py \
+    projects/<project>-short/<name>.py projects/<project>-long/<name>.py
+```
+
+Put its output in the script handover with the other two checks, and
+answer each flag in a line. `shorts.md`, "The first eight seconds".
+
 **Pick the opener deliberately.** The redacted `hook=` is the default and the
 control; `longform.openers` has Counter / Stamp / Split / Search / Flash for a
 number, a belief, a comparison, a search phrase or a picture payoff. Choose by

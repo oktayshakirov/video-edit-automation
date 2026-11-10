@@ -28,6 +28,51 @@ FLOW_LAG = 0.30                 # a mark lands just after the word that earns it
 _DEFAULT_MUSIC = object()       # sentinel: resolves to music.track("night-drift")
 
 
+HOLD_LEAD = 0.25                # the opener is gone this long before the line
+HOLD_MOST = 4.0                 # never hold an opener longer than this extra
+HOLD_TRIM = 0.6                 # ...and never cut one shorter by more than this
+HOLD_MIN = 0.35                 # what is left of its hold after a trim
+
+
+def settle_opener(ov, starts: list[float], lead: float = HOLD_LEAD,
+                  most: float = HOLD_MOST, trim: float = HOLD_TRIM) -> float:
+    """Move an opener's exit so no bare frame sits between it and the captions.
+
+    Captions resume with the first sentence that starts once the opener has
+    gone (`shorts.md`, "Captions never run under an opener"). Two cases leave
+    the frame without type, and both are closed by moving the exit, never by
+    captioning under the opener:
+
+    * **A sentence starts just before the opener would leave** - within
+      `trim` seconds. It would be muted whole, to the sentence after it. The
+      opener leaves early instead, on that sentence's first frame, provided
+      `HOLD_MIN` of its hold survives.
+    * **The next sentence starts well after it leaves.** The opener stays
+      until `lead` before that sentence, at most `most` seconds longer.
+
+    Returns the change in seconds (negative for a trim). An overlay without
+    `exit_at` is left alone. The exit animation and its sound read `exit_at`
+    when they run, so both move with it.
+    """
+    if not hasattr(ov, "exit_at"):
+        return 0.0
+    length = ov.end - ov.exit_at
+    floor = getattr(ov, "start", 0.0) + getattr(ov, "land", 0.0) + HOLD_MIN + length
+    early = [a for a in starts if ov.end - trim <= a < ov.end and a >= floor]
+    if early:
+        delta = early[0] - ov.end
+    else:
+        nxt = next((a for a in starts if a >= ov.end), None)
+        if nxt is None:
+            return 0.0
+        delta = min(nxt - lead - ov.end, most)
+        if delta < 0.35:
+            return 0.0
+    ov.exit_at += delta
+    ov.end += delta
+    return delta
+
+
 def sentence_spans(sentences: list, captions: list) -> list[tuple[float, float]]:
     """Map each sentence onto the span its captions occupy.
 
@@ -410,6 +455,15 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # the line the hook is showing; printing it twice buys
                         # nothing. Set False to put them back.
                         hook_mutes_captions: bool = True,
+                        # **The opener stays up until the captions come
+                        # back** (2026-11-10). Captions resume with the first
+                        # sentence that starts after the opener has gone, so
+                        # an opener that leaves mid-sentence left the frame
+                        # with no type at all for 2-4s - at 4.5-7s, where the
+                        # steepest drop sits on 18 of 24 curves. True holds
+                        # the opener until just before that sentence. Off by
+                        # default so approved cuts render as they did.
+                        opener_holds: bool = False,
                         # **The outro's mute is a separate decision from the
                         # opener's, and it was one flag until 2026-09-27.**
                         # Both mutes exist to stop one statement being burned
@@ -719,7 +773,13 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # whole thing." So the boundary is the first sentence that starts
             # after the hook has gone, and everything before it is muted
             # whole.
-            resume = next((a for a, _ in spans if a >= hook_ov.end), None)
+            if opener_holds:
+                was = hook_ov.end
+                settle_opener(hook_ov, [a for a, _ in spans])
+                if abs(hook_ov.end - was) > 1e-3:
+                    print(f"opener: leaves at {hook_ov.end:.1f}s, not "
+                          f"{was:.1f}s - no bare frame before the captions")
+            resume = next((a for a, _ in spans if a >= hook_ov.end - 1e-3), None)
             if resume is None:
                 resume = float("inf")      # the hook outlives the narration
             # A sentence that is over before a late-entering opener

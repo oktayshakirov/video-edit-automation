@@ -140,6 +140,15 @@ copies that disagreed with each other.
    `shorts.md`, "No outro card on a Short"). The closing line is the last
    entry in `SENTENCES`, captioned like the rest; the card slowed the end
    where viewers leave. `script_check` flags it (`short-outro`).
+   **An article pair is written to be watched to the end** (2026-11-10):
+   a 10-13 word spoken title question on the Short, so sentence 2 - a
+   body-check when the article has one (`narration.md`) - starts near 4s;
+   `opener_holds=True` on its render call; a last line that runs back into
+   the title question (E16); a long form of 2:30-3:00 (E18); and no more
+   than half the shots plain stock, with `window=` for a clip that stands
+   for a page or a recording. `tools/retention_check.py` on both scripts
+   prints each of these - its output goes in the handover. Sessions are
+   exempt. `shorts.md`, "The first eight seconds"; `footage.md`.
 5. **Preflight, then build** - `projects/tinnitus-long/<name>.py` and
    `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for
    a session).
