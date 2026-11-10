@@ -615,12 +615,19 @@ it at all. So:
   Shorts opening at 125%+ held past 22s and none of the 17 under 125% passed
   14s. A replayed start lifts the whole curve, so a looping Short and a
   non-looping one are not on the same scale.
-- **The share the curve covers tracks Studio's "stayed to watch"**, so the
-  swipe rate can be read from the API. Checked on 2026-11-10 against
-  Studio for three Shorts: Tesla 8.9% against 6.8%, Billionaires 41.7%
-  against 48.0%, Binance 43.0% against 49.1%. It reads 2-6 points low but
-  ranks them the same. Ask the editor for Studio's figure only when a
-  verdict hangs on a few points.
+- **The share the curve covers is a rough guide to Studio's "stayed to
+  watch", not a substitute.** Checked against Studio on seven Shorts
+  (2026-11-10): it ranks them about right (Spearman 0.86) but misses by
+  up to 16 points, 7.7 on average, either way - Meme coin 16% against
+  31.6%, Bear market 27% against 16.5%. Worst on low-view Shorts (watch
+  minutes are whole numbers) and on uploads under a week old (lag). Use it
+  to spot a Short that is mostly swiped; **ask the editor for Studio's
+  figure for every Short a verdict rests on.**
+- **Swiping and the curve are two different stages - report both.** Star
+  Trek had the best stayed share of the seven (55%) and a poor curve (half
+  gone 8.8s); Tesla the worst stayed share (7%) and the best curve. The
+  first frame and first line decide the swipe; the script decides the
+  curve. A fix for one says nothing about the other.
 
 **This is now the first thing to reach for on any retention question**, because
 an average tells you a video lost people and the curve tells you at which
