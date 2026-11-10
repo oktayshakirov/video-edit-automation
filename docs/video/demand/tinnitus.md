@@ -10,7 +10,7 @@ the first job of the next research pass.
 The words a sufferer types, not ours. Tick a term (`[x]`) when its branch is
 exhausted, with the date.
 
-- [ ] tinnitus
+- [x] tinnitus (2026-11-10)
 - [ ] ringing in ears
 - [x] tinnitus at night / can't sleep tinnitus (2026-11-03, proven: multi-hour beds and night tips)
 - [x] tinnitus spikes (2026-10-25) / [ ] tinnitus suddenly louder
@@ -105,6 +105,12 @@ exhausted, with the date.
   promise better sleep; the losers promise to reduce or manage tinnitus.
 
 Everything else above is one channel so far - a clue, not proof.
+| 11-10 | Ear Doctor Shares 5 Facts about Tinnitus | House Institute | 1.0M | 450 | 2262x | what a doctor says about it | "[Authority] Shares N Facts about [condition]" | talking doctor; 2022, read as "this subject lasted" |
+| 11-10 | 5 Things That are Making your Tinnitus LOUDER | Doctor Cliff, AuD | 1.5M | 10,901 | 138x | what makes it worse | "N Things Making your [symptom] WORSE" | listicle, audiologist on camera |
+| 11-10 | What Does Tinnitus Sound Like? | Treble Health | 1.05M | 10,839 | 97x | what it sounds like | plain patient question | sound samples |
+| 11-10 | How to Stop Tinnitus in 30 SECONDS | SpineCare Decompression | 4.4M | 51,251 | 85x | a fast manoeuvre | sells a result, **closed to this channel** | chiropractic demo |
+| 11-10 | Understanding the Causes of Tinnitus | Zero To Finals | 437k | 68,483 | 6.4x | causes | plain topic | medical-student explainer |
+| 11-10 | Your Tinnitus and Hearing Loss C&P Exam: What the VA Won't Tell You | Dr. Marshall Bahr | 183k | 38,518 | 4.8x | US veterans' claims | "What [institution] Won't Tell You" | recent (2026-01); US-only audience |
 
 ## Our own standouts
 
@@ -120,6 +126,9 @@ channel. Read `traffic` before crediting a title.
 | 4-7-8 breathing session `09-05`, update | 440 YouTube (11-02), 4,075 impressions, CTR 5.84% | 272 suggested, 130 browse, 7 search | still the one session growing; CTR is the best of the sessions bar Cat Purring's 7.8% on 245 impressions |
 | Nebula Pulse session `10-22` | 5 at 10-23, **186 at 11-02**, CTR 4.60% on 2,368 | 130 of 147 suggested | rose during the E10 thumbnail test, which ended inconclusive (11-03): both covers drew it, so the cover was not the reason |
 | What Do You Do During a Tinnitus Spike? (Short, the spike re-angle) | YouTube 38, opens 150%, half gone 27.9s; **Facebook Reel 404** | Shorts feed / Facebook | the best article Short curve since Halving, on the re-angled promise; its long has 3 YouTube views |
+| Wild Echoes + 4-7-8 session, 1 hour `11-03` | **18.7K Facebook in 6 days**, 105 reactions; 20 YouTube | Facebook (source not visible from here) | one video; hour-long sound bed. Read the page's Professional dashboard before crediting length (E12) |
+| Box Breathing + Space Sounds (Short) `11-08` | 968 YouTube in 2 days, 3 subs, half gone 8.3s | Shorts feed 416 of 463 | reach without retention; the other space-sounds Short took 316. Search terms include "asmr ear to ear" |
+| Nebula Pulse session, update | 378 YouTube (11-09), 4,715 impressions, CTR 5.01% | suggested 300 | doubled again in 7 days, on suggested |
 
 ## Formats, and whether they fit this channel
 
@@ -177,3 +186,4 @@ One line per branch: date, the term or channel, what it added.
   Short, Neil Tranter's coherent breathing timer 11.7x. **Proven: box
   breathing and coherent (6-6, 5 breaths a minute) breathing**, as
   exercises a viewer plays along with, with or without sound.
+- **"tinnitus" (2026-11-10).** The broad term returns old explainers and sound-sample Shorts: health-system "what does it sound like" Shorts at 667-4,120x, House Institute 2,262x, Doctor Cliff "making your tinnitus LOUDER" 138x. Most are 2-5 years old, so read the ratios as "this subject lasted". The trigger list is the format with the most room for us; "stop it in 30 seconds" is closed.

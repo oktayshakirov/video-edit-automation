@@ -12,7 +12,7 @@ The words a newcomer or a sceptic types. Tick a term (`[x]`) when its branch
 is exhausted, with the date.
 
 - [x] how does bitcoin work (2026-11-03, proven, old and crowded)
-- [ ] is crypto a scam / crypto scams
+- [x] crypto scams (2026-11-10) / [ ] is crypto a scam
 - [ ] [named token] explained / is [token] a scam (2026-11-07: squid game, see branches)
 - [x] crypto wallet / seed phrase / self custody (2026-11-02, teardown `what-is-a-seed-phrase`)
 - [ ] how to not lose money in crypto
@@ -59,6 +59,13 @@ is exhausted, with the date.
 
 **Proven subjects (2+ channels):** crypto billionaires / rich lists (2026-11-04: Data Face, Gravity, Boomnix, Top 10 Galaxy, MagnatesMedia). Named-project explainers recur
 on Whiteboard Crypto alone; a second channel is needed.
+| 11-10 | The Crypto Scam That's Draining Thousands of Metamask and Phantom Wallets | Crypto Dev | 37k | 1,264 | 29x | a live wallet-draining scam | "The [scam] That's Draining [named wallets]" | 2025 |
+| 11-10 | 3 Crypto Scams YOU WILL Fall For & How To Avoid | Adam Venture Crypto | 411k | 15,501 | 26.5x | scams aimed at you | "N Scams YOU WILL Fall For" | 2023 |
+| 11-10 | This is one of the MOST COMMON Crypto Scams! #shorts | Cyber Scrilla | 135k | 9,872 | 13.6x | one common scam | caps on the stake | Short |
+| 11-10 | Crypto: The World's Greatest Scam. | James Jani | 7.8M | 1.78M | 4.4x | crypto as a whole | a thesis statement | long documentary |
+| 11-10 | New Crypto Scams to Watch Out For in 2026 | CoinGecko | 19k | 5,744 | 3.3x | this year's scams | "New [X] to Watch Out For in [year]" | recent (2026-03), a yearly format |
+| 11-10 | The Most Dangerous Crypto Scam in the World | VICE News | 426k | 135k | 3.2x | pig-butchering | superlative + scam | documentary |
+| 11-10 | A Lie Millions Wanted to Believe: The Biggest Crypto Scam Ever Created | ENDEVR | 359k | 119k | 3.0x | OneCoin-scale fraud | a story line | recent (2026-07) |
 
 ## Our own standouts
 
@@ -76,6 +83,7 @@ on Whiteboard Crypto alone; a second channel is needed.
 coin. Whether any of them watched a second video or subscribed is the
 check that says if it was a channel win or a one-off (Open check in
 `video-performance-review/experiments.md`).
+| How Did North Korea Take $6 Billion From Binance? (Short), update | 132 views, 124 minutes watched, opens 334% | Shorts feed | real replay: 56 seconds a view on a 50-second Short (11-10) |
 
 ## Formats, and whether they fit this channel
 
@@ -255,3 +263,4 @@ One line per branch: date, the term or channel, what it added.
   CoinGecko 49x and 29.3x ("How It ACTUALLY Works"), Whiteboard 32.9x;
   the "earn N%" and "is it worth it" titles are closed to us (yield as a
   promise) and the latter sits at 0.4-1.1x anyway.
+- **"crypto scams" (2026-11-10).** Proven and partly recent: "the scam draining wallets" 29x, "scams you will fall for" 26.5x, CoinGecko's 2026 list 3.3x (a yearly format), ENDEVR's big-fraud story 3.0x. The random-tokens pair already sits in this lane.
