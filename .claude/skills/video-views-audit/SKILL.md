@@ -607,15 +607,20 @@ it at all. So:
   is the number the Shorts goal is set in, and the only one that includes the
   swipe.
 - **"Opens at 400%" can rest on a handful of viewers.** The Tesla Short opened
-  at 411% with the curve covering 9% of views (~20 people) two days after
-  upload; a share under ~15% on a new video is usually analytics lag. Binance,
-  at 56 seconds a view on a 50-second Short, was a real loop.
+  at 411% with the curve covering 9% of views (~20 people), and Studio
+  confirmed it: 6.8% stayed to watch, 93.2% swiped (2026-11-10). It is not
+  analytics lag, as first assumed. Binance, at 56 seconds a view on a
+  50-second Short, was a real loop.
 - **Compare half-gone only within opening-% groups.** On 2026-11-10, 6 of 7
   Shorts opening at 125%+ held past 22s and none of the 17 under 125% passed
   14s. A replayed start lifts the whole curve, so a looping Short and a
   non-looping one are not on the same scale.
-- **Studio's "viewed vs swiped away"** (Shorts, per video) is the swipe rate
-  itself; ask the user for it when the share matters.
+- **The share the curve covers tracks Studio's "stayed to watch"**, so the
+  swipe rate can be read from the API. Checked on 2026-11-10 against
+  Studio for three Shorts: Tesla 8.9% against 6.8%, Billionaires 41.7%
+  against 48.0%, Binance 43.0% against 49.1%. It reads 2-6 points low but
+  ranks them the same. Ask the editor for Studio's figure only when a
+  verdict hangs on a few points.
 
 **This is now the first thing to reach for on any retention question**, because
 an average tells you a video lost people and the curve tells you at which
