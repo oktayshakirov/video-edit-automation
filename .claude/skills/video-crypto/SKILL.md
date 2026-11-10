@@ -130,6 +130,14 @@ sequence drifted into four copies that disagreed.
    `shorts.md`, "No outro card on a Short"). The closing line is the last
    entry in `SENTENCES`, captioned like the rest; the card slowed the end
    where viewers leave. `script_check` flags it (`short-outro`).
+   **Write for the first eight seconds, then check them** (2026-11-10,
+   `shorts.md`, "The first eight seconds"): the Short's spoken title
+   question runs 10-13 words so sentence 2 starts near 4s, its render call
+   passes `opener_holds=True`, it runs 30-40s (E17), and the long form
+   2:30-3:00 (E18). At most half of either script's shots are plain stock;
+   put a clip in a `window=` or draw the beat (`footage.md`). Run
+   `tools/retention_check.py` on both scripts with the other gates and
+   hand its output over.
 4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
 

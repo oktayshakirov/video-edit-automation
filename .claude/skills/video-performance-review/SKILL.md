@@ -103,6 +103,13 @@ when the run itself changes order or gains a step.
      `arrow`, `beat`; by eye before 2026-11-08), and in the snapshot put
      the per-style table from `video-views-audit`, "Comparing cover
      styles";
+   **Then run the lab.** Save `retention <id> --json` for every article
+   Short with a curve into one folder and run
+   `PYTHONPATH=. .venv/bin/python tools/retention_check.py --lab <folder>`
+   from video-edit-automation. It joins each curve to its script and
+   re-splits half-gone and seconds per view by sentence-2 start, bare
+   stretch, length, replay and stock share. Put the splits in the snapshot,
+   and retire a `retention_check` flag whose split has stopped predicting.
 4. **Write the snapshot** to `history/<today>.md` in the shape of the last
    one: totals table, per-platform rows, the retention cohort with tags.
    **Then extend each channel's demand map by one branch** - the next

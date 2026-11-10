@@ -1260,6 +1260,42 @@ holders and buyers (8) - with the stake between, one short phrase per card
 keep each phrase under ten words to stay there.
 
 
+## The first eight seconds (2026-11-10)
+
+Most of a Short's views are gone before its curve starts, and the curve's
+steepest step sits at 4.5-7s on 18 of 24 Shorts whatever the script says
+there (`retention.md`). Two things in our own first seconds line up with
+that step, both found on 2026-11-10, and every new article Short on both
+channels now does both:
+
+**1. Ask a full title question, so sentence 2 starts at about 4 seconds.**
+Across 32 curves, sentence 2 starting at 4.0s or later held on 8 of 9
+Shorts (median half-gone 19.8s); starting earlier, on 9 of 23 (10.1s). A
+five-word question ("Will GTA 6 have crypto?") is read by 1.5s, so the
+partial answer has landed by the time the viewer decides at ~5.5s, and a
+landed answer is an exit. A 10-13 word question that carries the stake
+("If you buy Tesla on a blockchain, do you own Tesla?") is still being
+answered at that moment. **Lengthen the question with substance - the
+number, the name, the stake - never the pause after it**; the one late
+start that failed was a statement, not a question. The YouTube title can
+stay short; this is the spoken first line.
+
+**2. `opener_holds=True` on the render call - no bare frame.** Captions
+never run under an opener and resume with the next whole sentence (below),
+so an opener leaving at ~4.5s, mid-sentence, left the frame with **no type
+at all for 2-4 seconds** - seen on the Bear market, When-you-die and Tesla
+Shorts, and on 4 of 7 Shorts with a timed opener the steepest step was
+within 0.6s of the opener's exit. With the flag the opener's exit moves:
+it stays until a quarter second before the captions come back (at most 4s
+longer), or leaves up to 0.6s early when a sentence starts just as it
+would go. Nothing is captioned under it. The build prints the new time.
+
+`tools/retention_check.py` prints both timings from the script and flags
+either one missing (`workflow.md`, step 2). They are estimates at 3.25
+words a second; the build's own "opener:" and "hook:" lines are exact.
+Both are being tested, not settled: `video-performance-review` re-runs the
+splits on every curve (`retention_check.py --lab`), E21 and E22.
+
 ## Running from 2026-11-10: length and the loop, one per channel
 
 The goal is viewers who stay to the end (`retention.md`). Two tests run on
