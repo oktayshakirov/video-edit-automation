@@ -86,6 +86,46 @@ to-wall stock loops under an AI voice is still the failure the shorts describe.
   to sit with the stills. `clip_at` skips into the source; stock rarely opens on
   its own best moment.
 
+## Stock is at most half the shots (2026-11-10)
+
+The editor: "videos look better with less stock footage and more creative
+custom screens ... stock footage are still okay, just lets avoid overdoing
+it and that the whole video is stock footage." Across 114 scripts on
+2026-11-10, a median **76% of shots were plain stock clips**, and a third of
+them over 85%. Our own curves cannot yet say whether stock costs retention:
+10 of the 11 Shorts matched to a curve were over 60% stock. This is the
+editor's call on how the videos look, and each review notes stock share
+beside retention so the data can catch up.
+
+**The rule: at most half a video's shots are plain stock clips.**
+`tools/script_check.py` flags anything over (`stock-share`). The other half
+comes from what this repo already draws:
+
+- a **drawn beat** (`beats.md`) - stat, compare, steps, reel, spotlight, stake,
+  pile, post;
+- the **site's own photograph** with a depth move (`parallax=`, `isolate=`,
+  `pop=`, below);
+- a **real page**, captured (`screencap`, below);
+- a stock clip **inside a window** - `Shot(clip=..., window=...)` - which
+  stops counting as plain stock.
+
+### A stock clip in a window: `window=` (2026-11-10)
+
+`core/window.py` draws any shot inside a window over the brand background,
+with a soft shadow and a slow push-in:
+
+| `window=` | looks like | the text is | use it when |
+| --- | --- | --- | --- |
+| `("browser", "binance.com/...")` | a browser tab with an address pill | the address | the line is about a site, an exchange, an announcement |
+| `("player", "Robinhood keynote, 2025")` | a video player, progress filling across the shot | the recording's caption | the clip stands for a recording someone made: a keynote, a news report, a hearing |
+| `("terminal", "$ whois tesla-token.xyz")` | a terminal with a typed command | the command | something technical is being checked: a wallet, a contract, a domain |
+
+Rules: the text must be true to the line - a real address, a real event,
+a command that would do what the line says; never a made-up page passed off
+as real. Two windows of the same kind back to back read as one long shot;
+alternate with a drawn beat. In 9:16 the window is near square, so pick
+`clip_ax`/`clip_ay` for the middle of the picture, as for any vertical crop.
+
 ## Screen a clip by watching it, not by looking at one frame of it
 
 `woman-sitting-alone-dark-room-thinking/6073058` screened at L13-14 / S8 and

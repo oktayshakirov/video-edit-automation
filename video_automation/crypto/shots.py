@@ -134,6 +134,10 @@ class Shot:
     # go on - "bloom", "leak", "aberration", "vignette", ("leak", 0.6), or a
     # list chained in order (`core/shaderfx.py`). None creates no GL context.
     shader: "str | tuple | list | None" = None
+    # Any shot: shown inside a window over the brand background -
+    # "browser", "player", "terminal", or (kind, text) for the address, the
+    # recording's caption or the typed command (`core/window.py`, 2026-11-10).
+    window: "str | tuple | None" = None
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:
@@ -938,6 +942,14 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
         from ..core.shaderfx import ShaderShot
         prepared = [ShaderShot(p, s.shader, s.hold, brand)
                     if s is not None and getattr(s, "shader", None) else p
+                    for p, s in zip(prepared, shots)]
+
+    # `Shot(window=)` puts the prepared shot inside a browser, player or
+    # terminal window; without it nothing here runs.
+    if any(s is not None and getattr(s, "window", None) for s in shots):
+        from ..core.window import WindowShot
+        prepared = [WindowShot(p, s.window, s.start, s.hold, frame, brand)
+                    if s is not None and getattr(s, "window", None) else p
                     for p, s in zip(prepared, shots)]
 
     if mark is not None:

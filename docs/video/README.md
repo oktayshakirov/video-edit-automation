@@ -24,6 +24,7 @@ user. A rule credited to the editor's note came out of that review.
 | `design.md` | Type, colour, layout, backgrounds |
 | `audio.md` | Music, generated beds, sound effects |
 | `thumbnails.md` | One per video, and how the pair share a source image |
+| `retention.md` | The channel goal: where viewers leave, what the market does about it, five channels to learn from |
 | `troubleshooting.md` | Engine faults that already cost a re-cut once |
 | `demand/README.md` | Demand maps: proving people already watch a subject before it is picked, and the formats that fit each channel |
 | `demand/tinnitus.md`, `demand/crypto.md` | Each channel's map - standouts, proven subjects, formats |
