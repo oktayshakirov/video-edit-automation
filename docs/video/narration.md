@@ -522,6 +522,23 @@ description; "do this to stop the ringing" is a promise and is out.
 at roughly half the pre-hook depth of -13 to -27. Two videos is direction, not
 proof - a third post-hook Short reproducing the jaw plateau would settle it.
 
+**Settled 2026-11-10: a body-check holds, 3 of 4.** The third came in:
+
+| Short | sentence 2 | half gone |
+|---|---|---|
+| Jaw `cQ2I3ZCv2EE` | "Quick check - are your teeth touching right now?" | 28.8s |
+| Spike `L2yokcrlY7A` | "Start here: are your shoulders up near your ears right now?" | 27.9s |
+| Ear or brain `FCzcMdXCiKI` | "Listen for yours right now. Is it louder than a second ago?" | 14.0s |
+| Stress-o-meter `LNgWJhtU7_0` | a 0-10 loudness number the sufferer already knows | **8.5s** |
+
+The one that failed asked for something the viewer already knew, not
+something they had never checked. **So the task has to be a check they can
+do in the next two seconds on their own body, with an answer they do not
+know yet** - teeth, shoulders, "is it louder than a second ago". Rating
+their tinnitus out of ten is not one; they have rated it a hundred times.
+When an article has such a check, it is sentence 2 by default
+(`video-performance-review/history/2026-11-10.md`).
+
 ### Confirmed 2026-10-11: a plain or confirming answer is the verdict
 
 Eleven Shorts with curves now, across both channels and four opener types.

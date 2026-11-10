@@ -49,6 +49,7 @@ What they cover:
 | `test_shaderfx.py` | bloom glows only what is bright, a leak never darkens, aberration spares the centre, a vignette keeps the middle; no effect never makes a GL context |
 | `test_spotlight_ambience.py` | the spotlight's box fits the content; place-sound stays restrained |
 | `test_transitions.py` | `push` stays byte-identical; every mode returns a frame |
+| `test_window.py` | a `window=` shot stays inside each frame's safe box, hides the inner picture's border, and the player's progress grows across the shot |
 | `test_vision.py` | depth moves near more than far, `isolate` dims only the room, `pop` puts the head over the edge, `behind` keeps its word readable, shows it whole in front before tucking it behind, fits its tuck into a short beat, takes a light placement first, and with `entry="rise"` shows the word on the empty room before the subject comes up in front - on stub maps, no model needed |
 | `test_docs.py` | the docs and skills point at files that exist, and this table lists every test |
 

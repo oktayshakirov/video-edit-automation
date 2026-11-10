@@ -324,7 +324,23 @@ RULES = {
     "cover-style": Rule("cover-style", "thumbnails.md, 'Cover styles are a choice, "
                         "and every video says which'", ("crypto", "tinnitus"),
                         ("long", "short"), since="2026-11-08"),
+    # The editor (2026-11-10): videos look better with fewer stock clips and
+    # more custom screens - stock is fine, the whole video being stock is
+    # not. The back catalogue's median was 76% (114 scripts).
+    "stock-share": Rule("stock-share", "footage.md, 'Stock is at most half the "
+                        "shots'", ("crypto", "tinnitus"), ("long", "short"),
+                        since="2026-11-10"),
 }
+
+# The most of a video's shots that may be plain stock clips (`stock-share`).
+STOCK_MAX = 0.5
+
+
+def is_plain_stock(sh) -> bool:
+    """A stock clip shown full frame - not a captured page, not in a window."""
+    clip = getattr(sh, "clip", None)
+    return (clip is not None and "captures/" not in str(clip)
+            and not getattr(sh, "window", None))
 
 # The cover styles a build may declare in `COVER_STYLE`. Add a name here
 # when a new kind of cover ships, with a line in thumbnails.md.
@@ -471,6 +487,14 @@ def check(sc: Script) -> list[Finding]:
             f.append(Finding("short-outro", "render call",
                              "an `outro=` closing card - say the last line as an "
                              "ordinary sentence instead"))
+    if "stock-share" in on and shots:
+        n = sum(1 for sh in shots if is_plain_stock(sh))
+        if n / len(shots) > STOCK_MAX:
+            f.append(Finding("stock-share", "shots",
+                             f"{n} of {len(shots)} shots are plain stock clips "
+                             f"({n / len(shots):.0%}) - at most half: a drawn "
+                             "beat, a site photo, a captured page, or "
+                             "`window=` on a clip"))
     if "feed-clip" in on:
         seen = set()
         for sh in shots:

@@ -205,6 +205,22 @@ def test_every_video_says_its_cover_style():
                                                  COVER_STYLE=style))
 
 
+def test_stock_is_at_most_half_the_shots():
+    """The editor (2026-11-10): stock is fine, a video of only stock is not."""
+    clip = Path("assets/stock/videos/x/1.mp4")
+    stock = [SimpleNamespace(clip=clip)] * 3
+    drawn = [SimpleNamespace(clip=None, graphic="stat")] * 2
+    assert "stock-share" in rules(script("crypto", "long", [("A.",)],
+                                         SHOTS=stock + drawn))
+    assert "stock-share" not in rules(script("crypto", "long", [("A.",)],
+                                             SHOTS=stock[:2] + drawn))
+    # A clip in a window, or a captured page, is not plain stock.
+    framed = [SimpleNamespace(clip=clip, window="browser")] * 2
+    page = [SimpleNamespace(clip=Path("assets/stock/captures/p/p.mp4"))]
+    assert "stock-share" not in rules(script("tinnitus", "short", [("A.",)],
+                                             SHOTS=stock[:1] + framed + page))
+
+
 # --- the back catalogue ----------------------------------------------------
 
 SCRIPTS = sorted(p for d in ("crypto-long", "crypto-short", "tinnitus-long",

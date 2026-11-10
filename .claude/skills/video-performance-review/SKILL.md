@@ -1,6 +1,6 @@
 ---
 name: video-performance-review
-description: The recurring performance review of the AI-built videos, run 2-3 times a month - YouTube (Shorts and long-form, with retention curves), TikTok, Instagram Reels and Facebook for Tinnitus Help and Crypto Wiki, plus the drone channel when a drone experiment is running. Pulls the numbers, compares them against the last snapshot, judges the running experiments, turns findings into changes to the video build rules, tools and skills, reviews those changes with the user before applying them, and sets what the next run checks. Use when the user runs /video-performance-review, asks to "run the audit" or "a new audit", asks what is working and what is not, asks how the channels are doing overall, wants the regular review, or wants to plan the next round of video improvements. For one video, one platform, or a metadata change use video-views-audit; for building videos use video-tinnitus / video-crypto / video-drone.
+description: The recurring performance review of the AI-built videos, run 2-3 times a month - YouTube (Shorts and long-form, with retention curves), TikTok, Instagram Reels and Facebook for Tinnitus Help and Crypto Wiki (never the drone channel). Pulls the numbers, compares them against the last snapshot, judges the running experiments, turns findings into changes to the video build rules, tools and skills, reviews those changes with the user before applying them, and sets what the next run checks. Use when the user runs /video-performance-review, asks to "run the audit" or "a new audit", asks what is working and what is not, asks how the channels are doing overall, wants the regular review, or wants to plan the next round of video improvements. For one video, one platform, or a metadata change use video-views-audit; for building videos use video-tinnitus / video-crypto / video-drone.
 ---
 
 # Video performance review
@@ -10,6 +10,27 @@ month**, and its value comes from two things: **comparison over time** (every
 run reads the last snapshot first and writes a new one), and **findings that
 reach the build** (a finding that stays in a report changes nothing; the next
 video is built from `docs/video/`, so that is where it has to land).
+
+## The goal every run is judged by (the editor, 2026-11-10)
+
+**Videos people watch to the end.** Reach matters, but the main goal is
+engagement: viewers staying, on Shorts and long forms alike. Every proposed
+change answers "does this keep people longer?" first. The numbers that
+judge it, per channel, each against that channel's own history:
+
+| format | the number | why |
+| --- | --- | --- |
+| Short | **seconds per counted view** (`retention` prints it) | the curve covers only the viewers past the swipe, ~38% of views |
+| Short | half-gone second and last-frame % | where inside the video they leave |
+| Long form | average view duration in seconds, and average % | AVD and AVP, the two the market optimises |
+| Both | Facebook and TikTok buckets | reach on the platforms that carry each format |
+
+The targets and their dates are in `experiments.md`, "The Shorts goal".
+
+**The drone channel is out of the review** (the editor, 2026-11-10). Do not
+pull, count or report its views and analytics in a run, even when a drone
+experiment is open. Drone work is read only when the user asks about one
+drone video by name.
 
 ## Files
 
@@ -47,8 +68,7 @@ when the run itself changes order or gains a step.
    `experiments.md`, **Open checks** first. Note today's date, days since the
    last run, and how long each experiment has run.
 2. **Pull every platform** with `video-views-audit`'s procedures: both
-   channels on all four platforms, and drone whenever a drone experiment is
-   open. Do not skip a dull platform; Instagram went to zero without anyone
+   channels on all four platforms, never drone. Do not skip a dull platform; Instagram went to zero without anyone
    noticing. **Ask the user for Studio's CSV export at the start**
    (Analytics, Advanced mode: Impressions and Impressions CTR per video, for
    each channel, since the last run). It is the only source of impressions

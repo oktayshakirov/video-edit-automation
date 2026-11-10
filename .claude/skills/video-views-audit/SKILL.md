@@ -21,6 +21,10 @@ YouTube reads the smallest platform of the three.
 | Crypto Wiki | `crypto` | `@thecrypto.wiki` | `thecrypto.wiki` | `thecryptowiki` |
 | Drone (Drone Pal) | `drone` | - | - | - |
 
+**Drone is out of every review and general audit** (the editor, 2026-11-10):
+its views and analytics are not pulled or counted. Read a drone video only
+when the user names it.
+
 Handles are in each site's footer (`~/Coding/tinnitus-blog`,
 `~/Coding/crypto-wiki`) if they ever change.
 
@@ -261,6 +265,9 @@ sample rules below still hold: fewer than five videos with data means no
 ranking and no winner.
 
 ## Channel context — drone
+
+*Only when the user asks about a drone video by name - the drone channel is
+not part of any review or general audit since 2026-11-10.*
 
 - Focus is **2026-onwards drone videos**. Everything before 2026 is old, private and
   irrelevant — filter with `--since 2026-01-01`.
@@ -589,6 +596,27 @@ Prints watch-share at each point in the video, the change between samples, the
 three steepest drops and where half the opening audience is gone. `--json` for
 the raw points.
 
+**It also prints what a counted view delivers** (since 2026-11-10): watch
+time divided by every counted view, and the share of views the curve and the
+average view are computed over (`delivery` in `--json`). **On a Short that
+share is a median 38%** (31 Shorts, 0.16-0.58): the curve and the average
+describe only the viewers who stayed past the swipe, and the rest are not on
+it at all. So:
+
+- **Report seconds per counted view for every Short**, beside half-gone. It
+  is the number the Shorts goal is set in, and the only one that includes the
+  swipe.
+- **"Opens at 400%" can rest on a handful of viewers.** The Tesla Short opened
+  at 411% with the curve covering 9% of views (~20 people) two days after
+  upload; a share under ~15% on a new video is usually analytics lag. Binance,
+  at 56 seconds a view on a 50-second Short, was a real loop.
+- **Compare half-gone only within opening-% groups.** On 2026-11-10, 6 of 7
+  Shorts opening at 125%+ held past 22s and none of the 17 under 125% passed
+  14s. A replayed start lifts the whole curve, so a looping Short and a
+  non-looping one are not on the same scale.
+- **Studio's "viewed vs swiped away"** (Shorts, per video) is the swipe rate
+  itself; ask the user for it when the share matters.
+
 **This is now the first thing to reach for on any retention question**, because
 an average tells you a video lost people and the curve tells you at which
 sentence — and on every video compared so far those two have pointed at
@@ -618,6 +646,8 @@ video, different conclusion, and only one of them was right.
 
 **Per platform, before the YouTube detail below:**
 
+- **A Short's curve leaves out the swipes** - see "Use the retention
+  curve". Seconds per counted view is the honest Shorts number.
 - **Only YouTube gives a retention curve.** TikTok, Instagram and Facebook
   give a play/view count and nothing about *where* people left. Any claim
   about what happened inside a TikTok is inference - say so, and use the
