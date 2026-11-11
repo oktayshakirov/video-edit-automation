@@ -1,0 +1,36 @@
+{
+  "name": "nidcd-sudden-deafness",
+  "url": "https://www.nidcd.nih.gov/health/sudden-deafness",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "title": "css=h1",
+    "emergency": "text=should consider sudden deafness symptoms a medical emergency and visit a doctor immediately"
+  },
+  "hide": [],
+  "captured": "2026-11-10",
+  "title": "Sudden Sensorineural Hearing Loss (SSHL) | NIDCD",
+  "size": [
+    2560,
+    9000
+  ],
+  "boxes": {
+    "title": [
+      256,
+      1084,
+      1776,
+      1188.78125
+    ],
+    "emergency": [
+      256,
+      2491.96875,
+      1684.71875,
+      2529.96875
+    ]
+  }
+}

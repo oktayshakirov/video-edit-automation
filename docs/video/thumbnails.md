@@ -1000,3 +1000,19 @@ to `DEMAND`, to the style of the cover that shipped:
 here). Scripts built before 2026-11-08 have no tag; the review reads their
 cover by eye, and almost all are `"text"`. If the editor swaps a cover
 after publishing, change the tag in the same commit.
+
+## The cover's picture stays on the cover (2026-11-11)
+
+The editor, on the one-ear pair: "remove the thumbnail from the videos,
+you can keep the image as thumbnail but it gets very repetitive and
+boring." The first cut ran the cover's picture (the site's half-lit face)
+three times inside the long form - an `isolate` in the hook, the `behind`
+word, the disclaimer - and once in the Short. **The cover's picture is the
+cover only**: the viewer has already seen it in the feed, and seeing it
+again inside the video is a repeat, not a payoff. Pick other pictures for
+the shots, including the disclaimer's `stillclip`.
+
+**On tinnitushelp.me the cover's text says "tinnitus"** (same day): the
+first one-ear cover read "Only in one ear?" and the editor asked for the
+word. It is what the viewer typed; "Tinnitus in [one ear?]" carries it.
+

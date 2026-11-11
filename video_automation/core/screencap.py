@@ -147,6 +147,30 @@ def grab(url: str, name: str, select: dict[str, str] | None = None,
         }""")
         boxes = {}
         for key, sel in select.items():
+            if sel.startswith("text="):
+                # One sentence inside a paragraph: the box of the words
+                # themselves (a DOM Range), so the ring sits on the line the
+                # narration reads rather than on the whole paragraph.
+                box = page.evaluate("""(phrase) => {
+                    const w = document.createTreeWalker(document.body,
+                                                        NodeFilter.SHOW_TEXT);
+                    for (let n = w.nextNode(); n; n = w.nextNode()) {
+                        const i = n.data.indexOf(phrase);
+                        if (i < 0) continue;
+                        const r = document.createRange();
+                        r.setStart(n, i); r.setEnd(n, i + phrase.length);
+                        const b = r.getBoundingClientRect();
+                        return [b.left + scrollX, b.top + scrollY,
+                                b.right + scrollX, b.bottom + scrollY];
+                    }
+                    return null;
+                }""", sel[5:])
+                if box is None:
+                    browser.close()
+                    raise ValueError(f"{name}: --select {key}={sel!r} matched no "
+                                     f"text on {url}")
+                boxes[key] = [v * cap.scale for v in box]
+                continue
             box = page.evaluate("""(sel) => {
                 const el = document.querySelector(sel);
                 if (!el) return null;

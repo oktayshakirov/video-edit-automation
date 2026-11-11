@@ -1671,3 +1671,19 @@ automatically; the editor removed it (2026-11-05).
 Files are fetched once into `~/.local/share/video-automation/emoji/`
 (~200KB each); a missing animation is remembered as `<code>.none` and never
 asked for again.
+
+## `audiogram` - a hearing test, one ear at a time (2026-11-10)
+
+`Shot(graphic="audiogram", payload=(first, second, title, note[, names]))`.
+The chart a hearing test produces: pitch left to right, quieter sounds at
+the top, one ear in O marks and the other in X, each line travelling across
+the phrase that names it, then the gap between them shading in with `note`
+beside its widest point. Two reveals; portrait-safe.
+
+Built for `tinnitus-in-one-ear`, whose argument lands on "the two sides
+compared" - the one picture a clinic actually hands you, which `chart`
+could not draw (it normalises one series and hides its axis). The labels
+are words, not Hz and dB HL: the beat claims a shape, two ears that do not
+match, not a reading. **Always title it as an example** ("AN EXAMPLE") -
+a drawn audiogram without that word reads as somebody's result, and on
+this channel that is a diagnosis on screen.

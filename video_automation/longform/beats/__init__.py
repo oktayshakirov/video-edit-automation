@@ -73,7 +73,7 @@ from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
 from .column import ChapterCard, Checklist, Compare, Quote, Stat
-from .plot import Chart, Spectrum, Timeline
+from .plot import Audiogram, Chart, Spectrum, Timeline
 from .scale import Bars, Dial, Gauge
 from .post import Post
 from .reel import Reel
@@ -88,7 +88,7 @@ __all__ = [
     "ChapterCard", "Checklist", "Stat", "Compare", "Quote",
     "Grid", "Logos", "Steps", "Split", "Replicate", "Pool",
     "Bars", "Gauge", "Dial",
-    "Timeline", "Chart", "Spectrum",
+    "Timeline", "Chart", "Spectrum", "Audiogram",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
     "Behind", "Pile", "Lookalike",
@@ -117,6 +117,7 @@ BEATS = {
     "map": Map,
     "anatomy": Anatomy,
     "spectrum": Spectrum,
+    "audiogram": Audiogram,
     "reel": Reel,
     "post": Post,
     "spotlight": Spotlight,
@@ -164,6 +165,8 @@ _COUNT = {
     "spectrum": lambda p: (len(p[0]) + 1
                            if p[0] and isinstance(p[0][0], (tuple, list))
                            else 2),
+    # The first ear's line, then the second's with the gap between them.
+    "audiogram": lambda p: 2,
     # One card per caption: the camera arrives as each is named.
     "reel": lambda p: len(p[0]),
     # The card arriving, then its marked line highlighted.

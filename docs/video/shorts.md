@@ -1153,6 +1153,17 @@ Short the same `Stamp` and land it in sentence 2 ("The Bitcoin was a
 rumor..."), with sentence 1 still the title question. Rotation is across
 videos on the channel, not between the two halves of a pair.
 
+**A pair may share its whole intro, too** (2026-11-11). The one-ear Short
+first opened on its own query ("is tinnitus in one ear serious") and a
+hearing body-check; the editor found it "not that good" and asked for the
+long form's intro on the long form's longer search ("why is my tinnitus
+only in one ear?"). Its first three lines are the long form's, word for
+word: one ear feels different, the scary search result, "Actually, it
+usually has an ordinary cause." Sentence 2 still starts at ~4.2s and keeps
+the answer back. Watch its curve against the body-check Shorts in the
+review: it is the first article Short since 2026-11-10 to drop the
+body-check that rule asks for, at the editor's call.
+
 ## A still whose lettering is the point is shown whole (2026-10-20)
 
 The launch trailer's DacityCoin plane went in at `aspect=0.95` and the 9:16

@@ -76,6 +76,9 @@ PAYLOADS = {
     "anatomy": ([("The jaw joint", 0.65, 0.45, "l"),
                  ("Your ear canal", 0.70, 0.42, "r")], "THE NEIGHBOURHOOD"),
     "spectrum": ((3400, 5200), "NOTCHED AUDIO", "cut around your tone", "notch"),
+    # (first ear, second ear, title, note): portrait-safe.
+    "audiogram": ([10, 10, 15, 15, 20, 25], [10, 15, 25, 40, 55, 60],
+                  "AN EXAMPLE", "the gap"),
     # A still, a missing clip (drawn as its label) and a text card: the three
     # kinds of card the strip takes.
     "reel": ([("<photo>", "Day 1"), ("missing.mp4", "Day 2"), (None, "Day 30")],
@@ -210,7 +213,7 @@ def test_beat_renders_on_both_brands(name):
 # coverage at all from the landscape cases above.
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
-            "post", "spotlight", "behind", "pile"]
+            "post", "spotlight", "behind", "pile", "audiogram"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
