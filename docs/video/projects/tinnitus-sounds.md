@@ -21,6 +21,7 @@ Short together). Pick the next one from the unused rows.
 | Purring Melodies | one track, name not recorded (supplied as `1.wav`) | `cat-purr-comfort` | 2026-10 |
 | Quiet Universe | Low Gravity | `low-gravity-box-breathing` (1 hour) | 2026-11-07 |
 | Quiet Universe | Soft Orbit | `soft-orbit-6666-breathing` (1 hour) | 2026-11-08 |
+| White Noise Therapy | Tranquil Zenith | `tranquil-zenith-21-breathing` (1 hour) | 2026-11-11 |
 
 **Not album tracks** (no row above takes them off the list):
 `478-breathing-white-noise` is generated white noise (`soundbed.Bed`);
@@ -35,7 +36,7 @@ here.
 | --- | --- | --- |
 | Quiet Universe | `/zen/quiet-universe` | Gentle Cosmos, Weightless Journey, Interstellar Calm, Zero Pressure |
 | Jungle Stillness | `/zen/jungle-stillness` | Wildlife Whisper, Quiet Creatures, Moonlight Calm, Flowing Night |
-| White Noise Therapy | `/zen/white-noise` | Tranquil Zenith, Cloudscape Serenity, Ethereal Resonance |
+| White Noise Therapy | `/zen/white-noise` | Cloudscape Serenity, Ethereal Resonance |
 | Feathered Tunes | `/zen/bird-sounds` | four of Morning Songbirds, Tree Top Tunes, Wings of Calm, Chirps & Tweets, Sky Echoes (one is used, name unknown) |
 | Purring Melodies | `/zen/cat-purr-sounds` | four of Deep Sleep Purr, Violin Purr Serenade, Dreamy Purrs, Gentle Night Purr, Purr Therapy (one is used, name unknown) |
 | Fireside Harmony | `/zen/fire-sounds` | Soft Flames & Breezes, Flickering Quiet, Twilight Musicbox, Breezy Warmth - **whole album unused** |
@@ -47,6 +48,9 @@ here.
 
 **Measure before you plan the copy.** A track's album description is not its
 spectrum: Low Gravity and Soft Orbit are both sold as "for tinnitus masking"
-and both measured as comfort beds (almost nothing above 1 kHz). Run
+and both measured as comfort beds (almost nothing above 1 kHz). Tranquil Zenith went the other way: sold as "pure,
+perfectly balanced white noise", it measured as a hiss with 84-89% of its
+energy at 4-8 kHz and ~53 short pings a minute near 5 kHz on top - a
+masking bed, but not a pure one. Run
 `band_energy` and the near-silent-window share on the file
 (`projects/tinnitus.md`, "A comfort session is not a masking session").
