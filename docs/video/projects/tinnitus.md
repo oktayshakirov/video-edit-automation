@@ -995,6 +995,14 @@ recording whose 10s RMS swings by a few dB, check against that prediction
 before lengthening `xfade`. Also trim the source's own fade-in and fade-out
 before tiling, or each seam inherits them.
 
+**On a bed made of a floor plus short events, read the floor, not
+`seam_drop`.** Tranquil Zenith (`tranquil-zenith-21-breathing`) carries
+~53 pings a minute, 12-22 dB over its hiss, and `seam_drop` read -3.17 dB
+at every seam because its two quarter-second windows land on or off a
+ping by chance. The median of 50ms window levels over 2s, which a ping
+cannot move, sat at -32.2 to -32.7 dB through both seams against -32.3 to
+-32.7 dB elsewhere: no dip.
+
 **Check whether the album track is already a loop before tiling it.** The
 Feathered Tunes bird-chirps file is ten minutes long and holds 52 seconds of
 recording: `x[t] == x[t + 52s]` across 99% of it, with the album's own seams
