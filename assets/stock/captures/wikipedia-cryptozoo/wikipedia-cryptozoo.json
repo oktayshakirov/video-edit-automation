@@ -1,0 +1,49 @@
+{
+  "name": "wikipedia-cryptozoo",
+  "url": "https://en.wikipedia.org/wiki/CryptoZoo?vectornightmode=1",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": true,
+  "select": {
+    "title": "css=#firstHeading",
+    "pitch": "text=really fun game that makes you money",
+    "refund": "text=offering to partially refund"
+  },
+  "hide": [
+    ".vector-header-container",
+    "#siteNotice",
+    ".vector-sticky-header",
+    ".vector-column-end",
+    ".vector-column-start"
+  ],
+  "captured": "2026-11-11",
+  "title": "CryptoZoo - Wikipedia",
+  "size": [
+    2560,
+    5492
+  ],
+  "boxes": {
+    "title": [
+      528,
+      0.09375,
+      2150.15625,
+      79.28125
+    ],
+    "pitch": [
+      1186.84375,
+      994.9375,
+      1736.46875,
+      1030.9375
+    ],
+    "refund": [
+      1406.75,
+      2051.25,
+      1767.28125,
+      2087.25
+    ]
+  }
+}

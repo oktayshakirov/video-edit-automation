@@ -1687,3 +1687,11 @@ are words, not Hz and dB HL: the beat claims a shape, two ears that do not
 match, not a reading. **Always title it as an example** ("AN EXAMPLE") -
 a drawn audiogram without that word reads as somebody's result, and on
 this channel that is a diagnosis on screen.
+
+### PUFFERY hid behind Logan Paul's head in both formats (2026-11-11)
+
+A seven-letter word behind a face that fills the middle of the frame (the
+Commons ballpark portrait, 16:9 and 9:16) tucked to "PU..RY" and never
+read again after its 0.8s read phase. When the head sits dead centre and
+fills a third of the width, use `cut=False` (the word on top) - the depth
+trick needs room to either side of the head, not only above it.
