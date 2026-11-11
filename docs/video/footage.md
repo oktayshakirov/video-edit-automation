@@ -1743,3 +1743,32 @@ result (L69-176, lit white, as `projects/tinnitus.md` predicts); every
 (L95-187); `person-resting-head-on-pillow-dark` (L59-193);
 `hand-booking-appointment-phone-dark/5617952` (a green chat screen). The
 query "hand booking appointment phone" returned no booking screen at all.
+
+## The Logan Paul fetch: verdicts (2026-11-11)
+
+For `logan-paul`. Kept: a hand lifting a gavel (`judge-gavel-courtroom-
+dark/6699964`, B29-37), a gavel beside a document (`6101337`, B34), a red
+chart falling on a monitor (`red-stock-chart-falling-screen-dark/
+38698441`, `38725026`, B13-16), two hands on a controller in the dark
+(`video-game-controller-hands-dark/8128022`, B14-16), a lit podcast studio
+(`podcast-microphone-studio-dark/12315775`, B40-42, 7s - start it at 0).
+Used once each though over the box: a domed courthouse lit at dusk
+(`courthouse-exterior-night/14994537`, B68-88) and a hand signing papers
+(`signing-contract-pen-close-up-dark/8061370`, B78-85); every signing
+result was L77-147. Rejected: `6101343`/`6101367` (a man's clasped hands,
+no gavel in frame most of the clip), `28261955`/`28388728` (an aerial city,
+not a court), `855393` (a yellow-and-blue lit facade), the other controller
+clips (a TV explosion; bright sets).
+
+**The real thing came from elsewhere.** CryptoZoo's site is gone, but the
+Wayback Machine keeps its 2021 `og:image` - the egg on pure black, which
+pads to 16:9 seamlessly (`press/logan-paul/SOURCES.md`). Wikipedia's
+CryptoZoo page captures dark with `?vectornightmode=1` (the `--dark` flag
+alone left it white); hide `.vector-column-start` and `.vector-column-end`
+for a single text column. The court docket site answers scripts with a bot
+check - do not work around it; Wikipedia carried the page instead.
+
+**A "red chart" clip can be a real price site.** `red-stock-chart-falling-
+screen-dark/38725026` is COIN360's live crypto price map on a monitor -
+tickers and prices readable at 16:9. Never use it on this channel (no live
+price on screen); `38698441` past 10s shows an unbranded chart.

@@ -264,3 +264,17 @@ One line per branch: date, the term or channel, what it added.
   the "earn N%" and "is it worth it" titles are closed to us (yield as a
   promise) and the latter sits at 0.4-1.1x anyway.
 - **"crypto scams" (2026-11-10).** Proven and partly recent: "the scam draining wallets" 29x, "scams you will fall for" 26.5x, CoinGecko's 2026 list 3.3x (a yearly format), ENDEVR's big-fraud story 3.0x. The random-tokens pair already sits in this lane.
+- 2026-11-11, two `outliers` runs (252 units) for `logan-paul`.
+  "logan paul cryptozoo": **proven, old** - Coffeezilla's three-part
+  series 11.5M / 9.0M / 6.1M (2.4x, 1.9x, 1.3x of a 4.7M median),
+  PowerfulJRE's Coffeezilla clip 3.4x (4.1M), Kyle Boland's egg-hatching
+  Short 11.2x, George Janko "CryptoZoo Scandal... His Dad Speaks Out"
+  Short 7.6x at 236 days. Logan Paul's own "They Sued Me And Lost (27
+  Times)" 1.0x (1.07M, 370 days) - the claim our pair checks. "logan
+  paul coffeezilla lawsuit settled": **proven, recent (5 channels)** -
+  Fesify "Logan Paul Finally Humiliated Himself In Court" 5.6x (531k, 80
+  days), Cloutishh 10.2x (79 days), The Fame Insider 31.0x, LegalEagle
+  9.9x (7.5M); Karl Jobst 0.5x, Quintheo 0.6x, InternetJanitor 0.1x on the
+  same news. Every standout is drama-register commentary on the feud;
+  nobody explains what the court actually decided (puffery) or what the
+  buyback covered. Teardown: `teardowns/logan-paul-cryptozoo.md`.
