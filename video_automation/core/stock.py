@@ -172,35 +172,59 @@ def videos(query: str, n: int = 2, min_w: int = 1920,
 MAX_LUMA, MAX_SAT = 48.0, 50.0
 
 
-def screen(path: Path, at: float = 1.0) -> tuple[float, float]:
-    """Mean luminance and mean saturation of a frame, both 0-255.
-
-    Cheap, and the single most useful number when picking stock for a dark
-    channel — far more reliable than the search query, which returns whatever
-    the platform's popularity ranking feels like that day.
-    """
+def _frame(path: Path, at: float):
+    """One frame as BGR, or None."""
     import cv2
-    import numpy as np
 
     if path.suffix.lower() in (".mp4", ".mov", ".webm"):
         cap = cv2.VideoCapture(str(path))
         cap.set(cv2.CAP_PROP_POS_MSEC, at * 1000)
         ok, bgr = cap.read()
         cap.release()
-        if not ok:
-            return 255.0, 255.0
-    else:
-        bgr = cv2.imread(str(path))
-        if bgr is None:
-            return 255.0, 255.0
+        return bgr if ok else None
+    return cv2.imread(str(path))
+
+
+def screen(path: Path, at: float = 1.0,
+           background: bool = False) -> tuple[float, float]:
+    """Mean luminance and mean saturation of a frame, both 0-255.
+
+    Cheap, and the single most useful number when picking stock for a dark
+    channel — far more reliable than the search query, which returns whatever
+    the platform's popularity ranking feels like that day.
+
+    **`background=True` measures the set, not the person** (2026-11-10). The
+    subject (`vision.matte`) is masked out and the numbers are the rest of
+    the frame. Measured on the whole frame, a pale face on a dark set is
+    brighter by definition than a dark face on the same set, so the
+    `MAX_LUMA` ceiling rejected lighter-skinned people more often - and the
+    tinnitus and crypto cuts kept landing on the same casting whatever the
+    query said (`footage.md`, "Screening for brightness is not screening
+    for who is in the shot"). The question the box asks is "is this a dark
+    picture", and that is a question about the set. A frame whose subject
+    covers almost all of it falls back to the whole frame.
+    """
+    import numpy as np
+
+    bgr = _frame(path, at)
+    if bgr is None:
+        return 255.0, 255.0
     a = bgr.astype(np.float32)
-    return float(a.mean()), float((a.max(2) - a.min(2)).mean())
+    lum, sat = a.mean(2), a.max(2) - a.min(2)
+    if background:
+        from video_automation.core import vision
+        w = 1.0 - vision.matte(bgr[:, :, ::-1])
+        if w.sum() > 0.15 * w.size:
+            return (float((lum * w).sum() / w.sum()),
+                    float((sat * w).sum() / w.sum()))
+    return float(lum.mean()), float(sat.mean())
 
 
 def keep(path: Path, max_luma: float = MAX_LUMA,
-         max_sat: float = MAX_SAT) -> bool:
-    """Whether an asset is dark and desaturated enough to cut into these videos."""
-    lum, sat = screen(path)
+         max_sat: float = MAX_SAT, background: bool = True) -> bool:
+    """Whether an asset is dark and desaturated enough to cut into these
+    videos - judged on the set, not on the person in it (`screen`)."""
+    lum, sat = screen(path, background=background)
     return lum <= max_luma and sat <= max_sat
 
 

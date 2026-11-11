@@ -361,7 +361,7 @@ the fifth row, go back to `mia` until the user decides.
 | 2 | `how-to-manage-a-tinnitus-spike` | 2026-10-27 |
 | 3 | `what-does-tinnitus-sound-like` | 2026-10-28 |
 | 4 | `is-tinnitus-in-the-ear-or-the-brain` | 2026-11-02 |
-| 5 | | |
+| 5 | `tinnitus-in-one-ear` | 2026-11-10 |
 
 **Pace, measured 2026-11-02, and `noah` now runs at 1.21.** Speech rate
 from the narration cache (syllables a second inside each caption's speech,

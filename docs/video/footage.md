@@ -423,6 +423,24 @@ first-time use, not a repeat of anything. Re-check whether an old rejection
 still applies before re-applying it; a stale "cannot use this" is as much a
 bug as a stale "safe to reuse."
 
+**Fixed at the source, 2026-11-11: screen the set, not the person.** The
+editor, on the one-ear pair: most videos so far "use only or mostly stock
+footage of black people", and they want a mix - one clip of a given
+appearance per video is fine, a whole video of it is not. The luma bias
+above was the mechanism, so `stock.screen(..., background=True)` now masks
+the subject out (`vision.matte`) and measures the rest of the frame, and
+`stock.keep` uses it by default. `tools/stock_sheet.py` prints both
+readings - `L` the whole frame, `B` the set - and draws the labelled
+contact sheet. **Screen on `B`.** On the one-ear fetch it moved readings by
+up to 45 points where a lit person fills the frame.
+
+**Casting is then a by-eye check on the sheet, across the whole video**:
+count who appears in the shot list, one clip per person, and no single
+group carrying the cut - the editor's casting is mostly white with other
+people in the mix. Nothing in the pipeline classifies people; the filter
+that skewed it is fixed, and the rest is the editor's casting call made
+when the shot list is written.
+
 ## When the subject *is* a photographable object, every shot has it in frame
 
 **The counterweight to the rule below, and the noise-canceling cut is where
@@ -839,6 +857,13 @@ glide per framing, a slow push, the `spotlight` ring in the brand colour -
 and writes an MP4 for `Shot(clip=)`. For a still to direct with `spotlight`
 instead, `screencap.still(NAME, "tx")` cuts a screen around the element and
 returns every selected box as fractions of it.
+
+**`--select key="text=..."` rings a sentence, not its paragraph**
+(2026-11-10). The box is a DOM Range round the first text node holding
+the phrase, so the ring sits on the words the narration reads. Pick a
+phrase that sets on one line at the capture's width: a phrase that wraps
+gives the union of both lines, and the ring takes in the words in front
+of it (NIDCD's "medical emergency" line, `captures/nidcd-sudden-deafness`).
 
 **One framing per spoken line, the ring on the words being read.** A ring
 on a whole page section is a highlighter on a paragraph nobody is reading.
@@ -1700,3 +1725,21 @@ portrait at the mouth. Two fixes, both now defaults:
   - on reel cards too. When none exists (Giancarlo Devasini: nothing on
   Commons, Wikipedia or Tether's site, only agency press shots), the card
   is a text card and the handover says so.
+
+## The one-ear fetch: verdicts (2026-11-10)
+
+For `tinnitus-in-one-ear`. Kept: a man awake on his bed and the same man
+on his phone (`man-lying-in-bed-awake-night-dark/6943537`, `6943530`, one
+shoot - never back to back), headphones going on with both hands at the
+ears (`headphones-listening-dark-room/6614768`, L42-53), a driver with
+the window at his ear (`driving-car-at-night-window/8470705`, pink dash
+light, L28-34), a woman on her bed calling (`woman-sitting-on-bed-with-
+phone-night/7698902`), a digital countdown 0:09 to 0:01
+(`clock-ticking-dark/29527767`, L6), a hand writing in a notebook, used
+inside a window (`hand-booking-appointment-phone-dark/4100690`, L40-55).
+Rejected: every `hearing-test-headphones` and `hospital-entrance-at-night`
+result (L69-176, lit white, as `projects/tinnitus.md` predicts); every
+`person-putting-in-one-earbud-dark` result but the one already used
+(L95-187); `person-resting-head-on-pillow-dark` (L59-193);
+`hand-booking-appointment-phone-dark/5617952` (a green chat screen). The
+query "hand booking appointment phone" returned no booking screen at all.

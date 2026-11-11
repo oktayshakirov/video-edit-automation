@@ -282,6 +282,169 @@ class Chart(Beat):
                    fill=br.ink + (a,), anchor=anchor)
 
 
+class Audiogram(Beat):
+    """A hearing test's chart: one line per ear, drawn as the voice names it.
+
+    Built for `tinnitus-in-one-ear` (2026-11-10), where the script's whole
+    argument lands on "a hearing test, one ear at a time, and the two sides
+    compared" - and an audiogram *is* that comparison, the one picture a
+    clinic actually hands you. The library had nothing that could draw it:
+    `chart` normalises one series and hides its axis on purpose.
+
+    It keeps the convention a clinic uses so it reads as the real object:
+    pitch runs left to right, low to high; *quieter* sounds sit at the top,
+    so a line that sags means that ear needed the sound louder; one ear is
+    drawn in O marks, the other in X. Its labels are plain words ("low
+    pitch", "high pitch", "heard quieter") rather than Hz and dB HL, because
+    the beat claims a *shape* - two ears that do not match - not a reading.
+    **Always an example**: put "EXAMPLE" in the title. A drawn audiogram with
+    no such word reads as somebody's result.
+
+    Two reveals: the first ear's line travels across its phrase, then the
+    second ear's, and the gap between them shades in with `note` beside it.
+
+    payload: (first, second, title, note, names)
+      first, second - levels per pitch, low to high, 0 = heard at the
+                      quietest level (top) to 100 (bottom); any length >= 2
+      names         - the two ears' labels, default ("RIGHT EAR", "LEFT EAR")
+    """
+
+    EMBLEM = False
+    SECOND = (143, 184, 255)        # the X ear: a cool blue against peach
+
+    def __init__(self, first: list, second: list, title: str = "",
+                 note: str = "", names: tuple = ("RIGHT EAR", "LEFT EAR"),
+                 **kw):
+        super().__init__(**kw)
+        self.first = [float(v) for v in first]
+        self.second = [float(v) for v in second]
+        self.title, self.note, self.names = title, note, names
+
+    def _box(self, top: int) -> tuple[int, int, int, int]:
+        fr = self.frame
+        x0, x1 = self.margin + 150, fr.w - self.margin - 40
+        y0, y1 = top + 70, fr.h - int(fr.h * 0.20)
+        if fr.h > fr.w:
+            # Portrait: the same flatter-than-square box `chart` pins, so the
+            # sag reads as a sag and not a cliff.
+            x0 = self.margin + 120
+            ph = min(y1 - y0, int((x1 - x0) * 0.95))
+            mid = (y0 + y1) / 2 - 40
+            y0, y1 = int(mid - ph / 2), int(mid + ph / 2)
+        return x0, y0, x1, y1
+
+    def content(self, out: Image.Image, f: float) -> None:
+        fr, br = self.frame, self.brand
+        top = self.heading(out, self.title, f)
+        x0, y0, x1, y1 = self._box(top)
+        d = ImageDraw.Draw(out, "RGBA")
+        small = _font(30 if fr.h > fr.w else 28)
+
+        def pts(levels):
+            n = len(levels)
+            return [(x0 + (x1 - x0) * i / (n - 1), y0 + (y1 - y0) * v / 100.0)
+                    for i, v in enumerate(levels)]
+
+        # The plate: a grid in before either ear arrives.
+        e = self.open_p(f, 0.8)
+        a_grid = int(40 * e)
+        for k in range(6):
+            gy = y0 + (y1 - y0) * k / 5
+            d.line([(x0, gy), (x1, gy)], fill=br.primary + (a_grid,), width=2)
+        n = len(self.first)
+        for i in range(n):
+            gx = x0 + (x1 - x0) * i / (n - 1)
+            d.line([(gx, y0), (gx, y1)], fill=br.primary + (a_grid,), width=2)
+        d.rectangle([x0, y0, x1, y1], outline=br.primary + (int(110 * e),),
+                    width=3)
+        ia = int(200 * e)
+        d.text((x0, y1 + 18), "LOW PITCH", font=small, fill=br.ink + (ia,),
+               anchor="la")
+        d.text((x1, y1 + 18), "HIGH PITCH", font=small, fill=br.ink + (ia,),
+               anchor="ra")
+        d.text((x0 - 22, y0), "HEARD", font=small, fill=br.ink + (ia,),
+               anchor="ra")
+        d.text((x0 - 22, y0 + 34), "QUIETER", font=small, fill=br.ink + (ia,),
+               anchor="ra")
+        d.text((x0 - 22, y1 - 34), "NEEDS IT", font=small, fill=br.ink + (ia,),
+               anchor="rb")
+        d.text((x0 - 22, y1), "LOUDER", font=small, fill=br.ink + (ia,),
+               anchor="rb")
+
+        a_pts, b_pts = pts(self.first), pts(self.second)
+        for k, (line, colour, mark) in enumerate(
+                ((a_pts, br.primary, "o"), (b_pts, self.SECOND, "x"))):
+            p = self.span_p(k, f, cap=2.2)
+            if p <= 0:
+                continue
+            # The gap shades in under the second ear, as it travels: the
+            # part of the picture the sentence is about.
+            if k == 1:
+                m = max(2, int(math.ceil(len(b_pts) * p)))
+                poly = a_pts[:m] + b_pts[:m][::-1]
+                shade = Image.new("RGBA", fr.size, (0, 0, 0, 0))
+                ImageDraw.Draw(shade).polygon(poly, fill=self.SECOND + (54,))
+                out.paste(Image.alpha_composite(out.convert("RGBA"), shade)
+                          .convert("RGB"), (0, 0))
+                d = ImageDraw.Draw(out, "RGBA")
+                # redraw the first ear over the shade
+                partial(d, a_pts, 1.0, br.primary, 6)
+                self._marks(d, a_pts, 1.0, br.primary, "o")
+            partial(d, line, p, colour, 6)
+            self._marks(d, line, p, colour, mark)
+            # Its name at its own end, once the line gets there: above the
+            # upper line's last mark, below the lower one's, so neither name
+            # ever has to be matched to a line by colour alone.
+            if p >= 0.98:
+                ex, ey = line[-1]
+                upper = line[-1][1] <= (b_pts if k == 0 else a_pts)[-1][1]
+                la = int(255 * min(1.0, (p - 0.98) * 50))
+                d.text((ex, ey - 30 if upper else ey + 30), self.names[k],
+                       font=_font(34), fill=colour + (la,),
+                       anchor="rb" if upper else "rt")
+
+        if self.note:
+            np_ = self.due(1, 2, f)
+            p2 = self.span_p(1, f, cap=2.2)
+            if np_ > 0 and p2 >= 0.99:
+                a = int(255 * min(1.0, np_))
+                i = max(range(len(b_pts)),
+                        key=lambda j: b_pts[j][1] - a_pts[j][1])
+                gx = b_pts[i][0]
+                gy = (a_pts[i][1] + b_pts[i][1]) / 2
+                anchor = "rm" if gx > (x0 + x1) / 2 else "lm"
+                dx = -30 if anchor == "rm" else 30
+                nf = _font(36)
+                l, t, r, b = d.textbbox((gx + dx, gy), self.note, font=nf,
+                                        anchor=anchor)
+                lines = _dense(a_pts) + _dense(b_pts)
+                if any(l - 6 <= px <= r + 6 and t - 10 <= py <= b + 10
+                       for px, py in lines):
+                    # It would cross a line (a narrow portrait gap): set it
+                    # under the chart instead, below the pitch labels.
+                    d.text(((x0 + x1) / 2, y1 + 90), self.note, font=nf,
+                           fill=br.ink + (a,), anchor="mt")
+                else:
+                    d.text((gx + dx, gy), self.note, font=nf,
+                           fill=br.ink + (a,), anchor=anchor)
+
+    @staticmethod
+    def _marks(d, line, p, colour, mark):
+        n = len(line)
+        for i, (x, y) in enumerate(line):
+            if n > 1 and i / (n - 1) > p + 1e-6:
+                break
+            r = 13
+            if mark == "o":
+                d.ellipse([x - r, y - r, x + r, y + r], outline=colour + (255,),
+                          width=5, fill=(0, 0, 0, 0))
+            else:
+                d.line([(x - r, y - r), (x + r, y + r)], fill=colour + (255,),
+                       width=5)
+                d.line([(x - r, y + r), (x + r, y - r)], fill=colour + (255,),
+                       width=5)
+
+
 class Spectrum(Beat):
     """A live frequency plot, with a band marked. The sound, made visible.
 
