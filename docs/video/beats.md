@@ -1466,6 +1466,23 @@ change.
   `crypto/build.py`. Cues: `pan` on the block, `reveal` per slice, `emph`
   as a re-valuation settles (`grow_span`). Give its sentence ~1.8s.
 
+## A reel card needs a phrase of six or more words (2026-11-11)
+
+The logan-paul Short's reel had one phrase per card - "Buy an egg," /
+"hatch an animal," / "breed them, and sell." - two to four words, under a
+second each. With the 0.62s travel between cards, each card sat still for
+a fraction of a second; the editor: **"moves too fast, it's hard to see any
+of the cards"**. The camera is voice-led (card `i` centres on reveal `i`),
+so **a card holds exactly as long as its phrase**. The fix was in the
+script, not the beat: "You bought an egg with its own coin, ZOO." / "The
+egg hatched into an animal." / "Breed two animals, and sell the babies." -
+six to nine words, about 2s a card.
+
+**Rule: every reel phrase is a full clause of six or more words (~1.8s
+spoken)**, and it says something about the card that the label does not
+already say. A three-word phrase that only repeats the label gives the
+viewer nothing to read the card by and no time to read it.
+
 ## A reel text card wraps and shrinks its label (2026-11-04)
 
 A `(None, label)` card used to set the label on one line at the big size

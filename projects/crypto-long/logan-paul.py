@@ -63,7 +63,7 @@ DEMAND = ("'logan paul cryptozoo': Coffeezilla 'Investigating Logan Paul's "
           "Himself In Court' 5.6x (531k, 80 days); Cloutishh 10.2x")
 # The cover's style, for the review to compare views and clicks by
 # (`thumbnails.md`, "Cover styles are a choice, and every video says which").
-COVER_STYLE = "text"
+COVER_STYLE = "arrow"
 
 V = STOCK / "videos"
 ROOT = _P(__file__).resolve().parents[2]

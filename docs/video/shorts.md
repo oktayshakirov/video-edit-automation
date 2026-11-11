@@ -620,6 +620,25 @@ default 1.06 zoom, or just sweep two values and look. It is inert in 16:9,
 where a landscape source throws away almost nothing - **this is a shorts
 problem, and every short should be checked for it.**
 
+## A long `Stamp` quote pushes its verdict off a 9:16 frame (2026-11-11)
+
+The logan-paul Short's quote, "A really fun game that makes you money",
+wrapped to four lines, and at `centre_y=0.80` the NEVER FINISHED stamp
+under it fell below the frame's bottom edge - the opener's whole point
+missing, with no warning from the build. The block is about
+`78 * 1.22 * lines + 240` px tall around `centre_y`: **four lines need
+`centre_y` at 0.68 or higher; 0.80 only fits one or two.** Check the frame
+at the `at_word` time, not just the first frame.
+
+## A still with a wide wordmark needs margin in 9:16 (2026-11-11)
+
+CryptoZoo's square egg-and-wordmark still, at `aspect=1.0`, filled the
+frame's width, and the 1.12 Ken Burns zoom pushed the tracked letters of
+CRYPTOZOO off both edges. Padded onto a black square 1.3x its size
+(`_hero_pad()` in `projects/crypto-short/logan-paul.py`) with
+`zoom=1.05`, the word stays whole. Any still whose lettering runs edge to
+edge gets the same margin.
+
 ## Do not open two shots in a row on the same clip
 
 The silence short's opening question and the line after it were both on
@@ -1270,6 +1289,50 @@ holders and buyers (8) - with the stake between, one short phrase per card
 (~2s; "Vitalik Buterin co-founded Ethereum."). That pushes a Short to ~60s;
 keep each phrase under ten words to stay there.
 
+
+### It happened again, on a story Short (logan-paul, 2026-11-11)
+
+The rule above was written about arithmetic, and the next story Short broke
+it anyway. The long form walked CryptoZoo in order and the editor found it
+easy to follow; the Short opened on Logan Paul's own claim, "They sued me
+and lost", stamped ROUND ONE, then said "he won round one, twenty-six of
+those claims were allowed straight back in" - before it had said what
+CryptoZoo was, that anyone bought anything, or that anyone sued. The
+editor: **"too confusing to follow if you are not familiar with the
+story"** and "complicated to get into". The re-cut was "much better".
+
+**What was wrong:** the Short started at the end of the story (the court,
+round two) and filled in the beginning afterwards. Every early sentence
+leaned on a fact the viewer was only told later: "round one" of what,
+"claims" by whom, "a game nobody could play" - what game?
+
+**The fix, now the order for any Short about a person, a project or a
+scandal:**
+
+1. **Who and what, in one plain sentence, with the stake in it.** "Logan
+   Paul sold his fans a crypto game that was never finished." A stranger
+   knows who, what, and why to care. The hook is the stake, not an inside
+   reference (his video title, a legal term, a round number).
+2. **Name the thing and show it.** "He called CryptoZoo a really fun game
+   that makes you money," over CryptoZoo's own wordmark.
+3. **How it worked**, one beat (here the reel: buy an egg, hatch an
+   animal, breed and sell).
+4. **What happened**, in time order (sold out, never playable, sued, the
+   refund's catch).
+5. **The twist last**, once the viewer has everything it depends on
+   (puffery, then "they sued me and lost" against the 26 claims back in).
+
+**The test before writing SENTENCES:** read sentence 1 and 2 as someone
+who has never heard the name. If either needs a fact from later in the
+script, move it later. The opener quotes something the *viewer* can
+judge from the first frame (his pitch, NEVER FINISHED), not something
+only a follower would recognise (his video title, ROUND ONE).
+
+**What it cost:** 41.5s, 1.5s over E17's 30-40s - the introduction is
+worth more than the window; cut the middle, not the setup. Sentence 1 is
+now a statement, not the title question "The first eight seconds" asks
+for; it still carries the name and the stake in 12 words, so sentence 2
+starts at about 4s. The review should look at this Short's curve for that.
 
 ## The first eight seconds (2026-11-10)
 
