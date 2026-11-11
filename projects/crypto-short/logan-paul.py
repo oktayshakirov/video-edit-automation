@@ -48,7 +48,7 @@ DEMAND = ("'logan paul cryptozoo': Kyle Boland egg-hatching Short 11.2x; "
           "Paul 'They Sued Me And Lost (27 Times)' 1.07M")
 # The cover's style, for the review to compare views and clicks by
 # (`thumbnails.md`, "Cover styles are a choice, and every video says which").
-COVER_STYLE = "text"
+COVER_STYLE = "arrow"
 
 V = STOCK / "videos"
 ROOT = _P(__file__).resolve().parents[2]
