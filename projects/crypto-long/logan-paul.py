@@ -321,6 +321,14 @@ def thumbs(out: Path) -> Path:
     im = Image.composite(Image.new("RGB", im.size, (0, 0, 0)), im, mask)
     egg, alpha = _egg(330)
     im.paste(egg, (830, 25), alpha)
+    # A ring round the egg and an arrow pointing at it (the editor,
+    # 2026-11-11: "use again arrow pointing to the egg"). Red on black.
+    red = (235, 45, 45)
+    im = im.convert("RGBA")
+    im.alpha_composite(T.ring_layer(im.size, (868, 35, 1122, 345), red, 12))
+    im.alpha_composite(T.arrow_layer(im.size, (760, 470), (880, 320), red,
+                                     width=16, head=46, bow=-0.30))
+    im = im.convert("RGB")
     fill, ink = T.ACCENTS["yellow"]
     T._headline(im, HEADLINE, 200, int(560 / 1.38), 720, fill, ink,
                 max_lines=3, leading=1.0, band="bottom", margin=40,
