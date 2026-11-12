@@ -1016,3 +1016,20 @@ the shots, including the disclaimer's `stillclip`.
 first one-ear cover read "Only in one ear?" and the editor asked for the
 word. It is what the viewer typed; "Tinnitus in [one ear?]" carries it.
 
+## A short headline takes two rows and highlights its noun (2026-11-12)
+
+The editor on the `hardware-wallet` Short cover ("CAN A THIEF / TAKE /
+[IT?]"): "weird formatting for the text, weird gaps... we dont need 3 rows
+for so little words and such a big gap between words, also the highlighted
+word is it which is bad, better thief". Three rules, all checked by
+`script_check` as `cover-headline` except the last, which is in the code:
+
+- **Six words or fewer: two rows.** Three rows of one or two words leave a
+  ragged block with a hole beside every short row. "Can a [thief]" / "take
+  it?".
+- **The accent goes on the word that names the subject or the stake** -
+  a noun or a strong verb. Never a pronoun, an article or an auxiliary
+  ("it", "one", "this", "you", "is", "do").
+- **Word spacing is 72% of the font's own** (`_headline(word_gap=0.72)`,
+  the default from today). The display face's space is as wide as a
+  letter, so a row with a one-letter word in it read as separate words.

@@ -1712,3 +1712,50 @@ Commons ballpark portrait, 16:9 and 9:16) tucked to "PU..RY" and never
 read again after its 0.8s read phase. When the head sits dead centre and
 fills a third of the width, use `cut=False` (the word on top) - the depth
 trick needs room to either side of the head, not only above it.
+
+## A signature beat rests for two videos (2026-11-12)
+
+The editor: "we are using the animation with the physic coins too often,
+we need to create different ones". `pile` was in three of the last four
+crypto long forms and both Shorts of the last two pairs. A beat with a
+look of its own (`pile`, `behind`, `blindsign`, `reel`, `post`, `sweep`,
+`lookalike`, `mnemonic`, `quorum`, `shares`, `stake`, `pool`, `replicate`,
+`airgap`, `breach`) may not appear in a video if either of the two videos
+before it on the same channel and format used it. Draw the idea another
+way, or build a new beat. The plain layouts (`grid`, `compare`, `stat`,
+`steps`, `checklist`, `bars`, `diagram`) are exempt, but still vary them
+inside a video. `script_check`: `beat-rotation`.
+
+## `airgap` - a request goes in, only a signature comes out (2026-11-12)
+
+Two cards and a cable: the computer (ONLINE) and the signing device
+(OFFLINE) with the key drawn inside it. Four reveals, four caption chunks:
+the transaction typing onto the computer, a TRANSACTION chip crossing the
+cable and the device's screen lighting with the same rows, the button
+pressed and APPROVED, a SIGNATURE chip crossing back while the key gets its
+ring and NEVER LEAVES. Built because a signing flow drawn as `steps` is
+four boxes of words; this shows where things are. Portrait stacks the
+cards. For any signer kept off the network: a hardware wallet, a multisig
+co-signer, a QR wallet, a passkey.
+
+    Shot(graphic="airgap", payload=([("Send", "0.5 BTC"), ("To", "bc1q7k...9x4f")],
+                                    "SENDING FROM A HARDWARE WALLET"))
+
+A sentence after it can hold it (`None`): the last state, with NEVER LEAVES
+on the key, is the picture for "the key never leaves the chip".
+
+## `breach` - a field of addresses, emptied wave by wave (2026-11-12)
+
+The replacement for `pile` when the money was in *many* places. A 16 x 13
+grid of squares, each the same number of addresses (the legend says how
+many - pick a figure that divides: 5,200 / 208 = 25). Two reveals: the
+field arriving, then each wave spreading from its own point and turning
+its squares hollow red while the figure counts up with them and WAVE k OF
+n tracks it; the verdict lands when the last square has gone. Works in
+both frames. Hold it (`None`) under the next line - or, in a Short, which
+cannot hold, pass an eighth element (`after`, "0 devices touched"): a
+third reveal, set under the verdict, for the sentence that follows.
+
+    Shot(graphic="breach", payload=("5,200+ ADDRESSES", 1816, "BTC", 4,
+                                    "COLDCARD, 2026", "DRAINED",
+                                    "1 square = 25 addresses"))

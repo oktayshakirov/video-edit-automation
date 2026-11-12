@@ -408,7 +408,7 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
               band: str = "middle", margin: int = 58,
               shadow: int = 14, drop: tuple = (6, 8),
               fill2=None, ink2=None, text=(255, 255, 255),
-              align: str = "left"):
+              align: str = "left", word_gap: float = 0.72):
     """Lay out and paint the headline. Shared by both aspects on purpose.
 
     Returns the block height. `band` places it once the height is known, which
@@ -491,7 +491,11 @@ def _headline(base: Image.Image, headline: str, size: int, col_w: int,
         if size < MIN_HEADLINE:
             break
         font = ImageFont.truetype(FONT_DISPLAY, size)
-        space = d.textlength(" ", font=font)
+        # **The word space is 72% of the font's own** (2026-11-12). The
+        # display face's space is as wide as a letter, so a row with a short
+        # word in it ("CAN A THIEF") read as three separate words with holes
+        # between them - "weird gaps". `word_gap=1.0` is the old spacing.
+        space = d.textlength(" ", font=font) * word_gap
         # Each hard segment is wrapped on its own, so a forced break can
         # never be crossed; a segment too wide for the column still wraps
         # inside itself rather than overflowing, and the accept test below

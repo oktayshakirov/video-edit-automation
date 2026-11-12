@@ -127,6 +127,15 @@ copies that disagreed with each other.
    person or a room can move in depth or dim around its subject
    (`parallax=`, `isolate=`) - never on an ear, which stays out of frame.
 
+   **Plan the picture sentence by sentence first** (2026-11-12,
+   `workflow.md`, "Write the picture first: the visual plan"): what is on
+   screen under each line and which tool draws it. Two full-frame clips or
+   photographs never follow each other, and half the long form is drawn
+   or framed - a `diagram` of the mechanism, `callout` on the anatomy
+   photo, `spectrum` / `audiogram` / `dial` for a sound or a level, a study
+   page in `window="browser"`. Signature beats rest for two videos. No
+   `title_at=`. `script_check` flags each.
+
    **These are required, not a menu** (`workflow.md`, "The toolbox is not
    optional", 2026-11-06): plan the captured page, the depth or cutout
    shot and the shader before the shot list, ahead of a second stock

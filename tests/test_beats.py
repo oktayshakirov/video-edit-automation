@@ -114,6 +114,12 @@ PAYLOADS = {
     # (drops, title, drain): two batches, then the floor opens.
     "pile": ([(12, "Buyers pay in", "$"), (8, "More buyers")], "WHERE IT GOES",
              "Liquidity pulled"),
+    # (lines, title): portrait-safe.
+    "airgap": ([("Send", "0.5 BTC"), ("To", "bc1q7k...9x4f")],
+               "SENDING FROM A HARDWARE WALLET"),
+    # (cells_label, figure, unit, waves, title, verdict, legend): portrait-safe.
+    "breach": ("5,200+ ADDRESSES", 1816, "BTC", 4, "COLDCARD, 2026", "DRAINED",
+               "1 square = 25 addresses"),
 }
 
 
@@ -213,7 +219,8 @@ def test_beat_renders_on_both_brands(name):
 # coverage at all from the landscape cases above.
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
-            "post", "spotlight", "behind", "pile", "audiogram"]
+            "post", "spotlight", "behind", "pile", "audiogram", "airgap",
+            "breach"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -290,7 +297,7 @@ def test_every_beat_class_is_registered():
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
-                "behind", "pile", "lookalike"):
+                "behind", "pile", "lookalike", "airgap", "breach"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from

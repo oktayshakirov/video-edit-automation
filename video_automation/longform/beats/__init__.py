@@ -69,6 +69,8 @@ from .pile import Pile
 from .blindsign import BlindSign
 from .sweep import Sweep
 from .lookalike import Lookalike
+from .airgap import Airgap
+from .breach import Breach
 from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
@@ -91,7 +93,7 @@ __all__ = [
     "Timeline", "Chart", "Spectrum", "Audiogram",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
-    "Behind", "Pile", "Lookalike",
+    "Behind", "Pile", "Lookalike", "Airgap", "Breach",
     "DRAW", "POP", "RISE",
 ]
 
@@ -130,6 +132,8 @@ BEATS = {
     "behind": Behind,
     "pile": Pile,
     "lookalike": Lookalike,
+    "airgap": Airgap,
+    "breach": Breach,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -191,6 +195,10 @@ _COUNT = {
     "pile": lambda p: len(p[0]) + (1 if len(p) > 2 and p[2] else 0),
     # The real address, the look-alike, the matching ends, the middle.
     "lookalike": lambda p: 4,
+    # The request, the crossing, the approval, the signature coming back.
+    "airgap": lambda p: 4,
+    # The field of addresses, then the waves emptying it.
+    "breach": lambda p: 3 if len(p) > 7 and p[7] else 2,
 }
 
 

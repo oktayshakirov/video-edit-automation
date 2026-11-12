@@ -278,3 +278,16 @@ One line per branch: date, the term or channel, what it added.
   same news. Every standout is drama-register commentary on the feud;
   nobody explains what the court actually decided (puffery) or what the
   buyback covered. Teardown: `teardowns/logan-paul-cryptozoo.md`.
+- 2026-11-12, "do you need a cold wallet" (`yt-dlp` search, no units) for
+  `hardware-wallet`. Cyber Scrilla owns the page - the 330k standout plus
+  "How to Choose the BEST Cold Wallet for 2026" 169k, "11 things you should
+  NEVER do after setting up a Cold Wallet" 88k, "Think Twice Before
+  Choosing A Cold Wallet..." 85k, "Your Cold Wallet Will Never Be Safe,
+  Until You Check This" 83k, "Cold Wallets Simply Explained For Beginners"
+  50k (his median 20k). CoinGecko "Hardware VS Cold Wallets (They Are Not
+  The Same)" 75k and "Hot vs Cold Crypto Wallets: What's The DIFFERENCE??"
+  56k (median 5.7k, ~10-13x). Fireship "The safest way to store Bitcoin was
+  just hacked..." 679k - the Coldcard news, on a channel with a far larger
+  median. Coin Bureau "The Cold Wallet Myth" 27k (0.8x). The yes/no question
+  beat the fear titles on the same channel. Teardown:
+  `teardowns/do-you-need-a-cold-wallet.md`.

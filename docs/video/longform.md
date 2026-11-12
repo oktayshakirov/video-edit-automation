@@ -775,3 +775,24 @@ plan) and the same cold close. Cut a chapter whole rather than trimming
 every one; a thinned chapter still costs its card and its transition.
 Sessions are not part of it. Judged on average view duration in seconds,
 which must not fall (`retention.md`, `video-performance-review/experiments.md`).
+
+## No title slate (2026-11-12)
+
+The editor: "i dont like the look of our title intro lets not add them to
+the videos and think about different approach". `title_at=` is no longer
+passed. The title is already on the page above the player, the opener
+carries the claim, and the first chapter card arrives at about 0:22. The
+slate also sat over whatever was under it - on `hardware-wallet` it
+covered the captured headline it was introducing. `script_check` flags
+`title_at=` as `title-slate`. If a title in the picture is wanted again,
+it is a new design to show the editor first, not this one switched back
+on.
+
+## A key word darkens a bright picture under it (2026-11-12)
+
+`Emphasis` stepped the picture back by a fixed 30%, tuned on dark footage.
+Over a captured white page the white word was unreadable ("white font on
+white image"). It now measures the band the word sits in and darkens until
+that band is about 62 luma, never less than the old 30%. Even so: **a
+captured page goes in `window="browser"`**, which keeps it on the dark
+ground, and key words are placed on photographs and clips, not on pages.

@@ -589,6 +589,21 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "airgap":
+            # Each crossing on a pan, the button on a tick (`beats.airgap`).
+            rv = sh.reveals or []
+            cues += [(t - 0.05, "pan") for i, t in enumerate(rv[:4]) if i != 2]
+            if len(rv) > 2:
+                cues.append((rv[2] + 0.05, "tick"))
+        elif sh.graphic == "breach":
+            # The field on a pan, the first wave on a glitch, the verdict
+            # on a cross (`beats.breach`).
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            if len(rv) > 1:
+                cues.append((rv[1] + 0.25, "glitch_cut"))
+                cues.append((min(sh.start + sh.hold - 1.0, rv[1] + 6.2), "cross"))
         elif sh.graphic == "lookalike":
             # Each address on a pan, the matching ends on a reveal tick,
             # the different middle on a cross (`beats.lookalike`).

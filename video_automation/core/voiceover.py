@@ -312,6 +312,23 @@ def voice_style(voice=None):
     return voice
 
 
+# Acronyms people say as a word. The engine spells any all-caps token letter
+# by letter ("P, I, N"), which is right for BTC and wrong for these (the
+# editor, 2026-11-12: "pin is usually read together"). The caption keeps its
+# capitals; only the text handed to the engine is lowered. Add a word here
+# rather than writing a (caption, spoken) pair in every script. A narration
+# cached before a word was added keeps its old reading until its script
+# changes.
+SAY_AS_WORD = ("PIN", "PINs", "SIM", "NASA", "FOMO", "FUD", "HODL", "DAO",
+               "DeFi", "SWIFT", "RAM", "ASIC", "ASICs", "LASER", "WASD")
+_SAY_AS_WORD = re.compile(r"\b(" + "|".join(SAY_AS_WORD) + r")\b")
+
+
+def say_as_word(text: str) -> str:
+    """Lower the acronyms in `SAY_AS_WORD`, so they are read as words."""
+    return _SAY_AS_WORD.sub(lambda m: m.group(1).lower(), text)
+
+
 def _synth_raw(text: str, voice, mood: str,
                speed: float | None = None) -> "np.ndarray":
     """Kokoro samples at KOKORO_SR, trimmed of the padding it adds.
@@ -325,7 +342,8 @@ def _synth_raw(text: str, voice, mood: str,
     import numpy as np                                          # noqa: F401
     if speed is None:
         speed = KOKORO_MOODS.get(mood, KOKORO_SPEED)
-    audio, _ = _kokoro().create(text, voice=voice_style(voice), speed=speed,
+    audio, _ = _kokoro().create(say_as_word(text), voice=voice_style(voice),
+                                speed=speed,
                                 lang="en-us")
     trimmed, _ = librosa.effects.trim(audio.astype("float32"), top_db=TRIM_DB)
     return trimmed
@@ -393,7 +411,7 @@ def synth_phrase(text: str, out: Path, voice: VoiceSpec = None,
     if backend == "kokoro":
         import soundfile as sf
         audio, sr = _kokoro().create(
-            text, voice=voice_style(voice),
+            say_as_word(text), voice=voice_style(voice),
             speed=KOKORO_MOODS.get(mood, KOKORO_SPEED), lang="en-us")
         sf.write(str(raw), audio, sr)
     elif backend == "edge":
