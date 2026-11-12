@@ -111,12 +111,24 @@ sequence drifted into four copies that disagreed.
    floor). `beats.md` and `design.md` also have animated icons and per-shot
    GPU effects; `tools/visual_demo.py` renders every one of these to look at.
 
+   **Write the picture first** (2026-11-12, `workflow.md`, "Write the
+   picture first: the visual plan"). One line per sentence - what the
+   viewer sees, and which tool draws it - before fetching anything. The
+   editor rejected a cut that passed every gate with 6 of 25 shots drawn.
+   Never two full-frame pictures in a row; at least half the long form's
+   shots are drawn or framed (`window=`, `callout`, `spotlight`, a beat).
+   `pile` and the other signature beats rest for two videos: use `breach`
+   for many drained addresses, `airgap` for a signer kept offline, or
+   build the beat the subject needs. **No `title_at=`** - the title slate
+   is retired. `script_check` flags all of these.
+
    **These are required, not a menu** (`workflow.md`, "The toolbox is not
    optional"). The first pair after they landed used none of them and the
    editor asked whether the skill knew they existed (2026-11-06). Before
    writing the shot list, write down which slots take: a captured page, the
    site's photo of the named object with `behind` / `isolate` / `parallax`,
-   a `pile` where money moves, a shader on the turning shot. When Pexels has
+   a `pile` (or `breach`, or a new beat - see the rotation rule) where money
+   moves, a shader on the turning shot. When Pexels has
    nothing on topic, these come before a second fetch. **No phone clip whose
    screen is a social feed** - a scrolling-phone search returns feeds, and
    four of them were cut as irrelevant (`footage.md`). **The disclaimer

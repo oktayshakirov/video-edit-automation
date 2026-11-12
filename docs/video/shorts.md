@@ -1387,3 +1387,11 @@ article Shorts, one per channel so each is the only change on its channel:
 Session Shorts are not part of either. The fail lines are in
 `video-performance-review/experiments.md`; tell the editor which one a
 build carried in the handover.
+
+## A Short cannot hold a shot with `None` (2026-11-12)
+
+Long form holds the previous picture across a sentence with `None` in
+`Section.shots`. `render_crypto_short` has no such slot - a `None` in
+`SHOTS` raises `'NoneType' object has no attribute 'start'` after the
+narration is built. Give the sentence its own small beat instead (a `stat`
+under "nobody touched a single device"), or a third reveal on the beat before it (`breach`'s `after=`). `stat` has no portrait layout worth using.

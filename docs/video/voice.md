@@ -503,3 +503,12 @@ pasted address that cost...". Treat "copy and paste", "buy and sell", "pump
 and dump" the same way in a long sentence: rewrite, then measure the
 narration cache before rendering.
 
+## Acronyms said as words: `SAY_AS_WORD` (2026-11-12)
+
+The engine spells an all-caps token letter by letter, so "PIN" came out as
+"P, I, N" (the editor: "pin is usually read together"). `voiceover.py` now
+lowers the acronyms listed in `SAY_AS_WORD` (PIN, SIM, FOMO, FUD, HODL,
+DAO, DeFi, RAM, ASIC...) in the text handed to the engine; the caption
+keeps its capitals. Add a word to that list instead of writing a
+`(caption, spoken)` pair in each script. Letter-by-letter acronyms (BTC,
+ETF, KYC) are not in it and stay spelt.

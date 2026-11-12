@@ -925,7 +925,16 @@ class Emphasis:
         if a <= 0.004:
             return pic
 
-        arr = np.asarray(pic).astype(np.float32) * (1.0 - 0.30 * a)
+        # **The step back is as deep as the picture is bright** (2026-11-12).
+        # A fixed 30% was tuned on dark footage; over a captured white page
+        # the white word had nothing to stand on ("white font on white
+        # image"). Measure the band the word sits in and darken until that
+        # band is at most ~62 luma, never less than the old 30%.
+        src = np.asarray(pic).astype(np.float32)
+        band = src[int(H * 0.36):int(H * 0.64), int(W * 0.10):int(W * 0.90)]
+        luma = float(band.mean()) if band.size else 0.0
+        dim = max(0.30, 1.0 - 62.0 / max(luma, 1.0))
+        arr = src * (1.0 - dim * a)
         base = Image.fromarray(arr.clip(0, 255).astype(np.uint8)).convert("RGBA")
 
         tw, th = self.bb[2] - self.bb[0], self.bb[3] - self.bb[1]

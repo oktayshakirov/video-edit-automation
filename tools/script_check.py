@@ -330,6 +330,25 @@ RULES = {
     "stock-share": Rule("stock-share", "footage.md, 'Stock is at most half the "
                         "shots'", ("crypto", "tinnitus"), ("long", "short"),
                         since="2026-11-10"),
+    # The editor's notes on `hardware-wallet` (2026-11-12): full-frame stock
+    # and photographs one after another are boring, the videos lack drawn
+    # explanation, the coin pile is everywhere, the title slate goes, and a
+    # cover highlighted "IT?" over three rows of one or two words.
+    "full-frame-run": Rule("full-frame-run", "footage.md, 'Never two full-frame "
+                           "pictures in a row'", ("crypto", "tinnitus"),
+                           ("long", "short"), since="2026-11-11"),
+    "drawn-share": Rule("drawn-share", "footage.md, 'Half the shots are drawn "
+                        "or framed'", ("crypto", "tinnitus"), ("long",),
+                        since="2026-11-11"),
+    "beat-rotation": Rule("beat-rotation", "beats.md, 'A signature beat rests "
+                          "for two videos'", ("crypto", "tinnitus"),
+                          ("long", "short"), since="2026-11-11"),
+    "title-slate": Rule("title-slate", "longform.md, 'No title slate'",
+                        ("crypto", "tinnitus"), ("long",), since="2026-11-11"),
+    "cover-headline": Rule("cover-headline", "thumbnails.md, 'A short headline "
+                           "takes two rows and highlights its noun'",
+                           ("crypto", "tinnitus"), ("long", "short"),
+                           since="2026-11-11"),
 }
 
 # The most of a video's shots that may be plain stock clips (`stock-share`).
@@ -360,6 +379,53 @@ TOOL_GRAPHICS = ("behind", "pile")
 WEATHER = re.compile(r"rain|water|ocean|sea-|waves?|storm|fog|mist", re.I)
 # A stock search for a scrolling phone returns social feeds.
 FEED = re.compile(r"scroll|feed|social|instagram|tiktok|reels", re.I)
+
+
+def is_full_frame(sh) -> bool:
+    """A found picture filling the frame: a stock clip or a photograph, with
+    no window round it and nothing drawn on it. A captured page counts as
+    full frame too unless it sits in a `window=`."""
+    if getattr(sh, "graphic", None) or getattr(sh, "window", None):
+        return False
+    if getattr(sh, "payload", None) or getattr(sh, "note", None):
+        return False            # a statement or a figure card is drawn on it
+    return (getattr(sh, "clip", None) is not None
+            or getattr(sh, "image", None) is not None)
+
+
+# Beats with a look of their own, which a viewer recognises the second time.
+# The plain layouts (a list, a comparison, a figure) are not in this set.
+SIGNATURE_BEATS = ("pile", "behind", "blindsign", "reel", "post", "sweep",
+                   "lookalike", "mnemonic", "quorum", "shares", "stake",
+                   "pool", "replicate", "airgap", "breach")
+# A cover's accent goes on the word that carries the subject, never on one
+# of these.
+WEAK_ACCENT = {"it", "its", "one", "this", "that", "them", "they", "you",
+               "your", "is", "are", "do", "does", "a", "an", "the", "to",
+               "of", "in", "on", "so", "and", "or", "be", "can", "will"}
+TITLE_AT = re.compile(r"^[^#\n]*\btitle_at\s*=\s*(?!None\b)\S", re.M)
+
+
+def recent_siblings(path: Path, n: int = 2) -> list[Path]:
+    """The `n` scripts of the same channel and format made just before this
+    one, newest first - by first commit, an uncommitted file counting as
+    newest."""
+    def key(q: Path):
+        return (first_commit(q) or "9999-99-99", q.stat().st_mtime)
+    if not path.exists():
+        return []
+    mine = key(path)
+    sibs = [q for q in path.parent.glob("*.py")
+            if q != path and not q.name.startswith("_") and key(q) < mine]
+    return sorted(sibs, key=key, reverse=True)[:n]
+
+
+def graphics_in(path: Path) -> set:
+    try:
+        src = path.read_text(errors="replace")
+    except OSError:
+        return set()
+    return set(re.findall(r"graphic\s*=\s*[\"']([a-z]+)[\"']", src))
 
 
 def shots_of(mod) -> list:
@@ -495,6 +561,79 @@ def check(sc: Script) -> list[Finding]:
                              f"({n / len(shots):.0%}) - at most half: a drawn "
                              "beat, a site photo, a captured page, or "
                              "`window=` on a clip"))
+    if "full-frame-run" in on and shots:
+        # Per section, in order; a None slot (the picture held) is skipped
+        # by `shots_of`, which is right - a hold is the same picture.
+        seqs = [[sh for sh in getattr(sec, "shots", []) if sh is not None]
+                for sec in getattr(sc.mod, "SECTIONS", None) or []]
+        flat = [sh for seq in seqs for sh in seq] or shots
+        # A chapter card sits between two carded sections, so a run cannot
+        # cross one.
+        starts, k = set(), 0
+        for sec, seq in zip(getattr(sc.mod, "SECTIONS", None) or [], seqs):
+            if getattr(sec, "card", True):
+                starts.add(k)
+            k += len(seq)
+        run = 0
+        for i, sh in enumerate(flat):
+            if i in starts:
+                run = 0
+            run = run + 1 if is_full_frame(sh) else 0
+            if run == 2:
+                a = flat[i - 1]
+                names = [Path(str(getattr(x, "clip", None)
+                                  or getattr(x, "image", None))).name
+                         for x in (a, sh)]
+                f.append(Finding("full-frame-run", f"shots {i}-{i + 1}",
+                                 f"{names[0]} then {names[1]}, both full "
+                                 "frame - put one in a `window=`, draw the "
+                                 "beat, or use `callout`/`spotlight`/`behind` "
+                                 "on the photo"))
+    if "drawn-share" in on and shots:
+        n = sum(1 for sh in shots if not is_full_frame(sh))
+        if n / len(shots) < 0.5:
+            f.append(Finding("drawn-share", "shots",
+                             f"only {n} of {len(shots)} shots are drawn or "
+                             f"framed ({n / len(shots):.0%}) - at least half: "
+                             "a beat, a window, a labelled photo"))
+    if "beat-rotation" in on and shots:
+        mine = {getattr(sh, "graphic", None) for sh in shots} & set(SIGNATURE_BEATS)
+        sibs = recent_siblings(sc.path)
+        for g in sorted(mine):
+            used = [q.stem for q in sibs if g in graphics_in(q)]
+            if used:
+                f.append(Finding("beat-rotation", f"`{g}`",
+                                 f"also in {', '.join(used)} - a signature "
+                                 "beat rests for two videos; draw this one "
+                                 "another way or build a new beat"))
+    if "title-slate" in on:
+        try:
+            src = sc.path.read_text()
+        except OSError:
+            src = ""
+        doc = getattr(sc.mod, "__doc__", None) or ""
+        if doc:
+            src = src.replace(doc, "", 1)
+        if TITLE_AT.search(src):
+            f.append(Finding("title-slate", "render call",
+                             "`title_at=` draws the title slate - the editor "
+                             "retired it; the opener and the first chapter "
+                             "card carry the title"))
+    if "cover-headline" in on:
+        head = getattr(sc.mod, "HEADLINE", None)
+        if isinstance(head, str) and head.strip():
+            rows = [r for r in head.split("\n") if r.strip()]
+            words = re.findall(r"[\w'$%.,+-]+", head.replace("[", " ").replace("]", " "))
+            if len(rows) >= 3 and len(words) <= 6:
+                f.append(Finding("cover-headline", "HEADLINE",
+                                 f"{len(words)} words on {len(rows)} rows - "
+                                 "six words or fewer take two rows"))
+            for run in re.findall(r"\[([^\]]+)\]", head):
+                ws = [w.strip("?!.,").lower() for w in run.split()]
+                if ws and all(w in WEAK_ACCENT for w in ws):
+                    f.append(Finding("cover-headline", "HEADLINE",
+                                     f"the accent is on {run!r} - highlight "
+                                     "the word that names the subject"))
     if "feed-clip" in on:
         seen = set()
         for sh in shots:

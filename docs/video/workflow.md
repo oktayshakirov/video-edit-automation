@@ -301,7 +301,9 @@ They were documented, never required. So, for every article long form:
 - **The site's own photograph of the named object**, moved: `behind` for
   the word the line turns on, `isolate` for "this one", `parallax` for a
   place. The site's images are licensed and already on topic.
-- **`pile`** wherever money moves in or out of something.
+- **`pile`** where money moves in or out of one place - if neither of the
+  last two videos used it (`beats.md`, "A signature beat rests for two
+  videos"); `breach` when it was spread over many addresses.
 - **Icons that animate** - on by default now; pick them with `emoji check`.
 - **A shader on the one or two shots a line turns on** - `aberration` on
   the "Actually" cut, `bloom` on gold type on black.
@@ -325,7 +327,8 @@ had to edit both copies.)
   carded section** - two or three words naming the stake ("THE REJECTION",
   "THE CATCH"). Without one the long form shows "CHAPTER n" and a Short
   shows no label.
-- **The opening title is the glitch slate** (`title_at=`, default since
+- **(Retired 2026-11-12 - `longform.md`, "No title slate"; do not pass
+  `title_at=`.)** The opening title was the glitch slate (`title_at=`, default since
   2026-11-04): the title split at its colon / question mark / dash, the
   search phrase big in DIN Condensed, the promise under it in the brand
   colour, glitching in and out on the title intro sound. Keep its hold
@@ -375,3 +378,74 @@ had to edit both copies.)
 - **The title and chapter sounds are files** in `assets/brand/sfx/`, kept out
   of git. On a machine without them the build falls back to synthesized
   stand-ins - copy them over before a build that ships.
+
+## Write the picture first: the visual plan (2026-11-12)
+
+The editor's review of `hardware-wallet`: "the videos generally lack
+creative visuals and diagrams or explanation from vectors and text, we have
+tools, we should use them more, we need better scripting", and "they look
+very boring with so many stock clips". That cut passed every gate with 6 of
+25 shots drawn. The shot list had been written *after* the narration, so
+each sentence got the nearest photograph. The order is now:
+
+1. **Write one line per sentence saying what the viewer sees**, before any
+   footage is fetched: `sentence -> what is on screen -> which tool`. A
+   sentence whose answer is "the device again" or "a dark room" has no
+   picture yet - give it a beat, a labelled photo or a page, or cut it.
+2. **Pick the tool by what the sentence does:**
+
+   | the sentence... | draw it as |
+   | --- | --- |
+   | says where two things are, and what moves between them | `airgap`, `diagram` |
+   | walks a procedure | `steps` |
+   | names the parts of a real object | `callout` on its photo |
+   | points at one detail of a photo | `spotlight` |
+   | quotes a page, a report, a post | `screencap` in `window="browser"`, `post` |
+   | gives one figure | `stat`; two figures against each other, `bars` |
+   | lists a set | `grid`; a set with verdicts, `checklist`; two sides, `compare` |
+   | says many victims lost something | `breach` |
+   | says money moved into or out of one place | `pile`, `pool`, `sweep` |
+   | says what a screen showed against what was signed | `blindsign` |
+   | has only mood to show | a clip, in a `window=`, or cut the sentence |
+
+3. **Then write the beat sentences as enumerations** (one caption chunk per
+   reveal), and the photographs and clips go in the gaps between beats.
+4. **Run `tools/script_check.py` before fetching anything.** Its
+   `full-frame-run`, `drawn-share` and `beat-rotation` rules read the shot
+   list, so they can be answered before a clip is downloaded.
+
+**When the library cannot draw the mechanism, build the beat** - that is
+part of the run, not an exception to it. `airgap` and `breach` were written
+for this pair in about an hour; a second stock fetch costs the same and
+leaves nothing behind.
+
+### The reference: how a drawn faceless explainer is cut
+
+The editor's example, AI Blueprint (two videos, 5:38 and 6:28, read frame
+by frame 2026-11-12). What it does, and what we already have for each:
+
+- **No picture ever fills the frame.** One dark branded background runs
+  under the whole video; every clip, photo and page sits on it in a
+  rounded panel, at a different size each time. Ours: `window=`, `callout`,
+  `spotlight`, beat backdrops.
+- **A real page, then the camera goes to the number.** It opens on a
+  YouTube channel page, pushes in to the view count, and rings it. Ours:
+  `screencap` with `--ring`, in `window="browser"`.
+- **A list is words arriving, not a sentence over footage.** "Visuals,
+  story, cinematic" and "India, U.S., Europe" pop on one by one as they
+  are said. Ours: `grid`, `checklist`, `compare` with one chunk per item.
+- **Icons and lines draw themselves** - a card, three icons, a chart line
+  with a counter. Ours: `diagram`, `chart`, `stat`, animated icons.
+- **Pace: something new on screen every 1-2.5s in the first 90 seconds**
+  (median shot 1.1s and 2.4s), then long screen recordings in the tutorial
+  part. A reveal inside a beat counts as a change - a hard cut is not
+  needed.
+
+What we do not copy: its misspelt titles, its mascot, and the long
+unbroken screen recordings.
+
+**Tools looked at, not adopted.** Remotion and Manim have ready agent
+skills (iart-ai/motion-skills, MIT; the official Remotion skill). They
+would replace this engine's renderer, voice sync and brand code for
+effects the beats above already cover. Revisit only if a wanted effect
+cannot be drawn here.

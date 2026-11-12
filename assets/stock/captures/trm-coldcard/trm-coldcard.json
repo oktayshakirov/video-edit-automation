@@ -1,0 +1,52 @@
+{
+  "name": "trm-coldcard",
+  "url": "https://www.trmlabs.com/resources/blog/the-largest-hardware-wallet-exploit-of-2026-inside-the-usd-116-million-coldcard-hack",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "head": "css=h1",
+    "fw": "text=A firmware bug from March 2021 weakened seed randomness on some",
+    "drained": "text=attackers drained roughly 1,816 BTC",
+    "touch": "text=without ever touching the"
+  },
+  "hide": [
+    ".osano-cm-window"
+  ],
+  "captured": "2026-11-12",
+  "title": "The Largest Hardware Wallet Exploit of 2026: Inside the USD 116 Million Coldcard Hack | TRM Labs",
+  "size": [
+    2560,
+    14372
+  ],
+  "boxes": {
+    "head": [
+      322,
+      354.375,
+      2238,
+      685.5
+    ],
+    "fw": [
+      680,
+      1269.25,
+      1835.90625,
+      1313.25
+    ],
+    "drained": [
+      1056.40625,
+      1443.8125,
+      1636.4375,
+      1487.8125
+    ],
+    "touch": [
+      1438.84375,
+      9901.5625,
+      1855.375,
+      9945.5625
+    ]
+  }
+}

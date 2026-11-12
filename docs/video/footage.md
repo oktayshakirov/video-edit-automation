@@ -986,6 +986,14 @@ which cost a second fetch and a second contact sheet.
 A long/short pair built from the same post is **one** video for the reuse rule
 and is expected to share its roster; the tool treats it that way.
 
+**"Slots apart" counts clip slots only** (2026-11-12). Photos, captures and
+drawn beats are not slots, so in a cut that is mostly those - the
+hardware-wallet long form had 8 clips in 27 shots - two uses of a clip a
+minute apart read as "3 slots apart". Check the real distance in the
+preflight's timeline before re-casting; a Short that closes on the clip it
+opened on is flagged "1 slot apart" by design (`shorts.md`, "Close on the
+opening shot's clip").
+
 ## Adjacent Pexels ids are the same shoot
 
 **Adjacent Pexels ids are the same shoot.** Searching for a replacement for
@@ -1704,6 +1712,12 @@ re-cut:
   sign" (CC0) did what no Pexels hardware-wallet search did. Crop it to
   16:9 into the project's assets with a `CREDITS.md`, and credit any
   licence that asks for it in the description.
+  **Commons' device photos are bright** (2026-11-12): the Ledger and
+  Trezor shots measured L100-137, on white walls and pale wood. Darkened,
+  desaturated and vignetted into the project's copy they land at L51-57 and
+  sit in the frame; say "adapted" in the credit, which BY-SA asks for.
+  Coldcard's Flickr set (Gareth Halfacree, CC BY-SA 2.0) has two shots on
+  dark keyboards that need nothing.
 
 Before either, check what is *on* a phone or laptop screen at every second
 the shot plays, not just at its first frame: the chat clip read "im
@@ -1772,3 +1786,74 @@ check - do not work around it; Wikipedia carried the page instead.
 screen-dark/38725026` is COIN360's live crypto price map on a monitor -
 tickers and prices readable at 16:9. Never use it on this channel (no live
 price on screen); `38698441` past 10s shows an unbranded chart.
+
+## The hardware-wallet fetch: verdicts (2026-11-12)
+
+For `hardware-wallet`. Three batches, and **the reuse check by Pexels id
+(300 either side) threw out more than the luma box did**: the keyboard
+clip `typing-password-laptop-dark/7534244` is one id from a used clip
+(`7534243`) and 85 from random-tokens' phone (`7534329`); the USB cable
+`usb-cable-plugging-laptop-dark/40304897` is two from a used `40304895`;
+`hand-holding-phone-dark-app/7534331` and `6611941` are random-tokens'
+shoots; `server-room-dark-aisle/19217899` is tokenized-stocks'
+`19217898`; `7140928` is in three videos. Kept: a dark wooden drawer
+pulled open (`hand-opening-desk-drawer-dark/40567547`, B5-23 - **cut in
+the review**: a night stand at 0.5s, a note in another language at 10.5s;
+see "A clip is watched to its end before it is used"), a
+flashlight searching a dark room (`burglar-flashlight-dark-room/18449083`,
+B37-75; nearly black before 3s, and a person's legs fill it from ~7.5s -
+use 2.5-7s only), a backlit
+keyboard under light trails (`laptop-glow-dark-room-close-up/15356658`,
+L6-9, 8s). Rejected: Guy Fawkes hackers (`hacker-attack-screen-warning/
+5377*`), a lit lobby and a station (`data-center-corridor-night/11903981`,
+`40278028`), a blue tunnel animation (`31301243`, L100), a camera app on
+a bright street (`person-holding-smartphone-night-city/3622738`), every
+`writing-words-in-notebook-dark` result (white paper, or `6186890` - 192
+from a used id), green-screen paper burning (`8828892`, `8828896`).
+
+So the long form ran 8 stock clips in 27 shots and carried the rest on
+Commons photos of real devices, a TRM Labs capture and five beats
+(`steps`, `behind`, `compare`, `pile`, `grid`, plus a `stat`). Where Pexels
+had nothing (a phone wallet, an exchange), the beat said it.
+
+**TRM Labs' pages capture** with `--hide ".osano-cm-window"` (the consent
+bar) and `--select key="text=..."` rings a phrase on one line - pick a
+phrase that does not wrap, as for NIDCD.
+
+## Never two full-frame pictures in a row (2026-11-12)
+
+The editor: "we added a rule to not show too many stock videos in full
+screen after each one, the video becomes boring, use different visuals
+with terminal, player, different sizes and transitions and more individual
+graphics, websites recordings or screenshots". The 2026-11-10 rule capped
+stock at half the shots; `hardware-wallet` passed it by using photographs
+instead, and still showed five pairs of full-frame pictures back to back.
+
+A **full-frame picture** is a stock clip, a photograph or a captured page
+that fills the frame with nothing drawn on it. Two may never follow each
+other inside a chapter. Between them goes a drawn beat, or one of the two
+becomes:
+
+- a clip or page in a `window=` (`"browser"`, `"player"`, `"terminal"`),
+- a photograph under `callout` (its parts labelled) or `spotlight` (the
+  camera going to one detail),
+- a clip with a statement or a `note=` card on it.
+
+A held shot (`None`) is the same picture and does not count. A chapter
+card breaks a run. `script_check` flags it as `full-frame-run`.
+
+## Half the shots are drawn or framed (2026-11-12)
+
+In a long form, at least half of the shots are not full-frame pictures.
+The re-cut of `hardware-wallet` went from 6 of 25 to 19 of 27.
+`script_check`: `drawn-share`.
+
+## A clip is watched to its end before it is used (2026-11-12)
+
+`40567547` (a drawer opening) was screened at 15/50/85% and used at 10.5s
+under "recovery words, written down". At that second a note is pinned in
+the drawer with handwriting in another language - the editor: "there is a
+note on different language that is unrelated". And at 0.5s it is a night
+stand, under a line about a key. **Any readable text in a clip is part of
+the picture**: play the whole span the slot uses, and reject a clip whose
+text is not about the line. The clip is rejected for this subject.
