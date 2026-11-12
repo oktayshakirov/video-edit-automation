@@ -32,11 +32,17 @@ watch.** Cross it with the channel's demand map (`demand/tinnitus.md`,
 `demand/crypto.md`; the method is `demand/README.md`) before suggesting
 anything (2026-10-25, E11).
 
+**Read what has worked first** (2026-11-12):
+`.claude/skills/video-performance-review/videos.md`, "What works, and what
+does not", and the lessons on the last few rows for this channel. Prefer a
+candidate that repeats something that worked, and say so on it; say it too
+when a candidate resembles something that did not.
+
 **Offer three to five candidates**, then stop and wait. Each one carries:
 
 - **the demand evidence** - a standout from the map (title, channel, views,
   ratio to that channel's median), one of our own standouts, or a brand-new
-  search term with few answers yet (E8). Mark it **"no evidence"** when there
+  search term with few answers yet (part of E11). Mark it **"no evidence"** when there
   is none, and say so plainly; it may still be picked, but not by default.
   When the map has nothing on the subject, search it on YouTube now (one
   branch, `demand/README.md`) and add what you find to the map;
@@ -156,7 +162,7 @@ the opening from the script and flags what the curves punished: sentence 2
 starting before 4s, an opener with no `opener_holds=True`, a crypto Short
 outside 30-40s (E17), an article long form over 3:00 (E18). It also prints
 what the voice is saying at 5.5s, the stock share, and the last line
-running into the first, which is how the loop reads (E16).
+running into the first, which is how the loop reads.
 
 ```bash
 PYTHONPATH=. .venv/bin/python tools/retention_check.py \
@@ -268,10 +274,16 @@ Only once the user says they are happy:
    starts. Run `.venv/bin/python -m pytest tests -q` if the run touched the
    engine; it is about five seconds and it covers the things that cannot be
    seen by watching the render.
-2. **Write the handoff** to `HANDOFF-PUBLISH.md` at the repo root: what was
+2. **Log the videos** - `PYTHONPATH=. .venv/bin/python tools/video_log.py
+   <long script> <short script>` adds a row each to
+   `.claude/skills/video-performance-review/videos.md` with how they were
+   built. The reviews fill in how they did. Commit it with the rest.
+3. **Write down what the run taught** (below, "Every run leaves the skill
+   better"). Same commit.
+4. **Write the handoff** to `HANDOFF-PUBLISH.md` at the repo root: what was
    built, the absolute path of every file, the source article slug, and anything
    still undecided. `/publish-video` reads this.
-3. **Tell the user to open a fresh session and run `/publish-video`.**
+5. **Tell the user to open a fresh session and run `/publish-video`.**
 
 **The build session does not publish.** A build loop burns its context on
 renders, re-cuts and screenshots, and publishing is the irreversible half - a
@@ -449,3 +461,29 @@ skills (iart-ai/motion-skills, MIT; the official Remotion skill). They
 would replace this engine's renderer, voice sync and brand code for
 effects the beats above already cover. Revisit only if a wanted effect
 cannot be drawn here.
+
+## Every run leaves the skill better (2026-11-12)
+
+The editor: "the main goal is that the video skill improves every video if
+anything is mentioned to improve, and learns". So this is a step of every
+build, done before the handoff and committed with it, not an afterthought:
+
+1. **Every note the editor gave in the review becomes a rule someone else
+   would follow** - in the narrowest doc (`narration.md`, `shorts.md`,
+   `longform.md`, `footage.md`, `beats.md`, `thumbnails.md`, `voice.md`, a
+   project doc), a few lines, dated, with the editor's words and the
+   video it came from. A note that applies to both channels goes in a
+   shared doc, never in one channel's skill.
+2. **If the note can be checked from the script, add the check** to
+   `tools/script_check.py` (or `retention_check.py`). A rule with a check
+   is followed; a rule with only a paragraph was missed three times in
+   2026 before the editor asked whether the skill knew it existed.
+3. **If the viewer could notice the change, add an entry to**
+   `.claude/skills/video-performance-review/changes.md`, so the next
+   review knows which videos were built under it.
+4. **Say in the handover what was learned and where it was written**, in
+   three or four lines, so the editor can veto any of it.
+
+And **remove as well as add**: when a new rule replaces an old one, delete
+or strike the old paragraph in the same commit. A doc that only grows stops
+being read.

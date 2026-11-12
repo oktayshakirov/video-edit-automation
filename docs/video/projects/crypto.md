@@ -127,6 +127,11 @@ registered because the quiz format defaults to it. Full reasoning in
 
 ### Voice test: `noah` on the next 5 crypto pairs (from 2026-10-23)
 
+**Closed 2026-11-12: `mia` is the voice for every article pair.** Both
+channels finished their five `noah` pairs; the result was inconclusive
+(`video-performance-review/history/retired-experiments.md`, E7). What
+follows is the record of the test, not an instruction.
+
 **The next 5 crypto article pairs read in `noah`, not `mia`** — long form and
 its Short together, since a pair shares one voice. Tinnitus runs the same test
 on its next 5 pairs; the 10 together are compared against `mia` on retention
