@@ -73,96 +73,56 @@ copies that disagreed with each other.
 
 1. **Ask which product** - explainer pair, or session. A session has no article,
    skips topic suggestion, and takes the session copy rules in the project doc.
-2. **Suggest, do not pick** - `python3 tools/topics.py tinnitus`, crossed
-   with `docs/video/demand/tinnitus.md`. Every candidate shows its demand
-   evidence or says "no evidence" (`workflow.md` step 1). The bridge matters
-   most on this channel: our articles explain mechanisms (gain, habituation,
-   somatic tinnitus) and sufferers search outcomes (sleep, spikes, "will it
-   go away"). Name the outcome as the subject; promise understanding, never
-   relief. A format that sells a result is closed here, however well it does
-   elsewhere. An article that already has a video can be **re-angled** when
-   the map shows the subject wins on another promise (spikes: "what to do
-   during one" beat "why"). Once picked, a standout gets its **teardown**
-   before the script (`demand/README.md`, "Teardown"; the spike one exists).
-3. **Script both together** from the chosen article. On the opener,
-   `workflow.md` says to pick deliberately and this channel sets the limit: a
-   verdict stamp is about a *claim*, never about an outcome and never about
-   anybody's prognosis.
-   **Voice: check the `noah` test table first** (`projects/tinnitus.md`,
-   *Voice test*). Until it has 5 rows, an article pair reads in `noah` (male,
-   `voice="noah"` on both builders) and gets a row; after that, `mia`
-   (female, the default). Sessions keep `luna`. One voice for the whole pair.
-   `noah` reads ~6% slower, so size the script to its pace.
-4. **Decide what gets drawn, before writing a shot list.** The step that
-   matters most here, because the subject cannot be photographed at all. List
-   the beats first and raise the graphic share. `diagram(loop=True)` is the
-   night loop this site's articles keep describing, `gauge` is decibels
-   against safe exposure, `dial` is a severity or loudness scale. **Budget a
-   new beat when the library cannot draw the subject.** The clips that remain
-   are the *act* - headphones going in, a hand on a volume control, somebody
-   at a window - never a portrait of somebody suffering.
-
-   **`spectrum`** is the beat built for this channel: it draws the notch
-   `core/soundbed.py` actually cuts, so reach for it before describing this
-   site's own audio over a photograph. `timeline` and `chart` are available
-   too. `docs/video/footage.md`, `docs/video/beats.md` and
-   `docs/video/projects/tinnitus.md`.
-
-   **Do not reach for `anatomy`.** It needs a real, accurate picture of the
-   part being named, and one rarely exists for this channel's subjects - the
-   drawn fallback it used to carry was tried four times and cut. It stays in
-   the library for `tmj-and-tinnitus`, which has a head in profile worth
-   pointing at, and that is the bar: a picture where the parts are genuinely
-   visible. Without one, say it in the narration and put a `clip` or a
-   `diagram` under it.
-
-   **When the script names a real thing, show the real thing.** A product
-   (AirPods, a hearing aid, an app), a study's institution, a named musician:
-   pull its official press images or logo, put them under the line that names
-   it (`Shot(image=)`) or over the stock (`Shot(inset=)`), and credit them in
-   the description. All-stock about a real subject was rejected on the crypto
-   channel as monotone (2026-10-20). `footage.md`, "When the subject is a
-   real thing". A study's abstract or a guideline's page is captured with
-   `screencap`, the sentence the narration quotes ringed. A photograph of a
-   person or a room can move in depth or dim around its subject
-   (`parallax=`, `isolate=`) - never on an ear, which stays out of frame.
-
-   **Plan the picture sentence by sentence first** (2026-11-12,
-   `workflow.md`, "Write the picture first: the visual plan"): what is on
-   screen under each line and which tool draws it. Two full-frame clips or
-   photographs never follow each other, and half the long form is drawn
-   or framed - a `diagram` of the mechanism, `callout` on the anatomy
-   photo, `spectrum` / `audiogram` / `dial` for a sound or a level, a study
-   page in `window="browser"`. Signature beats rest for two videos. No
-   `title_at=`. `script_check` flags each.
-
-   **These are required, not a menu** (`workflow.md`, "The toolbox is not
-   optional", 2026-11-06): plan the captured page, the depth or cutout
-   shot and the shader before the shot list, ahead of a second stock
-   fetch. No phone clip whose screen is a social feed; the disclaimer sits
-   on this video's own subject, never rain (`stillclip`). `script_check`
-   flags all three (`toolbox`, `feed-clip`, `disclaimer-bg`). A stock clip
-   with a blank lit screen can carry the page the narration names
-   (`core/screenfill.py`).
-
-   **The Short ends on a plain sentence - no `outro=` card** (2026-11-06,
-   `shorts.md`, "No outro card on a Short"). The closing line is the last
-   entry in `SENTENCES`, captioned like the rest; the card slowed the end
-   where viewers leave. `script_check` flags it (`short-outro`).
-   **An article pair is written to be watched to the end** (2026-11-10):
-   a 10-13 word spoken title question on the Short, so sentence 2 - a
-   body-check when the article has one (`narration.md`) - starts near 4s;
-   `opener_holds=True` on its render call; a last line that runs back into
-   the title question (E16); a long form of 2:30-3:00 (E18); and no more
-   than half the shots plain stock, with `window=` for a clip that stands
-   for a page or a recording. `tools/retention_check.py` on both scripts
-   prints each of these - its output goes in the handover. Sessions are
-   exempt. `shorts.md`, "The first eight seconds"; `footage.md`.
-5. **Preflight, then build** - `projects/tinnitus-long/<name>.py` and
-   `projects/tinnitus-short/<name>.py`, each setting `SOURCE_POST` (`None` for
-   a session).
+2. **Read what worked, then suggest - do not pick.** First
+   `.claude/skills/video-performance-review/videos.md`, "What works, and
+   what does not". Then `python3 tools/topics.py tinnitus`, crossed with
+   `docs/video/demand/tinnitus.md`; every candidate shows its demand
+   evidence or says "no evidence". The bridge matters most on this
+   channel: our articles explain mechanisms (gain, habituation, somatic
+   tinnitus) and sufferers search outcomes (sleep, spikes, "will it go
+   away"). Name the outcome as the subject; promise understanding, never
+   relief. A format that sells a result is closed here, however well it
+   does elsewhere. An article that already has a video can be re-angled.
+   Once picked, a standout gets its teardown before the script.
+3. **Script both together** from the chosen article, in `mia` (the `noah`
+   test ended with pair 5; sessions keep `luna`). A verdict stamp judges a
+   *claim*, never an outcome or anybody's prognosis. The Short's spoken
+   title question runs 10-13 words so sentence 2 - a body-check when the
+   article has one - starts near 4s; its last line runs back into the
+   title question; it ends on a plain sentence. The long form runs
+   2:30-3:00. Sessions are exempt from all of this.
+4. **Write the picture first** - the step that matters most here, because
+   the subject cannot be photographed at all. Follow `workflow.md`, "Write
+   the picture first: the visual plan": one line per sentence saying what
+   the listener sees and which tool draws it, before fetching footage.
+   - **Draw the mechanism:** `diagram(loop=True)` for the night loop,
+     `spectrum` for the notch our own audio cuts, `audiogram`, `gauge` for
+     decibels against safe exposure, `dial` for a scale. **Build a new beat
+     when the library cannot draw the subject.**
+   - **Show the real thing** the script names (a product, a study's page
+     with `screencap` in `window="browser"`, a named musician), credited.
+   - **Frame what is left:** `callout` or `spotlight` on a photo, a clip in
+     a `window=`. Never two full-frame pictures in a row; at least half the
+     long form drawn or framed; signature beats rest for two videos.
+   - **Do not reach for `anatomy`** unless there is a real picture where
+     the parts are visible (`tmj-and-tinnitus` is the bar).
+   - Clips show an *act* (headphones going in, a hand on a volume control),
+     never a portrait of suffering, never an ear close-up, never a social
+     feed. The disclaimer sits on this video's own subject. No `title_at=`.
+5. **Check, preflight, build** - `projects/tinnitus-long/<name>.py` and
+   `projects/tinnitus-short/<name>.py`, each with `SOURCE_POST` (`None` for
+   a session), `DEMAND` and `COVER_STYLE`. Run `tools/script_check.py`,
+   `tools/opening_check.py` and `tools/retention_check.py` before fetching
+   or rendering, fix every flag, and hand their output over.
 6. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
-   steps 4 and 5.
+   steps 4 and 5, which now include logging the pair with
+   `tools/video_log.py`.
+7. **Leave the skill better - every run.** `workflow.md`, "Every run leaves
+   the skill better": each note the editor gave becomes a dated rule in
+   the narrowest doc, a check when it can be checked, and an entry in
+   `video-performance-review/changes.md` when a listener could notice it.
+   Replace old rules, do not stack them. Tell the editor what was learned
+   and where it went.
 
 ## What every build draws by default
 

@@ -29,7 +29,7 @@ site's `how-does-north-korea-steal-crypto`.
 The first cut had 6 of 25 shots drawn and was rejected as boring: full-frame
 photographs and stock one after another, the coin `pile` again, a title
 slate, a drawer clip with an unrelated note in it. This cut was planned
-picture first (`workflow.md`, "Write the picture first"): 19 of 27 shots are
+picture first (`workflow.md`, "Write the picture first"): 17 of 23 shots are
 drawn or framed, and no two full-frame pictures follow each other.
 
 * `grid` (2) - where things are: the blockchain holds the coins, the device

@@ -37,7 +37,10 @@ drone video by name.
 | file | holds |
 | --- | --- |
 | `history/YYYY-MM-DD.md` | one snapshot per run: the numbers per platform and per video, the cohorts, what the run found and changed |
-| `experiments.md` | **Open checks** (what the next run must read), then the ledger: each experiment's start, change, judging number and fail line |
+| `experiments.md` | the **live tests** (five at most), **Open checks** (what the next run must read), each test's start, change, judging number and fail line |
+| `videos.md` | **one row per video**: how it was built (logged by the build run), its result, a verdict and a one-line lesson (filled here); and **"What works, and what does not"**, rewritten every run - the build skills read it before picking a topic |
+| `changes.md` | dated build-rule changes, newest first. Read before tagging: videos on either side of an entry are different cohorts |
+| `history/retired-experiments.md` | tests retired on 2026-11-12, kept for reference only |
 
 This folder is tracked in `~/Coding/video-edit-automation` (under
 `.claude/skills/`, symlinked from `~/.claude/skills`), so snapshots and ledger
@@ -64,7 +67,8 @@ when the run itself changes order or gains a step.
 
 ## The run
 
-1. **Load the past.** Read the newest `history/` snapshot and all of
+1. **Load the past.** Read the newest `history/` snapshot, `changes.md`
+   (what the builds changed since the last run), `videos.md`, and all of
    `experiments.md`, **Open checks** first. Note today's date, days since the
    last run, and how long each experiment has run.
 2. **Pull every platform** with `video-views-audit`'s procedures: both
@@ -86,8 +90,9 @@ when the run itself changes order or gains a step.
      `tools/opening_check.py <script>` prints both for a Short;
    - the last line (cold close or question), and the title shape (yes/no, how
      or why, named person);
-   - the voice (`mia`, `noah`) and the engine (old, or after the 10-21
-     overhaul), for E7 and E9;
+   - **the build tags**, from the video's row in `videos.md` (drawn share,
+     stock share, beats, opener, cover style, voice) - do not re-derive
+     them by eye;
    - **the demand evidence**, from the script's `DEMAND` line (a standout and
      its ratio, one of ours, a new term, or `None`), and the title format it
      borrowed, for E11, and whether a teardown in `docs/video/demand/teardowns/`
@@ -119,7 +124,15 @@ when the run itself changes order or gains a step.
    growing without a session of its own. Add any of our videos that stood
    out to "Our own standouts" with its traffic source. Map rows are
    bookkeeping and are written without asking.
-5. **Judge.** Each experiment against its own fail line: *holding*,
+5. **Fill `videos.md`, then judge.** For every row old enough to read,
+   write its result, a verdict (`worked` / `average` / `did not` / `too
+   early`) and, when it teaches something a script could act on, a
+   one-line lesson. A video with no row (built before 2026-11-12, or
+   never logged) gets one with `tools/video_log.py`. **Then rewrite "What
+   works, and what does not"** from the rows: short, dated, each line
+   naming its videos. This is the part of the run the next build reads, so
+   it is never skipped - and it is bookkeeping, written without asking.
+   Each experiment against its own fail line: *holding*,
    *failed*, *too early*, with the numbers. Each Open check: answered or
    still waiting. **Check compliance before blaming a rule.** If the videos did
    not follow it, the rule was not tested.
@@ -137,7 +150,10 @@ when the run itself changes order or gains a step.
    unrelated work in progress, so stage by path. Two commits: build docs,
    tools and skills first, then the snapshot and ledger. Follow the commit
    style already in `git log`.
-9. **Set the next run.** Rewrite **Open checks** in `experiments.md`: what to
+9. **Set the next run.** Keep the live tests at five or fewer: a test that
+   reached its verdict becomes a rule or goes to
+   `history/retired-experiments.md`, and a new one only takes a freed
+   place (`experiments.md`, top). Rewrite **Open checks** in `experiments.md`: what to
    read next time and from what date its data will exist (a curve needs ~60
    views; a Studio test needs its end date). Tell the user the earliest date a
    new run would learn something.

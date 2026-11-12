@@ -42,6 +42,23 @@ metadata"). **Every other platform is read-only**: never like, comment,
 follow, post, or change a setting. The browser work runs in the editor's own
 logged-in Chrome (`claude-in-chrome`); close every tab opened.
 
+## Before comparing two videos: what changed in the builds
+
+**The build skills changed on 2026-11-12** (after the editor's review of the
+`hardware-wallet` pair): article videos on both channels are now planned
+picture first, mostly drawn or framed instead of full-screen stock, with
+no title slate and new cover-headline rules. Videos built after that day
+are a different cohort from the ones before it, so a difference between
+them may be the build and not the topic or the title.
+
+The dated list of every such change is
+`video-performance-review/changes.md` - **read it before any audit that
+compares videos**, and say in the answer which side of the latest change
+each video is on. How each video was built is in
+`video-performance-review/videos.md` (one row per video). When an audit
+of a single video finds something a script could act on, add it to that
+video's row as its lesson; a rule change still goes through the review.
+
 ## Pick the platform by the question
 
 | the question | pull |

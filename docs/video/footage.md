@@ -1845,7 +1845,7 @@ card breaks a run. `script_check` flags it as `full-frame-run`.
 ## Half the shots are drawn or framed (2026-11-12)
 
 In a long form, at least half of the shots are not full-frame pictures.
-The re-cut of `hardware-wallet` went from 6 of 25 to 19 of 27.
+The re-cut of `hardware-wallet` went from 6 of 25 to 17 of 23.
 `script_check`: `drawn-share`.
 
 ## A clip is watched to its end before it is used (2026-11-12)

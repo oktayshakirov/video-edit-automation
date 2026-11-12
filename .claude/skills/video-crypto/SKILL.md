@@ -61,116 +61,57 @@ and a remembered version is a stale one.
 only what is this channel's own - restating the shared steps is how the publish
 sequence drifted into four copies that disagreed.
 
-1. **Suggest, do not pick** - `python3 tools/topics.py crypto`, crossed with
+1. **Read what worked, then suggest - do not pick.** First
+   `.claude/skills/video-performance-review/videos.md`, "What works, and
+   what does not". Then `python3 tools/topics.py crypto`, crossed with
    `docs/video/demand/crypto.md`. Every candidate shows its demand evidence
-   or says "no evidence" (`workflow.md` step 1). Look first for a **brand-new
-   named term few videos answer yet** (E8, our only search win) and for a
-   **named project people are unsure whether to trust** (the niche's biggest
-   format). A mechanism with no demand of its own is bridged to what the
-   viewer cares about - understanding a thing, not getting burned - never to
-   profit. An article that already has a video can be **re-angled** when the
-   map shows the subject wins on another promise. Once picked, a standout
-   gets its **teardown** before the script (`demand/README.md`, "Teardown").
-2. **Script both together** from the chosen article.
-   **Voice: check the `noah` test table first** (`projects/crypto.md`,
-   *Voice test*). Until it has 5 rows, the pair reads in `noah` (male,
-   `voice="noah"` on both builders) and gets a row; after that, `mia`
-   (female, the default). One voice for the whole pair. `noah` reads ~6%
-   slower, so size the script to its pace.
-3. **Decide what gets drawn, before writing a shot list.** This is the step
-   that matters most here. Read the script's nouns back: most of them are
-   abstractions, and **stock has no photograph of an abstraction**. List the
-   beats first, and **budget a new beat when the library cannot draw the
-   subject** - that is cheaper than a second stock fetch and reusable forever.
-   The clips that remain are the *act*: a hand on a lit phone, a thumb on a
-   feed, a carriage of people on screens - never a portrait of somebody
-   feeling something.
-
-   Three of the five full-width beats were built for this channel: **`chart`**
-   is a line drawing itself with the turn marked, the trajectory `bars` could
-   never show; **`timeline`** spaces dated events by their real distance in
-   time rather than evenly like `steps`; **`map`** is regulation and domicile
-   when *clustering* is the point, not merely when countries are named.
-   `docs/video/footage.md` and `docs/video/beats.md`.
-
-   **When the subject is a real, named thing, its real pictures come
-   first.** A game, an app, a company, a coin: pull the owner's official
-   art, screenshots and logo (its press or official site), put them under
-   the lines that name it with `Shot(image=)` and over the remaining stock
-   with `Shot(inset=)`, and use its key art for the thumbnail. All-stock
-   about a real game was rejected as monotone (2026-10-20). Never a token
-   logo you cannot tie to the right contract - draw a `ticker_card`.
-   `footage.md`, "When the subject is a real thing". **When the real thing
-   is a page** - the explorer showing the transaction, the market's odds,
-   the announcement - capture it with `screencap` and let the camera ring
-   the line the voice reads (`footage.md`, "A real page"). **A photo that
-   carries a line can move in depth** (`parallax=`, `isolate=`, `pop=`), or
-   put its one word behind the person with the `behind` beat (`"fly"` or
-   `"rise"`; a rise always takes a different background, `room=`). Money moving
-   in or out of something is a `pile` (coins pour in; `drain` opens the
-   floor). `beats.md` and `design.md` also have animated icons and per-shot
-   GPU effects; `tools/visual_demo.py` renders every one of these to look at.
-
-   **Write the picture first** (2026-11-12, `workflow.md`, "Write the
-   picture first: the visual plan"). One line per sentence - what the
-   viewer sees, and which tool draws it - before fetching anything. The
-   editor rejected a cut that passed every gate with 6 of 25 shots drawn.
-   Never two full-frame pictures in a row; at least half the long form's
-   shots are drawn or framed (`window=`, `callout`, `spotlight`, a beat).
-   `pile` and the other signature beats rest for two videos: use `breach`
-   for many drained addresses, `airgap` for a signer kept offline, or
-   build the beat the subject needs. **No `title_at=`** - the title slate
-   is retired. `script_check` flags all of these.
-
-   **These are required, not a menu** (`workflow.md`, "The toolbox is not
-   optional"). The first pair after they landed used none of them and the
-   editor asked whether the skill knew they existed (2026-11-06). Before
-   writing the shot list, write down which slots take: a captured page, the
-   site's photo of the named object with `behind` / `isolate` / `parallax`,
-   a `pile` (or `breach`, or a new beat - see the rotation rule) where money
-   moves, a shader on the turning shot. When Pexels has
-   nothing on topic, these come before a second fetch. **No phone clip whose
-   screen is a social feed** - a scrolling-phone search returns feeds, and
-   four of them were cut as irrelevant (`footage.md`). **The disclaimer
-   sits on this video's subject, never rain** (`stillclip`). `script_check`
-   flags all three (`toolbox`, `feed-clip`, `disclaimer-bg`). A stock clip
-   with a **blank lit screen** can carry the page the narration names
-   (`core/screenfill.py`), and Wikimedia Commons has real objects Pexels
-   lacks (a hardware wallet) - credit them unless CC0.
-
-   **The Short ends on a plain sentence - no `outro=` card** (2026-11-06,
-   `shorts.md`, "No outro card on a Short"). The closing line is the last
-   entry in `SENTENCES`, captioned like the rest; the card slowed the end
-   where viewers leave. `script_check` flags it (`short-outro`).
-   **Write for the first eight seconds, then check them** (2026-11-10,
-   `shorts.md`, "The first eight seconds"): the Short's spoken title
-   question runs 10-13 words so sentence 2 starts near 4s, its render call
-   passes `opener_holds=True`, it runs 30-40s (E17), and the long form
-   2:30-3:00 (E18). At most half of either script's shots are plain stock;
-   put a clip in a `window=` or draw the beat (`footage.md`). Run
-   `tools/retention_check.py` on both scripts with the other gates and
-   hand its output over.
-4. **Preflight, then build both** - `projects/crypto-long/<name>.py` and
-   `projects/crypto-short/<name>.py`, each setting `SOURCE_POST`.
-
-   **Pick the cover style that fits the topic and the picture** - no
-   style is forced (the editor, 2026-11-08). An arrow and a ring pointing
-   at the named thing when the picture has one (`tokenized-stocks`: a
-   Tesla wordmark, `thumb.arrow_layer` / `ring_layer`, drawn at 4x so they
-   are clean); the picture and the headline alone when it already says it;
-   a drawn beat when there is no photograph. A second version is fine when
-   the choice is close - show both. **Set `COVER_STYLE`** (`"text"`,
-   `"arrow"`, `"beat"`) next to `DEMAND` in both scripts, so the views
-   audit can compare views and clicks by style; `script_check` flags it
-   missing. `docs/video/thumbnails.md`, "Cover styles are a choice, and
-   every video says which".
+   or says "no evidence". Look first for a **brand-new named term few
+   videos answer yet** (our only search win) and for a **named project
+   people are unsure whether to trust** (the niche's biggest format). A
+   mechanism with no demand of its own is bridged to what the viewer cares
+   about - understanding a thing, not getting burned - never to profit. An
+   article that already has a video can be re-angled. Once picked, a
+   standout gets its teardown before the script (`demand/README.md`).
+2. **Script both together** from the chosen article, in `mia` (the `noah`
+   test ended 2026-11-12). The Short's spoken title question runs 10-13
+   words so sentence 2 starts near 4s; it runs 30-40s and ends on a plain
+   sentence. The long form runs 2:30-3:00.
+3. **Write the picture first** - the step that matters most here, because
+   most of this channel's nouns are abstractions and stock has no
+   photograph of one. Follow `workflow.md`, "Write the picture first: the
+   visual plan": one line per sentence saying what the viewer sees and
+   which tool draws it, *before* fetching footage. The table there maps a
+   sentence to its tool. In short:
+   - **Draw the mechanism.** A beat from `beats.md`, or **a new beat when
+     the library cannot draw the subject** - that is part of the run.
+   - **Show the real thing** when the subject is named: the owner's own
+     pictures, a Commons photo (credited), and **the real page** captured
+     with `screencap` in `window="browser"`. Never a token logo you cannot
+     tie to its contract.
+   - **Frame what is left.** A photo gets `callout` or `spotlight`; a clip
+     goes in a `window=`. Never two full-frame pictures in a row, and at
+     least half the long form drawn or framed.
+   - **Rotate.** A signature beat (`pile`, `behind`, `blindsign`...) rests
+     for two videos.
+   - Clips show an *act*, never a portrait of a feeling, never a social
+     feed. Watch a clip's whole used span for unrelated text. The
+     disclaimer sits on this video's own subject. No `title_at=`.
+4. **Check, preflight, build both** - `projects/crypto-long/<name>.py` and
+   `projects/crypto-short/<name>.py`, each with `SOURCE_POST`, `DEMAND` and
+   `COVER_STYLE`. Run `tools/script_check.py`, `tools/opening_check.py` and
+   `tools/retention_check.py` on both **before fetching or rendering** and
+   fix every flag; hand their output over. Covers: `thumbnails.md` - the
+   style that fits the picture, six words or fewer on two rows, the accent
+   on the subject's word.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
-   steps 4 and 5. Before a re-cut, measure the draft against the channel's
-   best-performing recent pair (words, sentences, holds, roster) - that is
-   what found the `market-cap` gaps.
-6. **Leave the skill better.** Record every lesson the run produced in the
-   narrowest doc, a few lines each, in the same commit. Short and specific
-   beats long and general.
+   steps 4 and 5, which now include logging the pair with
+   `tools/video_log.py`.
+6. **Leave the skill better - every run.** `workflow.md`, "Every run leaves
+   the skill better": each note the editor gave becomes a dated rule in
+   the narrowest doc, a check in `script_check` when it can be checked,
+   and an entry in `video-performance-review/changes.md` when a viewer
+   could notice it. Replace old rules, do not stack them. Tell the editor
+   what was learned and where it went.
 
 ## What every build draws by default
 
