@@ -80,10 +80,14 @@ class ChapterCard(Beat):
         self.title, self.number = title, number
         self.style, self.index = style or "type", index
         self.label = label
+        if self.style == "grid":
+            self.ground = "grid"
 
     def content(self, out: Image.Image, f: float) -> None:
         if self.style == "band":
             return self.band(out, f)
+        if self.style == "grid":
+            return self.gridcard(out, f)
         d = ImageDraw.Draw(out)
         w = self.frame.w - 2 * self.margin
         size = self.SIZE_PORTRAIT if self.portrait else self.SIZE
@@ -341,6 +345,148 @@ class ChapterCard(Beat):
         if lab_layer is not None:
             base.alpha_composite(lab_layer)
         out.paste(base.convert("RGB"))
+
+
+    # --- the grid style (2026-11-13) ---------------------------------------
+    #
+    # The editor on the band card: "lets try different overlay for the title
+    # sections, the current one doesnt fit that well". The band is a slab of
+    # brand colour over the moving gradient; this one sits on the dark ruled
+    # ground (`base.grid_ground`) the explaining beats now use, so a chapter
+    # reads as the next page of the same notebook rather than as a banner:
+    #
+    # * an eyebrow - "02  /  THE MEMORY TRAP" (number and kicker), small,
+    #   tracked, in the brand colour - with a hairline drawing out from the
+    #   middle under it;
+    # * the title in the display face, white, typed behind the caret on the
+    #   same clicks as every card (`typewriter`, lead "grid");
+    # * four corner brackets closing in on the title block, the one element
+    #   that moves on its own, like a viewfinder finding focus;
+    # * the whole card lifts and fades out in its last 0.4s.
+
+    GRID_OPEN = 0.45
+    GRID_CLOSE = 0.40
+
+    def _grid_layout(self):
+        W, H = self.frame.size
+        probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        text = self.title
+        avail = W * (0.84 if self.portrait else 0.74)
+        size = int((self.SIZE_PORTRAIT if self.portrait else self.SIZE) * 1.15)
+        floor = int(size * 0.62)
+        lines = [text]
+        while True:
+            font = _display(size)
+            if max(probe.textlength(ln, font=font) for ln in lines) <= avail:
+                break
+            if len(lines) == 1 and " " in text and size <= size + 0:
+                words = text.split(" ")
+                best = min(range(1, len(words)), key=lambda i: abs(
+                    len(" ".join(words[:i])) - len(" ".join(words[i:]))))
+                trial = [" ".join(words[:best]), " ".join(words[best:])]
+                if max(probe.textlength(ln, font=font) for ln in trial) <= avail:
+                    lines = trial
+                    break
+            size -= 4
+            if size < floor:
+                font = _display(size)
+                break
+        widths = [probe.textlength(ln, font=font) for ln in lines]
+        asc = font.getbbox("H")
+        cap = asc[3] - asc[1]
+        return lines, font, size, widths, asc[1], cap
+
+    def gridcard(self, out: Image.Image, f: float) -> None:
+        from PIL import ImageFilter
+        from .base import _smooth
+
+        W, H = self.frame.size
+        t = self.at(f)
+        e = t - self.start
+        if not hasattr(self, "_grid"):
+            self._grid = self._grid_layout()
+        lines, font, size, widths, top_bear, cap = self._grid
+        prim = self.brand.primary
+
+        opening = ease_out(min(1.0, e / self.GRID_OPEN))
+        closing = _smooth(max(0.0, (e - (self.hold - self.GRID_CLOSE))
+                              / self.GRID_CLOSE))
+        alpha = 1.0 - closing
+        lift = -int(40 * closing)
+        a8 = int(255 * alpha)
+
+        line_h = int(size * 1.12)
+        block_h = (len(lines) - 1) * line_h + cap
+        cy = int(H * (0.50 if self.portrait else 0.54)) + lift
+        y_top = cy - block_h // 2
+        block_w = max(widths)
+        cx = W / 2
+
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+
+        # Eyebrow: "02  /  KICKER", with a hairline drawing out under it.
+        lab = (self.label or "").upper()
+        num = (f"{self.index:02d}" if self.index is not None
+               and not self.portrait else "")
+        eyebrow = "  /  ".join(x for x in (num, lab) if x)
+        padx, pady = size * 0.70, size * 0.55
+        ey = int(cy - block_h / 2 - pady - size * 0.82)
+        if eyebrow:
+            ef = _display(int(size * 0.34))
+            track = ef.size * 0.22
+            ew = (sum(d.textlength(c, font=ef) for c in eyebrow)
+                  + track * (len(eyebrow) - 1))
+            ea = alpha * ease_out(min(1.0, max(0.0, e - 0.08) / 0.40))
+            x = cx - ew / 2
+            for c in eyebrow:
+                d.text((x, ey + int(10 * (1 - ea))), c, font=ef,
+                       fill=(*prim, int(255 * ea)))
+                x += d.textlength(c, font=ef) + track
+            rule_w = max(ew, block_w * 0.55) * opening
+            ry = ey + ef.size * 1.45
+            d.rectangle([cx - rule_w / 2, ry, cx + rule_w / 2, ry + 2],
+                        fill=(*prim, int(170 * alpha)))
+
+        # The title, typed.
+        times = typewriter.card_schedule(self.title, self.start, self.hold,
+                                         "grid")
+        parts = typewriter.lines_shown(lines, typewriter.shown(times, t))
+        caret = None
+        for i, part in enumerate(parts):
+            x = cx - widths[i] / 2
+            ty = y_top - top_bear + i * line_h
+            d.text((x, ty), part, font=font, fill=(255, 255, 255, a8))
+            caret = (x + d.textlength(part, font=font), ty + top_bear)
+        if caret and typewriter.caret_on(times, t) and closing == 0.0:
+            d.rectangle([caret[0] + size * 0.05, caret[1] - cap * 0.05,
+                         caret[0] + size * 0.05 + max(4, size * 0.07),
+                         caret[1] + cap * 1.05], fill=(*prim, a8))
+
+        # Corner brackets, closing in from wide to the block.
+        far = 1.0 + 0.35 * (1.0 - opening)
+        bx0 = cx - (block_w / 2 + padx) * far
+        bx1 = cx + (block_w / 2 + padx) * far
+        by0 = cy - (block_h / 2 + pady) * far
+        by1 = cy + (block_h / 2 + pady) * far
+        arm, wgt = size * 0.42, max(3, int(size * 0.045))
+        ba = int(230 * alpha * opening)
+        col = (*prim, ba)
+        for (x, y, sx, sy) in ((bx0, by0, 1, 1), (bx1, by0, -1, 1),
+                               (bx0, by1, 1, -1), (bx1, by1, -1, -1)):
+            d.rectangle(sorted_box(x, y, x + sx * arm, y + sy * wgt), fill=col)
+            d.rectangle(sorted_box(x, y, x + sx * wgt, y + sy * arm), fill=col)
+
+        glow = layer.filter(ImageFilter.GaussianBlur(int(size * 0.35)))
+        glow.putalpha(glow.getchannel("A").point(lambda v: int(v * 0.45)))
+        base = out.convert("RGBA")
+        base.alpha_composite(glow)
+        base.alpha_composite(layer)
+        out.paste(base.convert("RGB"))
+
+
+def sorted_box(x0, y0, x1, y1):
+    return [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
 
 
 class Checklist(Beat):

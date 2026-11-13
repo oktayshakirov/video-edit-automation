@@ -875,6 +875,49 @@ def thumbs_up(size: int, colour: tuple, width: float = 0.07) -> Image.Image:
     return im.resize((size, size), Image.LANCZOS)
 
 
+def quiet_side(pic, band=(0.25, 0.75)) -> float:
+    """Where a block of type sits best over `pic`: 0.5, or the emptier side.
+
+    The editor (2026-11-13): "the random text on screen can have better
+    arrangement - we have plenty of space on the right side since the object
+    is on the left, use it smarter". Each outer 40% of the frame is scored by
+    how much is going on in it - mean luma plus edge energy, over the middle
+    band of rows - and type moves into a side only when that side is clearly
+    the quieter (under 60% of the other's score). Returns the centre x as a
+    fraction of the width: 0.30, 0.5 or 0.70.
+
+    **Dark is not empty.** The first version scored luma and edges only and
+    set "THE BOTHER" over a silhouette - the subject of a night photo is
+    the darkest thing in it. The subject matte (`core.vision.matte`) now
+    counts too, heavily: type never goes on the side the subject is on.
+    """
+    arr = np.asarray(pic.convert("L")).astype(np.float32)
+    try:
+        from ..core import vision
+        sub = vision.matte(pic.convert("RGB"))
+    except Exception:
+        sub = None
+    H, W = arr.shape
+    rows = arr[int(H * band[0]):int(H * band[1])]
+    gx = np.abs(np.diff(rows, axis=1))
+    gy = np.abs(np.diff(rows, axis=0))
+
+    def score(x0, x1):
+        a, b = int(W * x0), int(W * x1)
+        v = (rows[:, a:b].mean() * 0.5 + gx[:, a:b - 1].mean() * 3.0
+             + gy[:, a:b].mean() * 3.0)
+        if sub is not None:
+            v += float(sub[:, a:b].mean()) * 160.0
+        return v
+
+    left, right = score(0.0, 0.40), score(0.60, 1.0)
+    if right < 0.6 * left:
+        return 0.70
+    if left < 0.6 * right:
+        return 0.30
+    return 0.5
+
+
 class Emphasis:
     """One key word, large, the moment the voice says it (2026-10-22).
 
@@ -937,10 +980,22 @@ class Emphasis:
         arr = src * (1.0 - dim * a)
         base = Image.fromarray(arr.clip(0, 255).astype(np.uint8)).convert("RGBA")
 
+        # Off-centre when the shot's subject leaves one side empty
+        # (`quiet_side`), decided once on the shot's first frame here.
+        if not hasattr(self, "cx"):
+            self.cx = quiet_side(pic)
+            if self.cx != 0.5:
+                probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+                size = self.size
+                while size > 40 and probe.textlength(
+                        self.text, font=_sf(size, "Heavy")) > W * 0.40:
+                    size -= 4
+                self.font, self.size = _sf(size, "Heavy"), size
+                self.bb = probe.textbbox((0, 0), self.text, font=self.font)
         tw, th = self.bb[2] - self.bb[0], self.bb[3] - self.bb[1]
         layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(layer)
-        cx, cy = W / 2, H * 0.50
+        cx, cy = W * self.cx, H * 0.50
         x0, y0 = cx - tw / 2 - self.bb[0], cy - th / 2 - self.bb[1]
         d.text((x0, y0), self.text, font=self.font,
                fill=(255, 255, 255, int(255 * a)))

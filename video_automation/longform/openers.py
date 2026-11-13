@@ -92,7 +92,8 @@ class _Opener:
     def __init__(self, *, at_word: str | None = None, at: float | None = None,
                  hold: float = 0.9, punch: bool = True,
                  enter_word: str | None = None,
-                 centre_y: float | None = None):
+                 centre_y: float | None = None,
+                 centre_x: float | None = None):
         self.at_word, self.at_fixed, self.hold, self.punch = at_word, at, hold, punch
         self.enter_word = enter_word
         # A fraction of the frame height, for an opening shot whose subject
@@ -100,6 +101,11 @@ class _Opener:
         # Counter covered the Shiba Inu's eyes). The redacted hook has had
         # `hook_centre_y` for the same reason since 2026-10-09.
         self.centre_y = centre_y
+        # The block's centre as a fraction of the width, for an opening shot
+        # whose subject sits to one side (2026-11-13: the mug on the left of
+        # the coffee pour, with the right half empty). The band then fades
+        # out toward the subject's side instead of crossing it.
+        self.centre_x = centre_x
         self.frame: Frame = VERTICAL
         self.accent = (229, 194, 0)
         self.built = False
@@ -149,8 +155,12 @@ class _Opener:
         core = self.block_h / bh
         a = np.clip((1 - np.abs(yy)) / max(1e-6, 1 - core), 0, 1) ** 1.3 * 125
         im = Image.new("RGBA", (self.frame.w, bh), (0, 0, 0, 255))
-        im.putalpha(Image.fromarray(
-            np.repeat(a.astype(np.uint8)[:, None], self.frame.w, 1), "L"))
+        a2 = np.repeat(a[:, None], self.frame.w, 1)
+        if self.centre_x is not None and self.centre_x != 0.5:
+            xs = np.linspace(0, 1, self.frame.w)
+            side = xs if self.centre_x > 0.5 else 1 - xs
+            a2 = a2 * np.clip((side - 0.25) / 0.30, 0, 1)[None, :]
+        im.putalpha(Image.fromarray(a2.astype(np.uint8), "L"))
         return im, int(self.centre - self.block_h / 2) - spread
 
     def _entrance_scale(self, t: float) -> float:
@@ -202,9 +212,10 @@ class _Opener:
         lh = int(size * 1.22)
         top = cy - lh * len(lines) / 2
         stroke = max(4, size // 14)
+        cx = self.frame.w * (self.centre_x or 0.5)
         for i, ln in enumerate(lines):
             w = d.textlength(ln, font=f)
-            x, y = (self.frame.w - w) / 2, top + i * lh
+            x, y = cx - w / 2, top + i * lh
             if i in pill:
                 asc = f.getbbox("A")[1]
                 cap = f.getbbox("A")[3] - asc
@@ -292,7 +303,10 @@ class Stamp(_Opener):
         words, line, self.quote_lines = self.quote.upper().split(), "", []
         for w in words:
             trial = (line + " " + w).strip()
-            if d.textlength(f'"{trial}"', font=f) > self.frame.w - 190 and line:
+            cxf = self.centre_x or 0.5
+            avail = (self.frame.w - 190 if cxf == 0.5
+                     else 2 * self.frame.w * min(cxf, 1 - cxf) - 90)
+            if d.textlength(f'"{trial}"', font=f) > avail and line:
                 self.quote_lines.append(line)
                 line = w
             else:
@@ -343,7 +357,8 @@ class Stamp(_Opener):
                 st.putalpha(st.split()[3].point(lambda v: int(v * (0.35 + 0.65 * k))))
             # Below the quote, never across it.
             y = int(quote_cy + 78 * 1.22 * len(self.quote_lines) / 2 + 40)
-            lay.alpha_composite(st, ((self.frame.w - nw) // 2, y))
+            sx = int(self.frame.w * (self.centre_x or 0.5) - nw / 2)
+            lay.alpha_composite(st, (sx, y))
         return lay
 
 

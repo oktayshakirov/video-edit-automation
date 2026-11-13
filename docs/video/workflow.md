@@ -333,12 +333,17 @@ asking - a script only supplies the words. Detail in `longform.md` and
 2026-11-05, where it was the same 56 lines twice and every engine change
 had to edit both copies.)
 
-- **Chapter cards are the band card**, long form and Short: the title typed
-  into a band of the brand colour on key clicks, the riser into it and the
-  cinematic flashback out of it. **Write a `Section(kicker=)` for every
-  carded section** - two or three words naming the stake ("THE REJECTION",
-  "THE CATCH"). Without one the long form shows "CHAPTER n" and a Short
-  shows no label.
+- **Long-form chapter cards are the grid card** (since 2026-11-13; the band
+  card before): the dark ruled ground, "02  /  KICKER" over a hairline, the
+  title typed on key clicks, corner brackets closing in, floating particles
+  over it. `chapter_style="band"` brings the band back. **Write a
+  `Section(kicker=)` for every carded section** - two or three words naming
+  the stake ("THE REJECTION", "THE CATCH"). Without one the card shows only
+  the number and a Short's band card shows no label.
+- **Explaining beats can sit on the dark ruled ground** -
+  `Shot(ground="grid")` on a loop, a chart, bars, steps, a check list
+  (`beats.md`, "The ruled ground"). Not every beat: the brand gradient
+  stays behind the rest, so the ground marks the explaining stretches.
 - **(Retired 2026-11-12 - `longform.md`, "No title slate"; do not pass
   `title_at=`.)** The opening title was the glitch slate (`title_at=`, default since
   2026-11-04): the title split at its colon / question mark / dash, the
@@ -351,10 +356,18 @@ had to edit both copies.)
 - **The video ends on the band end card** - THANKS FOR WATCHING, retyped as
   LIKE & COMMENT - **and switches off like a TV.** `endcard=` turns the card
   on; the TV-off is always there.
-- **The old-film surface is arranged, not blanketed** (`core/filmfx.py`):
+- **The film surface is arranged, not blanketed** (`core/filmfx.py`):
   the first shot clean, a section's first clip full, the rest rotating
-  grain-only / clean / dust-only / full, nothing on drawn beats. `film=False`
-  turns it off for one video, a number scales it.
+  grain / lens flare / clean / floating motes / dust / full (flares and
+  motes since 2026-11-13), motes on the chapter, title and end windows,
+  nothing on drawn beats. `film=False` turns it off for one video, a
+  number scales it.
+- **Key words and the opener sit in the empty side of the shot.**
+  `Emphasis` measures the picture under it (`overlay.quiet_side`: subject
+  matte, luma and edges) and moves off-centre when one side is clearly
+  empty; a `Stamp` takes `centre_x=` for an opening shot with its subject
+  to one side, and `enter_word=` so it arrives a word or two before its
+  verdict instead of on frame one (`longform.md`, 2026-11-13).
 - **A few cuts become glitch or TV static on their own**
   (`transitions.plan_special`): a glitch into a sentence that turns ("But…"),
   static or glitch alternating into chapter cards, static on a jump in time -

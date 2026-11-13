@@ -96,13 +96,30 @@ sequence drifted into four copies that disagreed.
    - Clips show an *act*, never a portrait of a feeling, never a social
      feed. Watch a clip's whole used span for unrelated text. The
      disclaimer sits on this video's own subject. No `title_at=`.
+   - **Keep the first 20 seconds moving** (2026-11-13, from the tinnitus
+     channel): no still photo held under two sentences, the opener entering
+     a word or two before its verdict (`enter_word=`), placed beside the
+     subject (`centre_x=`).
+   - **Explaining beats go on the dark ruled ground** (`ground="grid"`): a
+     mechanism, a chart, steps. Not all of them.
+   - **Labels on a photo name what it shows;** an instruction is a list
+     beat with an icon per action, not leaders pointing at a picture.
+   - **A pause between two thoughts is a sentence gap,** never `chunk_pad`
+     inside one sentence - the splice cuts the voice (`voice.md`).
 4. **Check, preflight, build both** - `projects/crypto-long/<name>.py` and
    `projects/crypto-short/<name>.py`, each with `SOURCE_POST`, `DEMAND` and
    `COVER_STYLE`. Run `tools/script_check.py`, `tools/opening_check.py` and
    `tools/retention_check.py` on both **before fetching or rendering** and
-   fix every flag; hand their output over. Covers: `thumbnails.md` - the
-   style that fits the picture, six words or fewer on two rows, the accent
-   on the subject's word.
+   fix every flag; hand their output over. Covers: `thumbnails.md` - pull
+   the search's top covers first (`yt-dlp --flat-playlist
+   "ytsearch12:<query>"`, onto one sheet) and say what the big ones share,
+   then build **two or three different directions** and let the editor
+   pick: a cut-out subject in front of extruded type (`cutout`), the
+   police line-up for "which one is it?" topics (`thumb.lineup_cover`,
+   `vector`), the arrow and ring, a picture and headline. Never the same
+   `COVER_STYLE` three videos running (`cover-rotation` - the arrow ran
+   three times on this channel). Six words or fewer on two rows, the
+   accent on the subject's word.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
    steps 4 and 5, which now include logging the pair with
    `tools/video_log.py`.
@@ -110,8 +127,13 @@ sequence drifted into four copies that disagreed.
    the skill better": each note the editor gave becomes a dated rule in
    the narrowest doc, a check in `script_check` when it can be checked,
    and an entry in `video-performance-review/changes.md` when a viewer
-   could notice it. Replace old rules, do not stack them. Tell the editor
-   what was learned and where it went.
+   could notice it. Replace old rules, do not stack them. **When a note
+   shows this skill itself missed something** (a step, a tool it should
+   have named), edit this file in the same commit - and the tinnitus skill
+   too when the lesson is not crypto-only. **Before every hand-over, look
+   at frames at each spot the editor flagged on the last re-cut** - the
+   same kind of fault returns. Tell the editor what was learned and where
+   it went.
 
 ## What every build draws by default
 

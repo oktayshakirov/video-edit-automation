@@ -9,6 +9,17 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-13 - covers rotate, light overlays, the ruled ground
+
+- Covers: no style three videos running (`cover-rotation`); new styles
+  `cutout` and `vector` (`thumbnails.md`).
+- Footage carries lens flares and floating motes in the overlay rotation;
+  key words and the opener sit in the empty side of the shot; the opener
+  enters on a word, not on frame one (`longform.md`).
+- Explaining beats can sit on a dark ruled ground; the grid chapter card
+  replaces the band card as the long-form default (`beats.md`). First on
+  `what-makes-tinnitus-worse`, approved there.
+
 ## 2026-11-12 - picture first (crypto and tinnitus article videos)
 
 From the editor's review of the `hardware-wallet` pair. First pair built

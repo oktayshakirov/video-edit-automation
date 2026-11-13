@@ -1759,3 +1759,74 @@ third reveal, set under the verdict, for the sentence that follows.
     Shot(graphic="breach", payload=("5,200+ ADDRESSES", 1816, "BTC", 4,
                                     "COLDCARD, 2026", "DRAINED",
                                     "1 square = 25 addresses"))
+
+## `diary` - a month of days, and the days memory keeps (2026-11-13)
+
+`Shot(graphic="diary", payload=(levels, flagged, groups, title, legend))`.
+Built for `what-makes-tinnitus-worse`, because the library could not draw
+recall bias: "you remember the bad night after the wine, not the four bad
+nights without it, or the wine before a fine night" is a claim about
+*which days of a month you look at*, and a list of the three traps says
+the words without showing any of it. Both formats; portrait-safe.
+
+- **The month is reveal 0**: 28 squares (7 across, Monday first) arrive in
+  a diagonal sweep, brighter on louder days, with a dot on the days the
+  suspect was there. Write its chunk as the hinge ("Here is a month of it,
+  one square a day.").
+- **Each group is one more reveal**: its days ringed in the group's colour
+  (red, cool blue, white by default; a fourth tuple element overrides),
+  its line set beside the month (under it in 9:16), and every day outside
+  the rings stepping back toward the background so the eye goes where the
+  voice is. `groups` is `[(head, line, [day, ...]), ...]`.
+- **Title it as an example** ("ONE MONTH - AN EXAMPLE"). A drawn month with
+  no such word reads as somebody's real diary.
+- Reusable for any "track it before you blame it" subject: spikes, sleep,
+  trades made on a feeling. A signature beat: it rests for two videos
+  (`script_check`'s `beat-rotation`).
+
+### `spotlight` on a dark photograph: `snap=False`, and a wide region (2026-11-13)
+
+`what-makes-tinnitus-worse` put two spotlights on dark Pexels photos and
+both rings grew to the whole picture: `snap()` reads a black ground as the
+plain ground of a page and every lit part as ink. The payload's fourth
+element, `False`, uses the region as given. Then give the region a wider
+shape than the frame: the camera fits it to 80% of the frame, so a
+frame-shaped region ends near the bottom edge and its label jumps above the
+ring, up against the watermark. A region about three times as wide as tall
+keeps the label under it.
+
+## The ruled ground, and the grid chapter card (2026-11-13)
+
+The editor: "a lot of channels use plain dark background with
+vertical/horizontal lines, we can create our own for some segments with
+visuals or explanations" and "lets try different overlay for the title
+sections, the current one doesnt fit that well".
+
+- `Shot(ground="grid")` draws a beat on `base.grid_ground`: near-black with
+  the brand's hue, a hairline every 60px and a brighter one every fourth,
+  a soft bloom in the middle, a vignette, drifting at 9 px/s by `subpixel`.
+  The old graph paper was dropped for juddering a whole pixel at a time and
+  for being behind every beat; this one moves smoothly and a script asks
+  for it per shot. Use it for the explaining beats (a loop, a chart, bars,
+  steps), not all of them - the brand gradient stays for the rest.
+- `render_long(chapter_style="grid")` sets every chapter card on that
+  ground: "02  /  KICKER" small and tracked in the brand colour with a
+  hairline drawing out under it, the title in the display face typed on
+  the usual clicks, and four corner brackets closing in on it. First used
+  on `what-makes-tinnitus-worse`, approved there, and the long-form default
+  since (`chapter_style="band"` for the old card).
+- `diary` takes a sixth payload element, an emoji drawn on the flagged
+  days and in the legend in place of the dot ("at the calendar where we
+  mark wine use wine emoji glass").
+- `spotlight` takes a fifth, `open_tight=True`: start already on the first
+  region, so a second spotlight on the same picture continues the first.
+
+### Labels on a photo name parts of the photo, not instructions
+
+The `callout` on a profile with "The jaw" and "The neck" was turned down
+("we point at the image but mention very specific words"): the narration
+was a check to do ("if the sound changes when you clench your jaw, or when
+you turn your head"), and a leader to a jaw says nothing the word does not.
+Actions go in a list beat (`grid` with an icon each); `callout` is for
+labelling things the picture shows (the journaling photo's "how loud",
+"how bothered" worked, and stays).

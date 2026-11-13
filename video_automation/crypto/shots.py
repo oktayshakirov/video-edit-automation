@@ -138,6 +138,8 @@ class Shot:
     # "browser", "player", "terminal", or (kind, text) for the address, the
     # recording's caption or the typed command (`core/window.py`, 2026-11-10).
     window: "str | tuple | None" = None
+    ground: str | None = None           # "grid": a drawn beat on the dark
+                                        # ruled ground (`beats.base.grid_ground`)
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:

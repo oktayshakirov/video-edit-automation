@@ -45,7 +45,8 @@ def tags(path: Path) -> dict:
     src = path.read_text(errors="replace")
     doc = getattr(s.mod, "__doc__", "") or ""
     code = src.replace(doc, "", 1)
-    m = re.search(r"opener\s*=\s*([A-Z][A-Za-z]+)\(", code)
+    # `opener=Stamp(` inline, or `OPENER = Stamp(` at module level.
+    m = re.search(r"opener\s*=\s*([A-Z][A-Za-z]+)\(", code, re.I)
     demand = getattr(s.mod, "DEMAND", None)
     return {
         "date": dt.date.today().isoformat(),

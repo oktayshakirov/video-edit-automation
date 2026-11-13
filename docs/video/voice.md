@@ -512,3 +512,13 @@ DAO, DeFi, RAM, ASIC...) in the text handed to the engine; the caption
 keeps its capitals. Add a word to that list instead of writing a
 `(caption, spoken)` pair in each script. Letter-by-letter acronyms (BTC,
 ETF, KYC) are not in it and stay spelt.
+
+
+## `chunk_pad` inside a sentence can cut the voice (2026-11-13)
+
+A 1.1s `chunk_pad` after "clench your jaw and listen." spliced silence into
+one synthesis and the editor heard the cut: "a glitch in the voice over at
+'if the sound changes', there is an interruption". When the pause is
+between two thoughts, make them two sentences and use the sentence gap;
+keep `chunk_pad` for a pause that has to sit inside one utterance (a sound
+sample after its name).

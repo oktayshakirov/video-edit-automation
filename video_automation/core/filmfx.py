@@ -42,9 +42,13 @@ RECIPES = {
     "grain": {"grain": 1.0},
     "dust": {"dust": 0.8},
     "full": {"grain": 1.0, "flicker": 1.0, "dust": 0.45},
-    "chapter": {"grain": 0.7, "dust": 1.0, "leak": 1.0, "flicker": 0.6},
-    "title": {"grain": 0.8, "dust": 1.0, "leak": 0.8},
-    "end": {"grain": 0.8, "dust": 1.0, "leak": 1.0},
+    # 2026-11-13, the editor: "lets try adding different overlays except the
+    # noise, maybe some lens flares and flying particles too".
+    "flare": {"flare": 1.0, "grain": 0.5},
+    "motes": {"motes": 1.0, "grain": 0.4},
+    "chapter": {"grain": 0.5, "motes": 0.9, "leak": 0.6, "flicker": 0.4},
+    "title": {"grain": 0.8, "dust": 0.6, "leak": 0.8, "motes": 0.7},
+    "end": {"grain": 0.8, "motes": 0.9, "leak": 1.0},
     "beat": {},
 }
 POLICY = RECIPES                # the old name, kept for callers
@@ -52,7 +56,7 @@ POLICY = RECIPES                # the old name, kept for callers
 # The footage rotation after a section's first shot. Grain-only, clean,
 # dust-only, full: no two neighbours alike, a clean shot every fourth, and
 # both single-layer recipes in every cycle.
-ROTATION = ("grain", "clean", "dust", "full")
+ROTATION = ("grain", "flare", "clean", "motes", "dust", "full")
 
 
 def plan(shots) -> list[str]:
@@ -196,6 +200,85 @@ def leak(arr: np.ndarray, frame: int, k: float, t: float) -> np.ndarray:
     return arr + g[:, :, None] * warm
 
 
+# --- light: a lens flare and floating motes (2026-11-13) ---------------------
+#
+# Both are additive light, like the leak, and both run on the timeline clock
+# so a flare does not jump at a cut inside its window.
+#
+# **flare** - a light source just inside the top of the frame, swaying slowly
+# from side to side: a soft core, a long thin anamorphic streak through it
+# (the cinema-lens look), and three faint ghosts on the line from the source
+# through the centre. Cool white streak, warm core.
+#
+# **motes** - dust in a light beam: ~30 soft points drifting slowly up and
+# sideways, a few of them large and out of focus (bokeh), each twinkling on
+# its own phase. Seeded, so a re-render is identical.
+
+_MOTES = None
+
+
+def flare(arr: np.ndarray, k: float, t: float) -> np.ndarray:
+    H, W = arr.shape[:2]
+    q = 4
+    h, w = H // q, W // q
+    sx = W * (0.5 + 0.36 * math.sin(t * 0.16 + 0.8))
+    sy = H * (0.14 + 0.04 * math.sin(t * 0.23))
+    breathe = 0.82 + 0.18 * math.sin(t * 1.3)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    X, Y = xx * q, yy * q
+    out = np.zeros((h, w, 3), np.float32)
+    # The core.
+    d2 = ((X - sx) ** 2 + (Y - sy) ** 2) / (H * 0.07) ** 2
+    out += np.exp(-d2)[:, :, None] * np.array([130, 108, 80], np.float32)
+    # The halo.
+    out += np.exp(-d2 / 9.0)[:, :, None] * np.array([30, 25, 20], np.float32)
+    # The streak: wide in x, a few pixels in y.
+    st = np.exp(-((X - sx) / (W * 0.42)) ** 2 - ((Y - sy) / (H * 0.006)) ** 2)
+    out += st[:, :, None] * np.array([52, 66, 96], np.float32)
+    # Ghosts along the axis through the centre.
+    for f_, r_, c_ in ((0.55, 0.035, (20, 32, 46)), (1.25, 0.06, (26, 19, 12)),
+                       (1.7, 0.022, (16, 28, 20))):
+        gx = sx + (W / 2 - sx) * f_ * 2
+        gy = sy + (H / 2 - sy) * f_ * 2
+        g2 = ((X - gx) ** 2 + (Y - gy) ** 2) / (H * r_) ** 2
+        out += np.exp(-g2 ** 2)[:, :, None] * np.array(c_, np.float32)
+    out = cv2.resize(out, (W, H), interpolation=cv2.INTER_LINEAR)
+    # Fine streak detail at full height - at quarter resolution it smears.
+    return arr + out * (k * breathe)
+
+
+def motes(arr: np.ndarray, k: float, t: float) -> np.ndarray:
+    global _MOTES
+    H, W = arr.shape[:2]
+    if _MOTES is None:
+        r = np.random.default_rng(1113)
+        n = 40
+        _MOTES = {
+            "x": r.uniform(0, 1, n), "y": r.uniform(0, 1, n),
+            "vx": r.uniform(-0.006, 0.010, n), "vy": r.uniform(0.010, 0.028, n),
+            "r": np.where(r.uniform(0, 1, n) < 0.18, r.uniform(0.012, 0.030, n),
+                          r.uniform(0.0022, 0.0060, n)),
+            "a": r.uniform(0.45, 1.0, n), "ph": r.uniform(0, 6.28, n),
+            "tw": r.uniform(0.6, 1.8, n),
+        }
+    m = _MOTES
+    q = 2
+    h, w = H // q, W // q
+    layer = np.zeros((h, w), np.float32)
+    for i in range(len(m["x"])):
+        x = ((m["x"][i] + m["vx"][i] * t + 0.012 * math.sin(t * 0.5 + m["ph"][i])) % 1.1 - 0.05) * w
+        y = ((m["y"][i] - m["vy"][i] * t) % 1.1 - 0.05) * h
+        rad = max(1, int(m["r"][i] * H / q))
+        big = m["r"][i] > 0.01
+        tw = 0.6 + 0.4 * math.sin(t * m["tw"][i] * 2 + m["ph"][i])
+        a = m["a"][i] * tw * (0.20 if big else 1.0)
+        cv2.circle(layer, (int(x), int(y)), rad, float(a), -1, cv2.LINE_AA)
+    layer = cv2.GaussianBlur(layer, (0, 0), 1.6)
+    layer = cv2.resize(layer, (W, H), interpolation=cv2.INTER_LINEAR)
+    warm = np.array([255, 236, 214], np.float32) * 0.85
+    return arr + layer[:, :, None] * warm * k
+
+
 def apply(pic: Image.Image, t: float, layers: dict, fps: int = 30) -> Image.Image:
     """`layers` is a policy entry: {"grain": 1.0, "dust": 0.5, ...}."""
     if not layers:
@@ -206,6 +289,10 @@ def apply(pic: Image.Image, t: float, layers: dict, fps: int = 30) -> Image.Imag
         arr = leak(arr, frame, layers["leak"], t)
     if layers.get("flicker"):
         arr = flicker(arr, frame, layers["flicker"])
+    if layers.get("flare"):
+        arr = flare(arr, layers["flare"], t)
+    if layers.get("motes"):
+        arr = motes(arr, layers["motes"], t)
     if layers.get("grain"):
         arr = grain(arr, frame, layers["grain"])
     if layers.get("dust"):

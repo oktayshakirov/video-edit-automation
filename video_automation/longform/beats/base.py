@@ -116,8 +116,13 @@ class Beat:
                  backdrop: Path | None = None, picture: Path | None = None,
                  reveals: list[float] | None = None,
                  marks: list[float] | None = None,
-                 start: float = 0.0, hold: float = 1.0):
+                 start: float = 0.0, hold: float = 1.0,
+                 ground: str | None = None):
         self.brand, self.frame = brand, frame
+        # "grid": a plain dark ground ruled in thin lines (`grid_ground`),
+        # in place of the brand's moving gradient - for a segment that
+        # explains something (the editor, 2026-11-13).
+        self.ground = ground
         self.reveals, self.marks = reveals, marks
         self.start, self.hold = start, hold
         self.head_y = _mark_bottom(brand.name,
@@ -254,6 +259,9 @@ class Beat:
         background declared still renders.
         """
         fr = self.frame
+        if self.ground == "grid" and self.back is None:
+            return Image.fromarray(grid_ground(fr.w, fr.h, self.at(f),
+                                               self.brand.primary))
         if self.back is not None:
             # Opposed to nothing in particular, just slow — the type is the
             # subject here and a backdrop that pulls the eye is a bug.
@@ -363,3 +371,59 @@ def _hex(s: str) -> tuple[int, int, int]:
     return tuple(int(t[i:i + 2], 16) for i in (0, 2, 4))
 
 
+
+
+# --- the ruled ground -------------------------------------------------------
+#
+# **Brought back on request, built differently** (2026-11-13). The editor:
+# "a lot of channels use plain dark background with vertical/horizontal
+# lines, we can create our own for some segments". The graph paper this file
+# drew until 2026-10 was dropped for two faults (see `background`): it
+# juddered a whole pixel at a time, and it was behind every beat of every
+# video. This one moves by `subpixel`, and a script asks for it per shot
+# (`Shot(ground="grid")`), so it marks the explaining segments only.
+#
+# Near-black with the brand's hue in it; a minor line every cell, a brighter
+# major line every fourth, both thin; a soft brand-coloured bloom behind the
+# middle and a vignette, so the lines fade toward the edges rather than
+# ending at them. The whole sheet drifts diagonally at 9 px/s.
+
+_GRID_CACHE: dict = {}
+GRID_CELL = 60
+
+
+def grid_ground(w: int, h: int, t: float, tint: tuple) -> np.ndarray:
+    from ...core.draw import subpixel
+    key = (w, h, tuple(tint))
+    big = _GRID_CACHE.get(key)
+    cell = GRID_CELL if w >= h else int(GRID_CELL * 0.9)
+    period = cell * 4
+    if big is None:
+        W, H = w + period, h + period
+        tint_f = np.array(tint, np.float32)
+        base = np.array([11, 9, 16], np.float32)
+        img = np.empty((H, W, 3), np.float32)
+        img[:] = base
+        line = np.zeros((H, W), np.float32)
+        for x in range(0, W, cell):
+            line[:, x] = np.maximum(line[:, x], 0.16 if (x // cell) % 4 else 0.34)
+        for y in range(0, H, cell):
+            line[y, :] = np.maximum(line[y, :], 0.16 if (y // cell) % 4 else 0.34)
+        # A one-pixel line at 1920 is a hairline; a touch of blur keeps it
+        # from aliasing when it moves by fractions of a pixel.
+        import cv2
+        line = cv2.GaussianBlur(line, (0, 0), 0.6) * 1.6
+        ink = 0.55 * np.array([200, 196, 220], np.float32) + 0.45 * tint_f
+        img += line[:, :, None] * (ink - base) * 0.42
+        _GRID_CACHE[key] = big = img
+    off = (t * 9.0) % period
+    arr = subpixel(big, off, off, w, h).astype(np.float32)
+    lit = _GRID_CACHE.get(key + ("lit",))
+    if lit is None:
+        yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+        nx, ny = (xx - w / 2) / (w / 2), (yy - h / 2) / (h / 2)
+        r2 = nx * nx + ny * ny
+        bloom = np.exp(-1.6 * r2)[:, :, None] * np.array(tint, np.float32) * 0.07
+        vig = (1.0 - 0.55 * np.clip(r2 / 1.6, 0, 1))[:, :, None]
+        _GRID_CACHE[key + ("lit",)] = lit = (bloom, vig)
+    return np.clip((arr + lit[0]) * lit[1], 0, 255).astype(np.uint8)

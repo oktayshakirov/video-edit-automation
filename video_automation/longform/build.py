@@ -86,11 +86,13 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
                 # argues for is settled by that rather than by a curve. Pass
                 # True to put it back on one video.
                 chrome_nav: bool = False,
-                # "band" (the default since 2026-10-21): the section's kicker
-                # (or "CHAPTER n") glowing over a band in the brand colour, the
-                # title typed into it. "type" is the centred typed card. See
-                # `beats.column.ChapterCard.band`.
-                chapter_style: str = "band",
+                # "grid" (the default since 2026-11-13, approved on
+                # `what-makes-tinnitus-worse`): the dark ruled card - number
+                # and kicker over a hairline, the title typed, corner brackets
+                # closing in (`beats.column.ChapterCard.gridcard`). "band" is
+                # the 2026-10-21 card, the kicker over a band in the brand
+                # colour; "type" the centred typed card.
+                chapter_style: str = "grid",
                 endcard: Path | None = None, endcard_lead: float = 7.0,
                 # The title sequence. `title_at` is the second it starts and
                 # turns the whole thing on; `title` defaults to `meta.title`
@@ -604,6 +606,12 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 1:
                 cues.append((rv[1] + 0.25, "glitch_cut"))
                 cues.append((min(sh.start + sh.hold - 1.0, rv[1] + 6.2), "cross"))
+        elif sh.graphic == "diary":
+            # The month on a pan, each ringed group on a tick (`beats.diary`).
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            cues += [(t + 0.05, "tick") for t in rv[1:]]
         elif sh.graphic == "lookalike":
             # Each address on a pan, the matching ends on a reveal tick,
             # the different middle on a cross (`beats.lookalike`).

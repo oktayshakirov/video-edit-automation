@@ -1485,3 +1485,197 @@ def subject_front(im: Image.Image, before: Image.Image,
     top = np.asarray(before.convert("RGB"), np.float32)
     base = np.asarray(im.convert("RGB"), np.float32)
     return Image.fromarray((top * a + base * (1.0 - a)).astype(np.uint8))
+
+
+# --- depth: extruded type and sound rings (2026-11-13) ----------------------
+#
+# The editor, on the third ring-and-arrow cover in a row: "we need more
+# variations to see what works... you can use the cutout effect and add text
+# with depth or different formats of thumbnails with text or vectors". These
+# are the pieces for that: a headline word set as a solid block with a side
+# face (`extrude_text`), meant to sit *behind* a cut-out subject
+# (`core.vision.cutout`), and concentric rings radiating from a point
+# (`sound_rings`) - the drawn version of "ringing" the 1M-view covers on this
+# search carry as red waves round an ear.
+
+def extrude_text(size: tuple, text: str, xy: tuple, font_size: int,
+                 face=(255, 255, 255), side=(120, 20, 24), depth: int = 18,
+                 direction: tuple = (1.0, 1.0), font: str = FONT_DISPLAY,
+                 shadow: bool = True, tracking: float = 0.0,
+                 outline: tuple | None = None) -> Image.Image:
+    """`text` as a block of type with a side face, on a transparent layer.
+
+    `xy` is the top-left of the face. The side is `depth` px deep in
+    `direction`, shaded from `side` at the face to a third of it at the back,
+    so it reads as a lit solid rather than a drop shadow. Drawn at 2x and
+    box-filtered down, like `ring_layer`.
+    """
+    ss = 2
+    W, H = size
+    f = ImageFont.truetype(font, font_size * ss)
+    m = Image.new("L", (W * ss, H * ss), 0)
+    d = ImageDraw.Draw(m)
+    x0, y0 = xy[0] * ss, xy[1] * ss
+    if tracking:
+        x = x0
+        for ch in text:
+            d.text((x, y0), ch, font=f, fill=255)
+            x += d.textlength(ch, font=f) + tracking * ss
+    else:
+        d.text((x0, y0), text, font=f, fill=255)
+    out = Image.new("RGBA", (W * ss, H * ss), (0, 0, 0, 0))
+    dx, dy = direction
+    if shadow:
+        sh = Image.new("RGBA", out.size, (0, 0, 0, 0))
+        off = int(depth * ss * 1.4)
+        sh.paste((0, 0, 0, 200), (int(dx * off), int(dy * off)), m)
+        sh = sh.filter(ImageFilter.GaussianBlur(depth * ss * 0.9))
+        out.alpha_composite(sh)
+    steps = depth * ss
+    for k in range(steps, 0, -1):
+        q = 0.35 + 0.65 * (1 - k / steps)
+        col = tuple(int(c * q) for c in side) + (255,)
+        out.paste(col, (int(dx * k), int(dy * k)), m)
+    out.paste(tuple(face) + (255,), (0, 0), m)
+    if outline:
+        edge = m.filter(ImageFilter.MaxFilter(5)).point(lambda v: 255 if v > 0 else 0)
+        ring = Image.new("RGBA", out.size, tuple(outline) + (255,))
+        ring.putalpha(Image.eval(edge, lambda v: v))
+        under = Image.new("RGBA", out.size, (0, 0, 0, 0))
+        under.alpha_composite(ring)
+        under.paste(tuple(face) + (255,), (0, 0), m)
+        out.alpha_composite(under)
+    return out.resize((W, H), Image.LANCZOS)
+
+
+def text_box(text: str, font_size: int, font: str = FONT_DISPLAY,
+             tracking: float = 0.0) -> tuple[int, int, int]:
+    """(width, cap top, cap bottom) of `text` set at `font_size`."""
+    f = ImageFont.truetype(font, font_size)
+    d = ImageDraw.Draw(Image.new("L", (8, 8)))
+    w = d.textlength(text, font=f) + tracking * max(0, len(text) - 1)
+    bb = f.getbbox(text)
+    return int(w), bb[1], bb[3]
+
+
+def sound_rings(size: tuple, centre: tuple, colour=(255, 60, 40),
+                radii=(90, 150, 220, 300), width: int = 10,
+                arc: tuple | None = None, glow: float = 1.0) -> Image.Image:
+    """Concentric rings (or arcs, `arc=(start, end)` degrees) round `centre`,
+    fading outward, with a soft glow - the drawn "ringing in the ears"."""
+    ss = 2
+    W, H = size
+    lay = Image.new("RGBA", (W * ss, H * ss), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    cx, cy = centre[0] * ss, centre[1] * ss
+    n = len(radii)
+    for i, r in enumerate(radii):
+        a = int(255 * (1.0 - 0.55 * i / max(1, n - 1)))
+        box = [cx - r * ss, cy - r * ss, cx + r * ss, cy + r * ss]
+        if arc:
+            d.arc(box, arc[0], arc[1], fill=tuple(colour) + (a,),
+                  width=width * ss)
+        else:
+            d.ellipse(box, outline=tuple(colour) + (a,), width=width * ss)
+    lay = lay.resize((W, H), Image.LANCZOS)
+    if glow:
+        g = lay.filter(ImageFilter.GaussianBlur(width * 2.2))
+        g.putalpha(g.getchannel("A").point(lambda v: min(255, int(v * glow * 1.6))))
+        base = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        base.alpha_composite(g)
+        base.alpha_composite(lay)
+        return base
+    return lay
+
+
+# --- the line-up cover (2026-11-13) -----------------------------------------
+#
+# The editor, picking `what-makes-tinnitus-worse`'s cover: "the line up is
+# very good too, keep for future videos as format". A police line-up wall -
+# height lines and feet marks, a dark floor, numbered plates - with the
+# video's suspects standing against it, cut out, and one of them an unknown:
+# a black silhouette with a "?" in it. It is the cover for any "which one
+# is it?" subject: triggers, scams, coins, habits. `COVER_STYLE = "vector"`.
+
+def _silhouette(h: int, mark: str = "?", colour=(255, 199, 0)) -> Image.Image:
+    sw = int(h * 0.68)
+    sil = Image.new("RGBA", (sw, h), (0, 0, 0, 0))
+    ds = ImageDraw.Draw(sil)
+    hr = sw * 0.27
+    ds.ellipse([sw / 2 - hr, 0, sw / 2 + hr, hr * 2], fill=(8, 8, 10, 255))
+    ds.rounded_rectangle([sw * 0.08, hr * 1.8, sw * 0.92, h + 40],
+                         radius=int(sw * 0.35), fill=(8, 8, 10, 255))
+    fq = ImageFont.truetype(FONT_DISPLAY, int(h * 0.40))
+    ds.text((sw / 2, h * 0.66), mark, font=fq, fill=(*colour, 255), anchor="mm")
+    return sil
+
+
+def lineup_cover(suspects: list, headline: str, *, portrait: bool = False,
+                 rows: list[str] | None = None, accent: str = "yellow") -> Image.Image:
+    """A line-up cover, 1280x720 or 1080x1920.
+
+    `suspects` is 2-4 entries, left to right, each `(cutout, height)`:
+    `cutout` an RGBA picture cropped to its subject (`core.vision.cutout`)
+    or None for the "?" silhouette, `height` the fraction of the wall it
+    stands up to (0.0-1.0; ~0.4 for a mug, ~0.8 for a glass or a person).
+    `headline` is the 16:9 headline in `_headline` syntax ("Tinnitus:
+    who's\\nthe [culprit?]"); a 9:16 cover sets `rows` instead, one string
+    a row, the `[bracketed]` row on the accent plate - `_headline` fits a
+    two-row headline to a 9:16 column at caption size.
+    """
+    W, H = (1080, 1920) if portrait else (1280, 720)
+    im = Image.new("RGBA", (W, H), (28, 30, 36, 255))
+    d = ImageDraw.Draw(im)
+    top, floor = (860, 1660) if portrait else (250, 650)
+    step = 92 if portrait else 50
+    fs = ImageFont.truetype(FONT_DISPLAY, 28 if portrait else 18)
+    for i, y in enumerate(range(floor, top - 1, -step)):
+        major = i % 2 == 0
+        d.line([(0, y), (W, y)], fill=(150, 156, 170, 255 if major else 120),
+               width=3 if major else 1)
+        if major:
+            for x in (14, W - (52 if portrait else 40)):
+                d.text((x, y - (36 if portrait else 24)), f"{i // 2 + 3}'",
+                       font=fs, fill=(170, 176, 190, 255))
+    d.rectangle([0, floor, W, H], fill=(14, 14, 18, 255))
+    n = len(suspects)
+    if not 2 <= n <= 4:
+        raise ValueError("lineup_cover takes 2-4 suspects")
+    wall = floor - top + 80
+    margin = W * (0.17 if n == 3 else 0.14)
+    xs = [margin + (W - 2 * margin) * i / (n - 1) for i in range(n)]
+    for cx, (cut, frac) in zip(xs, suspects):
+        h = int(wall * frac)
+        pic = _silhouette(h) if cut is None else cut.resize(
+            (int(cut.width * h / cut.height), h), Image.LANCZOS)
+        im.alpha_composite(pic, (int(cx - pic.width / 2), floor - h + 6))
+    fn = ImageFont.truetype(FONT_DISPLAY, 50 if portrait else 34)
+    bw = 50 if portrait else 34
+    for k, cx in enumerate(xs, 1):
+        d.rounded_rectangle([cx - bw, floor + 12, cx + bw, floor + 12 + bw * 1.5],
+                            radius=6, fill=(240, 240, 240, 255))
+        d.text((cx, floor + 12 + bw * 0.75), str(k), font=fn, fill=(14, 14, 18),
+               anchor="mm")
+    fill, ink = ACCENTS.get(accent, ACCENTS["yellow"])
+    if not portrait:
+        im = im.convert("RGB")
+        _headline(im, headline, 110, int(1200 / 1.38), 40, fill, ink,
+                  max_lines=2, leading=1.0, band="top", margin=22, shadow=12,
+                  drop=(5, 6))
+        return im
+    fc = ImageFont.truetype(FONT_DISPLAY, 140)
+    y = 250
+    for row in rows or headline.replace("\n", " ").split(" "):
+        text = row.strip("[]").upper()
+        if row.startswith("["):
+            tw = d.textlength(text, font=fc)
+            d.rectangle([40, y - 5, 40 + tw + 44, y + 155], fill=(*fill, 255))
+            d.text((62, y - 13), text, font=fc, fill=ink)
+        else:
+            sh = Image.new("RGBA", im.size, (0, 0, 0, 0))
+            ImageDraw.Draw(sh).text((65, y + 7), text, font=fc, fill=(0, 0, 0, 210))
+            im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(7)))
+            d = ImageDraw.Draw(im)
+            d.text((60, y), text, font=fc, fill=(255, 255, 255))
+        y += 160
+    return im.convert("RGB")
