@@ -91,7 +91,7 @@ CARD_SHARE = 0.62       # of the card's window the typing may take, at most
 
 
 # The band card opens its band before any type, so it starts typing later.
-LEADS = {"type": CARD_LEAD, "band": 0.42}
+LEADS = {"type": CARD_LEAD, "band": 0.42, "grid": 0.50}
 
 
 def card_schedule(title: str, start: float, hold: float,

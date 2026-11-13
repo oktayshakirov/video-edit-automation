@@ -176,7 +176,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "spotlight", "blindsign", "spectrum",
                         "shares", "sweep", "mnemonic", "stake",
                         "behind", "pile", "lookalike", "audiogram",
-                        "airgap", "breach"):
+                        "airgap", "breach", "diary"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -310,6 +310,12 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 1:
                 cues.append((rv[1] + 0.25, "glitch_cut"))
                 cues.append((min(sh.start + sh.hold - 1.0, rv[1] + 6.2), "cross"))
+        elif sh.graphic == "diary":
+            # The month on a pan, each ringed group on a tick (`beats.diary`).
+            rv = sh.reveals or []
+            if rv:
+                cues.append((rv[0] - 0.05, "pan"))
+            cues += [(t + 0.05, "tick") for t in rv[1:]]
         elif sh.graphic == "lookalike":
             # Each address on a pan, the matching ends on a reveal tick,
             # the different middle on a cross (`beats.lookalike`).

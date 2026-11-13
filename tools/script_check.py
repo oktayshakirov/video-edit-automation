@@ -349,6 +349,11 @@ RULES = {
                            "takes two rows and highlights its noun'",
                            ("crypto", "tinnitus"), ("long", "short"),
                            since="2026-11-11"),
+    # 2026-11-13, the editor on a third ring-and-arrow cover running: "we
+    # need more variations to see what works".
+    "cover-rotation": Rule("cover-rotation", "thumbnails.md, 'No cover style "
+                           "three videos running'", ("crypto", "tinnitus"),
+                           ("long", "short"), since="2026-11-13"),
 }
 
 # The most of a video's shots that may be plain stock clips (`stock-share`).
@@ -367,6 +372,8 @@ COVER_STYLES = {
     "text": "a picture and the headline, no marks",
     "arrow": "an arrow and/or a ring pointing at something in the picture",
     "beat": "a drawn graphic from the video as the cover",
+    "cutout": "a cut-out subject in front of extruded (3D) headline type",
+    "vector": "a drawn scene of cut-out objects and vectors (a line-up, a lab bench)",
 }
 
 # `outro=` given anything but None, in code (not a comment or docstring).
@@ -397,7 +404,7 @@ def is_full_frame(sh) -> bool:
 # The plain layouts (a list, a comparison, a figure) are not in this set.
 SIGNATURE_BEATS = ("pile", "behind", "blindsign", "reel", "post", "sweep",
                    "lookalike", "mnemonic", "quorum", "shares", "stake",
-                   "pool", "replicate", "airgap", "breach")
+                   "pool", "replicate", "airgap", "breach", "diary")
 # A cover's accent goes on the word that carries the subject, never on one
 # of these.
 WEAK_ACCENT = {"it", "its", "one", "this", "that", "them", "they", "you",
@@ -516,6 +523,18 @@ def check(sc: Script) -> list[Finding]:
                              f"COVER_STYLE {style!r} is not one of "
                              f"{', '.join(COVER_STYLES)} - add it to "
                              "COVER_STYLES and thumbnails.md if it is new"))
+    if "cover-rotation" in on:
+        style = getattr(sc.mod, "COVER_STYLE", None)
+        prev = []
+        for q in recent_siblings(sc.path):
+            m = re.search(r"^COVER_STYLE\s*=\s*[\"']([a-z]+)[\"']",
+                          q.read_text(errors="replace"), re.M)
+            prev.append(m.group(1) if m else None)
+        if style and len(prev) == 2 and prev[0] == prev[1] == style:
+            f.append(Finding("cover-rotation", "module",
+                             f"COVER_STYLE {style!r} is the third in a row - "
+                             "the last two covers were it too; pick another "
+                             f"style ({', '.join(COVER_STYLES)})"))
     shots = shots_of(sc.mod)
     if "toolbox" in on and shots:
         used = [sh for sh in shots

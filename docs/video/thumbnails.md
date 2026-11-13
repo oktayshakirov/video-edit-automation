@@ -1033,3 +1033,68 @@ word is it which is bad, better thief". Three rules, all checked by
 - **Word spacing is 72% of the font's own** (`_headline(word_gap=0.72)`,
   the default from today). The display face's space is as wide as a
   letter, so a row with a one-letter word in it read as separate words.
+
+## No cover style three videos running; three new directions (2026-11-13)
+
+The editor on the `what-makes-tinnitus-worse` cover (a ring and an arrow on
+a steaming mug): "the circle and arrow is being overused, its 3rd video with
+such thumbnail in a row, we need more variations to see what works. Try
+different approaches, view competitors and what works. You can use the
+cutout effect and add text with depth or different formats of thumbnails
+with text or vectors."
+
+**The check:** `script_check`'s `cover-rotation` flags a `COVER_STYLE`
+equal to both of the two previous videos' on the same channel and format.
+
+**What the search's winners do** (pulled with `yt-dlp ytsearch12:` on four
+related searches, 2026-11-13): Dr. Berg 2.2M (red sound waves into an ear,
+STOP RINGING), Doctor Cliff 1.5M (a face, YOU'RE MAKING YOUR TINNITUS
+WORSE!, red zigzags), Dr. Berg 1.1M (a woman holding her ear with a red
+glow). One person in discomfort, a red "ringing" cue and one huge word. The
+coffee-specific covers sit at 7-17k. We have no presenter, so the person is
+a cut-out stock photo.
+
+**Two new styles** (`COVER_STYLES`):
+
+| `COVER_STYLE` | the cover |
+| --- | --- |
+| `"cutout"` | a cut-out subject (`core.vision.cutout`) in front of extruded type |
+| `"vector"` | a drawn scene of cut-out objects and vectors (a police line-up) |
+
+**The pieces** (`longform/thumb.py`):
+
+- `extrude_text(size, text, xy, font_size, face, side, depth, direction)` -
+  a word as a solid block with a shaded side face and a soft drop, drawn
+  at 2x. Measure first with `text_box()`: Arial Black at 200px is ~930px
+  wide for "WORSE?", and the first draft ran two words off the frame.
+- `sound_rings(size, centre, colour, radii)` - concentric glowing rings
+  from a point; behind a head they are the drawn "ringing".
+- Crop a cutout to its alpha's bounding box before sizing it: the matte
+  keeps the photo's full canvas, and a person placed by the canvas lands
+  half off the frame.
+- A frame from a stock clip makes a good cutout when the photo search has
+  nothing standing (the line-up's wine glass is 7686970 at 22s, brightened
+  2.2x before matting, the pour and the reflection cut off by rows).
+
+`what-makes-tinnitus-worse` (`cover()` in the long script) draws three
+directions for both formats - `cutout` (the woman, rings, WORSE?), `lineup`
+(mug, "?" silhouette, wine glass on a height chart, WHO'S THE [CULPRIT?])
+and `overturn` (the mug beside NOT THE / COFFEE?) - and `--thumb` writes
+all three plus the recommended one as the plain `-thumb.jpg`.
+
+### The verdict: cutout ships, the line-up is a format, the overturn is out
+
+The editor, the same day: "The cutout (woman, worse) is the pick for this
+video but the line up is very good too, keep for future videos as format.
+The coffee one is not that impressive."
+
+- **`cutout` shipped** on `what-makes-tinnitus-worse`, both formats.
+- **The line-up is now `thumb.lineup_cover(suspects, headline, portrait=,
+  rows=)`** - 2-4 suspects as `(cutout, height)` with `None` for the "?"
+  silhouette, a height-chart wall, numbered plates, the headline over it.
+  `COVER_STYLE = "vector"`. Reach for it on any "which one is it?" topic
+  (triggers, scams, coins, habits) - and use it on a coming video rather
+  than letting it sit, since it has not been tested in the feed yet.
+- **An object beside big 3D words does not carry a cover.** The mug
+  next to NOT THE / COFFEE? read as a product shot with a caption. A person
+  in discomfort, or a staged scene with a mystery in it, did.

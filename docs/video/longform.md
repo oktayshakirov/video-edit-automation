@@ -796,3 +796,27 @@ white image"). It now measures the band the word sits in and darkens until
 that band is about 62 luma, never less than the old 30%. Even so: **a
 captured page goes in `window="browser"`**, which keeps it on the dark
 ground, and key words are placed on photographs and clips, not on pages.
+
+## Overlays, text placement and the opener's entrance (2026-11-13)
+
+- **Light overlays** (`core/filmfx.py`): `flare` (a soft core, a long
+  anamorphic streak and three ghosts, swaying along the top) and `motes`
+  (~40 drifting specks, a few large and out of focus). Both are recipes in
+  the footage rotation - grain, flare, clean, motes, dust, full - and motes
+  join the chapter, title and end windows. Drawn beats stay clean. The
+  editor: "lets try adding different overlays except the noise, maybe some
+  lens flares and flying particles too".
+- **Text goes where the picture is empty.** `Emphasis` measures the shot
+  under it (`overlay.quiet_side`: luma plus edges in each outer 40%) and
+  sets the word in the quieter side when one side scores under 60% of the
+  other; an opener takes `centre_x=` for the same reason, and its band
+  then fades out toward the subject. "We have plenty of space on the right
+  side since the object is on the left, use it smarter."
+- **An opener waits for its line.** A `Stamp` from frame one sat on screen
+  for five seconds before its verdict ("stays for way too long"). Give it
+  `enter_word=` a word or two before `at_word`, so the shot plays clean
+  first and the quote is up for a beat before the stamp.
+- **No still photo held over two sentences in the first 20 seconds.** The
+  window photo under "Some of those hold up... / By the end, you will
+  know..." held ten seconds at 0:10 ("nothing happens"). Split the line,
+  put moving shots under it, and land on a drawn beat.

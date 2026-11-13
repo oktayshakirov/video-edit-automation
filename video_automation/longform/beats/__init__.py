@@ -71,6 +71,7 @@ from .sweep import Sweep
 from .lookalike import Lookalike
 from .airgap import Airgap
 from .breach import Breach
+from .diary import Diary
 from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
@@ -134,6 +135,7 @@ BEATS = {
     "lookalike": Lookalike,
     "airgap": Airgap,
     "breach": Breach,
+    "diary": Diary,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -199,6 +201,8 @@ _COUNT = {
     "airgap": lambda p: 4,
     # The field of addresses, then the waves emptying it.
     "breach": lambda p: 3 if len(p) > 7 and p[7] else 2,
+    # The month, then one reveal per ringed group.
+    "diary": lambda p: 1 + len(p[2]) if len(p) > 2 else 1,
 }
 
 
@@ -236,4 +240,6 @@ def make_beat(shot, brand: Brand, frame: Frame):
     return cls(*shot.payload, brand=brand, frame=frame,
                backdrop=shot.backdrop, picture=getattr(shot, "picture", None),
                reveals=shot.reveals, marks=shot.marks,
-               start=shot.start, hold=shot.hold)
+               start=shot.start, hold=shot.hold,
+               **({"ground": shot.ground} if getattr(shot, "ground", None)
+                  else {}))

@@ -92,21 +92,35 @@ def snap(src: np.ndarray, region, max_iter: int = 10):
 
 
 class Spotlight(Beat):
-    """payload: (image, regions, title). `regions` is a list of
+    """payload: (image, regions, title, snap). `regions` is a list of
     ((x0, y0, x1, y1) as fractions of the image, label) - or (None, "") to
-    pull back to the whole picture. One region per reveal."""
+    pull back to the whole picture. One region per reveal.
+
+    A fifth element, `open_tight=True`, starts the beat already on the
+    first region, so it can pick up where a spotlight on the same picture
+    left off.
+
+    `snap=False` uses each region as given. A dark photograph reads to
+    `snap()` as ink on a plain black ground, and the ring grows to the whole
+    picture (a silhouette at a window, 2026-11-13); snapping is for pages."""
 
     MOVE = 0.85             # one glide between framings
     FILL = 0.80             # how much of the frame a region takes, at most
     DIM = 0.72              # how dark the spotlight makes the rest
 
-    def __init__(self, image, regions, title="", **kw):
+    def __init__(self, image, regions, title="", snap_to=True,
+                 open_tight=False, **kw):
         super().__init__(**kw)
         src = Image.open(image).convert("RGB")
         self.src = np.asarray(src)
-        self.regions = [(snap(self.src, tuple(r)) if r else None, lab)
+        self.regions = [((snap(self.src, tuple(r)) if snap_to else tuple(r))
+                         if r else None, lab)
                         for r, lab in regions]
         self.title = title
+        # Start already on the first region, ring and label up: for a
+        # spotlight that continues the one before it on the same picture
+        # (a check, a pause to do it, then its result - 2026-11-13).
+        self.open_tight = open_tight
         self.ih, self.iw = self.src.shape[:2]
         W, H = self.frame.size
         # Behind the picture: itself, covered, blurred and dark - so a
@@ -143,8 +157,9 @@ class Spotlight(Beat):
         cx, cy, s = self._framing(None)
         focus, strength = None, 0.0
         since = t - self.start
-        for r, ti in zip(self.regions, self._times()):
-            p = _smooth((t - ti + 0.05) / self.MOVE)
+        for k, (r, ti) in enumerate(zip(self.regions, self._times())):
+            p = 1.0 if (k == 0 and self.open_tight) else \
+                _smooth((t - ti + 0.05) / self.MOVE)
             if p <= 0:
                 break
             since = t - ti
