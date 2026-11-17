@@ -90,7 +90,11 @@ copies that disagreed with each other.
    title question runs 10-13 words so sentence 2 - a body-check when the
    article has one - starts near 4s; its last line runs back into the
    title question; it ends on a plain sentence. The long form runs
-   2:30-3:00. Sessions are exempt from all of this.
+   2:30-3:00. Sessions are exempt from all of this - **but not from
+   `tools/script_check.py`**, which reads a session's `INTRO`/`OUTRO` and
+   catches what luna will stumble on (a "breaths" split in two on
+   `soft-flames-66-breathing`, 2026-11-17). Run it on both session
+   scripts before the first render.
 4. **Write the picture first** - the step that matters most here, because
    the subject cannot be photographed at all. Follow `workflow.md`, "Write
    the picture first: the visual plan": one line per sentence saying what

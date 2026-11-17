@@ -22,6 +22,7 @@ Short together). Pick the next one from the unused rows.
 | Quiet Universe | Low Gravity | `low-gravity-box-breathing` (1 hour) | 2026-11-07 |
 | Quiet Universe | Soft Orbit | `soft-orbit-6666-breathing` (1 hour) | 2026-11-08 |
 | White Noise Therapy | Tranquil Zenith | `tranquil-zenith-21-breathing` (1 hour) | 2026-11-11 |
+| Fireside Harmony | Soft Flames & Breezes | `soft-flames-66-breathing` (1 hour) | 2026-11-17 |
 
 **Not album tracks** (no row above takes them off the list):
 `478-breathing-white-noise` is generated white noise (`soundbed.Bed`);
@@ -39,7 +40,7 @@ here.
 | White Noise Therapy | `/zen/white-noise` | Cloudscape Serenity, Ethereal Resonance |
 | Feathered Tunes | `/zen/bird-sounds` | four of Morning Songbirds, Tree Top Tunes, Wings of Calm, Chirps & Tweets, Sky Echoes (one is used, name unknown) |
 | Purring Melodies | `/zen/cat-purr-sounds` | four of Deep Sleep Purr, Violin Purr Serenade, Dreamy Purrs, Gentle Night Purr, Purr Therapy (one is used, name unknown) |
-| Fireside Harmony | `/zen/fire-sounds` | Soft Flames & Breezes, Flickering Quiet, Twilight Musicbox, Breezy Warmth - **whole album unused** |
+| Fireside Harmony | `/zen/fire-sounds` | Flickering Quiet, Twilight Musicbox, Breezy Warmth |
 | Background Blur | `/zen/evening-sounds` | Crackle Lo-fi, Ambient Fan, Cozy Lo-fi Shelter, Hearthside Hours, Deep Resonance - **whole album unused** |
 | Morning Ritual Ambiance | `/zen/morning-sounds` | Peaceful Start, Refreshing Shower, Hair Dryer Breeze, The Breakfast Flame, Laundry Background, Drying Serenity - **whole album unused** |
 | Water Sound Therapy | `/zen/water-sounds` | Zen Flow, Harmonious Waves, Serenity Stream, Dreamy Lagoon, Mystic Brook |
@@ -51,6 +52,8 @@ spectrum: Low Gravity and Soft Orbit are both sold as "for tinnitus masking"
 and both measured as comfort beds (almost nothing above 1 kHz). Tranquil Zenith went the other way: sold as "pure,
 perfectly balanced white noise", it measured as a hiss with 84-89% of its
 energy at 4-8 kHz and ~53 short pings a minute near 5 kHz on top - a
-masking bed, but not a pure one. Run
+masking bed, but not a pure one. Soft Flames & Breezes, sold as "a pleasant and natural masking effect",
+measured 59% at 200 Hz-1 kHz and 0.6% at 4-8 kHz: a comfort bed. The
+streaming release of Fireside Harmony is titled "Fireside Comfort"; same album. Run
 `band_energy` and the near-silent-window share on the file
 (`projects/tinnitus.md`, "A comfort session is not a masking session").

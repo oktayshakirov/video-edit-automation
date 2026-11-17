@@ -522,3 +522,16 @@ one synthesis and the editor heard the cut: "a glitch in the voice over at
 between two thoughts, make them two sentences and use the sentence gap;
 keep `chunk_pad` for a pause that has to sit inside one utterance (a sound
 sample after its name).
+
+## A th-s cluster splits (2026-11-17)
+
+"with slow, even breaths." in `soft-flames-66-breathing`'s Short came out
+as "breath ... s" - the editor heard a break between *breath* and *s* at
+0:07. The phonemes were right (`bɹˈɛθs`), so this is the model, not the
+G2P: it renders the voiceless θ and the s after it as two pieces, with a
+20-30ms hole between. "even breathing" (`bɹˈiːðɪŋ`, a voiced ð straight
+into a vowel) shipped instead. A level trace cannot tell this hole from a
+normal quiet "th", so it is caught on the text: `script_check.py`'s
+`th-cluster` rule flags any spoken word ending in "ths" (breaths, months,
+paths, depths, lengths), sessions' `INTRO`/`OUTRO` included. Reword round
+it: "breathing", "half a year", "the way".

@@ -130,6 +130,33 @@ def test_ent_inside_a_word_is_not_an_initialism():
     assert "phoneme" not in rules(s)
 
 
+def test_a_th_s_cluster_is_flagged_on_every_channel():
+    """The voice splits "breaths" into "breath ... s" (voice.md, 2026-11-17)."""
+    assert "th-cluster" in rules(script("tinnitus", "short",
+                                        [("with slow, even breaths.",)]))
+    assert "th-cluster" in rules(script("crypto", "long",
+                                        [("It took six months.",)]))
+    assert "th-cluster" not in rules(script("tinnitus", "short",
+                                            [("with slow, even breathing.",)]))
+    s = script("crypto", "long", [(("Six months on.", "Half a year on."),)])
+    assert "th-cluster" not in rules(s)
+
+
+def test_a_session_is_read_from_its_intro_and_outro(tmp_path):
+    """A session has no SENTENCES; its INTRO and OUTRO are what luna says,
+    and its cover is the fixed session format, not an article style."""
+    d = tmp_path / "tinnitus-short"
+    d.mkdir()
+    f = d / "s.py"
+    f.write_text('SOURCE_POST = None\nDEMAND = None\n'
+                 'INTRO = [("Soft flames,", "with slow, even breaths.")]\n'
+                 'OUTRO = [("If this helped, save it.",)]\n')
+    s = sc.load(f)
+    assert s.session and [ln.where for ln in s.lines] == ["intro s1", "outro s1"]
+    found = rules(s)
+    assert "th-cluster" in found and "cover-style" not in found
+
+
 # --- narration and format rules -------------------------------------------
 
 def test_the_banned_windup():

@@ -73,6 +73,7 @@ class Script:
     lines: list[Line] = field(default_factory=list)
     titles: list[tuple[str, str]] = field(default_factory=list)
     added: str | None = None   # first-commit date, YYYY-MM-DD
+    session: bool = False      # a sound-therapy session: INTRO/OUTRO, no article
 
 
 def classify(path: Path) -> tuple[str, str]:
@@ -128,7 +129,16 @@ def load(path: Path) -> Script:
                 sc.lines.append(as_line(f"{t!r} s{i}", s))
     for i, s in enumerate(getattr(mod, "SENTENCES", None) or [], 1):
         sc.lines.append(as_line(f"s{i}", s))
-    if fmt == "short" and sc.lines:
+    # A sound-therapy session has no article: what luna says is INTRO and
+    # OUTRO, lists of caption tuples. Read them, so the spoken rules
+    # (phoneme, th-cluster, relief-promise) reach sessions too.
+    if not sections and not getattr(mod, "SENTENCES", None) and (
+            getattr(mod, "INTRO", None) or getattr(mod, "OUTRO", None)):
+        sc.session = True
+        for name in ("INTRO", "OUTRO"):
+            for i, s in enumerate(getattr(mod, name, None) or [], 1):
+                sc.lines.append(as_line(f"{name.lower()} s{i}", s))
+    if fmt == "short" and sc.lines and not sc.session:
         sc.titles.append(("s1, the title question", sc.lines[0].shown))
 
     title = getattr(mod, "TITLE", None)
@@ -258,6 +268,12 @@ PHONEMES = re.compile(
     r"\b(?:ENT|CBT|TMJ)\b|presbycusis|m[eé]ni[eè]re", re.I)
 PHONEME_CASE = re.compile(r"\b(?:ENT|CBT|TMJ)\b")   # "ent" in a word is fine
 
+# "-ths" plurals: Kokoro leaves a hole between the "th" and the "s" -
+# "even breaths" read as "breath ... s" in `soft-flames-66-breathing`'s
+# Short (2026-11-17, voice.md "A th-s cluster splits"). Reword round it:
+# "breathing" for "breaths", "half a year" for "six months".
+TH_CLUSTER = re.compile(r"\b[a-z]+ths\b", re.I)
+
 # A clause in question word order: an auxiliary first ("Does Tinnitus Go
 # Away"), or a wh-word straight into one ("What Is a Seed Phrase", "How Long
 # Does It Last"). A wh-word into a subject is a noun clause and a statement -
@@ -292,6 +308,8 @@ RULES = {
                            "outranks every production consideration'", ("tinnitus",), ()),
     "phoneme": Rule("phoneme", "projects/tinnitus.md, 'Phonemes to avoid outright'",
                     ("tinnitus",), ()),
+    "th-cluster": Rule("th-cluster", "voice.md, 'A th-s cluster splits'", (), (),
+                       since="2026-11-17"),
     "title-question-mark": Rule("title-question-mark", "narration.md, 'Titles: a question "
                                 "gets a question mark'", ("crypto", "tinnitus"), (),
                                 since="2026-08-18"),
@@ -482,6 +500,11 @@ def check(sc: Script) -> list[Finding]:
                     continue
                 f.append(Finding("phoneme", ln.where, f"{w!r} is spoken - "
                                  f"give the line a (caption, spoken) pair"))
+        if "th-cluster" in on and ln.spoken:
+            for m in TH_CLUSTER.finditer(ln.spoken):
+                f.append(Finding("th-cluster", ln.where,
+                                 f"{m.group(0)!r} is spoken - the voice splits "
+                                 f"the th from the s; reword it"))
         if "short-disclaimer" in on and DISCLAIMER.search(ln.both):
             f.append(Finding("short-disclaimer", ln.where,
                              "a Short never carries the compliance line"))
@@ -519,7 +542,9 @@ def check(sc: Script) -> list[Finding]:
     if "demand" in on and not hasattr(sc.mod, "DEMAND"):
         f.append(Finding("demand", "module", "no DEMAND - the review cannot "
                          "tag this video (None when it had no evidence)"))
-    if "cover-style" in on:
+    # A session's cover is the fixed `render_session_thumb` format, not an
+    # article cover style, so the style rules do not apply to it.
+    if "cover-style" in on and not sc.session:
         style = getattr(sc.mod, "COVER_STYLE", None)
         if style is None:
             f.append(Finding("cover-style", "module",

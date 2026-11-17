@@ -9,6 +9,15 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-17 - fireside session; no "-ths" words in narration
+
+- `soft-flames-66-breathing`: session queue row 5, coherent 6-6 breathing
+  on the path guide, 1 hour, a generated campfire look. A comfort session
+  (no masking line): the bed is almost all below 4 kHz.
+- Narration avoids spoken words ending in "ths" (breaths, months): the
+  voice splits the th from the s. `script_check.py` `th-cluster`, which
+  now also reads sessions (`voice.md`, "A th-s cluster splits").
+
 ## 2026-11-16 - a rumour as the title (crypto, `stablecoin-interest`)
 
 - The long form is titled with a circulating rumour, as people search it
