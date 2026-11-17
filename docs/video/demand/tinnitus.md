@@ -130,6 +130,9 @@ channel. Read `traffic` before crediting a title.
 | Box Breathing + Space Sounds (Short) `11-08` | 968 YouTube in 2 days, 3 subs, half gone 8.3s | Shorts feed 416 of 463 | reach without retention; the other space-sounds Short took 316. Search terms include "asmr ear to ear" |
 | Nebula Pulse session, update | 378 YouTube (11-09), 4,715 impressions, CTR 5.01% | suggested 300 | doubled again in 7 days, on suggested |
 
+| 2:1 Breathing + White Noise, 1 hour `11-11` | **282 YouTube in 6 days**, 2,984 impressions, CTR 5.66%, avg view 6.6 min; Facebook 340 | 111 of 130 sourced suggested | the second white-noise session and the second-best session; 4-7-8 + White Noise (550) is the first. Masking noise people know by name, not a themed ambience. Jungle, space and fire hours sit at 25-49 (11-17 review) |
+| Play This White Noise Just Below Your Tinnitus (Short) `11-11` | 415 YouTube in 6 days, 12.4s a view | Shorts feed | the masking instruction ("just below") on a known noise; the rain Short of the same shape took 135 |
+
 ## Formats, and whether they fit this channel
 
 The reason it works comes first; the fit is judged against that reason and
@@ -187,3 +190,19 @@ One line per branch: date, the term or channel, what it added.
   breathing and coherent (6-6, 5 breaths a minute) breathing**, as
   exercises a viewer plays along with, with or without sound.
 - **"tinnitus" (2026-11-10).** The broad term returns old explainers and sound-sample Shorts: health-system "what does it sound like" Shorts at 667-4,120x, House Institute 2,262x, Doctor Cliff "making your tinnitus LOUDER" 138x. Most are 2-5 years old, so read the ratios as "this subject lasted". The trigger list is the format with the most room for us; "stop it in 30 seconds" is closed.
+- 2026-11-17, list and ranking formats (the review's branch; `outliers`,
+  ~120 units each): "things that make tinnitus worse" - Doctor Cliff "5
+  Things That are Making your Tinnitus LOUDER" 152x (1.5M), Treble "Tinnitus
+  Getting Worse? STOP These 7 Mistakes" 18.8x, "5 Things Making Tinnitus
+  Worse, Do This Instead!" 19.9x (small channel, 2026), Treble "5 Tinnitus
+  Mistakes" 6.3x. **The numbered list is the format; our
+  `what-makes-tinnitus-worse` borrowed the subject and not the number (3
+  views, CTR 0.84%).** "tinnitus tier list": no tinnitus tier lists exist;
+  the adjacent proven shape is "Surgeons Rank 11 Supplements (Most Are
+  Useless)" 97x (2.9M) - a ranking by evidence, which fits the honest
+  register (rank the research, never promise relief). "tinnitus sleep
+  sounds 10 hours": the page is all 9-10 hour beds at 94-16,000x (2-5M
+  views each, crickets, pink, brown, "shimmer"); our longest is 1 hour.
+  "tinnitus treatments ranked": Doctor Cliff "The 4 BEST Tinnitus
+  Treatments" 30.6x, HearingTracker "Four BEST Tinnitus Treatments" 109x.
+

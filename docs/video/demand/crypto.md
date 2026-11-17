@@ -323,3 +323,19 @@ One line per branch: date, the term or channel, what it added.
   a plain title finds nobody ("Your Stablecoin Earns Interest. Just Not
   for You" 1 view, "Why You Can't Earn Interest on Stablecoins Anymore" 5).
   **The rumour is the search; the mechanism is the answer.**
+- 2026-11-17, list, tier-list and heist formats (the review's branch;
+  `outliers`, ~120 units each): "crypto tier list" and "crypto ranked
+  worst to best" are **coin-pick rankings** for the next bull run (EllioTrades
+  2.0x, Suppoman "1000X OR ZERO?!" 2.1x, Money and I 3.7x) - investment
+  picks, closed to this channel. Even there the ratios are low (1-4x): the
+  format is crowded. "biggest crypto scams of all time" is the strong page:
+  **one heist told as a story** - InVoyce "Malone Lam's $230M Scam Was
+  EASIER Than You Think" 117x (291k), Neuraline "How Two Brothers Stole
+  69,000 Bitcoin and Vanished" 41x (1.0M), Moconomy "The Man Who Exposed
+  the OneCoin Crypto Scam" 22x, KiraTV "The Hackers Who Stole $523,000,000
+  and Escaped (for now)" 6.6x. A person, an amount, a twist in the title;
+  10-30 minute documentaries. The only list on the page ("Top 10 Crypto
+  Scams of All Time") has 77 views. "top 10 crypto mysteries": Satoshi
+  documentaries (Swan 24x, HBO trailer 18x). **For crypto the proven list
+  is not a ranking of coins but a story of one theft.**
+
