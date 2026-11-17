@@ -26,6 +26,7 @@ What they cover:
 | file | what it protects |
 | --- | --- |
 | `test_beats.py` | every beat in `BEATS` renders, landscape and portrait, on both brands, and `item_count` agrees with it |
+| `test_covers.py` | no project script writes its picked cover twice (`-thumb` and `-thumb-<style>`) |
 | `test_breath.py` | the breathing ring's phases agree, long form and Short, on every pattern |
 | `test_card_cues.py` | chapter cards and reels sound the same in every Short, the quiz too |
 | `test_chrome.py` | the navigation overlays, and the cue collision rule |

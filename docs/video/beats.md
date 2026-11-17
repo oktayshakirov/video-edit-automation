@@ -1720,7 +1720,7 @@ we need to create different ones". `pile` was in three of the last four
 crypto long forms and both Shorts of the last two pairs. A beat with a
 look of its own (`pile`, `behind`, `blindsign`, `reel`, `post`, `sweep`,
 `lookalike`, `mnemonic`, `quorum`, `shares`, `stake`, `pool`, `replicate`,
-`airgap`, `breach`) may not appear in a video if either of the two videos
+`airgap`, `breach`, `reserve`) may not appear in a video if either of the two videos
 before it on the same channel and format used it. Draw the idea another
 way, or build a new beat. The plain layouts (`grid`, `compare`, `stat`,
 `steps`, `checklist`, `bars`, `diagram`) are exempt, but still vary them
@@ -1783,6 +1783,28 @@ the words without showing any of it. Both formats; portrait-safe.
 - Reusable for any "track it before you blame it" subject: spikes, sleep,
   trades made on a feeling. A signature beat: it rests for two videos
   (`script_check`'s `beat-rotation`).
+
+## `reserve` - a dollar lent on, and who keeps the interest (2026-11-16)
+
+`Shot(graphic="reserve", payload=(you, issuer, bill, kept, yours, verdict,
+title))`, `you`/`issuer`/`bill` as `(name, sub)`. Three cards - you, the
+issuer, the bill - and four reveals, four caption chunks: the deposit (a
+`$1` chip to the issuer, a token chip back), the loan (the `$1` on to the
+bill, which lights), the interest (coins stream from the bill to the
+issuer for the rest of the shot, `kept` sets on its card), and yours (a
+dashed line from the issuer back toward you stops at a barrier with a
+cross; your figure turns to `yours` in red, `verdict` under it).
+
+Built for `stablecoin-interest`, because the pair's one fact - a
+stablecoin dollar is lent to the US government and the holder gets none
+of the interest - is a payment going one way while the line back is
+blocked, and `pile`, `sweep` and `diagram` each draw something else.
+Reusable for any "your money earns, someone else is paid": a bank deposit,
+an exchange balance, a fund's fee. Both formats; portrait stacks the cards
+with you on top. Labels shrink to fit their card and raise below 70%.
+Cues: `pan` on the deposit and the loan, `reveal` on the interest, `cross`
+on the barrier (`flow_times`). Give its sentence a gap of ~1.4s so the
+cross lands before the cut. A signature beat: it rests for two videos.
 
 ### `spotlight` on a dark photograph: `snap=False`, and a wide region (2026-11-13)
 

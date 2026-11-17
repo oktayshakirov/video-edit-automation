@@ -45,6 +45,11 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw
 
+# A capture is our own render of a public page, never an untrusted file, and
+# a long page (a law's full text, 2026-11-16) is past Pillow's
+# decompression-bomb guard at 2x. Lift it for this module's own captures.
+Image.MAX_IMAGE_PIXELS = None
+
 from .brand import CRYPTO, Brand
 from .draw import ease_out
 from .frame import LANDSCAPE, VERTICAL, Frame

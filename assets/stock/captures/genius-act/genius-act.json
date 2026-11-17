@@ -1,0 +1,43 @@
+{
+  "name": "genius-act",
+  "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ27/html/PLAW-119publ27.htm",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "ban": "text=Prohibition on interest",
+    "yield": "text=any form of interest or",
+    "freeze": "text=requires a person to seize, freeze, burn, or"
+  },
+  "hide": [],
+  "captured": "2026-11-16",
+  "title": "",
+  "size": [
+    2560,
+    92652
+  ],
+  "boxes": {
+    "ban": [
+      281.21875,
+      25786,
+      640.125,
+      25816
+    ],
+    "yield": [
+      718.09375,
+      25846,
+      1077.0,
+      25876
+    ],
+    "freeze": [
+      390.4375,
+      4096,
+      1077.0,
+      4126
+    ]
+  }
+}

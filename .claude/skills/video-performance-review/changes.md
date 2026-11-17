@@ -9,6 +9,18 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-16 - a rumour as the title (crypto, `stablecoin-interest`)
+
+- The long form is titled with a circulating rumour, as people search it
+  ("Is the US Using Stablecoins to Reset Its Debt?"), and checks it by
+  mechanism, ending on a checklist of the claims and a question for the
+  comments. The editor's ask: try the conspiracy side for engagement. Read
+  views and likes + comments per view against the plain mechanism titles.
+- New beat `reserve`: a dollar lent on, the interest to the issuer, the
+  line back to you blocked at $0 (`beats.md`).
+- First crypto cover with a cut-out real official (public-domain portrait)
+  and extruded type (`cutout`).
+
 ## 2026-11-13 - covers rotate, light overlays, the ruled ground
 
 - Covers: no style three videos running (`cover-rotation`); new styles

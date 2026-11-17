@@ -67,6 +67,12 @@ on Whiteboard Crypto alone; a second channel is needed.
 | 11-10 | The Most Dangerous Crypto Scam in the World | VICE News | 426k | 135k | 3.2x | pig-butchering | superlative + scam | documentary |
 | 11-10 | A Lie Millions Wanted to Believe: The Biggest Crypto Scam Ever Created | ENDEVR | 359k | 119k | 3.0x | OneCoin-scale fraud | a story line | recent (2026-07) |
 
+| 11-16 | Is the US Planning a $37 Trillion Crypto Debt Reset? | Clearly Finance | 216k | 5,500 | 39.2x (11 mo) | the stablecoin debt-reset rumour | "Is the US planning a $[N] trillion [X] reset?" | long, 13 min, sells the rumour |
+| 11-16 | Is the U.S. Using Stablecoins to Reset $35T Debt? | Swan Bitcoin | 305k | 9,700 | 31.5x (14 mo) | the same rumour | "Is the U.S. using [X] to [Y]?" | long, 12 min |
+| 11-16 | Can the U.S. Really Erase $38 Trillion in Debt Using Crypto? (Debunking the Myth) | Noel Lorenzana, CPA | 105k | 10,000 | 10.5x (13 mo) | the same rumour, debunked | "Can [X] really [Y]? (Debunking the myth)" | long, 14 min, claims checked one by one |
+
+**Proven subject (3 channels, 2026-11-16): the stablecoin "debt reset" rumour.** Teardown: `teardowns/stablecoin-debt-reset.md`.
+
 ## Our own standouts
 
 | video | what it got | source of the views | the reason it worked, as far as known |
@@ -291,3 +297,29 @@ One line per branch: date, the term or channel, what it added.
   median. Coin Bureau "The Cold Wallet Myth" 27k (0.8x). The yes/no question
   beat the fear titles on the same channel. Teardown:
   `teardowns/do-you-need-a-cold-wallet.md`.
+- 2026-11-16, four `yt-dlp` searches (no units) for topic suggestions.
+  "how do stablecoin issuers make money": still standing - The Part Time
+  Economist "How Stablecoin Issuers Make Money" 47.7k, Anthony Pompliano
+  "Stablecoins Make SO MUCH Money. Here Is How." 48k; the GENIUS Act
+  interest ban is thin (Coin Bureau "Where Money Goes If Yield Is Banned"
+  19.5k, under its median; the rest under 300). "x402 explained": Coin
+  Bureau "x402: The New Crypto Payments Standard" 52.7k (11-2025), Jarrod
+  Watts 7.2k on 10k subs (a developer build), Fireship 490k (far under his
+  median); the plain-language answers sit at 0.1-2k - a named term with
+  few non-developer answers, a year old now. "crypto liquidation
+  explained": CoinGecko 31k and Crypto For Canadians 11.8k still the
+  mechanism ones; "Crypto Leverage Trading explained (with Animations)"
+  444k is a trading channel. "squid game crypto scam": unchanged - the
+  2021 Shorts own it; "Why the Squid Game Token Wouldn't Let You Sell"
+  (the honeypot mechanism) 98 views.
+- 2026-11-16, "stablecoin debt reset" and the conspiracy side (`yt-dlp`,
+  no units), for the stablecoin-interest pair. **Proven, recent, 3+
+  channels** - the rows above, plus Nick Bencino "LEAKED: The $38 Trillion
+  Stablecoin Reset" 66k (53k subs), Heresy Financial "New Clarity Act is
+  Trojan Horse..." 107k (403k subs), Miles Franklin "The Stablecoin Trojan
+  Horse: How It Quietly Forces Demand for US Debt" 32k, The Solari Report
+  "Stablecoins Are Even More Dangerous Than CBDCs" 12k, and The Economic
+  Times' clip of the Putin adviser's claim 820k. The same mechanism under
+  a plain title finds nobody ("Your Stablecoin Earns Interest. Just Not
+  for You" 1 view, "Why You Can't Earn Interest on Stablecoins Anymore" 5).
+  **The rumour is the search; the mechanism is the answer.**

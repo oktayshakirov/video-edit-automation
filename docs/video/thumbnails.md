@@ -1098,3 +1098,14 @@ The coffee one is not that impressive."
 - **An object beside big 3D words does not carry a cover.** The mug
   next to NOT THE / COFFEE? read as a product shot with a caption. A person
   in discomfort, or a staged scene with a mystery in it, did.
+
+## A cover is written once (2026-11-17)
+
+The editor, after `stablecoin-interest`: "we have duplicate thumbnails, this
+happened last time too". `thumbs()` in that script and in
+`what-makes-tinnitus-worse` saved the pick as `-thumb.jpg` and then every
+direction, the pick included, as `-thumb-<style>.jpg` - so the pick sat on
+the Desktop twice. Now `thumbs(out)` writes the pick at `out` and nothing
+else; `--thumb-variants` writes the *other* directions beside it for
+choosing. When the editor picks, delete the losing direction's code and
+files in the same commit. `tests/test_covers.py` fails the old pattern.

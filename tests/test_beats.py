@@ -117,6 +117,10 @@ PAYLOADS = {
     # (lines, title): portrait-safe.
     "airgap": ([("Send", "0.5 BTC"), ("To", "bc1q7k...9x4f")],
                "SENDING FROM A HARDWARE WALLET"),
+    # (you, issuer, bill, kept, yours, verdict, title): portrait-safe.
+    "reserve": (("YOU", "hand over a dollar"), ("THE ISSUER", "Tether, Circle"),
+                ("US TREASURY BILL", "93 days or less"), "KEEPS THE INTEREST",
+                "$0", "BANNED BY LAW", "WHERE THE INTEREST GOES"),
     # (cells_label, figure, unit, waves, title, verdict, legend): portrait-safe.
     # (levels, flagged, groups, title, legend): portrait-safe.
     "diary": ([5, 4, 9, 3, 5, 8, 4], [2, 3],
@@ -225,7 +229,7 @@ def test_beat_renders_on_both_brands(name):
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
             "post", "spotlight", "behind", "pile", "audiogram", "airgap",
-            "breach", "diary"]
+            "breach", "diary", "reserve"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -302,7 +306,8 @@ def test_every_beat_class_is_registered():
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
-                "behind", "pile", "lookalike", "airgap", "breach", "diary"):
+                "behind", "pile", "lookalike", "airgap", "breach", "diary",
+                "reserve"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from

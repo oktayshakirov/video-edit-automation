@@ -513,16 +513,18 @@ def cover(kind: str, portrait: bool = False):
     raise ValueError(f"unknown cover {kind!r} - {COVERS}")
 
 
-def thumbs(out: Path, portrait: bool = False) -> list[Path]:
-    """The shipped cover at `out` (the cutout), and both directions as
-    `-cutout` and `-lineup` beside it."""
-    made = []
-    for k in COVERS:
-        p = out.with_name(f"{out.stem}-{k}{out.suffix}")
-        cover(k, portrait).save(p, quality=92)
-        made.append(p)
+def thumbs(out: Path, portrait: bool = False, variants: bool = False) -> list[Path]:
+    """The shipped cover (the cutout) at `out`, and nothing else.
+    `variants=True` also writes the other direction as `-lineup` - never a
+    second copy of the pick (`thumbnails.md`, 2026-11-17)."""
     cover(COVERS[0], portrait).save(out, quality=92)
-    return [out] + made
+    made = [out]
+    if variants:
+        for k in COVERS[1:]:
+            p = out.with_name(f"{out.stem}-{k}{out.suffix}")
+            cover(k, portrait).save(p, quality=92)
+            made.append(p)
+    return made
 
 
 def main() -> None:

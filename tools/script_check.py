@@ -340,6 +340,12 @@ RULES = {
     "drawn-share": Rule("drawn-share", "footage.md, 'Half the shots are drawn "
                         "or framed'", ("crypto", "tinnitus"), ("long",),
                         since="2026-11-11"),
+    # `stablecoin-interest` (2026-11-17): a portrait photograph in a
+    # `window=` is centre-cropped to the window's landscape shape and the
+    # top of the head went.
+    "portrait-window": Rule("portrait-window", "footage.md, 'A portrait in "
+                            "a window loses the head'", ("crypto", "tinnitus"),
+                            ("long",), since="2026-11-17"),
     "beat-rotation": Rule("beat-rotation", "beats.md, 'A signature beat rests "
                           "for two videos'", ("crypto", "tinnitus"),
                           ("long", "short"), since="2026-11-11"),
@@ -404,7 +410,8 @@ def is_full_frame(sh) -> bool:
 # The plain layouts (a list, a comparison, a figure) are not in this set.
 SIGNATURE_BEATS = ("pile", "behind", "blindsign", "reel", "post", "sweep",
                    "lookalike", "mnemonic", "quorum", "shares", "stake",
-                   "pool", "replicate", "airgap", "breach", "diary")
+                   "pool", "replicate", "airgap", "breach", "diary",
+                   "reserve")
 # A cover's accent goes on the word that carries the subject, never on one
 # of these.
 WEAK_ACCENT = {"it", "its", "one", "this", "that", "them", "they", "you",
@@ -608,6 +615,23 @@ def check(sc: Script) -> list[Finding]:
                                  "frame - put one in a `window=`, draw the "
                                  "beat, or use `callout`/`spotlight`/`behind` "
                                  "on the photo"))
+    if "portrait-window" in on and shots:
+        for i, sh in enumerate(shots, 1):
+            img = getattr(sh, "image", None)
+            if img is None or not getattr(sh, "window", None):
+                continue
+            try:
+                from PIL import Image as _I
+                w, h = _I.open(img).size
+            except Exception:
+                continue
+            if h > w:
+                f.append(Finding("portrait-window", f"shot {i}",
+                                 f"{Path(str(img)).name} is {w}x{h}, taller "
+                                 "than wide, in a `window=` - the window "
+                                 "crops it to landscape from the middle; put "
+                                 "it on a 16:9 canvas of its own blurred "
+                                 "edges first"))
     if "drawn-share" in on and shots:
         n = sum(1 for sh in shots if not is_full_frame(sh))
         if n / len(shots) < 0.5:

@@ -1,0 +1,29 @@
+{
+  "name": "wyoming-frnt",
+  "url": "https://stabletoken.wyo.gov/",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "first": "text=public entity"
+  },
+  "hide": [],
+  "captured": "2026-11-16",
+  "title": "Wyoming Stable Token Commission",
+  "size": [
+    2810,
+    10078
+  ],
+  "boxes": {
+    "first": [
+      623.875,
+      786.5,
+      1310.78125,
+      984.5
+    ]
+  }
+}

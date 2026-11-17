@@ -126,6 +126,17 @@ as real. Two windows of the same kind back to back read as one long shot;
 alternate with a drawn beat. In 9:16 the window is near square, so pick
 `clip_ax`/`clip_ay` for the middle of the picture, as for any vertical crop.
 
+### A portrait in a window loses the head (2026-11-17)
+
+`stablecoin-interest` put the Treasury Secretary's official portrait
+(1500x2100) in `window=("player", ...)`. The window is landscape and crops
+its picture from the middle, so the top of his head was cut off in the
+render. Put a portrait on a 16:9 canvas of its own blurred, darkened edges
+first (`assets/crypto/stablecoin-interest/bessent-wide.jpg`), then frame
+it. A `spotlight` on a portrait fails the other way: the ring fills the
+frame's height and its label is pushed off the top. `script_check`:
+`portrait-window`.
+
 ## Screen a clip by watching it, not by looking at one frame of it
 
 `woman-sitting-alone-dark-room-thinking/6073058` screened at L13-14 / S8 and
@@ -898,6 +909,23 @@ without showing anybody's wallet.
 `.venv/bin/python -m playwright install chromium`. It is ~570MB on disk in
 `~/Library/Caches/ms-playwright` (Chromium, its headless shell and an
 ffmpeg build - measured on the Mac 2026-11-05), not the ~150MB download.
+
+**Three capture lessons from `stablecoin-interest` (2026-11-16).**
+
+- **A law's full text is one very long page.** govinfo's Public Law
+  119-27 captured at 2560x92652 and Pillow refused it as a
+  "decompression bomb"; `screencap` now lifts that guard for its own
+  captures (they are our renders of public pages, not untrusted files).
+- **Preformatted text does not reflow on `--mobile`.** The law sets at
+  desktop width in a `<pre>`, so the 3x phone capture read as grey dust.
+  For a Short, cut a `--vertical` clip from the desktop capture instead,
+  and frame it in a `window=("browser", ...)`.
+- **A news page with an exchange ad beside the quote is not a picture.**
+  Cointelegraph's report of the Putin adviser's line ran an exchange
+  promotion next to it. The words went on a `post` card, the source in the
+  description. Pick a phrase for `--select key="text=..."` that sits on
+  one line of the page's own markup: a hyphen or a line break inside it
+  matches nothing (Wyoming's "fully-reserved", govinfo's wrapped lines).
 
 ## Motion on a video shot — three things that all caused visible glitches
 
