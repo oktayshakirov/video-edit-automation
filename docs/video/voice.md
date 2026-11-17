@@ -523,15 +523,34 @@ between two thoughts, make them two sentences and use the sentence gap;
 keep `chunk_pad` for a pause that has to sit inside one utterance (a sound
 sample after its name).
 
-## A th-s cluster splits (2026-11-17)
+## A sentence gap can land inside the last word (2026-11-17)
 
-"with slow, even breaths." in `soft-flames-66-breathing`'s Short came out
-as "breath ... s" - the editor heard a break between *breath* and *s* at
-0:07. The phonemes were right (`bɹˈɛθs`), so this is the model, not the
-G2P: it renders the voiceless θ and the s after it as two pieces, with a
-20-30ms hole between. "even breathing" (`bɹˈiːðɪŋ`, a voiced ð straight
-into a vowel) shipped instead. A level trace cannot tell this hole from a
-normal quiet "th", so it is caught on the text: `script_check.py`'s
-`th-cluster` rule flags any spoken word ending in "ths" (breaths, months,
-paths, depths, lengths), sessions' `INTRO`/`OUTRO` included. Reword round
-it: "breathing", "half a year", "the way".
+"with slow, even breaths." in `soft-flames-66-breathing`'s Short (luna,
+0.90) played as "breath ... s" - the editor heard the break at 0:07. **It
+was not the voice.** The raw read was clean: a quiet voiceless /θ/ at
+6.06-6.13s, the /s/ at 6.17-6.32s, then 1.7s of the model's own silence.
+`_pad_pause` searches `PAUSE_WIN` (0.18s) either side of the aligned
+sentence end (6.16s), so only 10ms of that silence was inside its window;
+it judged runs on their clipped length, dropped the real pause as shorter
+than `MIN_PAUSE`, and picked the /θ/ - under `PAUSE_FLOOR` for 70ms+ in a
+soft read - as the pause. 0.47s of digital silence went between "breath"
+and "s". The same class as "bro - ke" above, with a quiet fricative
+standing in for a stop closure.
+
+Fixed in `_pad_pause`: every quiet run is grown to its full extent
+**before** it is judged, and a quiet run touching either window edge is a
+candidate too, so the real pause (hundreds of ms) always beats a consonant
+(tens). On the exact run the fix inserts nothing (the model's 1.7s pause
+already covers the gap); the old code inserted 0.78s at 6.12s.
+`tests/test_pad_pause.py` holds the shape. The narration cache key went to
+`v: 2` so no entry built with the old padding is reused.
+
+Why only here: it needs a sentence ending in a long quiet consonant (luna's
+slow read stretches /θ/), the alignment estimate landing before the word's
+last sound, and the real pause starting at the window's edge. About twenty
+shipped lines say "months", "lengths", "baths" or "breaths" without it.
+**What gives it away when it happens:** `silencedetect` shows a run of
+digital zero (an inserted gap) whose preceding audio ends in a hiss-less,
+low-level stretch - look at the band levels, not the waveform. A plain
+level trace misled the first diagnosis: the 20ms dip before a click in
+"breaths" is the /b/ closure and release, and "breathing" has it too.

@@ -602,20 +602,35 @@ def _pad_pause(audio, at: float, want: float):
     if start is not None:
         runs.append((start, hi))
 
+    # **Grow every run to its full extent *before* judging it.** A run is
+    # clipped by the search window, and the real pause often starts right at
+    # the window's edge. The first version filtered on the clipped length and
+    # grew only the winner, so on "with slow, even breaths." (luna, 0.90)
+    # the pause after the /s/ showed 10ms inside the window and was dropped,
+    # and the quiet voiceless /θ/ before the /s/ (70ms+ under PAUSE_FLOOR in
+    # a soft read) won instead: 0.47s of silence went between "breath" and
+    # "s" (soft-flames-66-breathing Short, 2026-11-17). Grown, the real
+    # pause is hundreds of ms and a consonant is tens, so the longest wins.
+    def grow(a: int, b: int) -> tuple[int, int]:
+        while a - step > 0 and rms(a - step, a) < PAUSE_FLOOR:
+            a -= step
+        while b + step < len(audio) and rms(b, b + step) < PAUSE_FLOOR:
+            b += step
+        return a, b
+
+    # A pause that starts just past either edge of the window is still the
+    # pause at this boundary; take it as a candidate too.
+    if hi + step <= len(audio) and rms(hi, hi + step) < PAUSE_FLOOR:
+        runs.append((hi, hi + step))
+    if lo - step >= 0 and rms(lo - step, lo) < PAUSE_FLOOR:
+        runs.append((lo - step, lo))
+    runs = [grow(a, b) for a, b in runs]
     runs = [(a, b) for a, b in runs if (b - a) / KOKORO_SR >= MIN_PAUSE]
     if not runs:
         # No real pause here — the boundary estimate is inside speech, and
         # padding it would be the very fault above. Leave it alone.
         return audio, 0.0, None, None
     a, b = max(runs, key=lambda ab: ab[1] - ab[0])
-
-    # The run is clipped by the search window, so grow it outward before
-    # measuring: a pause wider than 2*PAUSE_WIN would otherwise read as short
-    # and get padded again on top of itself.
-    while a - step > 0 and rms(a - step, a) < PAUSE_FLOOR:
-        a -= step
-    while b + step < len(audio) and rms(b, b + step) < PAUSE_FLOOR:
-        b += step
 
     have = (b - a) / KOKORO_SR
     extra = want - have
@@ -875,7 +890,10 @@ def _narration_key(sentences, voice, mood, gaps, tail, run_break,
         # fixed by sort_keys.
         "chunk_pad": chunk_pad or {},
         "model": _model_ident(),
-        "v": 1,                        # bump to invalidate every entry
+        # bump to invalidate every entry. 2: `_pad_pause` stopped putting a
+        # gap inside a word-final consonant (2026-11-17), so v1 entries can
+        # hold a split word.
+        "v": 2,
     }, sort_keys=True, default=str)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
 

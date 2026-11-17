@@ -9,9 +9,11 @@ claim and keeps the "low and comfortable" level line.
 * **`cycles=4` at six-in/six-out**, a 48s breathing block.
 * **`look_period=60.0`**, the long form's loop, so the two move alike.
 * **`bed_file_skip=30.0`**, past the recording's opening.
-* **"even breathing", not "even breaths"**: the first cut read "breaths"
-  with a hole between the th and the s (the editor, 2026-11-17; `voice.md`,
-  "A th-s cluster splits").
+* **"even breathing", not "even breaths"**: the first cut played "breaths"
+  as "breath ... s" (the editor, 2026-11-17). The cause was the pause
+  padding, not the word - since fixed (`voice.md`, "A sentence gap can land
+  inside the last word") - but the line was re-cut before that was found,
+  and it was approved as it is.
 * **The outro asks for a save, and nothing else** (`docs/video/projects/
   tinnitus.md`, "The Short's outro asks for a save").
 

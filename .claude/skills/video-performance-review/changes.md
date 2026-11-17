@@ -9,14 +9,16 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
-## 2026-11-17 - fireside session; no "-ths" words in narration
+## 2026-11-17 - fireside session; sentence gaps stay out of words
 
 - `soft-flames-66-breathing`: session queue row 5, coherent 6-6 breathing
   on the path guide, 1 hour, a generated campfire look. A comfort session
   (no masking line): the bed is almost all below 4 kHz.
-- Narration avoids spoken words ending in "ths" (breaths, months): the
-  voice splits the th from the s. `script_check.py` `th-cluster`, which
-  now also reads sessions (`voice.md`, "A th-s cluster splits").
+- Narration: a sentence gap could be inserted inside a word ending in a
+  quiet consonant ("breath ... s"); `_pad_pause` now finds the real pause
+  (`voice.md`, "A sentence gap can land inside the last word"). Shipped
+  videos are unaffected unless re-rendered; a re-render can differ where
+  the fault fired.
 
 ## 2026-11-16 - a rumour as the title (crypto, `stablecoin-interest`)
 
