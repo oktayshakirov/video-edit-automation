@@ -37,6 +37,22 @@ brand.** Always establish which before doing anything else:
 If the user has not said, ask. Do not guess from the topic — "brown noise vs
 white noise" is a legitimate article *and* a legitimate session.
 
+### The mix: sessions first (the editor's yes, 2026-11-17)
+
+**The channel grows through sessions and nothing else.** Session long forms
+rose six weeks running on YouTube (52 to 489 views a week, 09-14 to 11-09),
+live on suggested, draw 4.9% CTR, and brought most of the new subscribers.
+Explainer long forms have been flat at 50-110 a week for three months and
+draw 1.25% CTR on impressions they do get (`video-performance-review/
+history/2026-11-17.md`).
+
+- **About two sessions for every article pair.** When the user asks "what
+  next" without saying which, suggest a session first.
+- **An article pair takes an E26 format**: a numbered list or a ranking by
+  evidence (below, "E26"), not a plain "Why / Can / Does" explainer.
+- The article Shorts stay: they hold well and the session Shorts carry the
+  reach, but both are cheap. The long form is the cost to justify.
+
 ---
 
 # Mode 1 — article videos
@@ -59,6 +75,26 @@ night", "does tinnitus go away", "white noise vs brown noise for tinnitus" - on
 a different angle from the Short. Same medical rule as everywhere: describe what
 the video is, promise no relief, fix or cure. Full reasoning in the
 `video-views-audit` skill.
+
+### E26: a numbered list or a ranking by evidence (from 2026-11-17)
+
+The standouts on this channel's subjects are numbered: Doctor Cliff "5
+Things That are Making your Tinnitus LOUDER" 152x, Treble "STOP These 7
+Mistakes" 18.8x, a small 2026 channel's "5 Things Making Tinnitus Worse"
+19.9x. The adjacent proven ranking is "Surgeons Rank 11 Supplements (Most
+Are Useless)" 97x. Our `what-makes-tinnitus-worse` took the subject and not
+the number (3 views at 4 days, CTR 0.84%).
+
+- **The title is the list as people search it**: "5 Things That Make
+  Tinnitus Louder", "Tinnitus Supplements Ranked by the Evidence".
+- **A ranking ranks the research, never the relief.** Tiers are "good
+  evidence / weak / none / against", each with its study, never "works /
+  doesn't". The medical rule above is unchanged.
+- **Runs 5-8 minutes**, one chapter per item, the strongest item last
+  (`longform.md`); the script sets `FORMAT = "list"` or `"ranking"` so
+  `retention_check` holds it to that window.
+- The cover carries the number (`thumbnails.md`, "The cover adds to the
+  title"). Judged in `video-performance-review/experiments.md` E26.
 
 Built: `projects/tinnitus-long/does-tinnitus-go-away.py` and
 `projects/tinnitus-long/gaming-and-tinnitus.py`.
@@ -818,7 +854,32 @@ to set the level**. The bed sidechains under it and returns to full afterwards.
 `luna` and not `mia`: SOFT chain, unhurried, no pitch shift. An explainer
 wants the reader who explains; this wants the one the listener settles under.
 
-### Length: one session at an hour (E12, from 2026-11-03)
+### Lead with a named masking noise (E25, from 2026-11-17)
+
+**Two of the top three sessions are white noise**: 2:1 + White Noise (1
+hour, 47 YouTube views a day, the fastest video on the channel) and 4-7-8 +
+White Noise (7.6 a day). Jungle, space, birds, cat and fire beds run at
+0.6-4 a day; Nebula Pulse (19.8) is the one themed exception. The masking
+noises people already name - white, pink, brown, rain - are what they look
+for; a theme is a nice second layer, not the reason to click.
+
+- **The next four sessions lead with a named noise**: the title starts
+  with it ("White Noise + ...", "Brown Noise for Tinnitus ...", "Rain Sounds
+  ..."), and so does the cover. A themed album track may sit under it as
+  the second layer, named second.
+- Measure the bed first (`tinnitus-sounds.md`): a track sold as white noise
+  can measure as a comfort bed. A comfort bed is not titled as masking.
+- Judged in `video-performance-review/experiments.md` E25.
+
+**One 8-hour sleep bed, as a probe.** The niche's biggest lane is the 9-10
+hour bed (2-5M views a video, 94-16,000x, `demand/tinnitus.md` 11-17
+branch). One white-noise sleep bed at 8 hours, dark picture, no intro after
+the first minute, titled as the search ("White Noise for Tinnitus and
+Sleep - 8 Hours, Dark Screen"). **Check disk first** (`df -h /System/Volumes/Data`;
+the Mac runs near full): render at 720p and a low
+bitrate, the picture is a still or a slow loop.
+
+### Length: one session at an hour (E12 from 2026-11-03; read 2026-11-17)
 
 Every session so far is 20 minutes. The 11-03 demand branch ("tinnitus at
 night") shows the standouts for this subject are hours long on three
@@ -829,9 +890,11 @@ bed rules, the same thumbnail layout with "60 MINUTES" or "1 HOUR" in the
 circle), each with the guide and exercise from the queue under "Guides"
 below. Render cost stays flat
 because the picture loops; the file is the cost, so check disk before the
-render. The Short is unchanged. Judged in
-`video-performance-review/experiments.md` E12; go to 3 hours only if it
-holds.
+render. The Short is unchanged. *Read 2026-11-17: length did not decide it.* The four 1-hour sessions
+took 25, 36, 49 and 282 YouTube views; the 282 is the white-noise one.
+Facebook's 18.7K on Wild Echoes was a one-off (the next two took 19 and
+34). Sessions stay at an hour - it costs nothing and holds the
+watch time - and the sound is the lever (E25 above).
 
 ### Guides: a path, a box or a clock instead of the ring (E13, from 2026-11-03)
 

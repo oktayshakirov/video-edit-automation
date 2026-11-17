@@ -61,7 +61,9 @@ S2_LATE = 4.0               # sentence 2 starts here or later
 BARE_MAX = 1.0              # seconds with no opener and no caption
 HELD = 11.0                 # half the opening audience still there
 SHORT_SECS = {"crypto": (30, 40)}       # E17
-LONG_MAX = 180                          # E18
+LONG_MAX = 180                          # 3:00, the editor's rule (was E18)
+FORMAT_LONG_MAX = 480                   # E26 formats run 5-8 minutes
+E26_FORMAT = re.compile(r'^FORMAT\s*=\s*["\'](list|ranking|story)["\']', re.M)
 
 
 def _gaps(mod, n: int) -> list[float]:
@@ -161,9 +163,19 @@ def check(path: Path) -> list[str]:
         secs, n = est
         print(f"  runtime         ~{int(secs // 60)}:{int(secs % 60):02d} "
               f"in {n} sections (estimate)")
-        if secs > LONG_MAX + 10:
-            flags.append(f"over 3:00 - article long forms run 2:30-3:00 "
-                         f"(E18). Cut a chapter whole")
+        e26 = E26_FORMAT.search(Path(path).read_text())
+        if e26:
+            print(f"  format          {e26.group(1)} (E26, 5-8 minutes)")
+            if secs > FORMAT_LONG_MAX + 10:
+                flags.append("over 8:00 - an E26 list, ranking or story runs "
+                             "5-8 minutes. Cut an item whole")
+            elif secs < 300 - 10:
+                flags.append("under 5:00 - an E26 format needs room for every "
+                             "item; five items in three chapters is a summary")
+        elif secs > LONG_MAX + 10:
+            flags.append(f"over 3:00 - article long forms run 2:30-3:00. "
+                         f"Cut a chapter whole (an E26 list, ranking or story "
+                         f"sets FORMAT and runs 5-8 minutes)")
         for f in flags:
             print(f"  ! {f}")
         return flags

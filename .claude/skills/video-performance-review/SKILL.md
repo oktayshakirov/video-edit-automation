@@ -73,12 +73,13 @@ when the run itself changes order or gains a step.
    last run, and how long each experiment has run.
 2. **Pull every platform** with `video-views-audit`'s procedures: both
    channels on all four platforms, never drone. Do not skip a dull platform; Instagram went to zero without anyone
-   noticing. **Ask the user for Studio's CSV export at the start**
-   (Analytics, Advanced mode: Impressions and Impressions CTR per video, for
-   each channel, since the last run). It is the only source of impressions
-   and CTR, because the API refuses them, and without it a thumbnail cannot
-   be judged. If the user skips it, say that every thumbnail verdict in the
-   run is a guess. Pull `traffic <id>` for every long-form that moved, so a
+   noticing. **Impressions and CTR come from `youtube-audit reach`**
+   (both channels, `--start` the last run's date; added 2026-11-17). It
+   reads YouTube's daily reach reports, so no Studio export is needed.
+   Ask the user for Studio's CSV (Analytics, Advanced mode, Content,
+   Impressions and CTR per video) only if `reach` has no data for the
+   window - and then say every thumbnail verdict without it is a guess.
+   Pull `traffic <id>` for every long-form that moved, so a
    view is never credited to search or a thumbnail without knowing where it
    came from.
 3. **Tag every video published since the last run from its build script**,

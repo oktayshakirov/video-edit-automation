@@ -296,6 +296,11 @@ inside the brackets; outside the plate it hangs off the end looking detached.
 
 What survives of the old rule: **never put the answer on the thumbnail.**
 
+*Revised 2026-11-17 (the review, the editor's yes): the cover asks its own
+question, not the title's.* See "The cover adds to the title" at the end of
+this file. Asking stays; never answering stays; repeating the title word for
+word is what changed.
+
 ## If the video has no person in it, the thumbnail has no person in it
 
 **The editor's rejection of the `fear-greed-index` thumbnail, in their words:
@@ -1109,3 +1114,34 @@ the Desktop twice. Now `thumbs(out)` writes the pick at `out` and nothing
 else; `--thumb-variants` writes the *other* directions beside it for
 choosing. When the editor picks, delete the losing direction's code and
 files in the same commit. `tests/test_covers.py` fails the old pattern.
+
+
+## The cover adds to the title; it does not repeat it (2026-11-17)
+
+From the 11-17 review (`video-performance-review/history/2026-11-17.md`),
+applied on the editor's yes. **Every tinnitus explainer cover since 09-20 is
+a stock person holding their head plus the title as text** (New Tinnitus,
+What makes worse, One ear), and the 11 tinnitus explainers with 500+
+impressions all sit at 0.23-2.3% CTR, against 4.9% for the sessions on the
+same channel. The one explainer above 5% with real impressions, GTA 6
+(8.56% on 6,577), put a *different* question on the cover ("WILL GTA 6 HAVE
+CRYPTO?") from its title ("What Is Dacity Coin?"). One video, so this is a
+lead, written down because it costs nothing and the market works this way.
+
+- **Title and cover split the job.** The title is the search phrase
+  (`longform.md`); the cover is the second half of the promise - the
+  stake, the surprise, or the Short's catchier question (the 11-06 rule
+  above already did this for `random-tokens`). Still a question or a
+  claim, still never the answer.
+- **A list video puts its number on the cover**: "5 THINGS" / "RANKED", in
+  the accent. The numbered list is what the standouts carry
+  (`demand/tinnitus.md`, 11-17 branch).
+- **No stock person holding their head on a tinnitus cover.** It is the
+  look of every tinnitus video on the platform and of our own lowest-CTR
+  covers. Use the thing itself (a coffee cup, a concert, an audiogram, a
+  drawn ear-to-brain line), a named person, or a drawn number.
+- **Do not compare cover styles until a cover passes 1,000 impressions.**
+  At 70 median impressions (arrow, 11-17) no style can be judged. The only
+  clean comparison at our reach is Studio's Test & Compare, set up by the
+  editor in Studio on a video that already draws impressions.
+

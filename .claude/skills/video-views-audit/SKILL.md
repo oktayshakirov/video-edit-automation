@@ -94,6 +94,7 @@ cd ~/Coding/youtube-audit && npx tsx src/cli.ts <command> [options]
 | `audit` | videos + analytics + heuristic flags - the usual starting point |
 | `set <id\|url>` | Edit title / description / tags - dry run unless `--apply` |
 | `upload` | Upload a video with its thumbnail - dry run unless `--apply` |
+| `reach` | Thumbnail impressions and CTR per video, from the Reporting API's daily reach reports - no Studio export. `reach --setup` once per channel creates the job; data from ~48h later, 30 days backfilled. Reports are cached in `reports/<channel>/` (gitignored); YouTube keeps them 60 days, so run it at least monthly |
 | `outliers "<term>"` | Search YouTube and score each result against its own channel's median - the demand-map search. ~120 quota units |
 | `transcript <id\|url>` | Any public video's transcript, chapters, "most replayed" heatmap and top comments, via `yt-dlp` (`brew install yt-dlp`). No `--channel`. Writes to the gitignored `research/transcripts/` |
 
@@ -692,11 +693,12 @@ video, different conclusion, and only one of them was right.
 
 **On YouTube specifically:**
 
-- **Impressions and click-through rate are unavailable.** Every metric/dimension
-  combination is rejected on the drone channel; assume the same on the others until
-  proven otherwise. CTR claims are therefore *inference from
-  view counts*, never measurement. Say so. Studio's CSV export is the only route to
-  real CTR.
+- **Impressions and click-through rate are not on the Analytics API**
+  (`videoThumbnailImpressions` returns "The query is not supported" on
+  these channels). They are on the **Reporting API**: `reach` reads them
+  (2026-11-17). Before its first report lands, Studio's CSV export is the
+  only route. Neither gives impressions by traffic source per video;
+  `channel_reach_combined_a1` does, if that question comes up.
 - **Retention *curves* are available, and this used to be assumed impossible.**
   `audienceWatchRatio` by `elapsedVideoTimeRatio` works fine on these channels -
   it was the impressions family that was blocked, and nobody had tried the rest.
@@ -786,6 +788,9 @@ headline), `"arrow"` (an arrow and/or ring pointing at something), `"beat"`
   publish, each as a median per style, with the count of videos behind it.
   Same channel only, long forms only - a Short has no cover in the feed,
   so its style is recorded but not compared.
+- **Not before 1,000 impressions** (2026-11-17): at our reach (70 median
+  impressions on the arrow covers) no style can be judged. Below that,
+  record the style and stop.
 - **The sample rule still holds.** Under 5 videos in a style, report the
   numbers and say the sample is too small; never call a winner. Subject
   and title vary between videos, so a style gap is a lead, not a proof -

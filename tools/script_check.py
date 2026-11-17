@@ -365,6 +365,11 @@ RULES = {
                            "takes two rows and highlights its noun'",
                            ("crypto", "tinnitus"), ("long", "short"),
                            since="2026-11-11"),
+    # 2026-11-17 review: tinnitus explainer covers repeating their titles sat
+    # at 0.23-2.3% CTR; GTA 6's cover asked a different question (8.56%).
+    "cover-repeats-title": Rule("cover-repeats-title", "thumbnails.md, 'The "
+                                "cover adds to the title'", ("crypto",
+                                "tinnitus"), ("long",), since="2026-11-17"),
     # 2026-11-13, the editor on a third ring-and-arrow cover running: "we
     # need more variations to see what works".
     "cover-rotation": Rule("cover-rotation", "thumbnails.md, 'No cover style "
@@ -689,6 +694,20 @@ def check(sc: Script) -> list[Finding]:
                     f.append(Finding("cover-headline", "HEADLINE",
                                      f"the accent is on {run!r} - highlight "
                                      "the word that names the subject"))
+    if "cover-repeats-title" in on:
+        head = getattr(sc.mod, "HEADLINE", None) or getattr(sc.mod, "THUMB_HEADLINE", None)
+        meta = getattr(sc.mod, "META", None)
+        title = getattr(meta, "title", None)
+        if isinstance(head, str) and isinstance(title, str):
+            norm = lambda t: [w.strip("?!.,:'\"").lower() for w in
+                              re.findall(r"[\w'$%]+", t.replace("[", " ").replace("]", " "))]
+            hw, tw = norm(head), set(norm(title))
+            hw = [w for w in hw if w]
+            if len(hw) >= 3 and sum(w in tw for w in hw) / len(hw) >= 0.75:
+                f.append(Finding("cover-repeats-title", "HEADLINE",
+                                 f"{head!r} repeats the title - the cover "
+                                 "carries the stake or the Short's question, "
+                                 "the title carries the search phrase"))
     if "feed-clip" in on:
         seen = set()
         for sh in shots:

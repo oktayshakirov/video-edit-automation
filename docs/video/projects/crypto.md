@@ -354,6 +354,38 @@ One video is a lead, not a rule. This is being tested as E8 in
 `video-performance-review/experiments.md`. Do not promote it to a rule
 until that entry holds.
 
+### E26: one heist told as a story (from 2026-11-17)
+
+Crypto tier lists and "top coins ranked" are coin picks for the next bull
+run - investment advice, closed to this channel, and crowded (1-4x). The
+page that stands out is **one theft told as a story**: InVoyce "Malone
+Lam's $230M Scam Was EASIER Than You Think" 117x, Neuraline "How Two
+Brothers Stole 69,000 Bitcoin and Vanished" 41x, Moconomy "The Man Who
+Exposed the OneCoin Crypto Scam" 22x (`demand/crypto.md`, 11-17 branch).
+Our Bybit and Binance videos had the subject and told it as a mechanism
+("How Does North Korea Steal Crypto?", 30 and 29 views).
+
+- **A person, an amount and a twist, in that order, in the title**: "How
+  [person] Stole $[amount] - and [twist]". The twist is true and sourced.
+- **Told in order, as a story**: who, the plan, the moment it worked, the
+  mistake that caught them (or did not), where the money is now. The
+  mechanism is explained inside the story, never as a lecture.
+- **Runs 5-8 minutes**, `FORMAT = "story"`; the strongest scene last.
+- Candidates from thecrypto.wiki's OG and scam pages; a demand row (a
+  standout at 3x+ on the same case) still comes first, as E11 asks.
+- The no-financial-advice rule is unchanged; a story judges people and
+  claims, never an asset.
+
+### GTA 6 launches 2026-11-19 - a search window
+
+GTA 6 (`FXW9Zd5vjYk`) is the only crypto long form still growing: 1,423 of
+1,734 views from search on "dacity coin", a term nobody else answered.
+Launch day will coin new terms. On 11-19/20, read YouTube's search
+suggestions for "gta 6 crypto", "dacity", "gta 6 stock market"; if a term
+appears that few videos answer, build a pair on it within 48 hours. A new
+term, not a sequel of the same video. Its viewers did not subscribe
+(off-audience), so it is reach, not a channel builder.
+
 ## Decisions already taken
 
 **Render headless with ffmpeg, not FCPXML.** Drone long-form writes XML to finish

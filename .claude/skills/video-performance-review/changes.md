@@ -9,6 +9,26 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-17 - the review: sessions first, new formats, covers
+
+From the 11-17 review, on the editor's yes (`history/2026-11-17.md`).
+
+- **Tinnitus mix: about two sessions per article pair** (`projects/
+  tinnitus.md`, "The mix"). Sessions lead with a named masking noise -
+  white, pink, brown, rain - in title and cover (E25). One 8-hour
+  white-noise sleep bed as a probe.
+- **E26 formats:** tinnitus article pairs as a numbered list or a ranking
+  by evidence; crypto pairs as one heist told as a story. These long forms
+  run 5-8 minutes (`FORMAT` in the script; `retention_check` knows it).
+  Every other article long form stays at 2:30-3:00.
+- **Covers add to the title, never repeat it**; a list cover carries its
+  number; no stock person holding their head on tinnitus
+  (`thumbnails.md`). `script_check` gained `cover-repeats-title`.
+- **Titles of older videos rewritten** where a better search phrase or
+  format existed (the list is in the snapshot). A title change splits that
+  video's own history: read it before/after, not against new builds.
+- E11 became a rule, E12 / E18 / E23 retired (`experiments.md`).
+
 ## 2026-11-17 - fireside session; sentence gaps stay out of words
 
 - `soft-flames-66-breathing`: session queue row 5, coherent 6-6 breathing

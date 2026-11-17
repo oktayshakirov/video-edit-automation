@@ -767,14 +767,20 @@ for three frames every ~1.7s, and glitches out; a `glitch_cut` on each tear.
 balanced lines before it goes small.
 
 
-## Running from 2026-11-10: 3 minutes or less (E18)
+## 3 minutes or less (from 2026-11-10; a rule since 2026-11-17)
 
 Article long forms on both channels run **2:30-3:00**, down from 3:19-4:15:
 three chapters, not four or five, with the same opening (promise, proof,
 plan) and the same cold close. Cut a chapter whole rather than trimming
 every one; a thinned chapter still costs its card and its transition.
-Sessions are not part of it. Judged on average view duration in seconds,
-which must not fall (`retention.md`, `video-performance-review/experiments.md`).
+Sessions are not part of it.
+
+*2026-11-17:* no longer judged as an experiment (E18 retired). At 3-17
+YouTube views per article long form, average view % is noise, so it stays
+as the editor's taste. **The exception is the E26 formats** - a numbered
+list, an evidence ranking or a heist story run **5-8 minutes**, because
+five items or a story with a twist do not fit three chapters
+(`video-performance-review/experiments.md`, E26).
 
 ## No title slate (2026-11-12)
 
