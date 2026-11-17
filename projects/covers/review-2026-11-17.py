@@ -119,17 +119,34 @@ def eight_suspects(out: Path) -> Path:
     return out
 
 
-def jaw(out: Path) -> Path:
-    # Title: "Can Your Jaw Cause Tinnitus? TMJ and Ringing in the Ears". The
-    # old cover asked the title's own question. Same photo and crop; the
-    # cover now gives the test the video describes, as a question.
-    # The video's own photo was pruned from the stock cache; a man with his
-    # hand on his jaw, side on, on a flat grey ground (Pexels 9063618).
-    photo = P / "jaw-pain-portrait-dark-background/9063618.jpg"
-    return T.render_thumb(out, TINNITUS, "Clench\nyour jaw.\n[Louder?]",
-                          image=photo, accent="red", side="left",
-                          crop_at=(1.0, 0.3), crop_zoom=1.4)
-
+def jaw(out: Path, cut: float = 0.22, feather: int = 90) -> Path:
+    # The editor's pick (2026-11-17, replacing a side-on man the same day):
+    # a woman running a facial roller along her jawline (Pexels 6762719, Tima
+    # Miroshnichenko). The jaw is literally the subject, nobody holds their
+    # head. The photo is height-fitted, its left `cut` (hair) trimmed, set
+    # against the right edge, and its own light-grey wall continues across
+    # the left for dark rows - the flat-light-ground rule in thumbnails.md.
+    import numpy as np
+    photo = P / "woman-facial-roller-jaw/6762719.jpg"
+    src = Image.open(photo).convert("RGB")
+    src = src.resize((int(src.width * 720 / src.height), 720), Image.LANCZOS)
+    src = src.crop((int(src.width * cut), 0, src.width, 720))
+    wall = np.asarray(src.crop((src.width - 60, 20, src.width - 10, 200))).reshape(-1, 3).mean(0)
+    ground = Image.new("RGB", (1280, 720), tuple(int(v) for v in wall))
+    x = 1280 - src.width
+    im = ground.copy()
+    im.paste(src, (x, 0))
+    m = np.zeros((1, 1280), np.float32)
+    m[0, :x] = 1.0
+    m[0, x:x + feather] = np.linspace(1.0, 0.0, feather)
+    mask = Image.fromarray((np.repeat(m, 720, 0) * 255).astype("uint8"))
+    im = Image.composite(ground, im, mask)
+    fill, ink = T.ACCENTS["red"]
+    T._headline(im, "Clench\nyour\njaw.\n[Louder?]", 170, x - 100, 40,
+                fill, ink, max_lines=4, band="middle", margin=36, shadow=0,
+                drop=(0, 0), text=(20, 20, 20))
+    im.save(out, quality=92)
+    return out
 
 def meme(out: Path) -> Path:
     # Title: "Why Is Dogecoin Worth Billions? How Meme Coins Get Their Price".
