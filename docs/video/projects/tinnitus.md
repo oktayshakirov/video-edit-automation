@@ -37,6 +37,14 @@ brand.** Always establish which before doing anything else:
 If the user has not said, ask. Do not guess from the topic — "brown noise vs
 white noise" is a legitimate article *and* a legitimate session.
 
+**"Zen video" (or "zen session", "a new session") is the answer, and the
+rest is not asked (the editor's instruction, 2026-11-18).** The editor calls
+the skill and expects the next session built start to finish with no
+questions: the track, the exercise, the guide, the look and the copy are
+all picked here, from the rules below, the way `brown-noise-478-breathing`
+was. The order of that run is in the skill, "Zen session: one call". The one
+stop is the hand-over of the finished renders for approval.
+
 ### The mix: sessions first (the editor's yes, 2026-11-17)
 
 **The channel grows through sessions and nothing else.** Session long forms
@@ -932,6 +940,14 @@ changed from the earlier session.
 | 7 | triangle 4-4-4 (inhale, hold, exhale) | `path` | - | 60 | 60 (30 + 30) |
 | 8 | box 4-4-4-4, **visual only** | `box` | the row 2 session | 64 | 80 (40 + 40) |
 | 9 | physiological sigh (two inhales, a long exhale) | `path` | - | set at build | set at build |
+
+**Shipped (update this line in each session's build commit):** row 1
+`wild-echoes-478-breathing`, row 2 `low-gravity-box-breathing`, row 3
+`soft-orbit-6666-breathing`, row 4 `tranquil-zenith-21-breathing`, row 5
+`soft-flames-66-breathing`, row 6 `brown-noise-478-breathing` (4-7-8,
+clock). **Next: row 7.** Once row 9 has shipped, go round again picking the
+exercise and guide by taste (E13's verdict, `experiments.md`), never the
+same pair as the last session.
 
 Rows 7-9 were added on 2026-11-03 from the reviewer's suggestions, at the
 user's request to test all of them:

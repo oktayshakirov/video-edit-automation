@@ -1,6 +1,6 @@
 ---
 name: video-tinnitus
-description: Build tinnitushelp.me videos - either an article explainer as a long-form 16:9 plus its vertical Short in one run, or a sound-therapy session with a generated noise bed and breathing ring. Use when the user runs /video-tinnitus, asks for a tinnitus video, Short or Reel, wants a post from tinnitushelp.me turned into a video, or wants a masking, notched-audio or zen sound-therapy piece. Builds only; publishing is /publish-video. For crypto use video-crypto, for drone footage use video-drone.
+description: Build tinnitushelp.me videos - either an article explainer as a long-form 16:9 plus its vertical Short in one run, or a sound-therapy session with a generated noise bed and breathing ring. Use when the user runs /video-tinnitus, asks for a tinnitus video, Short or Reel, wants a post from tinnitushelp.me turned into a video, or wants a masking, notched-audio or zen sound-therapy piece - "zen video" or "new session" builds the next session with no questions, picking an unused album track itself. Builds only; publishing is /publish-video. For crypto use video-crypto, for drone footage use video-drone.
 ---
 
 # Tinnitus videos
@@ -64,6 +64,39 @@ thecrypto.wiki rather than any difference in the run:
 Do not work from memory of these rules. They are edited as the engine changes,
 and a remembered version is a stale one.
 
+## Zen session: one call (the editor's instruction, 2026-11-18)
+
+**When the editor asks for a zen video or session, ask nothing - build the
+next one.** The product question is answered, there is no topic to suggest,
+and every choice below is yours to make from the docs. This is the run that
+made `brown-noise-478-breathing`, and it is how every session is made now:
+
+1. **The track.** The next unused row in
+   `docs/video/projects/tinnitus-sounds.md`. Pick by E25 first (while it
+   runs, a track that can be titled as a named noise - white, pink, brown,
+   rain - wins), then by variety: not the album or sound family of the last
+   session. Fetch it from DistroKid yourself by that doc's "Fetching the
+   next track"; ask for a file only if DistroKid cannot be reached.
+2. **Measure it** (`band_energy`, the near-silent share): masking or
+   comfort decides the title and the copy, and the name decides whether E25
+   applies. The measured noise names the title, not the album's blurb.
+3. **The exercise and guide.** The "Next" row of the E13 queue in
+   `projects/tinnitus.md` ("Guides"), with its `loop` and bookend lengths.
+4. **A new look** in `video_automation/tinnitus/session_looks/`, never
+   reused, matched to the sound.
+5. **Both scripts** from the last session's pair as the template
+   (`projects/tinnitus-long/*-60min.py`, `projects/tinnitus-short/*-short.py`):
+   60 minutes, `luna` bookends, `SOURCE_POST = None`, `DEMAND` from the
+   search you ran for the title, the session copy rules. Run
+   `tools/script_check.py` on both; check disk before the hour render.
+6. **Covers and the feed check**, then render both, look at the frames, and
+   hand over once: the two files, the cover, the title and description, the
+   measurement and the feed check - the same block `HANDOFF-PUBLISH.md`
+   carries. This is the only stop.
+7. **On approval:** commit the build on `main` with the track moved to
+   "Used", the queue's "Shipped" line advanced, write `HANDOFF-PUBLISH.md`,
+   push. When the editor then says "upload", that is `/publish-video`.
+
 ## The run
 
 **`workflow.md` is the procedure and it is not repeated here** - including
@@ -71,7 +104,8 @@ preflight, which is its step 3. What follows is only what is this channel's
 own; restating the shared steps is how the publish sequence drifted into four
 copies that disagreed with each other.
 
-1. **Ask which product** - explainer pair, or session. A session has no article,
+1. **Ask which product** - explainer pair, or session (a "zen" request is a
+   session: follow "Zen session: one call" above and ask nothing). A session has no article,
    skips topic suggestion, and takes the session copy rules in the project doc.
    **A session fetches its own bed (2026-11-18):** pick an unused track in
    `docs/video/projects/tinnitus-sounds.md`, then download it from DistroKid
