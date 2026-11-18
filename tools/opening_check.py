@@ -29,7 +29,7 @@ that were verdicts every time they shipped, and exits 1 when it does:
 - a **last line that asks** - a Short's ending loops, it does not ask
   (`narration.md`, 2026-09-11). "Is Tinnitus Ringing or Buzzing?" shipped
   ending on a question on 2026-10-28, after the rule, because nothing read
-  the ending (`video-performance-review/history/2026-11-03.md`).
+  the ending (`videos-performance/history/2026-11-03.md`).
 
 It also prints the word the opener lands on, without flagging it: `hook=`
 and `at_word=` are meant to be said in sentence 2, so the word is always

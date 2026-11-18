@@ -700,7 +700,7 @@ passes `thumb_kicker=` / `thumb_grain=`. **The default is unchanged on
 purpose.** The plate headline already is the band card's ancestor, and its
 Arial Black is tuned for a 160px grid tile where the band card's condensed
 DIN would read smaller - so the video's look on the thumbnail is something to
-test with video-views-audit's thumbnail swap, not to assume. Same layout,
+test with videos-audit's thumbnail swap, not to assume. Same layout,
 same crop: only the styling differs between A and B.
 
 ## A person in the scene beats the object, on an abstract topic too (2026-10-24)
@@ -1118,7 +1118,7 @@ files in the same commit. `tests/test_covers.py` fails the old pattern.
 
 ## The cover adds to the title; it does not repeat it (2026-11-17)
 
-From the 11-17 review (`video-performance-review/history/2026-11-17.md`),
+From the 11-17 review (`videos-performance/history/2026-11-17.md`),
 applied on the editor's yes. **Every tinnitus explainer cover since 09-20 is
 a stock person holding their head plus the title as text** (New Tinnitus,
 What makes worse, One ear), and the 11 tinnitus explainers with 500+

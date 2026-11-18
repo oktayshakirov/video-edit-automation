@@ -281,7 +281,7 @@ video looped. **Every Short that closes cold, with no question, is the one
 that loops; every Short that closes by asking the viewer something stays
 under 100% even when it did well.**
 
-**Confirmed against the curves, 2026-09-11** (`video-views-audit`'s `retention`
+**Confirmed against the curves, 2026-09-11** (`videos-audit`'s `retention`
 command), which is what turns this from a correlation across averages into a
 visible mechanism. Two Shorts of near-identical length:
 
@@ -401,7 +401,7 @@ Sources: [vidIQ](https://vidiq.com/blog/post/write-youtube-video-script/),
 ## The payoff belongs in sentence two, not behind a setup
 
 **Diagnosed from a real channel gap, not a style guide - and then confirmed
-against the actual retention curve** (`video-views-audit`'s `retention` command,
+against the actual retention curve** (`videos-audit`'s `retention` command,
 2026-09-11). The caffeine-and-tinnitus Short opened on the title question, then
 spent sentences 2-3 hedging and building the withdrawal-symptoms case before
 sentence 4 revealed the actual point (withdrawal fakes the caffeine-culprit
@@ -537,7 +537,7 @@ do in the next two seconds on their own body, with an answer they do not
 know yet** - teeth, shoulders, "is it louder than a second ago". Rating
 their tinnitus out of ten is not one; they have rated it a hundred times.
 When an article has such a check, it is sentence 2 by default
-(`video-performance-review/history/2026-11-10.md`).
+(`videos-performance/history/2026-11-10.md`).
 
 ### Confirmed 2026-10-11: a plain or confirming answer is the verdict
 

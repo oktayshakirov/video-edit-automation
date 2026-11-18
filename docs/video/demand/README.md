@@ -2,7 +2,7 @@
 
 Added 2026-10-25, from a talk by Jake Trenda (a YouTube agency running 100+
 channels) that the editor reviewed. **External research: a hypothesis until
-this channel's numbers agree** (`video-performance-review`, evidence
+this channel's numbers agree** (`videos-performance`, evidence
 standards). It is being tested as E11.
 
 The problem it fixes: `tools/topics.py` lists the articles that have no video
@@ -27,7 +27,7 @@ that has it (below).
 | `demand/teardowns/<slug>.md` | one standout taken apart: its promise, opening, structure, what viewers rewatched and thanked it for, the failures beside it, and what our version keeps (below) |
 
 They are research databases, appended to, never rewritten. Each run of the
-search adds rows; `video-performance-review` extends one branch per channel
+search adds rows; `videos-performance` extends one branch per channel
 per run so the map keeps growing without a dedicated session.
 
 ## The search - depth first, from the niche down
@@ -63,7 +63,7 @@ niche
 3. **Open that channel**, sort by popular, note its other standouts. The
    channel's median of its last ~15 uploads is its baseline (RSS:
    `https://www.youtube.com/feeds/videos.xml?channel_id=<id>` gives the last
-   15 with views - see `video-views-audit`, "Competitor teardown").
+   15 with views - see `videos-audit`, "Competitor teardown").
 4. **Follow that video's recommendations** one level, note standouts there.
 5. Back up and take the next result, then the next term.
 

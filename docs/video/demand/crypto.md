@@ -1,7 +1,7 @@
 # Demand map: crypto
 
 Method in `README.md`. Appended to, never rewritten. Started 2026-10-25 from
-the 2026-09-04 competitor teardown (`video-views-audit`); **no channel median
+the 2026-09-04 competitor teardown (`videos-audit`); **no channel median
 has been measured yet**, so no row below has a real ratio. Measuring them is
 the first job of the next research pass. Coin Bureau and Whiteboard Crypto are
 millions-of-subscribers channels: a 30k video there may be below their median.
@@ -88,7 +88,7 @@ on Whiteboard Crypto alone; a second channel is needed.
 **The off-topic warning applies to GTA 6.** Its viewers searched a game's
 coin. Whether any of them watched a second video or subscribed is the
 check that says if it was a channel win or a one-off (Open check in
-`video-performance-review/experiments.md`).
+`videos-performance/experiments.md`).
 | How Did North Korea Take $6 Billion From Binance? (Short), update | 132 views, 124 minutes watched, opens 334% | Shorts feed | real replay: 56 seconds a view on a 50-second Short (11-10) |
 
 ## Formats, and whether they fit this channel

@@ -129,7 +129,7 @@ registered because the quiz format defaults to it. Full reasoning in
 
 **Closed 2026-11-12: `mia` is the voice for every article pair.** Both
 channels finished their five `noah` pairs; the result was inconclusive
-(`video-performance-review/history/retired-experiments.md`, E7). What
+(`videos-performance/history/retired-experiments.md`, E7). What
 follows is the record of the test, not an instruction.
 
 **The next 5 crypto article pairs read in `noah`, not `mia`** — long form and
@@ -326,7 +326,7 @@ crypto exchanges work", "what is a validator", "proof of stake vs proof of
 work". Shorts and long-form rank on separate systems and are judged per video,
 so the Short is not the problem - the non-searchable title is. Still no
 financial advice in the title: a mechanism question, never a price or a
-direction. Full reasoning in the `video-views-audit` skill.
+direction. Full reasoning in the `videos-audit` skill.
 
 ### A trend works as a new search term, not as a trend (experiment E8, 2026-10-23)
 
@@ -351,7 +351,7 @@ named scam) **and that few videos answer yet**. Then:
   as part of the trend test.
 
 One video is a lead, not a rule. This is being tested as E8 in
-`video-performance-review/experiments.md`. Do not promote it to a rule
+`videos-performance/experiments.md`. Do not promote it to a rule
 until that entry holds.
 
 ### E26: one heist told as a story (from 2026-11-17)

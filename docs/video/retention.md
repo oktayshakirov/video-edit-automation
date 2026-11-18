@@ -4,7 +4,7 @@ The channel goal since 2026-11-10 is **videos people watch to the end**
 (the editor). This doc holds what our own curves say about where people
 leave, what the market's strongest videos do about it, and which of those
 ideas are rules here and which are still experiments. The experiments and
-their fail lines are in `video-performance-review/experiments.md`; the
+their fail lines are in `videos-performance/experiments.md`; the
 numbers behind every claim below are in that skill's
 `history/2026-11-10.md`.
 

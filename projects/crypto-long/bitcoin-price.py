@@ -502,7 +502,7 @@ SECTIONS = [
 ]
 
 META = Meta(
-    # Re-titled 2026-10-25 (video-views-audit): 3 views in two months as "What
+    # Re-titled 2026-10-25 (videos-audit): 3 views in two months as "What
     # Determines Bitcoin's Price?", 81% average viewed, so the packaging failed
     # and the video did not. The format is borrowed from the query's standouts
     # (`outliers "what determines bitcoin price"`): one CAPS word plus the

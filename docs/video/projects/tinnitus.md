@@ -51,7 +51,7 @@ stop is the hand-over of the finished renders for approval.
 rose six weeks running on YouTube (52 to 489 views a week, 09-14 to 11-09),
 live on suggested, draw 4.9% CTR, and brought most of the new subscribers.
 Explainer long forms have been flat at 50-110 a week for three months and
-draw 1.25% CTR on impressions they do get (`video-performance-review/
+draw 1.25% CTR on impressions they do get (`videos-performance/
 history/2026-11-17.md`).
 
 - **About two sessions for every article pair.** When the user asks "what
@@ -82,7 +82,7 @@ Write the title as the phrase someone searches - "why is tinnitus worse at
 night", "does tinnitus go away", "white noise vs brown noise for tinnitus" - on
 a different angle from the Short. Same medical rule as everywhere: describe what
 the video is, promise no relief, fix or cure. Full reasoning in the
-`video-views-audit` skill.
+`videos-audit` skill.
 
 ### E26: a numbered list or a ranking by evidence (from 2026-11-17)
 
@@ -102,7 +102,7 @@ the number (3 views at 4 days, CTR 0.84%).
   (`longform.md`); the script sets `FORMAT = "list"` or `"ranking"` so
   `retention_check` holds it to that window.
 - The cover carries the number (`thumbnails.md`, "The cover adds to the
-  title"). Judged in `video-performance-review/experiments.md` E26.
+  title"). Judged in `videos-performance/experiments.md` E26.
 
 Built: `projects/tinnitus-long/does-tinnitus-go-away.py` and
 `projects/tinnitus-long/gaming-and-tinnitus.py`.
@@ -394,7 +394,7 @@ candidates read on a real Short script. `mia` stays the default.
 
 **Closed 2026-11-12: `mia` is the voice for every article pair.** Both
 channels finished their five `noah` pairs; the result was inconclusive
-(`video-performance-review/history/retired-experiments.md`, E7). What
+(`videos-performance/history/retired-experiments.md`, E7). What
 follows is the record of the test, not an instruction.
 
 **The next 5 tinnitus article pairs read in `noah`, not `mia`** — long form
@@ -879,7 +879,7 @@ for; a theme is a nice second layer, not the reason to click.
   the second layer, named second.
 - Measure the bed first (`tinnitus-sounds.md`): a track sold as white noise
   can measure as a comfort bed. A comfort bed is not titled as masking.
-- Judged in `video-performance-review/experiments.md` E25.
+- Judged in `videos-performance/experiments.md` E25.
 
 **One 8-hour sleep bed, as a probe.** The niche's biggest lane is the 9-10
 hour bed (2-5M views a video, 94-16,000x, `demand/tinnitus.md` 11-17

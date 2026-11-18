@@ -3,7 +3,7 @@
     PYTHONPATH=. .venv/bin/python tools/video_log.py projects/crypto-long/x.py projects/crypto-short/x.py
     PYTHONPATH=. .venv/bin/python tools/video_log.py --print projects/crypto-long/x.py
 
-The ledger is `.claude/skills/video-performance-review/videos.md`. A build
+The ledger is `.claude/skills/videos-performance/videos.md`. A build
 run appends its rows at the handoff (`workflow.md` step 5); a review run
 fills in the result and the verdict. The point is one place that says, per
 video, *how it was built* and *how it did* - so the next topic and the next
@@ -27,7 +27,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 import script_check as sc                                   # noqa: E402
 
-LEDGER = REPO / ".claude/skills/video-performance-review/videos.md"
+LEDGER = REPO / ".claude/skills/videos-performance/videos.md"
 MARK = "<!-- rows: newest last; tools/video_log.py appends here -->"
 
 

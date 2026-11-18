@@ -112,7 +112,7 @@ Who You Think", "Quantum Computers vs. Crypto: What Actually Breaks").
 
 Pick a different query angle from the Short, so the two are not competing for
 one search-results page (YouTube rarely shows two videos from one channel
-back-to-back on a single query). Full reasoning in the `video-views-audit` skill.
+back-to-back on a single query). Full reasoning in the `videos-audit` skill.
 
 ## The screen has to say what the voice is saying
 
@@ -322,7 +322,7 @@ reads as a change of pace rather than as the video not having started.
 
 ## The first five seconds carry information or they lose the room
 
-**Measured, not assumed** - `video-views-audit`'s `retention` command returns the
+**Measured, not assumed** - `videos-audit`'s `retention` command returns the
 real curve for any video with enough views (see "Known limitations" in that
 skill; roughly 60+ views on these channels). `tinnitus-and-sleep` is the
 highest-traffic long form on either channel at 130 views, and its curve is the
@@ -780,7 +780,7 @@ YouTube views per article long form, average view % is noise, so it stays
 as the editor's taste. **The exception is the E26 formats** - a numbered
 list, an evidence ranking or a heist story run **5-8 minutes**, because
 five items or a story with a twist do not fit three chapters
-(`video-performance-review/experiments.md`, E26).
+(`videos-performance/experiments.md`, E26).
 
 ## No title slate (2026-11-12)
 

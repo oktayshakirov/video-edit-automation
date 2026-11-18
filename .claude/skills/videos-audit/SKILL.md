@@ -1,6 +1,6 @@
 ---
-name: video-views-audit
-description: Pull and review how the user's videos are performing on every platform - YouTube (Shorts and long-form, with per-second retention curves), TikTok, Instagram Reels and Facebook - for the drone, Crypto Wiki and Tinnitus Help channels. Use whenever the user asks how a particular video is doing, wants views checked on a platform, wants a title, description, tags or thumbnail reviewed or rewritten, or runs /video-views-audit for one of those. Also use when they name one of their videos or paste a URL of their own and ask what to change, and when they want a metadata change applied. It can edit YouTube metadata and upload new videos with their thumbnails, but never deletes, and it is read-only everywhere else. A general audit of the channels ("run the audit", "what works and what does not", "how are we doing") is video-performance-review, which drives this skill for every pull; for the full publish sequence use publish-video.
+name: videos-audit
+description: Pull and review how the user's videos are performing on every platform - YouTube (Shorts and long-form, with per-second retention curves), TikTok, Instagram Reels and Facebook - for the drone, Crypto Wiki and Tinnitus Help channels. Use whenever the user asks how a particular video is doing, wants views checked on a platform, wants a title, description, tags or thumbnail reviewed or rewritten, or runs /videos-audit for one of those. Also use when they name one of their videos or paste a URL of their own and ask what to change, and when they want a metadata change applied. It can edit YouTube metadata and upload new videos with their thumbnails, but never deletes, and it is read-only everywhere else. A general audit of the channels ("run the audit", "what works and what does not", "how are we doing") is videos-performance, which drives this skill for every pull; for the full publish sequence use publish-video.
 ---
 
 # Video views audit
@@ -30,7 +30,7 @@ Handles are in each site's footer (`~/Coding/tinnitus-blog`,
 
 **A general audit is the review.** When the user asks to "run the audit",
 "what works and what doesn't", or anything about the channels as a whole
-rather than one video, run **`video-performance-review`**. It is the
+rather than one video, run **`videos-performance`**. It is the
 recurring loop (snapshot, experiments, rule changes, review with the user)
 and uses this skill for every pull. Running only this skill for that
 request is how the 10-01 and 10-11 findings ended up here, with no snapshot
@@ -52,10 +52,10 @@ are a different cohort from the ones before it, so a difference between
 them may be the build and not the topic or the title.
 
 The dated list of every such change is
-`video-performance-review/changes.md` - **read it before any audit that
+`videos-performance/changes.md` - **read it before any audit that
 compares videos**, and say in the answer which side of the latest change
 each video is on. How each video was built is in
-`video-performance-review/videos.md` (one row per video). When an audit
+`videos-performance/videos.md` (one row per video). When an audit
 of a single video finds something a script could act on, add it to that
 video's row as its lesson; a rule change still goes through the review.
 
@@ -66,7 +66,7 @@ video's row as its lesson; a rule change still goes through the review.
 | "how is this video doing?" | every platform it was published to - the answer differs by 10x between them |
 | "why did people stop watching?" | **YouTube `retention`** - the only per-second curve available anywhere |
 | "is the title working?" | YouTube `traffic` (search share and terms) + TikTok plays; CTR is unavailable everywhere |
-| "how is the channel doing overall?" | all four, and compare against the last `video-performance-review` snapshot |
+| "how is the channel doing overall?" | all four, and compare against the last `videos-performance` snapshot |
 | "should I change this title/description?" | YouTube `videos`/`audit`, then "Editing metadata" |
 | "why did this one take off?" | YouTube `traffic`, then "Reading a video the way the market reads it" - name the reason before proposing a follow-up |
 | "is the thumbnail/title competitive?" | the feed check in "Reading a video the way the market reads it", against the real search results |
@@ -189,13 +189,13 @@ From the 2026-09-21 review - re-check rather than assume, but start here:
   at almost exactly **~250 or ~770 plays** - its test batches. None has
   escaped them, so a pipeline video clearing ~1,000 is the first real signal.
   The pre-pipeline clips from February to April 2026 *did* escape (see
-  `video-performance-review/history/2026-10-11.md`), so the ceiling is not
+  `videos-performance/history/2026-10-11.md`), so the ceiling is not
   the account.
 - **Instagram tinnitus went to 0 plays** from 2026-09-14 with account status
   clear. Zero is a distribution stop, not weak content.
 - **Every YouTube Short loses 13-27 points at ~5s**, which is what the opening
   hook and the opener variants exist to fix (`E1`/`E5` in
-  `video-performance-review/experiments.md`).
+  `videos-performance/experiments.md`).
 - **Record which opener each video used** (redacted hook, Counter, Stamp,
   Split, Search, Flash) when reporting on a new video - it is read from the
   build script's `opener=`/`hook=`, and the variants cannot be compared
@@ -299,7 +299,7 @@ not part of any review or general audit since 2026-11-10.*
   long-form** (experiment E6). While it runs, do not write titles or
   thumbnails to drone long-forms through the API. If a description fix is
   needed, send only the description. The baseline is in
-  `video-performance-review/history/2026-10-11.md`. Remove this bullet when
+  `videos-performance/history/2026-10-11.md`. Remove this bullet when
   the user says the test has ended.
 - **Ended 2026-11-03: the Nebula Pulse `r7NqyOv5_9Y` thumbnail test (E10)**
   came out inconclusive (A 47.7% / B 52.3%, A kept). Its title and
@@ -964,10 +964,10 @@ There is no crossposting in it and none available to add. Because the chain is
 sequential, **a failure on the Instagram leg means Facebook never publishes** -
 worth checking first if a Facebook reel ever goes missing.
 
-## Snapshots and findings live in `video-performance-review`
+## Snapshots and findings live in `videos-performance`
 
 Dated snapshots - the numbers per platform, the retention cohorts, what a
-run found - go to `video-performance-review/history/YYYY-MM-DD.md`, and
+run found - go to `videos-performance/history/YYYY-MM-DD.md`, and
 running experiments to its `experiments.md`. This file holds only how to
 pull the numbers and the conventions that are settled. The 2026-10-01 and
 2026-10-11 snapshots were written here first and moved there.

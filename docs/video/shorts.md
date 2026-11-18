@@ -481,7 +481,7 @@ chapter slate. This replaces it only as a Short's closing statement.
   sits lower (hands, an object, a figure in a room), or shift the crop with
   `clip_ay`, or the hook with `centre_y`.
 
-**This is an experiment (E1 in the `video-performance-review` ledger).**
+**This is an experiment (E1 in the `videos-performance` ledger).**
 Judged on the ~5s drop and the half-gone second against the pre-hook cohort.
 If hooked Shorts still lose 13+ points at 5s, the cliff is about something
 else and this section should say so.
@@ -597,7 +597,7 @@ Rules that apply to all of them:
   front, it is not a `Flash`; reach for `Search` or the hook.
 
 Tag which opener a video used when it is published, so the fortnightly review
-can compare them rather than lumping them together (`video-performance-review`).
+can compare them rather than lumping them together (`videos-performance`).
 
 ## A vertical cut must be cropped onto its subject
 
@@ -1276,7 +1276,7 @@ last frame matches the first and the loop is free. `script_check` flags
 `short-outro`).
 
 Whether the plain close keeps more viewers to the end is the review's
-**E14** (`video-performance-review/experiments.md`): last-frame % and
+**E14** (`videos-performance/experiments.md`): last-frame % and
 half-gone second, against the outro-card Shorts.
 
 ## A list Short walks every name, on reels (2026-11-04)
@@ -1367,7 +1367,7 @@ would go. Nothing is captioned under it. The build prints the new time.
 `tools/retention_check.py` prints both timings from the script and flags
 either one missing (`workflow.md`, step 2). They are estimates at 3.25
 words a second; the build's own "opener:" and "hook:" lines are exact.
-Both are being tested, not settled: `video-performance-review` re-runs the
+Both are being tested, not settled: `videos-performance` re-runs the
 splits on every curve (`retention_check.py --lab`), E21 and E22.
 
 ## Running from 2026-11-10: length and the loop, one per channel
@@ -1385,7 +1385,7 @@ article Shorts, one per channel so each is the only change on its channel:
   of its own (`narration.md`, the cold close).
 
 Session Shorts are not part of either. The fail lines are in
-`video-performance-review/experiments.md`; tell the editor which one a
+`videos-performance/experiments.md`; tell the editor which one a
 build carried in the handover.
 
 ## A Short cannot hold a shot with `None` (2026-11-12)

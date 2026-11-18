@@ -232,7 +232,7 @@ ledger, logs or books before scripting - none are to be guessed.
 | 9 | Short | **You are not applying to jobs. You are choosing companies.** | *Job Hunting* ch. 10 | the filter rules, on screen |
 | 10 | Short | **The friendliest crypto message is the scam** | *Stop Losing Money in Crypto* ch. 5 | real public scam examples via `screencap` |
 | 11 | Long | **[N] apps in the stores. What actually makes money.** | portfolio `projects.json`, store consoles | only numbers Oktay chooses to show |
-| 12 | Short | **Faceless channel, month one: the real numbers** | `video-performance-review` snapshots | views, retention, what we changed |
+| 12 | Short | **Faceless channel, month one: the real numbers** | `videos-performance` snapshots | views, retention, what we changed |
 
 **Pilot = #1, #2, #3 as Shorts and #4 as the first long form.** They cover
 three pillars (AI content, jobs, building with AI) and each has a number we
@@ -291,8 +291,8 @@ New:
 - Build and publish the pilot (3 Shorts + 1 long). TikTok gets the Shorts.
 - New YouTube and TikTok credentials for `publish-video` (new channel = new
   OAuth token and new n8n workflow rows; Instagram/Facebook can wait).
-- After 14 days, read the numbers with `video-views-audit` and add the
-  channel to `video-performance-review`.
+- After 14 days, read the numbers with `videos-audit` and add the
+  channel to `videos-performance`.
 
 ### Phase 3 - cadence
 

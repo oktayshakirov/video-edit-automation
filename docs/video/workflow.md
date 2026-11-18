@@ -33,7 +33,7 @@ watch.** Cross it with the channel's demand map (`demand/tinnitus.md`,
 anything (2026-10-25, E11).
 
 **Read what has worked first** (2026-11-12):
-`.claude/skills/video-performance-review/videos.md`, "What works, and what
+`.claude/skills/videos-performance/videos.md`, "What works, and what
 does not", and the lessons on the last few rows for this channel. Prefer a
 candidate that repeats something that worked, and say so on it; say it too
 when a candidate resembles something that did not.
@@ -190,7 +190,7 @@ or `SOURCE_POST = None` for an off-site topic.
 
 Under it, set `DEMAND` to the evidence the topic was picked on, as one line -
 `DEMAND = "Treble Health 'Does Tinnitus Cause Dementia?' 5.5k, ratio ?"`, or
-`DEMAND = None` when it had none. `video-performance-review` tags every video
+`DEMAND = None` when it had none. `videos-performance` tags every video
 from this line, and E11 cannot be judged without it.
 
 **The description's link is the next useful step, not "read more".** Write
@@ -276,7 +276,7 @@ Only once the user says they are happy:
    seen by watching the render.
 2. **Log the videos** - `PYTHONPATH=. .venv/bin/python tools/video_log.py
    <long script> <short script>` adds a row each to
-   `.claude/skills/video-performance-review/videos.md` with how they were
+   `.claude/skills/videos-performance/videos.md` with how they were
    built. The reviews fill in how they did. Commit it with the rest.
 3. **Write down what the run taught** (below, "Every run leaves the skill
    better"). Same commit.
@@ -492,7 +492,7 @@ build, done before the handoff and committed with it, not an afterthought:
    is followed; a rule with only a paragraph was missed three times in
    2026 before the editor asked whether the skill knew it existed.
 3. **If the viewer could notice the change, add an entry to**
-   `.claude/skills/video-performance-review/changes.md`, so the next
+   `.claude/skills/videos-performance/changes.md`, so the next
    review knows which videos were built under it.
 4. **Say in the handover what was learned and where it was written**, in
    three or four lines, so the editor can veto any of it.

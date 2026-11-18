@@ -19,7 +19,7 @@ script from memory - they are timings:
   forms 3 minutes or less (E18).
 
 This prints the timeline a script implies - at 3.25 words a second plus its
-written gaps, the same estimate `video-views-audit` maps curves with - and
+written gaps, the same estimate `videos-audit` maps curves with - and
 flags those shapes:
 
     PYTHONPATH=. .venv/bin/python tools/retention_check.py \\

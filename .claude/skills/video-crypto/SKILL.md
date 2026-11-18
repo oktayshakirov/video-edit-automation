@@ -62,7 +62,7 @@ only what is this channel's own - restating the shared steps is how the publish
 sequence drifted into four copies that disagreed.
 
 1. **Read what worked, then suggest - do not pick.** First
-   `.claude/skills/video-performance-review/videos.md`, "What works, and
+   `.claude/skills/videos-performance/videos.md`, "What works, and
    what does not". Then `python3 tools/topics.py crypto`, crossed with
    `docs/video/demand/crypto.md`. Every candidate shows its demand evidence
    or says "no evidence". Look first for a **brand-new named term few
@@ -126,7 +126,7 @@ sequence drifted into four copies that disagreed.
 6. **Leave the skill better - every run.** `workflow.md`, "Every run leaves
    the skill better": each note the editor gave becomes a dated rule in
    the narrowest doc, a check in `script_check` when it can be checked,
-   and an entry in `video-performance-review/changes.md` when a viewer
+   and an entry in `videos-performance/changes.md` when a viewer
    could notice it. Replace old rules, do not stack them. **When a note
    shows this skill itself missed something** (a step, a tool it should
    have named), edit this file in the same commit - and the tinnitus skill

@@ -1,6 +1,6 @@
 """New covers for seven older long forms, from the 2026-11-17 review.
 
-The review (`video-performance-review/history/2026-11-17.md`) found the
+The review (`videos-performance/history/2026-11-17.md`) found the
 tinnitus explainers shown thousands of times and clicked under 1%, every
 cover a stock person holding their head with the title repeated on it, and
 retitled 17 videos the same day. These covers follow the rule written then
