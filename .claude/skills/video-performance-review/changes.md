@@ -9,6 +9,16 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-18 - first E25 session; beds fetched from DistroKid
+
+- **`brown-noise-478-breathing` is E25's first session**: "Brown Noise"
+  leads the title and cover, the album track (Cloudscape Serenity) is named
+  only in the description. Count E25's four from here.
+- **Session beds now come from DistroKid, picked by the build** from the
+  unused tracks (`projects/tinnitus-sounds.md`, "Fetching the next track"),
+  not from a file the editor drops. Nothing a viewer hears changes; the
+  choice of track is now the build's, under E25 and the measurement.
+
 ## 2026-11-17 - the review: sessions first, new formats, covers
 
 From the 11-17 review, on the editor's yes (`history/2026-11-17.md`).

@@ -703,8 +703,10 @@ which is what they mean to this audience anyway. `tinnitus` itself is safe.
 
 `video_automation/longform/asmr.py`.
 
-**Which album tracks are used is in [`tinnitus-sounds.md`](tinnitus-sounds.md).**
-Check it before a build and add the row when a dropped file goes in.
+**Which album tracks are used is in [`tinnitus-sounds.md`](tinnitus-sounds.md),**
+and so is how to fetch the next one from DistroKid ("Fetching the next
+track") - a session no longer waits for a dropped file. Add the row in the
+build's commit.
 
 ```python
 from video_automation.core import soundbed

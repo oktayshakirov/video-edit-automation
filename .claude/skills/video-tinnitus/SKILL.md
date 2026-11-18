@@ -73,6 +73,14 @@ copies that disagreed with each other.
 
 1. **Ask which product** - explainer pair, or session. A session has no article,
    skips topic suggestion, and takes the session copy rules in the project doc.
+   **A session fetches its own bed (2026-11-18):** pick an unused track in
+   `docs/video/projects/tinnitus-sounds.md`, then download it from DistroKid
+   (`distrokid.com/mymusic/`, Claude in Chrome) by the steps and the
+   release table in that doc's "Fetching the next track" - the list mixes
+   in the editor's music releases, and most sound albums go by another name
+   there. It lands on the Desktop; measure it, build, and move the track to
+   "Used" in the build's commit. Ask the editor for a file only when
+   DistroKid cannot be reached.
 2. **Read what worked, then suggest - do not pick.** First
    `.claude/skills/video-performance-review/videos.md`, "What works, and
    what does not". Then `python3 tools/topics.py tinnitus`, crossed with
