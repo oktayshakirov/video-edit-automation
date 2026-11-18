@@ -1,7 +1,6 @@
 # Song: the karaoke music video
 
-A finished song from `~/Coding/create-song-automation` (lyrics) and
-`~/Coding/song-automation` (render), cut as a lyric video: 16:9 for YouTube
+A finished song from `~/Coding/create-song-automation` (lyrics and render), cut as a lyric video: 16:9 for YouTube
 and the **whole song** at 9:16 for Shorts, TikTok and Reels (the user's call
 on "Come Back at Five", 2026-11-06 - not a 45-second excerpt). The first one
 is `projects/song/come-back-at-five/`; the second `projects/song/gta-flu/` (2026-11-17).
@@ -47,7 +46,7 @@ screen shows the lyric, not "Limit reach" or "like a Jedi".
   previous one is fully sung, and leaves as the next comes in.
 
 The helpers live outside this repo's venv on purpose: Whisper in
-`~/Coding/song-automation/.venv`, demucs in
+`~/Coding/create-song-automation/.venv`, demucs in
 `~/.local/share/song-automation/sepvenv` (it borrows the ACE-Step engine's
 torch). **Not in the session scratchpad** - it is wiped between days, and the
 first set of venvs went with it.

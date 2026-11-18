@@ -100,7 +100,7 @@ What the kept one does, and why each part is there:
 ## Music, when a test wants it
 
 There is no trippy track in the library. The phonk take that fit is
-`~/Coding/song-automation/projects/glitch-phonk.md` (seed 2208343586, 130 BPM,
+`~/Coding/create-song-automation/projects/glitch-phonk.md` (seed 2208343586, 130 BPM,
 drop at 14.921s); `glitch-trip.md` (seed 1412661844) is the psychedelic
 alternative, unused. Put the first glitch on the drop. Stop the song engine
 when done.
