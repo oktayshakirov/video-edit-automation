@@ -120,8 +120,12 @@ sequence drifted into four copies that disagreed.
    police line-up for "which one is it?" topics (`thumb.lineup_cover`,
    `vector`), the arrow and ring, a picture and headline. Never the same
    `COVER_STYLE` three videos running (`cover-rotation` - the arrow ran
-   three times on this channel). Six words or fewer on two rows, the
-   accent on the subject's word.
+   three times on this channel). **The headline is one stacked block**
+   (`thumb.stack_headline`, 2026-11-20): three or four short Title Case
+   rows, centred, the accent run on the red plate and on the subject's
+   word, in a box that ends a gutter short of the picture - Diary of a
+   CEO's format. Balance the rows (the widest sets the size) and check it
+   at 320px beside the search's top three.
 5. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
    steps 4 and 5, which now include logging the pair with
    `tools/video_log.py`.

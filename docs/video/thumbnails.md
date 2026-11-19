@@ -1030,9 +1030,10 @@ for so little words and such a big gap between words, also the highlighted
 word is it which is bad, better thief". Three rules, all checked by
 `script_check` as `cover-headline` except the last, which is in the code:
 
-- **Six words or fewer: two rows.** Three rows of one or two words leave a
-  ragged block with a hole beside every short row. "Can a [thief]" / "take
-  it?".
+- ~~**Six words or fewer: two rows.**~~ *Replaced 2026-11-20 by "The
+  headline is one stacked block" below: the holes beside short rows came
+  from ALL CAPS Arial Black set flush left, and a centred Title Case stack
+  has none.* The rule still binds a cover drawn with `_headline`.
 - **The accent goes on the word that names the subject or the stake** -
   a noun or a strong verb. Never a pronoun, an article or an auxiliary
   ("it", "one", "this", "you", "is", "do").
@@ -1175,3 +1176,42 @@ Size the card's icon and padding by its width too, not only its height, or
 9:16's tall rows leave no room for the label. The cut-out direction was
 deleted with its code (`cover()` in `projects/tinnitus-long/
 tinnitus-treatments-ranked.py`).
+
+## The headline is one stacked block (2026-11-20)
+
+The editor, on the `tinnitus-treatments-ranked` tier cover: "the thumbnail
+text is overlapping the tierlist, make it 3 rows and align it. Generally our
+thumbnails have thinner text in less lines ... Find the best format for the
+text ... Check the diary of a ceo, they have good example."
+
+**What Diary of a CEO does** (their 16 latest covers, read 2026-11-20, 5-10M
+views each): every headline is **three or four short rows**, **Title
+Case**, **centred as one block** on its own axis, in a **heavy grotesque
+with tight tracking and leading** (rows nearly touch), white with a soft
+shadow, and **one word or short run on a red plate that hugs it** ("Is A
+[Lie]", "They're / [Lying] / About AI"). The block takes about 40% of the
+width and over half the height, between the two faces. At 320px it is the
+one thing that reads. Ours was two wide rows of ALL CAPS Arial Black with a
+padded plate, at a fixed size: thin-looking at feed size, and on this cover
+the plate ran into the board.
+
+**The renderer: `thumb.stack_headline(im, rows, box)`.**
+
+- `rows` as written, Title Case, one `[run]` on the plate:
+  `["Tinnitus:", "What's", "[Top Tier?]"]`.
+- `box = (x, y, w, h)` is the empty side of the cover, **ending a gutter
+  short of the subject or the board** - the block is sized to the largest
+  that fits it, so it can never run into the picture.
+- SF Pro Display (`SFNS.ttf`, weight 800, width 96, display optical size;
+  Helvetica Neue Bold where it is missing), tracking -0.015 em, leading
+  1.0, kerning kept. Centred by default (`align="left"` exists).
+- `script_check`'s `cover-type` flags a long-form cover still set with
+  `_headline` (from 2026-11-20).
+
+**Balance the rows: the widest row sets the size.** "What's / [Top Tier] /
+For Tinnitus?" set at ~80px because "For Tinnitus?" was wide; "Tinnitus: /
+What's / [Top Tier?]" set at ~115px in the same box. Write the rows so the
+longest is short, and put the plate on its own row when the run is the
+stake. Check the cover at 320px beside a DOAC cover and the search's top
+three before handing it over.
+

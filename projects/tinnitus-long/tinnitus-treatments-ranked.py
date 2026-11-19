@@ -485,11 +485,14 @@ META = Meta(
              "(doi 10.1002/ohn.70417), and the AAO-HNSF patient guide."],
 )
 
-THUMB_HEADLINE = "Tinnitus\n[top tier?]"
+# Three rows, Title Case, one centred block (`thumb.stack_headline`; the
+# editor, 2026-11-20, after Diary of a CEO's covers).
+HEADLINE_ROWS = ["Tinnitus:", "What's", "[Top Tier?]"]
+THUMB_HEADLINE = "\n".join(HEADLINE_ROWS)
 # The editor picked the tier board (2026-11-20); the cut-out direction (a
 # supplement bottle crossed, a hearing aid ticked) was deleted with its code.
 COVERS = ("tiers",)
-COVER_HEADLINES = {"tiers": "Tinnitus\n[top tier?]"}
+COVER_HEADLINES = {"tiers": HEADLINE_ROWS}
 
 
 def _ground(W, H):
@@ -584,7 +587,7 @@ def _board_cover(W, H, portrait):
     if portrait:
         x0, top, row_h, gap, block_w, lab = 40, 700, 250, 22, 250, 46
     else:
-        x0, top, row_h, gap, block_w, lab = 560, 40, 150, 12, 190, 34
+        x0, top, row_h, gap, block_w, lab = 600, 40, 150, 12, 180, 32
     x1 = W - (40 if portrait else 30)
     f = _display(lab)
     for i, (name, col, cards) in enumerate(rows):
@@ -643,14 +646,10 @@ def cover(kind: str, portrait: bool = False):
     head = COVER_HEADLINES[kind]
     if kind == "tiers":
         im = _board_cover(W, H, portrait).convert("RGB")
-        if portrait:
-            T._headline(im, head, 190, W - 120, 60, fill, ink, max_lines=2,
-                        max_block=H * 0.24, leading=1.02, band="top",
-                        margin=int(H * 0.13), shadow=14, drop=(6, 8))
-        else:
-            T._headline(im, head, 210, int(540 / 1.38), 36, fill, ink,
-                        max_lines=2, leading=1.0, band="middle", margin=40,
-                        shadow=12, drop=(5, 6))
+        # The headline's box ends where the board starts, with a gutter, so
+        # the text can never run into it (the first cut's plate did).
+        box = (60, 200, W - 120, 470) if portrait else (34, 60, 600 - 34 - 30, 600)
+        T.stack_headline(im, head, box)
         return im
     raise ValueError(f"unknown cover {kind!r} - {COVERS}")
 

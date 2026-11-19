@@ -19,6 +19,10 @@ Keep an entry to what changed for the viewer and where the rule lives.
   the board with the video's labelled cards, top row "?".
 - **9:16 windows sit high, captions under them** (`shorts.md`, 2026-11-20):
   every Short with a `window=` from here.
+- **Cover headlines are one stacked Title Case block** (`thumb.stack_headline`,
+  `thumbnails.md`, 2026-11-20, after Diary of a CEO): every cover from
+  `tinnitus-treatments-ranked` on. Compare CTR against the ALL CAPS
+  two-row covers once both pass 1,000 impressions.
 
 ## 2026-11-19 - first crypto E26 story; the `honeypot` beat
 

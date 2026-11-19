@@ -176,8 +176,14 @@ copies that disagreed with each other.
    channel a cut-out person in discomfort with red rings and one huge
    extruded word won (`cutout`); the police line-up (`thumb.lineup_cover`)
    is a kept format for "which one is it?" topics; an object beside big
-   words did not carry. Never the same `COVER_STYLE` three videos running
-   (`cover-rotation`).
+   words did not carry; a ranking takes the `tiers` board with the
+   video's own cards. Never the same `COVER_STYLE` three videos running
+   (`cover-rotation`). **The headline is one stacked block**
+   (`thumb.stack_headline`, 2026-11-20): three or four short Title Case
+   rows, centred, one run on the red plate, in a box that ends a gutter
+   short of the picture - Diary of a CEO's format. Balance the rows (the
+   widest sets the size) and check it at 320px beside the search's top
+   three before handing over.
 6. **Hand over, re-cut, and only then commit and hand off** - `workflow.md`
    steps 4 and 5, which now include logging the pair with
    `tools/video_log.py`.

@@ -1679,3 +1679,145 @@ def lineup_cover(suspects: list, headline: str, *, portrait: bool = False,
             d.text((60, y), text, font=fc, fill=(255, 255, 255))
         y += 160
     return im.convert("RGB")
+
+
+# --- the stacked headline (2026-11-20) ----------------------------------------
+#
+# The editor, on the tinnitus-treatments-ranked cover ("the thumbnail text is
+# overlapping the tierlist, make it 3 rows and align it ... our thumbnails
+# have thinner text in less lines ... check the diary of a ceo"). The Diary of
+# a CEO covers (16 read 2026-11-20) all set the headline the same way: three
+# or four short rows in Title Case, centred on one axis as a single block, a
+# heavy grotesque with tight tracking and tight leading, white with a soft
+# shadow, and one word or short run on a red plate that hugs it. Our
+# `_headline` set two wide rows of ALL CAPS Arial Black with a padded plate,
+# which reads as a caption strip rather than a block, and at a fixed size it
+# ran into whatever sat beside it.
+
+SF_PRO = "/System/Library/Fonts/SFNS.ttf"        # variable: Width, opsz, GRAD, Weight
+STACK_FALLBACK = ("/System/Library/Fonts/HelveticaNeue.ttc", 1)   # Bold
+STACK_RED = (228, 30, 36)
+
+
+def stack_font(size: int, weight: int = 800, width: int = 96):
+    """SF Pro Display at `weight`, slightly narrowed, the display optical
+    size; Helvetica Neue Bold where SF Pro is not installed."""
+    try:
+        f = ImageFont.truetype(SF_PRO, size)
+        axes = {a["name"]: a for a in f.get_variation_axes()}
+        vals = []
+        for a in f.get_variation_axes():
+            n = a["name"]
+            vals.append({b"Weight": weight, b"Width": width,
+                         b"Optical Size": a["maximum"]}.get(n, a["default"]))
+        f.set_variation_by_axes(vals)
+        return f
+    except (OSError, KeyError, AttributeError):
+        path, idx = STACK_FALLBACK
+        return ImageFont.truetype(path, size, index=idx)
+
+
+def _stack_runs(row: str) -> list[tuple[str, bool]]:
+    """'[Top Tier] For' -> [('Top Tier', True), (' For', False)]."""
+    out = []
+    for part in re.split(r"(\[[^\]]*\])", row):
+        if part:
+            out.append((part[1:-1], True) if part.startswith("[") else (part, False))
+    return out
+
+
+def _tracked_width(text: str, font, track: float) -> float:
+    if not text:
+        return 0.0
+    return font.getlength(text) + track * (len(text) - 1)
+
+
+def stack_headline(base: Image.Image, rows: list[str], box: tuple,
+                   *, align: str = "center", valign: str = "middle",
+                   max_size: int = 260, weight: int = 800,
+                   tracking: float = -0.015, leading: float = 1.0,
+                   text=(255, 255, 255), plate=STACK_RED,
+                   plate_ink=(255, 255, 255), shadow: int = 14) -> tuple:
+    """Set `rows` as one centred block inside `box` = (x, y, w, h), at the
+    largest size where the widest row (plates included) fits `w` and the
+    stack fits `h`. A `[bracketed]` run sits on a tight red plate. Returns
+    the block's (x0, y0, x1, y1) so a caller can check it against the rest
+    of the cover. Title Case is the caller's - rows are set as written."""
+    x, y, w, h = box
+    d0 = ImageDraw.Draw(Image.new("L", (8, 8)))
+
+    def measure(size):
+        f = stack_font(size, weight)
+        tr = tracking * size
+        padx = 0.10 * size
+        widths = []
+        for row in rows:
+            wsum = 0.0
+            for txt, hot in _stack_runs(row):
+                wsum += _tracked_width(txt, f, tr) + (2 * padx if hot else 0)
+            widths.append(wsum)
+        pitch = size * leading
+        return f, tr, padx, widths, pitch
+
+    size = max_size
+    while size > 12:
+        f, tr, padx, widths, pitch = measure(size)
+        if max(widths) <= w and pitch * len(rows) <= h:
+            break
+        size -= 2
+    f, tr, padx, widths, pitch = measure(size)
+    asc = f.getbbox("Hg")
+    cap_top = f.getbbox("H")[1]
+    block_h = pitch * (len(rows) - 1) + (f.getbbox("Hg")[3] - cap_top)
+    top = {"top": y, "bottom": y + h - block_h}.get(valign, y + (h - block_h) / 2)
+    top -= cap_top
+
+    W, H = base.size
+    shade = Image.new("L", (W, H), 0)
+    sd = ImageDraw.Draw(shade)
+    plates = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    pd = ImageDraw.Draw(plates)
+    ink = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    idr = ImageDraw.Draw(ink)
+    bounds = [1e9, 1e9, -1e9, -1e9]
+    for r, row in enumerate(rows):
+        rw = widths[r]
+        cx = {"left": x, "right": x + w - rw}.get(align, x + (w - rw) / 2)
+        by = top + r * pitch
+        for txt, hot in _stack_runs(row):
+            tw = _tracked_width(txt, f, tr)
+            if hot:
+                # The plate hugs the run: cap height plus a little, the
+                # descenders allowed to sit on its lower edge.
+                py0 = by + cap_top - 0.12 * size
+                py1 = by + f.getbbox("Hg")[3] - 0.02 * size
+                pd.rectangle([cx, py0, cx + tw + 2 * padx, py1],
+                             fill=tuple(plate) + (255,))
+                sd.rectangle([cx, py0, cx + tw + 2 * padx, py1], fill=150)
+                bounds = [min(bounds[0], cx), min(bounds[1], py0),
+                          max(bounds[2], cx + tw + 2 * padx), max(bounds[3], py1)]
+                tx, colour = cx + padx, tuple(plate_ink)
+            else:
+                tx, colour = cx, tuple(text)
+            for i, ch in enumerate(txt):
+                idr.text((tx, by), ch, font=f, fill=colour + (255,))
+                if not hot:
+                    sd.text((tx, by), ch, font=f, fill=255)
+                nxt = txt[i + 1] if i + 1 < len(txt) else ""
+                adv = (f.getlength(ch + nxt) - f.getlength(nxt)) if nxt else f.getlength(ch)
+                tx += adv + tr
+            if not hot and txt.strip():
+                bb = idr.textbbox((cx, by), txt, font=f)
+                bounds = [min(bounds[0], bb[0]), min(bounds[1], bb[1]),
+                          max(bounds[2], cx + tw), max(bounds[3], bb[3])]
+            cx += tw + (2 * padx if hot else 0)
+    out = base.convert("RGBA")
+    if shadow:
+        blur = shade.filter(ImageFilter.GaussianBlur(shadow))
+        sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        sh.putalpha(blur.point(lambda v: int(v * 0.8)))
+        out.alpha_composite(sh, (int(shadow * 0.25), int(shadow * 0.35)))
+    out.alpha_composite(plates)
+    out.alpha_composite(ink)
+    base.paste(out.convert(base.mode))
+    return tuple(int(v) for v in bounds)

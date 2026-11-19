@@ -365,6 +365,12 @@ RULES = {
                            "takes two rows and highlights its noun'",
                            ("crypto", "tinnitus"), ("long", "short"),
                            since="2026-11-11"),
+    # 2026-11-20, the editor on the tier cover ("make it 3 rows and align
+    # it ... check the diary of a ceo"): covers set their headline as one
+    # centred Title Case block, `thumb.stack_headline`.
+    "cover-type": Rule("cover-type", "thumbnails.md, 'The headline is one "
+                       "stacked block'", ("crypto", "tinnitus"), ("long",),
+                       since="2026-11-20"),
     # 2026-11-17 review: tinnitus explainer covers repeating their titles sat
     # at 0.23-2.3% CTR; GTA 6's cover asked a different question (8.56%).
     "cover-repeats-title": Rule("cover-repeats-title", "thumbnails.md, 'The "
@@ -379,6 +385,15 @@ RULES = {
 
 # The most of a video's shots that may be plain stock clips (`stock-share`).
 STOCK_MAX = 0.5
+
+
+def _source(sc) -> str:
+    """The script's text, or "" for a test's stand-in path that is not on
+    disk."""
+    try:
+        return sc.path.read_text(errors="replace")
+    except OSError:
+        return ""
 
 
 def is_plain_stock(sh) -> bool:
@@ -685,7 +700,10 @@ def check(sc: Script) -> list[Finding]:
         if isinstance(head, str) and head.strip():
             rows = [r for r in head.split("\n") if r.strip()]
             words = re.findall(r"[\w'$%.,+-]+", head.replace("[", " ").replace("]", " "))
-            if len(rows) >= 3 and len(words) <= 6:
+            # The two-row cap is for the old ALL CAPS `_headline` only; a
+            # `stack_headline` block is three or four short rows by design.
+            stacked = "stack_headline(" in _source(sc)
+            if len(rows) >= 3 and len(words) <= 6 and not stacked:
                 f.append(Finding("cover-headline", "HEADLINE",
                                  f"{len(words)} words on {len(rows)} rows - "
                                  "six words or fewer take two rows"))
@@ -695,6 +713,16 @@ def check(sc: Script) -> list[Finding]:
                     f.append(Finding("cover-headline", "HEADLINE",
                                      f"the accent is on {run!r} - highlight "
                                      "the word that names the subject"))
+    if "cover-type" in on:
+        text = _source(sc)
+        # The cover code may live in this file or, for a Short, in its long
+        # form's (`thumbs()` loading it); only a file that draws its own
+        # headline is judged.
+        if "_headline(" in text.replace("stack_headline(", ""):
+            f.append(Finding("cover-type", "thumbs()",
+                             "the cover sets its headline with `_headline` - "
+                             "use `thumb.stack_headline(im, rows, box)`: three "
+                             "or four Title Case rows, one centred block"))
     if "cover-repeats-title" in on:
         head = getattr(sc.mod, "HEADLINE", None) or getattr(sc.mod, "THUMB_HEADLINE", None)
         meta = getattr(sc.mod, "META", None)
