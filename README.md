@@ -119,7 +119,7 @@ audition sample-for-sample.
 The build and publish steps run as [Claude Code](https://claude.com/claude-code)
 skills in `.claude/skills/`: `/video-crypto`, `/video-tinnitus`, `/video-drone`,
 `/video-quiz` and `/video-glitch` build; `/publish-video` uploads;
-`/videos-audit` and `/videos-performance` read the analytics back and
+`/video-audit` and `/videos-performance` read the analytics back and
 turn them into rule changes. The skills hold only the order of the work. Every
 rule they rely on lives once in `docs/video/`, with the reason it exists.
 

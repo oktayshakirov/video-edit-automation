@@ -82,7 +82,7 @@ Write the title as the phrase someone searches - "why is tinnitus worse at
 night", "does tinnitus go away", "white noise vs brown noise for tinnitus" - on
 a different angle from the Short. Same medical rule as everywhere: describe what
 the video is, promise no relief, fix or cure. Full reasoning in the
-`videos-audit` skill.
+`video-audit` skill.
 
 ### E26: a numbered list or a ranking by evidence (from 2026-11-17)
 

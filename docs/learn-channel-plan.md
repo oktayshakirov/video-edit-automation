@@ -291,7 +291,7 @@ New:
 - Build and publish the pilot (3 Shorts + 1 long). TikTok gets the Shorts.
 - New YouTube and TikTok credentials for `publish-video` (new channel = new
   OAuth token and new n8n workflow rows; Instagram/Facebook can wait).
-- After 14 days, read the numbers with `videos-audit` and add the
+- After 14 days, read the numbers with `video-audit` and add the
   channel to `videos-performance`.
 
 ### Phase 3 - cadence

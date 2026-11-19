@@ -107,7 +107,7 @@ def _band_extras(base: Image.Image, kicker: str | None, x: int, y_top: int,
       thumbnail has the texture the video has.
 
     Opt-in on purpose: the plate headline is tuned for the grid at feed size,
-    and these are to be A/B tested (videos-audit), not assumed.
+    and these are to be A/B tested (video-audit), not assumed.
     """
     if kicker:
         size = max(30, int(base.width * scale))

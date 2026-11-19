@@ -1,6 +1,6 @@
 ---
 name: videos-performance
-description: The recurring performance review of the AI-built videos, run 2-3 times a month - YouTube (Shorts and long-form, with retention curves), TikTok, Instagram Reels and Facebook for Tinnitus Help and Crypto Wiki (never the drone channel). Pulls the numbers, compares them against the last snapshot, judges the running experiments, turns findings into changes to the video build rules, tools and skills, reviews those changes with the user before applying them, and sets what the next run checks. Use when the user runs /videos-performance, asks to "run the audit" or "a new audit", asks what is working and what is not, asks how the channels are doing overall, wants the regular review, or wants to plan the next round of video improvements. For one video, one platform, or a metadata change use videos-audit; for building videos use video-tinnitus / video-crypto / video-drone.
+description: The recurring performance review of the AI-built videos, run 2-3 times a month - YouTube (Shorts and long-form, with retention curves), TikTok, Instagram Reels and Facebook for Tinnitus Help and Crypto Wiki (never the drone channel). Pulls the numbers, compares them against the last snapshot, judges the running experiments, turns findings into changes to the video build rules, tools and skills, reviews those changes with the user before applying them, and sets what the next run checks. Use when the user runs /videos-performance, asks to "run the audit" or "a new audit", asks what is working and what is not, asks how the channels are doing overall, wants the regular review, or wants to plan the next round of video improvements. For one video, one platform, or a metadata change use video-audit; for building videos use video-tinnitus / video-crypto / video-drone.
 ---
 
 # Video performance review
@@ -61,8 +61,8 @@ when the run itself changes order or gains a step.
 | one channel - topics that work or flop, medical and claim limits | `docs/video/projects/tinnitus.md`, `crypto.md` |
 | the order of a build run, or a new check in it | `docs/video/workflow.md` |
 | a rule that can be checked from the script file | a tool in `tools/` plus a gate line in `workflow.md` (`tools/opening_check.py` is the pattern) |
-| titles, descriptions, tags, publishing metadata | `videos-audit` "settled" sections, and `longform/meta.py` if the generator is wrong |
-| how to pull a number, or a platform's limits | `videos-audit` |
+| titles, descriptions, tags, publishing metadata | `video-audit` "settled" sections, and `longform/meta.py` if the generator is wrong |
+| how to pull a number, or a platform's limits | `video-audit` |
 | a subject or title format that does or does not draw viewers, ours or a competitor's | `docs/video/demand/<channel>.md` |
 
 ## The run
@@ -71,7 +71,7 @@ when the run itself changes order or gains a step.
    (what the builds changed since the last run), `videos.md`, and all of
    `experiments.md`, **Open checks** first. Note today's date, days since the
    last run, and how long each experiment has run.
-2. **Pull every platform** with `videos-audit`'s procedures: both
+2. **Pull every platform** with `video-audit`'s procedures: both
    channels on all four platforms, never drone. Do not skip a dull platform; Instagram went to zero without anyone
    noticing. **Impressions and CTR come from `youtube-audit reach`**
    (both channels, `--start` the last run's date; added 2026-11-17). It
@@ -107,7 +107,7 @@ when the run itself changes order or gains a step.
      impressions and CTR next to it when the CSV is in.
      **Tag its cover style** from the script's `COVER_STYLE` (`text`,
      `arrow`, `beat`; by eye before 2026-11-08), and in the snapshot put
-     the per-style table from `videos-audit`, "Comparing cover
+     the per-style table from `video-audit`, "Comparing cover
      styles";
    **Then run the lab.** Save `retention <id> --json` for every article
    Short with a curve into one folder and run

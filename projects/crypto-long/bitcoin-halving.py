@@ -403,7 +403,7 @@ META = Meta(
     credits=["Nothing in this video is financial advice."],
 )
 
-# Re-done 2026-10-26 (videos-audit): 4 views in 15 days, while the
+# Re-done 2026-10-26 (video-audit): 4 views in 15 days, while the
 # Short on this fact ("Why Was Half of All Bitcoin Mined in Its First Four
 # Years?") took 335 at 89% viewed. The cover now carries that fact instead
 # of "Why does Bitcoin cut its pay in [half?]", and drops the black fade.

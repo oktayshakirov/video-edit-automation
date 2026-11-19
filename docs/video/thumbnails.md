@@ -700,7 +700,7 @@ passes `thumb_kicker=` / `thumb_grain=`. **The default is unchanged on
 purpose.** The plate headline already is the band card's ancestor, and its
 Arial Black is tuned for a 160px grid tile where the band card's condensed
 DIN would read smaller - so the video's look on the thumbnail is something to
-test with videos-audit's thumbnail swap, not to assume. Same layout,
+test with video-audit's thumbnail swap, not to assume. Same layout,
 same crop: only the styling differs between A and B.
 
 ## A person in the scene beats the object, on an abstract topic too (2026-10-24)

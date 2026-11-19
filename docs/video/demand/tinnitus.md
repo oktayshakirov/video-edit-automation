@@ -1,7 +1,7 @@
 # Demand map: tinnitus
 
 Method in `README.md`. Appended to, never rewritten. Started 2026-10-25 from
-the 2026-09-04 competitor teardown (`videos-audit`); **no channel median
+the 2026-09-04 competitor teardown (`video-audit`); **no channel median
 has been measured yet**, so no row below has a real ratio. Measuring them is
 the first job of the next research pass.
 

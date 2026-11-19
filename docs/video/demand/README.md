@@ -63,7 +63,7 @@ niche
 3. **Open that channel**, sort by popular, note its other standouts. The
    channel's median of its last ~15 uploads is its baseline (RSS:
    `https://www.youtube.com/feeds/videos.xml?channel_id=<id>` gives the last
-   15 with views - see `videos-audit`, "Competitor teardown").
+   15 with views - see `video-audit`, "Competitor teardown").
 4. **Follow that video's recommendations** one level, note standouts there.
 5. Back up and take the next result, then the next term.
 

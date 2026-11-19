@@ -2,7 +2,7 @@
 
 Five skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
 `/video-drone` and the experimental `/video-glitch` - one publishes them,
-`/publish-video`, and two read the analytics back, `/videos-audit` and
+`/publish-video`, and two read the analytics back, `/video-audit` and
 `/videos-performance`. The skills are thin: they hold the
 *order of the work*. Everything a build actually needs to know lives here, once.
 
