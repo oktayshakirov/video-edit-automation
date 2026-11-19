@@ -1,0 +1,49 @@
+{
+  "name": "cointelegraph-squid-cant-sell",
+  "url": "https://cointelegraph.com/news/users-not-able-to-sell-squid-game-token-clocking-45-000-gains",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": true,
+  "select": {
+    "head": "css=h1",
+    "lede": "text=suspects the token"
+  },
+  "hide": [
+    "aside",
+    "iframe",
+    "[class*=ticker]",
+    "[class*=Ticker]",
+    "[class*=banner]",
+    "[class*=Banner]",
+    "[class*=advert]",
+    "[class*=ad-]",
+    "[data-testid*=ad]",
+    "[class*=price]",
+    "[class*=rates]",
+    "header"
+  ],
+  "captured": "2026-11-19",
+  "title": "Users unable to sell Squid Game token clocking 45,000% gains",
+  "size": [
+    2560,
+    10188
+  ],
+  "boxes": {
+    "head": [
+      80,
+      400,
+      1616,
+      624
+    ],
+    "lede": [
+      447.4375,
+      705.96875,
+      746.65625,
+      753.96875
+    ]
+  }
+}

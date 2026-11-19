@@ -75,7 +75,9 @@ sequence drifted into four copies that disagreed.
 2. **Script both together** from the chosen article, in `mia` (the `noah`
    test ended 2026-11-12). The Short's spoken title question runs 10-13
    words so sentence 2 starts near 4s; it runs 30-40s and ends on a plain
-   sentence. The long form runs 2:30-3:00.
+   sentence. The long form runs 2:30-3:00 - **except a heist told as a
+   story (E26), which runs 5-8 minutes with `FORMAT = "story"`**
+   (`projects/crypto.md`, "E26"; first one `squid-game-token`).
 3. **Write the picture first** - the step that matters most here, because
    most of this channel's nouns are abstractions and stock has no
    photograph of one. Follow `workflow.md`, "Write the picture first: the

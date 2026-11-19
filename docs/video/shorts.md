@@ -1395,3 +1395,18 @@ Long form holds the previous picture across a sentence with `None` in
 `SHOTS` raises `'NoneType' object has no attribute 'start'` after the
 narration is built. Give the sentence its own small beat instead (a `stat`
 under "nobody touched a single device"), or a third reveal on the beat before it (`breach`'s `after=`). `stat` has no portrait layout worth using.
+
+## The redacted hook and a full title question do not fit together (2026-11-19)
+
+`squid-game-token`'s Short hid `[MARBLES]` and said it in sentence 2, as
+the hook rules ask. But "The first eight seconds" wants a 10-13 word title
+question so sentence 2 starts at ~4s, and the hook reveals by 4.2s at the
+latest - so the word, spoken at 6.8s, was revealed at 3.0s, before the
+voice. Both rules were followed; together they cannot hold. **With a full
+title question, land the opener with `at_word=`** (`Stamp`, `Counter`;
+up to 7s), or hide a word from sentence 1. `retention_check` now flags a
+hook whose hidden word is spoken past 4.2s.
+
+`enter_word=` on that `Stamp` names a word in sentence 2 ("rules"), not
+the first match in sentence 1 - "sell" was in the title question too and
+would have held the quote on screen for six seconds.

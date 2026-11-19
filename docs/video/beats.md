@@ -1720,7 +1720,7 @@ we need to create different ones". `pile` was in three of the last four
 crypto long forms and both Shorts of the last two pairs. A beat with a
 look of its own (`pile`, `behind`, `blindsign`, `reel`, `post`, `sweep`,
 `lookalike`, `mnemonic`, `quorum`, `shares`, `stake`, `pool`, `replicate`,
-`airgap`, `breach`, `reserve`) may not appear in a video if either of the two videos
+`airgap`, `breach`, `reserve`, `honeypot`) may not appear in a video if either of the two videos
 before it on the same channel and format used it. Draw the idea another
 way, or build a new beat. The plain layouts (`grid`, `compare`, `stat`,
 `steps`, `checklist`, `bars`, `diagram`) are exempt, but still vary them
@@ -1852,3 +1852,31 @@ you turn your head"), and a leader to a jaw says nothing the word does not.
 Actions go in a list beat (`grid` with an icon each); `callout` is for
 labelling things the picture shows (the journaling photo's "how loud",
 "how bothered" worked, and stays).
+
+## `honeypot` - a token anyone can buy and only its creators can sell (2026-11-19)
+
+`Shot(graphic="honeypot", payload=(you, owner, pool, rule, note, exempt,
+title[, pay, token]))`, `you`/`owner`/`pool` as `(name, sub)`. Built for
+`squid-game-token`, because SQUID's whole story is one door that lets one
+direction through: `pool` drains a pool, `sweep` empties a wallet,
+`blindsign` is a screen against a signature, and none of them shows the
+same contract passing a buy, refusing your sell and waving the creators'
+sell through. Reuse it for any honeypot token, a transfer blacklist, a
+"trading not enabled" flag or an exchange freezing withdrawals.
+
+You and the creators on one side, the contract as a gate across three
+lanes, the pool on the other. **Four reveals, four caption chunks, in one
+sentence**: the buy (`pay` through, `token` back, a tick), your sell (the
+chip stops dead at the gate, shudders, slides home; a cross and `rule` in
+the negative colour), the rule (`note` under it), the creators (their
+card lights, their chip runs straight through, a tick, `exempt`).
+
+- Both formats; portrait puts you and the creators side by side above a
+  horizontal gate, the labels centred under it.
+- `__init__` raises on a card name or line wider than its card and on a
+  label wider than the room between gate and pool (~390px in 16:9: "THE
+  GAME NEVER LAUNCHED" fits at the note's size).
+- Cues from `gate_times`: `reveal` on the buy, `cross` as your chip hits
+  the gate, `pan` on the creators' sell. Give its sentence a gap of
+  ~1.6-1.8s so the last tick lands before the cut.
+- A signature beat: it rests for two videos (`beat-rotation`).

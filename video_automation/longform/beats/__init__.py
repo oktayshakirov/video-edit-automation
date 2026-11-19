@@ -71,6 +71,7 @@ from .sweep import Sweep
 from .lookalike import Lookalike
 from .airgap import Airgap
 from .reserve import Reserve
+from .honeypot import Honeypot
 from .breach import Breach
 from .diary import Diary
 from .mnemonic import Mnemonic
@@ -95,7 +96,7 @@ __all__ = [
     "Timeline", "Chart", "Spectrum", "Audiogram",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
-    "Behind", "Pile", "Lookalike", "Airgap", "Breach", "Reserve",
+    "Behind", "Pile", "Lookalike", "Airgap", "Breach", "Reserve", "Honeypot",
     "DRAW", "POP", "RISE",
 ]
 
@@ -136,6 +137,7 @@ BEATS = {
     "lookalike": Lookalike,
     "airgap": Airgap,
     "reserve": Reserve,
+    "honeypot": Honeypot,
     "breach": Breach,
     "diary": Diary,
 }
@@ -202,6 +204,8 @@ _COUNT = {
     # The request, the crossing, the approval, the signature coming back.
     "airgap": lambda p: 4,
     "reserve": lambda p: 4,
+    # The buy, your sell refused, the rule, the creators' sell.
+    "honeypot": lambda p: 4,
     # The field of addresses, then the waves emptying it.
     "breach": lambda p: 3 if len(p) > 7 and p[7] else 2,
     # The month, then one reveal per ringed group.

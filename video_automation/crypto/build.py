@@ -176,7 +176,8 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "spotlight", "blindsign", "spectrum",
                         "shares", "sweep", "mnemonic", "stake",
                         "behind", "pile", "lookalike", "audiogram",
-                        "airgap", "breach", "diary", "reserve"):
+                        "airgap", "breach", "diary", "reserve",
+                        "honeypot"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -295,6 +296,17 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 2:
                 t0, t1 = sweep_span(rv[2])
                 cues += [(t0, "glitch_cut"), (t1 - 0.05, "cross")]
+        elif sh.graphic == "honeypot":
+            # The buy on a reveal, your sell on a cross against the gate,
+            # the creators' sell on a pan (`beats.honeypot`).
+            from ..longform.beats.honeypot import gate_times
+            gt = gate_times(sh.reveals or [])
+            if "buy" in gt:
+                cues.append((gt["buy"], "reveal"))
+            if "block" in gt:
+                cues.append((gt["block"], "cross"))
+            if "exempt" in gt:
+                cues.append((gt["exempt"] - 0.4, "pan"))
         elif sh.graphic == "reserve":
             # The deposit and the loan on a pan, the interest on a reveal,
             # the blocked line on a cross (`beats.reserve`).

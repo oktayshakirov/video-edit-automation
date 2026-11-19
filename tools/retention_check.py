@@ -63,6 +63,8 @@ HELD = 11.0                 # half the opening audience still there
 SHORT_SECS = {"crypto": (30, 40)}       # E17
 LONG_MAX = 180                          # 3:00, the editor's rule (was E18)
 FORMAT_LONG_MAX = 480                   # E26 formats run 5-8 minutes
+# `overlay.hook_reveal_time`'s latest reveal (`longform.md`, 2026-10-16).
+HOOK_LATEST = 4.2
 E26_FORMAT = re.compile(r'^FORMAT\s*=\s*["\'](list|ranking|story)["\']', re.M)
 
 
@@ -110,6 +112,9 @@ def features(path: Path) -> dict | None:
     hold = re.search(r"\bhold\s*=\s*([0-9.]+)", shown)
     hold = float(hold.group(1)) if hold else OPENER_HOLD
     exit_ = None
+    hook_at = None
+    if kind == "hook" and word:
+        hook_at = _word_at(tl, word)
     if kind != "none":
         land = _word_at(tl, word) if word else None
         if land is None:
@@ -129,7 +134,7 @@ def features(path: Path) -> dict | None:
         path=str(path), channel=sc.classify(path)[0],
         w1=len(tl[0][2].split()), s1_end=tl[0][1], s2_start=tl[1][0],
         s2_end=tl[1][1], opener=kind, opener_exit=exit_, resume=resume,
-        bare=bare, opener_holds=holds, secs=total,
+        bare=bare, opener_holds=holds, secs=total, hook_at=hook_at,
         words=sum(len(t.split()) for _a, _b, t in tl),
         first=tl[0][2], last=tl[-1][2], timeline=tl,
         stock=(sum(1 for s in shots if sc.is_plain_stock(s)) / len(shots)
@@ -209,6 +214,16 @@ def check(path: Path) -> list[str]:
             "no opener_holds=True on the render call - when the opener "
             "leaves mid-sentence the frame has no type until the next "
             f"sentence, right at the steepest drop{est}")
+    if ft.get("hook_at") is not None and ft["hook_at"] > HOOK_LATEST:
+        # 2026-11-19, squid-game-token: a 13-word title question put the
+        # hidden word at ~6.8s and the hook revealed it at 3.0s, before the
+        # voice. The two rules cannot both hold - use an opener with
+        # `at_word=` (lands up to 7s) or hide a word from sentence 1.
+        flags.append(
+            f"the hook's hidden word is spoken at ~{ft['hook_at']:.1f}s - the "
+            f"redacted hook reveals by {HOOK_LATEST}s at the latest, so it "
+            f"shows before it is said. With a full title question, use an "
+            f"opener that takes at_word= (Stamp, Counter) instead")
     lo_hi = SHORT_SECS.get(channel)
     if lo_hi and not (lo_hi[0] - 2 <= ft["secs"] <= lo_hi[1] + 3):
         flags.append(f"~{ft['secs']:.0f}s - {channel} Shorts run "

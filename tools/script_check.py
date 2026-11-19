@@ -426,7 +426,7 @@ def is_full_frame(sh) -> bool:
 SIGNATURE_BEATS = ("pile", "behind", "blindsign", "reel", "post", "sweep",
                    "lookalike", "mnemonic", "quorum", "shares", "stake",
                    "pool", "replicate", "airgap", "breach", "diary",
-                   "reserve")
+                   "reserve", "honeypot")
 # A cover's accent goes on the word that carries the subject, never on one
 # of these.
 WEAK_ACCENT = {"it", "its", "one", "this", "that", "them", "they", "you",

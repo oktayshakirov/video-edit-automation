@@ -1885,3 +1885,36 @@ note on different language that is unrelated". And at 0.5s it is a night
 stand, under a line about a key. **Any readable text in a clip is part of
 the picture**: play the whole span the slot uses, and reject a clip whose
 text is not about the line. The clip is rejected for this subject.
+
+## The squid-game-token fetch: verdicts (2026-11-19)
+
+**A trading screen always names a market, and it is never ours.** All four
+"trading app" / "market crash screen" clips fetched for this pair carried a
+readable ticker: `35886692` "Apple Inc / AAPL" with buy and sell buttons,
+`38687556` "EUR/USDC" in large type, `38557069` "BTC/USDT", `38859052`
+"EURUSDC" small. The first cut put the Apple phone under the opening and
+the close of the Short and eight times in the long form, and captioned the
+EUR/USDC screen "$38 → $90, SQUID" - a caption that tells the viewer a
+foreign chart is the token's. Found on the frame check, before hand-over.
+**For a named coin's price, use its real chart** (the site's
+`rugpull.jpg`, a TradingView capture of SQUID/WBNB, under `spotlight`)
+**or draw it; a stock chart only where no line names a market.** Read
+every ticker on the sheet at full size, not at contact-sheet size.
+
+- Kept: `33942937` (a finger over a phone, near black - opens and closes
+  both cuts), `13161559` (a finger tapping a tablet - the sell attempt),
+  `8311535` (a man at a laptop at night; the page is unreadable),
+  `13358555` (two hands on a phone, screen turned away), `36036810` (a
+  hooded figure at a laptop, face unseen - the anonymous team),
+  `39494892` / `28828935` (chat apps; no names legible), `33504957`
+  (gold digits counting down), `9071269` (a streamer on a headset),
+  `7140928` (server fronts).
+- `7233704` (glass marbles) is bright (B150+) and only ever goes in a
+  `window=`; the marbles are the noun, so it is worth the frame.
+- Rejected: `7987508` (two people smiling at a phone - wrong mood),
+  `6614770` (a lit room), the Guy Fawkes mask photos (they say "hacker
+  group", not "anonymous team").
+- **Read a real chart's axes before labelling a region of it.**
+  `rugpull.jpg` covers 06:30-10:30 UTC on 1 November only, in WBNB, and
+  its climb was first labelled "$38 on 31 Oct, $90 by 1 Nov" - dates the
+  picture does not contain. Caught in a spotlight preview.

@@ -9,6 +9,17 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-19 - first crypto E26 story; the `honeypot` beat
+
+- **`squid-game-token` is crypto's first E26 story**: one theft told in
+  order (plan, climb, trap, signs, pull, trail, check), 5:07, `FORMAT =
+  "story"`. Count E26's three crypto pairs from here.
+- **A new drawn beat, `honeypot`** (`beats.md`): buys pass the contract,
+  your sell bounces off, the creators' sell goes through.
+- **No trading-app or market-screen stock under a named coin's price**
+  (`footage.md`, the squid-game-token verdicts): the real chart under
+  `spotlight` instead.
+
 ## 2026-11-18 - first E25 session; beds fetched from DistroKid
 
 - **`brown-noise-478-breathing` is E25's first session**: "Brown Noise"

@@ -339,3 +339,17 @@ One line per branch: date, the term or channel, what it added.
   documentaries (Swan 24x, HBO trailer 18x). **For crypto the proven list
   is not a ranking of coins but a story of one theft.**
 
+- 2026-11-19, three `yt-dlp` searches (no units) for topic suggestions.
+  "biggest crypto liquidation in history": the 10/10/2025 cascade - Swan
+  Bitcoin "Bitcoin Just Survived the Biggest Liquidation in History" 79.6k
+  (~8x of its 9.7k median), Hack Crypto "THE LARGEST LIQUIDATION IN HISTORY
+  // $19 BILLION" 12.4k, Nobody Special 9.6k (direction - closed to us); the
+  "what really happened on 10/10" explainers sit at 81-1.6k. A named event,
+  one standout, and nobody explaining the cascade itself. "crypto
+  liquidation explained": unchanged since 11-16 (CoinGecko 31k, Crypto For
+  Canadians 11.8k; the big ones are trading channels). "honeypot token
+  crypto scam": CoinGecko "How To Avoid Crypto Scams? Rug Pull, Honeypot
+  Scams Explained" 85k (~15x); every other honeypot answer is under 2.5k,
+  two of them "create a honeypot" tutorials (closed to us). The mechanism
+  behind SQUID's "you can't sell" is answered once, by one channel.
+- 2026-11-19, "squid game crypto scam" (`yt-dlp`, no units) for the pair: the recent retellings all sit at 47-231 views (CryptoHeist 55, Rug Files 109, Fine-Print 98, TechGaged 231); Patrick Boyle 171k and Coffeezilla 508k are 2021 and under their medians. Teardown: `teardowns/squid-game-crypto-scam.md`.

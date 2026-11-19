@@ -1,0 +1,48 @@
+{
+  "name": "trm-squid-trail",
+  "url": "https://www.trmlabs.com/post/on-the-trail-of-the-squid-game-scammers",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "only": "text=allowed only the creators to sell",
+    "link": "text=two other similar",
+    "tc": "text=Tornado Cash"
+  },
+  "hide": [
+    "#osano-ui",
+    "[class*=osano]",
+    "header",
+    "nav"
+  ],
+  "captured": "2026-11-19",
+  "title": "TRM Labs | On the Trail of the Squid Game Scammers",
+  "size": [
+    2560,
+    8540
+  ],
+  "boxes": {
+    "only": [
+      1317.5,
+      799.0,
+      1827.21875,
+      843.0
+    ],
+    "link": [
+      1273.96875,
+      1672,
+      1545.90625,
+      1716
+    ],
+    "tc": [
+      700,
+      1351.0,
+      924.5625,
+      1395.0
+    ]
+  }
+}
