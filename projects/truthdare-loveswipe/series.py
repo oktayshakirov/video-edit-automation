@@ -17,6 +17,23 @@ two ways so the numbers can say which wins:
 
 It also tries colours: each video has a `LOOKS` entry setting the ground, the
 two card neons, the card panel and the header colour together.
+
+**Batch three (13-21, 2026-11-19), built on batch two's TikTok numbers.**
+Views barely moved (746-842); likes split:
+
+| # | intro | ground | first card | views | likes |
+|---|---|---|---|---|---|
+| 07 | cold | ember | who cracks first in an interrogation | 842 | 16 |
+| 09 | cold | blush | who's the bigger baby when sick | 789 | 13 |
+| 10 | flash | noir | who texts first after an argument | 791 | 12 |
+| 11 | cold | grove | who'd win a "who left this here?" case | 761 | 5 |
+| 08 | flash | lagoon | your most irrational fear | 749 | 1 |
+| 12 | flash | electric | who goes through bathroom drawers | 746 | 1 |
+
+So every batch-three video is a cold open, sits on a warm or dark ground
+(three repeats of the winners, six new looks in the same family), and opens
+on a judge-your-partner card ("you or your partner", "which of you"). One
+video per look, so this is still a small sample: read it as a direction.
 """
 
 from dataclasses import replace
@@ -57,7 +74,28 @@ LOOKS = {
     "grove": dict(band=(36, 108, 46), backdrop="loveswipe-grove", primary=(255, 205, 70),
                   panel=(12, 30, 18),
                   cards=((170, 240, 90), (255, 200, 60))),
-    "electric": dict(band=(58, 70, 200), backdrop="loveswipe-electric", primary=(255, 130, 100),
+    # Batch three (13-21): warm and dark grounds, and the second card always
+    # pink or rose - the one thing batch two's three best-liked videos
+    # (ember, blush, noir) shared on the cards.
+    "wine": dict(band=(150, 30, 70), backdrop="loveswipe-wine",
+                 primary=(255, 196, 70), panel=(34, 10, 18),
+                 cards=((255, 196, 70), (255, 90, 150))),
+    "rosegold": dict(band=(170, 80, 90), backdrop="loveswipe-rosegold",
+                     primary=(255, 214, 150), panel=(36, 18, 20),
+                     cards=((255, 214, 150), (255, 105, 160))),
+    "crimson": dict(band=(180, 30, 40), backdrop="loveswipe-crimson",
+                    primary=(255, 225, 190), panel=(34, 8, 12),
+                    cards=((80, 210, 255), (255, 90, 170))),
+    "velvet": dict(band=(150, 40, 130), backdrop="loveswipe-velvet",
+                   primary=(255, 175, 120), panel=(30, 12, 34),
+                   cards=((255, 175, 120), (255, 90, 170))),
+    "copper": dict(band=(170, 80, 30), backdrop="loveswipe-copper",
+                   primary=(255, 200, 120), panel=(34, 16, 10),
+                   cards=((255, 230, 180), (255, 100, 150))),
+    "noirgold": dict(band=(130, 70, 20), backdrop="loveswipe-noirgold",
+                     primary=(255, 196, 70), panel=(22, 16, 12),
+                     cards=((255, 196, 70), (255, 90, 170))),
+    "electric": dict(band=(58, 70, 200),backdrop="loveswipe-electric", primary=(255, 130, 100),
                      panel=(16, 14, 46),
                      cards=((80, 165, 255), (255, 125, 95))),
 }

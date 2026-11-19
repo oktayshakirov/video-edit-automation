@@ -234,6 +234,28 @@ LOVESWIPE_BACKDROPS = {
     "loveswipe-electric": dict(base=(4, 4, 20), blobs=[
         (0.36, 0.40, 0.10, 1, 0.00, (40, 62, 205), 0.30, 0.60),
         (0.66, 0.60, 0.12, 1, 0.50, (124, 20, 160), 0.26, 0.66)]),
+    # **Batch three (2026-11-19): warm and dark only.** On TikTok batch two's
+    # warm and dark grounds (ember 16 likes, blush 13, noir 12) beat the cool
+    # ones (grove 5, lagoon 1, electric 1) on near-equal views, so the new
+    # grounds stay in that family and vary inside it.
+    "loveswipe-wine": dict(base=(14, 3, 8), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (122, 16, 48), 0.28, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (90, 20, 70), 0.26, 0.66)]),
+    "loveswipe-rosegold": dict(base=(16, 8, 8), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (172, 92, 70), 0.22, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (150, 50, 90), 0.22, 0.66)]),
+    "loveswipe-crimson": dict(base=(16, 3, 4), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (172, 20, 26), 0.26, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (112, 10, 40), 0.24, 0.66)]),
+    "loveswipe-velvet": dict(base=(12, 4, 14), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (112, 20, 100), 0.26, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (62, 14, 92), 0.24, 0.66)]),
+    "loveswipe-copper": dict(base=(14, 7, 3), blobs=[
+        (0.36, 0.40, 0.10, 1, 0.00, (184, 92, 30), 0.20, 0.60),
+        (0.66, 0.60, 0.12, 1, 0.50, (134, 40, 30), 0.20, 0.66)]),
+    "loveswipe-noirgold": dict(base=(6, 5, 4), blobs=[
+        (0.40, 0.42, 0.10, 1, 0.00, (96, 64, 12), 0.16, 0.60),
+        (0.62, 0.62, 0.12, 1, 0.50, (90, 16, 60), 0.14, 0.66)]),
 }
 
 

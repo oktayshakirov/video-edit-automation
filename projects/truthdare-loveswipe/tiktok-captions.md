@@ -83,3 +83,63 @@ Did you stalk them on social media before you first met? 👀 Pick a truth, answ
 Who goes through the bathroom drawers at someone else's house? 🚪 Pick one each round. Pause if you need more time. 870 cards in Love Swipe, link in bio.
 
 #couplesgame #truthordare #couplegoals #datenightideas #relationshipquestions #couplestiktok
+
+## Batch three (13-21): cold opens, warm grounds, judge-your-partner hooks
+
+All cold opens. Hook line and hashtags only, no closing CTA line. The best
+liked of batch two opened on a "you or your partner" question, so every
+caption leads with the first card's question.
+
+## love-swipe-13 (ember)
+
+Is your partner a good driver? 🚗 Be honest.
+
+#couplesgame #truthordare #couplegoals #datenight #relationshipquestions #lovequiz
+
+## love-swipe-14 (wine)
+
+Who's the good cop and who's the bad cop in your relationship? 🚔
+
+#couplesgame #truthordare #couplegoals #datenightideas #relationshipquestions #couplechallenge
+
+## love-swipe-15 (blush)
+
+Your partner at 7 a.m.: sunshine, zombie or gremlin? ☀️🧟
+
+#couplesgame #truthordare #couplegoals #datenight #relationshipquestions #couplestiktok
+
+## love-swipe-16 (rosegold)
+
+Who packs faster, and who packs better? 🧳
+
+#couplesgame #truthordare #couplegoals #datenightideas #relationshipquestions #lovequiz
+
+## love-swipe-17 (noir)
+
+Dinner party: who cooks and who charms? 🍝
+
+#couplesgame #truthordare #couplegoals #datenight #relationshipquestions #couplechallenge
+
+## love-swipe-18 (crimson)
+
+Which of you talks your way out of a speeding ticket? 🚨
+
+#couplesgame #truthordare #couplegoals #datenightideas #relationshipquestions #couplestiktok
+
+## love-swipe-19 (velvet)
+
+Your partner's texting style: dry texts, slow replies or novels? 📱
+
+#couplesgame #truthordare #couplegoals #datenight #relationshipquestions #lovequiz
+
+## love-swipe-20 (copper)
+
+Who's the real handyman between you two? 🔧
+
+#couplesgame #truthordare #couplegoals #datenightideas #relationshipquestions #couplechallenge
+
+## love-swipe-21 (noirgold)
+
+Which of you two keeps secrets better? 🤫
+
+#couplesgame #truthordare #couplegoals #datenight #relationshipquestions #couplestiktok
