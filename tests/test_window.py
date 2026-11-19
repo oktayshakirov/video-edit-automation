@@ -46,8 +46,14 @@ def test_a_shot_has_no_window_unless_it_asks():
 def test_the_window_sits_inside_the_safe_box(frame):
     L = window.layout(frame)
     assert 0 < L.x and L.x + L.w < frame.w
-    assert L.y > frame.logo_at[1]                  # under the watermark's top
+    assert L.y >= frame.safe_top                   # under the platform's top UI
     assert L.y + L.h <= frame.safe_bottom          # above the captions / UI
+    if frame.h > frame.w:
+        # 9:16: the watermark floats over the window (2026-11-20), and a
+        # four-line caption at the default 0.70 clears the bottom strip.
+        assert L.y + L.h + 24 <= frame.h * 0.70 - 116
+    else:
+        assert L.y > frame.logo_at[1]              # under the watermark's top
 
 
 @pytest.mark.parametrize("kind", window.KINDS)

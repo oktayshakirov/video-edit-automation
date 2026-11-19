@@ -1410,3 +1410,18 @@ hook whose hidden word is spoken past 4.2s.
 `enter_word=` on that `Stamp` names a word in sentence 2 ("rules"), not
 the first match in sentence 1 - "sell" was in the title question too and
 would have held the quote on screen for six seconds.
+
+## A window sits high in 9:16; the captions go under it (2026-11-20)
+
+The editor, on the `tinnitus-treatments-ranked` Short at 0:37 (the therapy
+photo in a `window=("player", ...)`): "make sure the captions dont overlap
+the player component, there is enough space on the bottom, use it, also you
+can push the player to the top if needed, the watermark can hover it." The
+window started under the watermark and ended at ~1376px; a four-line caption
+centred at 0.70 ran across its player strip.
+
+`core/window.layout` now starts a 9:16 window at `safe_top + 10` (it ends at
+~1198px), the watermark floats over its top-left corner, and the player's
+own caption text starts right of the mark. `caption_line` keeps every
+caption of a Short with a window at least 140px below the window's bottom
+(`tests/test_window.py`). Long-form windows are unchanged.

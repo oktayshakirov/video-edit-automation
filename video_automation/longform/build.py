@@ -135,6 +135,11 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
                 # Intermediates are deleted on success. See the note at the end
                 # of this function; set True while iterating on a cut.
                 keep_work: bool = False,
+                # Fix a misread word without a re-render (2026-11-20):
+                # {sentence as written: sentence as it should be spoken}, and
+                # the finished MP4 whose picture is kept. `tools/revoice.py`.
+                revoice: dict | None = None,
+                reuse_picture: Path | None = None,
                 frame: Frame = LANDSCAPE) -> dict:
     """Build the video and everything that ships with it.
 
@@ -161,6 +166,9 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
     style_chapters(shots, chapter_style)
     track, captions, total = build_narration_aligned(
         [list(s) for s in sentences], workdir, gap=gaps, **profile_args(voice))
+    if revoice:
+        from .revoice import patch_track
+        track = patch_track(track, captions, revoice, workdir, voice)
 
     spans = sentence_spans(sentences, captions)
     shots, groups, chapters = lay_out(sections, shots, spans, total)
@@ -289,7 +297,12 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
                                strength=1.0 if film is True else float(film),
                                fps=fps)]
 
-    picture = render_shots(
+    if reuse_picture is not None:
+        from .revoice import reuse
+        picture = reuse(Path(reuse_picture), workdir, total)
+    else:
+        picture = None
+    picture = picture or render_shots(
         workdir / "picture.mp4", shots, total, fps=fps, captions=sprites,
         frame=frame, transition="push", xfade=0.34,
         factory=lambda s, fr: make_beat(s, brand, fr),
@@ -357,8 +370,10 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
     subprocess.run(
         ["ffmpeg", "-v", "error", "-y", "-i", str(picture), "-i", str(track),
          "-map", "0:v", "-map", "1:a",
-         "-c:v", "libx264", "-crf", "18", "-preset", "slow",
-         "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+         *(["-c:v", "copy"] if reuse_picture is not None else
+           ["-c:v", "libx264", "-crf", "18", "-preset", "slow",
+            "-pix_fmt", "yuv420p"]),
+         "-c:a", "aac", "-b:a", "192k",
          "-shortest", "-movflags", "+faststart", str(out)],
         check=True, capture_output=True)
 
@@ -627,6 +642,10 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 1:
                 cues.append((rv[1] + 0.25, "glitch_cut"))
                 cues.append((min(sh.start + sh.hold - 1.0, rv[1] + 6.2), "cross"))
+        elif sh.graphic == "tiers":
+            # Each card on a tick as it lands in its row (`beats.tiers`).
+            from .beats.tiers import drop_times
+            cues += [(t, "tick") for t in drop_times(sh.reveals or [])]
         elif sh.graphic == "diary":
             # The month on a pan, each ringed group on a tick (`beats.diary`).
             rv = sh.reveals or []

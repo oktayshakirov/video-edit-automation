@@ -1918,3 +1918,31 @@ every ticker on the sheet at full size, not at contact-sheet size.
   `rugpull.jpg` covers 06:30-10:30 UTC on 1 November only, in WBNB, and
   its climb was first labelled "$38 on 31 Oct, $90 by 1 Nov" - dates the
   picture does not contain. Caught in a spotlight preview.
+
+## The tinnitus-treatments-ranked fetch: verdicts (2026-11-19)
+
+**A guideline's pages may not be capturable.** The AAO-HNS release page's
+own terms forbid copying its content into "applications, software, bots,
+or websites"; PubMed answers a headless browser with a cookie wall; Europe
+PMC's article page timed out. The guideline's words went on `post` cards
+instead, quoted from the abstract, which the Europe PMC REST API returns as
+text (`/europepmc/webservices/rest/search?query=EXT_ID:<pmid>%20AND%20SRC:MED&resultType=core&format=json`).
+Read a site's terms before `screencap grab`.
+
+- Kept: `7198399` (a woman in glasses reading a tablet in purple light,
+  B11 - opens), `7988267` (a woman at a laptop by a night window - only
+  7s: three uses at most), `5453702` (two hands of capsules, window),
+  `8731104` / `9902348` (a doctor's hands with pills; blister packs -
+  windows), `7505575` (a woman settling into bed by a lamp), `29570736`
+  (hands turning a small radio's dial - "gentle sound"), `7924404` (an
+  older man with a tablet on a sofa), `39425735` (writing by a lamp),
+  `7088463` (an empty scanner room - "scans", never magnetic stimulation:
+  an MRI is not rTMS, and the first draft put it under that line),
+  `8534603` (a gloved hand with a blood tube), `6639799` (journal in bed),
+  `34535507` (a man silhouetted at a window).
+- Rejected: `7407148` (reads as a child), `7986740` (a towel and a laptop
+  in bed), every "white noise machine" result (bright beds, couples), the
+  ceiling fans (bright, or a gaming room), every tea-mug clip (bright).
+- Pexels has no hearing aid under "hearing aid isolated" (a megaphone, an
+  otoscope, an ear); the site's `hearing-aid.jpg` is the only one.
+

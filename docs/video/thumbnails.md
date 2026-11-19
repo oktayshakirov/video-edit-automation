@@ -999,6 +999,7 @@ to `DEMAND`, to the style of the cover that shipped:
 | `"text"` | a picture and the headline, no marks |
 | `"arrow"` | an arrow and/or a ring pointing at something in the picture |
 | `"beat"` | a drawn graphic from the video as the cover |
+| `"tiers"` | a drawn tier board, big icons in graded rows (a ranking; 2026-11-19) |
 
 `script_check` flags a script without it, or with a name not in that list
 (`COVER_STYLES` in `tools/script_check.py` - add a new style there and
@@ -1145,3 +1146,32 @@ lead, written down because it costs nothing and the market works this way.
   clean comparison at our reach is Studio's Test & Compare, set up by the
   editor in Studio on a video that already draws impressions.
 
+## A ranking's cover is the board, with the top row asked (2026-11-19)
+
+`tinnitus-treatments-ranked`: the search's treatment rankings (Doctor Cliff
+303k, Treble "WORST / BEST" 68k, Treble "BEST EVER?" with a device ticked
+and a supplement crossed) show the products themselves with marks. Two
+directions were built: `tiers` - four graded rows (STRONG / YES / MAYBE /
+NO), big icons only, the top row empty with a "?", TINNITUS [TOP TIER?] -
+and `cutout` - a supplement bottle crossed and a hearing aid ticked,
+TINNITUS [BEST & WORST]. The board carries no small text, so it survives
+320px where a beat card does not ("A drawn beat card is noise at 320px").
+
+**Translucent fills on an RGBA image replace its alpha, they do not
+blend.** The first board drew `fill=col + (34,)` straight onto the ground
+and every row came out solid, hiding the top row's yellow "?" in its own
+yellow. Draw translucent shapes on their own layer and `alpha_composite`.
+
+### The board carries the video's cards, not loose emoji (2026-11-20)
+
+The editor picked the `tiers` cover and asked for "the cubes from the video
+with the text" in place of the emoji ("you can blur some of them or leave
+as it is"). Each row now holds two of the video's own cards (icon + label,
+the beat's dark card and row-coloured edge) and, where the row has more, a
+third blurred and clipped at the board's edge. **Every card shares one
+label size** - the largest at which every sharp card sets in two lines -
+because per-card fitting made "Supplements" visibly smaller than "CBT".
+Size the card's icon and padding by its width too, not only its height, or
+9:16's tall rows leave no room for the label. The cut-out direction was
+deleted with its code (`cover()` in `projects/tinnitus-long/
+tinnitus-treatments-ranked.py`).

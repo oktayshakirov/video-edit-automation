@@ -112,6 +112,13 @@ def caption_line(shots: list[Shot], y_frac: float,
     floor = frame.caption_floor if floor is None else floor
     lows = [y_frac]
     for sh in shots:
+        if getattr(sh, "window", None):
+            # A framed clip or still: the caption block (up to four lines,
+            # ~116px above its centre) clears the window's bottom strip.
+            from ..core.window import layout as _window_layout
+            L = _window_layout(frame)
+            lows.append((L.y + L.h + 140) / frame.h)
+            continue
         if sh.image is None:
             continue
         # Measured at f=0.5, the middle of the Ken Burns move; the drift over a
@@ -177,7 +184,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "shares", "sweep", "mnemonic", "stake",
                         "behind", "pile", "lookalike", "audiogram",
                         "airgap", "breach", "diary", "reserve",
-                        "honeypot"):
+                        "honeypot", "tiers"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -332,6 +339,10 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 1:
                 cues.append((rv[1] + 0.25, "glitch_cut"))
                 cues.append((min(sh.start + sh.hold - 1.0, rv[1] + 6.2), "cross"))
+        elif sh.graphic == "tiers":
+            # Each card on a tick as it lands in its row (`beats.tiers`).
+            from ..longform.beats.tiers import drop_times
+            cues += [(t, "tick") for t in drop_times(sh.reveals or [])]
         elif sh.graphic == "diary":
             # The month on a pan, each ringed group on a tick (`beats.diary`).
             rv = sh.reveals or []

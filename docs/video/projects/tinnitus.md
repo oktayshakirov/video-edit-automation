@@ -105,7 +105,14 @@ the number (3 views at 4 days, CTR 0.84%).
   title"). Judged in `videos-performance/experiments.md` E26.
 
 Built: `projects/tinnitus-long/does-tinnitus-go-away.py` and
-`projects/tinnitus-long/gaming-and-tinnitus.py`.
+`projects/tinnitus-long/gaming-and-tinnitus.py`. **The first E26 pair is
+`tinnitus-treatments-ranked` (2026-11-19)**: the 2026 guideline's own
+grades as the rows (`tiers` beat), worst first, the empty top row as the
+twist. **Rank by a published body's grades, not ours** - we have no
+clinician to rank anything, and the grades are checkable. Check every grade
+against the primary source (the abstract, via the Europe PMC API) before
+scripting: the site's article carried a "362 trials" figure no readable
+primary page confirmed, so it was not said.
 
 ```bash
 PYTHONPATH=. .venv/bin/python projects/tinnitus-long/does-tinnitus-go-away.py

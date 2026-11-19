@@ -99,8 +99,17 @@ def layout(frame: Frame) -> Layout:
     Landscape: 70% of the width, 16:9 content, centred but kept above the
     player's control bar; at that width the window's left edge clears the
     top-left watermark. Vertical:
-    90% of the width, a near-square content area, its top under the
-    watermark and its bottom above `safe_bottom`, where the captions start.
+    90% of the width, a near-square content area, its top just under the
+    platform's own top UI (`safe_top`), so the watermark floats over the
+    window's top-left corner and the captions get the band below it.
+
+    **Raised 2026-11-20.** The window used to start under the watermark and
+    end at ~1376px, and a four-line caption centred at 0.70 ran straight
+    across its player strip (`tinnitus-treatments-ranked` Short, 0:37; the
+    editor: "make sure the captions dont overlap the player component...
+    you can push the player to the top if needed, the watermark can hover
+    it"). It now ends at ~1198px and `caption_line` keeps every caption
+    under it.
     """
     if frame.w >= frame.h:
         w = int(frame.w * 0.70)
@@ -114,8 +123,7 @@ def layout(frame: Frame) -> Layout:
         w = int(frame.w * 0.90)
         bar = int(w * 0.066)
         ch = int(w * 0.92)
-        y = frame.logo_at[1] + 150
-        y = min(y, frame.safe_bottom - ch - bar - 20)
+        y = frame.safe_top + 10
     x = (frame.w - w) // 2
     return Layout(x, y, w, bar, ch, radius=max(10, int(w * 0.014)))
 
@@ -280,8 +288,16 @@ class WindowShot:
             ramp = np.linspace(0.45, 1.0, shade.shape[0], dtype=np.float32)[:, None, None]
             top = Image.fromarray((shade * ramp).astype(np.uint8))
             dd = ImageDraw.Draw(top)
-            dd.text((L.bar * 0.5, L.bar * 0.35),
-                    _fit(self.text, self.font, L.w * 0.8), font=self.font, fill=(255, 255, 255))
+            # In 9:16 the watermark floats over the window's top-left, so the
+            # caption starts to the right of it.
+            tx = L.bar * 0.5
+            if self.frame.h > self.frame.w:
+                mark_r = (self.frame.logo_at[0]
+                          + int(self.frame.logo_w * self.brand.mark_scale))
+                tx = max(tx, mark_r - L.x + 18)
+            dd.text((tx, L.bar * 0.35),
+                    _fit(self.text, self.font, L.w - tx - L.bar * 0.5),
+                    font=self.font, fill=(255, 255, 255))
             win[:top.height] = np.asarray(top)
 
     def _prompt(self, win: np.ndarray, f: float) -> None:

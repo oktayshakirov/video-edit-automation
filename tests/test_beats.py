@@ -126,6 +126,14 @@ PAYLOADS = {
                  ("THE POOL", "BNB, on PancakeSwap"), "NEEDS MARBLES",
                  "THE GAME NEVER LAUNCHED", "NO RULE FOR THEM",
                  "WHO COULD SELL SQUID"),
+    # (rows, items, title, shown): portrait-safe; one item already placed.
+    "tiers": ([("Recommended", "doctors should offer it"),
+               ("An option", "doctors may offer it"),
+               ("Advised against", "not for tinnitus itself", None,
+                "Nothing here")],
+              [(0, "Hearing aids", "\U0001F9BB"), (1, "Sound enrichment", ""),
+               (0, "Talking therapy", "")],
+              "THE 2026 GUIDELINE", 1),
     # (cells_label, figure, unit, waves, title, verdict, legend): portrait-safe.
     # (levels, flagged, groups, title, legend): portrait-safe.
     "diary": ([5, 4, 9, 3, 5, 8, 4], [2, 3],
@@ -234,7 +242,7 @@ def test_beat_renders_on_both_brands(name):
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
             "post", "spotlight", "behind", "pile", "audiogram", "airgap",
-            "breach", "diary", "reserve", "honeypot"]
+            "breach", "diary", "reserve", "honeypot", "tiers"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -312,7 +320,7 @@ def test_every_beat_class_is_registered():
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
                 "behind", "pile", "lookalike", "airgap", "breach", "diary",
-                "reserve", "honeypot"):
+                "reserve", "honeypot", "tiers"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from

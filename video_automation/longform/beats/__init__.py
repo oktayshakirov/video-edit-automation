@@ -72,6 +72,7 @@ from .lookalike import Lookalike
 from .airgap import Airgap
 from .reserve import Reserve
 from .honeypot import Honeypot
+from .tiers import Tiers
 from .breach import Breach
 from .diary import Diary
 from .mnemonic import Mnemonic
@@ -97,6 +98,7 @@ __all__ = [
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
     "Behind", "Pile", "Lookalike", "Airgap", "Breach", "Reserve", "Honeypot",
+    "Tiers",
     "DRAW", "POP", "RISE",
 ]
 
@@ -138,6 +140,7 @@ BEATS = {
     "airgap": Airgap,
     "reserve": Reserve,
     "honeypot": Honeypot,
+    "tiers": Tiers,
     "breach": Breach,
     "diary": Diary,
 }
@@ -206,6 +209,13 @@ _COUNT = {
     "reserve": lambda p: 4,
     # The buy, your sell refused, the rule, the creators' sell.
     "honeypot": lambda p: 4,
+    # One per item placed after the ones already on the board; with none
+    # new, one reveal that lights the whole board.
+    # The rows alone, one per grade, when no items are given.
+    "tiers": lambda p: (len(p[0]) if not p[1] else
+                        max(1, (int(p[4]) if len(p) > 4 and p[4] is not None
+                                else len(p[1]))
+                            - (int(p[3]) if len(p) > 3 else 0))),
     # The field of addresses, then the waves emptying it.
     "breach": lambda p: 3 if len(p) > 7 and p[7] else 2,
     # The month, then one reveal per ringed group.

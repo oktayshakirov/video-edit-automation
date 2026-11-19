@@ -9,6 +9,17 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-19 - first tinnitus E26 ranking; the `tiers` beat
+
+- **`tinnitus-treatments-ranked` is tinnitus's first E26 pair**: the 2026
+  guideline's treatments ranked by the panel's own grades, worst first,
+  5:50, `FORMAT = "ranking"`. Count E26's three tinnitus pairs from here.
+- **A new drawn beat, `tiers`** (`beats.md`): a tier board that fills row
+  by row across the video. **A new cover style, `tiers`** (`thumbnails.md`),
+  the board with the video's labelled cards, top row "?".
+- **9:16 windows sit high, captions under them** (`shorts.md`, 2026-11-20):
+  every Short with a `window=` from here.
+
 ## 2026-11-19 - first crypto E26 story; the `honeypot` beat
 
 - **`squid-game-token` is crypto's first E26 story**: one theft told in

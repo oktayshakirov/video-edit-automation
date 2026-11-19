@@ -163,7 +163,14 @@ shipped wrong into the meme coins pair (2026-10-22) although musk-effect had
 already solved it** - the fix lived only in that script's comment. Grep
 `projects/` for a name before writing it: a solved respelling is reused, not
 rediscovered by the editor. `will.i.am` - say
-`Will I Am`. **`habituated` has no respelling that
+`Will I Am`. `ginkgo` reads with a soft J (`dʒˈɪŋkɡoʊ`, "JINK-go") -
+respell `Ghinko` (`ɡˈɪŋkoʊ`); caught by the editor on
+`tinnitus-treatments-ranked` (2026-11-20). **A word already in a finished
+long form is fixed with `tools/revoice.py`**, not a re-render: it re-speaks
+that one sentence over its own slot and copies the picture
+(`longform/revoice.py`; refuses a re-read more than 12% longer or shorter).
+Run it before putting the respelling into the script, or the narration
+cache misses. **`habituated` has no respelling that
 works** - six tried, every one wrong on the stress or the vowel - so say "used
 to it" and keep the word on screen only.
 

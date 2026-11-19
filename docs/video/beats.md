@@ -1681,6 +1681,12 @@ drawing style next to Noto's. Check first and prefer a set that all moves:
 One moving icon among still ones draws the eye to it - use that on purpose
 (the item the line is about), not by accident.
 
+**An animation can have near-empty frames: look at the icon mid-shot.**
+Noto's ⚡ animates through frames where only a spark is left, and on
+`tinnitus-treatments-ranked` the "Bimodal devices" card showed no icon for
+most of its time on screen (2026-11-19). `emoji check` says *whether* an
+icon animates, not whether every frame reads; check a frame at full size.
+
 **No licence line goes into the video for them** - not a long form's
 credits, not a Short's description. The first version added one
 automatically; the editor removed it (2026-11-05).
@@ -1720,7 +1726,7 @@ we need to create different ones". `pile` was in three of the last four
 crypto long forms and both Shorts of the last two pairs. A beat with a
 look of its own (`pile`, `behind`, `blindsign`, `reel`, `post`, `sweep`,
 `lookalike`, `mnemonic`, `quorum`, `shares`, `stake`, `pool`, `replicate`,
-`airgap`, `breach`, `reserve`, `honeypot`) may not appear in a video if either of the two videos
+`airgap`, `breach`, `reserve`, `honeypot`, `tiers`) may not appear in a video if either of the two videos
 before it on the same channel and format used it. Draw the idea another
 way, or build a new beat. The plain layouts (`grid`, `compare`, `stat`,
 `steps`, `checklist`, `bars`, `diagram`) are exempt, but still vary them
@@ -1880,3 +1886,36 @@ card lights, their chip runs straight through, a tick, `exempt`).
   the gate, `pan` on the creators' sell. Give its sentence a gap of
   ~1.6-1.8s so the last tick lands before the cut.
 - A signature beat: it rests for two videos (`beat-rotation`).
+
+## `tiers` - graded rows, each item dropping into its row (2026-11-19)
+
+`Shot(graphic="tiers", payload=(rows, items, title, shown, until))`, rows
+`(label, sub[, colour[, empty line]])` top to bottom, items `(row, label,
+emoji)` in the order they are named. Built for `tinnitus-treatments-ranked`,
+the channel's first E26 ranking: the 2026 guideline grades every treatment,
+and a ranking's whole claim is *which row a thing sits in*. `grid` is a flat
+set, `checklist` a verdict per item with no tier, `compare` two columns.
+
+- **The board comes back.** Pass every item the video will ever place in
+  every appearance; `shown` is how many are already on it when the beat
+  opens, `until` how many when it ends. Layout never moves between
+  appearances, and the rows the voice is on stay lit while the rest step
+  back. `tiers_board(shown, until)` in the script keeps it one line.
+- **Three modes**, one caption chunk per reveal: items `shown..until`, one
+  each; nothing new (`shown == until == len(items)`), one reveal that rings
+  the whole board; no items at all, one reveal per row - the grades
+  explained before anything is on them.
+- **A row's fourth element is the line it shows while empty** ("No
+  treatment got this grade"). Leave it off until the video says it, or the
+  twist is on screen from the first board.
+- Colours run top to bottom gold / `positive` / `primary` / `negative`;
+  the third element of a row overrides. Card text wraps by measured width
+  to two lines and raises past that; a row label wider than its block
+  raises (Arial Black 36 in 16:9: "ADVISED AGAINST" fits a 420px block,
+  "STRONGLY RECOMMENDED" does not).
+- 9:16: each row is a band with its cards two to a line under it. Nine
+  items in four rows runs past the caption line - a Short takes three rows
+  (the top row said, or drawn once at the twist).
+- Cues: a `tick` as each card lands. A signature beat: it rests for two
+  videos (`beat-rotation`). Reuse for any ranking by evidence or by rule.
+

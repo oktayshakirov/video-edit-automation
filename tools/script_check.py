@@ -395,6 +395,7 @@ COVER_STYLES = {
     "beat": "a drawn graphic from the video as the cover",
     "cutout": "a cut-out subject in front of extruded (3D) headline type",
     "vector": "a drawn scene of cut-out objects and vectors (a line-up, a lab bench)",
+    "tiers": "a drawn tier board, big icons in graded rows (a ranking)",
 }
 
 # `outro=` given anything but None, in code (not a comment or docstring).
@@ -426,7 +427,7 @@ def is_full_frame(sh) -> bool:
 SIGNATURE_BEATS = ("pile", "behind", "blindsign", "reel", "post", "sweep",
                    "lookalike", "mnemonic", "quorum", "shares", "stake",
                    "pool", "replicate", "airgap", "breach", "diary",
-                   "reserve", "honeypot")
+                   "reserve", "honeypot", "tiers")
 # A cover's accent goes on the word that carries the subject, never on one
 # of these.
 WEAK_ACCENT = {"it", "its", "one", "this", "that", "them", "they", "you",

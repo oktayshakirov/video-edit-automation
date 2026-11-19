@@ -205,4 +205,15 @@ One line per branch: date, the term or channel, what it added.
   views each, crickets, pink, brown, "shimmer"); our longest is 1 hour.
   "tinnitus treatments ranked": Doctor Cliff "The 4 BEST Tinnitus
   Treatments" 30.6x, HearingTracker "Four BEST Tinnitus Treatments" 109x.
+- 2026-11-19, "tinnitus treatments ranked" / "best tinnitus treatment" /
+  "tinnitus guideline 2026" (yt-dlp, the build's branch): HearingTracker
+  "Is There a Tinnitus Cure? No... but HERE are the Four BEST Tinnitus
+  Treatments!!" 402k (109x); Doctor Cliff "The 4 BEST Tinnitus Treatments"
+  303k; Treble "The BEST Tinnitus Treatments of 2026 (And The WORST...)"
+  16k at 3 months (~1.5x its 11k median: a four-tier ranking, 22 minutes,
+  its top five comments complain about music under the voice); Treble "I
+  Ranked Every Tinnitus Treatment" 68k. The guideline term is new: Timpanogos
+  "New 2026 Tinnitus Guidelines: What Actually Works" 1.3k (~3x), the rest
+  under 300. Teardown `teardowns/tinnitus-treatments-ranked.md`; built as
+  the `tinnitus-treatments-ranked` pair.
 
