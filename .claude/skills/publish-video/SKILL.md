@@ -114,9 +114,9 @@ a platform from the run.
 1. **The long first, then the short.** The short's description links to the long,
    so the long needs an id before the short is uploaded.
 2. **YouTube, via `video-audit`.** Dry run, then `--apply`.
-3. **Start the tunnel once and keep it up for both.** Both the short's Reels and
-   the long's native Facebook upload need a public URL, so serve the render
-   folder and open one tunnel rather than one per video. Stop it after step 4.
+3. **Serve the render folder with `tools/range_server.py`, and tunnel it for
+   the Reels.** The short's Reels need a public URL; the long's Facebook upload
+   reads `127.0.0.1:8765` directly, so one server and one tunnel cover both. Stop it after step 4.
    **Stop n8n too once the last workflow has finished** (the long's Telegram
    share and Facebook video included) - the editor's instruction, 2026-10-27:
    always stop n8n when you finish using it, whether or not you started it.
@@ -126,9 +126,12 @@ a platform from the run.
    link in the Instagram `caption`** but the article link **does** go in the
    optional `facebookCaption` - are in `docs/publish/instagram-facebook.md`. The
    site half is `docs/publish/site.md`. The Facebook
-   step is the Publish Facebook Video workflow - the Share Video workflows it
-   replaced were deleted on 2026-08-20. Pass the **full** YouTube description;
-   that workflow trims it to the first paragraph plus the article link itself.
+   step is the **Publish Facebook Video (Resumable)** workflow (2026-11-20),
+   which pushes the render from `tools/range_server.py` on `127.0.0.1:8765` in
+   chunks, so the long form needs no tunnel. The file_url Publish Facebook
+   Video workflow is the fallback: Facebook dropped its fetch of a 508 MB
+   session twice. Pass the **full** YouTube description; both workflows trim
+   it to the first paragraph plus the article link themselves.
 5. **Report what is still unlisted or private and what needs a manual tick.**
    The standing list: privacy in Studio, Studio's "Related video" field on a
    Short, the TikTok draft's caption and cover, and - for a Short - **the

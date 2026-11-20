@@ -16,8 +16,15 @@ and `Bash(cloudflared tunnel *)` - so neither needs a prompt and neither is the
 user's job any more.
 
 ```bash
-python3 -m http.server 8765 --directory <folder with the mp4 and the cover>
+python3 tools/range_server.py --directory <folder with the mp4 and the cover>
 ```
+
+**Serve with `tools/range_server.py`, not `python3 -m http.server`** (since
+2026-11-20). It binds `127.0.0.1:8765` and behaves like `http.server` for the
+Reel tunnel, and it also honours `Range`, which the resumable Facebook video
+workflow needs - the stdlib server ignores `Range` and sends the whole file.
+Its command is not in the allowlist below yet; the old `http.server` command
+still works for a Reels-only run.
 
 ```bash
 cloudflared tunnel --url http://localhost:8765
@@ -180,8 +187,32 @@ checking it against `GET /workflows`.
 | --- | --- | --- |
 | Crypto Wiki | Publish Reel `uIV6956N14pMGMZ5` | `{ videoUrl, coverUrl, caption, durationSeconds, facebookCaption? }` |
 | Tinnitus Help | Publish Reel `1GTSF6izfwA1gpig` | `{ videoUrl, coverUrl, caption, durationSeconds, facebookCaption? }` |
-| Crypto Wiki | Publish Facebook Video `zS3xX6tbXpXnF32N` | `{ videoUrl, title, description, thumbUrl }` |
-| Tinnitus Help | Publish Facebook Video `Lyhn5U7pYhrAs9x7` | `{ videoUrl, title, description, thumbUrl }` |
+| Crypto Wiki | **Publish Facebook Video (Resumable)** `p4kBdSBqDkx190u0`, `/form/fb-video-resumable-crypto` | `{ videoUrl, title, description, thumbUrl }` |
+| Tinnitus Help | **Publish Facebook Video (Resumable)** `OJ4TIZM6CkIAXO05`, `/form/fb-video-resumable-tinnitus` | `{ videoUrl, title, description, thumbUrl }` |
+| Crypto Wiki | Publish Facebook Video `zS3xX6tbXpXnF32N` (file_url, fallback) | `{ videoUrl, title, description, thumbUrl, youtubeUrl? }` |
+| Tinnitus Help | Publish Facebook Video `Lyhn5U7pYhrAs9x7` (file_url, fallback) | `{ videoUrl, title, description, thumbUrl, youtubeUrl? }` |
+
+**The long form goes through the Resumable workflow** (added 2026-11-20,
+exported as `publish_facebook_video_resumable.json` in both automation repos).
+n8n reads the render off `http://127.0.0.1:8765` in the byte ranges Facebook
+names and pushes them with `upload_phase` start/transfer/finish, so Facebook
+never fetches anything and **the long form needs no tunnel**. Pass
+`videoUrl`/`thumbUrl` as `http://127.0.0.1:8765/<file>` (a tunnel URL is
+mapped back to it). The server must be `tools/range_server.py`. Same
+description trim and same cover pair as the file_url workflow; no Telegram
+branch, since the standalone Telegram workflow is the default anyway.
+
+- **Nothing publishes until `FB Finish`.** A run that fails in the chunk loop
+  leaves an expired upload session and no post, so it is safe to re-run.
+  Once `FB Finish` has run, the video is live: do not re-run, fix the cover
+  by hand as described below.
+- **First run, 2026-11-20 (`fan-noise-444-breathing`, 508 MB, execution
+  1007):** Facebook asked for a 1 MB first chunk, then larger ones; 98
+  transfers in 10m46s, `finish` `{success: true}`, cover pixel-identical
+  (mean difference 0.00). The **crypto twin is the same graph with the
+  CryptoWiki credential and has not run yet** - read its first `Summary`
+  closely.
+- `Summary` reports `facebookVideoId`, `finished` and `facebookCoverSet`.
 
 Trigger and poll them the way the `publish-content` skill describes - the
 multipart requirement and the `field-N` indexing trap apply here too, and this
@@ -277,8 +308,9 @@ and `/me/videos` never listed the title. Tell the two cases apart by the open
 connection: still `ESTABLISHED` means wait; closed with a broken pipe and no
 listing means it failed, and a third identical trigger is not the fix. The
 brown-noise session (322 MB) went through two days earlier, so size alone does
-not predict it. The real fix is a resumable upload (`upload_phase`
-start/transfer/finish on `graph-video.facebook.com`) instead of `file_url`.
+not predict it. **Fixed the same day:** the Resumable workflow in the table
+above pushes the file in chunks, and the same render went up through it on the
+first try. The file_url workflow is the fallback now, not the default.
 
 ## The native Page video's cover
 
