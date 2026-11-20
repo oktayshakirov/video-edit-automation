@@ -858,7 +858,9 @@ variation (2026-10-15), and `forest-chorus-box-breathing` is the first:
 
 Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
 (white noise, both waterfalls, Nebula Pulse - the editor asked for it by name), box
-(forest chorus), 5-in/5-out with no holds (bird chirps). Pick one off this
+(forest chorus), 5-in/5-out with no holds (bird chirps), 6-6-6-6 (soft
+orbit), 2:1 (tranquil zenith), coherent 6-6 (soft flames), triangle 4-4-4
+(fan noise). Pick one off this
 list's tail, or a new one, rather than the last session's.
 
 ## The intro
@@ -952,7 +954,8 @@ changed from the earlier session.
 `wild-echoes-478-breathing`, row 2 `low-gravity-box-breathing`, row 3
 `soft-orbit-6666-breathing`, row 4 `tranquil-zenith-21-breathing`, row 5
 `soft-flames-66-breathing`, row 6 `brown-noise-478-breathing` (4-7-8,
-clock). **Next: row 7.** Once row 9 has shipped, go round again picking the
+clock), row 7 `fan-noise-444-breathing` (triangle 4-4-4, path). **Next:
+row 8** (box, visual only). Once row 9 has shipped, go round again picking the
 exercise and guide by taste (E13's verdict, `experiments.md`), never the
 same pair as the last session.
 
@@ -976,6 +979,13 @@ user's request to test all of them:
 `render_asmr_long` raises unless the body (`minutes * 60` minus the two
 bookends) is a whole number of loops. The last two columns are lengths
 that pass at 60 minutes.
+
+**Time the intro before the hour render (2026-11-20).** The words must end
+6s before `intro_len` is up (3s in, 3s for the guide's entrance), so a 30s
+intro holds 24s of `luna`: about 40 words in five cards. The first fan-noise
+intro ran 54 words in six cards, read 30.9s, and the render refused it.
+`build_narration_aligned(..., gap=0.55, **profile_args("luna"))` on
+`INTRO` gives the number in a few seconds from the cache.
 
 **Copy:**
 - **The title leads with the exercise as people type it:** "6-6-6-6 Box

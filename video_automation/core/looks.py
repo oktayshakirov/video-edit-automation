@@ -9,7 +9,11 @@ the format, which is this module:
 * **`Look`** — the contract. `at(t)` returns an (h, w, 3) uint8 frame and must
   equal `at(t + period)`, negative `t` included, because the long form renders
   one loop and repeats it and the bookends run the clock below zero
-  (`tests/test_looks.py` holds every look to it).
+  (`tests/test_looks.py` holds every look to it). The test wants the frames
+  *equal*, not close: `sin(TAU * (t + P) / P)` differs from `sin(TAU * t / P)`
+  in the last bits and rounds a channel one level off, so a look that drives
+  its motion with raw `t` should take `t % self.period` first (`NightDraft`,
+  2026-11-20).
 * **The pieces a look is made from**, all closed over `period`: `Mist` (fbm
   sheets on a circle), `Fireflies` (glow points on closed orbits), `orbit`
   (a window on a still, drifting round a circle), `vignette`, `cover`,

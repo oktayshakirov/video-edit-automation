@@ -9,6 +9,16 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-20 - second E25 session: fan noise, triangle breathing
+
+- **`fan-noise-444-breathing` is E25's second session**: "Fan Noise" leads
+  the title and cover; the bed (Ambient Fan, Background Blur) measured as a
+  low motor hum, so comfort copy, no masking line. Count E25's four from
+  `brown-noise-478-breathing`.
+- **A new exercise, triangle 4-4-4** (inhale, hold, exhale), queue row 7,
+  on the `path` guide; a new look, `NightDraft` (curtains in a fan's
+  draught, the first indoor look).
+
 ## 2026-11-19 - first tinnitus E26 ranking; the `tiers` beat
 
 - **`tinnitus-treatments-ranked` is tinnitus's first E26 pair**: the 2026

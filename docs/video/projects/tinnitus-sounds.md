@@ -28,10 +28,20 @@ the name.
    `https://distrokid.com/vault/download/?id=<id>`. Check the id sits in the
    row of the track you picked - the links carry no name.
 3. **Navigate the tab to that vault URL.** Clicking the link through the
-   extension did nothing on 2026-11-18; navigating to it downloads at once.
-   Chrome saves to **`~/Desktop`** (not Downloads) as the track title without
-   spaces (`CloudscapeSerenity.mp3`, a ten-minute 320k MP3, 48 kHz), which is
-   where every session script reads its bed from. Close the tab after.
+   extension did nothing on 2026-11-18; navigating to it downloads. The
+   browser saves to **`~/Desktop`** (not Downloads), which is where every
+   session script reads its bed from. Close the tab after.
+   - **Give it a minute and a half before deciding it failed** (2026-11-20):
+     Rain took about sixty seconds to appear, after two 20-second checks
+     had called it lost. Poll the Desktop for up to two minutes, or read
+     the browser's own record (the connected browser is Brave:
+     `~/Library/Application Support/BraveSoftware/Brave-Browser/Default/History`,
+     table `downloads`, copied first since the browser holds it open).
+   - **The file is named after what was uploaded, not the track title**:
+     `CloudscapeSerenity.mp3` and `Rain.mp3`, but Ambient Fan arrived as
+     `2fan.mp3`. Look for the newest MP3 on the Desktop, not a name.
+   - **Not every track is ten minutes or 48 kHz**: Ambient Fan is twenty
+     minutes at 44.1 kHz. ffprobe it before planning the trim.
 4. **Measure it** (`band_energy` per 30s window, the near-silent share,
    self-correlation, the first and last seconds for a fade) and write the
    numbers into the long form's docstring.
@@ -73,13 +83,16 @@ the DistroKid title in the ledger and the site's in the description.
 | White Noise Therapy | Tranquil Zenith | `tranquil-zenith-21-breathing` (1 hour) | 2026-11-11 |
 | Fireside Harmony | Soft Flames & Breezes | `soft-flames-66-breathing` (1 hour) | 2026-11-17 |
 | White Noise Therapy | Cloudscape Serenity (fetched from DistroKid) | `brown-noise-478-breathing` (1 hour) | 2026-11-18 |
+| Nature Inspired Sound Therapy | Rain | `rain-masking-20min` (supplied as `Rain.mp3`; identified 2026-11-20, when a fresh download measured exactly as that script's docstring) | before 2026-10 |
+| Background Blur | Ambient Fan (fetched from DistroKid as `2fan.mp3`) | `fan-noise-444-breathing` (1 hour) | 2026-11-20 |
 
 **Not album tracks** (no row above takes them off the list):
 `478-breathing-white-noise` is generated white noise (`soundbed.Bed`);
-`waterfall-478-breathing` (`waterfall-pads.mp3`) and `rain-masking`
-(`Rain.mp3`) are recordings whose album was not noted at build. If either came
-from Water Sound Therapy or Nature Inspired Sound Therapy, move that track up
-here.
+`waterfall-478-breathing` (`waterfall-pads.mp3`) is a recording whose album
+was not noted at build. If it came from Water Sound Therapy or Nature
+Inspired Sound Therapy, move that track up here. **Before building on a
+track that sounds like an old session's bed, compare the measurement with
+that session's docstring** - that is how Rain was found to be used.
 
 ## Unused
 
@@ -91,10 +104,10 @@ here.
 | Feathered Tunes | `/zen/bird-sounds` | four of Morning Songbirds, Tree Top Tunes, Wings of Calm, Chirps & Tweets, Sky Echoes (one is used, name unknown) |
 | Purring Melodies | `/zen/cat-purr-sounds` | four of Deep Sleep Purr, Violin Purr Serenade, Dreamy Purrs, Gentle Night Purr, Purr Therapy (one is used, name unknown) |
 | Fireside Harmony | `/zen/fire-sounds` | Flickering Quiet, Twilight Musicbox, Breezy Warmth |
-| Background Blur | `/zen/evening-sounds` | Crackle Lo-fi, Ambient Fan, Cozy Lo-fi Shelter, Hearthside Hours, Deep Resonance - **whole album unused** |
+| Background Blur | `/zen/evening-sounds` | Crackle Lo-fi, Cozy Lo-fi Shelter, Hearthside Hours, Deep Resonance |
 | Morning Ritual Ambiance | `/zen/morning-sounds` | Peaceful Start, Refreshing Shower, Hair Dryer Breeze, The Breakfast Flame, Laundry Background, Drying Serenity - **whole album unused** |
 | Water Sound Therapy | `/zen/water-sounds` | Zen Flow, Harmonious Waves, Serenity Stream, Dreamy Lagoon, Mystic Brook |
-| Nature Inspired Sound Therapy | `/zen/nature-sounds` | Waterfall, River, Rain, Crickets, Crickets2 |
+| Nature Inspired Sound Therapy | `/zen/nature-sounds` | Waterfall, River, Crickets, Crickets2 |
 | Notched Sound Therapy | `/zen/notched-sounds` | Tranquilify 5000 Hz, Harmonics 6000 Hz, Resonance 7000 Hz, Harmonics 8000 Hz, Tranquilify 9000 Hz - **whole album unused** |
 
 **Measure before you plan the copy.** A track's album description is not its
@@ -107,6 +120,8 @@ measured 59% at 200 Hz-1 kHz and 0.6% at 4-8 kHz: a comfort bed.
 Cloudscape Serenity, on the "white noise" album, is a deep broadband noise
 (flatness ~0.56, 75% below 200 Hz, 0.2% at 1-4 kHz, centroid 144 Hz) - close
 to generated brown noise (96 / 3.1 / 0.6%), so it was titled "Brown Noise"
-under E25 with comfort copy. Run
+under E25 with comfort copy. Ambient Fan (Background Blur) is a motor hum:
+80% below 200 Hz, 65% in one 40-80 Hz octave at flatness 0.03 (a tone),
+0.03% at 4-8 kHz - titled "Fan Noise" under E25, comfort copy. Run
 `band_energy` and the near-silent-window share on the file
 (`projects/tinnitus.md`, "A comfort session is not a masking session").
