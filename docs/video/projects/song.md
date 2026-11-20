@@ -58,7 +58,7 @@ first set of venvs went with it.
   the beats that look a brand up by name still work, with no logo.
 - **No product logo, nothing copied from the product's interface.** The chat
   is a generic window that names the product in our own type. The song repo's
-  `docs/originality.md` forbids the logo and anything that reads as official,
+  `~/Coding/create-song-automation/docs/originality.md` forbids the logo and anything that reads as official,
   and a recreated interface would read exactly that way.
 - **Karaoke:** the line in heavy type, sung words white, the word being sung
   swept in the accent, the rest dimmed; ad-libs as a sticker once the line is

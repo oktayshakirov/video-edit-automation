@@ -49,7 +49,9 @@ VARIANTS = {"white":      (0.0, "", 42, 34, 0),
             "black":      (1.0, "-black", 42, 34, 0),
             "big":        (0.0, "-big", 62, 56, 0),
             "big-stroke": (0.0, "-big-stroke", 62, 56, 3)}
-VARIANT = sys.argv[1] if len(sys.argv) > 1 else "big"
+# The first argument that names a variant; anything else (a test runner's
+# own flags, on import) is not one.
+VARIANT = next((a for a in sys.argv[1:] if a in VARIANTS), "big")
 (LABEL_LUMA, _SUFFIX, POV_LABEL_SIZE, DRONE_LABEL_SIZE,
  LABEL_STROKE) = VARIANTS[VARIANT]
 
