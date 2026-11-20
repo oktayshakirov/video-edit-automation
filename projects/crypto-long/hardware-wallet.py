@@ -106,9 +106,6 @@ COLDCARD_READY = HW / "coldcard-ready.jpg"  # "Coldcard is ready to sign transac
 COLDCARD_DARK = HW / "coldcard-dark.jpg"    # a Coldcard lit on black - the case begins, and the disclaimer
 COLDCARD_HAND = HW / "coldcard-hand.jpg"    # a Coldcard in a hand, "OK TO SEND?" on its screen
 COLDCARD_KEYS = HW / "coldcard-keyboard.jpg"  # a Coldcard on a dark keyboard - "software too"
-# The cover only (`thumbnails.md`, "The cover's picture stays on the cover"):
-# a Ledger on its cable, "Bitcoin" on its screen.
-LEDGER_CABLE = HW / "ledger-cable.jpg"
 
 # The real page: TRM Labs' report, captured 2026-11-12 (`screencap`, record
 # in `captures/trm-coldcard/`, consent banner hidden). `head` is the
@@ -381,48 +378,54 @@ META = Meta(
              "Trezor Model T by FlippyFlink, CC0."],
 )
 
-HEADLINE = "Do you\n[need] one?"
+HEADLINE = "Do you\n[need] one?"      # the render's own plain cover
+# The cover's rows, set as one stacked block (`thumbnails.md`, "The
+# headline is one stacked block"). Same words as the cover it replaced.
+COVER_ROWS = ["Do You", "[Need]", "One?"]
+COVER_ACCENT = "yellow"
 
 
-def thumbs(out: Path, marks: bool = True) -> Path:
-    """The Ledger on its cable at the right, its lit "Bitcoin" screen ringed,
-    the video's question in three rows on the black at the left and an arrow
-    from it to the screen. The picture is the cover's only (`thumbnails.md`,
-    "The cover's picture stays on the cover").
-
-    `marks=False` (`--thumb-plain`) is the same cover with no ring and no
-    arrow - a "text" version, kept so either can be picked."""
+def thumbs(out: Path, accent: str = COVER_ACCENT) -> Path:
+    """The real Ledger in a hand at the right, brightened, a ring on its lit
+    screen and an arrow to it from DO YOU [NEED] ONE? stacked on the black
+    at the left (2026-11-21, swapped in after publishing: the editor moved
+    this direction here from the `optimizely-hack` covers; it replaced the
+    Ledger on its cable with the question in the old two-row type)."""
     import numpy as np
-    from PIL import Image
+    from PIL import Image, ImageEnhance
     from video_automation.longform import thumb as T
-    src = Image.open(LEDGER_CABLE).convert("RGB")
-    pic = src.resize((1100, 825), Image.LANCZOS)
-    im = Image.new("RGB", (1280, 720), (0, 0, 0))
-    im.paste(pic, (300, -60))
-    # fade the picture's left edge into the black the headline sits on
-    a = np.ones((720, 1280), np.float32)
-    a[:, :300] = 0.0
-    a[:, 300:620] = np.linspace(0.0, 1.0, 320)[None, :]
+    W, H = 1280, 720
+    src = ImageEnhance.Brightness(Image.open(LEDGER_HAND).convert("RGB")).enhance(1.35)
+    sw, sh = src.size
+    ph = int(H * 1.5)
+    pw = int(sw * ph / sh)
+    pic = src.resize((pw, ph), Image.LANCZOS)
+    x0, y0 = W - pw + 60, -int(ph * 0.30)
+    im = Image.new("RGB", (W, H), (0, 0, 0))
+    im.paste(pic, (x0, y0))
+    k = ph / sh
+    scr = (x0 + 0.13 * sw * k, y0 + 0.47 * sh * k,
+           x0 + 0.53 * sw * k, y0 + 0.60 * sh * k)
+    # fade the picture's left edge into the black the type sits on
+    a = np.ones((H, W), np.float32)
+    a[:, :x0 + 40] = 0.0
+    a[:, x0 + 40:x0 + 300] = np.linspace(0.0, 1.0, 260)[None, :]
     im = Image.composite(im, Image.new("RGB", im.size, (0, 0, 0)),
                          Image.fromarray((a * 255).astype("uint8")))
-    fill, ink = T.ACCENTS["yellow"]
-    T._headline(im, HEADLINE, 200, int(560 / 1.38), 48, fill, ink,
-                max_lines=3, leading=1.0, band="top", margin=48,
-                shadow=12, drop=(5, 6))
-    if not marks:
-        im.save(out, quality=92)
-        return out
+    box = (40, 60, max(300, int(scr[0]) - 120), H - 120)
+    rim = (scr[0] - 50, scr[1] - 50, scr[2] + 50, scr[3] + 50)
+    colour = T.STACK_PLATES[accent][0]
+    tb = T.stack_headline(im, COVER_ROWS, box, accent=accent)
+    # The arrow leaves from under the type's right edge, so it never
+    # crosses a letter, and lands on the ring's lower left.
+    rw, rh = rim[2] - rim[0], rim[3] - rim[1]
     im = im.convert("RGBA")
-    im.alpha_composite(T.ring_layer(im.size, RING, width=10))
-    im.alpha_composite(T.arrow_layer(im.size, ARROW_FROM, ARROW_TO,
-                                     width=18, head=54, bow=-0.25))
+    im.alpha_composite(T.ring_layer(im.size, rim, colour, 10))
+    im.alpha_composite(T.arrow_layer(im.size, (tb[2] - 30, tb[3] + 45),
+                                     (rim[0] + 0.22 * rw, rim[3] - 0.04 * rh),
+                                     colour, width=18, head=52, bow=-0.25))
     im.convert("RGB").save(out, quality=92)
     return out
-
-
-# The Ledger's screen in the cover's placement, and the arrow onto it.
-RING = (640, 320, 1010, 540)
-ARROW_FROM, ARROW_TO = (470, 600), (625, 470)
 
 
 def main() -> None:
@@ -448,10 +451,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    if "--thumb-plain" in sys.argv:
-        print(thumbs(Path.home() / "Desktop/hardware-wallet-long-thumb-plain.jpg",
-                     marks=False))
-    elif "--thumb" in sys.argv:
+    if "--thumb" in sys.argv:
         print(thumbs(Path.home() / "Desktop/hardware-wallet-long-thumb.jpg"))
     else:
         main()

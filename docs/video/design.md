@@ -52,6 +52,23 @@ line is left alone.
 descriptions, tags, TikTok and Reel captions, `*.meta.json` sidecars. Check
 those for `—` and `–` before showing a dry run.
 
+## What is shown stays in the frame (2026-11-21)
+
+The editor, on `optimizely-hack` at 0:15: the spotlight's label IT WOULD
+HAVE AGREED "leaves the viewport and we lose the text, this shouldnt
+happen, when we show something it should stay in the frame." The ring had
+taken the whole height, so the label went over it and off the top edge.
+
+**Every label, pill, tag and caption a beat draws stays inside the frame's
+safe margin (3% of the width) for every frame it is up** - including the
+slow push on a held still, which keeps growing the thing it labels. A beat
+that places text against something that moves reserves the text's room in
+its framing, then clamps the text as a last resort. `spotlight` does both
+from today (`Spotlight.label_box`, `test_spotlight_label_stays_in_frame`).
+When a new beat places text beside a moving thing, give it the same test.
+**Before hand-over, look at the last frame of every held spotlight or
+zoom** - that is where the push has gone furthest.
+
 ## The watermark sits high
 
 `logo_at=(64, 62)` with `safe_top=40`. It was at y=150 and collided with both

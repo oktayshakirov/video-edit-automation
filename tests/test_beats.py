@@ -114,6 +114,12 @@ PAYLOADS = {
     # (drops, title, drain): two batches, then the floor opens.
     "pile": ([(12, "Buyers pay in", "$"), (8, "More buyers")], "WHERE IT GOES",
              "Liquidity pulled"),
+    # (meant, attacker, places, title, verdict): portrait-safe.
+    "relay": ("1Kp7vQ2mXz9LrT4wBn6cHd8yFs3aJe5gUq",
+              "19g9rZcPeiz8rUvyWpTRyXXhPnjsWrc3kW",
+              ["The page", "Your wallet app", "Your hardware wallet"],
+              "ONE ADDRESS, THREE SCREENS",
+              ("EVERY SCREEN MATCHES", "THE ATTACKER'S ADDRESS")),
     # (lines, title): portrait-safe.
     "airgap": ([("Send", "0.5 BTC"), ("To", "bc1q7k...9x4f")],
                "SENDING FROM A HARDWARE WALLET"),
@@ -319,7 +325,7 @@ def test_every_beat_class_is_registered():
     defined = set()
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
-                "behind", "pile", "lookalike", "airgap", "breach", "diary",
+                "behind", "pile", "lookalike", "airgap", "relay", "breach", "diary",
                 "reserve", "honeypot", "tiers"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
@@ -406,3 +412,28 @@ def test_post_words_keep_punctuation_after_a_highlight():
         ("tokenized", True), ("stocks,", True), ("bringing", False)]
     assert _words("on brink of [second bailout] for banks")[-2:] == [
         ("for", False), ("banks", False)]
+
+
+def test_spotlight_label_stays_in_frame():
+    """A label never leaves the frame, whatever the ring does (2026-11-21:
+    IT WOULD HAVE AGREED went off the top of `optimizely-hack` at 0:15)."""
+    from video_automation.core.frame import LANDSCAPE, VERTICAL
+    from video_automation.longform.beats import Spotlight
+    img = Path(__file__).resolve().parents[1] / "assets/crypto/hardware-wallet/trezor-confirm.jpg"
+    for fr in (LANDSCAPE, VERTICAL):
+        b = Spotlight(img, [((0.27, 0.36, 0.73, 0.68), "It would have agreed")],
+                      snap_to=False, brand=CRYPTO, frame=fr, start=0.0,
+                      hold=8.0, reveals=[0.0])
+        W, H = b.frame.size
+        for ring in [(-50, -50, W + 50, H + 50), (0, 0, W, H - 5),
+                     (W - 40, 10, W + 400, 80), (20, H * 0.4, W * 0.6, H * 0.9)]:
+            x0, y0, x1, y1 = b.label_box("It would have agreed", ring)
+            assert 0 <= x0 and x1 <= W and 0 <= y0 and y1 <= H, (fr, ring)
+        # and the framing leaves it room under the ring for the whole hold
+        for t in (1.0, 4.0, 7.9):
+            cx, cy, s, focus, _ = b.camera(t)
+            (rx0, ry0, rx1, ry1), lab = focus
+            sy1 = H / 2 + (ry1 * b.ih - cy) * s + W * 0.012
+            sy0 = H / 2 + (ry0 * b.ih - cy) * s - W * 0.012
+            _, ly0, _, ly1 = b.label_box(lab, (0, sy0, 10, sy1))
+            assert ly0 >= sy1, (fr, t)               # under, not over the ring

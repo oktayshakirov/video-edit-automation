@@ -122,7 +122,8 @@ sequence drifted into four copies that disagreed.
    `COVER_STYLE` three videos running (`cover-rotation` - the arrow ran
    three times on this channel). **The headline is one stacked block**
    (`thumb.stack_headline`, 2026-11-20): three or four short Title Case
-   rows, centred, the accent run on the red plate and on the subject's
+   rows, centred, the accent run on a red or yellow plate (whichever sits better on
+   the picture) and on the subject's
    word, in a box that ends a gutter short of the picture - Diary of a
    CEO's format. Balance the rows (the widest sets the size) and check it
    at 320px beside the search's top three.

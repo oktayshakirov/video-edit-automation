@@ -1208,6 +1208,15 @@ the plate ran into the board.
 - `script_check`'s `cover-type` flags a long-form cover still set with
   `_headline` (from 2026-11-20).
 
+**The plate is red or yellow - whichever sits better on the picture**
+(2026-11-21, the editor: "we can switch between yellow and red boxes
+depending on what matches better. No need to always be red").
+`stack_headline(..., accent="yellow")` sets the plate yellow with black
+ink (`STACK_PLATES`); a ring and an arrow on the same cover take the
+plate's colour. Yellow is the crypto channel's own colour and reads on a
+warm or grey photo; red fights a red subject. Render both and pick at
+320px. First yellow stack: `hardware-wallet`'s replacement cover.
+
 **Balance the rows: the widest row sets the size.** "What's / [Top Tier] /
 For Tinnitus?" set at ~80px because "For Tinnitus?" was wide; "Tinnitus: /
 What's / [Top Tier?]" set at ~115px in the same box. Write the rows so the
@@ -1215,3 +1224,20 @@ longest is short, and put the plate on its own row when the run is the
 stake. Check the cover at 320px beside a DOAC cover and the search's top
 three before handing it over.
 
+
+## A losing direction can fit an older video (2026-11-21)
+
+On `optimizely-hack` the editor picked the drawn cover (the relay's two
+cards, EVERY SCREEN [AGREED]) over the real Ledger in a hand with a ring
+and an arrow - and moved the arrow direction to the earlier
+`hardware-wallet` long form, with that video's own words restacked: DO
+YOU / [NEED] / ONE? on a yellow plate, the ring and arrow yellow too
+(`projects/crypto-long/hardware-wallet.py`, `thumbs()`, swapped in on
+YouTube after publishing). Its `COVER_STYLE` stays `"arrow"`. The arrow
+leaves from under the type's bounds (`stack_headline` returns them), so
+it never crosses a letter.
+
+When a direction loses, ask whether it fits a published video whose cover
+is weaker before deleting it. The Ledger in a hand also appears inside
+`hardware-wallet` (the COLD `behind` shot) - an exception to "The cover's
+picture stays on the cover" the editor chose; new videos keep the rule.

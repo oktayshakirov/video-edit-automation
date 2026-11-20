@@ -1,0 +1,36 @@
+{
+  "name": "decrypt-optimizely",
+  "url": "https://decrypt.co/383414/optimizely-hack-hijacked-ledger-bbc-and-176-other-sites-to-swap-crypto-wallet-addresses",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "head": "css=h1",
+    "swap": "text=wallet addresses with the attacker's"
+  },
+  "hide": [],
+  "captured": "2026-11-20",
+  "title": "Ledger Brings Clear Signing to Solana, Ending 'Blind' Signing for Jupiter Swaps - Decrypt",
+  "size": [
+    2560,
+    30764
+  ],
+  "boxes": {
+    "head": [
+      628,
+      948.1875,
+      1932,
+      1332.1875
+    ],
+    "swap": [
+      781.0,
+      1388.1875,
+      1454.34375,
+      1440.1875
+    ]
+  }
+}

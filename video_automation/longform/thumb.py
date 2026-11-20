@@ -1697,6 +1697,11 @@ def lineup_cover(suspects: list, headline: str, *, portrait: bool = False,
 SF_PRO = "/System/Library/Fonts/SFNS.ttf"        # variable: Width, opsz, GRAD, Weight
 STACK_FALLBACK = ("/System/Library/Fonts/HelveticaNeue.ttc", 1)   # Bold
 STACK_RED = (228, 30, 36)
+# The plate's colour is chosen per cover, for what sits best on the picture
+# (2026-11-21, the editor: "we can switch between yellow and red boxes
+# depending on what matches better"). (plate, ink).
+STACK_PLATES = {"red": (STACK_RED, (255, 255, 255)),
+                "yellow": ((255, 199, 0), (16, 16, 16))}
 
 
 def stack_font(size: int, weight: int = 800, width: int = 96):
@@ -1737,12 +1742,17 @@ def stack_headline(base: Image.Image, rows: list[str], box: tuple,
                    max_size: int = 260, weight: int = 800,
                    tracking: float = -0.015, leading: float = 1.0,
                    text=(255, 255, 255), plate=STACK_RED,
-                   plate_ink=(255, 255, 255), shadow: int = 14) -> tuple:
+                   plate_ink=(255, 255, 255), shadow: int = 14,
+                   accent: str | None = None) -> tuple:
     """Set `rows` as one centred block inside `box` = (x, y, w, h), at the
     largest size where the widest row (plates included) fits `w` and the
-    stack fits `h`. A `[bracketed]` run sits on a tight red plate. Returns
-    the block's (x0, y0, x1, y1) so a caller can check it against the rest
-    of the cover. Title Case is the caller's - rows are set as written."""
+    stack fits `h`. A `[bracketed]` run sits on a tight plate - red, or
+    `accent="yellow"` (black ink) when yellow sits better on the picture.
+    Returns the block's (x0, y0, x1, y1) so a caller can check it against
+    the rest of the cover. Title Case is the caller's - rows are set as
+    written."""
+    if accent is not None:
+        plate, plate_ink = STACK_PLATES[accent]
     x, y, w, h = box
     d0 = ImageDraw.Draw(Image.new("L", (8, 8)))
 

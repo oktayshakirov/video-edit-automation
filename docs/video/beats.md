@@ -1262,6 +1262,10 @@ Shot(graphic="spotlight", payload=(POSTER, [
 ], ""))
 ```
 
+- **The label stays in the frame** (2026-11-21): the framing leaves room
+  for it under the ring for the whole hold, push included, and
+  `label_box` clamps it inside the safe margin (`design.md`, "What is
+  shown stays in the frame").
 - **One region per sentence** - hold the shot across them with `None`
   shots. Regions are fractions of the image and can be rough.
 - **The ring is snapped to the content** (`snap`). The first demo's charges
@@ -1726,7 +1730,7 @@ we need to create different ones". `pile` was in three of the last four
 crypto long forms and both Shorts of the last two pairs. A beat with a
 look of its own (`pile`, `behind`, `blindsign`, `reel`, `post`, `sweep`,
 `lookalike`, `mnemonic`, `quorum`, `shares`, `stake`, `pool`, `replicate`,
-`airgap`, `breach`, `reserve`, `honeypot`, `tiers`) may not appear in a video if either of the two videos
+`airgap`, `breach`, `reserve`, `honeypot`, `tiers`, `relay`) may not appear in a video if either of the two videos
 before it on the same channel and format used it. Draw the idea another
 way, or build a new beat. The plain layouts (`grid`, `compare`, `stat`,
 `steps`, `checklist`, `bars`, `diagram`) are exempt, but still vary them
@@ -1749,6 +1753,31 @@ co-signer, a QR wallet, a passkey.
 
 A sentence after it can hold it (`None`): the last state, with NEVER LEAVES
 on the key, is the picture for "the key never leaves the chip".
+
+## `relay` - one address handed from screen to screen, wrong from the first (2026-11-20)
+
+Built for `optimizely-hack`: the hijacked script rewrote the address *on
+the page*, so the copy, the wallet app and the hardware wallet's own screen
+all agreed - on the attacker's address. Nothing drew a check that passes on
+the wrong thing (`lookalike` sets two addresses apart, `blindsign` is a
+screen disagreeing with what it signs). Reuse it for any source poisoned
+upstream: a swapped QR code, a hijacked deposit page, an invoice edited in
+transit.
+
+    Shot(graphic="relay", payload=(MEANT, ATTACKER,
+         ["The page", "Your wallet app", "Your hardware wallet"],
+         "ONE ADDRESS, THREE SCREENS",
+         ("EVERY SCREEN MATCHES", "THE ATTACKER'S ADDRESS")))
+
+`len(places) + 1` reveals, one caption chunk each: the source card with the
+meant address typing in and then scrambling into the attacker's (red
+SWAPPED pill on its bottom edge), one card per further place with an arrow
+and a green MATCHES pill, then the verdict under the row. Landscape is a row
+of cards (the address in three rows), portrait a column (two rows). Cues: a
+pan per card, `glitch_cut` on the swap, a cross on the verdict. Give its
+sentence a gap of ~1.3-1.6s so the verdict is read. The meant address is
+made up - say so in the description; the attacker's can be the real
+published indicator. Two places and no verdict (`("", "")`) make a cover.
 
 ## `breach` - a field of addresses, emptied wave by wave (2026-11-12)
 

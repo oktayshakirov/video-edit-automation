@@ -1,0 +1,45 @@
+{
+  "name": "optimizely-status",
+  "url": "https://status.optimizely.com/incidents/ftw0fh9wx43z",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "head": "css=h1",
+    "flaw": "text=an unauthorized third party exploited",
+    "closed": "text=within three hours of detection"
+  },
+  "hide": [
+    ".subscribe-button"
+  ],
+  "captured": "2026-11-20",
+  "title": "Optimizely Service Status - Web Experimentation Security Incident",
+  "size": [
+    2560,
+    3252
+  ],
+  "boxes": {
+    "head": [
+      680,
+      306,
+      1880,
+      486
+    ],
+    "flaw": [
+      1337.96875,
+      693.1875,
+      1863.125,
+      729.1875
+    ],
+    "closed": [
+      995.875,
+      1077.1875,
+      1430.3125,
+      1113.1875
+    ]
+  }
+}

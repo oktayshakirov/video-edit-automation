@@ -70,6 +70,7 @@ from .blindsign import BlindSign
 from .sweep import Sweep
 from .lookalike import Lookalike
 from .airgap import Airgap
+from .relay import Relay
 from .reserve import Reserve
 from .honeypot import Honeypot
 from .tiers import Tiers
@@ -97,7 +98,7 @@ __all__ = [
     "Timeline", "Chart", "Spectrum", "Audiogram",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
-    "Behind", "Pile", "Lookalike", "Airgap", "Breach", "Reserve", "Honeypot",
+    "Behind", "Pile", "Lookalike", "Airgap", "Relay", "Breach", "Reserve", "Honeypot",
     "Tiers",
     "DRAW", "POP", "RISE",
 ]
@@ -138,6 +139,7 @@ BEATS = {
     "pile": Pile,
     "lookalike": Lookalike,
     "airgap": Airgap,
+    "relay": Relay,
     "reserve": Reserve,
     "honeypot": Honeypot,
     "tiers": Tiers,
@@ -206,6 +208,8 @@ _COUNT = {
     "lookalike": lambda p: 4,
     # The request, the crossing, the approval, the signature coming back.
     "airgap": lambda p: 4,
+    # The source and its swap, each further place, then the verdict.
+    "relay": lambda p: len(p[2]) + 1,
     "reserve": lambda p: 4,
     # The buy, your sell refused, the rule, the creators' sell.
     "honeypot": lambda p: 4,

@@ -132,8 +132,13 @@ class Spotlight(Beat):
 
     # --- the camera -------------------------------------------------------
 
-    def _framing(self, region):
-        """(centre x, centre y, scale) in image pixels / screen px per px."""
+    def _framing(self, region, label=""):
+        """(centre x, centre y, scale) in image pixels / screen px per px.
+
+        A labelled region is framed with the label's room under it, for the
+        whole hold including the slow push: the label stays in the frame
+        (2026-11-21 - IT WOULD HAVE AGREED went off the top at 0:15 of
+        `optimizely-hack`, the ring having taken the whole height)."""
         W, H = self.frame.size
         if region is None:
             s = min(W / self.iw, H / self.ih) * 0.94
@@ -143,7 +148,15 @@ class Spotlight(Beat):
         s = min(W * self.FILL / rw, H * self.FILL / rh)
         # Never closer than 2.6x the source: past that a still turns to mush.
         s = min(s, 2.6)
-        return (x0 + x1) / 2 * self.iw, (y0 + y1) / 2 * self.ih, s
+        cy = (y0 + y1) / 2 * self.ih
+        if label:
+            pad, gap = W * 0.012, W * 0.012
+            extra = gap + self._label_size(label)[1]
+            push = 1.0 + 0.012 * max(self.hold, 0.0)
+            s = min(s, (H * self.FILL - extra - 2 * pad) / (rh * push))
+            # centre the region and its label as one block
+            cy += extra / 2 / s
+        return (x0 + x1) / 2 * self.iw, cy, s
 
     def _times(self):
         rv = list(self.reveals or [])
@@ -163,7 +176,7 @@ class Spotlight(Beat):
             if p <= 0:
                 break
             since = t - ti
-            tx, ty, ts = self._framing(r[0])
+            tx, ty, ts = self._framing(r[0], r[1])
             # Interpolate scale in log space, so a zoom feels even.
             cx, cy = cx + (tx - cx) * p, cy + (ty - cy) * p
             s = math.exp(math.log(s) + (math.log(ts) - math.log(s)) * p)
@@ -178,6 +191,30 @@ class Spotlight(Beat):
 
     # --- drawing ----------------------------------------------------------
 
+    def _label_size(self, text):
+        """(width, height) of the label's pill, in screen pixels."""
+        f = self.font
+        d = ImageDraw.Draw(Image.new("L", (8, 8)))
+        track = f.size * 0.12
+        text = text.upper()
+        tw = sum(d.textlength(c, font=f) for c in text) + track * (len(text) - 1)
+        bb = d.textbbox((0, 0), "H", font=f)
+        cap = bb[3] - bb[1]
+        return tw + f.size * 1.1, cap + f.size * 0.75
+
+    def label_box(self, text, ring):
+        """(x0, y0, x1, y1) of the label for a ring at `ring` on screen:
+        under it, else over it, and always inside the frame's safe margin."""
+        W, H = self.frame.size
+        pw, ph = self._label_size(text)
+        m, gap = W * 0.03, W * 0.012
+        ly = ring[3] + gap
+        if ly + ph > H - m:                         # no room under: go above
+            ly = ring[1] - gap - ph
+        lx = min(max(ring[0], m), W - m - pw)
+        ly = min(max(ly, m), H - m - ph)
+        return lx, ly, lx + pw, ly + ph
+
     def _label(self, d, text, x, y):
         f = self.font
         track = f.size * 0.12
@@ -185,7 +222,7 @@ class Spotlight(Beat):
         tw = sum(d.textlength(c, font=f) for c in text) + track * (len(text) - 1)
         bb = d.textbbox((0, 0), "H", font=f)
         cap = bb[3] - bb[1]
-        pw, ph = tw + f.size * 1.1, cap + f.size * 0.75
+        pw, ph = self._label_size(text)
         fill = self.brand.band or self.brand.primary
         d.rounded_rectangle([x, y, x + pw, y + ph], radius=int(ph * 0.22),
                             fill=(*fill, 255))
@@ -237,10 +274,11 @@ class Spotlight(Beat):
                                 radius=int(W * 0.01), outline=col,
                                 width=max(3, int(W / 480)))
             if label and strength > 0.6:
-                ly = sy1 + pad + W * 0.012
-                if ly > H * 0.86:                   # no room under: go above
-                    ly = sy0 - pad - W * 0.012 - self.font.size * 1.2
-                self._label(d, label, sx0 - pad, ly)
+                # Under the ring, else over it - and never past the frame's
+                # safe margin, whatever the ring does (2026-11-21).
+                lx, ly, _, _ = self.label_box(label, (sx0 - pad, sy0 - pad,
+                                                      sx1 + pad, sy1 + pad))
+                self._label(d, label, lx, ly)
             img = img.convert("RGBA")
             img.alpha_composite(layer)
             out.paste(img.convert("RGB"))

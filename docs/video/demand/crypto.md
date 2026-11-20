@@ -353,3 +353,18 @@ One line per branch: date, the term or channel, what it added.
   two of them "create a honeypot" tutorials (closed to us). The mechanism
   behind SQUID's "you can't sell" is answered once, by one channel.
 - 2026-11-19, "squid game crypto scam" (`yt-dlp`, no units) for the pair: the recent retellings all sit at 47-231 views (CryptoHeist 55, Rug Files 109, Fine-Print 98, TechGaged 231); Patrick Boyle 171k and Coffeezilla 508k are 2021 and under their medians. Teardown: `teardowns/squid-game-crypto-scam.md`.
+- 2026-11-20, GTA 6 launch window and this week's news (`yt-dlp` + YouTube
+  suggestions, no units), for topic suggestions. **"dacity coin" / "DCTY"**:
+  a launch-week gameplay clip showed an in-game phone app listing
+  "DacityCoin (DCTY)"; Rockstar has issued no token; Solana copycats trade
+  on the name (Blockaid flagged 8,800+ GTA-themed tokens). Suggestions now
+  add "dacity memecoin", "dacity crypto", "will gta 6 have cryptocurrency".
+  The page is shill-register: Across The Rubicon "*CONFIRMED* GTA VI Crypto
+  Token!! DO NOT buy the wrong one" 14.4k, Crypto Revolution "Hype or a
+  Massive Red Flag?" 14.4k, Crypto Gorilla 14.2k and 6.6k; ours 2,005 sits
+  in the top 10. Nobody answers "is it real" as a sceptic. **"OPTIMJACK"
+  (Optimizely script hijack, 2026-11-16, 178 sites, wallet addresses
+  swapped)**: brand-new named term. The Ledger-site angle draws (The
+  CryptoDad "Ledger Website Hacked! Is Your Crypto Safe?" 51k, Digital Asset
+  News 35.7k); the plain crypto-side mechanism answers sit at 2-4 views
+  (Self Custardy, Crypto with Charlie). Medians not measured for either.

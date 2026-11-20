@@ -1,0 +1,43 @@
+{
+  "name": "stepsecurity-optimjack",
+  "url": "https://www.stepsecurity.io/blog/optimjack-optimizely-hosted-scripts-crypto-clipper-card-skimmer",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "head": "css=h1",
+    "btc": "text=19g9rZcPeiz8rUvyWpTRyXXhPnjsWrc3kW",
+    "hard": "text=Replacement addresses hard-coded in"
+  },
+  "hide": [],
+  "captured": "2026-11-20",
+  "title": "OPTIMJACK: Optimizely-Hosted Scripts Loaded a Crypto Clipper and Card Skimmer on 178 Organizations - StepSecurity",
+  "size": [
+    2560,
+    24702
+  ],
+  "boxes": {
+    "head": [
+      103.125,
+      479.96875,
+      994,
+      755.96875
+    ],
+    "btc": [
+      946.0625,
+      20401.90625,
+      1420.40625,
+      20485.5
+    ],
+    "hard": [
+      1475.5625,
+      20207.53125,
+      2011.6875,
+      20243.53125
+    ]
+  }
+}

@@ -9,6 +9,20 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-21 - OPTIMJACK pair, labels stay in frame, yellow plates
+
+- **`optimizely-hack` is the crypto pair on OPTIMJACK** (16 Nov 2026), a
+  brand-new named term with a correction angle (the device screen agreed
+  with the attacker). **A new drawn beat, `relay`** (`beats.md`), and a
+  drawn cover (`COVER_STYLE = "beat"`).
+- **Spotlight labels stay in the frame** (`design.md`, "What is shown
+  stays in the frame"): before, a label could ride off the edge as the
+  push grew the ring. Videos before this one may show it.
+- **The stacked headline's plate is red or yellow** (`thumbnails.md`).
+- **`hardware-wallet`'s cover was swapped after publishing** to the Ledger
+  in a hand, ring and arrow, DO YOU / [NEED] / ONE? on yellow. Compare its
+  CTR before and after 2026-11-21 as a cohort split.
+
 ## 2026-11-20 - second E25 session: fan noise, triangle breathing
 
 - **`fan-noise-444-breathing` is E25's second session**: "Fan Noise" leads
