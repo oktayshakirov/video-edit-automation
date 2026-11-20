@@ -269,6 +269,17 @@ Facebook is still fetching, `lsof -nP -iTCP:8765 -sTCP:ESTABLISHED` shows the
 open connection, and the video is listed only after it closes. Keep the tunnel
 up until then, list again, and set the cover from `maxresdefault.jpg` as above.
 
+**But sometimes Facebook does drop the fetch, and then nothing lands.** On
+2026-11-20 the 508 MB `fan-noise-444-breathing` session timed out at 120s
+twice (executions 1000 and 1004). Both times the `http.server` log showed a
+`BrokenPipeError` on the mp4 GET, `lsof` showed no open connection afterwards,
+and `/me/videos` never listed the title. Tell the two cases apart by the open
+connection: still `ESTABLISHED` means wait; closed with a broken pipe and no
+listing means it failed, and a third identical trigger is not the fix. The
+brown-noise session (322 MB) went through two days earlier, so size alone does
+not predict it. The real fix is a resumable upload (`upload_phase`
+start/transfer/finish on `graph-video.facebook.com`) instead of `file_url`.
+
 ## The native Page video's cover
 
 **`thumb_url` on `/me/videos` does nothing, and every long form published
