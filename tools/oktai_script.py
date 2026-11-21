@@ -3,13 +3,17 @@
     PYTHONPATH=. .venv/bin/python tools/oktai_script.py NAME
 
 Reads `projects/oktai-long/NAME.py` (its `SECTIONS`, or `sections()`) and
-`projects/oktai-short/NAME.py` (its `SENTENCES`), and writes into the
-recording folder `~/Movies/OktAI/NAME/`:
+`projects/oktai-short/NAME.py` (its `SENTENCES`), and writes **to the
+Desktop** (the editor, 2026-11-21: "place the script always on my desktop"):
 
-* `script.html` - a dark page to read from: numbered sentences, chapter
+* `NAME-script.html` - a dark page to read from: numbered sentences, chapter
   breaks, a camera mark on every line where the box comes in, the reading
-  time, and a teleprompter mode (P: start, space: pause, arrows: speed).
-* `script.txt` - the same as plain text, for a phone or a print.
+  time, and a teleprompter (Start button or P, space or a tap to pause,
+  - / + or the arrows for speed).
+* `NAME-script.txt` - the same as plain text, for a phone or a print.
+
+A copy of both stays in the recording folder `~/Movies/OktAI/NAME/` as
+`script.html` / `script.txt`, where a video's own screen of the page reads it.
 
 Oktay records the voice (and the camera box) only. Screens are scripted
 takes the build plays itself (`oktai.screen`, `core/screenplay.py`), so
@@ -33,6 +37,7 @@ sys.path.insert(0, str(REPO))
 
 from video_automation.core.recorded import norm  # noqa: E402
 from video_automation.oktai import folder, reading_order  # noqa: E402
+from video_automation.oktai.build import DESKTOP  # noqa: E402
 
 WPM = 150                      # a relaxed explainer read, measured on Kokoro
 
@@ -255,11 +260,15 @@ def main(argv: list[str]) -> int:
         return 1
     d = folder(name)
     d.mkdir(parents=True, exist_ok=True)
-    (d / "script.html").write_text(page(name, parts))
-    (d / "script.txt").write_text(text(name, parts))
+    html, txt = page(name, parts), text(name, parts)
+    (d / "script.html").write_text(html)
+    (d / "script.txt").write_text(txt)
+    desk = DESKTOP / f"{name}-script.html"
+    desk.write_text(html)
+    desk.with_suffix(".txt").write_text(txt)
     for p in parts:
         print(f"{p['kind']}: {len(p['lines'])} lines, ~{_minutes(p['words'])}")
-    print(d / "script.html")
+    print(desk)
     return 0
 
 

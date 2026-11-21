@@ -101,8 +101,9 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
    voice reads it, so the picture and the timing can be checked before
    anyone records. Look at frames; drafts are never shipped.
 6. **Hand him the script.** `tools/oktai_script.py <name>` writes
-   `~/Movies/OktAI/<name>/script.html` (dark, numbered, CAM marks, a
-   teleprompter on P) and `script.txt`. Send `script.html` with
+   **`~/Desktop/<name>-script.html`** (always the Desktop - his call,
+   2026-11-21; dark, numbered, CAM marks, a teleprompter with a Start
+   button) and `<name>-script.txt`. Send the Desktop `.html` with
    SendUserFile, list any `[CHECK]` questions, say where to save the files
    (`long.mov`, `short.mov`, or `long.m4a` + `long-cam.mov` for a separate
    mic), and **stop**. Nothing else is his to record. The next part starts when the

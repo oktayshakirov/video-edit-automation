@@ -51,8 +51,9 @@ graphics), and `tools/visual_check.py` plans it before the render.
   answer/1311392, read 2026-11-21 (the screen).
 
 **[CHECK] before Oktay reads:** "87 videos" counts long forms and Shorts on
-both sites. The book line names *Stop Making AI Slop*; its store link goes
-in the description (placeholder below until it is known).
+both sites. The book is *Stop Making AI Slop* on Spotify (1 hr 2 min,
+2026-11-06), its page on screen and its link in the description (the
+editor, 2026-11-21: "show the cover too if not the page").
 
 Run: `PYTHONPATH=. .venv/bin/python projects/oktai-long/why-ai-videos-feel-fake.py [--draft]`
 """
@@ -123,6 +124,7 @@ CHAIN = V / "blockchain-blocks-chain-digital-dark/34127877.mp4"
 MEETING = V / "business-meeting-boardroom-night/8847933.mp4"
 HANDS = V / "hands-typing-keyboard-dark-close-up/34771078.mp4"
 CITY = next((V / "city-at-night-timelapse").glob("*.mp4"))
+# The cover, if the Spotify page ever cannot be captured: `Shot(image=BOOK)`.
 BOOK = "/Users/oktayshakirov/Coding/audio-book-automation/projects/ai-content/book/cover-original.webp"
 
 # Six graphics from videos that shipped, with the payloads they shipped with
@@ -231,6 +233,13 @@ MUSIC_CODE = sp.Terminal([
         sub=0.17, air=0.0, pulse=0.0,
         \x1b[1;32mbpm=100, arp=0.26\x1b[0m, arp_div=2, arp_decay=0.24, \x1b[1;32mkick=0.13\x1b[0m, kick_div=1,""", secs=0.8),
 ], viewport=(960, 540), lead=0.4, tail=14.0)
+
+# The audiobook's own page. Spotify's sidebar and its "Preview of Spotify"
+# banner are cropped off; the camera glides from the title to the sample.
+BOOK_URL = "https://open.spotify.com/show/0u7ddJN4SFJBFzBG1NWrvA"
+SPOTIFY = sp.Browser(BOOK_URL, [
+    sp.wait(1.2), sp.move("h1"), sp.wait(1.2), sp.move("text=Sample"), sp.wait(1.0),
+], dark=True, tail=8.0)
 
 # The page Oktay reads from (`tools/oktai_script.py`), scrolling the way the
 # teleprompter does. The window names the file, not the folder it is in.
@@ -566,7 +575,7 @@ SECTIONS = [
             ("The AI still writes the drafts,", "edits the video,", "draws the graphics,",
              "and uploads it."),
             ("But the voice you hear is a person,", "and the numbers on screen are ours."),
-            ("I wrote all of this up in a short audiobook,", "Stop Making AI Slop,",
+            ("I wrote all of this up in a one-hour audiobook,", "Stop Making AI Slop,",
              "and the link is in the description."),
             ("Every video here is something I built with AI,", "and what it made, or didn't."),
             ("Thanks for watching,", "and if you enjoyed it,", "subscribe for more."),
@@ -581,7 +590,7 @@ SECTIONS = [
                                             L("python", "Graphics"), L("n8n", "Upload")],
                                            "STILL THE AI")),
             None,
-            Shot(image=BOOK, aspect=1.0, zoom=1.04),
+            screen(NAME, "spotify", SPOTIFY, crop=(0.235, 0.055, 0.975, 0.9)),
             screen(NAME, "site-tinnitus", SITE_TINNITUS),
             Shot(graphic="quote", payload=("Thanks for watching.", "OktAI"), emblem="play"),
         ],
@@ -606,7 +615,7 @@ META = Meta(
             "feel fake, with our own numbers, and the fixes that worked.",
     tags=["ai video", "ai voice", "faceless youtube", "youtube automation",
           "claude code", "ai slop", "oktai"],
-    cta="The audiobook with all of it, Stop Making AI Slop: [LINK]",
+    cta=f"The audiobook with all of it, Stop Making AI Slop: {BOOK_URL}",
 )
 
 
