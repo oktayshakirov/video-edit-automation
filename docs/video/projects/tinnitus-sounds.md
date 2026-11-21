@@ -60,6 +60,7 @@ the name.
 | Notched Sound Therapy (`notched-sounds`) | **Pitch Perfection** | `A43F3236-F018-4C6C-AD54E46ADCE0F6CE` |
 | Morning Ritual Ambiance (`morning-sounds`) | **Morning Unfolding** | `9C3F7C3B-45AE-4F4B-BE56AF67DBC51332` |
 | Background Blur (`evening-sounds`) | Background Blur | `9BF3AA67-70C9-4F16-A0517B8E9EF9D128` |
+| Colors of Calm (`noise-colors`) | Colors of Calm | not recorded yet; the masters are local (below), so it is not needed to fetch |
 
 Release URL: `https://distrokid.com/dashboard/album/?albumuuid=<uuid>`.
 Track lists match the site except **Background Blur**, whose DistroKid tracks
@@ -109,6 +110,7 @@ that session's docstring** - that is how Rain was found to be used.
 | Water Sound Therapy | `/zen/water-sounds` | Zen Flow, Harmonious Waves, Serenity Stream, Dreamy Lagoon, Mystic Brook |
 | Nature Inspired Sound Therapy | `/zen/nature-sounds` | Waterfall, River, Crickets, Crickets2 |
 | Notched Sound Therapy | `/zen/notched-sounds` | Tranquilify 5000 Hz, Harmonics 6000 Hz, Resonance 7000 Hz, Harmonics 8000 Hz, Tranquilify 9000 Hz - **whole album unused** |
+| Colors of Calm | `/zen/noise-colors` | Silver Veil, Rose Haze, Grey Balance, Green Meadow, Deep Brown, Velvet Night - **whole album unused**. Released 2026-11. Generated, not recorded: the 10-minute masters are in `~/Desktop/colors-of-calm/final/`, and `~/Coding/create-song-automation/zen/albums/colors_of_calm.py` re-renders any track at any length (no tiling seam). Its docstring has every track's measured bands |
 
 **Measure before you plan the copy.** A track's album description is not its
 spectrum: Low Gravity and Soft Orbit are both sold as "for tinnitus masking"
