@@ -67,7 +67,7 @@ def render_bed(track: Path, out: Path, duration: float,
     return out
 
 
-def dip(bed: Path, out: Path, windows: list[tuple[float, float]],
+def dip(bed: Path, out: Path, windows: list[tuple],
         gain: float = 0.2, ramp: float = 0.25) -> Path:
     """Pull the bed down to `gain` across each window, with cosine ramps.
 
@@ -79,11 +79,14 @@ def dip(bed: Path, out: Path, windows: list[tuple[float, float]],
     audio, sr = sf.read(str(bed), always_2d=True, dtype="float32")
     t = np.arange(len(audio)) / sr
     env = np.ones(len(audio), np.float32)
-    for a, b in windows:
+    for w in windows:
+        # (start, end) or (start, end, gain): a window's own depth wins.
+        a, b = w[0], w[1]
+        g = w[2] if len(w) > 2 else gain
         x = np.minimum(np.clip((t - (a - ramp)) / ramp, 0, 1),
                        np.clip(((b + ramp) - t) / ramp, 0, 1))
         x = 0.5 - 0.5 * np.cos(np.pi * x)
-        env = np.minimum(env, 1 - (1 - gain) * x)
+        env = np.minimum(env, 1 - (1 - g) * x)
     sf.write(str(out), audio * env[:, None], sr)
     return out
 

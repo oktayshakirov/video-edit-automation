@@ -116,14 +116,27 @@ scroll) or a `Terminal` (command, output, thinking). `build_long` /
 to the work, drafts included. How it works and what may go on screen:
 `footage.md`, "Our own screen".
 
-## Voice examples
+## Sound examples
 
-`oktai.examples.make(folder, lines)` reads the same lines twice in the
-same Kokoro voice: `robotic` (slowed, every sentence alone, digital silence
-between) and `today` (the `mia` profile, one run) - the two causes our docs
-measured, and nothing else. `samples.register` makes each a sample and the
-`voice` beat plays it; the opener of `why-ai-videos-feel-fake` is the worked
-example (2026-11-21).
+`oktai.examples.make(folder, {name: (maker, arg, {kwargs})})` renders each
+clip once, keyed by its recipe. Voices (the editor, 2026-11-21: the male
+explainer voice for the AI examples, the first one deliberately worse):
+`oldest` (macOS `say`, Daniel, line by line with dead silence - a
+dramatization, said so in the script's sources), `one_at_a_time` and
+`today` (`noah`, line by line against one run - the fault `voice.md`
+measured), `phrase` (one line). Music: `bed("calm")` (pads alone, the creepy
+one) and `track("night-drift")`. `samples.register(path, level=, bed=)`
+makes each a sample; `bed=0.0` stops the music bed under a music example,
+the editor's "it needs to be paused for this part". The `voice` beat plays
+them; the opener of `why-ai-videos-feel-fake` is the worked example.
+
+## Our own videos and the logos
+
+`oktai.own(NAME, youtube_id)` is where one of our published videos lives
+for the `phones` beat; `fetch_own(NAME, [ids])` downloads them with yt-dlp
+(our own uploads - only when the editor has said yes). `core/logos.py`
+builds round badges for the tools and platforms a script names (the
+portfolio's own badges first), rebuilt on demand and kept out of git.
 
 ## Links in scripts
 

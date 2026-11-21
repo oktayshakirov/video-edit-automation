@@ -117,8 +117,11 @@ class Beat:
                  reveals: list[float] | None = None,
                  marks: list[float] | None = None,
                  start: float = 0.0, hold: float = 1.0,
-                 ground: str | None = None):
+                 ground: str | None = None, emblem: str | None = None):
         self.brand, self.frame = brand, frame
+        # The 3D object in an empty picture column (`core/emblem3d.py`):
+        # this shot's own, else the video's, "arcs" for the old drawing.
+        self.emblem_name = emblem
         # "grid": a plain dark ground ruled in thin lines (`grid_ground`),
         # in place of the brand's moving gradient - for a segment that
         # explains something (the editor, 2026-11-13).
@@ -279,6 +282,20 @@ class Beat:
         return Image.new("RGB", fr.size, self.brand.bg)
 
     def emblem(self, out: Image.Image, f: float) -> None:
+        """The picture column of a beat with no photograph: a 3D emblem
+        (`core/emblem3d.py`, 2026-11-21), or the arcs below where none is
+        set or Blender is not on this machine."""
+        from ...core import emblem3d
+        name = self.emblem_name or emblem3d.CURRENT
+        if name and name != "arcs" and emblem3d.available():
+            x0, w, h = self.pic_box
+            emblem3d.draw(out, name, self.brand.primary, self.at(f),
+                          (x0, (self.frame.h - h) / 2, w, h),
+                          alpha=self.open_p(f, 0.6))
+            return
+        self._arcs(out, f)
+
+    def _arcs(self, out: Image.Image, f: float) -> None:
         """Concentric arcs in the picture column, slowly counter-rotating.
 
         Beats with a photograph get one; beats without had a dead right half —

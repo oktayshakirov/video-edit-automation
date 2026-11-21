@@ -1966,3 +1966,44 @@ length plus about half a second (`Section.gaps`). At 1.0s or more a gap is
 real silence even inside one recorded take (`recorded.LONG_GAP`); below
 that, a person's own short pause would be kept and the clip would sit on
 the next line.
+
+## `wall` - a grid of our own beats, each playing in its tile (2026-11-21)
+
+`Shot(graphic="wall", payload=([(graphic, payload), ...], "TITLE"))`, up to
+six tiles. Each tile is a real beat from `BEATS` drawn at full size with its
+own payload and scaled into the grid, so a viewer sees exactly what a video
+of ours shows; tile `i` arrives on caption chunk `i` and plays for
+`wall.PLAY` seconds, then holds (which also keeps a six-tile wall from
+costing six beats a frame - about half a second a frame while they play).
+Built for the OktAI opener's graphics chapter ("we need to be more visual,
+more examples"); also a teaser of what a video will show, and a "same
+layout every time" demonstration with four `stat` tiles.
+
+## `phones` - vertical videos playing side by side in phone frames (2026-11-21)
+
+`Shot(graphic="phones", payload=([(clip, label, note[, offset]), ...], "TITLE"))`,
+up to three. A 9:16 Short in a 16:9 card loses the top and bottom - its hook
+and its captions - and a phone keeps them. The label is the number that
+matters, in the brand colour ("Half gone at 7.1s"), the note the line under
+it. A missing clip draws an empty phone, so a draft shows the layout before
+the files exist (`oktai.own` / `fetch_own` for our own published videos).
+
+## The 3D emblem, in place of the arcs (2026-11-21)
+
+`stat` and `quote` fill an empty picture column with an emblem. It was four
+gold arcs in every video of every channel, and the editor's note was that it
+is "boring and repetitive ... maybe something 3D, a different one for each
+video". It is now a lit 3D object rendered in Blender (`core/emblem3d.py`):
+the shot's own (`Shot(emblem="microphone")`), else the video's, picked from
+the brand's set by the video's name (`emblem3d.SETS`) so every video gets
+its own with no script change; `emblem="arcs"` keeps the old drawing, and
+without Blender on the machine the arcs are drawn. Objects: microphone,
+headphones, coin, padlock, clapper, note, play, chart, wave, bulb.
+
+## A verdict on any shot: `verdict=` (2026-11-21)
+
+`Shot(..., verdict=("wrong", "Says nothing"), verdict_at=0.55)`: the picture
+plays clean, then drains of colour and takes a red cross with a stamped
+label - or a green tick for `"right"`. For showing the mistake rather than
+describing it: a generic stock clip under a specific line, the overcorrected
+slideshow, the "obvious fix" quote. `core/verdict.py`.

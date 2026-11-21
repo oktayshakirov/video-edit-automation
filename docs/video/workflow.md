@@ -438,6 +438,19 @@ each sentence got the nearest photograph. The order is now:
 4. **Run `tools/script_check.py` before fetching anything.** Its
    `full-frame-run`, `drawn-share` and `beat-rotation` rules read the shot
    list, so they can be answered before a clip is downloaded.
+5. **Then `tools/visual_check.py`: the edit plan** (2026-11-21). It prints
+   the whole video as a timeline - time, kind of picture, picture, line -
+   and flags a run of text-only pictures over 8 s, a chapter with no real
+   example in it, text over 35% of the runtime, the same graphic three
+   times running, and a picture held too long. The editor's note on the
+   OktAI opener draft, which passed every other gate: "at the 2 and 3
+   minute marks too much context with very plain visuals, just text ...
+   there are a lot of opportunities to lose the viewer". **Every chapter
+   carries something real**: a scripted screen (`core/screenplay.py`), a
+   clip or a page, a played sound, a logo lineup (`core/logos.py`), our
+   own graphics in a `wall`, our own Shorts in `phones`. Prefer *showing
+   the mistake* to describing it - a stock clip marked wrong
+   (`Shot(verdict=)`), the bad and good versions played one after another.
 
 **When the library cannot draw the mechanism, build the beat** - that is
 part of the run, not an exception to it. `airgap` and `breach` were written

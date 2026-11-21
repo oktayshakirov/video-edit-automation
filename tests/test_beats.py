@@ -145,6 +145,14 @@ PAYLOADS = {
     # (rows,): a row's sample is a registered clip name, or None.
     "voice": ([("The robotic read", "slowed down, one line at a time", None),
                ("Today's AI voice", "faster, whole sentences", None)],),
+    # (items, title): vertical clips in phone frames; a missing file draws
+    # an empty phone.
+    "phones": ([("missing.mp4", "7.1s", "Hal Finney."),
+                ("missing2.mp4", "28.8s", "Quick check")], "TWO SHORTS"),
+    # (tiles, title): other beats, each in a tile.
+    "wall": ([("stat", ("1.1M", "coins", "never moved")),
+              ("airgap", ([("Send", "0.5 BTC"), ("To", "bc1q7k...9x4f")], "AIRGAP"))],
+             "THE LIBRARY"),
     "diary": ([5, 4, 9, 3, 5, 8, 4], [2, 3],
               [("REMEMBERED", "the bad day with it", [2]),
                ("FORGOTTEN", "the bad day without", [5])],
@@ -329,7 +337,7 @@ def test_every_beat_class_is_registered():
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
                 "behind", "pile", "lookalike", "airgap", "relay", "breach", "diary",
-                "voice",
+                "voice", "wall", "phones",
                 "reserve", "honeypot", "tiers"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():

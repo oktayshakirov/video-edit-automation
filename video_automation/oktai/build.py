@@ -142,6 +142,28 @@ def screen(name: str, file: str, take=None, *, window=None, vertical=False,
     return Shot(clip=clip, raw=True, window=window, clip_at=at)
 
 
+def own(name: str, video_id: str) -> Path:
+    """One of our own published videos, as shipped: `own/<id>.mp4` in the
+    project's folder (the `phones` beat draws an empty phone until it is
+    there). `fetch_own` puts it there with yt-dlp; it is our own upload, and
+    fetched only when the editor has said yes to it."""
+    return folder(name) / "own" / f"{video_id}.mp4"
+
+
+def fetch_own(name: str, video_ids: list[str]) -> list[Path]:
+    import subprocess
+    made = []
+    for vid in video_ids:
+        out = own(name, vid)
+        if not out.exists():
+            out.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(["yt-dlp", "-q", "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/b",
+                            "--merge-output-format", "mp4", "-o", str(out),
+                            f"https://www.youtube.com/shorts/{vid}"], check=True)
+        made.append(out)
+    return made
+
+
 def _find_in(d: Path, stem: str) -> Path | None:
     if not d.is_dir():
         return None

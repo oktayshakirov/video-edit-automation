@@ -470,9 +470,16 @@ _CACHE: dict[str, Backdrop | None] = {}
 
 
 def get(name: str | None) -> Backdrop | None:
-    """Load a background by name, once per process."""
+    """Load a background by name, once per process.
+
+    A name in `painted.PAINTED` is drawn at the frame's size every frame
+    instead of read from the 512 px loop (2026-11-21: the loop's glow broke
+    into rings once encoded - `core/painted.py`). The old loops stay in
+    `assets/brand/backgrounds` for the videos that shipped on them."""
     if not name:
         return None
     if name not in _CACHE:
-        _CACHE[name] = Backdrop.load(name)
+        from .painted import PAINTED, Painted
+        _CACHE[name] = (Painted(name, PAINTED[name]) if name in PAINTED
+                        else Backdrop.load(name))
     return _CACHE[name]

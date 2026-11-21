@@ -148,7 +148,10 @@ for the query plays examples, and the editor chose to play them.
 **A recorded clip is a sample too** (2026-11-21): `samples.register(path)`
 turns an audio file - a voice example - into one, played the same way but
 at the narration's own loudness. Its picture is the `voice` beat
-(`beats.md`).
+(`beats.md`). **A music example stops the bed**: `register(..., bed=0.0)`
+dips it all the way out with a longer margin, so two tracks never play at
+once, and it comes back after (the editor, 2026-11-21: "it needs to be
+paused for this part ... then go back to the background music").
 
 ## Sound effects
 

@@ -54,6 +54,7 @@ What they cover:
 | `test_transitions.py` | `push` stays byte-identical; every mode returns a frame |
 | `test_opener_holds.py` | `opener_holds=True` moves an opener's exit so no bare frame sits before the captions: it stays to the next sentence, leaves early for one starting as it goes, and never cuts its own landing |
 | `test_retention_check.py` | the retention check times an opening from the script and flags an early sentence 2, an opener without the hold, and a crypto Short over its length |
+| `test_engaging.py` | the more visual edit: a painted backdrop has no rings, a verdict drains and marks a wrong picture, a round logo badge is shown whole, the bed stops under a music example, every video gets its own 3D emblem from its brand (arcs without Blender), and the visual plan check flags a run of text |
 | `test_screenplay.py` | a scripted take's logged click lands on the frame where the page changes, a capture lasts exactly as long as the take, a take is re-played only when its steps change, and `oktai.screen` gives a Short its own narrow terminal |
 | `test_screenrec.py` | a screen recording's idle is sped up but not its edges, a click zooms in before it lands and out after, a scroll ends the zoom, a blinking caret draws no camera, the picture fills exactly the window's content, a raw clip is neither graded nor pushed in, and a small render runs end to end |
 | `test_window.py` | a `window=` shot stays inside each frame's safe box, hides the inner picture's border, and the player's progress grows across the shot |

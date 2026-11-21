@@ -155,11 +155,23 @@ def cues(shots, caption_starts: list[float], total: float
     return out
 
 
+BED: dict[str, float] = {}     # a sample's own bed level, if not 0.2
+
+
 def windows(cue_list: list[tuple[float, str]], pad: float = 0.15
-            ) -> list[tuple[float, float]]:
-    """Where each sample plays, for the bed to dip under."""
-    return [(t - DUR[k[7:]] - pad, t + pad) for t, k in cue_list
-            if k.startswith("sample_")]
+            ) -> list[tuple[float, float, float]]:
+    """Where each sample plays, and how far the bed dips under it: to 20%,
+    or all the way out for a music example (`register(bed=0.0)`), which also
+    gets a longer margin so the two tracks never overlap."""
+    out = []
+    for t, k in cue_list:
+        if not k.startswith("sample_"):
+            continue
+        name = k[7:]
+        g = BED.get(name, 0.2)
+        p = pad if g > 0 else 0.6
+        out.append((t - DUR[name] - p, t + p, g))
+    return out
 
 
 # -- recorded clips (2026-11-21) ---------------------------------------------
@@ -170,9 +182,12 @@ def windows(cue_list: list[tuple[float, str]], pad: float = 0.15
 # dips under it), but **as loud as the voice**: it is something to compare
 # with the narration, not a sound to be careful with.
 
-def register(path, name: str | None = None, level: float = 0.9) -> str:
+def register(path, name: str | None = None, level: float = 0.9,
+             bed: float = 0.2) -> str:
     """Make the audio file `path` a sample; returns its name for
-    `Shot(samples=...)`. `level` is its peak against the narration's."""
+    `Shot(samples=...)`. `level` is its peak against the narration's; `bed`
+    is how far the music bed dips under it - 0.0 stops it, for a music
+    example (the editor, 2026-11-21: "it needs to be paused for this part")."""
     import soundfile as sf
     from . import sfx
     path = Path(path)
@@ -191,6 +206,7 @@ def register(path, name: str | None = None, level: float = 0.9) -> str:
     sfx.ANCHOR[key] = DUR[name]
     # `sfx.mix` scales every cue by its gain against the narration's peak.
     sfx.LEVELS[key] = level / sfx.DEFAULT_GAIN
+    BED[name] = bed
     return name
 
 

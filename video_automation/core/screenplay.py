@@ -66,8 +66,34 @@ REPO = Path(__file__).resolve().parents[2]
 TAKES = REPO / "assets/stock/takes"
 TERM_PAGE = Path(__file__).with_name("screenplay_term.html")
 CONSENT = ("#onetrust-consent-sdk", "#CybotCookiebotDialog", ".fc-consent-root",
-           "#usercentrics-root", "#didomi-host", ".cc-window",
-           "#cookie-law-info-bar")
+           ".fc-message-root", ".fc-ccpa-root", ".fc-dialog-overlay",
+           ".fc-monetization-dialog-container", "#usercentrics-root", "#didomi-host",
+           ".cc-window", "#cookie-law-info-bar")
+
+# **Removed, never clicked** (2026-11-21): Google's consent dialog on our own
+# sites sets its own inline `!important` display and locks the page's scroll,
+# so a style tag alone left it over the video grid. A script in every page
+# removes any consent layer the moment it is added and gives the scroll back.
+# Accepting on someone's behalf is not this tool's business, even in a
+# throwaway browser.
+_UNCONSENT = """(() => {
+  const sel = %s;
+  const sweep = () => {
+    for (const el of document.querySelectorAll(sel)) el.remove();
+    // Google's privacy note lives in an anonymous host's shadow root, out of
+    // reach of any selector: removed by what it says.
+    for (const el of document.body ? [...document.body.children] : []) {
+      const sr = el.shadowRoot;
+      if (sr && !el.id && !el.className &&
+          /privacy|consent|cookie|data is used/i.test(sr.textContent || '')) el.remove();
+    }
+    for (const el of [document.documentElement, document.body]) {
+      if (el && getComputedStyle(el).overflow === 'hidden') el.style.setProperty('overflow', 'auto', 'important');
+    }
+  };
+  new MutationObserver(sweep).observe(document, {childList: true, subtree: true});
+  document.addEventListener('DOMContentLoaded', sweep);
+})();"""
 
 
 # -- steps --------------------------------------------------------------------
@@ -290,6 +316,9 @@ async def _play(take, work: Path, say, seed: int):
             viewport={"width": vw, "height": vh}, device_scale_factor=take.scale,
             color_scheme="dark" if (is_term or take.dark) else "light",
             locale="en-US", timezone_id="UTC")
+        if not is_term:
+            sel = ", ".join(list(CONSENT) + list(take.hide))
+            await ctx.add_init_script(_UNCONSENT % json.dumps(sel))
         page = await ctx.new_page()
         if is_term:
             await page.goto(TERM_PAGE.as_uri())

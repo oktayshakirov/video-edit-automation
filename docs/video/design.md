@@ -172,23 +172,34 @@ forget.
 
 The aurora shipped once with visible contour rings and the note was "I can
 clearly see the changes in the background colors in the shapes". That is not a
-flaw in the gradient — measured, the whole 1920px centre row spans **levels 14
+flaw in the gradient - measured, the whole 1920px centre row spans **levels 14
 to 45**, so the entire frame is drawn with 31 distinct 8-bit values and every
 one of those steps is an edge.
 
-`Backdrop._dither` trades the contour for noise below the threshold of vision.
-Two things about it that are not optional:
+**Replaced 2026-11-21: the OktAI and tinnitus backgrounds are painted, not
+dithered.** The fix that stood here - `Backdrop._dither`, +-1.5 levels of
+noise *changing every frame*, after the upscale of the 512px loop - measured
+smooth on the frames it drew and did not survive the encode: the OktAI
+opener draft had ~25 rings around its glow (levels 12 to 37), moving as the
+glow travelled on its circle, and the editor's note was "some circles which
+ruin the quality, the animation is not so good with the circle movement".
+Per-frame fine noise is the first thing x264 discards at crf 18. What holds
+(`core/painted.py`, judged on frames *after* the real encode, contrast
+stretched 10x):
 
-- **It happens after the upscale.** Dithering the 512px source and then
-  resizing 3.75x runs the noise through a low-pass filter and the bands come
-  straight back — the interpolation averages exactly what the dither varied.
-- **It changes every frame.** A fixed field reads as dirt on the lens. Frames
-  come from a rotating pool of eight rather than fresh per call, because a new
-  1920x1080 random field per frame is 2M values on every frame of every video.
+- **Drawn at the output size in float**, not a 512px 8-bit loop stretched
+  3.75x - a stretched step is a wider step.
+- **The grain is static** and a little soft (1px blur, ~1.6 levels): an
+  encoder keeps a texture that does not change between frames. At normal
+  contrast it is invisible.
+- **The glows hold still.** Motion comes from what cannot band: small
+  stars twinkling and drifting, and the beats on top.
 
-Measured: longest run of identical values along a row went **158px to 7px**,
-mean run 23.1px to 1.5px, at 8.7 ms/frame. If a background ever bands again,
-measure run lengths — level *count* barely moves and will tell you nothing.
+`backdrop.get` paints any name in `painted.PAINTED` (`oktai-night`,
+`tinnitus-plum`); the crypto water is footage and has no gradient to band.
+If a background ever bands again, judge it on an encoded frame, never on the
+frame the renderer returns - and measure run lengths; level *count* barely
+moves and will tell you nothing.
 
 ## A name with a number in it is glued with a no-break space (2026-10-20)
 

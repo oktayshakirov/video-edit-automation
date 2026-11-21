@@ -146,8 +146,15 @@ body.prompter {{ font-size:40px; line-height:1.45; }}
 body.prompter header {{ display:none; }}
 body.prompter .line {{ background:none; padding:14px 0; }}
 body.prompter .line .n {{ font-size:18px; padding-top:14px; }}
-#bar {{ position:fixed; right:16px; bottom:16px; background:var(--panel);
-        color:var(--dim); padding:8px 12px; border-radius:8px; font-size:14px; }}
+#bar {{ position:fixed; right:16px; bottom:16px; display:flex; gap:8px;
+        align-items:center; background:var(--panel); color:var(--dim);
+        padding:8px; border-radius:12px; font-size:14px; z-index:9; }}
+#bar button {{ font:inherit; font-size:15px; color:var(--ink); background:#26262c;
+              border:0; border-radius:8px; padding:8px 12px; cursor:pointer; }}
+#bar button.go {{ background:var(--gold); color:#0a0a0e; font-weight:600; }}
+#state {{ min-width:9em; text-align:center; }}
+body.prompter main {{ padding-top:45vh; }}
+body.prompter .line.now {{ color:var(--gold); }}
 @media (max-width:600px) {{ body.prompter {{ font-size:28px; }} }}
 </style></head><body>
 <header>
@@ -156,24 +163,59 @@ body.prompter .line .n {{ font-size:18px; padding-top:14px; }}
 <p class="how">Read each line as written, one line per breath.
 On a mistake, just say the whole line again; the last good take is kept.
 Lines marked <b style="color:var(--gold)">CAM</b> are on camera: look into the lens.
-<br>Teleprompter: <kbd>P</kbd> start/stop, <kbd>space</kbd> pause,
-<kbd>&uarr;</kbd><kbd>&darr;</kbd> speed.</p>
+<br>Teleprompter: press <b>Start</b> at the bottom right (or <kbd>P</kbd>).
+<kbd>space</kbd> or a tap pauses, <kbd>&uarr;</kbd><kbd>&darr;</kbd> or
+<b>&minus;</b> / <b>+</b> change the speed. Open this file in Safari or Chrome
+(double-click it in Finder); a preview pane may not run it.</p>
 </header>
 <main>{body}</main>
-<div id="bar" hidden></div>
+<div id="bar">
+<button id="go" class="go">Start</button>
+<button id="slow" title="slower">&minus;</button>
+<span id="state">speed 40</span>
+<button id="fast" title="faster">+</button>
+<button id="top" title="back to the start">&#8634;</button>
+</div>
 <script>
-let on=false, run=false, speed=40, last=0;
-const bar=document.getElementById('bar');
-function show(){{ bar.hidden=!on; bar.textContent=(run?'scrolling':'paused')+' - speed '+speed; }}
-function tick(t){{ if(on&&run&&last) window.scrollBy(0,(t-last)/1000*speed); last=t;
-  requestAnimationFrame(tick); }}
+// The prompter keeps its own position as a float: a frame's step at a slow
+// speed is under a pixel, and browsers round a fractional scrollBy to zero -
+// the first version never moved (2026-11-21).
+let on=false, run=false, speed=40, last=0, pos=0;
+const $=id=>document.getElementById(id);
+function show(){{
+  $('go').textContent = !on ? 'Start' : (run ? 'Pause' : 'Resume');
+  $('state').textContent = (on ? (run ? 'scrolling' : 'paused') + ' - ' : '') + 'speed ' + speed;
+}}
+function stop(){{ on=false; run=false; document.body.classList.remove('prompter'); show(); }}
+function tick(t){{
+  if(on&&run){{
+    if(last) {{ pos += (t-last)/1000*speed; window.scrollTo(0, Math.round(pos)); }}
+    last=t;
+    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {{ run=false; show(); }}
+  }} else last=0;
+  requestAnimationFrame(tick);
+}}
 requestAnimationFrame(tick);
+$('go').onclick = e => {{ e.stopPropagation(); if(!on) {{ on=true; run=true;
+  document.body.classList.add('prompter'); pos=window.scrollY; last=0; show(); }}
+  else {{ run=!run; last=0; pos=window.scrollY; show(); }} }};
+$('slow').onclick = e => {{ e.stopPropagation(); speed=Math.max(5,speed-5); show(); }};
+$('fast').onclick = e => {{ e.stopPropagation(); speed=Math.min(200,speed+5); show(); }};
+$('top').onclick = e => {{ e.stopPropagation(); window.scrollTo(0,0); pos=0; show(); }};
+// A tap on the text pauses or resumes, for a phone or a tablet on a stand.
+document.querySelector('main').addEventListener('click', () => {{
+  if(on) {{ run=!run; last=0; pos=window.scrollY; show(); }} }});
+// Scrolling by hand while paused moves where it resumes from.
+addEventListener('wheel', () => {{ if(!run) pos=window.scrollY; }}, {{passive:true}});
 addEventListener('keydown',e=>{{
-  if(e.key==='p'||e.key==='P'){{ on=!on; run=on; document.body.classList.toggle('prompter',on); }}
-  else if(e.key===' '&&on){{ run=!run; e.preventDefault(); }}
-  else if(e.key==='ArrowUp'&&on){{ speed=Math.min(200,speed+5); e.preventDefault(); }}
-  else if(e.key==='ArrowDown'&&on){{ speed=Math.max(5,speed-5); e.preventDefault(); }}
-  show(); }});
+  if(e.key==='p'||e.key==='P'){{ if(on) stop(); else {{ on=true; run=true;
+    document.body.classList.add('prompter'); pos=window.scrollY; last=0; show(); }} }}
+  else if(e.key===' '&&on){{ run=!run; last=0; pos=window.scrollY; e.preventDefault(); show(); }}
+  else if(e.key==='ArrowUp'){{ speed=Math.min(200,speed+5); e.preventDefault(); show(); }}
+  else if(e.key==='ArrowDown'){{ speed=Math.max(5,speed-5); e.preventDefault(); show(); }}
+  else if(e.key==='Escape'&&on) stop();
+}});
+show();
 </script></body></html>
 """
 

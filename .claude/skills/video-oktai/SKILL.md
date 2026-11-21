@@ -86,7 +86,11 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
    long form the referral line is said once, when the tool is on screen;
    the Short never pitches.
 4. **Write the picture first** (`workflow.md`, "Write the picture
-   first"): one line per sentence, what the viewer sees. For this channel:
+   first"), then run **`tools/visual_check.py`** on both files and answer
+   every flag before the draft: one line per sentence, what the viewer sees.
+   Every chapter shows something real - a scripted screen, a played sound,
+   a logo, our own graphics or Shorts - and a mistake is shown and marked
+   (`Shot(verdict=)`), not just named. For this channel:
    the real screen (his recording, `screencap` of a public page), then a
    beat, then stock. A new beat when the library cannot draw the subject is
    part of the run.

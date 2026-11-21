@@ -138,6 +138,15 @@ class Shot:
     # "browser", "player", "terminal", or (kind, text) for the address, the
     # recording's caption or the typed command (`core/window.py`, 2026-11-10).
     window: "str | tuple | None" = None
+    # Any shot: an editor's mark over it - ("wrong", "Says nothing") draws a
+    # red cross and drains the colour, ("right", "Names it") a green tick -
+    # landing `verdict_at` of the way in (`core/verdict.py`, 2026-11-21).
+    verdict: "str | tuple | None" = None
+    verdict_at: float = 0.45
+    # A drawn beat with no photograph: its 3D emblem ("microphone", "chart",
+    # ... `core/emblem3d.OBJECTS`), "arcs" for the old drawing, None for the
+    # video's own (2026-11-21).
+    emblem: str | None = None
     ground: str | None = None           # "grid": a drawn beat on the dark
                                         # ruled ground (`beats.base.grid_ground`)
     # A clip that is already a finished picture - a `core/screenrec.py`
@@ -958,6 +967,14 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
         from ..core.window import WindowShot
         prepared = [WindowShot(p, s.window, s.start, s.hold, frame, brand)
                     if s is not None and getattr(s, "window", None) else p
+                    for p, s in zip(prepared, shots)]
+
+    # `Shot(verdict=)` marks the picture wrong or right, over its window too.
+    if any(s is not None and getattr(s, "verdict", None) for s in shots):
+        from ..core.verdict import VerdictShot
+        prepared = [VerdictShot(p, s.verdict, s.start, s.hold, frame,
+                                at=s.verdict_at)
+                    if s is not None and getattr(s, "verdict", None) else p
                     for p, s in zip(prepared, shots)]
 
     if mark is not None:

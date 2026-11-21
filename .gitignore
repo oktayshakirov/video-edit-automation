@@ -76,3 +76,6 @@ HANDOFF-PUBLISH-*.md
 # Scripted screen takes (`core/screenplay.py`): replayed from the project
 # file, so the recordings and their renders stay out of git.
 assets/stock/takes/**
+
+# Logo badges (`tools/oktai_logos.py`): third-party marks, rebuilt on demand.
+assets/brand/logos/

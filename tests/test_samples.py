@@ -9,8 +9,11 @@ from video_automation.longform import audio
 
 
 def test_every_sample_is_soft_edged_and_sized():
-    for name, dur in samples.DUR.items():
-        x = sfx._MAKERS_EXTRA[f"sample_{name}"](samples.SR)
+    # The synthesised ones; a recorded clip (`samples.register`) is the
+    # file's own length and edges.
+    for key in [k for k in sfx._MAKERS_EXTRA if k.startswith("sample_")]:
+        name, dur = key[7:], samples.DUR[key[7:]]
+        x = sfx._MAKERS_EXTRA[key](samples.SR)
         assert len(x) == int(dur * samples.SR)
         # Nothing starts or ends as a transient.
         assert abs(x[0]) < 1e-3 and abs(x[-1]) < 1e-3

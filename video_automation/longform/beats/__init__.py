@@ -77,6 +77,8 @@ from .tiers import Tiers
 from .breach import Breach
 from .diary import Diary
 from .voice import Voice
+from .wall import Wall
+from .phones import Phones
 from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
@@ -100,7 +102,7 @@ __all__ = [
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
     "Behind", "Pile", "Lookalike", "Airgap", "Relay", "Breach", "Reserve", "Honeypot",
-    "Tiers", "Voice",
+    "Tiers", "Voice", "Wall", "Phones",
     "DRAW", "POP", "RISE",
 ]
 
@@ -147,6 +149,8 @@ BEATS = {
     "breach": Breach,
     "diary": Diary,
     "voice": Voice,
+    "wall": Wall,
+    "phones": Phones,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -227,6 +231,8 @@ _COUNT = {
     # The month, then one reveal per ringed group.
     "diary": lambda p: 1 + len(p[2]) if len(p) > 2 else 1,
     "voice": lambda p: len(p[0]),
+    "wall": lambda p: len(p[0]),
+    "phones": lambda p: len(p[0]),
 }
 
 
@@ -269,4 +275,6 @@ def make_beat(shot, brand: Brand, frame: Frame):
                reveals=shot.reveals, marks=shot.marks,
                start=shot.start, hold=shot.hold,
                **({"ground": shot.ground} if getattr(shot, "ground", None)
+                  else {}),
+               **({"emblem": shot.emblem} if getattr(shot, "emblem", None)
                   else {}))

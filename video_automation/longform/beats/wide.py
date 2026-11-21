@@ -222,6 +222,16 @@ class Logos(Beat):
             norm.append((t + ("", None))[:3] if len(t) < 3 else t)
         self.items = norm
 
+    @staticmethod
+    def _is_badge(im: Image.Image) -> bool:
+        """A square image whose corners are transparent: a round badge."""
+        if im.mode not in ("RGBA", "LA", "P") or abs(im.width - im.height) > 4:
+            return False
+        a = im.convert("RGBA").getchannel("A")
+        w, h = a.size
+        return all(a.getpixel(p) < 16 for p in ((2, 2), (w - 3, 2), (2, h - 3),
+                                                  (w - 3, h - 3)))
+
     @classmethod
     def resolve(cls, slug: str | Path) -> Path | None:
         """An exchange slug or a path, as a file that exists."""
@@ -338,14 +348,28 @@ class Logos(Beat):
                         f"no exchange logo for {slug!r} in {self.DIR} — the "
                         f"site has to own the brand card before a beat can "
                         f"show it")
-                tile = cover(Image.open(src).convert("RGB"), tw, th)
-                if a < 1.0:
-                    tile = Image.blend(Image.new("RGB", tile.size,
-                                                 self.brand.bg), tile, a)
-                out.paste(tile, (x, ty))
-                d.rounded_rectangle([x, ty, x + tw, ty + th], radius=12,
-                                    outline=self.brand.primary + (int(255 * a),),
-                                    width=3)
+                im = Image.open(src)
+                if self._is_badge(im):
+                    # **A round badge is shown whole** (2026-11-21, the tool
+                    # and platform logos in `tools/oktai_logos.py`): cropping
+                    # it to a 16:9 card cut the circle into a lens. Centred in
+                    # the tile, as large as the tile is tall, no card frame -
+                    # the circle is its own frame.
+                    side = th
+                    badge = im.convert("RGBA").resize((side, side), Image.LANCZOS)
+                    if a < 1.0:
+                        badge.putalpha(badge.getchannel("A").point(
+                            lambda v: int(v * a)))
+                    out.paste(badge, (x + (tw - side) // 2, ty), badge)
+                else:
+                    tile = cover(im.convert("RGB"), tw, th)
+                    if a < 1.0:
+                        tile = Image.blend(Image.new("RGB", tile.size,
+                                                     self.brand.bg), tile, a)
+                    out.paste(tile, (x, ty))
+                    d.rounded_rectangle([x, ty, x + tw, ty + th], radius=12,
+                                        outline=self.brand.primary + (int(255 * a),),
+                                        width=3)
                 if lab:
                     d.text((x + tw // 2, ty + th + 12), lab.upper(),
                            font=label_font, anchor="ma",

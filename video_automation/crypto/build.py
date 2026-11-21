@@ -180,7 +180,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                             if getattr(shot, "raw", False) else {}),
                          label=label, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
-    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter", "voice",
+    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter", "voice", "phones",
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",
@@ -430,15 +430,18 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
 
 
 def render_crypto_short(sentences: list, shots: list[Shot], out: Path, *args,
-                        animated_emoji: bool = True, **kw):
+                        animated_emoji: bool = True, emblem: str | None = None,
+                        **kw):
     """The vertical cut - see `_render_crypto_short`.
 
     `animated_emoji` (on by default since 2026-11-06) plays Noto's animation
     for beat icons that have one (`core/emoji_anim.py`); `False` gives the
     static glyphs. No credit line goes with it (2026-11-05).
     """
-    from ..core import emoji_anim, screenrec
+    from ..core import emblem3d, emoji_anim, screenrec
     screenrec.make_pending()      # scripted screens (`core/screenplay.py`)
+    brand = kw.get("brand")
+    emblem3d.use_for(getattr(brand, "name", "") or "crypto", Path(out).stem, emblem)
     with emoji_anim.enabled(animated_emoji):
         return _render_crypto_short(sentences, shots, out, *args, **kw)
 
