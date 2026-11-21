@@ -23,7 +23,7 @@ build differs from the crypto and tinnitus pairs - everything else
 both scripts and a Kokoro *draft* render, then `tools/oktai_script.py
 <name>` hands Oktay the page to read and the run stops. When the recordings
 arrive in `~/Movies/OktAI/<name>/` (`long.*`, `short.*`, optional
-`long-cam.*` / `short-cam.*`, `screens/`), `tools/oktai_recording_check.py`
+`long-cam.*` / `short-cam.*`), `tools/oktai_recording_check.py`
 checks them and `video_automation.oktai.build_long` / `build_short` build the
 pair with his voice and the camera box.
 
@@ -106,14 +106,15 @@ above the control bar. 9:16: top right, 300 px, left of the right rail.
 **Off while a screen or a number has to be read** - the box would cover the
 evidence (`docs/oktai-channel-plan.md`, "The camera box").
 
-## Screen recordings
+## Screens
 
-`tools/screenrec.py record <name> <file>` - the real screen with a click
-log; in the project, `oktai.screen(NAME, FILE, window=...)` is the shot, and
-`build_long` / `build_short` render it zoomed to the work. Before the
-recording exists the draft shows a placeholder in the same window, so the
-timing is real. How it works and what may go on screen: `footage.md`,
-"Our own screen".
+**Oktay records the voice, never the screen** (the editor's note,
+2026-11-21). A screen shot is `oktai.screen(NAME, FILE, take)`, where the
+take is a `core/screenplay.py` script - a `Browser` (go, click, type,
+scroll) or a `Terminal` (command, output, thinking). `build_long` /
+`build_short` play it, record it to `screens/<file>.mp4` and cut it zoomed
+to the work, drafts included. How it works and what may go on screen:
+`footage.md`, "Our own screen".
 
 ## Links in scripts
 

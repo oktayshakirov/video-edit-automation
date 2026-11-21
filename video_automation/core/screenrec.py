@@ -9,6 +9,12 @@ wide halves every letter, and the eye does not know where to look. Tools
 like Screen Studio solve it with an automatic camera; this is that, offline
 and repeatable, in the brand's own frame.
 
+**Where the source comes from.** In a run it is a scripted take
+(`core/screenplay.py`): a browser or terminal the build plays and records
+itself, with the same event log - Oktay records the voice only (the
+editor's note, 2026-11-21). A live recording of the Mac screen, below, is
+for a one-off where nothing can be scripted.
+
 **Two steps, like `screencap`: capture once, move offline.**
 
     tools/screenrec.py record NAME FILE         # Ctrl+C to stop
@@ -285,6 +291,8 @@ class Events:
     clicks: list                  # (t, x, y)
     keys: np.ndarray
     scrolls: np.ndarray
+    draw: bool = False            # a scripted take: no cursor in the picture
+    px: float = 1.0               # source pixels per logged point
 
     @classmethod
     def load(cls, path: Path, size: tuple[int, int], shift: float = 0.0
@@ -304,7 +312,8 @@ class Events:
         return cls(t=s[:, 0] + shift, x=xs, y=ys,
                    clicks=[(t + shift, *px(x, y)) for t, x, y in d["clicks"]],
                    keys=np.array(d["keys"], float) + shift,
-                   scrolls=np.array(d["scrolls"], float) + shift)
+                   scrolls=np.array(d["scrolls"], float) + shift,
+                   draw=d.get("cursor") == "draw" and len(s) > 0, px=sx)
 
     def cursor(self, t: float) -> tuple[float, float]:
         if not len(self.t):
@@ -640,6 +649,26 @@ def _view(src: np.ndarray, box, cw: int, ch: int) -> np.ndarray:
                           borderMode=cv2.BORDER_REPLICATE)
 
 
+# The macOS arrow, tip at (0, 0), in points (18 tall).
+ARROW = np.array([(0, 0), (0, 16.2), (3.9, 12.6), (6.6, 18.6), (9.2, 17.4),
+                  (6.6, 11.6), (11.8, 11.6)], np.float32)
+
+
+def _cursor(view: np.ndarray, at, box, s: float, retina: float) -> None:
+    """Draw the pointer for a scripted take, at the size it would be on a
+    screen of this many points (`retina` source pixels per point)."""
+    import cv2
+    x, y = at
+    if not (math.isfinite(x) and math.isfinite(y)):
+        return
+    k = 1.25 * retina * s                 # a touch larger than life: it is read
+    pts = ARROW * k + ((x - box[0]) * s, (y - box[1]) * s)
+    ip = np.round(pts * 4).astype(np.int32)
+    cv2.fillPoly(view, [ip], (255, 255, 255), cv2.LINE_AA, shift=2)
+    cv2.polylines(view, [ip], True, (10, 10, 12), max(1, int(round(1.4 * k / 1.5))),
+                  cv2.LINE_AA, shift=2)
+
+
 @dataclass
 class Spec:
     src: Path
@@ -653,17 +682,22 @@ class Spec:
     wide: bool = True
     color: tuple = (255, 219, 112)
     shift: float = 0.0            # seconds, see `Events.load`
+    take: object = None           # a `screenplay` take that makes `src`
 
     def __post_init__(self):
         if self.zoom is None:
             self.zoom = 2.2 if self.vertical else 1.8
 
     def key(self) -> str:
-        st = Path(self.src).stat()
-        ev = events_path(self.src)
-        evs = ev.stat().st_mtime if ev.exists() else 0
-        raw = (f"{VERSION}|{Path(self.src).resolve()}|{st.st_size}|{st.st_mtime}|"
-               f"{evs}|{self.vertical}|{self.zoom}|{self.idle}|{self.crop}|"
+        if self.take is not None:
+            # Not captured yet, maybe: the take's own digest names the source.
+            made = f"take:{self.take.digest()}"
+        else:
+            st = Path(self.src).stat()
+            ev = events_path(self.src)
+            evs = ev.stat().st_mtime if ev.exists() else 0
+            made = f"{st.st_size}|{st.st_mtime}|{evs}"
+        raw = (f"{VERSION}|{Path(self.src).resolve()}|{made}|{self.vertical}|{self.zoom}|{self.idle}|{self.crop}|"
                f"{tuple(map(tuple, self.blur))}|{self.trim}|{self.ripples}|"
                f"{self.wide}|{self.color}|{self.shift}")
         return hashlib.sha1(raw.encode()).hexdigest()[:8]
@@ -743,6 +777,8 @@ def render(spec: Spec, out: Path | None = None, say=print) -> Path:
             box = boxes[k]
             view = np.ascontiguousarray(_view(img, box, cw, ch))
             s = cw / box[2]
+            if ev is not None and ev.draw:
+                _cursor(view, ev.cursor(t), box, s, ev.px)
             for ck, x, y in clicks:
                 age = (k - ck) / FPS
                 if 0 <= age < RIPPLE:
@@ -796,6 +832,11 @@ def path(src: Path, **opts) -> Path:
 def make_pending(say=print) -> list[Path]:
     made = []
     for out, spec in list(_PENDING.items()):
+        if spec.take is not None:
+            from . import screenplay
+            if not screenplay.fresh(spec.take, spec.src):
+                say(f"screen: playing {Path(spec.src).name}")
+                screenplay.capture(spec.take, spec.src, say=say)
         if not out.exists():
             say(f"screen: {Path(spec.src).name} -> {out.name}")
             render(spec, out, say=say)

@@ -15,9 +15,10 @@ by a person between writing and building.** So a project has two states:
 Outputs go to the Desktop like every other project: `<name>-long.mp4`,
 `<name>-short.mp4`, their SRTs and sidecars.
 
-Screen recordings are `screens/<file>.*` in the same folder, made with
-`tools/screenrec.py record <name> <file>`; `screen()` turns one into a shot
-(`core/screenrec.py`: auto-zoom, click ripples, blur, the brand window).
+Screens are scripted, never recorded by hand: `screen(name, file, take)`
+plays a `core/screenplay.py` take (a browser or a terminal) in headless
+Chromium, records it to `screens/<file>.mp4`, and `core/screenrec.py` cuts
+it (auto-zoom, click ripples, a drawn cursor, blur, the brand window).
 
 The script for Oktay to read comes from `tools/oktai_script.py`, which reads
 the same `SECTIONS` / `SENTENCES` through `reading_order` - so what he reads
@@ -99,25 +100,51 @@ def _camera(video: Path, rec: Recording | None, face, hook, last) -> None:
     os.replace(tmp, video)
 
 
-def screen(name: str, file: str, *, window=("browser", ""), vertical=False,
+def screen(name: str, file: str, take=None, *, window=None, vertical=False,
            at: float = 0.0, fallback=None, **opts):
-    """A shot of the screen recording `screens/<file>.*` - zoomed to the
-    work, framed in `window` (a browser with the page's real address, or
-    `("terminal", "")`). Landscape windows are the wide size. `at` skips into
-    the render (its idle stretches are already sped up, so read the time off
-    the render, not the raw recording). `opts` go to `screenrec.Spec`:
-    `crop=`, `blur=`, `zoom=`, `idle=`, `trim=`.
+    """A screen shot, zoomed to the work and framed in the brand window.
 
-    Before the recording exists (a draft) it is `fallback`, or a dark
-    placeholder in the same window naming the file - so the draft's timing
-    is the real one."""
-    from ..core import screenrec
+    **`take`** - the normal case (2026-11-21, the editor's note: Oktay records
+    the voice only). A `screenplay.Browser` or `screenplay.Terminal` script:
+    `build_long` / `build_short` play it in a headless browser, record it
+    as `screens/<file>.mp4` with its event log, and render the cut. It is
+    played again only when the take changes. A Short plays a terminal in its
+    own narrower screen (the lines wrap instead of running off the side).
+    The window defaults to a browser showing the take's real address, or a
+    terminal.
+
+    Without `take`, `screens/<file>.*` is a recording someone made by hand
+    (`tools/screenrec.py record`); before it exists the shot is `fallback`
+    or a placeholder naming the file, so a draft's timing is still real.
+
+    `at` skips into the render (idle is already sped up: read times off the
+    render's report). `opts` go to `screenrec.Spec`: `crop=`, `blur=`,
+    `zoom=`, `idle=`, `trim=`."""
+    from dataclasses import replace
+    from ..core import screenplay, screenrec
     from ..crypto.shots import Shot
+    term = isinstance(take, screenplay.Terminal)
+    if window is None:
+        window = (("terminal", "") if term else
+                  ("browser", _address(take.url)) if take is not None else
+                  ("browser", ""))
     if isinstance(window, str):
         window = (window, "")
     if not vertical and len(window) == 2:
         window = (*window, "wide")
-    src = _find_in(folder(name) / "screens", file)
+    shots = folder(name) / "screens"
+    if take is not None:
+        if term:
+            # The type is already big; a closer camera only cuts lines (a
+            # Short's terminal is drawn at the window's size, so none at all).
+            opts.setdefault("zoom", 1.0 if vertical else 1.5)
+            if vertical and take.viewport == screenplay.Terminal.viewport:
+                take = replace(take, viewport=screenplay.TERM_VERTICAL)
+        src = shots / f"{file}{'-v' if term and vertical else ''}.mp4"
+        clip = screenrec.path(src, vertical=vertical, color=OKTAI.primary,
+                              wide=len(window) > 2, take=take, **opts)
+        return Shot(clip=clip, raw=True, window=window, clip_at=at)
+    src = _find_in(shots, file)
     if src is None:
         if fallback is not None:
             return fallback
@@ -126,6 +153,11 @@ def screen(name: str, file: str, *, window=("browser", ""), vertical=False,
     clip = screenrec.path(src, vertical=vertical, color=OKTAI.primary,
                           wide=len(window) > 2, **opts)
     return Shot(clip=clip, raw=True, window=window, clip_at=at)
+
+
+def _address(url: str) -> str:
+    """What a browser's address bar shows: no scheme, no trailing slash."""
+    return url.split("://", 1)[-1].rstrip("/")
 
 
 def _find_in(d: Path, stem: str) -> Path | None:

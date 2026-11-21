@@ -927,57 +927,59 @@ ffmpeg build - measured on the Mac 2026-11-05), not the ~150MB download.
   one line of the page's own markup: a hyphen or a line break inside it
   matches nothing (Wyoming's "fully-reserved", govinfo's wrapped lines).
 
-## Our own screen: `screenrec` (2026-11-21)
+## Our own screen: scripted takes (2026-11-21)
 
-When the proof is something we did - a terminal running Claude Code, our
-dashboard, a page we built - record the real screen with its click log, and
-let the render move the camera:
+When the proof is something we did - Claude Code building a thing, a tool
+we use, a page we made - the screen is **a script the build plays**, not a
+recording anyone makes. The editor's note, 2026-11-21: Oktay records the
+voice and nothing else; screens are made like the drawn beats are.
 
-```bash
-PYTHONPATH=. .venv/bin/python tools/screenrec.py record NAME FILE    # Ctrl+C stops
-PYTHONPATH=. .venv/bin/python tools/screenrec.py render NAME FILE [--vertical] \
-    [--crop x0,y0,x1,y1] [--blur x0,y0,x1,y1[,t0,t1]] [--zoom 1.8] [--idle 4]
+```python
+from video_automation.core import screenplay as sp
+from video_automation.oktai import screen
+
+TERM = sp.Terminal([sp.cmd("claude"), sp.cmd("add a booking form", prompt="> "),
+                    sp.think(6), sp.out(REAL_OUTPUT, secs=2)])
+WEB = sp.Browser("https://example.com", [sp.type_("dog walks", into="input"),
+                                         sp.press("Enter"), sp.scroll(700)])
+SHOTS = [screen(NAME, "claude", TERM), screen(NAME, "search", WEB), ...]
 ```
 
-In a project: `oktai.screen(NAME, FILE, window=("terminal", ""))` (or
-`("browser", "the page's real address")`) returns the `Shot`; it is
-`Shot(clip=screenrec.path(...), raw=True, window=(..., "wide"))`, rendered
-by `make_pending()` before the build. How the camera decides is in
-`core/screenrec.py`'s docstring: idle sped up, a zoom that arrives before
-the click, typing and arriving results followed, a scroll or a new page
-zooms out. `render` also writes a contact sheet - look at it before writing
-the lines that sit over the clip.
+`core/screenplay.py` plays a take in headless Chromium at 2x, records
+every paint with the DevTools screencast, and writes the event log from
+the steps themselves (each mouse move, click, key and scroll when it was
+sent). `core/screenrec.py` then cuts it: idle sped up, the camera zoomed to
+clicks, typing and arriving results, a drawn cursor, a gold ripple on each
+click. A take is captured once and played again only when its steps
+change. `tools/screenrec.py render PATH` previews any capture with a
+contact sheet. Measured on the first takes (2026-11-21): the log and the
+picture agree to the frame (the 5th logged key shows exactly 5 letters).
 
-**`raw=True`, always, on a screen render.** A clip is otherwise graded
-toward the stills (dim 0.86, saturation 0.82) and pushed in 6%: the first
-greys the type, the second fights the render's own camera.
+- **A terminal's output is real.** Run the command or the Claude Code
+  session, paste its output (ANSI colours are kept) into `out()`. Never
+  write a result that did not happen - the channel's rule is receipts.
+- **Fit the take to its lines.** The shot lasts as long as the sentences
+  over it; anything past that is cut. The render's report
+  (`.render/*.json`, `seconds_out`) says how long the cut is; `think()`
+  stretches are already sped up 4x.
+- **A Short plays a terminal in its own narrow screen** (`TERM_VERTICAL`)
+  with no zoom, so lines wrap instead of running off the side - the
+  9:16 window is nearly square.
+- **A browser's address bar is the take's start URL.** After a navigation
+  it is stale; split the take, or pass `window=("browser", "the address")`.
+- **`raw=True`** (set by `oktai.screen`): a clip is otherwise graded toward
+  the stills and pushed in 6%, which greys the type and fights the camera.
+- **The `"wide"` window** in 16:9 (80% of the width, `window.is_wide`); the
+  render fills exactly its content area (`screenrec.content_rect`).
 
-**The window is the frame, and it is the `"wide"` one** (80% of the width
-in 16:9, `window.is_wide`). At the 70% window a Retina screen's type is at
-half size even zoomed. The render fills exactly the window's content area
-(`screenrec.content_rect`), so a 9:16 render without a window shows black
-bands - in a Short, always frame it.
+**What may go on screen** is the `screencap` rule above: public pages, no
+logged-in views, nobody's private data. A take runs in a clean browser
+profile, so it cannot show an inbox or an account by accident; a page that
+needs a login is a `screencap` still of something we export, or a beat.
 
-**What may go on screen** is the `screencap` rule above, plus what a real
-desktop adds:
-
-- **Crop to the part the line is about.** `--crop` drops a browser's tabs
-  and bookmarks bar (other sites, open tabs) and the menu bar (the clock,
-  the Wi-Fi name). Then `window=("browser", "real address")` draws a clean
-  bar back.
-- **Blur is by screen position**, a coarse mosaic (Gaussian-blurred small
-  text can be read back). Content that scrolls moves *out* of a fixed box:
-  give it `t0,t1` for the seconds it is in place, or do not scroll past it.
-- **The log never holds which keys were pressed** - only when. A password
-  typed on camera is still on camera: it is the screen that has to be
-  clean, not the log.
-
-**Sync is measured, not yet proven on a real capture.** ffmpeg's progress
-reports give the first frame's wall time; a live screen cannot run ahead of
-the clock, so the error is a little latency, which makes the camera early
-(it already leads by 0.35 s). If the ripples ever land off the clicks,
-`Spec(shift=seconds)` moves the log. Check the first real recording's
-ripples against the cursor and date the result here.
+`tools/screenrec.py record` (a live recording of the Mac screen with a
+click log) still exists for a one-off where nothing can be scripted, but it
+is not part of a run.
 
 ## Motion on a video shot — three things that all caused visible glitches
 

@@ -142,9 +142,12 @@ episodes, already researched and cited) and our skills/pipelines.
 
 ### What goes on screen, in order of preference
 
-1. **Screen recordings** of the real work: Claude Code sessions, the render
-   pipeline, n8n, YouTube Studio graphs (blurred where private), the job
-   search shortlist, the audiobook pipeline, App Store / Play listings.
+1. **Scripted screens** of the real work (`core/screenplay.py`, played and
+   recorded by the build - Oktay never records his screen, 2026-11-21):
+   Claude Code sessions as `Terminal` takes with the real output, public
+   tools and our own sites as `Browser` takes. A logged-in view (YouTube
+   Studio, n8n) is a `screencap` still of a page we export, or a drawn beat
+   of its numbers.
 2. **Website captures** via `screencap` (public pages only, as in
    `docs/video/footage.md`).
 3. **Drawn graphics and vectors**: the existing beat library
@@ -315,10 +318,11 @@ Reused as is: the long-form and Short engines, captions, `screencap`,
 - **The camera box** (`video_automation/core/facecam.py`): cut with the
   voice's edit so the lips match, face found automatically, slides in on
   the hook, the last line and any phrase named.
-- **`screenrec`** (`core/screenrec.py`, `tools/screenrec.py`, 2026-11-21):
-  the screen with a log of clicks and typing (never which keys), re-cut
-  offline - idle sped up, auto-zoom to clicks, typing and arriving
-  results, gold click ripples, mosaic blur, framed in the wide `window=`.
+- **Scripted screens** (`core/screenplay.py` + `core/screenrec.py`,
+  2026-11-21): a browser or terminal take played in headless Chromium and
+  recorded with its own event log, then re-cut offline - idle sped up,
+  auto-zoom to clicks, typing and arriving results, a drawn cursor, gold
+  click ripples, mosaic blur, framed in the wide `window=`.
 
 Still to build:
 

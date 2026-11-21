@@ -11,10 +11,9 @@ recording folder `~/Movies/OktAI/NAME/`:
   time, and a teleprompter mode (P: start, space: pause, arrows: speed).
 * `script.txt` - the same as plain text, for a phone or a print.
 
-A project's `SCREENS` - `[("file", "what to record"), ...]` - is listed at
-the end: the screen recordings Oktay captures himself with
-`tools/screenrec.py record NAME FILE`, which saves `screens/<file>.mov` and
-the click log the auto-zoom reads (`core/screenrec.py`).
+Oktay records the voice (and the camera box) only. Screens are scripted
+takes the build plays itself (`oktai.screen`, `core/screenplay.py`), so
+there is nothing on this page to capture (the editor's note, 2026-11-21).
 
 **It prints what the voice will say, not the captions.** A `(caption,
 spoken)` pair is read as its spoken half, and a carded chapter's title is a
@@ -89,7 +88,6 @@ def part(path: Path, kind: str):
                                                     "title", path.stem)
     return {"kind": kind, "title": title, "lines": lines,
             "chapters": chapters, "marks": marks,
-            "screens": list(getattr(mod, "SCREENS", ())),
             "words": sum(len(norm(x)) for x in lines)}
 
 
@@ -111,13 +109,6 @@ def text(name: str, parts: list[dict]) -> str:
             cam = "[CAM] " if i in p["marks"] else ""
             out.append(f"{i + 1:>3}. {cam}{line}")
         out.append("")
-    screens = [x for p in parts for x in p["screens"]]
-    if screens:
-        out += ["=== SCREEN RECORDINGS TO CAPTURE ===",
-                "Record each with (Ctrl+C stops):",
-                f"  PYTHONPATH=. .venv/bin/python tools/screenrec.py record {name} <file>",
-                "Close anything private first. Work at a calm pace; pauses are sped up.", ""]
-        out += [f"- {f}: {what}" for f, what in screens]
     return "\n".join(out) + "\n"
 
 
@@ -143,7 +134,6 @@ h3 {{ margin:28px 0 6px; font-size:14px; letter-spacing:.12em;
       text-transform:uppercase; color:var(--dim); }}
 .line {{ display:flex; gap:14px; padding:10px 14px; margin:4px 0;
          border-radius:10px; background:var(--panel); }}
-code {{ color:var(--gold); font-size:14px; }}
 .line .n {{ color:var(--dim); min-width:2.2em; text-align:right;
            font-variant-numeric:tabular-nums; }}
 .line.cam {{ box-shadow:inset 3px 0 0 var(--gold); }}
@@ -199,19 +189,6 @@ def page(name: str, parts: list[dict]) -> str:
             cls = "line cam" if i in p["marks"] else "line"
             body.append(f"<div class='{cls}'><span class='n'>{i + 1}</span>"
                         f"<span class='t'>{html.escape(line)}</span></div>")
-    screens = [x for p in parts for x in p["screens"]]
-    if screens:
-        body.append("<h2>Screen recordings to capture</h2><div class='meta'>"
-                    "In the repo, one per file, Ctrl+C to stop:<br><code>"
-                    f"PYTHONPATH=. .venv/bin/python tools/screenrec.py record "
-                    f"{html.escape(name)} &lt;file&gt;</code><br>It logs clicks "
-                    "and typing (never which keys) so the video can zoom to "
-                    "them. Close anything private first: mail, keys, balances. "
-                    "Work at a calm pace; pauses are sped up.</div>")
-        for f, what in screens:
-            body.append(f"<div class='line'><span class='n'>&#9679;</span>"
-                        f"<span class='t'><b>{html.escape(f)}</b> - "
-                        f"{html.escape(what)}</span></div>")
     total = sum(p["words"] for p in parts)
     summary = (f"{' + '.join(p['kind'] for p in parts)} - "
                f"about {_minutes(total)} of reading")

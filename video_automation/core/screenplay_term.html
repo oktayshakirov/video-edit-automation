@@ -1,0 +1,106 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- The terminal `screenplay.Terminal` plays in. Only the screen: the
+     window's title bar is drawn by core/window.py around the capture. -->
+<style>
+  :root { --fg: #e6e6ea; --dim: #8a8a96; --gold: #ffdb70; --bg: #0e0e12; }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  #screen { box-sizing: border-box; height: 100%; padding: 22px 28px;
+            font-family: "SF Mono", Menlo, Monaco, monospace; color: var(--fg);
+            line-height: 1.45; white-space: pre-wrap; word-break: break-word;
+            overflow: hidden; }
+  .ln { min-height: 1.45em; }
+  .prompt { color: var(--gold); }
+  .caret { display: inline-block; width: 0.6em; height: 1.15em; margin-bottom: -0.2em;
+           background: var(--fg); opacity: 0.85; }
+  .think { color: var(--gold); }
+  .b { font-weight: 700; } .d { opacity: 0.6; } .i { font-style: italic; }
+  .u { text-decoration: underline; }
+</style></head>
+<body><div id="screen"></div>
+<script>
+const PAL = ["#3a3a44", "#ff6b6b", "#5fd38d", "#ffdb70", "#6fa8ff", "#d68bff",
+             "#5ed4d4", "#e6e6ea"];
+const BRIGHT = ["#70707c", "#ff8f8f", "#86e8a8", "#ffe79a", "#9cc3ff", "#e3abff",
+                "#8ae6e6", "#ffffff"];
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+function ansi(text) {
+  // SGR colours and styles only; any other escape is dropped.
+  let out = "", st = {}, open = false;
+  const parts = text.split(/\x1b\[([0-9;]*)m/);
+  const span = () => {
+    const cls = [st.b && "b", st.d && "d", st.i && "i", st.u && "u"].filter(Boolean);
+    const css = st.fg ? `color:${st.fg};` : "";
+    return `<span class="${cls.join(" ")}" style="${css}">`;
+  };
+  for (let k = 0; k < parts.length; k++) {
+    if (k % 2 === 0) { out += esc(parts[k].replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "")); continue; }
+    const codes = parts[k] === "" ? [0] : parts[k].split(";").map(Number);
+    for (let j = 0; j < codes.length; j++) {
+      const c = codes[j];
+      if (c === 0) st = {};
+      else if (c === 1) st.b = true; else if (c === 2) st.d = true;
+      else if (c === 3) st.i = true; else if (c === 4) st.u = true;
+      else if (c === 22) { st.b = st.d = false; } else if (c === 39) st.fg = null;
+      else if (c >= 30 && c <= 37) st.fg = PAL[c - 30];
+      else if (c >= 90 && c <= 97) st.fg = BRIGHT[c - 90];
+      else if (c === 38 && codes[j + 1] === 2) {
+        st.fg = `rgb(${codes[j + 2]},${codes[j + 3]},${codes[j + 4]})`; j += 4;
+      } else if (c === 38 && codes[j + 1] === 5) { st.fg = xterm(codes[j + 2]); j += 2; }
+    }
+    if (open) out += "</span>";
+    out += span(); open = true;
+  }
+  return out + (open ? "</span>" : "");
+}
+function xterm(n) {
+  if (n < 8) return PAL[n]; if (n < 16) return BRIGHT[n - 8];
+  if (n >= 232) { const v = 8 + (n - 232) * 10; return `rgb(${v},${v},${v})`; }
+  n -= 16; const s = [0, 95, 135, 175, 215, 255];
+  return `rgb(${s[Math.floor(n / 36)]},${s[Math.floor(n / 6) % 6]},${s[n % 6]})`;
+}
+
+const term = {
+  scr: null, cur: null, typed: null, spin: null,
+  setup(font, title) {
+    this.scr = document.getElementById("screen");
+    this.scr.style.fontSize = font + "px";
+    document.title = title || "terminal";
+  },
+  _new(html = "") {
+    const d = document.createElement("div");
+    d.className = "ln"; d.innerHTML = html;
+    this.scr.appendChild(d);
+    // Full: the oldest line scrolls off the top, as in a real terminal.
+    while (this.scr.scrollHeight > this.scr.clientHeight + 2 && this.scr.firstChild !== d)
+      this.scr.removeChild(this.scr.firstChild);
+    return d;
+  },
+  prompt(p) {
+    this.cur = this._new(`<span class="prompt">${esc(p)}</span>`);
+    this.typed = document.createElement("span");
+    this.cur.appendChild(this.typed);
+    const c = document.createElement("span"); c.className = "caret";
+    this.cur.appendChild(c);
+  },
+  key(ch) { this.typed.textContent += ch; },
+  enter() {
+    const c = this.cur && this.cur.querySelector(".caret");
+    if (c) c.remove();
+  },
+  line(l) { this._new(ansi(l)); },
+  think(label) {
+    const F = ["✻", "✶", "✳", "✢", "·", "✢", "✳", "✶"];
+    const d = this._new(""); let i = 0, t0 = performance.now();
+    const tick = () => {
+      const s = Math.floor((performance.now() - t0) / 1000);
+      d.innerHTML = `<span class="think">${F[i++ % F.length]} ${esc(label)}…</span>` +
+                    ` <span class="d">(${s}s)</span>`;
+    };
+    tick(); this.spin = { d, h: setInterval(tick, 120) };
+  },
+  done() { if (this.spin) { clearInterval(this.spin.h); this.spin.d.remove(); this.spin = null; } },
+  clear() { this.scr.innerHTML = ""; },
+};
+</script></body></html>
