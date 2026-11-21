@@ -145,7 +145,7 @@ copies that disagreed with each other.
      decibels against safe exposure, `dial` for a scale. **Build a new beat
      when the library cannot draw the subject.**
    - **Show the real thing** the script names (a product, a study's page
-     with `screencap` in `window="browser"`, a named musician), credited.
+     with `screencap` in `window="browser"` - or, when the line is about *using* the page (a search, a quote, a test), a scripted take played and recorded by the build: `screenplay.shot(take, ...)` (`footage.md`, "Our own screen"), a named musician), credited.
    - **Frame what is left:** `callout` or `spotlight` on a photo, a clip in
      a `window=`. Never two full-frame pictures in a row; at least half the
      long form drawn or framed; signature beats rest for two videos.

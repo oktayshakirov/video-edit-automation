@@ -977,6 +977,16 @@ logged-in views, nobody's private data. A take runs in a clean browser
 profile, so it cannot show an inbox or an account by accident; a page that
 needs a login is a `screencap` still of something we export, or a beat.
 
+**Every channel, when it helps** (2026-11-21): a crypto or tinnitus
+project uses the same takes with `screenplay.shot(take, "file",
+color=BRAND.primary, vertical=...)` - recorded to `assets/stock/takes/`
+(out of git, replayed from the project) and rendered by `render_long` /
+`render_crypto_short` before they start. Reach for one when the line is
+about *doing* something on a public page: a swap quote on a DEX, a block
+explorer search, a hearing-test site, a tool the article recommends. A
+still page that only has to be read stays a `screencap`, which is cheaper
+and never changes under you.
+
 `tools/screenrec.py record` (a live recording of the Mac screen with a
 click log) still exists for a one-off where nothing can be scripted, but it
 is not part of a run.

@@ -49,7 +49,8 @@ def render_long(sections: list[Section], out: Path, workdir: Path, *args,
     has one (`core/emoji_anim.py`); `False` gives the static glyphs. It adds
     no credit line to `meta` (the editor's call, 2026-11-05).
     """
-    from ..core import emoji_anim
+    from ..core import emoji_anim, screenrec
+    screenrec.make_pending()      # scripted screens (`core/screenplay.py`)
     with emoji_anim.enabled(animated_emoji):
         return _render_long(sections, out, workdir, *args, **kw)
 

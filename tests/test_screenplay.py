@@ -107,3 +107,13 @@ def test_a_scripted_log_asks_for_a_drawn_cursor(tmp_path):
     view = np.zeros((100, 200, 3), np.uint8)
     sr._cursor(view, ev.cursor(0), (0, 0, 200, 100), 1.0, ev.px)
     assert view[25:40, 21:26].max() == 255             # the arrow, below its tip
+
+
+def test_any_channel_can_use_a_take():
+    from video_automation.core.brand import CRYPTO
+    s = sp.shot(sp.Browser("https://etherscan.io/", []), "explorer",
+                color=CRYPTO.primary)
+    spec = sr._PENDING.pop(s.clip)
+    assert spec.src == sp.TAKES / "explorer.mp4"
+    assert spec.color == tuple(CRYPTO.primary)
+    assert s.window == ("browser", "etherscan.io", "wide") and s.raw

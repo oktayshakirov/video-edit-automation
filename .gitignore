@@ -72,3 +72,7 @@ HANDOFF-PUBLISH.md
 HANDOFF-PUBLISH-*.md
 .claude/skills/videos-performance/experiments.md
 .claude/skills/videos-performance/history/
+
+# Scripted screen takes (`core/screenplay.py`): replayed from the project
+# file, so the recordings and their renders stay out of git.
+assets/stock/takes/**

@@ -88,7 +88,7 @@ sequence drifted into four copies that disagreed.
      the library cannot draw the subject** - that is part of the run.
    - **Show the real thing** when the subject is named: the owner's own
      pictures, a Commons photo (credited), and **the real page** captured
-     with `screencap` in `window="browser"`. Never a token logo you cannot
+     with `screencap` in `window="browser"` - or, when the line is about *using* the page (a search, a quote, a test), a scripted take played and recorded by the build: `screenplay.shot(take, ...)` (`footage.md`, "Our own screen"). Never a token logo you cannot
      tie to its contract.
    - **Frame what is left.** A photo gets `callout` or `spotlight`; a clip
      goes in a `window=`. Never two full-frame pictures in a row, and at

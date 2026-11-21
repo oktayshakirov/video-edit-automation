@@ -59,6 +59,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 VERSION = 1
+REPO = Path(__file__).resolve().parents[2]
+# Where a crypto or tinnitus project's takes are recorded. Reproducible from
+# the project file, so out of git (`.gitignore`); OktAI keeps its own in the
+# project's folder (`oktai.screen`).
+TAKES = REPO / "assets/stock/takes"
 TERM_PAGE = Path(__file__).with_name("screenplay_term.html")
 CONSENT = ("#onetrust-consent-sdk", "#CybotCookiebotDialog", ".fc-consent-root",
            "#usercentrics-root", "#didomi-host", ".cc-window",
@@ -174,6 +179,46 @@ def _digest(take) -> str:
     if isinstance(take, Terminal):
         raw += TERM_PAGE.read_text()
     return hashlib.sha1(raw.encode()).hexdigest()[:12]
+
+
+def address(url: str) -> str:
+    """What a browser's address bar shows: no scheme, no trailing slash."""
+    return url.split("://", 1)[-1].rstrip("/")
+
+
+def shot(take, file: str, *, color=(255, 219, 112), vertical: bool = False,
+         window=None, at: float = 0.0, where: Path | None = None, **opts):
+    """The `Shot` for a take, in any channel's project: recorded to
+    `where/<file>.mp4` (default `TAKES`) and cut by `core/screenrec.py` when
+    the render starts (`render_long` / `render_crypto_short` call
+    `screenrec.make_pending()`), not when the project is imported.
+
+    `color` is the click ripple's - the brand's `primary`. The window
+    defaults to a browser showing the take's address, or a terminal; in
+    16:9 it is the wide one. A Short plays a terminal in its own narrow
+    screen with no zoom, so the lines wrap rather than run off the side.
+    `opts` go to `screenrec.Spec` (`crop=`, `blur=`, `zoom=`, `idle=`,
+    `trim=`); `at` skips into the cut (read it off the render's report)."""
+    from dataclasses import replace
+    from . import screenrec
+    from ..crypto.shots import Shot
+    term = isinstance(take, Terminal)
+    if window is None:
+        window = ("terminal", "") if term else ("browser", address(take.url))
+    if isinstance(window, str):
+        window = (window, "")
+    if not vertical and len(window) == 2:
+        window = (*window, "wide")
+    if term:
+        # The type is already big; a closer camera only cuts lines (a
+        # Short's terminal is drawn at the window's size, so none at all).
+        opts.setdefault("zoom", 1.0 if vertical else 1.5)
+        if vertical and take.viewport == Terminal.viewport:
+            take = replace(take, viewport=TERM_VERTICAL)
+    src = Path(where or TAKES) / f"{file}{'-v' if term and vertical else ''}.mp4"
+    clip = screenrec.path(src, vertical=vertical, color=tuple(color),
+                          wide=len(window) > 2, take=take, **opts)
+    return Shot(clip=clip, raw=True, window=window, clip_at=at)
 
 
 def take_path(video: Path) -> Path:
