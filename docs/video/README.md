@@ -1,7 +1,8 @@
 # The video docs
 
-Five skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-quiz`,
-`/video-drone` and the experimental `/video-glitch` - one publishes them,
+Six skills build videos - `/video-crypto`, `/video-tinnitus`, `/video-oktai`
+(Oktay's own channel, read aloud by him), `/video-quiz`, `/video-drone` and
+the experimental `/video-glitch` - one publishes them,
 `/publish-video`, and two read the analytics back, `/video-audit` and
 `/videos-performance`. The skills are thin: they hold the
 *order of the work*. Everything a build actually needs to know lives here, once.

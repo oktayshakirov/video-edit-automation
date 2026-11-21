@@ -17,12 +17,25 @@ build differs from the crypto and tinnitus pairs - everything else
 | Source | an article | something we built, measured or sourced |
 | Pair | long + Short | long + Short, both read in one sitting |
 
+## The run
+
+`/video-oktai` (`.claude/skills/video-oktai/SKILL.md`): topic, research,
+both scripts and a Kokoro *draft* render, then `tools/oktai_script.py
+<name>` hands Oktay the page to read and the run stops. When the recordings
+arrive in `~/Movies/OktAI/<name>/` (`long.*`, `short.*`, optional
+`long-cam.*` / `short-cam.*`, `screens/`), `tools/oktai_recording_check.py`
+checks them and `video_automation.oktai.build_long` / `build_short` build the
+pair with his voice and the camera box.
+
 ## The look
 
 The portfolio's (oktayshakirov.com): the `oktai-night` backdrop (near-black
 sky, two soft blooms, a few dim twinkling stars - a full starfield behind
 type was rejected on tinnitus), the portfolio gold `#ffdb70` as `primary`,
-and the "oktAI" wordmark ("okt" white, "AI" gold, Poppins SemiBold). Both
+and the "oktAI" wordmark ("okt" white, "AI" gold, Poppins SemiBold).
+**No watermark on the videos** (`Brand.watermark=False`, the editor's call
+2026-11-21): the marks exist to promote a domain, and this channel is the
+person. The wordmark is for covers and cards. Both
 assets are drawn by `tools/oktai_brand.py`; the Poppins files are the
 portfolio's, in `assets/brand/oktai/fonts`. When the ChatGPT logo arrives,
 replace `assets/brand/oktai/wordmark.png` - the brand points at the file.
@@ -50,9 +63,13 @@ from video_automation.core.brand import OKTAI
 from video_automation.core.recorded import Recording, sidecar
 from video_automation.core import facecam
 
-REC = Recording(Path("~/Movies/oktai/job-search-long.mov"))
+REC = Recording(Path("~/Movies/OktAI/job-search/long.mov"))
 made = render_long(SECTIONS, out, work, brand=OKTAI, voice=REC, ...)
 ```
+
+A project normally does not call this itself: `oktai.build_long(SECTIONS,
+NAME, face=FACE, ...)` finds the recording by name, falls back to a Kokoro
+draft when there is none yet, and adds the camera box.
 
 `voice=` takes a `Recording` anywhere it takes a profile name, the Short
 (`render_crypto_short(..., voice=REC, brand=OKTAI)`) included. A chapter

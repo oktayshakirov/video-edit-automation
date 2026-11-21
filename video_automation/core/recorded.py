@@ -56,7 +56,7 @@ import json
 import os
 import re
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -103,6 +103,11 @@ class Recording:
     window: tuple[float, float] | None = None
     max_pause: float = 0.75       # longest natural pause kept between sentences
     clean: bool = True
+    # Set by the build: where this recording's edit file and report went,
+    # so the camera box can find the edit without recomputing its name.
+    edl: Path | None = field(default=None, init=False)
+    report: Path | None = field(default=None, init=False)
+    captions: list | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self):
         self.audio = Path(self.audio).expanduser()
@@ -634,6 +639,7 @@ def build_narration_recorded(sentences, workdir: Path, rec: Recording,
         captions[-1].end += tail
 
     _write_sidecars(rec, sentences, sent_words, takes, words, edl, spans)
+    rec.captions = captions
     return track, captions, total
 
 
@@ -651,6 +657,7 @@ def sidecar(rec: Recording, sentences, kind: str) -> Path:
 
 def _write_sidecars(rec, sentences, sent_words, takes, words, edl, spans):
     edl_path = sidecar(rec, sentences, "edl.json")
+    rec.edl = edl_path
     edl_path.write_text(json.dumps({
         "audio": str(rec.audio),
         "face": str(rec.face) if rec.face else None,
@@ -691,5 +698,6 @@ def _write_sidecars(rec, sentences, sent_words, takes, words, edl, spans):
     lines += ["", f"{len(takes)} sentences, {flags} with differences. "
                   f"Kept {kept:.1f}s of {src_total:.1f}s recorded."]
     report = sidecar(rec, sentences, "report.txt")
+    rec.report = report
     report.write_text("\n".join(lines) + "\n")
     print("\n".join(lines[-1:]) + f"  Report: {report}")

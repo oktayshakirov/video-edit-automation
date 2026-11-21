@@ -47,3 +47,24 @@ def test_a_missing_sentence_stops_the_build():
               norm("This line was never read aloud at all.")]
     with pytest.raises(ValueError, match="never read aloud"):
         align(script, words("Only 4 were worth applying to."))
+
+
+def test_the_read_aloud_script_says_what_the_build_looks_for():
+    """`tools/oktai_script.py` prints spoken halves and the chapter titles."""
+    import importlib.util
+    from pathlib import Path
+    from video_automation.crypto.shots import Shot
+    from video_automation.longform import Section
+    from video_automation.oktai import reading_order
+    spec = importlib.util.spec_from_file_location(
+        "oktai_script", Path(__file__).resolve().parents[1] / "tools/oktai_script.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    secs = [Section(title="Why nobody answers", sentences=[
+        (("587 postings", "five hundred and eighty seven postings"), "in a week."),
+        ("Four were real.",)], shots=[Shot(graphic="stat", payload=("587",)), None])]
+    lines = [mod._spoken(s) for s in reading_order(sections=secs)]
+    assert lines == ["Why nobody answers",
+                     "five hundred and eighty seven postings in a week.",
+                     "Four were real."]
+    assert mod._face_marks(lines, [("in a week", 3.0)]) == {0, 1, 2}

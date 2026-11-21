@@ -40,7 +40,7 @@ What they cover:
 | `test_narration_cache.py` | the cache key, and the shadowing bug that poisoned it |
 | `test_pad_pause.py` | a sentence gap lands in the real pause, never between a word's last consonants |
 | `test_pile.py` | `pile`'s physics is identical every build, settles inside the container, empties on a drain, and drops nothing before its reveal |
-| `test_recorded.py` | a recorded voice keeps the last good take of each sentence, cuts false starts, reads "587" and "five hundred and eighty seven" as the same, and stops on a sentence never said |
+| `test_recorded.py` | a recorded voice keeps the last good take of each sentence, cuts false starts, reads "587" and "five hundred and eighty seven" as the same, stops on a sentence never said; the read-aloud script prints what the build looks for |
 | `test_readalong.py` | the read-along picks the scripted gaps, not the voice's own pauses |
 | `test_reel.py` | the `reel` beat's dives into and out of a card, and `post`'s highlighter on every frame |
 | `test_samples.py` | the tinnitus sound samples: synthesis, placement and the bed dip |
