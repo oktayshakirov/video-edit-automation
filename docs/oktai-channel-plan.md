@@ -315,14 +315,14 @@ Reused as is: the long-form and Short engines, captions, `screencap`,
 - **The camera box** (`video_automation/core/facecam.py`): cut with the
   voice's edit so the lips match, face found automatically, slides in on
   the hook, the last line and any phrase named.
+- **`screenrec`** (`core/screenrec.py`, `tools/screenrec.py`, 2026-11-21):
+  the screen with a log of clicks and typing (never which keys), re-cut
+  offline - idle sped up, auto-zoom to clicks, typing and arriving
+  results, gold click ripples, mosaic blur, framed in the wide `window=`.
 
 Still to build:
 
 - Poppins in captions and drawn beats (they use the engine's global fonts).
-- **`screenrec`** - record a region of the Mac screen (ffmpeg avfoundation),
-  log clicks and keystrokes, then re-render offline with auto-zoom to the
-  cursor, click ripples, the brand frame and a privacy blur list. The single
-  most important new tool for this channel.
 - **New beats:** `terminal` (typed command + scrolling output), `prompt`
   (a chat bubble typing out, with the reply arriving), `diff` (code lines
   going red/green), `receipt` (the Proof of Work counter), `split`

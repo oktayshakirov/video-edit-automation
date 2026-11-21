@@ -927,6 +927,58 @@ ffmpeg build - measured on the Mac 2026-11-05), not the ~150MB download.
   one line of the page's own markup: a hyphen or a line break inside it
   matches nothing (Wyoming's "fully-reserved", govinfo's wrapped lines).
 
+## Our own screen: `screenrec` (2026-11-21)
+
+When the proof is something we did - a terminal running Claude Code, our
+dashboard, a page we built - record the real screen with its click log, and
+let the render move the camera:
+
+```bash
+PYTHONPATH=. .venv/bin/python tools/screenrec.py record NAME FILE    # Ctrl+C stops
+PYTHONPATH=. .venv/bin/python tools/screenrec.py render NAME FILE [--vertical] \
+    [--crop x0,y0,x1,y1] [--blur x0,y0,x1,y1[,t0,t1]] [--zoom 1.8] [--idle 4]
+```
+
+In a project: `oktai.screen(NAME, FILE, window=("terminal", ""))` (or
+`("browser", "the page's real address")`) returns the `Shot`; it is
+`Shot(clip=screenrec.path(...), raw=True, window=(..., "wide"))`, rendered
+by `make_pending()` before the build. How the camera decides is in
+`core/screenrec.py`'s docstring: idle sped up, a zoom that arrives before
+the click, typing and arriving results followed, a scroll or a new page
+zooms out. `render` also writes a contact sheet - look at it before writing
+the lines that sit over the clip.
+
+**`raw=True`, always, on a screen render.** A clip is otherwise graded
+toward the stills (dim 0.86, saturation 0.82) and pushed in 6%: the first
+greys the type, the second fights the render's own camera.
+
+**The window is the frame, and it is the `"wide"` one** (80% of the width
+in 16:9, `window.is_wide`). At the 70% window a Retina screen's type is at
+half size even zoomed. The render fills exactly the window's content area
+(`screenrec.content_rect`), so a 9:16 render without a window shows black
+bands - in a Short, always frame it.
+
+**What may go on screen** is the `screencap` rule above, plus what a real
+desktop adds:
+
+- **Crop to the part the line is about.** `--crop` drops a browser's tabs
+  and bookmarks bar (other sites, open tabs) and the menu bar (the clock,
+  the Wi-Fi name). Then `window=("browser", "real address")` draws a clean
+  bar back.
+- **Blur is by screen position**, a coarse mosaic (Gaussian-blurred small
+  text can be read back). Content that scrolls moves *out* of a fixed box:
+  give it `t0,t1` for the seconds it is in place, or do not scroll past it.
+- **The log never holds which keys were pressed** - only when. A password
+  typed on camera is still on camera: it is the screen that has to be
+  clean, not the log.
+
+**Sync is measured, not yet proven on a real capture.** ffmpeg's progress
+reports give the first frame's wall time; a live screen cannot run ahead of
+the clock, so the error is a little latency, which makes the camera early
+(it already leads by 0.35 s). If the ripples ever land off the clicks,
+`Spec(shift=seconds)` moves the log. Check the first real recording's
+ripples against the cursor and date the result here.
+
 ## Motion on a video shot — three things that all caused visible glitches
 
 Stock is **25fps against this 30fps timeline**, which is where all of this comes

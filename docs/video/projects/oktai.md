@@ -106,6 +106,15 @@ above the control bar. 9:16: top right, 300 px, left of the right rail.
 **Off while a screen or a number has to be read** - the box would cover the
 evidence (`docs/oktai-channel-plan.md`, "The camera box").
 
+## Screen recordings
+
+`tools/screenrec.py record <name> <file>` - the real screen with a click
+log; in the project, `oktai.screen(NAME, FILE, window=...)` is the shot, and
+`build_long` / `build_short` render it zoomed to the work. Before the
+recording exists the draft shows a placeholder in the same window, so the
+timing is real. How it works and what may go on screen: `footage.md`,
+"Our own screen".
+
 ## Links in scripts
 
 A long form names a tool when it is on screen and says the referral line

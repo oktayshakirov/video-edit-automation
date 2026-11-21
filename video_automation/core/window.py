@@ -63,7 +63,8 @@ TERM_INK = (120, 230, 140)     # the prompt's text
 
 
 def parse(spec) -> tuple[str, str]:
-    """`"browser"` or `("browser", "text")` -> (kind, text)."""
+    """`"browser"` or `("browser", "text")` -> (kind, text). A third item,
+    `"wide"`, is read by `is_wide`."""
     if spec is None:
         raise ValueError("no window spec")
     kind, text = (spec, "") if isinstance(spec, str) else (spec[0], spec[1] if len(spec) > 1 else "")
@@ -93,7 +94,16 @@ class Layout:
         return self.bar + self.ch
 
 
-def layout(frame: Frame) -> Layout:
+def is_wide(spec) -> bool:
+    """`("browser", "github.com/...", "wide")`: the larger landscape window
+    a screen recording needs (`core/screenrec.py`). Small type from a Retina
+    screen is unreadable at 70% of the width. 80% is the most that clears the
+    player's control bar (`safe_bottom`)."""
+    return (not isinstance(spec, str) and len(spec) > 2
+            and spec[2] == "wide")
+
+
+def layout(frame: Frame, wide: bool = False) -> Layout:
     """Where the window sits in this frame.
 
     Landscape: 70% of the width, 16:9 content, centred but kept above the
@@ -112,7 +122,7 @@ def layout(frame: Frame) -> Layout:
     under it.
     """
     if frame.w >= frame.h:
-        w = int(frame.w * 0.70)
+        w = int(frame.w * (0.80 if wide else 0.70))
         ch = int(w * 9 / 16)
         bar = int(w * 0.034)
         y = int((frame.h - ch - bar) / 2 + frame.h * 0.03)
@@ -154,7 +164,7 @@ class WindowShot:
         self.kind, self.text = parse(spec)
         self.inner, self.start, self.hold = inner, start, hold
         self.frame, self.brand = frame, brand
-        self.L = layout(frame)
+        self.L = layout(frame, wide=is_wide(spec))
         L = self.L
         self.bg = _backdrop.get(brand.backdrop)
         self.mask = _rounded_mask(L.w, L.h, L.radius)

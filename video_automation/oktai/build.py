@@ -15,6 +15,10 @@ by a person between writing and building.** So a project has two states:
 Outputs go to the Desktop like every other project: `<name>-long.mp4`,
 `<name>-short.mp4`, their SRTs and sidecars.
 
+Screen recordings are `screens/<file>.*` in the same folder, made with
+`tools/screenrec.py record <name> <file>`; `screen()` turns one into a shot
+(`core/screenrec.py`: auto-zoom, click ripples, blur, the brand window).
+
 The script for Oktay to read comes from `tools/oktai_script.py`, which reads
 the same `SECTIONS` / `SENTENCES` through `reading_order` - so what he reads
 is exactly what the build will look for.
@@ -95,6 +99,61 @@ def _camera(video: Path, rec: Recording | None, face, hook, last) -> None:
     os.replace(tmp, video)
 
 
+def screen(name: str, file: str, *, window=("browser", ""), vertical=False,
+           at: float = 0.0, fallback=None, **opts):
+    """A shot of the screen recording `screens/<file>.*` - zoomed to the
+    work, framed in `window` (a browser with the page's real address, or
+    `("terminal", "")`). Landscape windows are the wide size. `at` skips into
+    the render (its idle stretches are already sped up, so read the time off
+    the render, not the raw recording). `opts` go to `screenrec.Spec`:
+    `crop=`, `blur=`, `zoom=`, `idle=`, `trim=`.
+
+    Before the recording exists (a draft) it is `fallback`, or a dark
+    placeholder in the same window naming the file - so the draft's timing
+    is the real one."""
+    from ..core import screenrec
+    from ..crypto.shots import Shot
+    if isinstance(window, str):
+        window = (window, "")
+    if not vertical and len(window) == 2:
+        window = (*window, "wide")
+    src = _find_in(folder(name) / "screens", file)
+    if src is None:
+        if fallback is not None:
+            return fallback
+        return Shot(image=_placeholder(name, file, vertical), window=window,
+                    zoom=1.0)
+    clip = screenrec.path(src, vertical=vertical, color=OKTAI.primary,
+                          wide=len(window) > 2, **opts)
+    return Shot(clip=clip, raw=True, window=window, clip_at=at)
+
+
+def _find_in(d: Path, stem: str) -> Path | None:
+    if not d.is_dir():
+        return None
+    hits = [p for p in d.iterdir() if p.stem == stem
+            and p.suffix.lower() in (".mov", ".mp4", ".m4v")]
+    return sorted(hits)[0] if hits else None
+
+
+def _placeholder(name: str, file: str, vertical: bool) -> Path:
+    from PIL import Image, ImageDraw, ImageFont
+    out = folder(name) / "screens" / ".render" / f"placeholder-{file}.png"
+    if out.exists():
+        return out
+    out.parent.mkdir(parents=True, exist_ok=True)
+    size = (1080, 1920) if vertical else (1920, 1080)
+    im = Image.new("RGB", size, (20, 20, 24))
+    d = ImageDraw.Draw(im)
+    f = ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", 44)
+    text = f"screen recording: {file}"
+    w = d.textlength(text, font=f)
+    d.text(((size[0] - w) / 2, size[1] / 2 - 22), text, font=f,
+           fill=OKTAI.primary)
+    im.save(out)
+    return out
+
+
 def _out(name: str, part: str, draft: bool) -> tuple[Path, Path]:
     tag = f"{name}-{part}" + ("-draft" if draft else "")
     return DESKTOP / f"{tag}.mp4", DESKTOP / f".{tag}-work"
@@ -107,7 +166,9 @@ def build_long(sections, name: str, *, face=(), draft: bool = False,
     `face`: phrases (as their caption starts) where the box comes in, each
     with how long to stay - `("this one cost me a week", 4.0)`.
     """
+    from ..core.screenrec import make_pending
     from ..longform import render_long
+    make_pending()
     voice, rec = _voice(name, "long", draft)
     is_draft = rec is None
     out, work = _out(name, "long", is_draft)
@@ -122,7 +183,9 @@ def build_short(sentences, shots, name: str, *, face=(), draft: bool = False,
                 hook: float | None = 3.0, last: float | None = 3.0,
                 **kw) -> tuple[Path, float]:
     """The Short through the same engine as crypto's, with OktAI's brand."""
+    from ..core.screenrec import make_pending
     from ..crypto.build import render_crypto_short
+    make_pending()
     voice, rec = _voice(name, "short", draft)
     is_draft = rec is None
     out, work = _out(name, "short", is_draft)

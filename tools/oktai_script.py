@@ -12,8 +12,9 @@ recording folder `~/Movies/OktAI/NAME/`:
 * `script.txt` - the same as plain text, for a phone or a print.
 
 A project's `SCREENS` - `[("file", "what to record"), ...]` - is listed at
-the end: the screen recordings Oktay captures himself, saved as
-`screens/<file>.mov` in the same folder.
+the end: the screen recordings Oktay captures himself with
+`tools/screenrec.py record NAME FILE`, which saves `screens/<file>.mov` and
+the click log the auto-zoom reads (`core/screenrec.py`).
 
 **It prints what the voice will say, not the captions.** A `(caption,
 spoken)` pair is read as its spoken half, and a carded chapter's title is a
@@ -113,7 +114,9 @@ def text(name: str, parts: list[dict]) -> str:
     screens = [x for p in parts for x in p["screens"]]
     if screens:
         out += ["=== SCREEN RECORDINGS TO CAPTURE ===",
-                "Save each in the same folder as screens/<file>.mov", ""]
+                "Record each with (Ctrl+C stops):",
+                f"  PYTHONPATH=. .venv/bin/python tools/screenrec.py record {name} <file>",
+                "Close anything private first. Work at a calm pace; pauses are sped up.", ""]
         out += [f"- {f}: {what}" for f, what in screens]
     return "\n".join(out) + "\n"
 
@@ -140,6 +143,7 @@ h3 {{ margin:28px 0 6px; font-size:14px; letter-spacing:.12em;
       text-transform:uppercase; color:var(--dim); }}
 .line {{ display:flex; gap:14px; padding:10px 14px; margin:4px 0;
          border-radius:10px; background:var(--panel); }}
+code {{ color:var(--gold); font-size:14px; }}
 .line .n {{ color:var(--dim); min-width:2.2em; text-align:right;
            font-variant-numeric:tabular-nums; }}
 .line.cam {{ box-shadow:inset 3px 0 0 var(--gold); }}
@@ -198,9 +202,12 @@ def page(name: str, parts: list[dict]) -> str:
     screens = [x for p in parts for x in p["screens"]]
     if screens:
         body.append("<h2>Screen recordings to capture</h2><div class='meta'>"
-                    "Save each as <b>screens/&lt;file&gt;.mov</b> in this folder "
-                    "(QuickTime: File, New Screen Recording). Close anything "
-                    "private first: mail, keys, balances.</div>")
+                    "In the repo, one per file, Ctrl+C to stop:<br><code>"
+                    f"PYTHONPATH=. .venv/bin/python tools/screenrec.py record "
+                    f"{html.escape(name)} &lt;file&gt;</code><br>It logs clicks "
+                    "and typing (never which keys) so the video can zoom to "
+                    "them. Close anything private first: mail, keys, balances. "
+                    "Work at a calm pace; pauses are sped up.</div>")
         for f, what in screens:
             body.append(f"<div class='line'><span class='n'>&#9679;</span>"
                         f"<span class='t'><b>{html.escape(f)}</b> - "

@@ -140,6 +140,10 @@ class Shot:
     window: "str | tuple | None" = None
     ground: str | None = None           # "grid": a drawn beat on the dark
                                         # ruled ground (`beats.base.grid_ground`)
+    # A clip that is already a finished picture - a `core/screenrec.py`
+    # render - plays as it is: no grade toward the stills (it would grey the
+    # type), no push-in (it has its own camera). 2026-11-21.
+    raw: bool = False
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:

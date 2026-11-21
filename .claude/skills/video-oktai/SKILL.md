@@ -70,7 +70,9 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
      and the last line are automatic): a personal aside, the twist. Never on
      a line where the viewer reads a screen.
    - `SCREENS` - the screen recordings Oktay captures himself, as
-     `("file", "what to record")`. Used as clips in `window=`.
+     `("file", "what to record")`, made with `tools/screenrec.py record`.
+     A shot is `oktai.screen(NAME, "file", window=...)` - a placeholder
+     until the recording exists (`footage.md`, "Our own screen").
    - `LINKS` - the tools named on screen that have a referral.
    **Written to be read aloud by a person:** one thought per sentence, a
    breath's length; numbers as he would say them ("five hundred and
@@ -101,7 +103,10 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
 ### Part 2 - the recordings arrive
 
 7. **Put them in place** - copy what he sends into `~/Movies/OktAI/<name>/`
-   under the names above. **Check them first**:
+   under the names above. Screen recordings: `tools/screenrec.py render
+   <name> <file>` and look at the sheet - set `crop=` / `blur=` for
+   anything private, pick each shot's `at=` from the cut. **Check the
+   voice recordings first**:
    `tools/oktai_recording_check.py <file>`. A clipping peak, a noisy room
    or a missing face is cheaper to re-record now than to hide later; say
    exactly what to change.

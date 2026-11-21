@@ -174,7 +174,10 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         from ..longform.meta import is_notice
         label = shot.payload if is_notice(shot.payload) else None
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
-                         zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
+                         zoom=(1.0 if getattr(shot, "raw", False) else
+                               shot.zoom if shot.zoom > 1.0 else 1.06),
+                         **({"dim": 1.0, "saturation": 1.0}
+                            if getattr(shot, "raw", False) else {}),
                          label=label, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
     if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",

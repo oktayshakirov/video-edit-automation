@@ -246,7 +246,10 @@ def make_beat(shot, brand: Brand, frame: Frame):
     if shot.clip is not None:
         from ..clip import VideoShot
         return VideoShot(shot.clip, shot.hold, frame=frame, brand=brand,
-                         zoom=shot.zoom if shot.zoom > 1.0 else 1.06,
+                         zoom=(1.0 if getattr(shot, "raw", False) else
+                               shot.zoom if shot.zoom > 1.0 else 1.06),
+                         **({"dim": 1.0, "saturation": 1.0}
+                            if getattr(shot, "raw", False) else {}),
                          label=shot.payload or None,
                          note=shot.note,
                          begin=shot.clip_at,
