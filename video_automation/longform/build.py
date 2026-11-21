@@ -57,7 +57,11 @@ def render_long(sections: list[Section], out: Path, workdir: Path, *args,
 def _render_long(sections: list[Section], out: Path, workdir: Path,
                 brand: Brand, meta: Meta | None = None,
                 voice: str = "mia",
-                music: str | Path | None = "tension",
+                # The prepared `night-drift` track, the same bed every
+                # shipped long form and every Short uses. The generated
+                # `tension` preset was the default until 2026-11-21 and is
+                # retired (`core.music.RETIRED`).
+                music: str | Path | None = "night-drift",
                 music_gain: float = 1.0,
                 callouts: set[str] | None = None,
                 emoji: dict[str, str] | None = None,
@@ -143,9 +147,9 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
                 frame: Frame = LANDSCAPE) -> dict:
     """Build the video and everything that ships with it.
 
-    `music` is a `core.music` preset name, a path to a track, or None. The
-    preset is the default because a generated bed is ours to license on every
-    platform and is rendered to the exact length — see that module.
+    `music` is a prepared track's name (`core.music.track`), a `core.music`
+    preset name, a path to a track, or None. The default is `night-drift`,
+    the track the Shorts use, so a pair shares one bed.
 
     `callouts` is the set of caption texts to burn as a lower third — **not**
     every line. Full burned captions for three minutes fight every drawn beat
@@ -349,6 +353,10 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
     if music:
         if isinstance(music, str) and music in music_mod.PRESETS:
             src = music_mod.write(workdir / "bed-src.wav", total + 4, music)
+        elif isinstance(music, str) and music in music_mod.RETIRED:
+            raise ValueError(f"music {music!r} is retired - see core.music.RETIRED")
+        elif isinstance(music, str) and not Path(music).suffix:
+            src = music_mod.track(music)      # a prepared track by name
         else:
             src = Path(music)
         bed = audio_mod.render_bed(src, workdir / "bed.wav", total,

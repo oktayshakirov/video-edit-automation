@@ -119,7 +119,13 @@ def profile_args(name: str) -> dict:
         render_narrated(..., **profile_args("nicole"))
 
     Voice and chain must travel together — half a profile is a different voice.
+
+    A `core.recorded.Recording` in place of a name is the editor's own voice
+    (OktAI): it passes straight through, and `build_narration_aligned` hands
+    it to `recorded.build_narration_recorded`.
     """
+    if not isinstance(name, str):
+        return {"voice": name, "mood": "recorded"}
     return {"voice": voices.get(name).voice, "mood": name}
 
 # Microsoft's current neural voices, reached through the Edge endpoint: free,
@@ -1095,6 +1101,15 @@ def build_narration_aligned(sentences: list[list[Phrase]], workdir: Path,
     its own precomputed audio; see `LETTER_SPOKEN` in `quiz.build` for why
     the format stopped needing any of them.
     """
+    from .recorded import Recording, build_narration_recorded
+    if isinstance(voice, Recording):
+        # A recorded read has its own pauses and cannot be padded inside a
+        # sentence; `chunk_pad` and `precomputed` are synthesis-only.
+        if chunk_pad or precomputed:
+            print("recorded voice: chunk_pad / precomputed ignored")
+        return build_narration_recorded(sentences, workdir, voice,
+                                        gap=gap, tail=tail)
+
     import soundfile as sf
 
     workdir.mkdir(parents=True, exist_ok=True)

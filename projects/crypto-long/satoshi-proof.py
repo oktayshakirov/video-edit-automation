@@ -80,8 +80,10 @@ KEYS = STOCK / "videos/typing-keyboard-night"
 ENDCARD = STOCK / "videos/subscribe/4928934.mp4"
 
 VOICE = "mia"                   # female, af_heart. Candidate, not approved.
-MUSIC = "pulse"                 # 112 BPM, plucked, no air layer. The editor picked
-                                # this over `bright` for a piece about proof.
+# Shipped on the generated `pulse` bed; every generated bed but `momentum`
+# and `calm` is retired (2026-11-21, `core.music.RETIRED`), so a re-render
+# takes the track every other video uses.
+MUSIC = "night-drift"
 
 URL = ("https://thecrypto.wiki/posts/"
        "what-it-actually-takes-to-prove-someone-is-satoshi-nakamoto")

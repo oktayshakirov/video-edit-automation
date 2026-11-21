@@ -80,13 +80,6 @@ class Preset:
 
 
 PRESETS = {
-    # thecrypto.wiki. Dark, a slow pulse under it so the piece has a heartbeat
-    # without having a rhythm.
-    "tension": Preset(
-        name="tension", root=55.0, progression="andalusian", chord_len=8.0,
-        cutoff=(700.0, 1900.0), sweep=19.0, detune=11.0, partials=5,
-        sub=0.22, air=0.020, pulse=0.16, pulse_hz=0.5,
-    ),
     # tinnitushelp.me. No pulse at all, softer top, slower everything — the
     # audience for that channel is frequently there *because* sound is a
     # problem, and a bed with a throb in it is the wrong instrument.
@@ -106,13 +99,24 @@ PRESETS = {
         sub=0.17, air=0.0, pulse=0.0,
         bpm=100, arp=0.26, arp_div=2, arp_decay=0.24, kick=0.13, kick_div=1,
     ),
-    # Faster and more electronic — sixteenths, brighter, a firmer kick.
-    "pulse": Preset(
-        name="pulse", root=58.0, progression="andalusian", chord_len=6.0,
-        cutoff=(1100.0, 3000.0), sweep=11.0, detune=12.0, partials=5,
-        sub=0.16, air=0.0, pulse=0.0,
-        bpm=112, arp=0.24, arp_div=4, arp_decay=0.15, kick=0.16, kick_div=1,
+
+    # Brighter and moving, for a piece with momentum.
+    "drive": Preset(
+        name="drive", root=62.0, progression="andalusian", chord_len=6.0,
+        cutoff=(900.0, 2600.0), sweep=13.0, detune=14.0, partials=6,
+        sub=0.20, air=0.028, pulse=0.24, pulse_hz=1.0,
     ),
+}
+
+
+# **Retired 2026-11-21, by the editor's call: `tension`, `pulse` and
+# `bright` must never be used again, in any video** (`docs/video/audio.md`
+# had already said so for the channels; now the code refuses them too). It was the long-form default and every shipped
+# project overrode it with the `night-drift` track; the one render that
+# fell through to it (the first OktAI test) was the one that showed how
+# dated it sounds. Kept, renamed, only as a record of the sound; `render`
+# refuses it and `render_long` now defaults to `night-drift`.
+RETIRED = {
     # Warmer and less serious, for a piece that is not about risk.
     "bright": Preset(
         name="bright", root=62.0, progression="plain", chord_len=8.0,
@@ -120,12 +124,19 @@ PRESETS = {
         sub=0.15, air=0.0, pulse=0.0,
         bpm=96, arp=0.28, arp_div=2, arp_decay=0.30, kick=0.10, kick_div=1,
     ),
-
-    # Brighter and moving, for a piece with momentum.
-    "drive": Preset(
-        name="drive", root=62.0, progression="andalusian", chord_len=6.0,
-        cutoff=(900.0, 2600.0), sweep=13.0, detune=14.0, partials=6,
-        sub=0.20, air=0.028, pulse=0.24, pulse_hz=1.0,
+    # Faster and more electronic — sixteenths, brighter, a firmer kick.
+    "pulse": Preset(
+        name="pulse", root=58.0, progression="andalusian", chord_len=6.0,
+        cutoff=(1100.0, 3000.0), sweep=11.0, detune=12.0, partials=5,
+        sub=0.16, air=0.0, pulse=0.0,
+        bpm=112, arp=0.24, arp_div=4, arp_decay=0.15, kick=0.16, kick_div=1,
+    ),
+    # thecrypto.wiki. Dark, a slow pulse under it so the piece has a heartbeat
+    # without having a rhythm.
+    "tension": Preset(  # do not use
+        name="tension", root=55.0, progression="andalusian", chord_len=8.0,
+        cutoff=(700.0, 1900.0), sweep=19.0, detune=11.0, partials=5,
+        sub=0.22, air=0.020, pulse=0.16, pulse_hz=0.5,
     ),
 }
 
@@ -290,7 +301,7 @@ def _lp(x: np.ndarray, hz: float, sr: int) -> np.ndarray:
     return sosfilt(sos, x).astype(np.float32)
 
 
-def render(duration: float, preset: str = "tension", sr: int = SR,
+def render(duration: float, preset: str = "momentum", sr: int = SR,
            seed: int = 11) -> np.ndarray:
     """`duration` seconds of stereo bed, as float32 in [-1, 1].
 
@@ -298,6 +309,8 @@ def render(duration: float, preset: str = "tension", sr: int = SR,
     A chord that switches is an event and the ear turns to look at it; a chord
     that dissolves into the next one is weather.
     """
+    if preset in RETIRED:
+        raise ValueError(f"music preset {preset!r} is retired - see RETIRED")
     p = PRESETS[preset]
     rng = np.random.default_rng(seed)
     n = int(duration * sr)
@@ -383,7 +396,7 @@ def render(duration: float, preset: str = "tension", sr: int = SR,
     return (stereo / peak * 0.85).astype(np.float32)
 
 
-def write(out: Path, duration: float, preset: str = "tension",
+def write(out: Path, duration: float, preset: str = "momentum",
           sr: int = SR, seed: int = 11) -> Path:
     """Render a bed to a WAV. `render_bed` in longform/audio.py takes it from here."""
     import soundfile as sf

@@ -895,7 +895,9 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
     logo_at = frame.logo_at if logo_at is None else logo_at
     logo_w = frame.logo_w if logo_w is None else logo_w
 
-    if mark is None:
+    # The crypto logo is the fallback for a brand whose mark is missing, not
+    # for one that has none (`Brand.watermark`, OktAI).
+    if mark is None and (brand is None or brand.watermark):
         mark = logo_mark(logo_w)
     # The box the watermark occupies, float included, so a photograph's hairline
     # can dodge it. Resolved from the mark itself rather than assumed: the two

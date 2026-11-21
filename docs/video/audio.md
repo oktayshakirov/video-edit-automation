@@ -21,10 +21,10 @@ choice when nobody has picked a track.
 
 ## The generated beds
 
-`core/music.py` synthesizes the bed. **`pulse`** is the crypto default —
-112 BPM, plucked sixteenths, soft kick. Also `momentum` (100 BPM, calmer),
-`bright` (warmer), and the pad-only `tension` / `calm`. Pass a `Path`
-instead to use a real track.
+`core/music.py` synthesizes the bed: `momentum` (100 BPM, plucked), `drive` and the
+pad-only `calm` are what is left. `pulse`, `bright` and `tension` are retired
+and refused (`core.music.RETIRED`, below). Pass a `Path` or a prepared
+track's name instead to use a real track.
 
 - **Pads alone read as creepy.** The first bed was three chords and a filter
   and the editor's word for it was "creepy mysterious". What makes a bed feel
@@ -56,7 +56,10 @@ time, which is a brand rather than a different stock track each video.
 
 ## Music: the generated presets are retired
 
-**`bright`, `pulse` and `tension` are not to be used on this channel again.**
+**`bright`, `pulse` and `tension` are not to be used in any video again, on
+any channel.** Since 2026-11-21 the code refuses them, and `render_long`
+defaults to `night-drift` rather than `tension` - the one render that fell
+through to that default, the first OktAI test, is what showed it.
 The myths cut shipped with `bright` and the editor's note was that it is "the
 one which we decided to not use anymore, delete it and never use it again".
 Every video, long and short, uses `music.track("night-drift")` — the prepared

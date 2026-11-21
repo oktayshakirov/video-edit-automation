@@ -34,6 +34,7 @@ user. A rule credited to the editor's note came out of that review.
 | `projects/quiz.md` | The quiz Short: three questions, four cards, a countdown - both channels |
 | `projects/drone-long.md` | Drone: the Final Cut FCPXML edit |
 | `projects/drone-short.md` | Drone: the vertical cut |
+| `projects/oktai.md` | OktAI, Oktay's own channel: his recorded voice in place of Kokoro, the camera box, the night-sky brand |
 | `projects/song.md` | A song's karaoke music video, 16:9 and the whole song at 9:16 |
 
 Read `workflow.md` first, then the docs for the format you are building. Do not

@@ -1,4 +1,4 @@
-# The learning channel - plan (draft, 2026-11-17)
+# OktAI - channel plan (draft, 2026-11-17, name chosen 2026-11-21)
 
 A third channel, next to Tinnitus Help and Crypto Wiki, but with one big
 difference: **it belongs to Oktay, not to a site.** It teaches what we actually
@@ -11,39 +11,22 @@ Status: plan only. Nothing is built, no channel or handle is registered.
 
 ---
 
-## 1. Name
+## 1. Name: **OktAI** (chosen 2026-11-21)
 
-### Recommended: **Oktay Builds**
-
-- Handle `@oktaybuilds` on YouTube and TikTok (check both are free before
-  anything else - one name on every platform matters more than the name).
-- Tagline: **"I build it with AI. Then I show you what worked."**
-- Why it wins:
-  - **It is attached to the person**, which is the brief - and with Oktay's
-    own voice and face box from the first video, the name matches what the
-    viewer hears and sees.
-  - **It says the format.** Every video is something that was built: a
-    pipeline, a book, a search, an app. "Builds" also covers money (apps), jobs
-    (a search we built) and crypto safety (a vault we built).
-  - **It is not tied to one tool.** No "Claude", "AI" or "faceless" in the
-    name - tools change, and a trademark in a channel name is a takedown risk.
-  - Short, searchable, says itself out loud.
-
-### Recurring segment name: **Proof of Work**
-
-Every video carries one real number from our own logs, on screen, early -
-"587 postings, 4 worth applying to". That beat is called *Proof of Work*
-(and the crypto pun is a free bonus). It is the channel's promise in one
-device: nothing here is theory.
-
-### Alternatives, if the handle is taken or it does not feel right
-
-| Name | For | Against |
-| --- | --- | --- |
-| **Oktay Figures It Out** | humble, "learn with me" tone, very personal | long; weaker as a handle |
-| **Proof of Work** (as the channel) | strong promise, memorable | generic phrase, crowded in crypto search, not attached to the person |
-| **Learned It the Hard Way** | great hook energy for mistake videos | negative frame for 100 videos; not personal |
-| **Built, Then Taught** | describes the format exactly | sounds like a course, not a channel |
+- **OktAI** - Oktay, spelled so the name ends in **AI**, and read as
+  **"OK, AI"**: the start of every task the videos show.
+- **Tagline:** **"OK, AI. Let's build."**
+- **Wordmark:** "okt" in white, "AI" in the portfolio's gold gradient.
+- **Handle:** `@oktai`; if taken, `@shakirov.oktay` or similar - the handle
+  matters less than the content.
+- **Home:** oktayshakirov.com (no new domain for now). The "What I use"
+  links page lives there.
+- **Mascot (idea):** an octopus - "okt" sounds like *octo* - eight arms, one
+  per pipeline. Logo and banner to be made in ChatGPT from the prompts in
+  `docs/oktai-brand-prompts.md`.
+- **Recurring beat:** *Proof of Work* - one real number from our own logs,
+  on screen, early.
+- **Focus:** AI - building with it and making money with it.
 
 ---
 
@@ -58,7 +41,7 @@ technical-curious, not necessarily developers.
 
 **What makes it different from the other two channels**
 
-| | Tinnitus Help / Crypto Wiki | Oktay Builds |
+| | Tinnitus Help / Crypto Wiki | OktAI |
 | --- | --- | --- |
 | Owner | a site | a person |
 | Source | an article | something we built or measured |
@@ -92,9 +75,15 @@ technical-curious, not necessarily developers.
 
 ## 3. Formats
 
-### A. The Short (9:16, 30-50 s) - the main engine
+**Every topic ships as a pair: one long form and its Short**, the same way
+Crypto Wiki and Tinnitus Help do. Both scripts are written together and
+recorded in one sitting (voice and camera), so one session gives a week's
+pair.
 
-One lesson, one number, one twist.
+### A. The Short (9:16, 30-50 s)
+
+One lesson, one number, one twist - the strongest beat of its long form,
+told on its own.
 
 1. **0-3 s:** the stake as a full question or claim, with the *Proof of Work*
    number on screen. *"I let AI apply to 587 jobs for me. Four were worth it."*
@@ -104,7 +93,7 @@ One lesson, one number, one twist.
 ### B. The Build Log (16:9, 6-10 min)
 
 One playbook, built in front of you. Chapters, real screen recordings, the
-numbers before and after. Each long form makes 2-4 Shorts from its beats.
+numbers before and after. It is the parent of the pair's Short.
 Source material: the books' chapters (each book is 12-14 ready-made
 episodes, already researched and cited) and our skills/pipelines.
 
@@ -125,9 +114,13 @@ episodes, already researched and cited) and our skills/pipelines.
 - **The desk:** a dark workspace backdrop; content sits in macOS-style
   windows (`core/window.py` already does this) - browser, terminal, editor,
   chat, analytics.
-- **One signature colour** that neither existing channel uses (proposal:
-  electric amber or lime on near-black), plus a monospace accent face for
-  terminal/prompt text next to the main sans.
+- **Dark, like the portfolio (oktayshakirov.com):** a near-black night sky
+  (`#050507` to `#0a0a0f`) with slow twinkling stars, tinted glass panels
+  (`hsl(240 2% 12%)` at 40%), light grey body type (`#d6d6d6`), and the
+  portfolio's gold gradient (`#ffdb70` to `#ffc05c`) as the one accent.
+  Poppins for type, a monospace face for terminal and prompt text. Crypto
+  Wiki is gold too, but a deeper, flatter gold on black water in Futura -
+  the sky, the softer gold and Poppins keep the two apart.
 - **The camera box** - Oktay's face in a small rounded box in one corner
   (bottom-right in 16:9, above the captions in 9:16), with a thin brand-colour
   border. It is a trust device, not a talking head, so it comes and goes:
@@ -181,10 +174,14 @@ recording per Short batch and per long form.
 **What the pipeline needs for it** (today it only speaks synthesised lines,
 and captions are timed from the synthesis):
 
-- **`voice_import`** - take the recorded WAV plus the script, cut out the
-  re-reads and long pauses, level it (loudness, light de-noise, de-ess) and
-  find where each sentence starts and ends (forced alignment, e.g. a local
-  Whisper model), so captions and beats sync exactly as they do with Kokoro.
+- **`voice_import`** - transcribe the recording word by word with
+  timestamps (local Whisper on MLX, `whisper-large-v3-turbo` - already
+  installed in `create-song-automation/.venv` and the model is cached, so it
+  runs offline on the M2 Pro), match the words to the script, keep the best
+  take of each sentence and cut the re-reads and long pauses, then level it
+  (loudness, light de-noise, de-ess). The word timings drive captions and
+  beats exactly as Kokoro's timings do now, and a diff of transcript vs
+  script shows every changed, skipped or stumbled word before the build.
 - **`facecam`** - take the face video, crop it to the box, match it to the
   voice timing, and place it on the cues marked in the script
   (`face=on` / `face=off` per line).
@@ -234,9 +231,48 @@ ledger, logs or books before scripting - none are to be guessed.
 | 11 | Long | **[N] apps in the stores. What actually makes money.** | portfolio `projects.json`, store consoles | only numbers Oktay chooses to show |
 | 12 | Short | **Faceless channel, month one: the real numbers** | `videos-performance` snapshots | views, retention, what we changed |
 
-**Pilot = #1, #2, #3 as Shorts and #4 as the first long form.** They cover
-three pillars (AI content, jobs, building with AI) and each has a number we
-already own.
+**Pilot = three pairs (long + Short each): #1, #3 and #4.** They cover three
+pillars (AI content, jobs, building with AI) and each has a number we
+already own. A row marked "Short" above becomes the Short of the pair whose
+long form covers it, or gets its own long form.
+
+### Behind the scenes: how we make everything (one pair each)
+
+Every pipeline we run is a long form, and its best moment is the Short.
+Real recordings of the real runs; the link column is what goes in the
+description (section 7).
+
+| # | Long form | The Short | On screen | Links |
+| --- | --- | --- | --- | --- |
+| B1 | **How we make AI videos: explainers, quiz Shorts, drone montages** | "One article in, a long video and a Short out" | `/video-crypto` run from article to render, the quiz build, the FCPXML drone cut | MacBook, drone, our free prompt repo |
+| B2 | **How we automate content for our websites** | "This article wrote, checked and published itself" (and what a human still checks) | `/publish-content-*` run, staging, deploy | hosting / domain referrals |
+| B3 | **How we publish one video to five platforms** | "Five platforms, one command - and the one that still fails" (TikTok drafts / the Instagram-only Reel) | `/publish-video`, n8n, the access log | n8n, the publish checklist repo |
+| B4 | **How we make audiobooks with AI** | "A one-hour audiobook, and the store that rejected it" (the subtitle mismatch) | manuscript, Kokoro render, the store upload | the four books, distributor referrals |
+| B5 | **How we make sound-therapy albums** | "We sell albums of noise. Here is how they are made." | `/create-zen`: noise colours, notched noise, DistroKid | DistroKid, headphones |
+| B6 | **How we make AI songs locally** | "This song never touched a studio" | `/create-song`: lyrics, ACE-Step render, a fixed section | DistroKid, MacBook |
+| B7 | **How we read our channel analytics** | "Half our viewers leave at second [N]. Here is why." | `/videos-performance`: retention curves, the ledger, a rule that changed | our audit prompt repo |
+| B8 | **Making money with drone footage** | "What one drone clip earns on stock sites" (real numbers only) | the drone library, the stock upload | Adobe Stock, the drone, SD cards |
+| B9 | **How our job search finds 4 jobs in 587** | the 587 → 4 counter | `/job-search` run, the filter rules | the job audiobook |
+
+### Problems we solved (Shorts, or a long form when there are three of a kind)
+
+Each one is a real fault we hit and fixed - the "what went wrong" story is
+the hook. Mined from the CHANGELOG, the memory notes and the troubleshooting
+docs, so there is a long backlog.
+
+- The AI voice sounded robotic - each sentence was a cold start.
+- The publish tunnel died mid-upload at the time limit.
+- TikTok said "sent to inbox" and the draft never arrived.
+- Facebook kept posting a Reel we meant for Instagram only (still unsolved -
+  a "we have not fixed this yet" video is honest and rare).
+- A site build failed on the font loader until we self-hosted the font.
+- The Mac disk filled up with build caches - what was safe to delete.
+- Long dashes kept sneaking into on-screen text, so the code now forbids them.
+- Stock portraits made every video look the same, so faces are banned.
+
+**Rule for every topic:** before the script, list which tools appear on
+screen and look each up in `links.json`; a tool without a program gets no
+pitch, a tool with one gets its one line.
 
 ### Content pillars (the long-run mix)
 
@@ -254,7 +290,7 @@ already own.
 
 ### Phase 0 - identity (this week)
 
-1. Pick the name; check `@oktaybuilds` (or the chosen handle) on YouTube and
+1. Name chosen: OktAI. Check `@oktai` (fallback `@shakirov.oktay`) on YouTube and
    TikTok; register both.
 2. Recording test: Oktay reads the script of Short #3 (about 40 s) with mic
    and camera at once. We check the sound, the light and the framing of the
@@ -268,13 +304,21 @@ already own.
 Reused as is: the long-form and Short engines, captions, `screencap`,
 `window`, `typewriter`, beats, thumbnails, `retention_check`, `script_check`.
 
-New:
+**Built 2026-11-21** (how to use them: `docs/video/projects/oktai.md`):
 
-- `video_automation/learn/` - the project module (build script like
-  `crypto/build.py`), brand and voice wired in.
-- **`voice_import`** and **`facecam`** (section 4) - the recorded voice
-  aligned to the script, and the camera box placed on its cues. Needed before
-  the first video.
+- The `OKTAI` brand - portfolio gold, the `oktai-night` backdrop, the
+  "oktAI" wordmark (`tools/oktai_brand.py`).
+- **The recorded voice** (`video_automation/core/recorded.py`, section 4's
+  `voice_import`): Whisper word timings, last good take per sentence, room
+  tone in the cuts, -14 LUFS, a report of every changed word. Works for the
+  long form and the Short: `voice=Recording(file)`.
+- **The camera box** (`video_automation/core/facecam.py`): cut with the
+  voice's edit so the lips match, face found automatically, slides in on
+  the hook, the last line and any phrase named.
+
+Still to build:
+
+- Poppins in captions and drawn beats (they use the engine's global fonts).
 - **`screenrec`** - record a region of the Mac screen (ffmpeg avfoundation),
   log clicks and keystrokes, then re-render offline with auto-zoom to the
   cursor, click ripples, the brand frame and a privacy blur list. The single
@@ -288,7 +332,7 @@ New:
 
 ### Phase 2 - pilot (2-3 weeks)
 
-- Build and publish the pilot (3 Shorts + 1 long). TikTok gets the Shorts.
+- Build and publish the pilot (3 pairs). TikTok gets the Shorts.
 - New YouTube and TikTok credentials for `publish-video` (new channel = new
   OAuth token and new n8n workflow rows; Instagram/Facebook can wait).
 - After 14 days, read the numbers with `video-audit` and add the
@@ -296,8 +340,8 @@ New:
 
 ### Phase 3 - cadence
 
-- 3 Shorts a week, 1 long form every 2 weeks (each long form feeds 2-4 of
-  the Shorts).
+- Pairs, like the other channels: one long form and its Short per topic,
+  1-2 pairs a week to start, one recording session per pair.
 - Every video logged in the video ledger, same as the other channels.
 
 ### Phase 4 - more of Oktay, if the numbers say so
@@ -308,22 +352,81 @@ if not, keep the box small and rare. Decide from the curves, not before.
 
 ---
 
-## 7. How it earns (no CTA in the video, links in the description)
+## 7. How it earns
 
-- The four audiobooks - each video points to the one it came from.
-- The apps and sites (Tinnitus Help, Crypto Wiki, Love Swipe, Muscle Pal ...)
-  as real examples, never as ads.
-- The portfolio (oktayshakirov.com) - this channel is also a public
-  work sample.
+Every video teaches something we really use, so the tool in the video is
+the natural link in the description. Nothing is recommended that we have
+not used ourselves.
+
+### Referrals and affiliates - mapped to the videos they belong in
+
+| Program | Fits videos about | What it is |
+| --- | --- | --- |
+| **DistroKid** referral | AI songs, sound-therapy albums, making money with AI music | the distributor we put the zen albums on |
+| **Adobe Stock** (contributor / affiliate) | making money with drone footage, stock footage | where drone clips can be sold |
+| **Amazon Associates** | the gear: MacBook, drone, mic, camera, SSDs | the things on the desk in every video |
+| Tools we use that have a referral program (hosting, domains, audiobook distributors, n8n cloud, etc.) | the video where that tool is on screen | checked per tool before the script |
+| Our own: the four audiobooks, the apps, the sites | the matching topic | own products, no program needed |
+
+Before the first link goes live, join each program and **read its terms**:
+what has to be disclosed, where links may be posted, and what keeps the
+account active (Amazon, for example, closes accounts with no sales in the
+first months). Pick Amazon.com or Amazon.de Associates by where the audience
+turns out to be - the analytics will say.
+
+### How the links appear
+
+- **In the long form's script:** one spoken line, **at the moment the tool
+  is on screen**, said as part of the story - *"the album went out through
+  DistroKid - my link is in the description if you want to try it."* Once
+  per tool, never a list, never in the first 30 seconds.
+- **In the Short's script:** no spoken pitch (the Short stays a story that
+  loops, as on the other channels); the link goes in the description and
+  the pinned comment.
+- **Description block,** same order every time: the video's tools with
+  links, the gear, the related audiobook, then the disclosure line:
+  *"Some links are affiliate links: if you buy through them I earn a small
+  commission, at no extra cost to you."* Plus each program's own required
+  wording (Amazon's "As an Amazon Associate I earn from qualifying
+  purchases").
+- **A "What I use" page** on oktayshakirov.com (`/uses`): every tool and
+  piece of gear with its link. TikTok descriptions cannot hold clickable
+  links, so the TikTok bio points there; YouTube descriptions can also link
+  to it instead of listing everything.
+- The build writes the description block from a links file
+  (`projects/learn/links.json`: tool → URL, program, required wording), and
+  the script check flags a long form that names a tool without its line.
+
+### Sharing our skills - the free taste, the paid kit
+
+The skills and pipelines are what make the videos credible. Share the
+*method*, keep the *engine*.
+
+| Share (free, GitHub) | Sell (small paid kit, Gumroad or Lemon Squeezy) | Keep private |
+| --- | --- | --- |
+| A trimmed skill or prompt per video: the retention checklist, the narration rules, the audit questions, the publish checklist | The full prompt pack for one workflow (e.g. "the faceless Short kit": script prompts, checks, the build order) with a template project | The render engine, beat library, voice blends, n8n workflows, every token, key and account detail |
+
+- A free repo per topic (`oktai/ai-video-prompts` etc.) is the lead:
+  link it from the video, the paid kit is linked from the repo's README.
+- **Before anything is published:** a secret scan (tokens, keys, emails,
+  local paths, private URLs) and a read-through. Nothing leaves the machine
+  without that.
+
+### Also
+
 - YouTube Partner Program once eligible.
+- The portfolio - the channel is a public work sample, so freelance and job
+  offers are part of the return.
 
 ---
 
 ## 8. Open decisions for Oktay
 
-1. The name (recommended: **Oktay Builds**), and whether the handle is free.
+1. ~~The name~~ - **OktAI**, chosen 2026-11-21. Check `@oktai` on YouTube and TikTok.
 2. Mic and camera you already have (decides whether anything needs buying).
-3. Which real numbers may appear on screen: app revenue, book sales,
+3. Which programs to join first (DistroKid, Adobe Stock, Amazon .com or .de).
+4. Which skills go into the free repo, and whether a paid kit is wanted.
+5. Which real numbers may appear on screen: app revenue, book sales,
    channel earnings - yes, no, or later.
-4. Language: English only (recommended - the books, the voice and the other
+6. Language: English only (recommended - the books, the voice and the other
    channels are English).

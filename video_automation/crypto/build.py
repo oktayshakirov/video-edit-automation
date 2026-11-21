@@ -807,8 +807,13 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     # one — see `shots.roam_anchors` for why. The anchors need the mark itself
     # to place the lower-right one, so a site whose mark is built at render time
     # has to have passed it in; the default logo is resolved here for the rest.
+    # Any brand but crypto's brings its own mark: the fallback below is
+    # thecrypto.wiki's logo, which an OktAI Short stamped until 2026-11-21.
+    # A brand with `watermark=False` gets none at all.
+    if mark is None and brand is not CRYPTO:
+        mark = brand.mark(int(frame.logo_w * brand.mark_scale))
     anchors = None
-    if roam:
+    if roam and brand.watermark:
         m = mark if mark is not None else logo_mark(frame.logo_w)
         if m is not None:
             anchors = roam_anchors(m, frame)

@@ -210,5 +210,5 @@ def build(name: str, brand, items, preset: str, kit: str) -> Path:
 
 
 if __name__ == "__main__":
-    build("crypto-upgrades", CRYPTO, CRYPTO_ITEMS, "tension", "crypto")
+    build("crypto-upgrades", CRYPTO, CRYPTO_ITEMS, "momentum", "crypto")  # `tension` is retired
     build("tinnitus-upgrades", TINNITUS, TINNITUS_ITEMS, "calm", "tinnitus")
