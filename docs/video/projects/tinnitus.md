@@ -870,6 +870,19 @@ file with no voice is indistinguishable from every other one on the platform;
 the intro is where the video says what the sound is, who it is from, and **how
 to set the level**. The bed sidechains under it and returns to full afterwards.
 
+### Every session speaks its instructions (the editor, 2026-11-21)
+
+**No session goes out without `luna`'s intro: what the sound is, how loud
+to keep it, the pattern.** The visual-only first cut of
+`pink-noise-box-breathing` (no voice, no cards, the level line only in the
+description) drew "why the long video starts without instructions? ...
+lets not create videos without instructions". A guide that labels its
+sides explains the breathing; nothing on screen explains the volume, and
+on a masking bed the level is the point. A description is not
+instructions - most viewers never open it. `script_check`'s
+`session-intro` rule flags a session script with no `INTRO`, long or
+Short.
+
 `luna` and not `mia`: SOFT chain, unhurried, no pitch shift. An explainer
 wants the reader who explains; this wants the one the listener settles under.
 
@@ -947,27 +960,28 @@ changed from the earlier session.
 | 5 | coherent 6-6 (5 breaths a minute) | `path` | - | 60 | 60 (30 + 30) |
 | 6 | 4-7-8 or 4-4-4-4 | `clock` | the row 1 or 2 session | as above | as above |
 | 7 | triangle 4-4-4 (inhale, hold, exhale) | `path` | - | 60 | 60 (30 + 30) |
-| 8 | box 4-4-4-4, **visual only** | `box` | the row 2 session | 64 | 80 (40 + 40) |
+| 8 | box 4-4-4-4 (was "visual only", dropped 2026-11-21) | `box` | the row 2 session | 64 | 80 (40 + 40) |
 | 9 | physiological sigh (two inhales, a long exhale) | `path` | - | set at build | set at build |
 
 **Shipped (update this line in each session's build commit):** row 1
 `wild-echoes-478-breathing`, row 2 `low-gravity-box-breathing`, row 3
 `soft-orbit-6666-breathing`, row 4 `tranquil-zenith-21-breathing`, row 5
 `soft-flames-66-breathing`, row 6 `brown-noise-478-breathing` (4-7-8,
-clock), row 7 `fan-noise-444-breathing` (triangle 4-4-4, path). **Next:
-row 8** (box, visual only). Once row 9 has shipped, go round again picking the
+clock), row 7 `fan-noise-444-breathing` (triangle 4-4-4, path), row 8
+`pink-noise-box-breathing` (box, with `luna`). **Next: row 9**
+(physiological sigh, which needs its build step first). Once row 9 has shipped, go round again picking the
 exercise and guide by taste (E13's verdict, `experiments.md`), never the
 same pair as the last session.
 
 Rows 7-9 were added on 2026-11-03 from the reviewer's suggestions, at the
 user's request to test all of them:
 
-- **Row 8, visual only:** `intro=None, outro=None`, so there is no
-  narration and no instruction cards, only the guide and the sound. The
-  model is "Square Breathing Visual" (1.4M, a silent visual). Judge it
-  against row 2: same exercise, same guide, with and without the voice.
-  The Short keeps its usual short narration unless the build finds it
-  works without.
+- **Row 8 was planned visual only** (`intro=None, outro=None`, on the
+  model of "Square Breathing Visual", 1.4M). **Dropped 2026-11-21:** the
+  first cut of `pink-noise-box-breathing` went to the editor that way and
+  came back with "lets not create videos without instructions". It
+  shipped with `luna`'s intro and outro instead. See "Every session
+  speaks its instructions" above.
 - **Row 9, physiological sigh, needs a build step first.** The breath is a
   full inhale, a short second inhale on top of it, then a long exhale. The
   renderers know four phases (inhale, hold, exhale, rest), so add a second

@@ -145,6 +145,20 @@ def test_a_session_is_read_from_its_intro_and_outro(tmp_path):
     assert "relief-promise" in found and "cover-style" not in found
 
 
+def test_a_session_with_no_intro_is_flagged(tmp_path):
+    """The editor, 2026-11-21: no session goes out without instructions.
+    A session with no INTRO is still known as one by its renderer."""
+    d = tmp_path / "tinnitus-long"
+    d.mkdir()
+    f = d / "s.py"
+    f.write_text('SOURCE_POST = None\nDEMAND = None\n'
+                 'def render_asmr_long(**kw): pass\n'
+                 'INTRO = None\nOUTRO = None\n')
+    s = sc.load(f)
+    found = rules(s)
+    assert s.session and "session-intro" in found and "cover-style" not in found
+
+
 # --- narration and format rules -------------------------------------------
 
 def test_the_banned_windup():

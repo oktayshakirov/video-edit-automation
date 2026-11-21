@@ -132,8 +132,13 @@ def load(path: Path) -> Script:
     # A sound-therapy session has no article: what luna says is INTRO and
     # OUTRO, lists of caption tuples. Read them, so the spoken rules
     # (phoneme, relief-promise, windup) reach sessions too.
+    # A session with neither (the visual-only first cut of
+    # `pink-noise-box-breathing`, 2026-11-21) is still a session, marked by
+    # the renderer it imports - and the `session-intro` rule flags it.
     if not sections and not getattr(mod, "SENTENCES", None) and (
-            getattr(mod, "INTRO", None) or getattr(mod, "OUTRO", None)):
+            getattr(mod, "INTRO", None) or getattr(mod, "OUTRO", None)
+            or hasattr(mod, "render_asmr_long")
+            or hasattr(mod, "render_asmr_short")):
         sc.session = True
         for name in ("INTRO", "OUTRO"):
             for i, s in enumerate(getattr(mod, name, None) or [], 1):
@@ -331,6 +336,12 @@ RULES = {
     # The editor (2026-11-08): no one cover style is forced - pick per topic
     # and picture - but every video says which it used, so the review can
     # compare views and clicks by style.
+    # The editor (2026-11-21), on the visual-only cut of
+    # `pink-noise-box-breathing`: "lets not create videos without
+    # instructions". A session says what the sound is and how loud to keep it.
+    "session-intro": Rule("session-intro", "projects/tinnitus.md, 'Every "
+                          "session speaks its instructions'", ("tinnitus",),
+                          ("long", "short"), since="2026-11-21"),
     "cover-style": Rule("cover-style", "thumbnails.md, 'Cover styles are a choice, "
                         "and every video says which'", ("crypto", "tinnitus"),
                         ("long", "short"), since="2026-11-08"),
@@ -550,6 +561,10 @@ def check(sc: Script) -> list[Finding]:
     if "demand" in on and not hasattr(sc.mod, "DEMAND"):
         f.append(Finding("demand", "module", "no DEMAND - the review cannot "
                          "tag this video (None when it had no evidence)"))
+    if "session-intro" in on and sc.session and not getattr(sc.mod, "INTRO", None):
+        f.append(Finding("session-intro", "module",
+                         "a session with no INTRO - luna has to say what the "
+                         "sound is, how loud to keep it and the pattern"))
     # A session's cover is the fixed `render_session_thumb` format, not an
     # article cover style, so the style rules do not apply to it.
     if "cover-style" in on and not sc.session:

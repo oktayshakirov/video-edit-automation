@@ -60,7 +60,7 @@ the name.
 | Notched Sound Therapy (`notched-sounds`) | **Pitch Perfection** | `A43F3236-F018-4C6C-AD54E46ADCE0F6CE` |
 | Morning Ritual Ambiance (`morning-sounds`) | **Morning Unfolding** | `9C3F7C3B-45AE-4F4B-BE56AF67DBC51332` |
 | Background Blur (`evening-sounds`) | Background Blur | `9BF3AA67-70C9-4F16-A0517B8E9EF9D128` |
-| Colors of Calm (`noise-colors`) | Colors of Calm | not recorded yet; the masters are local (below), so it is not needed to fetch |
+| Colors of Calm (`noise-colors`) | Colors of Calm | not recorded yet; generated, so it is rendered, not fetched (below) |
 
 Release URL: `https://distrokid.com/dashboard/album/?albumuuid=<uuid>`.
 Track lists match the site except **Background Blur**, whose DistroKid tracks
@@ -86,6 +86,7 @@ the DistroKid title in the ledger and the site's in the description.
 | White Noise Therapy | Cloudscape Serenity (fetched from DistroKid) | `brown-noise-478-breathing` (1 hour) | 2026-11-18 |
 | Nature Inspired Sound Therapy | Rain | `rain-masking-20min` (supplied as `Rain.mp3`; identified 2026-11-20, when a fresh download measured exactly as that script's docstring) | before 2026-10 |
 | Background Blur | Ambient Fan (fetched from DistroKid as `2fan.mp3`) | `fan-noise-444-breathing` (1 hour) | 2026-11-20 |
+| Colors of Calm | Rose Haze (pink noise; rendered from the album spec at 61 minutes) | `pink-noise-box-breathing` (1 hour) | 2026-11-21 |
 
 **Not album tracks** (no row above takes them off the list):
 `478-breathing-white-noise` is generated white noise (`soundbed.Bed`);
@@ -110,7 +111,19 @@ that session's docstring** - that is how Rain was found to be used.
 | Water Sound Therapy | `/zen/water-sounds` | Zen Flow, Harmonious Waves, Serenity Stream, Dreamy Lagoon, Mystic Brook |
 | Nature Inspired Sound Therapy | `/zen/nature-sounds` | Waterfall, River, Crickets, Crickets2 |
 | Notched Sound Therapy | `/zen/notched-sounds` | Tranquilify 5000 Hz, Harmonics 6000 Hz, Resonance 7000 Hz, Harmonics 8000 Hz, Tranquilify 9000 Hz - **whole album unused** |
-| Colors of Calm | `/zen/noise-colors` | Silver Veil, Rose Haze, Grey Balance, Green Meadow, Deep Brown, Velvet Night - **whole album unused**. Released 2026-11. Generated, not recorded: the 10-minute masters are in `~/Desktop/colors-of-calm/final/`, and `~/Coding/create-song-automation/zen/albums/colors_of_calm.py` re-renders any track at any length (no tiling seam). Its docstring has every track's measured bands |
+| Colors of Calm | `/zen/noise-colors` | Silver Veil, Grey Balance, Green Meadow, Deep Brown, Velvet Night. Released 2026-11. Generated, not recorded, so **render the track at the session's length, do not fetch or tile it** (below). Its spec's docstring has every track's measured bands |
+
+**A generated album track is rendered at full length, not fetched
+(2026-11-21).** Colors of Calm's 10-minute masters were gone from the
+Desktop by the first session built on it, and they are not needed:
+`~/Coding/create-song-automation/zen/albums/colors_of_calm.py` holds each
+track's colour, seed and drift, and `zen.album.master` gives the release's
+-18 LUFS. Render the one track at 61 minutes with that repo's venv (51s
+for Rose Haze, 645 MB WAV) and the hour is a single take with no tiling
+seam; `pink-noise-box-breathing-60min.py`'s `rose_haze()` does it when the
+file is missing, so the build re-renders anywhere. The render measured to
+the decimal as the spec's docstring - check that before writing the copy,
+since a re-render is "the same sound, not byte-identical samples".
 
 **Measure before you plan the copy.** A track's album description is not its
 spectrum: Low Gravity and Soft Orbit are both sold as "for tinnitus masking"
