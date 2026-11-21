@@ -116,6 +116,15 @@ scroll) or a `Terminal` (command, output, thinking). `build_long` /
 to the work, drafts included. How it works and what may go on screen:
 `footage.md`, "Our own screen".
 
+## Voice examples
+
+`oktai.examples.make(folder, lines)` reads the same lines twice in the
+same Kokoro voice: `robotic` (slowed, every sentence alone, digital silence
+between) and `today` (the `mia` profile, one run) - the two causes our docs
+measured, and nothing else. `samples.register` makes each a sample and the
+`voice` beat plays it; the opener of `why-ai-videos-feel-fake` is the worked
+example (2026-11-21).
+
 ## Links in scripts
 
 A long form names a tool when it is on screen and says the referral line

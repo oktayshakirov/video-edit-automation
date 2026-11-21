@@ -142,6 +142,9 @@ PAYLOADS = {
               "THE 2026 GUIDELINE", 1),
     # (cells_label, figure, unit, waves, title, verdict, legend): portrait-safe.
     # (levels, flagged, groups, title, legend): portrait-safe.
+    # (rows,): a row's sample is a registered clip name, or None.
+    "voice": ([("The robotic read", "slowed down, one line at a time", None),
+               ("Today's AI voice", "faster, whole sentences", None)],),
     "diary": ([5, 4, 9, 3, 5, 8, 4], [2, 3],
               [("REMEMBERED", "the bad day with it", [2]),
                ("FORGOTTEN", "the bad day without", [5])],
@@ -326,6 +329,7 @@ def test_every_beat_class_is_registered():
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
                 "behind", "pile", "lookalike", "airgap", "relay", "breach", "diary",
+                "voice",
                 "reserve", "honeypot", "tiers"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():

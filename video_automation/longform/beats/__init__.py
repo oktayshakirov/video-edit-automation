@@ -76,6 +76,7 @@ from .honeypot import Honeypot
 from .tiers import Tiers
 from .breach import Breach
 from .diary import Diary
+from .voice import Voice
 from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
@@ -99,7 +100,7 @@ __all__ = [
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
     "Behind", "Pile", "Lookalike", "Airgap", "Relay", "Breach", "Reserve", "Honeypot",
-    "Tiers",
+    "Tiers", "Voice",
     "DRAW", "POP", "RISE",
 ]
 
@@ -145,6 +146,7 @@ BEATS = {
     "tiers": Tiers,
     "breach": Breach,
     "diary": Diary,
+    "voice": Voice,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -224,6 +226,7 @@ _COUNT = {
     "breach": lambda p: 3 if len(p) > 7 and p[7] else 2,
     # The month, then one reveal per ringed group.
     "diary": lambda p: 1 + len(p[2]) if len(p) > 2 else 1,
+    "voice": lambda p: len(p[0]),
 }
 
 

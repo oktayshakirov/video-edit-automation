@@ -1948,3 +1948,21 @@ set, `checklist` a verdict per item with no tier, `compare` two columns.
 - Cues: a `tick` as each card lands. A signature beat: it rests for two
   videos (`beat-rotation`). Reuse for any ranking by evidence or by rule.
 
+
+## `voice` - voices compared by ear, each playing as its waveform does (2026-11-21)
+
+Built for the OktAI opener: the robotic read, today's AI read, then Oktay
+himself. `Shot(graphic="voice", payload=([(label, note, sample), ...],),
+samples=(sample, ...))` - one row per sentence, revealed as its sentence
+starts. A row's `sample` is an audio file made a sample with
+`samples.register(path)`; it plays in the pause after the row's sentence,
+**at the voice's own loudness** (it is there to be compared, not heard
+carefully), and its bars fill gold under a playhead while it plays. A row
+with no sample is the narration: its strip breathes while that sentence is
+spoken.
+
+The pause has to be written: give each naming sentence a gap of the clip's
+length plus about half a second (`Section.gaps`). At 1.0s or more a gap is
+real silence even inside one recorded take (`recorded.LONG_GAP`); below
+that, a person's own short pause would be kept and the clip would sit on
+the next line.

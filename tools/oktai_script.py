@@ -59,9 +59,10 @@ def _caption_titles(sections) -> dict[int, str]:
     return out
 
 
-def _face_marks(sentences: list[str], face) -> set[int]:
-    """Lines where the camera box comes in: the first, the last, and `face`."""
-    marks = {0, len(sentences) - 1} if sentences else set()
+def _face_marks(sentences: list[str], face, hook: bool = True) -> set[int]:
+    """Lines where the camera box comes in: the first (unless the project
+    sets `FACE_HOOK = False`), the last, and `face`."""
+    marks = ({0} if hook else set()) | {len(sentences) - 1} if sentences else set()
     flat = [" ".join(norm(s)) for s in sentences]
     for item in face or []:
         phrase = item if isinstance(item, str) else item[0]
@@ -83,7 +84,8 @@ def part(path: Path, kind: str):
         order = reading_order(sentences=mod.SENTENCES)
         chapters = {}
     lines = [_spoken(s) for s in order]
-    marks = _face_marks(lines, getattr(mod, "FACE", ()))
+    marks = _face_marks(lines, getattr(mod, "FACE", ()),
+                        getattr(mod, "FACE_HOOK", True))
     title = getattr(mod, "TITLE", None) or getattr(getattr(mod, "META", None),
                                                     "title", path.stem)
     return {"kind": kind, "title": title, "lines": lines,

@@ -90,7 +90,7 @@ HOLD = 2.2                # s the zoom holds after the last nearby input
 NEAR = 0.30               # a click this far away (of the width) re-aims
 RIPPLE = 0.55             # s a click ripple lasts
 MOSAIC = 60               # blur blocks across the screen's width
-VERSION = 1               # bump when the render changes, to re-make caches
+VERSION = 2               # bump when the render changes, to re-make caches
 
 
 # -- recording ------------------------------------------------------------
@@ -414,7 +414,10 @@ def time_map(on: np.ndarray, idle: float, fps: int = FPS,
             j = i
             while j < n and not on[j]:
                 j += 1
-            if (j - i) / fps > IDLE_AFTER:
+            # The last stretch is the result left on screen, which the
+            # viewer reads: it stays at real speed (and a take's tail is
+            # what makes a screen last as long as the lines over it).
+            if (j - i) / fps > IDLE_AFTER and j < n:
                 k = int(IDLE_KEEP * fps)
                 speed[i + k: j - k] = idle
             i = j

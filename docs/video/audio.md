@@ -145,6 +145,11 @@ for the query plays examples, and the editor chose to play them.
 - **The bed dips to 20% under each** (`longform.audio.dip`), or the music
   covers a sample kept this quiet.
 
+**A recorded clip is a sample too** (2026-11-21): `samples.register(path)`
+turns an audio file - a voice example - into one, played the same way but
+at the narration's own loudness. Its picture is the `voice` beat
+(`beats.md`).
+
 ## Sound effects
 
 ### The title and chapter sounds are the editor's files (2026-10-21)

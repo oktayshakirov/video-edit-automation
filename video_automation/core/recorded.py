@@ -82,6 +82,7 @@ MATCH = 0.78          # two words are "the same" at this difflib ratio or above
 MIN_SCORE = 0.55      # a take must match at least this share of its sentence
 LATER = 0.30          # how much the latest take is preferred over the first
 GOOD = 0.75           # ...when it matches at least this share of the sentence
+LONG_GAP = 1.0        # a scripted gap this long is silence, even inside one take
 PRE = 0.06            # seconds kept before a sentence's first word
 POST = 0.14           # ...and after its last, for the release of the word
 FADE = 0.010
@@ -494,8 +495,11 @@ def _bounds(takes: list[Take], words: list[dict], audio: np.ndarray,
         b = min(after, e + POST)
         a = _quietest(audio, a, s) if s - a > 0.03 else a
         spans.append([max(0.0, a), min(total, b)])
-        # Same take, nothing cut between: keep the real pause.
-        joined.append(i > 0 and takes[i - 1].last + 1 == tk.first)
+        # Same take, nothing cut between: keep the real pause - unless the
+        # script asks for a long one (a sound example plays in it, 2026-11-21):
+        # that gap is a written beat, filled with room tone to its length.
+        joined.append(i > 0 and takes[i - 1].last + 1 == tk.first
+                      and gaps[i - 1] < LONG_GAP)
     for i in range(1, len(spans)):
         if not joined[i]:
             continue

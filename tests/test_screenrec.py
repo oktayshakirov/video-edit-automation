@@ -19,13 +19,21 @@ def _mot(n, rate=10, boxes=None, frac=None):
 def test_idle_is_sped_up_but_its_edges_are_not():
     fps = 30
     on = np.zeros(10 * fps, bool)
-    on[: 2 * fps] = True                    # 2s busy, 8s idle
+    on[: 2 * fps] = True                    # 2s busy, 7s idle, 1s busy
+    on[-fps:] = True
     t = sr.time_map(on, idle=4.0, fps=fps)
-    # 2s + 2 x 0.35s at 1x, the remaining 7.3s at 4x.
-    assert len(t) / fps == pytest.approx(2 + 0.7 + 7.3 / 4, abs=0.1)
+    # 3s + 2 x 0.35s at 1x, the remaining 6.3s at 4x.
+    assert len(t) / fps == pytest.approx(3 + 0.7 + 6.3 / 4, abs=0.1)
     steps = np.diff(t)
     assert steps[: 2 * fps].max() == pytest.approx(1 / fps)
     assert steps.max() == pytest.approx(4 / fps)
+
+
+def test_the_still_ending_plays_at_real_speed():
+    """The result left on screen is what the viewer reads."""
+    on = np.zeros(300, bool)
+    on[:60] = True
+    assert len(sr.time_map(on, idle=4.0)) == 300
 
 
 def test_no_idle_speed_up_when_turned_off():

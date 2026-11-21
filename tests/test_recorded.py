@@ -68,3 +68,18 @@ def test_the_read_aloud_script_says_what_the_build_looks_for():
                      "five hundred and eighty seven postings in a week.",
                      "Four were real."]
     assert mod._face_marks(lines, [("in a week", 3.0)]) == {0, 1, 2}
+
+
+def test_a_long_scripted_gap_is_silence_even_inside_one_take():
+    """A sound example plays in a gap of 1s or more: Oktay's own short pause
+    there would put the clip on his next line, so the gap is written."""
+    import numpy as np
+    from video_automation.core import recorded as rc
+    words = [{"s": 0.0, "e": 0.4}, {"s": 0.5, "e": 0.9},     # sentence 1
+             {"s": 1.1, "e": 1.5}, {"s": 1.6, "e": 2.0}]     # sentence 2, 0.2s later
+    takes = [rc.Take(0, 0, 1, 1.0, {}, 0), rc.Take(1, 2, 3, 1.0, {}, 0)]
+    audio = np.zeros(int(2.5 * rc.SR))
+    _, joined = rc._bounds(takes, words, audio, [0.5, 0.5], max_pause=0.8)
+    assert joined == [False, True]                 # a short gap: his own pause
+    _, joined = rc._bounds(takes, words, audio, [6.0, 0.5], max_pause=0.8)
+    assert joined == [False, False]                # a long one: room tone, 6s

@@ -27,6 +27,8 @@ Synthesised rather than recorded, so the level, length and band are ours and
 match the drawn `spectrum` peak each one plays under.
 """
 
+from pathlib import Path
+
 import numpy as np
 
 SR = 48000
@@ -158,3 +160,40 @@ def windows(cue_list: list[tuple[float, str]], pad: float = 0.15
     """Where each sample plays, for the bed to dip under."""
     return [(t - DUR[k[7:]] - pad, t + pad) for t, k in cue_list
             if k.startswith("sample_")]
+
+
+# -- recorded clips (2026-11-21) ---------------------------------------------
+#
+# A voice example, played in the pause after the line that names it - the
+# OktAI opener plays the robotic read and today's read before Oktay speaks.
+# Same rules as the tinnitus samples (in the pause, cued on its end, the bed
+# dips under it), but **as loud as the voice**: it is something to compare
+# with the narration, not a sound to be careful with.
+
+def register(path, name: str | None = None, level: float = 0.9) -> str:
+    """Make the audio file `path` a sample; returns its name for
+    `Shot(samples=...)`. `level` is its peak against the narration's."""
+    import soundfile as sf
+    from . import sfx
+    path = Path(path)
+    name = name or path.stem
+    audio, sr = sf.read(str(path), always_2d=True, dtype="float32")
+    mono = audio.mean(axis=1).astype(np.float64)
+    if sr != SR:
+        from scipy.signal import resample_poly
+        mono = resample_poly(mono, SR, sr)
+    mono /= (np.max(np.abs(mono)) + 1e-9)
+    # A breath of fade at each end: no click, and the read is not softened.
+    mono = _fade(mono, SR, fin=0.01, fout=0.04)
+    key = f"sample_{name}"
+    DUR[name] = len(mono) / SR
+    MAKERS[key] = lambda sr, m=mono: (m if sr == SR else _resample(m, sr))
+    sfx.ANCHOR[key] = DUR[name]
+    # `sfx.mix` scales every cue by its gain against the narration's peak.
+    sfx.LEVELS[key] = level / sfx.DEFAULT_GAIN
+    return name
+
+
+def _resample(m: np.ndarray, sr: int) -> np.ndarray:
+    from scipy.signal import resample_poly
+    return resample_poly(m, sr, SR)

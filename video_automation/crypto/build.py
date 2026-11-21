@@ -180,7 +180,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                             if getattr(shot, "raw", False) else {}),
                          label=label, note=shot.note, begin=shot.clip_at,
                          ax=shot.clip_ax, ay=shot.clip_ay)
-    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter",
+    if shot.graphic in ("grid", "steps", "bars", "logos", "chapter", "voice",
                         "diagram", "dial", "split", "chart",
                         "replicate", "pool", "reel", "post",
                         "spotlight", "blindsign", "spectrum",

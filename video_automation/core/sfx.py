@@ -542,8 +542,11 @@ def _file_clip(kind: str, sr: int) -> "np.ndarray | None":
     return _FILE_CACHE[key]
 
 
+DEFAULT_GAIN = 0.22
+
+
 def mix(track: Path, out: Path, cues: list[tuple[float, str]],
-        gain: float = 0.22, kit: str | None = None) -> Path:
+        gain: float = DEFAULT_GAIN, kit: str | None = None) -> Path:
     """Lay sound effects over a finished narration track.
 
     `gain` is against the narration's own peak rather than full scale — a fixed
@@ -574,7 +577,10 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
               "clock": clock, "clock_final": clock_final,
               "hook_slam": hook_slam, "hook_glitch": hook_glitch,
               "hook_swell": hook_swell, "hook_pop": hook_pop,
-              "hook_swish": hook_swish, **_MAKERS_EXTRA}
+              "hook_swish": hook_swish, **_MAKERS_EXTRA,
+              # Read now, not at import: a recorded clip registers itself
+              # (`samples.register`) after this module has loaded.
+              **_samples.MAKERS}
 
     for at, kind in cues:
         # An exempt cue takes neither the remap nor the kit's level - the
