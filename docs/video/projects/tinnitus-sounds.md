@@ -31,9 +31,12 @@ the name.
    extension did nothing on 2026-11-18; navigating to it downloads. The
    browser saves to **`~/Desktop`** (not Downloads), which is where every
    session script reads its bed from. Close the tab after.
-   - **Give it a minute and a half before deciding it failed** (2026-11-20):
-     Rain took about sixty seconds to appear, after two 20-second checks
-     had called it lost. Poll the Desktop for up to two minutes, or read
+   - **Give it several minutes before deciding it failed** (2026-11-20,
+     2026-11-22): Rain took about sixty seconds to appear; Ethereal
+     Resonance took over six, and the browser's `downloads` table showed
+     nothing for it until the file landed. The tab snaps back to the
+     album page either way, so that is no sign of failure. Navigate once,
+     then poll the Desktop in the background for up to ten minutes. Poll the Desktop for up to two minutes, or read
      the browser's own record (the connected browser is Brave:
      `~/Library/Application Support/BraveSoftware/Brave-Browser/Default/History`,
      table `downloads`, copied first since the browser holds it open).
@@ -87,6 +90,7 @@ the DistroKid title in the ledger and the site's in the description.
 | Nature Inspired Sound Therapy | Rain | `rain-masking-20min` (supplied as `Rain.mp3`; identified 2026-11-20, when a fresh download measured exactly as that script's docstring) | before 2026-10 |
 | Background Blur | Ambient Fan (fetched from DistroKid as `2fan.mp3`) | `fan-noise-444-breathing` (1 hour) | 2026-11-20 |
 | Colors of Calm | Rose Haze (pink noise; rendered from the album spec at 61 minutes) | `pink-noise-box-breathing` (1 hour) | 2026-11-21 |
+| White Noise Therapy | Ethereal Resonance (fetched from DistroKid as `EtherealResonance.mp3`) | `white-noise-sigh-breathing` (1 hour) | 2026-11-22 |
 
 **Not album tracks** (no row above takes them off the list):
 `478-breathing-white-noise` is generated white noise (`soundbed.Bed`);
@@ -102,7 +106,7 @@ that session's docstring** - that is how Rain was found to be used.
 | --- | --- | --- |
 | Quiet Universe | `/zen/quiet-universe` | Gentle Cosmos, Weightless Journey, Interstellar Calm, Zero Pressure |
 | Jungle Stillness | `/zen/jungle-stillness` | Wildlife Whisper, Quiet Creatures, Moonlight Calm, Flowing Night |
-| White Noise Therapy | `/zen/white-noise` | Ethereal Resonance |
+| White Noise Therapy | `/zen/white-noise` | none - **all five used** |
 | Feathered Tunes | `/zen/bird-sounds` | four of Morning Songbirds, Tree Top Tunes, Wings of Calm, Chirps & Tweets, Sky Echoes (one is used, name unknown) |
 | Purring Melodies | `/zen/cat-purr-sounds` | four of Deep Sleep Purr, Violin Purr Serenade, Dreamy Purrs, Gentle Night Purr, Purr Therapy (one is used, name unknown) |
 | Fireside Harmony | `/zen/fire-sounds` | Flickering Quiet, Twilight Musicbox, Breezy Warmth |
@@ -137,6 +141,10 @@ Cloudscape Serenity, on the "white noise" album, is a deep broadband noise
 to generated brown noise (96 / 3.1 / 0.6%), so it was titled "Brown Noise"
 under E25 with comfort copy. Ambient Fan (Background Blur) is a motor hum:
 80% below 200 Hz, 65% in one 40-80 Hz octave at flatness 0.03 (a tone),
-0.03% at 4-8 kHz - titled "Fan Noise" under E25, comfort copy. Run
+0.03% at 4-8 kHz - titled "Fan Noise" under E25, comfort copy. Ethereal
+Resonance, sold as white noise "with a deep, resonant quality", has no
+depth at all: nothing below 2 kHz, 78% at 4-8 kHz and 22% above 8 kHz,
+peak near 5.3 kHz, ~39 soft pings a minute - band-passed white noise,
+titled "High Frequency White Noise" with masking copy. Run
 `band_energy` and the near-silent-window share on the file
 (`projects/tinnitus.md`, "A comfort session is not a masking session").

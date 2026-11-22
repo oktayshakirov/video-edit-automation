@@ -43,3 +43,43 @@ def test_box_breathing_short():
     assert phases[-1].end == 42.0
     r, label, _ = ring_radius(phases, 23.0, R_MIN, R_MAX)
     assert (r, label) == (R_MIN, "hold")
+
+
+# The physiological sigh (queue row 9): inhale 3, a 1s top-up, exhale 6.
+R_IN = R_MIN + (R_MAX - R_MIN) * 0.6
+
+
+@pytest.mark.parametrize("t,want", [
+    (0.0, (R_MIN, "inhale", 3)),
+    (3.0, (round(R_IN), "inhale again", 1)),
+    (4.0, (R_MAX, "exhale", 6)),
+    (9.5, (153, "exhale", 1)),
+    (10.0, (R_MIN, "inhale", 3)),     # the cycle closes
+])
+def test_sigh_long(t, want):
+    r, label, left = _breath(t, R_MIN, R_MAX, 3.0, 0.0, 6.0, 0.0, 1.0)
+    assert (round(r), label, left) == want
+
+
+def test_sigh_short_matches_long():
+    phases = breathing_phases(0.0, 3, 3.0, 0.0, 6.0, 0.0, 1.0)
+    assert [p.kind for p in phases[:3]] == ["inhale", "top", "exhale"]
+    assert phases[-1].end == 30.0
+    for i in range(300):
+        t = i / 10
+        r_s, label_s, _ = ring_radius(phases, t, R_MIN, R_MAX)
+        r_l, label_l, _ = _breath(t, R_MIN, R_MAX, 3.0, 0.0, 6.0, 0.0, 1.0)
+        assert abs(r_s - r_l) < 1e-6 and label_s == label_l
+
+
+def test_sigh_guides_build():
+    from video_automation.tinnitus import guides
+    pat = guides.Pattern(3.0, 0.0, 6.0, 0.0, 1.0)
+    assert pat.cycle == 10.0
+    assert [k for k, _ in pat.phases] == ["inhale", "top", "exhale"]
+    for style in ("path", "clock"):
+        for w, h in ((1920, 1080), (1080, 1920)):
+            g = guides.make(style, w, h, pat, (200, 220, 255))
+            assert g.pattern.at(3.5)[1] == "top"
+    with pytest.raises(ValueError):
+        guides.make("box", 1920, 1080, pat, (200, 220, 255))

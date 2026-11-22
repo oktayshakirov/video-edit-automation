@@ -860,7 +860,8 @@ Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
 (white noise, both waterfalls, Nebula Pulse - the editor asked for it by name), box
 (forest chorus), 5-in/5-out with no holds (bird chirps), 6-6-6-6 (soft
 orbit), 2:1 (tranquil zenith), coherent 6-6 (soft flames), triangle 4-4-4
-(fan noise). Pick one off this
+(fan noise), box again (pink noise), physiological sigh 3-1-6 (high
+frequency white noise). Pick one off this
 list's tail, or a new one, rather than the last session's.
 
 ## The intro
@@ -901,7 +902,10 @@ for; a theme is a nice second layer, not the reason to click.
   the second layer, named second.
 - Measure the bed first (`tinnitus-sounds.md`): a track sold as white noise
   can measure as a comfort bed. A comfort bed is not titled as masking.
-- Judged in `videos-performance/experiments.md` E25.
+- Judged in `videos-performance/experiments.md` E25. **All four built**
+  by 2026-11-22: Brown Noise, Fan Noise, Pink Noise, High Frequency
+  White Noise. Until E25 is read, a fifth session may still lead with a
+  named noise, but it does not count toward the test.
 
 **One 8-hour sleep bed, as a probe.** The niche's biggest lane is the 9-10
 hour bed (2-5M views a video, 94-16,000x, `demand/tinnitus.md` 11-17
@@ -968,10 +972,11 @@ changed from the earlier session.
 `soft-orbit-6666-breathing`, row 4 `tranquil-zenith-21-breathing`, row 5
 `soft-flames-66-breathing`, row 6 `brown-noise-478-breathing` (4-7-8,
 clock), row 7 `fan-noise-444-breathing` (triangle 4-4-4, path), row 8
-`pink-noise-box-breathing` (box, with `luna`). **Next: row 9**
-(physiological sigh, which needs its build step first). Once row 9 has shipped, go round again picking the
-exercise and guide by taste (E13's verdict, `experiments.md`), never the
-same pair as the last session.
+`pink-noise-box-breathing` (box, with `luna`), row 9
+`white-noise-sigh-breathing` (physiological sigh 3-1-6, path). **The
+queue is done.** Go round again picking the exercise and guide by taste
+(E13's verdict, `experiments.md`), never the same pair as the last
+session.
 
 Rows 7-9 were added on 2026-11-03 from the reviewer's suggestions, at the
 user's request to test all of them:
@@ -982,13 +987,16 @@ user's request to test all of them:
   came back with "lets not create videos without instructions". It
   shipped with `luna`'s intro and outro instead. See "Every session
   speaks its instructions" above.
-- **Row 9, physiological sigh, needs a build step first.** The breath is a
-  full inhale, a short second inhale on top of it, then a long exhale. The
-  renderers know four phases (inhale, hold, exhale, rest), so add a second
-  inhale ("top-up") to `guides.Pattern`, `_breath` and `breathing_phases`
-  before building it, with the path drawing a step on the rise. Keep the
-  copy plain: it is a breathing pattern people use to settle, never "the
-  fastest way to calm down".
+- **Row 9, physiological sigh: `top=` (built 2026-11-22).** A full
+  inhale, a short second inhale on top, a long exhale. Every renderer
+  takes `top=` (seconds of the second inhale, 0 by default so nothing
+  shipped changes): the ring grows to `guides.TOP_FROM` (0.6) of the way
+  on the first inhale and the rest on the top-up, the path draws it as a
+  step on the rise labelled "AGAIN 1", and the word reads "inhale
+  again". `box` refuses it. `white-noise-sigh-breathing` runs 3-1-6, a
+  10s cycle, `loop=40`, bookends 42 + 38. Keep the copy plain: a
+  breathing pattern people use to settle, never "the fastest way to calm
+  down".
 
 `render_asmr_long` raises unless the body (`minutes * 60` minus the two
 bookends) is a whole number of loops. The last two columns are lengths

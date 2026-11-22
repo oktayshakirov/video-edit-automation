@@ -68,7 +68,8 @@ def _ease(x: float) -> float:
 
 def _breath(t: float, r_min: float, r_max: float,
            inhale: float = INHALE, hold: float = HOLD,
-           exhale: float = EXHALE, rest: float = REST) -> tuple[float, str, int]:
+           exhale: float = EXHALE, rest: float = REST,
+           top: float = 0.0) -> tuple[float, str, int]:
     """Radius, label and seconds remaining at `t`, closing exactly at one cycle.
 
     The label and the count are not decoration — they are what makes this a
@@ -90,13 +91,23 @@ def _breath(t: float, r_min: float, r_max: float,
     `rest` is a second hold after the exhale, ring pinned at `r_min` and
     labelled "hold" like the first — the fourth side of box breathing
     (4-4-4-4). 0 (the default) skips it, so nothing built before it changes.
+
+    `top` is a second, short inhale after the first (the physiological
+    sigh): the first inhale grows the ring to `guides.TOP_FROM` of the way,
+    the top-up the rest, labelled "inhale again". 0 skips it.
     """
-    breath = inhale + hold + exhale + rest
+    breath = inhale + top + hold + exhale + rest
     p = t % breath
+    r_in = r_min + (r_max - r_min) * (guides.TOP_FROM if top > 0 else 1.0)
     if p < inhale:
-        r = r_min + (r_max - r_min) * _ease(p / inhale)
+        r = r_min + (r_in - r_min) * _ease(p / inhale)
         left = inhale - p
         return r, "inhale", max(1, math.ceil(left))
+    if p < inhale + top:
+        r = r_in + (r_max - r_in) * _ease((p - inhale) / top)
+        return r, "inhale again", max(1, math.ceil(inhale + top - p))
+    p -= top
+    breath -= top
     if p < inhale + hold:
         left = inhale + hold - p
         return r_max, "hold", max(1, math.ceil(left))
@@ -188,7 +199,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
                 palette: tuple | None = None,
                 logo_w: int | None = None,
                 look: "str | type | None" = None,
-                guide: str = "ring") -> Path:
+                guide: str = "ring", top: float = 0.0) -> Path:
     """One seamless loop of picture: drifting nebula, breathing ring, mark.
 
     `loop` must be a whole number of `inhale + hold + exhale` cycles or the
@@ -212,7 +223,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
     `tinnitus.guides` (E13). Each is periodic in the breath, so the loop
     closes the same way.
     """
-    breath = inhale + hold + exhale + rest
+    breath = inhale + top + hold + exhale + rest
     if abs(loop / breath - round(loop / breath)) > 1e-6:
         raise ValueError(
             f"loop={loop}s is {loop / breath:.2f} breathing cycles — it must be "
@@ -225,7 +236,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
     sprite = _ring_sprite(r_max, _ring_tint(palette, bg_look))
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
     drawn = guides.make(guide, frame.w, frame.h,
-                        guides.Pattern(inhale, hold, exhale, rest),
+                        guides.Pattern(inhale, hold, exhale, rest, top),
                         _ring_tint(palette, bg_look))
 
     # Type scaled off the ring, so the label and count keep the proportions the
@@ -269,7 +280,7 @@ def render_loop(out: Path, brand: Brand, loop: float = 60.0,
             proc.stdin.write(img.convert("RGB").tobytes())
             continue
 
-        r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale, rest)
+        r, label, left = _breath(t, r_min, r_max, inhale, hold, exhale, rest, top)
         # `2r + 80`, the short's sizing, not `r / r_max * sprite.width`. The
         # sprite is the circle plus a fixed glow margin; scaling the whole
         # sprite by the radius ratio shrinks the glow too, so the hairline
@@ -305,7 +316,7 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
                    look: "str | type | None" = None,
                    inhale: float = INHALE, hold: float = HOLD,
                    exhale: float = EXHALE, rest: float = REST,
-                   guide: str = "ring") -> Path:
+                   guide: str = "ring", top: float = 0.0) -> Path:
     """The intro or the outro: instruction cards, and the ring's entrance.
 
     **The intro does not open on the circle.** A breathing ring is an
@@ -341,7 +352,7 @@ def render_bookend(out: Path, brand: Brand, length: float, captions: list,
     sprite = _ring_sprite(r_max, _ring_tint(palette, bg_look))
     mark = brand.mark(logo_w or int(frame.logo_w * brand.mark_scale))
     drawn = guides.make(guide, frame.w, frame.h,
-                        guides.Pattern(inhale, hold, exhale, rest),
+                        guides.Pattern(inhale, hold, exhale, rest, top),
                         _ring_tint(palette, bg_look))
 
     text_size = 68
@@ -437,6 +448,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                      fade: float = 6.0, r_min: int = 150, r_max: int = 330,
                      inhale: float = INHALE, hold: float = HOLD,
                      exhale: float = EXHALE, rest: float = REST,
+                     top: float = 0.0,
                      palette: tuple | None = None,
                      look: "str | type | None" = None,
                      guide: str = "ring",
@@ -520,7 +532,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
     workdir.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
     total = minutes * 60.0
-    breath = inhale + hold + exhale + rest
+    breath = inhale + top + hold + exhale + rest
     bed = bed or soundbed.Bed(colour="pink", breathe=0.10,
                               breathe_period=breath)
 
@@ -534,7 +546,7 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                           frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max,
                           inhale=inhale, hold=hold, exhale=exhale, rest=rest,
-                          palette=palette, look=look, guide=guide)
+                          palette=palette, look=look, guide=guide, top=top)
 
     if bed_files is not None:
         low, high = bed_files
@@ -649,13 +661,13 @@ def render_asmr_long(out: Path, workdir: Path, brand: Brand,
                           r_min=r_min, r_max=r_max, reveal=reveal,
                           caption_at=intro_at, palette=palette,
                           look=look, inhale=inhale, hold=hold, exhale=exhale,
-                          rest=rest, guide=guide)
+                          rest=rest, guide=guide, top=top)
     tail = render_bookend(workdir / "outro.mp4", brand, outro_len, outro_caps,
                           "outro", loop=loop, frame=frame, fps=fps, seed=seed,
                           r_min=r_min, r_max=r_max, reveal=reveal,
                           caption_at=outro_at, palette=palette,
                           look=look, inhale=inhale, hold=hold, exhale=exhale,
-                          rest=rest, guide=guide)
+                          rest=rest, guide=guide, top=top)
 
     # The body, as its own file — `-stream_loop` and the concat demuxer cannot
     # be combined in one pass, and re-encoding the loop N times to stitch it

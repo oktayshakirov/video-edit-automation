@@ -106,3 +106,5 @@ each line names its evidence. **Read this before step 1 of a build.**
 | 2026-11-21 | crypto short | `optimizely-hack` | The CryptoDad 'Ledger Website Hacked! Is Your Crypto Safe?' 51k in 2 d... | drawn 5/7, stock 2/7; grid, relay; opener Split; cover beat; voice mia | - | too early | - |
 | 2026-11-21 | tinnitus long | `pink-noise-box-breathing-60min` | E25 a named noise leads the session (white-noise sessions 47 and 7.6 v... | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | - | too early | - |
 | 2026-11-21 | tinnitus short | `pink-noise-box-breathing-short` | no evidence | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | - | too early | - |
+| 2026-11-23 | tinnitus long | `white-noise-sigh-breathing-60min` | E25 a named noise leads the session (white-noise sessions 47 and 7.6 v... | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | - | too early | - |
+| 2026-11-23 | tinnitus short | `white-noise-sigh-breathing-short` | no evidence | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | - | too early | - |

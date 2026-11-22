@@ -9,6 +9,23 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-22 - fourth E25 session: high-frequency white noise, the physiological sigh
+
+- **`white-noise-sigh-breathing` is E25's fourth and last session**:
+  "High Frequency White Noise" leads the title and cover. The bed
+  (Ethereal Resonance, White Noise Therapy) measured as white noise with
+  nothing under ~2.5 kHz (78% at 4-8 kHz), so masking copy, the
+  partial-masking line, and "start it quiet" for a bright hiss. E25's four
+  are now all built; read each 14 days after upload.
+- **A new exercise, the physiological sigh 3-1-6** (in, a short second
+  breath in on top, a long breath out), queue row 9, the last row. The
+  engine has a new `top=` phase: the ring and the path draw the top-up as a
+  step, labelled "inhale again" / "again".
+- **A new look, `AuroraSnow`** (aurora over a snowy range, snow falling),
+  the channel's first winter picture. A new check, `test_a_look_has_no_jump_at_its_join`,
+  keeps a texture from snapping at the loop join; sessions before this one
+  were not tested for it.
+
 ## 2026-11-21 - OPTIMJACK pair, labels stay in frame, yellow plates
 
 - **`optimizely-hack` is the crypto pair on OPTIMJACK** (16 Nov 2026), a

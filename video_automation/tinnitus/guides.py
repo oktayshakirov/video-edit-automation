@@ -42,27 +42,40 @@ from ..core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
 STYLES = ("ring", "path", "box", "clock")
 
 # What the viewer reads. The rest after the exhale is a hold too.
-WORD = {"inhale": "inhale", "hold": "hold", "exhale": "exhale", "rest": "hold"}
+WORD = {"inhale": "inhale", "top": "inhale again", "hold": "hold",
+        "exhale": "exhale", "rest": "hold"}
+# On the path the side is 1-2s wide, too narrow for "INHALE AGAIN".
+SIDE = {**WORD, "top": "again"}
+# A physiological sigh's first inhale fills this much of the rise; the short
+# second inhale ("top") tops it up. Shared with the ring in both renderers.
+TOP_FROM = 0.6
 SS = 2          # supersampling for anything drawn once and reused
 
 
 @dataclass(frozen=True)
 class Pattern:
-    """One breath: seconds of inhale, hold, exhale and the rest after it."""
+    """One breath: seconds of inhale, hold, exhale and the rest after it.
+
+    `top` is a second, short inhale straight after the first - the
+    physiological sigh (2026-11-22, queue row 9). 0 skips it, so every
+    pattern built before it is unchanged.
+    """
     inhale: float
     hold: float
     exhale: float
     rest: float = 0.0
+    top: float = 0.0
 
     @property
     def phases(self) -> list[tuple[str, float]]:
-        return [(k, d) for k, d in (("inhale", self.inhale), ("hold", self.hold),
+        return [(k, d) for k, d in (("inhale", self.inhale), ("top", self.top),
+                                    ("hold", self.hold),
                                     ("exhale", self.exhale), ("rest", self.rest))
                 if d > 0]
 
     @property
     def cycle(self) -> float:
-        return self.inhale + self.hold + self.exhale + self.rest
+        return self.inhale + self.top + self.hold + self.exhale + self.rest
 
     def at(self, t: float) -> tuple[int, str, float, float]:
         """Phase index, kind, fraction through it and seconds left, at `t`.
@@ -199,7 +212,12 @@ class PathGuide(Guide):
         k = 3 + math.ceil((w - self.dot_x) / self.cycle_w)
         pts, segs = [], []
         x = 0.0
-        y_of = {"inhale": (self.yb, self.yt), "hold": (self.yt, self.yt),
+        # With a top-up the first inhale stops short and the second climbs
+        # the rest, so the sigh reads as a step on the rise.
+        self.ym = (self.yb + (self.yt - self.yb) * TOP_FROM if pattern.top
+                   else self.yt)
+        y_of = {"inhale": (self.yb, self.ym), "top": (self.ym, self.yt),
+                "hold": (self.yt, self.yt),
                 "exhale": (self.yt, self.yb), "rest": (self.yb, self.yb)}
         for _ in range(k):
             for kind, d in pattern.phases:
@@ -218,7 +236,7 @@ class PathGuide(Guide):
             nx, ny = dy / ln, -dx / ln            # one normal of the segment
             if ny > 0:
                 nx, ny = -nx, -ny                 # the one pointing up
-            label = _side_label(f"{WORD[kind].upper()} {d:g}", size,
+            label = _side_label(f"{SIDE[kind].upper()} {d:g}", size,
                                 -math.degrees(math.atan2(dy, dx)))
             _paste_centred(self.strip, label, (x0 + x1) / 2 + nx * 40,
                            (y0 + y1) / 2 + ny * 40)
@@ -235,7 +253,8 @@ class PathGuide(Guide):
                                     (1, 0, off, 0, 1, 0),
                                     resample=Image.BILINEAR)
         img.alpha_composite(band, (0, self.top))
-        y = {"inhale": self.yb + (self.yt - self.yb) * f,
+        y = {"inhale": self.yb + (self.ym - self.yb) * f,
+             "top": self.ym + (self.yt - self.ym) * f,
              "hold": self.yt,
              "exhale": self.yt + (self.yb - self.yt) * f,
              "rest": self.yb}[kind]
@@ -250,7 +269,7 @@ class BoxGuide(Guide):
 
     def __init__(self, w, h, pattern, tint):
         super().__init__(w, h, pattern, tint)
-        if len(pattern.phases) != 4:
+        if [k for k, _ in pattern.phases] != ["inhale", "hold", "exhale", "rest"]:
             raise ValueError(
                 "guide='box' needs four phases (inhale, hold, exhale, rest), "
                 f"got {[k for k, _ in pattern.phases]}")

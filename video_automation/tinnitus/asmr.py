@@ -62,12 +62,12 @@ class Phase:
     label: str
     start: float
     end: float
-    kind: str                   # "inhale" | "hold" | "exhale" | "rest"
+    kind: str                   # "inhale" | "top" | "hold" | "exhale" | "rest"
 
 
 def breathing_phases(start: float, cycles: int, inhale: float,
                      hold: float, exhale: float,
-                     rest: float = 0.0) -> list[Phase]:
+                     rest: float = 0.0, top: float = 0.0) -> list[Phase]:
     """Lay out a paced-breathing block.
 
     The default elsewhere in wellness content is box breathing (4-4-4-4). This
@@ -77,11 +77,15 @@ def breathing_phases(start: float, cycles: int, inhale: float,
 
     `rest` is a second hold after the exhale (kind "rest", ring at `r_min`,
     still labelled "hold"), which is what box breathing needs. 0 skips it.
+
+    `top` is a short second inhale straight after the first (kind "top",
+    labelled "inhale again") - the physiological sigh. 0 skips it.
     """
     phases: list[Phase] = []
     t = start
     for _ in range(cycles):
         for label, dur, kind in (("inhale", inhale, "inhale"),
+                                 ("inhale again", top, "top"),
                                  ("hold", hold, "hold"),
                                  ("exhale", exhale, "exhale"),
                                  ("hold", rest, "rest")):
@@ -103,11 +107,17 @@ def ring_radius(phases: list[Phase], t: float,
     Returns r_min and an empty label outside the block, so the caller can draw
     the same ring code over the whole timeline without special-casing.
     """
-    for p in phases:
+    from .guides import TOP_FROM
+    for i, p in enumerate(phases):
         if p.start <= t < p.end:
             f = (t - p.start) / (p.end - p.start)
+            # A sigh's first inhale stops short; its top-up finishes the rise.
+            r_in = r_min + (r_max - r_min) * TOP_FROM
+            topped = i + 1 < len(phases) and phases[i + 1].kind == "top"
             if p.kind == "inhale":
-                r = r_min + (r_max - r_min) * _ease(f)
+                r = r_min + ((r_in if topped else r_max) - r_min) * _ease(f)
+            elif p.kind == "top":
+                r = r_in + (r_max - r_in) * _ease(f)
             elif p.kind == "exhale":
                 r = r_max - (r_max - r_min) * _ease(f)
             elif p.kind == "rest":
@@ -358,7 +368,8 @@ def render_visual(out: Path, duration: float, phases: list[Phase],
                 bg_look.ring if bg_look is not None else RING)
         drawn = guides.make(guide, OUT_W, OUT_H, guides.Pattern(
             spans.get("inhale", 0.0), spans.get("hold", 0.0),
-            spans.get("exhale", 0.0), spans.get("rest", 0.0)), tint)
+            spans.get("exhale", 0.0), spans.get("rest", 0.0),
+            spans.get("top", 0.0)), tint)
         block = (phases[0].start, phases[-1].end)
 
     brand = brand_lockup(mascot_h, mascot_opacity, wordmark,
@@ -552,7 +563,7 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
                       bed_file: Path | None = None, bed_file_skip: float = 0.0,
                       cycles: int = 3, inhale: float = 4.0,
                       hold: float = 0.0, exhale: float = 6.0,
-                      rest: float = 0.0,
+                      rest: float = 0.0, top: float = 0.0,
                       voice: str = "luna",
                       end_card: str | None = None, end_card_hold: float = 3.0,
                       emoji: dict[str, str] | None = None,
@@ -602,8 +613,8 @@ def render_asmr_short(intro: list, outro: list, out: Path, workdir: Path,
         tail=end_card_hold if end_card else 1.2, **args)
 
     phases = breathing_phases(lead_in + a_total, cycles, inhale, hold, exhale,
-                              rest)
-    breath = cycles * (inhale + hold + exhale + rest)
+                              rest, top)
+    breath = cycles * (inhale + top + hold + exhale + rest)
     total = lead_in + a_total + breath + b_total
 
     captions = [(c.text, lead_in + c.start, lead_in + c.end) for c in a_caps]

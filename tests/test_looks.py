@@ -55,6 +55,29 @@ def test_a_look_closes_on_its_period(cls, w, h):
         assert np.array_equal(a, look.at(t + 57.0)), f"{cls.__name__} jumps at t={t}"
 
 
+@pytest.mark.parametrize("cls", ALL, ids=lambda c: c.__name__)
+def test_a_look_has_no_jump_at_its_join(cls):
+    """The step from the last frame to the first is an ordinary step.
+
+    `at(t) == at(t + period)` holds for any look that takes `t % period`,
+    so it cannot see a texture that drifts by a different period than it
+    wraps by. `AuroraSnow`'s rays did (an fbm two frames wide, shifted one
+    frame width a loop) and snapped at every join of the first hour render.
+    """
+    if not _available(cls):
+        pytest.skip(f"{cls.__name__}: stock source not in the local Pexels cache")
+    P, dt = 57.0, 1 / 30
+    look = looks.make(cls, 320, 180, P, None)
+
+    def step(t):
+        return np.abs(look.at(t + dt).astype(np.float32)
+                      - look.at(t).astype(np.float32)).mean()
+
+    usual = max(step(P * f) for f in (0.13, 0.31, 0.52, 0.77, 0.91))
+    assert step(P - dt) <= 2.5 * usual + 0.05, (
+        f"{cls.__name__} jumps at its join: {step(P - dt):.3f} vs {usual:.3f}")
+
+
 def test_a_used_look_is_not_on_the_shelf():
     shelf = set(looks.SHELF.values())
     names = {c.__name__ for c in shelf}
