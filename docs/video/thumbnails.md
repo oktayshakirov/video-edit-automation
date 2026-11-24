@@ -1241,3 +1241,23 @@ When a direction loses, ask whether it fits a published video whose cover
 is weaker before deleting it. The Ledger in a hand also appears inside
 `hardware-wallet` (the COLD `behind` shot) - an exception to "The cover's
 picture stays on the cover" the editor chose; new videos keep the rule.
+
+
+## A session named for an animal shows the animal (2026-11-24)
+
+The cat purr session (`DQohsxR94NQ`, 09-28) shipped before session covers
+carried a picture of their sound: an amber nebula with a small cat emoji.
+The editor: "it doesn't really match the cat purr theme". Re-covered with a
+tabby asleep under a knitted blanket (`session_looks/cat_purr_comfort.py`),
+picked over a brighter calico because the blanket says comfort. Note
+before crediting the cover with any change: the old one already had the
+channel's best CTR (15% on 80 impressions in 30 days). Its reach was the
+problem, not its clicks.
+
+- **The face goes in the lower left, clear of the headline and the ring.**
+  `render_session_thumb(block_y=56, scrim_to=0.5)` lifts the headline and
+  keeps the left-side scrim off the face.
+- **A two-word name on one row:** `max_rows=1, col_frac=0.56`.
+- **Neutral type over a warm photo:** cyan fought the fur, so the plate and
+  number are `accent="sand"` and the headline `head_ink=(244, 236, 222)`.
+  The editor asked for "a better neutral colour" than white and cyan.

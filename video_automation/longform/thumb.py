@@ -41,7 +41,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 from ..core.brand import Brand
 from ..core.draw import cover, wrap
@@ -85,6 +85,9 @@ ACCENTS = {
     # readable against their own box rather than in the usual white.
     "paper": ((236, 231, 221), (18, 18, 18)),
     "brown": ((104, 68, 43), (240, 232, 222)),
+    # A warm neutral for a session cover over a warm photograph, where cyan
+    # or orange fights the picture (the cat purr re-cover, 2026-11-24).
+    "sand": ((214, 194, 162), (24, 20, 16)),
 }
 
 
@@ -843,8 +846,25 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
                          accent: str = "cyan", seed: int = 7,
                          size: int = 104, emoji: str | None = None,
                          palette: tuple | None = None,
-                         look: "str | type | None" = None) -> Path:
+                         look: "str | type | None" = None,
+                         block_y: int | None = None,
+                         scrim_to: float | None = None,
+                         max_rows: int = 3, col_frac: float = 0.44,
+                         head_ink: tuple = (255, 255, 255)) -> Path:
     """Thumbnail for a sound-therapy session: nebula, ring, duration, spec.
+
+    **`max_rows=1` with a wider `col_frac` keeps a two-word name on one row**,
+    and `head_ink` sets the headline's colour (white by default). Both from the
+    cat purr re-cover (2026-11-24): the editor wanted "Cat Purring" on one
+    row and a calmer, neutral colour than white over a warm photograph.
+
+    **`block_y` and `scrim_to` make room for a subject under the headline**
+    (2026-11-24, the cat purr re-cover). By default the headline block is
+    centred and the scrim darkens the whole left side, which is right for a
+    backdrop and wrong for a sleeping cat's face in the lower left: the scrim
+    would bury it and the block would sit across it. `block_y` sets the
+    block's top in pixels; `scrim_to` fades the scrim out by that fraction of
+    the height, so only the band behind the type is shaded.
 
     `headline` is two or three words, no brackets — the accent here is the
     duration, so a second highlight would only compete with it. `pattern` is
@@ -903,8 +923,15 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     px = grad.load()
     for x in range(W):
         px[x, 0] = int(224 * max(0.0, 1.0 - ((x / (W - 1)) / 0.60) ** 1.7))
-    base = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)),
-                           base, grad.resize((W, H)))
+    grad = grad.resize((W, H))
+    if scrim_to is not None:
+        vert = Image.new("L", (1, H))
+        pv = vert.load()
+        for y in range(H):
+            p = y / (H - 1) / scrim_to
+            pv[0, y] = int(255 * max(0.0, 1.0 - p ** 2.2))
+        grad = ImageChops.multiply(grad, vert.resize((W, H)))
+    base = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), base, grad)
 
     fill, ink = ACCENTS.get(accent, ACCENTS["cyan"])
     d = ImageDraw.Draw(base)
@@ -927,7 +954,7 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     _mid(d, "MINUTES", cx, cy + 128, unit_font, fill=(255, 255, 255), stroke=7)
 
     # --- headline, left column ------------------------------------------
-    margin, col_w = 62, int(W * 0.44)
+    margin, col_w = 62, int(W * col_frac)
     words = headline.upper().split()
     for _ in range(12):
         font = ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
@@ -942,7 +969,7 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
             cw += ww + (space if len(cur) > 1 else 0)
         if cur:
             lines.append(cur)
-        if len(lines) <= 3:
+        if len(lines) <= max_rows:
             break
         size -= 8
 
@@ -951,7 +978,7 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     em_gap = int(size * 0.20) if emoji else 0
     block = (len(lines) * line_h + (int(size * 1.05) if pattern else 0)
              + em_h + em_gap)
-    y = (H - block) // 2
+    y = (H - block) // 2 if block_y is None else block_y
     if emoji:
         from ..core.vertical import emoji_image
         glyph = emoji_image(emoji, em_h)
@@ -961,7 +988,7 @@ def render_session_thumb(out: Path, brand: Brand, minutes: int,
     for line in lines:
         x = margin
         for word, ww in line:
-            d.text((x, y), word, font=font, fill=(255, 255, 255),
+            d.text((x, y), word, font=font, fill=head_ink,
                    stroke_width=8, stroke_fill=(0, 0, 0))
             x += ww + space
         y += line_h

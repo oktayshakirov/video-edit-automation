@@ -67,8 +67,10 @@ the video can actually claim.
   does, and says how to set the level.
 
     PYTHONPATH=. .venv/bin/python projects/tinnitus-long/cat-purr-comfort-20min.py
+    PYTHONPATH=. .venv/bin/python projects/tinnitus-long/cat-purr-comfort-20min.py --thumb
 """
 
+import sys
 from pathlib import Path
 
 from video_automation.core.brand import TINNITUS
@@ -126,7 +128,29 @@ OUTRO = [
      "on the channel for when you want them.",),
 ]
 
-if __name__ == "__main__":
+# Re-covered 2026-11-24: a sleeping cat in place of the nebula and emoji
+# (`tinnitus/session_looks/cat_purr_comfort.py` says why). The video is
+# unchanged; only the cover is rebuilt, with `--thumb`.
+# The editor picked the tabby under a blanket over a calico, with the name
+# on one row in neutral colours; the calico was deleted with its code.
+COVER_STYLE = "session"
+
+
+def thumbs(out: Path) -> list[Path]:
+    """The cover at `out`, and nothing else."""
+    from video_automation.tinnitus.session_looks.cat_purr_comfort import BlanketThumb
+
+    return [render_session_thumb(
+        out, TINNITUS, minutes=int(MINUTES), headline="Cat Purring",
+        pattern="4-in, 6-out breathing", accent="sand",
+        head_ink=(244, 236, 222), look=BlanketThumb, block_y=56,
+        scrim_to=0.5, max_rows=1, col_frac=0.56)]
+
+
+if __name__ == "__main__" and "--thumb" in sys.argv:
+    for p in thumbs(DESKTOP / "cat-purr-comfort-20min-long-thumb.jpg"):
+        print(p)
+elif __name__ == "__main__":
     made = render_asmr_long(
         out=OUT,
         workdir=Path("/tmp/tinnitus-long-asmr-cat-purr-20min"),
@@ -147,11 +171,5 @@ if __name__ == "__main__":
     )
     print(made["video"], f"{made['total']:.0f}s")
 
-    # `render_session_thumb`, not `render_thumb` — a session has no photograph.
-    # Same seed and palette as the video. Cyan accent against the amber field,
-    # the mirror of the waterfall's orange against teal.
-    thumb = render_session_thumb(
-        OUT.with_suffix(".jpg"), TINNITUS, minutes=int(MINUTES),
-        headline="Cat Purring", pattern="4 in / 6 out", emoji="\U0001F431",
-        seed=SEED, palette=PALETTE, accent="cyan")
-    print(thumb)
+    # The cover, as re-done 2026-11-24 (`thumbs()` above).
+    print(thumbs(OUT.with_suffix(".jpg"))[0])
