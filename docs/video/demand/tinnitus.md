@@ -11,7 +11,7 @@ The words a sufferer types, not ours. Tick a term (`[x]`) when its branch is
 exhausted, with the date.
 
 - [x] tinnitus (2026-11-10)
-- [ ] ringing in ears
+- [x] ringing in ears (2026-11-24, mostly relief promises - closed; a product checked and the plain "why" are open)
 - [x] tinnitus at night / can't sleep tinnitus (2026-11-03, proven: multi-hour beds and night tips)
 - [x] tinnitus spikes (2026-10-25) / [ ] tinnitus suddenly louder
 - [ ] does tinnitus go away
@@ -111,6 +111,13 @@ Everything else above is one channel so far - a clue, not proof.
 | 11-10 | How to Stop Tinnitus in 30 SECONDS | SpineCare Decompression | 4.4M | 51,251 | 85x | a fast manoeuvre | sells a result, **closed to this channel** | chiropractic demo |
 | 11-10 | Understanding the Causes of Tinnitus | Zero To Finals | 437k | 68,483 | 6.4x | causes | plain topic | medical-student explainer |
 | 11-10 | Your Tinnitus and Hearing Loss C&P Exam: What the VA Won't Tell You | Dr. Marshall Bahr | 183k | 38,518 | 4.8x | US veterans' claims | "What [institution] Won't Tell You" | recent (2026-01); US-only audience |
+| 11-24 | Do Tinnitus Ear Drops Stop Ringing in the Ears? | Doctor Cliff, AuD | 668k | 5,028 | 132.9x | a product people buy for the ringing | "Does [product] stop [symptom]?" | long; a product checked against the evidence |
+| 11-24 | Stop the Ringing! 5 Powerful Strategies for Relieving... | EastWest Physiotherapy | 365k | 1,993 | 183.0x | relief strategies | relief promise, **closed to this channel** | long |
+| 11-24 | 3 Tips For Tinnitus Relief | Northwell Health | 72k | 562 | 127.8x | relief tips | relief promise, **closed** | Short, a hospital |
+| 11-24 | Ringing Sound in Your Ears? It Could Be Tinnitus | KIMS Arete Hospital | 17k | 290 | 60.3x | naming the symptom | "[Symptom]? It could be [condition]" | Short, a hospital |
+| 11-24 | What's that ringing in your ears? | TED-Ed | 7.5M | 566k | 13.2x | why ears ring | plain question | animated explainer |
+| 11-24 | Why You Hear Ringing in Your Ears | Dr. Steven Resnick (neurologist) | 6.3k | 1,370 | 4.6x | why ears ring | "Why you hear X \| [expert] explains" | long |
+
 
 ## Our own standouts
 
@@ -216,4 +223,9 @@ One line per branch: date, the term or channel, what it added.
   "New 2026 Tinnitus Guidelines: What Actually Works" 1.3k (~3x), the rest
   under 300. Teardown `teardowns/tinnitus-treatments-ranked.md`; built as
   the `tinnitus-treatments-ranked` pair.
-
+- 2026-11-24, "ringing in ears" (`outliers`, 128 units): 8 standouts of 15,
+  most of them relief promises (EastWest 183x, Northwell 128x, SpineCare
+  97x and 75x) - closed to this channel. Open: Doctor Cliff's ear-drops
+  check 133x (a product people buy, judged on evidence - the ranking's
+  cousin), TED-Ed's plain "what's that ringing" 13.2x, a hospital Short
+  naming the symptom 60x. Channels to follow next: KIMS Arete, Northwell.

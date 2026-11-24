@@ -12,7 +12,7 @@ The words a newcomer or a sceptic types. Tick a term (`[x]`) when its branch
 is exhausted, with the date.
 
 - [x] how does bitcoin work (2026-11-03, proven, old and crowded)
-- [x] crypto scams (2026-11-10) / [ ] is crypto a scam
+- [x] crypto scams (2026-11-10) / [x] is crypto a scam (2026-11-24, famous sceptics' claims)
 - [ ] [named token] explained / is [token] a scam (2026-11-07: squid game, see branches)
 - [x] crypto wallet / seed phrase / self custody (2026-11-02, teardown `what-is-a-seed-phrase`)
 - [ ] how to not lose money in crypto
@@ -72,6 +72,13 @@ on Whiteboard Crypto alone; a second channel is needed.
 | 11-16 | Can the U.S. Really Erase $38 Trillion in Debt Using Crypto? (Debunking the Myth) | Noel Lorenzana, CPA | 105k | 10,000 | 10.5x (13 mo) | the same rumour, debunked | "Can [X] really [Y]? (Debunking the myth)" | long, 14 min, claims checked one by one |
 
 **Proven subject (3 channels, 2026-11-16): the stablecoin "debt reset" rumour.** Teardown: `teardowns/stablecoin-debt-reset.md`.
+| 11-24 | Joe Rogan: Is Crypto A Scam? | ROGIAN Daily JRE Clips | 230k | 88 | 2616x | the sceptic's question | "[Famous name]: Is X a scam?" | clip channel, a podcast excerpt |
+| 11-24 | Bill Gates: Bitcoin is a Scam | Investing Basics | 1.38M | 10,967 | 126x | a famous sceptic's verdict | "[Famous name]: X is a scam" | Short, a clip |
+| 11-24 | Bitcoin Is a Brilliant Scam and I Can Prove it (Debunked) | Upside Scoop | 6.8k | 765 | 9.0x | the scam case, argued back | "X is a brilliant scam and I can prove it (debunked)" | long, a response video |
+| 11-24 | WARREN BUFFETT: Bitcoin is SCAM | Investing Basics | 94k | 10,967 | 8.5x | a famous sceptic's verdict | "[NAME]: X is SCAM" | Short, a clip |
+| 11-24 | Crypto: The World's Greatest Scam. | James Jani | 7.8M | 1.78M | 4.4x | the whole industry as a scam | a verdict as the title | long documentary |
+| 11-24 | A Lie Millions Wanted to Believe: The Biggest Crypto... | ENDEVR | 369k | 119k | 3.1x | one collapse as a story | "A lie millions wanted to believe" | long documentary (the E26 story shape) |
+
 
 ## Our own standouts
 
@@ -90,6 +97,8 @@ coin. Whether any of them watched a second video or subscribed is the
 check that says if it was a channel win or a one-off (Open check in
 `videos-performance/experiments.md`).
 | How Did North Korea Take $6 Billion From Binance? (Short), update | 132 views, 124 minutes watched, opens 334% | Shorts feed | real replay: 56 seconds a view on a 50-second Short (11-10) |
+| Is the US Using Stablecoins to Reset Its Debt? (long, E24) `11-17` | 45 in 7 days, **CTR 13.16% on 114**, 68% average viewed | search 28 of 34 ("stablecoins", "genius act") | a circulating rumour as the title, checked by mechanism; the best crypto start since GTA 6. One video |
+| Squid Game Crypto Scam (long, E26) `11-19` | 26 in 5 days; **9,241 impressions at 0.01%** (its Short 4,867 at 0.02%) | search 10: "how to rug pull", "exit scam" | shown to how-to-scam searchers, as Rug pull and Meme coins were - a negative standout: impressions that are not interest |
 
 ## Formats, and whether they fit this channel
 
@@ -368,3 +377,11 @@ One line per branch: date, the term or channel, what it added.
   CryptoDad "Ledger Website Hacked! Is Your Crypto Safe?" 51k, Digital Asset
   News 35.7k); the plain crypto-side mechanism answers sit at 2-4 views
   (Self Custardy, Crypto with Charlie). Medians not measured for either.
+- 2026-11-24, "is crypto a scam" (`outliers`, 128 units): 6 standouts of
+  15. The demand is a **famous sceptic's claim** (Rogan 2616x on a clip
+  channel, Gates 126x, Buffett 8.5x) and the argued reply ("a brilliant
+  scam, and I can prove it - debunked" 9.0x); the documentaries (James
+  Jani 4.4x, ENDEVR 3.1x) are the story shape. Fit: a named sceptic's
+  claim checked by mechanism is E24's shape - judge the claim, never the
+  asset. Clips of the people are not ours to use; their published words
+  are.
