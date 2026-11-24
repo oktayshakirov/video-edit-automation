@@ -376,15 +376,47 @@ Our Bybit and Binance videos had the subject and told it as a mechanism
 - The no-financial-advice rule is unchanged; a story judges people and
   claims, never an asset.
 
-### GTA 6 launches 2026-11-19 - a search window
+### The next two pairs: E24, then E26 (2026-11-24)
 
-GTA 6 (`FXW9Zd5vjYk`) is the only crypto long form still growing: 1,423 of
-1,734 views from search on "dacity coin", a term nobody else answered.
-Launch day will coin new terms. On 11-19/20, read YouTube's search
-suggestions for "gta 6 crypto", "dacity", "gta 6 stock market"; if a term
-appears that few videos answer, build a pair on it within 48 hours. A new
-term, not a sequel of the same video. Its viewers did not subscribe
-(off-audience), so it is reach, not a channel builder.
+Both tests need three videos and have one each, so the next crypto pair is
+**E24's second**, the one after it **E26's second** (the editor's yes,
+2026-11-24).
+
+- **E24, a rumour as the title, checked by mechanism**: the long form's
+  title is a circulating claim as people search it ("Is the US Using
+  Stablecoins to Reset Its Debt?"); the video follows the mechanism, ends
+  on a `checklist` of the claims judged and a question for the comments.
+  The first one (`stablecoin-interest`) took 45 views in 7 days at 13% CTR
+  and 68% average viewed. A candidate from the 11-24 demand branch: a
+  famous sceptic's "crypto is a scam" claim (Bill Gates 126x, Buffett
+  8.5x, `demand/crypto.md`). Verdicts judge claims, never an asset or a
+  direction; their published words, not clips of them.
+- **E26**, one heist told as a story (above).
+
+Full test text: `videos-performance/experiments.md`.
+
+### A scam video is shown to people who want to run the scam (2026-11-24)
+
+YouTube places a video about a scam's mechanism on the searches of people
+who want to *do* it - "how to rug pull", "how to launch a meme coin",
+"exit scam" - and they do not click a video that warns against it. Three
+videos, same pattern: Rug pull 13,875 impressions at 0.01%, Meme coins
+11,339 at 0.05%, Squid Game 9,241 in five days at 0.01%
+(`videos-performance/history/2026-11-24.md`).
+
+- **Impressions from that pool are not interest.** When a crypto video's
+  impressions jump while CTR stays under ~0.1%, read `traffic` search terms
+  before calling it shown, wanted or a cover failure.
+- E26's crypto stories are judged on views at 14 days and CTR, not on raw
+  impressions (`experiments.md`).
+- Nothing to fix in the script: the viewers we want search the case or
+  the victim's question ("why couldn't I sell"), so the title keeps naming
+  the case. Do not chase the how-to pool.
+
+GTA 6 launched on 2026-11-19: the video's impressions rose by half and its
+CTR halved (8.6% -> 4.6%) as other channels covered the game; the
+build-a-pair-in-48-hours read was not run. A brand-new term only stays
+ours until the subject's launch brings competitors - build on it before.
 
 ## Decisions already taken
 

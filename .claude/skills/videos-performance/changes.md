@@ -9,6 +9,19 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-24 - the review: crypto build order, scam-search impressions
+
+From the 11-24 review, on the editor's yes (`history/2026-11-24.md`).
+
+- **The next crypto pair is E24's second** (a rumour as the title,
+  checked by mechanism), the one after it E26's second
+  (`projects/crypto.md`, "The next two pairs").
+- **E26 on crypto is judged on views at 14 days and CTR**, not raw
+  impressions: scam videos are shown to how-to-scam searchers who never
+  click (`projects/crypto.md`, "A scam video is shown to people who want
+  to run the scam"). No change a viewer sees.
+- The GTA 6 launch-window section was retired; launch week halved its CTR.
+
 ## 2026-11-22 - fourth E25 session: high-frequency white noise, the physiological sigh
 
 - **`white-noise-sigh-breathing` is E25's fourth and last session**:

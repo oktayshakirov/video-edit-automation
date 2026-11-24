@@ -94,7 +94,7 @@ cd ~/Coding/youtube-audit && npx tsx src/cli.ts <command> [options]
 | `audit` | videos + analytics + heuristic flags - the usual starting point |
 | `set <id\|url>` | Edit title / description / tags - dry run unless `--apply` |
 | `upload` | Upload a video with its thumbnail - dry run unless `--apply` |
-| `reach` | Thumbnail impressions and CTR per video, from the Reporting API's daily reach reports - no Studio export. `reach --setup` once per channel creates the job; data from ~48h later, 30 days backfilled. Reports are cached in `reports/<channel>/` (gitignored); YouTube keeps them 60 days, so run it at least monthly |
+| `reach` | Thumbnail impressions and CTR per video, from the Reporting API's daily reach reports - no Studio export. `reach --setup` once per channel creates the job; data from ~48h later, 30 days backfilled. Reports are cached in `reports/<channel>/` (gitignored); YouTube keeps them 60 days, so run it at least monthly. The Reporting API allows 60 requests a minute per project: a first download for one channel can use most of it, so wait a minute before the second channel or it fails with a 429 (2026-11-24) |
 | `outliers "<term>"` | Search YouTube and score each result against its own channel's median - the demand-map search. ~120 quota units |
 | `transcript <id\|url>` | Any public video's transcript, chapters, "most replayed" heatmap and top comments, via `yt-dlp` (`brew install yt-dlp`). No `--channel`. Writes to the gitignored `research/transcripts/` |
 
