@@ -47,7 +47,7 @@ TEXT = "I MADE [AI SLOP]"
 # explainer graphic from one of our real videos - on the same topic.
 # His pick for the good card (2026-11-25): the Squid Game video's own cover,
 # "only 1 winner" - a real, finished thumbnail of ours.
-PAIRS = [("final", "slop", "squid")]
+PAIRS = [("ai-chain", "slop", "aichain"), ("squid", "slop", "squid")]
 
 
 def _long():
@@ -149,7 +149,8 @@ def panels(L) -> dict:
     breach = _frame(Shot(graphic="breach", payload=L.SHIPPED["breach"]), hold=6.0, at=0.98,
                     reveals=[0.3, 1.2, 2.2])
     squid = Image.open(folder(L.NAME) / "cover" / "squid-game.jpg").convert("RGB")
-    return {"squid": (squid, 0.5), "slop": (slop, 0.5), "relay": (relay, 0.5), "breach": (breach, 0.5),
+    aichain = Image.open(folder(L.NAME) / "cover" / "ai-blockchain.jpg").convert("RGB")
+    return {"aichain": (aichain, 0.5), "squid": (squid, 0.5), "slop": (slop, 0.5), "relay": (relay, 0.5), "breach": (breach, 0.5),
             "robot": (robot, 0.5), "coin": (coin, 0.48), "wave": (wave, 0.5),
             "bars": (bars.crop((60, 300, 1860, 900)), 0.5)}
 
@@ -215,9 +216,11 @@ def build(out: Path, before, after, face: Image.Image, text: str = TEXT) -> Path
 
 def main() -> None:
     L = _long()
-    # The cut-out with its colour fringe repainted (red and yellow streaks at
-    # the cheek, ear and neck from the photo, 2026-11-25).
-    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout-clean.png").convert("RGBA")
+    # His photo came already cut out, with its own soft alpha: used as it is
+    # (re-matting it on black made jagged hair - "the cutout is very bad"),
+    # its edge softened, the pure red and yellow streaks in it repainted
+    # (2026-11-25).
+    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout-soft.png").convert("RGBA")
     P = panels(L)
     desk = Path.home() / "Desktop"
     outs = [build(desk / f"{L.NAME}-cover-{name}.jpg", P[b], P[a], face) for name, b, a in PAIRS]
