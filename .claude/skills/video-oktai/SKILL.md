@@ -183,8 +183,61 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
     Then clean up: test renders and previews, Desktop copies of recordings
     already in `~/Movies/OktAI/<name>/`, superseded takes, old report and
     edit sidecars, old screen renders - to the Trash via Finder, keeping
-    the take, the pickups and the finished videos.
-12. **Leave the skill better.** Every note becomes a dated rule in the
+    the take, the pickups and the finished videos. `<take>+pickups.mov` is
+    made by the build and made again when missing, so it goes too. Once
+    everything is published, the finished videos, captions and covers move
+    off the Desktop into `~/Movies/OktAI/<name>/final/`, and the upload
+    copies (`.upload-tmp/`, `upload/tiktok/`) go to the Trash.
+### Part 3 - title, covers, the free prompt, then publishing
+
+The order the first video went in (why-ai-videos-feel-fake, 2026-11-25).
+
+13. **Title.** Three to five options with the reasoning (search words,
+    curiosity, the number we own); he picks or rewrites. The title, the
+    long cover and the description say three different things, never the
+    same words twice (`thumbnails.md`, "The cover adds to the title").
+14. **The long cover - his face.** Tell him which emotion the cover needs
+    (the first one: cringe at his own slop) and ask for a photo; he sends it
+    with its own transparency. Build it as a script,
+    `projects/oktai-long/<name>-cover.py` - the first one is the pattern:
+    `stack_headline` text behind his head for depth, a red (bad) and a green
+    (good) card either side, both badges the same size in the same place,
+    his photo's own alpha softened (never re-matted - that fringes), stray
+    colour at the cut-out's edge repainted, his head centred between the
+    cards. Examples on the cards must read without the video (a "THIS WILL
+    SHOCK YOU" slop card, a real thumbnail of ours) - not a waveform or a
+    robot. Offer him text options for the headline.
+15. **The Short covers** - the same script with `--shorts`: one 1080x1920
+    cover per Short (the topic in a plate, its picture as a card with the
+    red cross, him under it). **Everything inside the 3:4 band TikTok's grid
+    keeps** (`thumb.SAFE_TOP`-`SAFE_BOTTOM`, y 240-1680): run
+    `tools/short_cover_check.py` on every cover and look at the
+    `-tiktok-crop.jpg` sheets before any upload. A scheduled TikTok post
+    cannot be edited, so a cut cover costs a delete and a re-schedule.
+16. **The free prompt.** When the video ends on a prompt (`CODA`), the
+    prompt gets its own page on oktayshakirov.com before the upload: an
+    entry in `~/Coding/portfolio/data/prompts.json` and the page text in
+    `data/prompt-pages/<id>.html`, then `node scripts/build-prompts.mjs`
+    and push (the portfolio README, "Prompts"). The prompt is the video's
+    chapters in full, with the video's own numbers, and ends on a fill-in
+    form ("MY VIDEO ... [PASTE YOUR SCRIPT HERE]"), never on "My script:".
+    The page puts the prompt and its copy button first, then how to use it,
+    why I made it, what it checks, what comes back and questions - real
+    text for search, from the video. Every description links
+    `oktayshakirov.com/prompts/<id>/`.
+17. **Publishing** (`/publish-video`, its OktAI rows): the long form
+    first; the Shorts one a day at 17:00 Berlin after it, on YouTube and
+    TikTok. YouTube by API (`upload --publish-at`, 1600 quota units each,
+    so about six a day) or in YouTube Studio in Chrome when the quota is
+    spent; **set each Short's Related video to the long form in Studio** -
+    the API upload does not. Custom thumbnails need the channel's phone
+    verification. TikTok in TikTok Studio in Chrome until oktai has an API
+    token: caption, "Edit cover" -> upload the cover, Schedule. Studio has
+    no draft button, so a Short to hold back is scheduled last instead.
+
+### After every run
+
+18. **Leave the skill better.** Every note becomes a dated rule in the
     narrowest doc (`projects/oktai.md` for this channel), a check in code
     when it can be one, and an edit to this file when the run itself missed
     a step. Tell him what was learned and where it went.

@@ -116,3 +116,5 @@ each line names its evidence. **Read this before step 1 of a build.**
 | 2026-11-21 | tinnitus short | `pink-noise-box-breathing-short` | no evidence | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | YT 29 at 3 days, no curve; FB 195; TikTok 693 | too early | - |
 | 2026-11-23 | tinnitus long | `white-noise-sigh-breathing-60min` | E25 a named noise leads the session (white-noise sessions 47 and 7.6 v... | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | YT 41 at 1 day, CTR 5.45% on 312; FB 217 (E25) | too early | - |
 | 2026-11-23 | tinnitus short | `white-noise-sigh-breathing-short` | no evidence | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | YT 80 at 1 day; FB 118; TikTok 583 | too early | - |
+| 2026-11-25 | oktai long | `why-ai-videos-feel-fake` | no evidence | drawn 57/60, stock 3/60; reel, steps, lesson, logos, diagram, wall, voice, phones, bars, chart; opener -; cover -; voice - | - | too early | - |
+| 2026-11-25 | oktai short | `why-ai-videos-feel-fake` | no evidence | drawn 8/8, stock 0/8; reel, voice, bars; opener -; cover -; voice - | - | too early | - |

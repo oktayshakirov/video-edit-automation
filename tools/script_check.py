@@ -67,7 +67,7 @@ class Line:
 @dataclass
 class Script:
     path: Path
-    channel: str        # crypto | tinnitus | drone | other
+    channel: str        # crypto | tinnitus | drone | oktai | other
     fmt: str            # long | short | quiz | other
     mod: object
     lines: list[Line] = field(default_factory=list)
@@ -80,7 +80,7 @@ def classify(path: Path) -> tuple[str, str]:
     d = path.parent.name
     if d.startswith("quiz-"):
         return d.removeprefix("quiz-"), "quiz"
-    for ch in ("crypto", "tinnitus", "drone"):
+    for ch in ("crypto", "tinnitus", "drone", "oktai"):
         if d.startswith(ch + "-"):
             return ch, d.removeprefix(ch + "-")
     return "other", "other"

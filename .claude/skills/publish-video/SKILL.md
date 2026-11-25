@@ -97,14 +97,21 @@ explainer has nowhere sensible to go on that account.
 youtube and tiktok to the sharing pipeline"). Its TikTok uses the drone
 account's sandbox app with its own token (`publish/tiktok.py`, `PROJECTS`);
 its long form's description links the free prompt at
-`oktayshakirov.com/prompts/#<id>`, and after upload that card's
-`video.url` in the portfolio's `data/prompts.json` is set and pushed.
+`oktayshakirov.com/prompts/<id>/` (each prompt has its own page since
+2026-11-25; old `#<id>` links redirect). After upload, set the entry's
+`video` (`id`, `url`, `uploadDate`) in the portfolio's `data/prompts.json`,
+run `node scripts/build-prompts.mjs` there, and push.
 Until its TikTok token exists, Shorts are scheduled in TikTok Studio in
 Chrome (2026-11-25): copies under 10 MB in a folder inside the repo (the
 extension's file upload reads only session folders and refuses larger
 files), the description typed, "Edit cover" -> upload the cover (it must
 pass the 3:4 grid crop, `docs/video/thumbnails.md`), Schedule, date and
-17:00 GMT+1. A scheduled post cannot be edited afterwards.
+17:00 GMT+1. A scheduled post cannot be edited afterwards, and Studio has
+no draft button. On YouTube, an API-uploaded Short gets no Related video
+(`--related` only adds the "Full video" line): set it to the long form in
+YouTube Studio (Details -> Related video). When the API quota is spent,
+Studio uploads in Chrome work the same way; Chrome's file upload takes
+10 MB at most, so a larger Short is two-pass encoded just under it first.
 
 **Every channel's TikTok cover passes the 3:4 grid crop** (2026-11-25, the
 editor: "make it a rule for every tiktok video upload, also for other
