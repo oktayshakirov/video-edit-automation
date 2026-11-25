@@ -64,6 +64,11 @@ MUSIC = "oktai-bed"
 # pick of four samples, "new tone" with the bed 6 dB lower.
 MUSIC_LUFS = -35.0
 DESKTOP = Path(os.environ.get("OKTAI_OUT", Path.home() / "Desktop"))
+# His face photos for covers, kept across videos (the editor, 2026-11-25:
+# "keep couple of my faces for thumbnails ... we will create more in future
+# videos"). `<expression>.<ext>` is the photo he sent, `<expression>-cutout.png`
+# the cover-ready cut-out; everything else of a video goes once it is uploaded.
+FACES = RECORDINGS / "faces"
 
 
 def folder(name: str) -> Path:

@@ -30,6 +30,7 @@ from video_automation.crypto.shots import Shot  # noqa: E402
 from video_automation.longform.beats import make_beat  # noqa: E402
 from video_automation.longform.thumb import SAFE_BOTTOM, SAFE_TOP, stack_headline  # noqa: E402
 from video_automation.oktai import folder  # noqa: E402
+from video_automation.oktai.build import FACES  # noqa: E402
 
 W, H = 1280, 720
 RED, GREEN = (235, 64, 52), (74, 200, 120)
@@ -220,7 +221,7 @@ def main() -> None:
     # (re-matting it on black made jagged hair - "the cutout is very bad"),
     # its edge softened, the pure red and yellow streaks in it repainted
     # (2026-11-25).
-    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout-soft.png").convert("RGBA")
+    face = Image.open(FACES / "cringe-looking-up-cutout.png").convert("RGBA")
     P = panels(L)
     desk = Path.home() / "Desktop"
     outs = [build(desk / f"{L.NAME}-cover-{name}.jpg", P[b], P[a], face) for name, b, a in PAIRS]
@@ -282,7 +283,7 @@ def build_short(out: Path, rows: list[str], card_img: Image.Image, face: Image.I
 
 def shorts_main() -> None:
     L = _long()
-    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout-soft.png").convert("RGBA")
+    face = Image.open(FACES / "cringe-looking-up-cutout.png").convert("RGBA")
     P = panels(L)
     desk = Path.home() / "Desktop"
     made = []

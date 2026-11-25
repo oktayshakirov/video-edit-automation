@@ -184,10 +184,13 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
     already in `~/Movies/OktAI/<name>/`, superseded takes, old report and
     edit sidecars, old screen renders - to the Trash via Finder, keeping
     the take, the pickups and the finished videos. `<take>+pickups.mov` is
-    made by the build and made again when missing, so it goes too. Once
-    everything is published, the finished videos, captions and covers move
-    off the Desktop into `~/Movies/OktAI/<name>/final/`, and the upload
-    copies (`.upload-tmp/`, `upload/tiktok/`) go to the Trash.
+    made by the build and made again when missing, so it goes too. **Once
+    everything is uploaded, the finished videos, captions and covers are
+    deleted, not archived** (the editor, 2026-11-25: "once its uploaded we
+    can just delete it"), with the upload copies (`.upload-tmp/`,
+    `upload/tiktok/`) and the cover's working files. What stays: the take,
+    the pickups, `upload/*.txt` and `youtube-ids.json`, and his face photos
+    in `~/Movies/OktAI/faces/`.
 ### Part 3 - title, covers, the free prompt, then publishing
 
 The order the first video went in (why-ai-videos-feel-fake, 2026-11-25).
@@ -197,8 +200,12 @@ The order the first video went in (why-ai-videos-feel-fake, 2026-11-25).
     long cover and the description say three different things, never the
     same words twice (`thumbnails.md`, "The cover adds to the title").
 14. **The long cover - his face.** Tell him which emotion the cover needs
-    (the first one: cringe at his own slop) and ask for a photo; he sends it
-    with its own transparency. Build it as a script,
+    (the first one: cringe at his own slop). Look in `~/Movies/OktAI/faces/`
+    (`build.FACES`) first: `<expression>.<ext>` is a photo he sent,
+    `<expression>-cutout.png` its cover-ready cut-out (the first:
+    `cringe-looking-up`). If none fits, ask for a photo; he sends it with
+    its own transparency, and both files go into `faces/` under the
+    expression's name for the next video. Build it as a script,
     `projects/oktai-long/<name>-cover.py` - the first one is the pattern:
     `stack_headline` text behind his head for depth, a red (bad) and a green
     (good) card either side, both badges the same size in the same place,
