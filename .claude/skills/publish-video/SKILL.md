@@ -99,6 +99,12 @@ account's sandbox app with its own token (`publish/tiktok.py`, `PROJECTS`);
 its long form's description links the free prompt at
 `oktayshakirov.com/prompts/#<id>`, and after upload that card's
 `video.url` in the portfolio's `data/prompts.json` is set and pushed.
+Until its TikTok token exists, Shorts are scheduled in TikTok Studio in
+Chrome (2026-11-25): copies under 10 MB in a folder inside the repo (the
+extension's file upload reads only session folders and refuses larger
+files), the description typed, "Edit cover" -> upload the cover (it must
+pass the 3:4 grid crop, `docs/video/thumbnails.md`), Schedule, date and
+17:00 GMT+1. A scheduled post cannot be edited afterwards.
 
 **Drone posts to YouTube and TikTok only.** The user's decision, 2026-08-20. It
 has no Instagram or Facebook page wired up, and no site entry.

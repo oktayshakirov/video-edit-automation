@@ -232,5 +232,75 @@ def main() -> None:
     print(desk / f"{L.NAME}-covers.jpg")
 
 
+
+
+# --- the Shorts' covers (2026-11-25: "we also need thumbnails for the shorts")
+# The long cover's look, standing up: what the Short is about on top, its
+# picture as a card with the red cross, him under it looking up at it.
+# TikTok's profile grid shows a 9:16 cover cropped to 3:4 (the editor,
+# 2026-11-25: "we dont crop the text and important graphics"), so the
+# headline, the card and his head sit inside the centre 1080x1440 band.
+SW, SH = 1080, 1920
+SAFE = ((SH - SW * 4 // 3) // 2, (SH + SW * 4 // 3) // 2)  # (240, 1680)
+SHORTS = {
+    "": (["I MADE", "[AI SLOP]"], "slop"),
+    "picture": (["MISTAKE 1", "[STOCK CLIPS]"], "GENERIC"),
+    "music": (["MISTAKE 2", "[THE MUSIC]"], "EQUALIZER"),
+    "first-seconds": (["MISTAKE 3", "[THE 2ND LINE]"], "STOPWATCH"),
+    "template": (["MISTAKE 4", "[ONE TEMPLATE]"], "COPY"),
+    "voice": (["MISTAKE 5", "[ROBOT VOICE]"], "ROBOT"),
+}
+
+
+def build_short(out: Path, rows: list[str], card_img: Image.Image, face: Image.Image) -> Path:
+    base = Image.new("RGB", (SW, SH), OKTAI.bg)
+    g = ImageDraw.Draw(base)
+    for x in range(0, SW, 54):
+        g.line([(x, 0), (x, SH)], fill=(24, 26, 36))
+    for y in range(0, SH, 54):
+        g.line([(0, y), (SW, y)], fill=(24, 26, 36))
+    box = stack_headline(base, rows, (60, SAFE[0] + 30, SW - 120, 300), max_size=160, weight=900)
+    cw, ch = 820, 461
+    card = _card(card_img, cw, ch).rotate(-3, resample=Image.BICUBIC, expand=True)
+    cy = int(box[3]) + 45
+    _shadowed(base, card, ((SW - card.width) // 2, cy))
+    _badge(base, (SW - card.width) // 2 + 70, cy + card.height - 70, ok=False, r=64)
+    fh = int(SH * 0.44)
+    f = face.resize((int(face.width * fh / face.height), fh), Image.LANCZOS)
+    a = np.asarray(f.getchannel("A"))
+    ys, xs = np.nonzero(a[: int(a.shape[0] * 0.35)] > 128)
+    fx = SW // 2 - int(xs.mean())
+    fy = SH - f.height + 10
+    glow = Image.new("RGBA", (f.width + 80, f.height + 80), (0, 0, 0, 0))
+    glow.paste((0, 0, 0, 255), (40, 40), f.getchannel("A"))
+    glow = glow.filter(ImageFilter.GaussianBlur(26))
+    base.paste(glow, (fx - 40, fy - 30), glow)
+    base.paste(f, (fx, fy), f)
+    base.save(out, quality=92)
+    return out
+
+
+def shorts_main() -> None:
+    L = _long()
+    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout-soft.png").convert("RGBA")
+    P = panels(L)
+    desk = Path.home() / "Desktop"
+    made = []
+    for tag, (rows, src) in SHORTS.items():
+        img = P[src][0] if src in P else _frame(Shot(clip=getattr(L, src)), at=0.6)
+        name = f"{L.NAME}-short{'-' + tag if tag else ''}-cover.jpg"
+        made.append(build_short(desk / name, rows, img, face))
+    sheet = Image.new("RGB", (SW // 4 * len(made), SH // 4), (30, 30, 30))
+    for i, p in enumerate(made):
+        sheet.paste(Image.open(p).resize((SW // 4, SH // 4)), (i * SW // 4, 0))
+    g = ImageDraw.Draw(sheet)
+    for i in range(len(made)):  # TikTok's 3:4 grid crop, to check nothing is cut
+        x0 = i * SW // 4
+        for y in SAFE:
+            g.line([(x0, y // 4), (x0 + SW // 4, y // 4)], fill=(0, 220, 255), width=2)
+    sheet.save(desk / f"{L.NAME}-short-covers.jpg", quality=88)
+    print(desk / f"{L.NAME}-short-covers.jpg")
+
+
 if __name__ == "__main__":
-    main()
+    shorts_main() if "--shorts" in sys.argv else main()

@@ -1261,3 +1261,21 @@ problem, not its clicks.
 - **Neutral type over a warm photo:** cyan fought the fur, so the plate and
   number are `accent="sand"` and the headline `head_ink=(244, 236, 222)`.
   The editor asked for "a better neutral colour" than white and cyan.
+
+## A Short's cover keeps everything inside the 3:4 band (2026-11-25)
+
+TikTok's profile grid shows a 9:16 cover cut to 3:4: 240 px go off the top
+and 240 px off the bottom of a 1080x1920 cover (the editor: "in tiktok the
+thumbnails are shorter than youtube so we need to position them always in a
+way that we dont crop the text and important graphics"). The OktAI Shorts'
+first covers put "MISTAKE 1" at y 120 and lost it on the grid.
+
+- **Every Short cover, every channel:** the headline, the card or subject and
+  any badge sit between y 240 and y 1680. Only background, and the body below
+  a face, may run into the outer bands. One cover serves YouTube and TikTok.
+- Check on a sheet with the two crop lines drawn
+  (`projects/oktai-long/why-ai-videos-feel-fake-cover.py`, `SAFE`, `--shorts`)
+  or in TikTok's "Edit cover" dialog, whose "Preview in profile" is the crop.
+- **Get it right before scheduling:** TikTok refuses edits to a scheduled
+  post ("Scheduled posts cannot be edited"), so a wrong cover means deleting
+  the post and scheduling it again.
