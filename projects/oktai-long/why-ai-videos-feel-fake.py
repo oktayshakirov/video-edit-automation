@@ -919,6 +919,8 @@ DROPS = [(211.455, 211.93), (240.778, 240.965)]
 # the free prompt (`why-ai-videos-feel-fake.prompt.md`), on
 # oktayshakirov.com/prompts once that page exists. Wording: his pick.
 CODA = ("Free prompt for all 5 fixes", "in the description")
+# Its page: https://oktayshakirov.com/prompts/ai-video-slop-check/ (script_check "prompt-page").
+PROMPT_ID = "ai-video-slop-check"
 
 
 def main() -> None:

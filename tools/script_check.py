@@ -342,6 +342,11 @@ RULES = {
     "session-intro": Rule("session-intro", "projects/tinnitus.md, 'Every "
                           "session speaks its instructions'", ("tinnitus",),
                           ("long", "short"), since="2026-11-21"),
+    # A video that promises a free prompt ships with its page on the
+    # portfolio, made like the first one (the editor, 2026-11-25: "make sure
+    # when we say we have prompt in the video we create page like this for it").
+    "prompt-page": Rule("prompt-page", "video-oktai skill, step 16 'The free prompt'; "
+                        "the portfolio README, 'Prompts'", (), ()),
     "cover-style": Rule("cover-style", "thumbnails.md, 'Cover styles are a choice, "
                         "and every video says which'", ("crypto", "tinnitus"),
                         ("long", "short"), since="2026-11-08"),
@@ -499,6 +504,37 @@ class Finding:
     detail: str
 
 
+PROMISES_PROMPT = re.compile(r"\bfree prompts?\b|\bprompt\b[^.?!]{0,40}\bdescription\b", re.I)
+PORTFOLIO_PROMPTS = Path.home() / "Coding/portfolio/data/prompts.json"
+
+
+def prompt_page(sc: Script) -> list[Finding]:
+    """A video that promises a prompt (on its closing card or in a line) has a
+    `PROMPT_ID` whose page exists in the portfolio's prompts catalogue."""
+    coda = getattr(sc.mod, "CODA", None) or ()
+    said = " ".join(str(x) for x in (coda if isinstance(coda, (tuple, list)) else (coda,)))
+    said += " " + " ".join(ln.both for ln in sc.lines)
+    if not PROMISES_PROMPT.search(said):
+        return []
+    pid = getattr(sc.mod, "PROMPT_ID", None)
+    if not pid:
+        return [Finding("prompt-page", "module",
+                        "the video promises a prompt but has no PROMPT_ID - add the "
+                        "prompt's page to ~/Coding/portfolio (data/prompts.json, "
+                        "data/prompt-pages/<id>.html, node scripts/build-prompts.mjs) "
+                        "and set PROMPT_ID to its id")]
+    if not PORTFOLIO_PROMPTS.exists():
+        return [Finding("prompt-page", "module",
+                        f"cannot check PROMPT_ID {pid!r}: {PORTFOLIO_PROMPTS} is missing")]
+    import json
+    ids = {p.get("id") for p in json.loads(PORTFOLIO_PROMPTS.read_text())}
+    if pid not in ids:
+        return [Finding("prompt-page", "module",
+                        f"PROMPT_ID {pid!r} has no entry in the portfolio's "
+                        "data/prompts.json - its page does not exist yet")]
+    return []
+
+
 def check(sc: Script) -> list[Finding]:
     f: list[Finding] = []
     on = {k for k, r in RULES.items() if r.applies(sc)}
@@ -558,6 +594,8 @@ def check(sc: Script) -> list[Finding]:
             f.append(Finding("source-post", "module",
                              "no SOURCE_POST - topics.py cannot see which "
                              "article this covers (None for an off-site topic)"))
+    if "prompt-page" in on:
+        f.extend(prompt_page(sc))
     if "demand" in on and not hasattr(sc.mod, "DEMAND"):
         f.append(Finding("demand", "module", "no DEMAND - the review cannot "
                          "tag this video (None when it had no evidence)"))

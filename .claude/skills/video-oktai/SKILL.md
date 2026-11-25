@@ -224,7 +224,16 @@ The order the first video went in (why-ai-videos-feel-fake, 2026-11-25).
     The page puts the prompt and its copy button first, then how to use it,
     why I made it, what it checks, what comes back and questions - real
     text for search, from the video. Every description links
-    `oktayshakirov.com/prompts/<id>/`.
+    `oktayshakirov.com/prompts/<id>/`. Set `PROMPT_ID` in the project
+    file: `tools/script_check.py` flags ("prompt-page") a video that
+    promises a prompt (on its `CODA` or in a line) without a page.
+    **Helpful but general** (the editor, 2026-11-25: "never give too much of
+    our style away. Keep safe or personal informations out of it"): the
+    prompt and its page give the principle, not our recipe - no exact
+    settings (voice speed, loudness, music recipe, layout numbers), no
+    tool, pipeline, file or channel internals, and nothing personal or
+    private (accounts, earnings, emails, names of people). A finding the
+    video already says out loud may be retold; a setting is not.
 17. **Publishing** (`/publish-video`, its OktAI rows): the long form
     first; the Shorts one a day at 17:00 Berlin after it, on YouTube and
     TikTok. YouTube by API (`upload --publish-at`, 1600 quota units each,
