@@ -861,7 +861,7 @@ Patterns used so far: 4-in/6-out (masking-breathing, rain, cat purr), 4-7-8
 (forest chorus), 5-in/5-out with no holds (bird chirps), 6-6-6-6 (soft
 orbit), 2:1 (tranquil zenith), coherent 6-6 (soft flames), triangle 4-4-4
 (fan noise), box again (pink noise), physiological sigh 3-1-6 (high
-frequency white noise). Pick one off this
+frequency white noise), 4-6 on the clock (green noise). Pick one off this
 list's tail, or a new one, rather than the last session's.
 
 ## The intro
@@ -906,6 +906,9 @@ for; a theme is a nice second layer, not the reason to click.
   by 2026-11-22: Brown Noise, Fan Noise, Pink Noise, High Frequency
   White Noise. Until E25 is read, a fifth session may still lead with a
   named noise, but it does not count toward the test.
+  The fifth: `green-noise-46-breathing` (11-25, a comfort bed; green
+  noise has the biggest search pool of the colours, 'green noise sleep'
+  6.6-13.3M at the top).
 
 **One 8-hour sleep bed, as a probe.** The niche's biggest lane is the 9-10
 hour bed (2-5M views a video, 94-16,000x, `demand/tinnitus.md` 11-17
@@ -974,7 +977,8 @@ changed from the earlier session.
 clock), row 7 `fan-noise-444-breathing` (triangle 4-4-4, path), row 8
 `pink-noise-box-breathing` (box, with `luna`), row 9
 `white-noise-sigh-breathing` (physiological sigh 3-1-6, path). **The
-queue is done.** Go round again picking the exercise and guide by taste
+queue is done.** Picked by taste since: `green-noise-46-breathing`
+(4-6, clock, 2026-11-25). Go round again picking the exercise and guide by taste
 (E13's verdict, `experiments.md`), never the same pair as the last
 session.
 

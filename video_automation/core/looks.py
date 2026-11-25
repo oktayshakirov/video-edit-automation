@@ -96,7 +96,14 @@ class Mist:
 
 
 class Fireflies:
-    """Glow points on closed orbits, each pulsing a whole number of times."""
+    """Glow points on closed orbits, each pulsing a whole number of times.
+
+    The sprite's wide blur is cut off at its box, so on a mid-tone ground
+    (a lit field, not a night sky) a bright firefly shows a faint square.
+    A look on such a ground takes the edge level off its own copy of
+    `sprites` (`WindMeadow`, 2026-11-25) rather than this class changing
+    under the looks that already shipped with it.
+    """
 
     def __init__(self, w, h, n, seed, color=(214, 255, 150), margin=(0.08, 0.15),
                  r=(3, 7)):

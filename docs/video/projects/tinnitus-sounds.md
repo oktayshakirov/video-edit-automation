@@ -91,6 +91,7 @@ the DistroKid title in the ledger and the site's in the description.
 | Background Blur | Ambient Fan (fetched from DistroKid as `2fan.mp3`) | `fan-noise-444-breathing` (1 hour) | 2026-11-20 |
 | Colors of Calm | Rose Haze (pink noise; rendered from the album spec at 61 minutes) | `pink-noise-box-breathing` (1 hour) | 2026-11-21 |
 | White Noise Therapy | Ethereal Resonance (fetched from DistroKid as `EtherealResonance.mp3`) | `white-noise-sigh-breathing` (1 hour) | 2026-11-22 |
+| Colors of Calm | Green Meadow (green noise; rendered from the album spec at 61 minutes) | `green-noise-46-breathing` (1 hour) | 2026-11-25 |
 
 **Not album tracks** (no row above takes them off the list):
 `478-breathing-white-noise` is generated white noise (`soundbed.Bed`);
@@ -115,7 +116,7 @@ that session's docstring** - that is how Rain was found to be used.
 | Water Sound Therapy | `/zen/water-sounds` | Zen Flow, Harmonious Waves, Serenity Stream, Dreamy Lagoon, Mystic Brook |
 | Nature Inspired Sound Therapy | `/zen/nature-sounds` | Waterfall, River, Crickets, Crickets2 |
 | Notched Sound Therapy | `/zen/notched-sounds` | Tranquilify 5000 Hz, Harmonics 6000 Hz, Resonance 7000 Hz, Harmonics 8000 Hz, Tranquilify 9000 Hz - **whole album unused** |
-| Colors of Calm | `/zen/noise-colors` | Silver Veil, Grey Balance, Green Meadow, Deep Brown, Velvet Night. Released 2026-11. Generated, not recorded, so **render the track at the session's length, do not fetch or tile it** (below). Its spec's docstring has every track's measured bands |
+| Colors of Calm | `/zen/noise-colors` | Silver Veil, Grey Balance, Deep Brown, Velvet Night. Released 2026-11. Generated, not recorded, so **render the track at the session's length, do not fetch or tile it** (below). Its spec's docstring has every track's measured bands |
 
 **A generated album track is rendered at full length, not fetched
 (2026-11-21).** Colors of Calm's 10-minute masters were gone from the
@@ -145,6 +146,9 @@ under E25 with comfort copy. Ambient Fan (Background Blur) is a motor hum:
 Resonance, sold as white noise "with a deep, resonant quality", has no
 depth at all: nothing below 2 kHz, 78% at 4-8 kHz and 22% above 8 kHz,
 peak near 5.3 kHz, ~39 soft pings a minute - band-passed white noise,
-titled "High Frequency White Noise" with masking copy. Run
+titled "High Frequency White Noise" with masking copy. Green Meadow
+(green noise) re-rendered to the spec's numbers (18 / 55 / 26 / 0.5 / 0.0,
+centroid 775 Hz): a soft mid-range noise with nothing above 4 kHz, so a
+comfort bed, titled "Green Noise" with comfort copy. Run
 `band_energy` and the near-silent-window share on the file
 (`projects/tinnitus.md`, "A comfort session is not a masking session").
