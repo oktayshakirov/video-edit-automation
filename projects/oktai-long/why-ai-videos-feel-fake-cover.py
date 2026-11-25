@@ -33,10 +33,21 @@ from video_automation.oktai import folder  # noqa: E402
 
 W, H = 1280, 720
 RED, GREEN = (235, 64, 52), (74, 200, 120)
-# His options to pick from (2026-11-25: "give me more options for the text
-# instead of 'mine was slop'"). `[bracket]` sets a word on a plate.
-TEXTS = ["MINE WAS [SLOP]", "[SLOP] TO THIS", "WHAT FIXED IT", "89 VIDEOS OF [SLOP]",
-         "I MADE [SLOP]", "5 FIXES"]
+# His pick (2026-11-25): "I made AI slop", AI SLOP on the red plate, the
+# line behind his head for depth. The panels: one clean subject each, the
+# marks the same size in mirrored places ("those ones are bad, messy ... the
+# red and green mark being different sizes and in different positions").
+TEXT = "I MADE [AI SLOP]"
+# (name, before, after): the slop shot and what replaced it.
+# Then (2026-11-25): "the robot doesn't have to do anything with AI slop if
+# you haven't watched the video, and the waveform without context means
+# nothing - bad and good examples easy to understand without context". The
+# bad is the faceless-channel look everyone knows: a stock clip under a giant
+# clickbait caption and a robot voice; the good is a clean, specific
+# explainer graphic from one of our real videos - on the same topic.
+# His pick for the good card (2026-11-25): the Squid Game video's own cover,
+# "only 1 winner" - a real, finished thumbnail of ours.
+PAIRS = [("final", "slop", "squid")]
 
 
 def _long():
@@ -62,78 +73,154 @@ def _cover(img: Image.Image, w: int, h: int, ax: float = 0.5) -> Image.Image:
     return im.crop((x, y, x + w, y + h))
 
 
-def _slop(panel: Image.Image) -> Image.Image:
-    """Drained of colour and tinted red, a cross over it."""
+def _before(panel: Image.Image) -> Image.Image:
+    """Drained of colour with a little red: the slop."""
     a = np.asarray(panel).astype(np.float32)
     grey = a.mean(axis=2, keepdims=True)
-    a = grey * 0.62 + np.array(RED, np.float32) * 0.16
-    out = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
-    d = ImageDraw.Draw(out)
-    cx, cy, r = out.width * 0.42, out.height * 0.56, out.height * 0.24
-    w = int(out.height * 0.05)
-    for p, q in (((cx - r, cy - r), (cx + r, cy + r)), ((cx + r, cy - r), (cx - r, cy + r))):
-        d.line([p, q], fill=RED, width=w)
-        for x, y in (p, q):
-            d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=RED)
-    return out
+    a = grey * 0.70 + np.array(RED, np.float32) * 0.10
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
 
 
-def _fixed(panel: Image.Image) -> Image.Image:
-    """Bright, a tick in a ring."""
-    a = np.asarray(panel).astype(np.float32) * 1.25 + 8
-    out = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
-    d = ImageDraw.Draw(out, "RGBA")
-    cx, cy, r = out.width * 0.80, out.height * 0.30, out.height * 0.13
-    w = int(out.height * 0.035)
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(*GREEN, 70), outline=GREEN, width=w)
-    pts = [(cx - r * 0.45, cy + r * 0.02), (cx - r * 0.10, cy + r * 0.36), (cx + r * 0.50, cy - r * 0.32)]
-    d.line(pts, fill=GREEN, width=w, joint="curve")
-    return out
+def _after(panel: Image.Image) -> Image.Image:
+    a = np.asarray(panel).astype(np.float32) * 1.3 + 6
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
 
 
-def build(text: str, out: Path, L, face: Image.Image) -> Path:
-    # The slop: the overcorrection's stock clip with its big label.
-    slop = _frame(Shot(clip=L.CODE, payload=("", "QUANTUM COMPUTERS")), at=0.9)
-    # The fix: his voice as waveforms, both rows lit.
-    voice = Shot(graphic="voice", ground="grid", payload=(L.VOICES[:2],))
-    fix = _frame(voice, hold=10.0, at=0.95, reveals=[0.2, 1.0])
+def _badge(base: Image.Image, cx: int, cy: int, ok: bool, r: int = 50) -> None:
+    """A round mark: red with a cross, or green with a tick - one size, one
+    stroke, so the two read as a pair."""
+    ss = 4
+    lay = Image.new("RGBA", (r * 2 * ss + 8, r * 2 * ss + 8), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    c = (r * ss + 4, r * ss + 4)
+    R = r * ss
+    d.ellipse([c[0] - R, c[1] - R, c[0] + R, c[1] + R], fill=(*(GREEN if ok else RED), 255),
+              outline=(255, 255, 255, 255), width=int(R * 0.09))
+    w = int(R * 0.16)
+    if ok:
+        pts = [(c[0] - R * 0.42, c[1] + R * 0.02), (c[0] - R * 0.10, c[1] + R * 0.34),
+               (c[0] + R * 0.46, c[1] - R * 0.30)]
+        d.line(pts, fill="white", width=w, joint="curve")
+        ends = (pts[0], pts[-1])
+    else:
+        k = R * 0.36
+        d.line([(c[0] - k, c[1] - k), (c[0] + k, c[1] + k)], fill="white", width=w)
+        d.line([(c[0] + k, c[1] - k), (c[0] - k, c[1] + k)], fill="white", width=w)
+        ends = ((c[0] - k, c[1] - k), (c[0] + k, c[1] + k), (c[0] + k, c[1] - k), (c[0] - k, c[1] + k))
+    for x, y in ends:
+        d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill="white")
+    lay = lay.resize((lay.width // ss, lay.height // ss), Image.LANCZOS)
+    sh = Image.new("RGBA", lay.size, (0, 0, 0, 0))
+    sh.paste((0, 0, 0, 150), (0, 0), lay.getchannel("A"))
+    sh = sh.filter(ImageFilter.GaussianBlur(6))
+    base.paste(sh, (cx - lay.width // 2 + 3, cy - lay.height // 2 + 5), sh)
+    base.paste(lay, (cx - lay.width // 2, cy - lay.height // 2), lay)
 
-    half = W // 2
+
+def panels(L) -> dict:
+    """The candidate halves, drawn at full size from the video's pieces."""
+    robot = _frame(Shot(clip=L.ROBOT), at=0.8)
+    coin = _frame(Shot(clip=L.COIN), at=0.8)
+    wave = _frame(Shot(graphic="voice", ground="grid", payload=(L.VOICES[1:2],)),
+                  hold=8.0, at=0.9, reveals=[0.2])
+    wave = wave.crop((760, 300, 1880, 780))              # the strip alone
+    bars = _frame(Shot(graphic="bars", payload=([("Slower", 151 / 192, "151 a minute"),
+                                                 ("Faster", 1.0, "192 a minute")],
+                                                "WORDS PER MINUTE")),
+                  hold=4.0, at=0.95, reveals=[0.2, 1.0])
+    from video_automation.core.vertical import emoji_image
+    from video_automation.longform.beats.base import _display
+    slop = coin.copy()
+    d = ImageDraw.Draw(slop)
+    f = _display(190)
+    for i, ln in enumerate(["THIS WILL", "SHOCK YOU"]):
+        tw = d.textlength(ln, font=f)
+        d.text(((slop.width - tw) / 2, 330 + i * 215), ln, font=f, fill=(255, 228, 0),
+               stroke_width=16, stroke_fill=(0, 0, 0))
+    em = emoji_image("\U0001F631", 230)
+    slop.paste(em, (slop.width - 330, 90), em)
+    pill = _display(64)
+    d.rounded_rectangle([70, 90, 640, 200], radius=55, fill=(20, 20, 24))
+    d.text((140, 108), "AI VOICE", font=pill, fill=(255, 255, 255))
+    bot = emoji_image("\U0001F916", 80)
+    slop.paste(bot, (540, 105), bot)
+    relay = _frame(Shot(graphic="relay", payload=L.SHIPPED["relay"]), hold=6.0, at=0.98,
+                   reveals=[0.3, 1.0, 1.8, 2.6])
+    breach = _frame(Shot(graphic="breach", payload=L.SHIPPED["breach"]), hold=6.0, at=0.98,
+                    reveals=[0.3, 1.2, 2.2])
+    squid = Image.open(folder(L.NAME) / "cover" / "squid-game.jpg").convert("RGB")
+    return {"squid": (squid, 0.5), "slop": (slop, 0.5), "relay": (relay, 0.5), "breach": (breach, 0.5),
+            "robot": (robot, 0.5), "coin": (coin, 0.48), "wave": (wave, 0.5),
+            "bars": (bars.crop((60, 300, 1860, 900)), 0.5)}
+
+
+def _card(img: Image.Image, w: int, h: int, ax: float = 0.5) -> Image.Image:
+    """A whole picture as a rounded card with a thin white rim."""
+    im = _cover(img, w, h, ax).convert("RGBA")
+    m = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, w - 1, h - 1], radius=int(h * 0.06), fill=255)
+    im.putalpha(m)
+    ImageDraw.Draw(im).rounded_rectangle([1, 1, w - 2, h - 2], radius=int(h * 0.06),
+                                         outline=(255, 255, 255, 230), width=4)
+    return im
+
+
+def _shadowed(base: Image.Image, im: Image.Image, xy: tuple) -> None:
+    sh = Image.new("RGBA", (im.width + 60, im.height + 60), (0, 0, 0, 0))
+    sh.paste((0, 0, 0, 190), (30, 30), im.getchannel("A"))
+    sh = sh.filter(ImageFilter.GaussianBlur(16))
+    base.paste(sh, (xy[0] - 30 + 6, xy[1] - 30 + 10), sh)
+    base.paste(im, xy, im)
+
+
+def build(out: Path, before, after, face: Image.Image, text: str = TEXT) -> Path:
     base = Image.new("RGB", (W, H), OKTAI.bg)
-    base.paste(_slop(_cover(slop, half, H, 0.45)), (0, 0))
-    base.paste(_fixed(_cover(fix, half, H, 0.75)), (half, 0))
-    d = ImageDraw.Draw(base)
-    d.rectangle([half - 3, 0, half + 3, H], fill=(10, 10, 14))
+    # A faint grid, the channel's ground.
+    g = ImageDraw.Draw(base)
+    for x in range(0, W, 48):
+        g.line([(x, 0), (x, H)], fill=(24, 26, 36))
+    for y in range(0, H, 48):
+        g.line([(0, y), (W, y)], fill=(24, 26, 36))
 
-    # A dark band at the top for the line.
-    band = Image.new("L", (W, H), 0)
-    bd = ImageDraw.Draw(band)
-    for y in range(240):
-        bd.line([(0, y), (W, y)], fill=int(210 * (1 - y / 240) ** 1.4))
-    base.paste(Image.new("RGB", (W, H), (6, 6, 10)), (0, 0), band)
+    box = stack_headline(base, [text], (30, 14, W - 60, 150), max_size=140, weight=900)
 
-    # Him, between the two, looking at the slop.
-    fh = int(H * 0.86)
+    # The two cards, whole, either side of his head; tilted a touch inward.
+    cw, ch = 450, 253
+    left = _card(before[0], cw, ch, before[1]).rotate(4, resample=Image.BICUBIC, expand=True)
+    right = _card(after[0], cw, ch, after[1]).rotate(-4, resample=Image.BICUBIC, expand=True)
+    ly = int(box[3]) + 40
+    _shadowed(base, left, (22, ly))
+    _shadowed(base, right, (W - right.width - 22, ly))
+    _badge(base, 22 + 40, ly + left.height - 40, ok=False, r=44)
+    _badge(base, W - 22 - 40, ly + right.height - 40, ok=True, r=44)
+
+    # Him in the middle, his head breaking into the line.
+    fh = int(H * 0.80)
     f = face.resize((int(face.width * fh / face.height), fh), Image.LANCZOS)
     glow = Image.new("RGBA", (f.width + 80, f.height + 80), (0, 0, 0, 0))
     glow.paste((0, 0, 0, 255), (40, 40), f.getchannel("A"))
     glow = glow.filter(ImageFilter.GaussianBlur(22))
-    fx = half - f.width // 2 + int(W * 0.04)
-    fy = H - f.height + 6
+    # His head, not the cut-out's box, centred between the cards: in this
+    # photo the head sits at 60 % of the width ("move my body slightly to the
+    # left so I'm between both cards with my head").
+    a = np.asarray(f.getchannel("A"))
+    ys, xs = np.nonzero(a[: int(a.shape[0] * 0.35)] > 128)
+    fx = W // 2 - int(xs.mean())
+    fy = max(int(box[3]) - 30, H - f.height + 8)
     base.paste(glow, (fx - 40, fy - 30), glow)
     base.paste(f, (fx, fy), f)
-
-    stack_headline(base, [text], (40, 18, W - 80, 150), max_size=120, weight=900)
     base.save(out, quality=92)
     return out
 
 
 def main() -> None:
     L = _long()
-    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout.png").convert("RGBA")
+    # The cut-out with its colour fringe repainted (red and yellow streaks at
+    # the cheek, ear and neck from the photo, 2026-11-25).
+    face = Image.open(folder(L.NAME) / "cover" / "oktay-cutout-clean.png").convert("RGBA")
+    P = panels(L)
     desk = Path.home() / "Desktop"
-    outs = [build(t, desk / f"{L.NAME}-cover-{i + 1}.jpg", L, face)
-            for i, t in enumerate(TEXTS)]
+    outs = [build(desk / f"{L.NAME}-cover-{name}.jpg", P[b], P[a], face) for name, b, a in PAIRS]
     sheet = Image.new("RGB", (W, (H // 2) * -(-len(outs) // 2)), (30, 30, 30))
     for i, p in enumerate(outs):
         im = Image.open(p).resize((W // 2, H // 2))
