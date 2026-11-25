@@ -106,6 +106,12 @@ files), the description typed, "Edit cover" -> upload the cover (it must
 pass the 3:4 grid crop, `docs/video/thumbnails.md`), Schedule, date and
 17:00 GMT+1. A scheduled post cannot be edited afterwards.
 
+**Every channel's TikTok cover passes the 3:4 grid crop** (2026-11-25, the
+editor: "make it a rule for every tiktok video upload, also for other
+channels"). Run `tools/short_cover_check.py COVER.jpg` and look at the
+`-tiktok-crop.jpg` it writes before any Short goes to TikTok; a flag means
+rebuild the cover (`docs/publish/tiktok.md`).
+
 **Drone posts to YouTube and TikTok only.** The user's decision, 2026-08-20. It
 has no Instagram or Facebook page wired up, and no site entry.
 

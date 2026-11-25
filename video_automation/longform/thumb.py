@@ -1072,8 +1072,11 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
     base = base.convert("RGBA")
 
     # --- the ring, centred, low enough to clear the headline block --------
+    # Lowered from 0.56 so the headline block can start at the 3:4 safe line
+    # (`SAFE_TOP`) and still clear the ring; the ring ends well above
+    # `SAFE_BOTTOM`.
     r = 300
-    cx, cy = VW // 2, int(VH * 0.56)
+    cx, cy = VW // 2, int(VH * 0.60)
     k = int(r * 2 + 90)
     ring = (_ring_sprite(r, ring_color) if ring_color is not None
            else _ring_sprite(r)).resize((k, k), Image.LANCZOS)
@@ -1109,7 +1112,8 @@ def render_session_thumb_short(out: Path, brand: Brand, minutes: int,
         size -= 6
 
     line_h = int(size * 1.10)
-    y = int(VH * 0.07)
+    # Was 0.07 of the height (y 134): inside the top 240 px TikTok's grid cuts.
+    y = SAFE_TOP + 24
     if emoji:
         from ..core.vertical import emoji_image
         em_h = int(size * 1.15)
@@ -1294,6 +1298,13 @@ def ring_layer(size: tuple[int, int], box: tuple[float, float, float, float],
 # --- vertical thumbnails, for Shorts -------------------------------------
 
 VW, VH = 1080, 1920
+# TikTok's profile grid shows a 9:16 cover cut to 3:4 (the editor, 2026-11-25:
+# "in tiktok the thumbnails are shorter than youtube so we need to position
+# them always in a way that we dont crop the text and important graphics").
+# Every Short cover on every channel keeps its headline, subject and badges
+# between these two lines; `tools/short_cover_check.py` checks a cover.
+SAFE_TOP = (VH - VW * 4 // 3) // 2        # 240
+SAFE_BOTTOM = VH - SAFE_TOP               # 1680
 
 
 def fetch_video_poster(out: Path, video_id: str) -> Path:
@@ -1473,6 +1484,7 @@ def render_short_thumb(out: Path, brand: Brand, headline: str,
     # the composition.
     margin = 52
     edge_margin = int(VH * 0.13) if band == "top" else int(VH * 0.16) + 20
+    edge_margin = max(edge_margin, SAFE_TOP + 8)   # TikTok's 3:4 grid crop
     block = _headline(base, headline, size, VW - 2 * margin, margin, fill, ink,
                       max_lines=4, max_block=VH * 0.42, leading=1.02,
                       band=band, margin=edge_margin, shadow=14, drop=(6, 8),

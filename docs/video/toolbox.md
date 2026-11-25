@@ -50,6 +50,7 @@ and face, first person, "show the real thing").
 | `tools/frame_sheet.py VIDEO OUT T...` | frames at the editor's timestamps, 16:9 or 9:16 |
 | `tools/oktai_preview.py` | OktAI: one stretch rendered at the full video's speed |
 | `tools/visual_check.py`, `tools/script_check.py` | before any draft |
+| `tools/short_cover_check.py COVER...` | every Short cover, before any TikTok upload: type and plates must sit inside the 3:4 band TikTok's grid keeps (`thumb.SAFE_TOP`-`SAFE_BOTTOM`, y 240-1680) |
 
 When a new tool lands, add its row here with all three columns, and say in
 the channel skill's own doc which way that channel uses it.

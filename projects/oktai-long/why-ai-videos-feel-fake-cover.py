@@ -28,7 +28,7 @@ from video_automation.core.brand import OKTAI  # noqa: E402
 from video_automation.core.frame import LANDSCAPE  # noqa: E402
 from video_automation.crypto.shots import Shot  # noqa: E402
 from video_automation.longform.beats import make_beat  # noqa: E402
-from video_automation.longform.thumb import stack_headline  # noqa: E402
+from video_automation.longform.thumb import SAFE_BOTTOM, SAFE_TOP, stack_headline  # noqa: E402
 from video_automation.oktai import folder  # noqa: E402
 
 W, H = 1280, 720
@@ -241,7 +241,7 @@ def main() -> None:
 # 2026-11-25: "we dont crop the text and important graphics"), so the
 # headline, the card and his head sit inside the centre 1080x1440 band.
 SW, SH = 1080, 1920
-SAFE = ((SH - SW * 4 // 3) // 2, (SH + SW * 4 // 3) // 2)  # (240, 1680)
+SAFE = (SAFE_TOP, SAFE_BOTTOM)  # (240, 1680), from longform.thumb
 SHORTS = {
     "": (["I MADE", "[AI SLOP]"], "slop"),
     "picture": (["MISTAKE 1", "[STOCK CLIPS]"], "GENERIC"),

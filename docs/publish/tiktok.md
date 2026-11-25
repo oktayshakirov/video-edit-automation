@@ -3,6 +3,26 @@
 Shorts only, and always as a draft - the caption and cover are finished by hand
 in the app.
 
+## Every TikTok cover passes the 3:4 grid crop (2026-11-25, all channels)
+
+TikTok's profile grid shows a Short's 9:16 cover cut to 3:4: the top and
+bottom 240 px of a 1080x1920 cover are gone. The editor: "in tiktok the
+thumbnails are shorter than youtube so we need to position them always in a
+way that we dont crop the text and important graphics" - a rule for every
+TikTok upload, on every channel. Before a cover goes to TikTok (the inbox
+draft picked by hand, or uploaded in TikTok Studio):
+
+```bash
+PYTHONPATH=. .venv/bin/python tools/short_cover_check.py COVER.jpg
+```
+
+It flags type and plates in the cut bands and writes `<cover>-tiktok-crop.jpg`
+showing the 3:4 view; look at that too. A flagged cover is rebuilt, not
+shipped. `longform.thumb.SAFE_TOP` / `SAFE_BOTTOM` are the lines, and the
+shared renderers (`render_short_thumb`, `render_session_thumb_short`) keep to
+them. TikTok refuses edits to a scheduled post, so a cut cover found later
+means deleting the post and scheduling it again.
+
 ## TikTok
 
 ```bash

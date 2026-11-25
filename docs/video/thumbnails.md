@@ -1273,9 +1273,13 @@ first covers put "MISTAKE 1" at y 120 and lost it on the grid.
 - **Every Short cover, every channel:** the headline, the card or subject and
   any badge sit between y 240 and y 1680. Only background, and the body below
   a face, may run into the outer bands. One cover serves YouTube and TikTok.
-- Check on a sheet with the two crop lines drawn
-  (`projects/oktai-long/why-ai-videos-feel-fake-cover.py`, `SAFE`, `--shorts`)
-  or in TikTok's "Edit cover" dialog, whose "Preview in profile" is the crop.
+- **Check every cover with `tools/short_cover_check.py`** (all channels; it
+  flags type and plates in the cut bands and writes the 3:4 view beside the
+  cover), and in TikTok Studio's "Edit cover", whose "Preview in profile" is
+  the crop. The lines are `longform.thumb.SAFE_TOP` / `SAFE_BOTTOM`.
+- The shared renderers keep to them: `render_short_thumb` already did; the
+  tinnitus session Short (`render_session_thumb_short`) set its headline at
+  y 134 and now starts at the safe line, with the ring lowered to 0.60.
 - **Get it right before scheduling:** TikTok refuses edits to a scheduled
   post ("Scheduled posts cannot be edited"), so a wrong cover means deleting
   the post and scheduling it again.
