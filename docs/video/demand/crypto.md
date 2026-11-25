@@ -385,3 +385,17 @@ One line per branch: date, the term or channel, what it added.
   claim checked by mechanism is E24's shape - judge the claim, never the
   asset. Clips of the people are not ours to use; their published words
   are.
+- 2026-11-25, four `yt-dlp` searches (no units) for topic suggestions. "is
+  bitcoin a ponzi scheme": **proven, 3+ channels** - Casual Finance "Crypto
+  Is a Brilliant Scam and I Can Prove It" 602k and "Bitcoin Is a Brilliant
+  Scam... (Again)" 363k, Real Time with Bill Maher "Ben McKenzie: Crypto is
+  a Ponzi Scheme" 526k, James Jani 7.7M, Crypto Daily "The World's Greatest
+  Ponzi Scheme" 81k; the plain-question answers (Bitcoin University 9.6k,
+  Bitcoin verstehen 3k) are small. "warren buffett bitcoin rat poison":
+  CNBC "Bitcoin Is An Asset That Creates Nothing" 1.3M, Cooper Academy
+  "Warren Buffett Exposes Bitcoin" 1.28M, Fox Business 31k. The sceptic's
+  claim is the search, as on 11-24; nobody checks it against the
+  definition. "mercado bitcoin hack" (11-02, ~$40M): Portuguese-language
+  news only (5-82k); the one English mechanism answer has 6 views. "bill
+  gates bitcoin scam": the 2020 Twitter hack, not his claim. Medians not
+  measured.
