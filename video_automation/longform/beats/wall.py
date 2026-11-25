@@ -49,7 +49,9 @@ class Wall(Beat):
         n = len(self.specs)
         cols = 2 if (self.portrait or n <= 4) else 3
         rows = (n + cols - 1) // cols
-        top = self.head_y + (40 if self.title else 0)
+        # Below the heading and its rule (`heading` takes 96 px): at +40 the
+        # first row of cards cut through the title (2026-11-22, his note).
+        top = self.head_y + (110 if self.title else 0)
         avail_w = W - 2 * self.margin
         avail_h = H - top - self.margin
         tw = (avail_w - GAP * (cols - 1)) / cols

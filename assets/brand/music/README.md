@@ -39,3 +39,16 @@ music.prepare_track(Path("~/Desktop/whatever.mp3").expanduser(), "name-it")
 Then `render_long(music=music.track("name-it"))`. **Check the loop before
 using it** — the trim fixes silence, not a track that was never written to
 loop. A piece that ends on a resolving chord will still sound like it restarts.
+
+## oktai-bed (2026-11-24)
+
+| file | where it came from | length |
+| --- | --- | --- |
+| `oktai-bed.wav` | rendered locally with ACE-Step 1.5 (`create-song-automation/projects/oktai-bed-lofi.md`, seed 2611, MIT - ours) | 57 s loop |
+
+OktAI's own bed, the editor's call: "different background music for this
+channel ... something soft". A soft lo-fi instrumental (Rhodes, brushed
+drums, round bass), its steady middle (23.5-83.5 s of the 90 s render) with
+the end crossfaded into the start over 3 s, so it loops with no seam. It
+plays 6 dB under the other channels' bed (`oktai.MUSIC_LUFS`). The ambient
+and acoustic candidates rendered beside it are in that project folder.

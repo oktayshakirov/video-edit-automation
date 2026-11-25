@@ -162,6 +162,32 @@ def videos(query: str, n: int = 2, min_w: int = 1920,
     return out
 
 
+def video(video_id: int, slug: str, min_w: int = 1920,
+          cache: Path = CACHE) -> Asset:
+    """One Pexels clip by its id - the number at the end of its page's URL -
+    cached under `videos/<slug>/<id>.mp4`.
+
+    **For a clip the editor picked by hand** (2026-11-24, the OktAI opener:
+    "use different stock footage for the example, maybe this one" with a
+    pexels.com link). A search finds candidates; this fetches the one named.
+    Same rendition rule as `videos`: the smallest file at or above `min_w`.
+    """
+    dest = cache / "videos" / _slug(slug) / f"{int(video_id)}.mp4"
+    req = urllib.request.Request(f"https://api.pexels.com/videos/videos/{int(video_id)}",
+                                 headers={"Authorization": _key(), "User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        v = json.load(r)
+    files = [f for f in v.get("video_files", [])
+             if f.get("file_type") == "video/mp4" and (f.get("width") or 0) >= min_w]
+    if not files:
+        files = [f for f in v.get("video_files", []) if f.get("file_type") == "video/mp4"]
+    pick = (min(files, key=lambda f: f["width"]) if (files and (files[0].get("width") or 0) >= min_w)
+            else max(files, key=lambda f: f.get("width") or 0))
+    return Asset(_download(pick["link"], dest), "video", pick["width"], pick["height"],
+                 (v.get("user") or {}).get("name", ""), v.get("url", ""),
+                 float(v.get("duration", 0)))
+
+
 # Both sites are dark palettes — gold on near-black, peach on near-black. Stock
 # brighter or more saturated than this cuts *out* of the video rather than into
 # it, and the grade in `VideoShot` can only pull so far. Measured on real

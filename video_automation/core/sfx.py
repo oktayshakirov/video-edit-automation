@@ -48,6 +48,90 @@ def mark_cross(sr: int = SR, dur: float = 0.10) -> np.ndarray:
     return out / (np.max(np.abs(out)) + 1e-9)
 
 
+def _room(x: np.ndarray, sr: int, tail: float = 0.25, mix: float = 0.22) -> np.ndarray:
+    """A short, dark reflection tail, so a UI tone sits in a room rather
+    than in a phone speaker. Three taps and a decaying smear - enough."""
+    n = len(x) + int(sr * tail)
+    out = np.zeros(n, np.float32)
+    out[:len(x)] += x
+    for delay, g in ((0.031, 0.5), (0.047, 0.35), (0.073, 0.25)):
+        k = int(sr * delay)
+        out[k:k + len(x)] += x * g * mix
+    return out
+
+
+def verdict_wrong(sr: int = SR) -> np.ndarray:
+    """The red cross landing: a soft two-note "wrong" buzzer, falling a
+    tritone - a game-show error, warm rather than harsh.
+
+    **Why (2026-11-23, the editor on the OktAI draft: "when we show red or
+    green indicators for wrong or right, use good sfx for error and
+    success").** The marks were silent; `mark_cross` is a dry knock made
+    for a checklist row, too small for a whole picture being struck out.
+    """
+    def note(f, dur):
+        n = int(sr * dur)
+        t = np.arange(n) / sr
+        # A rounded square: odd harmonics, rolled off - buzzy, not piercing.
+        w = sum(np.sin(2 * np.pi * f * k * t) / k ** 1.4 for k in (1, 3, 5, 7))
+        w *= 1.0 + 0.04 * np.sin(2 * np.pi * 7.0 * t)      # a little wobble
+        env = np.clip(t / 0.008, 0, 1) * np.clip((dur - t) / 0.05, 0, 1)
+        return (w * env).astype(np.float32)
+    a, b = note(330.0, 0.16), note(233.1, 0.30)
+    gap = np.zeros(int(sr * 0.035), np.float32)
+    out = _room(np.concatenate([a, gap, b]), sr)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def verdict_right(sr: int = SR) -> np.ndarray:
+    """The green tick landing: a bright rising chime (a major arpeggio,
+    bell partials) - the "correct" sound, short enough to sit under a word."""
+    out = np.zeros(int(sr * 0.9), np.float32)
+    for i, f in enumerate((1046.5, 1318.5, 1568.0, 2093.0)):
+        k = int(sr * 0.065 * i)
+        n = len(out) - k
+        t = np.arange(n) / sr
+        bell = (np.sin(2 * np.pi * f * t) * _env(n, sr, 0.002, 0.22)
+                + 0.35 * np.sin(2 * np.pi * f * 2.76 * t) * _env(n, sr, 0.001, 0.06)
+                + 0.15 * np.sin(2 * np.pi * f * 5.4 * t) * _env(n, sr, 0.001, 0.025))
+        out[k:] += (bell * (0.8 + 0.1 * i)).astype(np.float32)
+    out = _room(out, sr, 0.2, 0.18)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+def card_drop(sr: int = SR) -> np.ndarray:
+    """A card or tile landing: a short airy whoosh into a soft, low thud.
+
+    **Why (2026-11-23, the OktAI editor: "when we drop each step, add sfx
+    which fits the reveal").** The tiles and steps arrived to `reveal`, a
+    tick made for list items, which reads as typing rather than as a thing
+    set down. Anchored on the thud: the whoosh runs before the cue time.
+    """
+    pre = whoosh(sr, dur=0.22) * 0.35
+    n = int(sr * 0.35)
+    t = np.arange(n) / sr
+    thud = (np.sin(2 * np.pi * 72.0 * t) * _env(n, sr, 0.002, 0.09)
+            + 0.5 * np.sin(2 * np.pi * 144.0 * t) * _env(n, sr, 0.001, 0.04))
+    thud += 0.25 * _noise_transient(n, sr, 0.004)
+    out = np.concatenate([pre[:int(sr * 0.18)], thud]).astype(np.float32)
+    return out / (np.max(np.abs(out)) + 1e-9)
+
+
+CARD_DROP_ANCHOR = 0.18     # the thud, from the clip's start
+
+
+def pip(sr: int = SR, step: int = 0) -> np.ndarray:
+    """One counted unit lighting: a short soft blip, a step higher each time
+    (a major scale), so a count of five climbs."""
+    scale = (0, 2, 4, 5, 7, 9, 11, 12)
+    f = 660.0 * 2 ** (scale[step % len(scale)] / 12 + step // len(scale))
+    n = int(sr * 0.14)
+    t = np.arange(n) / sr
+    out = (np.sin(2 * np.pi * f * t) * _env(n, sr, 0.002, 0.045)
+           + 0.3 * np.sin(2 * np.pi * f * 2 * t) * _env(n, sr, 0.001, 0.02))
+    return (out / (np.max(np.abs(out)) + 1e-9)).astype(np.float32)
+
+
 def mark_tick(sr: int = SR, dur: float = 0.55) -> np.ndarray:
     """A bright two-partial chime for the one item that counts.
 
@@ -359,6 +443,12 @@ def clock_final(sr: int = SR, dur: float = 0.11) -> np.ndarray:
 # four apart.
 LEVELS = {
     "cross": 1.00, "tick": 1.00,
+    # A whole picture marked wrong or right: heard over the bed, under the
+    # word it lands on.
+    "verdict_wrong": 0.55, "verdict_right": 0.50,
+    # A tile or card set down, and a counted unit lighting.
+    "drop": 0.45, "pip0": 0.22, "pip1": 0.22, "pip2": 0.22, "pip3": 0.22,
+    "pip4": 0.22, "pip5": 0.22, "pip6": 0.22, "pip7": 0.22,
     "whoosh": 0.85, "riser": 0.55, "impact": 0.95, "reveal": 0.34,
     "tension": 0.62, "riser_soft": 0.55,
     # The file sounds, peak-normalised before these apply.
@@ -514,12 +604,17 @@ FILE_SFX = {
     "title_flashback": ("title-flashback.mp3", 0.83, "whoosh"),
     # A two-note chime, its first note at 0.05s - the disclaimer notice.
     "notification": ("notification.mp3", 0.05, "reveal"),
+    # The red cross on a wrong picture: the editor's own error sound, two
+    # beeps from 0.02s (2026-11-24: "replace the wrong sfx with the one I
+    # attach"), in place of the synthesized `verdict_wrong`.
+    "verdict_wrong": ("verdict-wrong.mp3", 0.02, "cross"),
 }
 
 # Anchors for the synthesized sounds that do not start on their moment.
 # **Not `whoosh`**: every existing whoosh cue is timed as its start, and
 # anchoring it would shift every transition in every video.
-ANCHOR = {"tension": RISER_DUR, "riser_soft": RISER_DUR}
+ANCHOR = {"tension": RISER_DUR, "riser_soft": RISER_DUR,
+          "drop": CARD_DROP_ANCHOR}
 
 _FILE_CACHE: dict = {}
 
@@ -565,6 +660,9 @@ def mix(track: Path, out: Path, cues: list[tuple[float, str]],
     audio, sr = sf.read(str(track), always_2d=True, dtype="float32")
     peak = float(np.max(np.abs(audio))) or 1.0
     makers = {"cross": mark_cross, "tick": mark_tick, "whoosh": whoosh,
+              "verdict_wrong": verdict_wrong, "verdict_right": verdict_right,
+              "drop": card_drop,
+              **{f"pip{k}": (lambda sr, k=k: pip(sr, k)) for k in range(8)},
               "riser": riser, "impact": impact, "reveal": reveal,
               "tension": tension, "tv_off": tv_off,
               "tv_static": tv_static,

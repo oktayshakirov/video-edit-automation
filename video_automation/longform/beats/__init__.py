@@ -79,6 +79,7 @@ from .diary import Diary
 from .voice import Voice
 from .wall import Wall
 from .phones import Phones
+from .lesson import Lesson  # noqa: E402
 from .mnemonic import Mnemonic
 from .shares import Shares
 from .stake import Stake
@@ -151,6 +152,7 @@ BEATS = {
     "voice": Voice,
     "wall": Wall,
     "phones": Phones,
+    "lesson": Lesson,
 }
 
 # How many things a beat reveals, which is what its `reveals` list has to be as
@@ -189,7 +191,8 @@ _COUNT = {
     # The first ear's line, then the second's with the gap between them.
     "audiogram": lambda p: 2,
     # One card per caption: the camera arrives as each is named.
-    "reel": lambda p: len(p[0]),
+    "reel": lambda p: len(p[4]) if len(p) > 4 and p[4] else len(p[0]),
+    "lesson": lambda p: 1,
     # The card arriving, then its marked line highlighted.
     "post": lambda p: 2,
     # One framing per spoken sentence (the first may be the whole picture).

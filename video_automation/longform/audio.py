@@ -91,15 +91,48 @@ def dip(bed: Path, out: Path, windows: list[tuple],
     return out
 
 
+LOOKAHEAD = 0.08    # s the bed starts ducking before a word does
+
+
+def swell(bed: Path, out: Path, windows: list[tuple], gain: float = 2.0,
+          ramp: float = 0.6) -> Path:
+    """Bring the bed up to `gain` across each window, with cosine ramps -
+    the opening seconds and each chapter's way in, where the music is the
+    point (OktAI, 2026-11-24: "a soft bed, low", up where nothing is said).
+    The sidechain still ducks it under any word inside a window."""
+    import soundfile as sf
+    audio, sr = sf.read(str(bed), always_2d=True, dtype="float32")
+    t = np.arange(len(audio)) / sr
+    env = np.ones(len(audio), np.float32)
+    for a, b in windows:
+        x = np.minimum(np.clip((t - (a - ramp)) / ramp, 0, 1),
+                       np.clip(((b + ramp) - t) / ramp, 0, 1))
+        x = 0.5 - 0.5 * np.cos(np.pi * x)
+        env = np.maximum(env, 1 + (gain - 1) * x)
+    sf.write(str(out), audio * env[:, None], sr)
+    return out
+
+
 def mix_voice_over_bed(bed: Path, voice: Path, out: Path,
                        duration: float, voice_at: float = 0.0) -> Path:
-    """Lay the narration over the bed, ducking the bed under it."""
+    """Lay the narration over the bed, ducking the bed under it.
+
+    **The duck looks ahead** (2026-11-23, the OktAI editor: "AI is cut" on a
+    sentence after a pause). Keyed on the voice itself, the bed only came
+    down 15 ms after a word began, and a soft first syllable lost to the
+    full bed. Both the bed and the voice heard are `LOOKAHEAD` later than
+    the key, and the mix is trimmed by the same amount, so nothing moves.
+    """
+    la = int(LOOKAHEAD * 1000)
     filt = (
         f"[1:a]adelay={int(voice_at * 1000)}|{int(voice_at * 1000)},"
-        f"apad=whole_dur={duration}[vo];"
+        f"apad=whole_dur={duration + LOOKAHEAD}[vo];"
         f"[vo]asplit=2[vo1][key];"
-        f"[0:a][key]sidechaincompress={DUCK}[duck];"
-        f"[duck][vo1]amix=inputs=2:duration=first:normalize=0,"
+        f"[vo1]adelay={la}|{la}[vod];"
+        f"[0:a]apad=whole_dur={duration + LOOKAHEAD},adelay={la}|{la}[bedd];"
+        f"[bedd][key]sidechaincompress={DUCK}[duck];"
+        f"[duck][vod]amix=inputs=2:duration=first:normalize=0,"
+        f"atrim=start={LOOKAHEAD},asetpts=N/SR/TB,atrim=duration={duration},"
         f"alimiter=limit=0.95[out]"
     )
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(bed), "-i", str(voice),

@@ -293,6 +293,9 @@ class Events:
     scrolls: np.ndarray
     draw: bool = False            # a scripted take: no cursor in the picture
     px: float = 1.0               # source pixels per logged point
+    # (t, x, y) of a highlight drawn on the page (`screenplay.mark`): the
+    # camera holds on it like a click, with no ripple.
+    focus: list = field(default_factory=list)
 
     @classmethod
     def load(cls, path: Path, size: tuple[int, int], shift: float = 0.0
@@ -313,7 +316,8 @@ class Events:
                    clicks=[(t + shift, *px(x, y)) for t, x, y in d["clicks"]],
                    keys=np.array(d["keys"], float) + shift,
                    scrolls=np.array(d["scrolls"], float) + shift,
-                   draw=d.get("cursor") == "draw" and len(s) > 0, px=sx)
+                   draw=d.get("cursor") == "draw" and len(s) > 0, px=sx,
+                   focus=[(t + shift, *px(x, y)) for t, x, y in d.get("focus", [])])
 
     def cursor(self, t: float) -> tuple[float, float]:
         if not len(self.t):
@@ -387,7 +391,8 @@ def busy(duration: float, ev: Events | None, mot: dict, fps: int = FPS
     t = np.arange(n) / fps
     on = np.zeros(n, bool)
     if ev is not None:
-        pts = [c[0] for c in ev.clicks] + list(ev.keys) + list(ev.scrolls)
+        pts = ([c[0] for c in ev.clicks] + list(ev.keys) + list(ev.scrolls)
+               + [f[0] for f in ev.focus])
         if len(ev.t) > 1:
             speed = np.hypot(np.diff(ev.x), np.diff(ev.y)) / np.maximum(np.diff(ev.t), 1e-3)
             pts += list(ev.t[1:][speed > 40])          # px/s: the hand is moving
@@ -499,7 +504,7 @@ def targets(src_t: np.ndarray, W: int, H: int, ev: Events | None, mot: dict,
 
     spans: list[list] = []
     if ev is not None:
-        for t, x, y in ev.clicks:
+        for t, x, y in sorted(list(ev.clicks) + list(ev.focus)):
             if spans and t - spans[-1][1] < HOLD and \
                     math.hypot(x - spans[-1][2][0], y - spans[-1][2][1]) < NEAR * W:
                 spans[-1][1] = t + HOLD

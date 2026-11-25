@@ -1988,6 +1988,20 @@ matters, in the brand colour ("Half gone at 7.1s"), the note the line under
 it. A missing clip draws an empty phone, so a draft shows the layout before
 the files exist (`oktai.own` / `fetch_own` for our own published videos).
 
+## `lesson` - the problem, the fix, or a count, on one card (2026-11-23)
+
+`Shot(graphic="lesson", payload=(kind, text, note, value, pips, label))`,
+`kind` one of `problem` (red label), `fix` (green), `learned` or `count`
+(the brand gold). One dark glass card on the ruled ground, as tall as what
+it holds, the video's 3D emblem breaking out over its top-right corner; the
+words arrive one by one, a `count` counts its `value` up with a pip per unit
+(`pips=True` or an emoji). The OktAI editor's note on the plain `stat` - "too
+plain, try a different layout and some sfx, use the dark background with the
+lines" - and on a pull quote with a tick for "Keep the answer for later":
+"a lesson screen, reused where it makes sense; the same screen in another
+version shows the problem, so it fits together". Sounds: the card set down
+(`sfx.card_drop`), a soft mark on a problem or fix label, a rising pip a unit.
+
 ## The 3D emblem, in place of the arcs (2026-11-21)
 
 `stat` and `quote` fill an empty picture column with an emblem. It was four

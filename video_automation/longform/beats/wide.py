@@ -189,7 +189,11 @@ class Logos(Beat):
     is the one thing that would have made this beat worse than the checklist it
     replaces in the crypto-exchanges short.
 
-    payload: (items, title) where items is
+    **`numbered`** (2026-11-24, the editor on the OktAI roadmap: "when we
+    list the cards add also numbers above the cards for the steps like #1,
+    #2"): a gold "#1", "#2"... over each tile, for a lineup that is an order.
+
+    payload: (items, title[, groups[, numbered]]) where items is
     [slug | (slug, label) | (slug, label, ok), ...] and `slug` is either an
     exchange slug resolved under `images/exchanges/` or a path to any image.
     """
@@ -203,9 +207,11 @@ class Logos(Beat):
     DIR = Path.home() / "Coding/crypto-wiki/public/images/exchanges"
 
     def __init__(self, items: list, title: str = "",
-                 groups: list[tuple[str, int]] | None = None, **kw):
+                 groups: list[tuple[str, int]] | None = None,
+                 numbered: bool = False, **kw):
         super().__init__(**kw)
         self.title = title
+        self.numbered = bool(numbered)
         # `groups` is [(heading, count), ...] summing to len(items). It puts a
         # centred heading above each run of tiles and forces a single column,
         # which is what a lineup needs the moment the *split* is the point
@@ -257,19 +263,38 @@ class Logos(Beat):
         # count: the group heading is the thing doing the explaining and a
         # heading over a 2x2 has to be read as covering both cells, which is
         # the ambiguity the grouping exists to remove.
+        # **Never one tile alone on a row** (2026-11-23, the editor: "when
+        # listing socials don't leave just one in a second row - all in one
+        # row, or two rows"). Landscape: up to five in one row, more split
+        # into two even rows (6 = 3+3, 7 = 4+3).
+        def wide(k):
+            return k if k <= 5 else -(-k // 2)
         if self.groups:
-            cols = 1 if self.portrait else min(max(c for _, c in self.groups), 4)
+            cols = 1 if self.portrait else wide(max(c for _, c in self.groups))
         else:
-            cols = (1 if n <= 3 else 2) if self.portrait else min(n, 4)
+            cols = (1 if n <= 3 else 2) if self.portrait else wide(n)
         gap = 40 if not self.portrait else 30
         tw = (usable - gap * (cols - 1)) // cols
+        # One or two badges are not a lineup to fill the frame with: a lone
+        # Claude logo came out 600 px tall and soft (the editor, 2026-11-23:
+        # "too big and the quality is bad that way").
+        if not self.portrait and n <= 2 and not self.groups:
+            tw = min(tw, 560)
         # The cards are all near 16:9 and cropping them would cut the wordmark,
         # so the tile takes the card's own shape and the row takes its height.
         th = int(tw * 9 / 16)
         label_font = _font(46 if self.portrait else 38)
         head_font = _font(54 if self.portrait else 44)
-        lab_h = 60 if any(lab for _, lab, _ in self.items) else 0
+        # A label wider than its tile wraps onto two lines rather than
+        # running into the next one ("3 · THE FIRST SECONDS" in a row of
+        # five, 2026-11-23).
+        lab_lines = [wrap(d, lab.upper(), label_font, tw) if lab else []
+                     for _, lab, _ in self.items]
+        lab_h = (60 + 44 * (max(len(l) for l in lab_lines) - 1)
+                 if any(lab_lines) else 0)
         head_h = 78 if self.groups else 0
+        num_font = _font(56 if self.portrait else 48)
+        num_h = (70 if self.portrait else 62) if self.numbered else 0
 
         # One flat plan of what goes down the frame, so the fit and the draw
         # agree by construction: ("head", label, first_item_index) or
@@ -285,7 +310,7 @@ class Logos(Beat):
             i += count
 
         def measure(t_h):
-            cell = t_h + lab_h
+            cell = num_h + t_h + lab_h
             total = 0
             for k, (kind, _, _) in enumerate(plan):
                 total += head_h if kind == "head" else cell
@@ -303,7 +328,7 @@ class Logos(Beat):
         room = fr.h - top0 - self.margin
         if block > room:
             fixed = sum(head_h for kind, _, _ in plan if kind == "head")
-            fixed += gap * (len(plan) - 1) + lab_h * sum(
+            fixed += gap * (len(plan) - 1) + (lab_h + num_h) * sum(
                 1 for kind, _, _ in plan if kind == "row")
             rows = sum(1 for kind, _, _ in plan if kind == "row")
             th = max(60, int((room - fixed) / max(rows, 1)))
@@ -333,8 +358,11 @@ class Logos(Beat):
                 if e < 0:
                     continue
                 x = (fr.w - row_w) // 2 + c * (tw + gap)
-                ty = y + int(round(RISE * (1.0 - e)))
+                ty = y + num_h + int(round(RISE * (1.0 - e)))
                 a = min(1.0, e)
+                if self.numbered:
+                    d.text((x + tw // 2, ty - 12), f"#{i + 1}", font=num_font,
+                           anchor="md", fill=self.brand.primary + (int(255 * a),))
 
                 # **Raise rather than draw an empty box.** The site has 27
                 # exchange cards and the first build of this beat drew a silent
@@ -371,9 +399,10 @@ class Logos(Beat):
                                         outline=self.brand.primary + (int(255 * a),),
                                         width=3)
                 if lab:
-                    d.text((x + tw // 2, ty + th + 12), lab.upper(),
-                           font=label_font, anchor="ma",
-                           fill=self.brand.ink + (int(230 * a),))
+                    for k, ln in enumerate(lab_lines[i]):
+                        d.text((x + tw // 2, ty + th + 12 + 44 * k), ln,
+                               font=label_font, anchor="ma",
+                               fill=self.brand.ink + (int(230 * a),))
 
                 # Phase two: the verdict, drawn into the tile's top-right on a
                 # black disc so it reads against a card of any colour — Binance
@@ -437,18 +466,41 @@ class Steps(Beat):
     a fixed box to put a square glyph in. **Order is still legible** — the
     track itself is the sequence, which is what it was always for.
 
-    payload: (steps, title) where steps is [text | (text, emoji), ...]
+    **An icon may be a logo file** (`core.logos.path`, 2026-11-23): the
+    OktAI opener's tool chain - each tool on the track in the order it runs,
+    the editor's "make it more visual with lines" for a list read as six
+    logos in a row. **`base`**, `(logo, text)`, is a band under the whole
+    track: the one thing every step runs on - "Claude Code runs every step".
+
+    payload: (steps, title, base) where steps is [text | (text, icon), ...]
     """
 
     EMBLEM = False
     R = 46                      # node radius
 
-    def __init__(self, steps: list, title: str = "", **kw):
+    def __init__(self, steps: list, title: str = "", base: tuple | None = None,
+                 **kw):
         super().__init__(**kw)
         # Normalise to (text, icon-or-None) so both layouts read one shape.
         self.steps = [(s, None) if isinstance(s, str) else (s[0], s[1])
                       for s in steps]
         self.title = title
+        self.base = base
+        self._logos: dict = {}
+
+    def _logo(self, path: str, size: int):
+        """A logo file fitted inside a node, cached per size."""
+        key = (path, size)
+        if key not in self._logos:
+            im = Image.open(path).convert("RGBA")
+            im.thumbnail((size, size), Image.LANCZOS)
+            self._logos[key] = im
+        return self._logos[key]
+
+    @staticmethod
+    def _is_file(icon) -> bool:
+        return isinstance(icon, (str, Path)) and str(icon).lower().endswith(
+            (".png", ".jpg", ".jpeg", ".webp"))
 
     def _node(self, out: Image.Image, d: ImageDraw.ImageDraw, cx: int, cy: int,
               rr: int, i: int, alpha: int, num_font) -> None:
@@ -457,6 +509,14 @@ class Steps(Beat):
                   fill=self.brand.bg + (255,),
                   outline=self.brand.primary + (alpha,), width=4)
         icon = self.steps[i][1]
+        if icon and self._is_file(icon):
+            im = self._logo(str(icon), int(rr * 1.5))
+            if alpha < 255:
+                im = im.copy()
+                im.putalpha(im.getchannel("A").point(
+                    lambda v: v * alpha // 255))
+            out.paste(im, (cx - im.width // 2, cy - im.height // 2), im)
+            return
         if icon:
             from ...core.vertical import emoji_image
             im = emoji_image(icon, int(rr * 1.15), getattr(self, "t_now", None))
@@ -540,10 +600,14 @@ class Steps(Beat):
         label_font, num_font = _font(38), _font(42)
         lw = int(slot - 46)
         wrapped = [wrap(d, s, label_font, lw) for s, _ in self.steps]
+        logos = any(self._is_file(ic) for _, ic in self.steps)
+        rr = int(self.R * 1.35) if logos else self.R
 
-        block = self.R * 2 + 40 + max(len(w) for w in wrapped) * 48
+        base_h = 120 if self.base else 0
+        block = rr * 2 + 40 + max(len(w) for w in wrapped) * 48 + (
+            base_h + 70 if self.base else 0)
         top = max(top0, (fr.h - block) // 2)
-        cy = top + self.R
+        cy = top + rr
 
         # The track first, drawn across as the beat opens, on `open_p` so it
         # glides at the same rate as the nodes that populate it.
@@ -559,7 +623,6 @@ class Steps(Beat):
                 continue
             cx = self.margin + slot * (i + 0.5)
             a = int(255 * min(1.0, ev))
-            rr = self.R
 
             # The node is filled with the page ground, not left transparent —
             # the track runs behind it and a line crossing a numeral is the
@@ -573,6 +636,37 @@ class Steps(Beat):
                 shadow_text(d, (cx - (tb[2] - tb[0]) / 2 - tb[0], ty),
                             ln, label_font, self.brand.ink + (a,), alpha=a)
                 ty += 48
+
+        if self.base:
+            by = cy + rr + 40 + max(len(w) for w in wrapped) * 48 + 60
+            self._base(out, d, x0 - rr, x1 + rr, by, base_h, e)
+
+    def _base(self, out: Image.Image, d: ImageDraw.ImageDraw, x0: float,
+              x1: float, y: int, h: int, e: float) -> None:
+        """The band under the track: what every step runs on. It draws out
+        from the centre with the track, so it reads as the floor the steps
+        stand on, there before any of them."""
+        logo, text = self.base
+        a = int(255 * min(1.0, e * 1.4))
+        if a <= 0:
+            return
+        cx, half = (x0 + x1) / 2, (x1 - x0) / 2 * min(1.0, e * 1.2)
+        d.rounded_rectangle([cx - half, y, cx + half, y + h], radius=h // 2,
+                            fill=self.brand.panel + (int(235 * a / 255),),
+                            outline=self.brand.primary + (a,), width=3)
+        font = _font(46)
+        im = self._logo(str(logo), int(h * 0.62)) if logo else None
+        tw = d.textlength(text, font=font)
+        gap = 22 if im else 0
+        w = tw + (im.width + gap if im else 0)
+        x = cx - w / 2
+        if im and e > 0.5:
+            out.paste(im, (int(x), int(y + (h - im.height) / 2)), im)
+            x += im.width + gap
+        if e > 0.5:
+            tb = d.textbbox((0, 0), text, font=font)
+            d.text((x, y + (h - (tb[3] - tb[1])) / 2 - tb[1]), text, font=font,
+                   fill=self.brand.ink + (a,))
 
 
 class Split(Beat):

@@ -117,3 +117,19 @@ def test_any_channel_can_use_a_take():
     assert spec.src == sp.TAKES / "explorer.mp4"
     assert spec.color == tuple(CRYPTO.primary)
     assert s.window == ("browser", "etherscan.io", "wide") and s.raw
+
+
+def test_ad_slots_are_hidden_on_every_page():
+    """The editor (2026-11-23): "make sure there is no gap from ads" - an
+    unfilled AdSense slot still reserves its box."""
+    from video_automation.core.screenplay import ADS
+    assert "ins.adsbygoogle" in ADS and ".ad-slot" in ADS
+
+
+def test_a_claude_chat_marks_its_prompt():
+    """The prompt is the line the viewer reads: typed under a highlighter
+    (2026-11-24). Other commands keep their digest - no `mark` key."""
+    steps = sp.claude_chat("the opener needs three voices", "Sure.")
+    typed = [s for s in steps if s["do"] == "cmd"]
+    assert typed and typed[0].get("mark") is True
+    assert "mark" not in sp.cmd("ls")

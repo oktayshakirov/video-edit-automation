@@ -130,13 +130,21 @@ MAKERS = {f"sample_{k}": f for k, f in
            "pulsing": pulsing}.items()}
 
 
-def cues(shots, caption_starts: list[float], total: float
-         ) -> list[tuple[float, str]]:
+UNDER_GAIN = 0.6     # a sample under the voice, against its own level
+
+
+def cues(shots, caption_starts: list[float], total: float,
+         under: bool = False) -> list[tuple[float, str]]:
     """One cue per named sample, anchored on its end (`sfx.ANCHOR`).
 
     The next caption after a reveal's own is where the room ends; the sample
     finishes `LEAD` before it. Room shorter than the sample plus `SPOKEN`
     means the sample would sit on the voice, so it says so.
+
+    **`under`: the sample plays under the voice instead** (2026-11-24, the
+    OktAI editor: "in the Shorts, overlap the examples with my voice"). It
+    starts as the next line does, at `UNDER_GAIN` of its level, and the
+    script needs no pause for it.
     """
     out: list[tuple[float, str]] = []
     for sh in shots:
@@ -147,6 +155,16 @@ def cues(shots, caption_starts: list[float], total: float
             if not name:
                 continue
             nxt = next((s for s in caption_starts if s > r + 0.30), total)
+            if under:
+                key = f"sample_{name}"
+                ukey = f"{key}__under"
+                if ukey not in MAKERS:
+                    from . import sfx
+                    MAKERS[ukey] = MAKERS[key]
+                    sfx.ANCHOR[ukey] = DUR[name]
+                    sfx.LEVELS[ukey] = sfx.LEVELS.get(key, 1.0) * UNDER_GAIN
+                out.append((min(total, nxt - 0.35 + DUR[name]), ukey))
+                continue
             room = nxt - LEAD - DUR[name] - r
             if room < SPOKEN:
                 print(f"sample {name} at {r:.1f}s has {room:.2f}s for the "
@@ -167,7 +185,7 @@ def windows(cue_list: list[tuple[float, str]], pad: float = 0.15
     for t, k in cue_list:
         if not k.startswith("sample_"):
             continue
-        name = k[7:]
+        name = k[7:].removesuffix("__under")
         g = BED.get(name, 0.2)
         p = pad if g > 0 else 0.6
         out.append((t - DUR[name] - p, t + p, g))

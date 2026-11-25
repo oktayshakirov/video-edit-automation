@@ -159,6 +159,8 @@ PAYLOADS = {
               "A WEEK - AN EXAMPLE", ("the suspect", "brighter = louder")),
     "breach": ("5,200+ ADDRESSES", 1816, "BTC", 4, "COLDCARD, 2026", "DRAINED",
                "1 square = 25 addresses"),
+    # (kind, text, note, value, pips, label): a count with its pips.
+    "lesson": ("count", "mistakes", "that mattered most", "5", True),
 }
 
 
@@ -337,7 +339,7 @@ def test_every_beat_class_is_registered():
     for fam in ("column", "wide", "scale", "plot", "annotate", "reel", "post",
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
                 "behind", "pile", "lookalike", "airgap", "relay", "breach", "diary",
-                "voice", "wall", "phones",
+                "voice", "wall", "phones", "lesson",
                 "reserve", "honeypot", "tiers"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():

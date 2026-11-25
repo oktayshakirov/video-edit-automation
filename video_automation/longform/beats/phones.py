@@ -39,7 +39,9 @@ class Phones(Beat):
         W, H = self.frame.size
         top = self.heading(out, self.title, f) if self.title else self.head_y
         n = len(self.items)
-        ph = int((H - top - 220) if not self.portrait else H * 0.34)
+        # Landscape leaves the bottom band to the subtitles: the notes under
+        # the phones ran into them (OktAI, 2026-11-23).
+        ph = int((H - top - 300) if not self.portrait else H * 0.34)
         pw = int(ph * 9 / 19.5 + ph * 0.06)
         gap = int(pw * (0.45 if n == 2 else 0.25))
         total = n * pw + (n - 1) * gap

@@ -11,6 +11,10 @@
             overflow: hidden; }
   .ln { min-height: 1.45em; }
   .prompt { color: var(--gold); }
+  /* A highlighter over the line to read: dark type on the gold. */
+  .mark { background: var(--gold); color: #15120a; border-radius: 3px;
+          padding: 1px 4px; -webkit-box-decoration-break: clone;
+          box-decoration-break: clone; }
   .caret { display: inline-block; width: 0.6em; height: 1.15em; margin-bottom: -0.2em;
            background: var(--fg); opacity: 0.85; }
   .think { color: var(--gold); }
@@ -77,9 +81,10 @@ const term = {
       this.scr.removeChild(this.scr.firstChild);
     return d;
   },
-  prompt(p) {
+  prompt(p, mark) {
     this.cur = this._new(`<span class="prompt">${esc(p)}</span>`);
     this.typed = document.createElement("span");
+    if (mark) this.typed.className = "mark";
     this.cur.appendChild(this.typed);
     const c = document.createElement("span"); c.className = "caret";
     this.cur.appendChild(c);

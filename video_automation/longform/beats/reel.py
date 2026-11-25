@@ -31,7 +31,41 @@ same file - and pulls back to the strip. The grid, the other cards, the
 labels, the shadow and the curve all fade with the dive, so the last frame of
 an enter is plain footage.
 
-payload: (items, title, enter, emerge) where items is
+**Cards show footage, not words** (2026-11-23, the editor on the OktAI
+draft: "boxes shouldn't have no image or video and instead a text
+placeholder - show a relevant image or video preview ... cards with text
+don't look that good, only in exceptions where it's the only way"). A text
+card (`media=None`) is the exception: "the same robot voice" is a robot.
+
+**A path through the strip** (2026-11-23, the editor on the OktAI opener:
+"at 1:20 we change visuals like a slideshow ... use the timeline windows and
+go inside them when we mention a different issue, or use that when we
+transition chapters"). `path` lists the cards the camera visits, one per
+reveal: `[0, 1, 2, 3, 4]` walks the strip as each is named (a roadmap);
+`[1, 2]` starts on the last chapter's window and travels to the next on the
+word that names it, the cards after it peeking in. `enter` dives into the
+path's last card. A long travel (`[4, 0]`, back to the first) takes a little
+longer and smears more. Without `path` the camera visits every card in order.
+
+**Options** (2026-11-24, the editor's fifth review of the OktAI opener),
+a dict as the payload's sixth element:
+
+* `lead` - seconds the travel to a stop starts before its word, one number
+  or one per stop. The default 0.10 lands a card ~0.9 s into its phrase; a
+  stop after a written pause can travel in the pause and arrive on its word
+  ("when the transition to the last card comes, continue the voice so it
+  all matches").
+* `labels="over"` - each card's label is plain type over its footage, the
+  way the slop it shows did it ("put them on top of the footage, not as card
+  title, like the real example, just plain text on top"): a scrim band, a
+  gold rule and white type, `clip.VideoShot`'s statement at card size.
+* `travel` - seconds one card-to-card move takes (1.0 on a path).
+* `open` - a zoom under 1 to open on the path's first card from a little
+  further out, with no glide in: a chapter's window starts on itself, the
+  windows already covered beside it with their checks ("no need to show the
+  transition, just zoom out a bit to see the check on the previous one").
+
+payload: (items, title, enter, emerge, path[, options]) where items is
 [(media, label[, offset]), ...]. `media` is an image path, a video path
 (played from `offset` seconds, looping) or None for a text card that shows the
 label large. `title` is an optional kicker, fixed.
@@ -206,10 +240,27 @@ class Reel(Beat):
     EMERGE = 0.90           # the pull back out of the first
 
     def __init__(self, items: list, title: str = "", enter: bool = False,
-                 emerge: bool = False, **kw):
+                 emerge: bool = False, path: list | None = None,
+                 options: dict | None = None, **kw):
         super().__init__(**kw)
         self.items = [_norm(it) for it in items]
         self.title, self.enter, self.emerge = title, bool(enter), bool(emerge)
+        self.path = ([int(i) for i in path] if path
+                     else list(range(len(self.items))))
+        opts = dict(options or {})
+        lead = opts.get("lead", self.LEAD)
+        self.leads = ([float(x) for x in lead] if isinstance(lead, (list, tuple))
+                      else [float(lead)] * len(self.path))
+        self.over = opts.get("labels") == "over"
+        self.open = float(opts["open"]) if opts.get("open") else None
+        self._over = {}
+        # A strip walked on a path is read, not glanced at: slower travel and
+        # a slower dive (the editor, 2026-11-23: "the cards move way too fast
+        # and can't be read").
+        if path:
+            self.TRAVEL, self.ENTER = 1.0, 1.1
+        if "travel" in (options or {}):
+            self.TRAVEL = float(options["travel"])
         W, H = self.frame.size
         # **4:5 cards in 9:16.** A 16:9 card in a tall frame leaves two
         # thirds of a phone screen as empty backdrop; a portrait card fills
@@ -277,14 +328,60 @@ class Reel(Beat):
             self._text[label] = np.asarray(im)
         return self._text[label]
 
+    def _over_layer(self, label: str) -> Image.Image:
+        """A label set over its card's footage (`labels="over"`), drawn once
+        at twice the card's resting size: `clip.VideoShot`'s statement - a
+        scrim band, a gold rule, white Futura over a soft shadow - scaled to
+        the card."""
+        if label not in self._over:
+            from ...core.draw import shadow_text, wrap
+            from ...core.vertical import FONT_CAPTION, FONT_CAPTION_INDEX
+            w, h = self.card_w * 2, self.card_h * 2
+            k = w / 1920
+            im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+            band = int(h * 0.36)
+            ImageDraw.Draw(im).rectangle([0, (h - band) // 2, w, (h + band) // 2],
+                                         fill=(0, 0, 0, 130))
+            d = ImageDraw.Draw(im)
+            size = max(24, int(150 * k))
+            font = ImageFont.truetype(FONT_CAPTION, size, index=FONT_CAPTION_INDEX)
+            lines = wrap(d, label.upper(), font, int(w * 0.86))
+            lh = int(size * 1.22)
+            y = (h - len(lines) * lh) // 2
+            rw = int(260 * k)
+            d.line([(w // 2 - rw, y - int(44 * k)), (w // 2 + rw, y - int(44 * k))],
+                   fill=self.brand.primary, width=max(3, int(6 * k)))
+            for ln in lines:
+                tw = d.textlength(ln, font=font)
+                shadow_text(d, ((w - tw) / 2, y), ln, font, (255, 255, 255),
+                            blur=12 * k, drop=(int(4 * k) + 1, int(6 * k) + 1))
+                y += lh
+            self._over[label] = im
+        return self._over[label]
+
     # --- the camera -----------------------------------------------------
 
     def _times(self) -> list[float]:
-        n = len(self.items)
+        """When the camera arrives at each stop of `path`."""
+        n = len(self.path)
         rv = list(self.reveals or [])
         return [rv[i] if i < len(rv) else
                 self.start + self.hold * (0.12 + 0.8 * i / max(n, 1))
                 for i in range(n)]
+
+    def _card_times(self) -> list[float]:
+        """When each card is named: its first stop on the path; a card
+        before the path's first was named in an earlier reel, one after it
+        not yet."""
+        stops = self._times()
+        first = min(self.path)
+        out = []
+        for i in range(len(self.items)):
+            if i in self.path:
+                out.append(stops[self.path.index(i)])
+            else:
+                out.append(-1e9 if i < first else 1e9)
+        return out
 
     def camera(self, t: float) -> tuple[float, float, float]:
         """(world x at the frame's centre, zoom, immersion 0..1).
@@ -293,16 +390,25 @@ class Reel(Beat):
         fills the frame - and everything that is not that card fades by it.
         """
         e = t - self.start
+        home = self.path[0] * self.pitch
         if self.emerge:
-            cam, zoom = 0.0, 1.0
+            cam, zoom = home, 1.0
+        elif self.open:
+            # On its own card from the first frame, a little further out so
+            # the cards beside it show, easing in toward the dive.
+            push = _smooth(min(1.0, e / max(0.5, self.hold - self.ENTER)))
+            cam, zoom = home, self.open + 0.06 * push
         else:
             # Glide in from the left of the first card as the beat opens.
             g = 1.0 - _smooth(min(1.0, e / 0.9))
-            cam, zoom = -0.45 * self.pitch * g, 1.0 + 0.05 * g
-        for r in self._times()[1:]:
-            p = _smooth((t - (r - self.LEAD)) / self.TRAVEL)
-            cam += self.pitch * p
-            zoom -= self.PULL * math.sin(math.pi * p)
+            cam, zoom = home - 0.45 * self.pitch * g, 1.0 + 0.05 * g
+        for j, r in enumerate(self._times()[1:], start=1):
+            step = self.path[j] - self.path[j - 1]
+            travel = self.TRAVEL * (1.0 + 0.25 * max(0, abs(step) - 1))
+            lead = self.leads[j] if j < len(self.leads) else self.LEAD
+            p = _smooth((t - (r - lead)) / travel)
+            cam += self.pitch * step * p
+            zoom -= self.PULL * min(2, abs(step)) * math.sin(math.pi * p)
         # A slow sway keeps it alive. **Bounded** (2026-11-04): it was a
         # constant 10px/s creep, so on the billionaires Short's 8-card, ~20s
         # reel every card landed further left than the one before - ~200px
@@ -322,7 +428,7 @@ class Reel(Beat):
             q = min(1.0, max(0.0, (t - (self.start + self.hold - self.ENTER))
                              / span))
             ep = q * q
-            last = (len(self.items) - 1) * self.pitch
+            last = self.path[-1] * self.pitch
             cam = cam + (last - cam) * _smooth(q)
             zoom = zoom + (self.fill - zoom) * ep
             imm = max(imm, ep)
@@ -404,7 +510,7 @@ class Reel(Beat):
         cw, ch = self.card_w * zoom, self.card_h * zoom
         cy0 = H * (0.52 if self.title else 0.50)
         cy = cy0 + (H / 2 - cy0) * imm
-        times = self._times()
+        times = self._card_times()
         rad = int(self.radius * zoom * keep)
 
         shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -432,6 +538,27 @@ class Reel(Beat):
             if got is None:
                 continue
             pic, (vx, vy) = got
+            if self.over and m is not None and label and keep > 0.02:
+                # The label as type on the footage, in when its card is named.
+                lp = min(1.0, max(0.0, (t - (times[i] + 0.10)) / 0.42))
+                if lp > 0:
+                    ov = self._over_layer(label).resize(
+                        (max(1, int(cw)), max(1, int(ch))), Image.BILINEAR)
+                    a = (1.0 - (1.0 - lp) ** 2) * keep ** 4
+                    if a < 0.999:
+                        ov.putalpha(ov.getchannel("A").point(lambda v, k=a: int(v * k)))
+                    pic = pic.convert("RGBA")
+                    pic.paste(ov, (int(round(x0 - vx)), int(round(y0 - vy))), ov)
+                    pic = pic.convert("RGB")
+            # **A window already covered reads as done, not as more to read**
+            # (2026-11-24, the editor on the chapter windows: "remove the text
+            # from the previous card ... blurred as if it's reviewed, a visual
+            # indicator and no text, so we focus on the next one"). Only on a
+            # strip walked into (`enter`), where the cards are chapters.
+            done = self.enter and i < self.path[-1]
+            if done:
+                pic = pic.filter(ImageFilter.GaussianBlur(max(4, cw / 40)))
+                pic = Image.eval(pic, lambda v: int(v * 0.45))
             if light < 0.999:
                 pic = Image.eval(pic, lambda v, k=light: int(v * k))
             mask = Image.new("L", pic.size, 0)
@@ -444,9 +571,25 @@ class Reel(Beat):
                                      radius=rad, width=3,
                                      outline=(255, 255, 255,
                                               int(150 * light * keep)))
+            if done and keep > 0.02:
+                # The check: a green ring and tick in the card's middle.
+                r = min(cw, ch) * 0.16
+                ccx, ccy = sx, cy
+                a = int(235 * keep * (0.6 + 0.4 * light))
+                cd.ellipse([ccx - r, ccy - r, ccx + r, ccy + r],
+                           fill=(74, 200, 120, int(a * 0.25)),
+                           outline=(74, 200, 120, a), width=max(3, int(r * 0.12)))
+                w = max(4, int(r * 0.18))
+                pts = [(ccx - r * 0.45, ccy + r * 0.02), (ccx - r * 0.10, ccy + r * 0.36),
+                       (ccx + r * 0.50, ccy - r * 0.32)]
+                cd.line(pts, fill=(74, 200, 120, a), width=w, joint="curve")
+                for x, y in (pts[0], pts[-1]):
+                    cd.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2],
+                               fill=(74, 200, 120, a))
+                continue                    # a done card shows no label
 
             # The label pops when its card is named; a text card has none.
-            if m is not None and label and keep > 0.02:
+            if m is not None and label and keep > 0.02 and not self.over:
                 lp = (t - (times[i] + 0.18)) / 0.32
                 if lp > 0:
                     k = 1.7
@@ -485,6 +628,29 @@ class Reel(Beat):
         out.paste(frame)
 
 
+def sound_cues(sh) -> list[tuple[float, str]]:
+    """A reel's sounds: a pan whoosh as the camera leaves for a card - when
+    its travel starts, so a stop with a long `lead` whooshes in the pause -
+    and a tick as a card is first named. A stop on the card already shown
+    ("over and over" on the template) moves nothing and makes no sound."""
+    pl = tuple(sh.payload) + ("", False, False, None, None)[len(sh.payload) - 1:]
+    items, path, opts = pl[0], pl[4], dict(pl[5] or {})
+    # Without a path every reveal is the next card, as it always sounded.
+    path = ([int(i) for i in path] if path
+            else list(range(max(len(items), len(sh.reveals or [])))))
+    lead = opts.get("lead", Reel.LEAD)
+    leads = ([float(x) for x in lead] if isinstance(lead, (list, tuple))
+             else [float(lead)] * len(path))
+    cues, seen = [], set()
+    for j, t in enumerate((sh.reveals or [])[:min(12, len(path))]):
+        if j and path[j] != path[j - 1]:
+            cues.append((t - (leads[j] if j < len(leads) else Reel.LEAD) - 0.02, "pan"))
+        if path[j] not in seen:
+            cues.append((t + 0.20, "reveal"))
+            seen.add(path[j])
+    return cues
+
+
 def _clip_seconds(path) -> float:
     cap = cv2.VideoCapture(str(path))
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
@@ -507,13 +673,16 @@ def link_reels(shots) -> None:
     for i, sh in enumerate(shots):
         if sh is None or sh.graphic != "reel":
             continue
-        pl = tuple(sh.payload) + ("", False, False)[len(sh.payload) - 1:]
-        items, title, enter, emerge = list(pl[0]), pl[1], pl[2], pl[3]
+        pl = tuple(sh.payload) + ("", False, False, None, None)[len(sh.payload) - 1:]
+        items, title, enter, emerge, path, opts = (list(pl[0]), pl[1], pl[2], pl[3],
+                                                   pl[4], pl[5])
         norm = [_norm(it) for it in items]
+        last = path[-1] if path else len(norm) - 1
+        first = path[0] if path else 0
         if enter and i + 1 < len(shots) and shots[i + 1] is not None:
             nxt = shots[i + 1]
             sh.xfade, sh.transition = 0.0, None
-            m, _, off = norm[-1]
+            m, _, off = norm[last]
             if (m is not None and nxt.clip is not None
                     and Path(nxt.clip) == Path(m)):
                 at = off + sh.hold
@@ -522,8 +691,8 @@ def link_reels(shots) -> None:
         if emerge and i > 0 and shots[i - 1] is not None:
             prv = shots[i - 1]
             prv.xfade, prv.transition = 0.0, None
-            m, lab, off = norm[0]
+            m, lab, off = norm[first]
             if (m is not None and prv.clip is not None
                     and Path(prv.clip) == Path(m)):
-                norm[0] = (m, lab, prv.clip_at + prv.hold)
-        sh.payload = (norm, title, enter, emerge)
+                norm[first] = (m, lab, prv.clip_at + prv.hold)
+        sh.payload = (norm, title, enter, emerge, path) + ((opts,) if opts else ())

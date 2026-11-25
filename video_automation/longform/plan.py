@@ -39,6 +39,19 @@ class Section:
     read badly aloud. Same escape hatch the narration builder's `(caption,
     spoken)` pairs give every other line.
 
+    **`lead` - the chapter named inside a sentence** (2026-11-23, the
+    editor's note on the first recorded OktAI cut: "the parts where I read
+    just the chapter's name should be a sentence flowing naturally from the
+    one before, with no breaks; when I say the key word, show the title").
+    A title read on its own was followed by a sentence that said it again -
+    "The voice. And now the voice" - and a pause either side. With `lead`
+    the head of the section is that sentence, as captions (`("The second
+    mistake", "was the music.")`); the chapter card comes up on the caption
+    that holds the title's words (or the last), and the picture before it
+    holds until then. `lead_shot` replaces the card - a `reel` that travels
+    to the chapter's window on the word and dives in. `lead_gap` is the pause
+    after it: a sentence in the flow, not the card's held beat.
+
     `number` draws a big numeral above the card's rule — for a video that is
     explicitly counting things ("myth one", "myth two"), a bare question
     reads as one more chapter, and the editor's note was to put the count on
@@ -58,6 +71,9 @@ class Section:
     gaps: list[float] | None = None     # per-sentence override
     gap: float = GAP
     card_gap: float = CARD_GAP
+    lead: tuple | None = None
+    lead_shot: Shot | None = None
+    lead_gap: float = 0.5
 
     def __post_init__(self):
         if len(self.shots) != len(self.sentences):
@@ -80,7 +96,15 @@ class Section:
         shots = list(self.shots)
         gaps = (list(self.gaps) if self.gaps is not None
                 else [self.gap] * len(self.sentences))
-        if self.card:
+        if self.card and self.lead is not None:
+            lead = tuple(self.lead)
+            sents.insert(0, lead)
+            shots.insert(0, self.lead_shot or Shot(
+                graphic="chapter", cue=self.cue(),
+                payload=(self.title, self.number, None, None,
+                         self.kicker or None)))
+            gaps.insert(0, self.lead_gap)
+        elif self.card:
             spoken = self.spoken_title or self.title
             # The caption is the title as written; the spoken half may differ.
             sents.insert(0, ((self.title, spoken),))
@@ -90,6 +114,20 @@ class Section:
                                           self.kicker or None)))
             gaps.insert(0, self.card_gap)
         return sents, shots, gaps
+
+    def cue(self) -> int:
+        """The caption of `lead` that says the title: the first holding all
+        of the title's words, else the last caption."""
+        import re
+
+        def words(x):
+            x = x if isinstance(x, str) else x[1]
+            return re.findall(r"[a-z0-9']+", x.lower())
+        want = set(words(self.title))
+        for k, chunk in enumerate(self.lead):
+            if want and want <= set(words(chunk)):
+                return k
+        return len(self.lead) - 1
 
 
 def flatten(sections: list[Section]) -> tuple[list, list[Shot], list[float]]:
@@ -181,7 +219,19 @@ def reveal_times(shot: Shot, starts: list[float], count: int) -> None:
     and this needs no tuning — the rule the shorts' checklist established.
     """
     if shot.reveals is None:
-        shot.reveals = (starts + [starts[-1]] * count)[:count]
+        if count <= len(starts):
+            shot.reveals = starts[:count]
+            return
+        # **More items than captions: the rest one by one, not all on the
+        # last caption** (2026-11-24, the OktAI editor: "we show one icon,
+        # then all three at once - either list them one by one or show all
+        # at once; this happens often in our animations"). They follow the
+        # last caption at a steady step, done well before the shot ends.
+        extra = count - len(starts)
+        base = starts[-1]
+        end = shot.start + shot.hold - 0.6 if shot.hold else base + 2.0
+        step = max(0.25, min(0.55, (end - base) / (extra + 1)))
+        shot.reveals = starts + [base + step * (k + 1) for k in range(extra)]
 
 
 SPEAK_LAST = 0.95       # room left for the final item to actually be read
@@ -218,6 +268,10 @@ def style_chapters(shots: list, style: str | None) -> None:
     k = 0
     for sh in shots:
         if sh is not None and sh.graphic == "chapter":
-            k += 1
             pl = tuple(sh.payload) + (None,) * (5 - len(sh.payload))
+            # A card that names its own style is a headline the script set
+            # by hand ("AI slop.", 2026-11-23), not a numbered chapter.
+            if pl[2]:
+                continue
+            k += 1
             sh.payload = (pl[0], pl[1], style, k, pl[4])

@@ -41,6 +41,7 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
 | Before writing a line | `docs/video/narration.md`, `docs/video/projects/oktai.md` |
 | The long form / the Short | `docs/video/longform.md`, `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
+| Tools shared with crypto and tinnitus (cut-outs of his photo, animated emoji, ...) | `docs/video/toolbox.md` |
 | Real pages and footage | `docs/video/footage.md` (`screencap`, `window=`) |
 | Covers | `docs/video/thumbnails.md` |
 
@@ -93,7 +94,15 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
    (`Shot(verdict=)`), not just named. For this channel:
    the real screen (his recording, `screencap` of a public page), then a
    beat, then stock. A new beat when the library cannot draw the subject is
-   part of the run.
+   part of the run. **The picture rules** (`projects/oktai.md`, "The
+   picture rules from the third draft"): cards show footage, never a text
+   placeholder; our own videos sit in a `("youtube", ...)` window with
+   their real views; some screens are Claude Code chats
+   (`screenplay.claude_chat`); text screens are `"headline"` cards; a list
+   of five is a row of tiles, not a fast strip. **The script** (`"Writing
+   for him"`): problem, stake, a counted promise; chapters named inside a
+   sentence (`Section.lead`); every example introduced; "I", plain short
+   sentences; "Claude made it" where Claude did.
 5. **Check, then draft.** `tools/script_check.py`, `tools/opening_check.py`
    and `tools/retention_check.py` on both files; fix or explain every flag.
    Then a **draft render** of both (`build_long(..., draft=True)` /
@@ -106,34 +115,75 @@ name, the formats, the topic slate, the look, and section 7 (links). Then
    button) and `<name>-script.txt`. Send the Desktop `.html` with
    SendUserFile, list any `[CHECK]` questions, say where to save the files
    (`long.mov`, `short.mov`, or `long.m4a` + `long-cam.mov` for a separate
-   mic), and **stop**. Nothing else is his to record. The next part starts when the
+   mic), give him **the recording setup** (`projects/oktai.md`,
+   "Recording"; his first take was echoey and boomy, 2026-11-24): mic
+   10-15 cm away (5-10 for a dynamic mic), aimed at the mouth from slightly
+   to the side, gain up until the loudest words peak near -10 dBFS,
+   something soft behind the mic and on the desk; pickups in the same
+   place, distance and gain. Then **stop**. Nothing else is his to record. The next part starts when the
    recordings arrive.
 
 ### Part 2 - the recordings arrive
 
 7. **Put them in place** - copy what he sends into `~/Movies/OktAI/<name>/`
-   under the names above. **Check the voice recordings first**:
-   `tools/oktai_recording_check.py <file>`. A clipping peak, a noisy room
+   under the names above (`cp -c`, an APFS clone: no second copy on a full
+   disk). **One file with both scripts** (read top to bottom off the script
+   page) is `recording.*`; find where the Short starts in its transcript and
+   set `WINDOW` in both project files (`projects/oktai.md`, "Recording").
+   **Check the voice recordings first**:
+   `tools/oktai_recording_check.py <file>` (it now also flags low gain and
+   the room's echo after words - "room after words", dry under -20 dB). A clipping peak, a noisy room
    or a missing face is cheaper to re-record now than to hide later; say
    exactly what to change.
 8. **Build both** - the project files' `main()` call `build_long` /
    `build_short` without `draft`, which finds the recordings, transcribes
    them locally, keeps the last good take of each line, cuts the rest, and
-   adds the camera box (`docs/video/projects/oktai.md`).
+   adds the camera box (`docs/video/projects/oktai.md`). Then **the chapter
+   Shorts**: one per chapter, cut from the long form with `oktai.from_long`
+   (same intro, one chapter, its fix last) - nothing new to record
+   (`projects/oktai.md`, "Shorts from the long form"). Listen to every
+   build by transcription against the script before handing it over; a
+   take the matching spliced is pinned (`pins=`), a word to lose is
+   dropped (`drops=`). Lines added after a take go in `PICKUPS`: the
+   script page lists them first, he reads them into `pickups.mov`, and the
+   build joins it onto the take, shaped to the take's tone after the gap
+   clean-up (`recorded.match_pickups`). A pickup whose voice still differs
+   is cut, not kept; the camera box never comes from a pickup.
+   **The review loop is by part** (2026-11-25): a change he wants to judge
+   first is rendered alone - `tools/oktai_preview.py <name> --section N
+   --from A --to B` writes `~/Desktop/<name>-preview.mp4` at the full
+   video's voice speed in a minute - and the full seven are built once he
+   says go. A sound question is answered with short A/B samples on his
+   Desktop (the same lines through each chain, the same loudness), never
+   by guessing.
 9. **Read the reports** - `<file>.<hash>.report.txt` next to each
    recording. A line he said differently: if it is as good, **change the
    script to what he said** and rebuild (the captions follow the script);
    if it is wrong, give him the line numbers to re-read - a re-read of
-   only those lines, in a new file, is enough to splice in later.
-10. **Look before handing over**: frames at every cut the report flagged,
-    every camera-box entry and exit, the first eight seconds, the last line.
+   only those lines, in a new file, is enough to splice in later. Before
+   blaming him for a `!` line, check it is not Whisper: cut the take out
+   with ffmpeg and transcribe it on its own - out of context Whisper hears
+   it right ("a bit feels a lot" was "a beat feels alive", 2026-11-22). A
+   take whose span is far longer than its words holds a stumble: look at
+   the words in it before building.
+10. **Look and listen before handing over**: `tools/hear_check.py` on every
+    video (the transcript against its own subtitles; check a flag on the
+    line alone and on the raw take before calling it a fault), and
+    `tools/frame_sheet.py` at every cut the report flagged, every
+    camera-box entry and exit, the first eight seconds, the last line and
+    every timestamp he named. A screen take renders once per script: after
+    changing how takes are recorded, delete its capture so it is taken
+    again.
     Covers per `thumbnails.md`, his face cut out where it helps (never a
     stock face). The description: links from `LINKS` with each program's
     disclosure (plan, section 7); a missing referral URL is a placeholder
     he is told about, never invented.
 11. **Hand over, re-cut, then commit and log** - `workflow.md` steps 4-5,
-    `tools/video_log.py` on the pair. Publishing is `/publish-video`; the
-    OktAI accounts are not connected yet - say so instead of trying.
+    `tools/video_log.py` on the pair. Publishing is `/publish-video`.
+    Then clean up: test renders and previews, Desktop copies of recordings
+    already in `~/Movies/OktAI/<name>/`, superseded takes, old report and
+    edit sidecars, old screen renders - to the Trash via Finder, keeping
+    the take, the pickups and the finished videos.
 12. **Leave the skill better.** Every note becomes a dated rule in the
     narrowest doc (`projects/oktai.md` for this channel), a check in code
     when it can be one, and an edit to this file when the run itself missed

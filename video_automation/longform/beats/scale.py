@@ -38,7 +38,13 @@ class Bars(Beat):
     four reads as a fault. Reserving the column costs a few percent of every
     bar, which is invisible because bars are read against each other.
 
+    **A label can carry a note** - `(label, note)`: a quote and the question
+    it answered (2026-11-24, the OktAI opener's Shorts: "next to the quote
+    write the answer simplified"). The note is grey after the label in
+    16:9, on its own line under it in 9:16.
+
     payload: (rows, title) where rows is [(label, fraction, value_text), ...]
+    and label is text or (text, note)
     """
 
     EMBLEM = False
@@ -72,7 +78,10 @@ class Bars(Beat):
         if vw:
             w -= int(vw) + 44
         n = len(self.rows)
-        pitch = 132
+        notes = any(isinstance(r[0], tuple) for r in self.rows)
+        note_font = _font(36 if self.portrait else 34)
+        below = 50 if (notes and self.portrait) else 0   # a note's own line
+        pitch = 132 + below
         top = max(top + 20, (self.frame.h - n * pitch) // 2)
 
         for i, (label, frac, value) in enumerate(self.rows):
@@ -85,9 +94,17 @@ class Bars(Beat):
             # its tip tracks the voice instead of racing ahead of it.
             g = self.span_p(i, f, lead=0.06, cap=1.6)
 
+            label, note = label if isinstance(label, tuple) else (label, "")
             shadow_text(d, (x, y), label, label_font, self.brand.ink)
+            if note:
+                grey = (150, 150, 160)
+                if self.portrait:
+                    shadow_text(d, (x, y + 52), note, note_font, grey)
+                else:
+                    nx = x + d.textlength(label, font=label_font) + 22
+                    shadow_text(d, (nx, y + 5), "-  " + note, note_font, grey)
 
-            by = y + 58
+            by = y + 58 + below
             bh = 30
             # The track, so an unfilled bar still reads as "out of something".
             d.rectangle([x, by, x + w, by + bh], fill=(255, 255, 255, 26))

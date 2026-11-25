@@ -28,6 +28,12 @@ did.
   time. The text is the recording's caption, top left.
 * `terminal` - a dark title bar and a prompt line typed over the picture's
   top. The text is the command; it types on over the first 40% of the shot.
+* `youtube` - one of our own videos as it sits on its watch page: the
+  picture, a red progress line, the title in bold, the channel's avatar and
+  name, the real views (2026-11-23, the editor: "in screens with examples,
+  put it into a player, or even make it look like a YouTube video with title
+  and views"). `("youtube", title, "Crypto Wiki · 16 views · 2 months
+  ago", avatar_png)` - real numbers only, read on the day.
 
 The window drifts from 96.5% to 100% of its size over the shot, eased, so a
 held window is never a dead frame. The backdrop is the brand's own loop
@@ -37,6 +43,7 @@ held window is never a dead frame. The backdrop is the brand's own loop
 from __future__ import annotations
 
 import math
+from pathlib import Path
 from dataclasses import dataclass
 
 import cv2
@@ -48,7 +55,10 @@ from .brand import CRYPTO, Brand
 from .draw import ease_out
 from .frame import Frame
 
-KINDS = ("browser", "player", "terminal")
+KINDS = ("browser", "player", "terminal", "youtube")
+YT_PAGE = (15, 15, 15)         # the watch page's dark ground
+YT_RED = (255, 0, 51)
+BOLD = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
 
 SANS = "/System/Library/Fonts/SFNS.ttf"
 MONO = "/System/Library/Fonts/SFNSMono.ttf"
@@ -138,6 +148,20 @@ def layout(frame: Frame, wide: bool = False) -> Layout:
     return Layout(x, y, w, bar, ch, radius=max(10, int(w * 0.014)))
 
 
+def youtube_layout(frame: Frame) -> Layout:
+    """The watch page: a 16:9 picture and an info band under it (title,
+    channel, views), the whole centred. `bar` is the info band."""
+    if frame.w >= frame.h:
+        w = int(frame.w * 0.60)
+    else:
+        w = int(frame.w * 0.90)
+    ch = int(w * 9 / 16)
+    bar = int(w * 0.165)
+    y = max(frame.safe_top + 10 if frame.h > frame.w else 0,
+            (frame.h - ch - bar) // 2)
+    return Layout((frame.w - w) // 2, y, w, bar, ch, radius=max(10, int(w * 0.016)))
+
+
 def _rounded_mask(w: int, h: int, r: int) -> np.ndarray:
     m = Image.new("L", (w, h), 0)
     ImageDraw.Draw(m).rounded_rectangle([0, 0, w - 1, h - 1], radius=r, fill=255)
@@ -164,7 +188,11 @@ class WindowShot:
         self.kind, self.text = parse(spec)
         self.inner, self.start, self.hold = inner, start, hold
         self.frame, self.brand = frame, brand
-        self.L = layout(frame, wide=is_wide(spec))
+        extra = [] if isinstance(spec, str) else list(spec[2:])
+        self.meta = str(extra[0]) if self.kind == "youtube" and extra else ""
+        self.avatar = extra[1] if self.kind == "youtube" and len(extra) > 1 else None
+        self.L = (youtube_layout(frame) if self.kind == "youtube"
+                  else layout(frame, wide=is_wide(spec)))
         L = self.L
         self.bg = _backdrop.get(brand.backdrop)
         self.mask = _rounded_mask(L.w, L.h, L.radius)
@@ -198,6 +226,8 @@ class WindowShot:
         L = self.L
         im = Image.new("RGB", (L.w, L.h), CHROME)
         d = ImageDraw.Draw(im)
+        if self.kind == "youtube":
+            return self._watch_page()
         if self.kind == "player":
             # The control strip is under the content; the bar's space is it.
             top = L.ch
@@ -231,6 +261,51 @@ class WindowShot:
                    font=self.mono, fill=DIM)
         return im
 
+    def _watch_page(self) -> Image.Image:
+        """The info band of a YouTube watch page, in its dark mode: the
+        title in bold, then the channel's round avatar, its name and the
+        views. Drawn once; the picture and its progress line go on top."""
+        L = self.L
+        im = Image.new("RGB", (L.w, L.h), YT_PAGE)
+        d = ImageDraw.Draw(im)
+        pad = L.w * 0.022
+        title_f = _font(BOLD, max(16, int(L.bar * 0.18)))
+        meta_f = _font(SANS, max(13, int(L.bar * 0.16)))
+        y = L.ch + L.bar * 0.13
+        d.text((pad, y), _fit(self.text, title_f, L.w - 2 * pad), font=title_f,
+               fill=(241, 241, 241))
+        r = L.bar * 0.19
+        cy = L.ch + L.bar * 0.66
+        ax = pad + r
+        if self.avatar and Path(self.avatar).exists():
+            av = Image.open(self.avatar).convert("RGBA").resize(
+                (int(2 * r), int(2 * r)), Image.LANCZOS)
+            m = Image.new("L", av.size, 0)
+            ImageDraw.Draw(m).ellipse([0, 0, av.width - 1, av.height - 1], fill=255)
+            im.paste(av, (int(ax - r), int(cy - r)), m)
+        else:
+            d.ellipse([ax - r, cy - r, ax + r, cy + r], fill=self.brand.primary)
+        bb = d.textbbox((0, 0), "Hg", font=meta_f)
+        d.text((ax + r * 1.6, cy - (bb[1] + bb[3]) / 2),
+               _fit(self.meta, meta_f, L.w - ax - r * 2.6 - pad), font=meta_f,
+               fill=(170, 170, 170))
+        return im
+
+    def _yt_progress(self, win: np.ndarray, f: float) -> None:
+        """YouTube's red line along the picture's foot, filling with the
+        shot, and its scrubber dot."""
+        L = self.L
+        band = Image.fromarray(win[L.ch - int(L.bar * 0.12):L.ch + 2])
+        d = ImageDraw.Draw(band)
+        y = band.height - 4
+        th = max(3, int(L.w * 0.0035))
+        d.rectangle([0, y - th, L.w, y], fill=(90, 90, 90))
+        fx = L.w * (0.18 + 0.5 * f)
+        d.rectangle([0, y - th, fx, y], fill=YT_RED)
+        r = th * 2.2
+        d.ellipse([fx - r, y - th / 2 - r, fx + r, y - th / 2 + r], fill=YT_RED)
+        win[L.ch - int(L.bar * 0.12):L.ch + 2] = np.asarray(band)
+
     # -- per frame ---------------------------------------------------------
 
     def _content(self, f: float) -> np.ndarray:
@@ -258,9 +333,11 @@ class WindowShot:
         L = self.L
         win = np.array(self.chrome)
         content = self._content(f)
-        top = 0 if self.kind == "player" else L.bar
+        top = 0 if self.kind in ("player", "youtube") else L.bar
         win[top:top + L.ch] = content
-        if self.kind == "player":
+        if self.kind == "youtube":
+            self._yt_progress(win, f)
+        elif self.kind == "player":
             self._strip(win, f)
         elif self.kind == "terminal" and self.text:
             self._prompt(win, f)

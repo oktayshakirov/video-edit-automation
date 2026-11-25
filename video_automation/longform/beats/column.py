@@ -50,7 +50,9 @@ class ChapterCard(Beat):
     frame, and left-aligned type in an empty 16:9 frame reads as a slide with a
     missing bullet list.
 
-    payload: (title,) or (title, number)
+    payload: (title,) or (title, number); with a style, `(title, number,
+    style, index, label)` - "headline" is a hand-set statement: typed, no
+    rule, no film dust.
     """
 
     # **Arial Black, the thumbnail's face, not the caption face.** The editor's
@@ -91,6 +93,11 @@ class ChapterCard(Beat):
         d = ImageDraw.Draw(out)
         w = self.frame.w - 2 * self.margin
         size = self.SIZE_PORTRAIT if self.portrait else self.SIZE
+        if self.style == "headline":
+            # A main screen's words, set large ("Thanks for watching" as the
+            # end screen, 2026-11-23: "with big letters in the center") - less
+            # so in 9:16, where a short line already fills the width.
+            size = int(size * (1.15 if self.portrait else 1.5))
         font = _display(size)
         lines = wrap(d, self.title, font, w)
 
@@ -113,12 +120,19 @@ class ChapterCard(Beat):
         # caret travelling along a line that is also sliding up reads as two
         # animations fighting; the rule and the numeral still settle.
         y = (self.frame.h - block - extra) // 2 + extra
+        if self.style == "headline":
+            # Above the camera box: bottom right in 16:9, bottom centre in 9:16.
+            y -= int(self.frame.h * 0.08)
 
         # A short rule above the line, opening outward from the centre as the
         # card settles. It gives the eye something to follow through a beat that
         # is otherwise a static piece of type, and it centres the composition
         # without needing a second line of text to balance it.
-        rule_w = int(180 * e)
+        # **"headline"**: a statement the script sets by hand ("AI slop."),
+        # polished - no rule over it (the editor, 2026-11-23: "in screens
+        # where we show text, remove the line over the text"), and no film
+        # dust (`filmfx.kind`).
+        rule_w = 0 if self.style == "headline" else int(180 * e)
         rule_y = y - 54
         if rule_w > 2:
             cx = self.frame.w // 2
@@ -679,18 +693,28 @@ class Stat(Beat):
     attention. Use it for the number the script actually wants to land, not for
     every number in the paragraph.
 
-    payload: (value, label, note)
+    **`pips` - the count made visible** (2026-11-23, the editor on "3 / I
+    stopped one cut": "this screen with the number and vector needs to be
+    improved, it's too plain"). A row of chips under the note, one per unit
+    of a whole number up to 30, each lighting as the count passes it - three
+    pause marks for three stops, twenty-five tags for twenty-five labels.
+    `True` draws plain chips; an emoji puts it in each.
+
+    payload: (value, label, note[, count, pips])
     """
 
     COUNT = 0.75                # how long a numeric value takes to count up
     VALUE_PX = 200              # the value's size when it fits the column
     VALUE_MIN = 96              # ...and the floor it will shrink to to fit
     EMBLEM = True
+    PIP = 64                    # a chip's side at 1080p
+    PIP_ROW = 13                # chips per row before wrapping
 
     def __init__(self, value: str, label: str = "", note: str = "",
-                 count: bool = True, **kw):
+                 count: bool = True, pips=None, **kw):
         super().__init__(**kw)
         self.value, self.label, self.note = value, label, note
+        self.pips = pips
         self._px: int | None = None     # fitted lazily, once, in `_value_px`
         # A value that is *mostly* digits counts up; one that is a word does
         # not. Splitting on that rather than on a flag means a script never has
@@ -754,7 +778,8 @@ class Stat(Beat):
         a resize animation nobody asked for on top of the count.
         """
         if self._px is None:
-            size = self.VALUE_PX
+            # With pips the number leads a fuller frame: set larger.
+            size = int(self.VALUE_PX * 1.3) if self.pips else self.VALUE_PX
             while size > self.VALUE_MIN and d.textlength(
                     self.value, font=_font(size)) > w:
                 size -= 4
@@ -779,12 +804,49 @@ class Stat(Beat):
                     self._value(f), big, self.brand.primary,
                     blur=12, drop=(5, 7))
 
+        ny = y + int(self._value_px(d, w) * 1.25)
         if self.note:
             note_font = _font(46)
-            ny = y + int(self._value_px(d, w) * 1.25)
             for ln in wrap(d, self.note, note_font, w):
                 shadow_text(d, (x, ny), ln, note_font, self.brand.ink)
                 ny += int(46 * 1.34)
+        if self.pips:
+            self._pips(out, x, ny + 34, f)
+
+    def _pips(self, out: Image.Image, x: int, y: int, f: float) -> None:
+        """One chip per unit, lit in step with the count."""
+        bare = self.value.strip().replace(",", "")
+        if not bare.isdigit() or not 1 < int(bare) <= 30:
+            return
+        n = int(bare)
+        start = self.reveals[0] if self.reveals else self.start
+        t = self.at(f)
+        s = (int(self.PIP * 1.6) if n <= 6 else self.PIP if n <= self.PIP_ROW
+             else int(self.PIP * 0.86))
+        gap = int(s * 0.28)
+        d = ImageDraw.Draw(out, "RGBA")
+        icon = self.pips if isinstance(self.pips, str) else None
+        for i in range(n):
+            r, c = divmod(i, self.PIP_ROW)
+            px, py = x + c * (s + gap), y + r * (s + gap)
+            lit = (t - start) - self.COUNT * (i + 1) / n
+            a = max(0.0, min(1.0, lit / 0.18 + 1.0))
+            pop = 1.0 + 0.18 * math.sin(math.pi * max(0.0, min(1.0, a)))
+            half = s * pop / 2
+            cx, cy = px + s / 2, py + s / 2
+            # Unlit: an outline waiting to fill. Lit: the brand colour.
+            d.rounded_rectangle([cx - half, cy - half, cx + half, cy + half],
+                                radius=int(s * 0.24),
+                                fill=self.brand.primary + (int(40 + 60 * a),),
+                                outline=self.brand.primary + (int(90 + 165 * a),),
+                                width=3)
+            if icon and a > 0:
+                from ...core.vertical import emoji_image
+                im = emoji_image(icon, int(s * 0.62), getattr(self, "t_now", None))
+                if a < 1:
+                    im = im.copy()
+                    im.putalpha(im.getchannel("A").point(lambda v: int(v * a)))
+                out.paste(im, (int(cx - im.width / 2), int(cy - im.height / 2)), im)
 
 
 class Compare(Beat):

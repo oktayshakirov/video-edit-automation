@@ -1,7 +1,11 @@
 """`voice`: voices compared by ear - each row a voice, its waveform playing
 as its example plays (2026-11-21, the OktAI opener).
 
-payload: (rows,) with rows = [(label, note, sample), ...]
+payload: (rows[, footnote]) with rows = [(label, note, sample), ...]
+
+`footnote` is one small line at the bottom, under everything and above the
+captions: "*Both are text-to-speech voices reading the same script" (the
+editor, 2026-11-24: "add *disclaimer on the bottom with small font").
 
 `sample` is a name registered with `core.samples.register` (the audio file
 of that voice reading a line), played in the pause after the row's sentence
@@ -29,9 +33,10 @@ BARS = 64
 
 class Voice(Beat):
 
-    def __init__(self, rows, **kw):
+    def __init__(self, rows, footnote: str = "", **kw):
         super().__init__(**kw)
         self.rows = [tuple(r) + (None,) * (3 - len(r)) for r in rows]
+        self.footnote = footnote
         self.env = [self._envelope(r[2]) for r in self.rows]
 
     @staticmethod
@@ -70,6 +75,29 @@ class Voice(Beat):
             top = int((H - row_h * n) / 2)
         t = self.at(f)
         big, small = _font(84 if self.portrait else 58), _font(42 if self.portrait else 30)
+        lw = int(full * 0.42)
+        if not self.portrait:
+            # The text column is as wide as its longest line, and the font
+            # shrinks before it runs into the waveform: "That's where the
+            # money goes." ran across its strip (2026-11-22, his note).
+            size = 58
+            while size > 36:
+                big = _font(size)
+                widest = max(max(d.textlength(r[0], font=big),
+                                 d.textlength(r[1] or "", font=small)) for r in self.rows)
+                if widest + 48 <= full * 0.55:
+                    break
+                size -= 4
+            lw = max(lw, int(widest + 48))
+        else:
+            # In 9:16 the label runs the full width above its waveform, so it
+            # shrinks to fit that ("That's where the money goes." ran off the
+            # right edge of a chapter Short, 2026-11-23).
+            size = 84
+            while size > 44 and max(d.textlength(r[0], font=_font(size))
+                                    for r in self.rows) > full:
+                size -= 4
+            big = _font(size)
         for i, (label, note, _) in enumerate(self.rows):
             p = self.due(i, n, f)
             if p < 0:
@@ -85,11 +113,21 @@ class Voice(Beat):
                 d.text((x0, y + 100), note, font=small, fill=(150, 150, 160, a))
                 strip = (x0, y + 170, full, 170)
             else:
-                lw = int(full * 0.42)
                 d.text((x0, y + 30), label, font=big, fill=(*col, a))
                 d.text((x0, y + 108), note, font=small, fill=(150, 150, 160, a))
                 strip = (x0 + lw, y + 20, full - lw, row_h - 70)
             self._strip(d, strip, i, t, p)
+        if self.footnote:
+            # Small and grey, clear of the captions (which sit at ~0.91 of
+            # the frame in 16:9, ~0.70 in 9:16).
+            fy = int(H * (0.80 if not self.portrait else 0.62))
+            # With the last row: "both" means nothing over one voice. The
+            # frame is RGB, so the fade is in the colour, not an alpha.
+            k = min(1.0, self.due(n - 1, n, f))
+            if k > 0:
+                d.text((x0, fy), self.footnote,
+                       font=_font(26 if not self.portrait else 34),
+                       fill=(int(150 * k), int(150 * k), int(160 * k)))
 
     def _speaking(self, i: int, t: float) -> bool:
         rv = self.reveals or []

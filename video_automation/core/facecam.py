@@ -64,18 +64,22 @@ def _probe(path: Path) -> tuple[int, int, float]:
 
 def layout(w: int, h: int, corner: str | None = None) -> tuple[int, int, int, int]:
     """(x, y, box_w, box_h) for the frame. Inside every platform's safe box."""
-    if h > w:                                     # 9:16 - top right, under the
-        bw = bh = 300                             # top band, left of the rail
-        x, y = 860 - bw - 24, 268
-        if corner == "bl":
-            x, y = 58, 1440 - bh - 24
-    else:                                         # 16:9 - bottom right
-        bw = bh = 320
-        x, y = w - bw - 64, 950 - bh - 24
+    # **Landscape, the whole room** (2026-11-23, the editor: "try a landscape
+    # facecam so it shows more, no square - to see my mic, which gives it a
+    # more professional look; can crop the right side a bit"). 3:2, the
+    # camera's full height (`_crop_box`).
+    if h > w:                                     # 9:16 - bottom centre, under
+        bw, bh = 600, 400                         # a beat's rows (top right sat
+        x, y = (w - bw) // 2, 1300                # on the first row's waveform)
+        if corner == "tr":
+            x, y = 860 - bw - 24, 268
+    else:                                         # 16:9 - bottom right, clear
+        bw, bh = 450, 300                         # of the subtitles' line
+        x, y = w - bw - 56, 950 - bh - 24
         if corner == "tr":
             y = 62
         elif corner == "bl":
-            x = 64
+            x = 56
     return x, y, bw, bh
 
 
@@ -96,8 +100,15 @@ def _n(s: str) -> str:
     return re.sub(r"[^a-z0-9 ]+", "", s.lower()).strip()
 
 
+TV_OFF_CLEAR = 1.4      # s before the end the box starts to leave (`TvOff` is
+                        # 0.55): at 0.9 it was gone 0.14 s before the TV-off and
+                        # the two read as one motion (2026-11-24)
+SENTENCE_TAIL = 0.25    # the box stays this long after its sentence's last word
+
+
 def cues(srt: Path, on: list | None = None, hook: float | None = 3.0,
-         last: float | None = 4.0) -> list[tuple[float, float]]:
+         last: float | None = 4.0,
+         sentences: list | None = None) -> list[tuple[float, float]]:
     """Box windows in output seconds, from the captions.
 
     `hook`: from the first word to the end of the caption that finishes
@@ -105,6 +116,13 @@ def cues(srt: Path, on: list | None = None, hook: float | None = 3.0,
     `on`: phrases as they start in the captions, each with how long to stay
     (`("this one cost me a week", 4.0)` or just the phrase for 4 s); the end
     snaps to a caption's end so the box never leaves mid-word.
+
+    **`sentences` - (start, end) of each spoken sentence - and a box never
+    outlives its sentence** (2026-11-23, his review: "it stays there even
+    when I'm already reading the next sentence and don't look in the camera,
+    and there is a clear cut"). He looks into the lens for the line marked
+    CAM on the script page and back at the page for the next; past the
+    sentence's last word the box is someone reading.
     """
     caps = read_srt(srt)
     if not caps:
@@ -131,6 +149,8 @@ def cues(srt: Path, on: list | None = None, hook: float | None = 3.0,
         speech_end = caps[-1][1]
         a = next((c[0] for c in caps if c[0] >= speech_end - last), caps[-1][0])
         out.append((a, speech_end))
+    if sentences:
+        out = [(a, _sentence_end(a, b, sentences)) for a, b in out]
     out.sort()
     merged = []
     for a, b in out:                     # overlapping or near cues become one
@@ -141,6 +161,14 @@ def cues(srt: Path, on: list | None = None, hook: float | None = 3.0,
     return merged
 
 
+def _sentence_end(a: float, b: float, sentences: list) -> float:
+    """`b`, but no later than the end of the sentence spoken at `a`."""
+    for s0, s1 in sentences:
+        if s0 - 0.15 <= a <= s1:
+            return max(a + 0.5, min(b, s1 + SENTENCE_TAIL))
+    return b
+
+
 # ---------------------------------------------------------------------------
 # the face
 # ---------------------------------------------------------------------------
@@ -149,20 +177,23 @@ def find_face(video: Path, at: list[float]) -> tuple[float, float, float] | None
     """(cx, cy, size) as fractions of the frame, from a few sampled frames."""
     casc = cv2.CascadeClassifier(cv2.data.haarcascades +
                                  "haarcascade_frontalface_default.xml")
-    cap = cv2.VideoCapture(str(video))
+    W, H, _ = _probe(video)
     hits = []
     for t in at:
-        cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000)
-        ok, img = cap.read()
-        if not ok:
+        # Frames come from ffmpeg: OpenCV's own seek returns nothing in a
+        # QuickTime .mov past the first minutes, and every face was "not
+        # found" - the box showed the whole room (2026-11-22).
+        raw = subprocess.run(
+            ["ffmpeg", "-v", "error", "-ss", f"{max(0.0, t):.3f}", "-i", str(video),
+             "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
+            capture_output=True).stdout
+        if len(raw) < W * H:
             continue
-        H, W = img.shape[:2]
-        g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        g = np.frombuffer(raw[:W * H], np.uint8).reshape(H, W)
         faces = casc.detectMultiScale(g, 1.1, 6, minSize=(W // 12, W // 12))
         if len(faces):
             x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
             hits.append(((x + w / 2) / W, (y + h / 2) / H, h / H))
-    cap.release()
     if not hits:
         return None
     a = np.median(np.array(hits), axis=0)
@@ -179,6 +210,14 @@ def _crop_box(W: int, H: int, bw: int, bh: int, face) -> tuple[int, int, int, in
             cw, ch = W, int(W / aspect)
         return (W - cw) // 2, (H - ch) // 2, cw, ch
     cx, cy, size = face
+    if aspect > 1.2:
+        # Landscape: the full height, the face a little right of centre so
+        # the left of the frame - the mic - stays in; the right is what goes.
+        ch = H
+        cw = min(W, int(H * aspect))
+        ch = min(H, int(cw / aspect))
+        x = int(np.clip(cx * W - cw * 0.62, 0, W - cw))
+        return x, (H - ch) // 2, cw, ch
     ch = min(H, int(size * H * 2.4))          # head and shoulders
     cw = int(ch * aspect)
     if cw > W:
@@ -186,6 +225,29 @@ def _crop_box(W: int, H: int, bw: int, bh: int, face) -> tuple[int, int, int, in
     x = int(np.clip(cx * W - cw / 2, 0, W - cw))
     y = int(np.clip(cy * H - ch * 0.45, 0, H - ch))   # eyes a little high
     return x, y, cw, ch
+
+
+def stream_lead(path: Path) -> float:
+    """How much later a file's sound starts than its picture, in seconds.
+
+    `load_audio` hands back sound from its first sample, so a time in it is
+    that much earlier than the same moment's video timestamp.
+    """
+    import subprocess
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,start_time",
+         "-of", "json", str(path)], capture_output=True, text=True, check=True).stdout
+    starts = {}
+    for s in json.loads(out).get("streams", []):
+        kind = s.get("codec_type")
+        if kind in ("audio", "video") and kind not in starts:
+            try:
+                starts[kind] = float(s.get("start_time", 0) or 0)
+            except ValueError:
+                starts[kind] = 0.0
+    if "audio" not in starts or "video" not in starts:
+        return 0.0
+    return starts["audio"] - starts["video"]
 
 
 def sync_offset(audio: Path, video: Path, seconds: float = 120.0) -> float:
@@ -238,24 +300,38 @@ def _chrome(bw: int, bh: int, brand: Brand):
     return inner, ring, shadow, (W, H, pad)
 
 
-def _cue_clip(face: Path, pieces: list[tuple[str, float, float]], crop,
+def _cue_clip(face: Path, pieces: list[tuple], crop,
               bw: int, bh: int, brand: Brand, out: Path) -> Path:
     """One cue's face, composited onto an RGBA canvas, faded and slid."""
     x, y, cw, ch = crop
     vf = f"crop={cw}:{ch}:{x}:{y},scale={bw}:{bh}:flags=lanczos,fps={FPS}"
     tmp = Path(tempfile.mkdtemp(prefix="facecam-"))
     parts = []
-    for k, (kind, s, d) in enumerate(pieces):
+    # Whole frames per piece, counted from the cue's start: a piece cut by
+    # seconds rounds to a frame either way, and with a piece at every
+    # shortened pause the rounding added up to the lips drifting
+    # (2026-11-22). Cumulative counts cannot drift.
+    t = 0.0
+    for k, (kind, s, d, *rest) in enumerate(pieces):
+        rate = rest[0] if rest else 1.0
+        n = round((t + d) * FPS) - round(t * FPS)
+        t += d
+        if n <= 0:
+            continue
         p = tmp / f"p{k:03d}.mp4"
         if kind == "src":
-            cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-t", f"{d:.3f}",
-                   "-i", str(face), "-an", "-vf", vf]
+            # A sped-up voice plays its face at the same rate (`_speed_up`).
+            fast = f"setpts=(PTS-STARTPTS)/{rate:.5f}," if abs(rate - 1) > 1e-4 else ""
+            cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}",
+                   "-i", str(face), "-an", "-vf",
+                   f"{fast}{vf},tpad=stop_mode=clone:stop_duration=1"]
         else:                                     # a still frame for d seconds
             cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", str(face),
                    "-an", "-vf", f"{vf},trim=end_frame=1,tpad=stop_mode=clone:"
-                   f"stop_duration={d:.3f}", "-t", f"{d:.3f}"]
-        subprocess.run(cmd + ["-c:v", "libx264", "-crf", "12", "-pix_fmt",
-                              "yuv420p", str(p)], check=True, capture_output=True)
+                   f"stop_duration={d + 1:.3f}"]
+        subprocess.run(cmd + ["-frames:v", str(n), "-c:v", "libx264", "-crf", "12",
+                              "-pix_fmt", "yuv420p", str(p)],
+                       check=True, capture_output=True)
         parts.append(p)
     lst = tmp / "list.txt"
     lst.write_text("".join(f"file '{p}'\n" for p in parts))
@@ -269,7 +345,7 @@ def _cue_clip(face: Path, pieces: list[tuple[str, float, float]], crop,
         ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgba",
          "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "png",
          str(out)], stdin=subprocess.PIPE)
-    total = sum(d for _, _, d in pieces)
+    total = sum(p[2] for p in pieces)
     n_total = int(round(total * FPS))
     gold = np.array(brand.primary, np.float32)
     size = bw * bh * 3
@@ -318,16 +394,20 @@ def _pieces(segments: list[dict], a: float, b: float, offset: float):
     for seg in segments:
         s0, s1 = seg["out"], seg["out"] + seg["dur"]
         lo, hi = max(a, s0), min(b, s1)
-        if hi - lo < 1 / FPS:
+        # Even a sliver is kept: `_cue_clip` counts frames from the cue's
+        # start, and a skipped piece would pull every later one early.
+        if hi - lo <= 1e-6:
             continue
+        r = seg.get("rate", 1.0)           # the voice sped up: the face too
         if seg.get("gap"):
             nxt = next((s for s in srcs if s["out"] >= s1 - 1e-3), None)
             prv = [s for s in srcs if s["out"] + s["dur"] <= s0 + 1e-3]
-            at = nxt["src"] if nxt else (prv[-1]["src"] + prv[-1]["dur"] - 0.05
-                                         if prv else 0.0)
-            out.append(("still", at + offset, hi - lo))
+            at = nxt["src"] if nxt else (
+                prv[-1]["src"] + prv[-1]["dur"] * prv[-1].get("rate", 1.0) - 0.05
+                if prv else 0.0)
+            out.append(("still", at + offset, hi - lo, 1.0))
         else:
-            out.append(("src", seg["src"] + (lo - s0) + offset, hi - lo))
+            out.append(("src", seg["src"] + (lo - s0) * r + offset, hi - lo, r))
     return out
 
 
@@ -336,7 +416,8 @@ def apply(video: Path, out: Path, edl: Path, srt: Path | None = None,
           on: list | None = None, hook: float | None = 3.0,
           last: float | None = 4.0, corner: str | None = None,
           crop: tuple[float, float, float] | None = None,
-          offset: float | None = None, brand: Brand = OKTAI) -> Path:
+          offset: float | None = None, brand: Brand = OKTAI,
+          sentences: list | None = None) -> Path:
     """Overlay the camera box on a finished render.
 
     `cue_list` (output seconds) wins over the caption-derived `cues()`.
@@ -352,11 +433,17 @@ def apply(video: Path, out: Path, edl: Path, srt: Path | None = None,
     if offset is None:
         offset = 0.0 if face == Path(plan["audio"]) else sync_offset(
             Path(plan["audio"]), face)
+        # The edit is in the voice's sample time; the face is cut by video
+        # time. In a QuickTime .mov the sound starts 0.24 s after the
+        # picture, so sample 0 is video time 0.24 - left out, the lips ran
+        # seven frames ahead of the voice (his note on the first Short,
+        # 2026-11-22: "the part where I'm shown is not matching the read").
+        offset += stream_lead(face)
         print(f"facecam: face offset {offset:+.3f}s")
     W, H, dur = _probe(video)
     x, y, bw, bh = layout(W, H, corner)
     windows = cue_list if cue_list is not None else cues(
-        srt or video.with_suffix(".srt"), on, hook, last)
+        srt or video.with_suffix(".srt"), on, hook, last, sentences)
     if not windows:
         raise ValueError("facecam: no cue windows")
 
@@ -370,6 +457,14 @@ def apply(video: Path, out: Path, edl: Path, srt: Path | None = None,
         found = crop
     box_crop = _crop_box(fw, fh, bw, bh, found)
 
+    # The last window runs to the end: the box stays with the end screen
+    # (the editor, 2026-11-23: "show the face cam together with the final
+    # screen").
+    # It leaves before the TV-off at the very end, which switches the
+    # picture off under it (2026-11-24: "the face cam needs to disappear
+    # before the screen goes off").
+    if windows and dur - windows[-1][1] < 3.0:
+        windows = list(windows[:-1]) + [(windows[-1][0], dur - TV_OFF_CLEAR)]
     work = Path(tempfile.mkdtemp(prefix="facecam-cues-"))
     clips = []
     for k, (a, b) in enumerate(windows):

@@ -107,6 +107,8 @@ def card_cues(payload: tuple, start: float, hold: float) -> list:
     reads it: `(title, number, style, index)`, the last two optional."""
     title = payload[0]
     style = payload[2] if len(payload) > 2 and payload[2] else "type"
+    if style == "headline":                 # drawn on the "type" schedule
+        style = "type"
     return cues(title, card_schedule(title, start, hold, style))
 
 

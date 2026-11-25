@@ -91,10 +91,17 @@ def part(path: Path, kind: str):
     lines = [_spoken(s) for s in order]
     marks = _face_marks(lines, getattr(mod, "FACE", ()),
                         getattr(mod, "FACE_HOOK", True))
+    # Lines added after a take (`PICKUPS`): marked NEW, and listed on their
+    # own at the top so a pickup read is one short sitting (2026-11-23).
+    want = {" ".join(norm(x)) for x in getattr(mod, "PICKUPS", ())}
+    new = {i for i, ln in enumerate(lines) if " ".join(norm(ln)) in want}
     title = getattr(mod, "TITLE", None) or getattr(getattr(mod, "META", None),
                                                     "title", path.stem)
-    return {"kind": kind, "title": title, "lines": lines,
-            "chapters": chapters, "marks": marks,
+    found = {" ".join(norm(lines[i])) for i in new}
+    extra = [x for x in getattr(mod, "PICKUPS", ())
+             if " ".join(norm(x)) not in found]
+    return {"kind": kind, "title": title, "lines": lines, "extra": extra,
+            "chapters": chapters, "marks": marks, "new": new,
             "words": sum(len(norm(x)) for x in lines)}
 
 
@@ -105,6 +112,16 @@ def _minutes(words: int) -> str:
 
 def text(name: str, parts: list[dict]) -> str:
     out = [f"OktAI - {name} - script to read", ""]
+    todo, seen = [], set()
+    for p in parts:
+        for i in sorted(p.get("new", ())):
+            if p["lines"][i] not in seen:
+                seen.add(p["lines"][i])
+                todo.append(f"{p['kind']} {i + 1}. {p['lines'][i]}")
+    todo += [f"other Shorts. {x}" for p in parts for x in p.get("extra", ())
+             if x not in seen]
+    if todo:
+        out += [f"=== RECORD THESE: {len(todo)} new line(s) ===", ""] + todo + [""]
     out += ["Read each line as written. On a mistake, say the whole line again.",
             "[CAM] = the camera box is on for this line: look into the lens.", ""]
     for p in parts:
@@ -114,7 +131,8 @@ def text(name: str, parts: list[dict]) -> str:
             if i in p["chapters"]:
                 out += ["", f"--- chapter: {p['chapters'][i]} ---"]
             cam = "[CAM] " if i in p["marks"] else ""
-            out.append(f"{i + 1:>3}. {cam}{line}")
+            tag = "[NEW] " if i in p.get("new", ()) else ""
+            out.append(f"{i + 1:>3}. {tag}{cam}{line}")
         out.append("")
     return "\n".join(out) + "\n"
 
@@ -144,6 +162,13 @@ h3 {{ margin:28px 0 6px; font-size:14px; letter-spacing:.12em;
 .line .n {{ color:var(--dim); min-width:2.2em; text-align:right;
            font-variant-numeric:tabular-nums; }}
 .line.cam {{ box-shadow:inset 3px 0 0 var(--gold); }}
+.line.new {{ box-shadow:inset 3px 0 0 #4ac878; }}
+.line.new .t::after {{ content:"NEW"; font-size:11px; font-weight:700;
+           color:#0a0a0e; background:#4ac878; border-radius:4px;
+           padding:2px 6px; margin-left:10px; vertical-align:2px; }}
+.todo {{ border:1px solid #4ac878; border-radius:12px; padding:6px 14px 10px;
+         margin:24px 0; }}
+.todo h2 {{ color:#4ac878; }}
 .line.cam .t::before {{ content:"CAM"; font-size:11px; font-weight:700;
            color:#0a0a0e; background:var(--gold); border-radius:4px;
            padding:2px 6px; margin-right:10px; vertical-align:2px; }}
@@ -227,6 +252,24 @@ show();
 
 def page(name: str, parts: list[dict]) -> str:
     body = []
+    todo = []
+    for p in parts:
+        for i in sorted(p.get("new", ())):
+            if p["lines"][i] not in todo:      # one read serves both videos
+                todo.append(p["lines"][i])
+    # Lines only another video uses (the chapter Shorts): listed here, last.
+    todo += [x for p in parts for x in p.get("extra", ()) if x not in todo]
+    if todo:
+        # The new lines on their own, first: a pickup read is these alone,
+        # in this order, and the build finds them in the new file.
+        body.append(f"<section class='todo'><h2>Record these: {len(todo)} new "
+                    f"line{'s' if len(todo) > 1 else ''}</h2>")
+        for k, line in enumerate(todo):
+            body.append(f"<div class='line new'><span class='n'>{k + 1}</span>"
+                        f"<span class='t'>{html.escape(line)}</span></div>")
+        body.append("<div class='meta'>Save them as <b>pickups.mov</b> next to the "
+                    "recording. Below, the whole script with the new lines in "
+                    "place.</div></section>")
     for p in parts:
         body.append(f"<h2>{p['kind'].title()}: {html.escape(str(p['title']))}</h2>"
                     f"<div class='meta'>{len(p['lines'])} lines, about "
@@ -235,7 +278,8 @@ def page(name: str, parts: list[dict]) -> str:
         for i, line in enumerate(p["lines"]):
             if i in p["chapters"]:
                 body.append(f"<h3>{html.escape(p['chapters'][i])}</h3>")
-            cls = "line cam" if i in p["marks"] else "line"
+            cls = "line" + (" cam" if i in p["marks"] else "") + (
+                " new" if i in p.get("new", ()) else "")
             body.append(f"<div class='{cls}'><span class='n'>{i + 1}</span>"
                         f"<span class='t'>{html.escape(line)}</span></div>")
     total = sum(p["words"] for p in parts)

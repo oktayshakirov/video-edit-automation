@@ -77,9 +77,12 @@ def audio_report(path: Path) -> list[tuple[str, str, str]]:
     else:
         verdict = "ok"
     rows.append(("loudness", f"{lufs:.1f} LUFS", verdict))
+    # Peaks near -10 dBFS use the range (2026-11-24: the first take peaked
+    # at -16 with speech at -34, 10 dB left on the knob).
     rows.append(("peak", f"{peak:.1f} dBTP",
                  "CLIPPING - lower the mic gain and record again" if peak > -0.5
-                 else "ok" if peak > -20 else "low"))
+                 else "ok" if peak > -12 else
+                 "low - raise the gain until the loudest words peak near -10"))
 
     e = frames(a)
     noise = np.percentile(e, 5)
@@ -104,7 +107,30 @@ def audio_report(path: Path) -> list[tuple[str, str, str]]:
         rows.append(("echo", f"{d:.0f} dB drop in 0.3 s",
                      "dry - good" if d >= 30 else "some room sound - ok"
                      if d >= 20 else "echoey - add soft things around you"))
+    t = word_tail(a)
+    if t is not None:
+        rows.append(("room after words", f"{t:.0f} dB in 20-50 ms",
+                     "dry - good" if t <= -20 else "some room - ok" if t <= -15 else
+                     "echoey - mic closer (10-15 cm), soft things behind it"))
     return rows
+
+
+def word_tail(a: np.ndarray) -> float | None:
+    """How far a word's sound has fallen 20-50 ms after it ends, dB (median
+    over the read). The room's echo lives here: a creator's treated room
+    measured -26, the first OktAI take -11 (2026-11-24, "reverb in it") -
+    the 0.3 s echo check above called that same take fine."""
+    from scipy.signal import butter, sosfilt
+    m = sosfilt(butter(4, [700, 4000], "band", fs=SR, output="sos"), a)
+    hop = SR // 200
+    n = len(m) // hop
+    if n < 60:
+        return None
+    d = 10 * np.log10((m[:n * hop].reshape(n, hop) ** 2).mean(axis=1) + 1e-12)
+    top = np.percentile(d, 90)
+    out = [d[i + 4:i + 10].mean() - d[i - 6:i].mean() for i in range(10, n - 40)
+           if d[i - 6:i].mean() > top - 12 and d[i] - d[i + 3] > 10]
+    return float(np.median(out)) if len(out) >= 5 else None
 
 
 def video_report(path: Path) -> list[tuple[str, str, str]]:

@@ -27,6 +27,19 @@ DRAW = 0.55            # seconds each stroke takes
 FONT = "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf"
 
 
+def _stroke(d, pts, colour, width: int) -> None:
+    """A polyline drawn as one pen stroke: a rounded joint and round ends.
+    Two separate square-ended lines left a notch where the tick's strokes
+    met (the editor, 2026-11-23: "two lines connecting each other with a
+    gap")."""
+    if len(pts) < 2:
+        return
+    d.line(pts, fill=colour, width=width, joint="curve")
+    r = width / 2
+    for x, y in (pts[0], pts[-1]):
+        d.ellipse([x - r, y - r, x + r, y + r], fill=colour)
+
+
 def _ease(p: float) -> float:
     p = min(1.0, max(0.0, p))
     return 1 - (1 - p) ** 3
@@ -60,7 +73,9 @@ class VerdictShot:
             a = a * (1 - 0.8 * k) + tint * 0.8 * k
             img = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
         d = ImageDraw.Draw(img, "RGBA")
-        cx, cy = W / 2, H * 0.46
+        # Higher in 9:16, where a Short's captions sit under the middle - the
+        # label landed behind them (chapter Shorts, 2026-11-23).
+        cx, cy = W / 2, H * (0.34 if H > W else 0.46)
         r = min(W, H) * 0.20
         width = max(12, int(min(W, H) * 0.032))
         if self.kind == "wrong":
@@ -70,8 +85,8 @@ class VerdictShot:
                 p = _ease((t - i * DRAW * 0.8) / DRAW)
                 if p <= 0:
                     continue
-                d.line([(x0, y0), (x0 + (x1 - x0) * p, y0 + (y1 - y0) * p)],
-                       fill=colour + (240,), width=width)
+                _stroke(d, [(x0, y0), (x0 + (x1 - x0) * p, y0 + (y1 - y0) * p)],
+                        colour + (240,), width)
         else:
             p = _ease(t / (DRAW * 1.4))
             d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=colour + (int(230 * p),),
@@ -81,14 +96,14 @@ class VerdictShot:
             seg = p * 2
             if seg > 0:
                 a1 = min(1.0, seg)
-                d.line([pts[0], (pts[0][0] + (pts[1][0] - pts[0][0]) * a1,
-                                 pts[0][1] + (pts[1][1] - pts[0][1]) * a1)],
-                       fill=colour + (240,), width=width)
-            if seg > 1:
-                a2 = min(1.0, seg - 1)
-                d.line([pts[1], (pts[1][0] + (pts[2][0] - pts[1][0]) * a2,
-                                 pts[1][1] + (pts[2][1] - pts[1][1]) * a2)],
-                       fill=colour + (240,), width=width)
+                drawn = [pts[0], (pts[0][0] + (pts[1][0] - pts[0][0]) * a1,
+                                  pts[0][1] + (pts[1][1] - pts[0][1]) * a1)]
+                if seg > 1:
+                    a2 = min(1.0, seg - 1)
+                    drawn = [pts[0], pts[1],
+                             (pts[1][0] + (pts[2][0] - pts[1][0]) * a2,
+                              pts[1][1] + (pts[2][1] - pts[1][1]) * a2)]
+                _stroke(d, drawn, colour + (240,), width)
         if self.label:
             p = _ease((t - DRAW * 1.3) / 0.25)
             if p > 0:

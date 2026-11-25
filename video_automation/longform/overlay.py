@@ -1740,3 +1740,62 @@ def ticker_card(name: str, line: str, sub: str, brand, out: Path,
     out.parent.mkdir(parents=True, exist_ok=True)
     im.save(out)
     return out
+
+
+class Coda:
+    """A last word after the picture is switched off: black, a line, a small
+    one under it and an arrow bobbing down - toward the description, where
+    the link is (2026-11-24, the OktAI editor: "after the thanks for watching
+    screen ... quick 2-3 seconds black screen with simple text ... with arrow
+    pointing down").
+
+    It runs from `start` to `end`, after `TvOff`; the type fades in over a
+    quarter second and the arrow nudges down once a second. `cues()` gives a
+    soft pop as the line lands.
+    """
+
+    FADE = 0.25
+
+    def __init__(self, start: float, end: float, line: str, small: str = "",
+                 frame: Frame = LANDSCAPE, brand=None):
+        self.start, self.end, self.line, self.small = start, end, line, small
+        self.frame, self.brand = frame, brand
+
+    def cues(self) -> list[tuple[float, str]]:
+        return [(self.start + 0.15, "reveal")]
+
+    def draw(self, pic: Image.Image, t: float) -> Image.Image:
+        if t < self.start:
+            return pic
+        from .beats.base import _display, _font
+        from ..core.draw import wrap
+        W, H = self.frame.size
+        tall = H > W
+        out = Image.new("RGB", (W, H), (0, 0, 0))
+        d = ImageDraw.Draw(out)
+        e = min(1.0, (t - self.start) / self.FADE)
+        a = 1 - (1 - e) ** 2
+        gold = tuple(int(c * a) for c in (self.brand.primary if self.brand else (255, 219, 112)))
+        ink = tuple(int(235 * a) for _ in range(3))
+        big = _display(int(W * (0.068 if tall else 0.036)))
+        small = _font(int(W * (0.045 if tall else 0.024)))
+        lines = wrap(d, self.line, big, int(W * 0.84))
+        lh = int(big.size * 1.25)
+        y = int(H * (0.36 if tall else 0.34)) + int(12 * (1 - e))
+        for ln in lines:
+            d.text((W / 2, y), ln, font=big, fill=ink, anchor="ma")
+            y += lh
+        if self.small:
+            y += int(lh * 0.25)
+            d.text((W / 2, y), self.small, font=small, fill=gold, anchor="ma")
+            y += int(small.size * 1.6)
+        # The arrow: a chevron over a short stem, nudging down once a second.
+        k = (t - self.start) % 1.0
+        bob = int(H * 0.018 * (np.sin(np.pi * min(1.0, k / 0.5)) if k < 0.5 else 0))
+        s = int(W * (0.05 if tall else 0.026))
+        cx, top = W / 2, y + s * 0.4 + bob
+        w = max(4, s // 6)
+        d.line([(cx, top), (cx, top + s * 1.3)], fill=gold, width=w)
+        d.line([(cx - s * 0.55, top + s * 0.8), (cx, top + s * 1.35),
+                (cx + s * 0.55, top + s * 0.8)], fill=gold, width=w, joint="curve")
+        return out

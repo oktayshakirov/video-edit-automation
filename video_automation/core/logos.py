@@ -91,8 +91,7 @@ def build() -> list[Path]:
     for slug, src in COPY.items():
         p = PORTFOLIO / "images" / f"{src}.webp"
         if p.exists():
-            im = Image.open(p).convert("RGBA").resize((512, 512), Image.LANCZOS)
-            im.save(OUT / f"{slug}.png")
+            _crisp(Image.open(p)).save(OUT / f"{slug}.png")
             made.append(OUT / f"{slug}.png")
     with sync_playwright() as pw:
         b = pw.chromium.launch()
@@ -104,6 +103,46 @@ def build() -> list[Path]:
             made.append(out)
         b.close()
     return made
+
+
+SIZE = 1024
+
+
+def _crisp(im):
+    """A portfolio badge at `SIZE`, with clean edges.
+
+    **Why (2026-11-23, the editor on the Claude logo full screen: "the
+    quality is bad that way"):** the portfolio's files are 200 px; scaled to
+    512 and then up again by the beat, the edges went soft and stepped. Each
+    colour's outline is re-drawn instead of stretched: the image is scaled
+    up, and every channel's alpha is blurred and cut back to a hard edge, so
+    a curve comes out a curve at any size.
+    """
+    from PIL import Image, ImageFilter
+    im = im.convert("RGBA")
+    k = SIZE / max(im.size)
+    big = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))),
+                    Image.BICUBIC)
+    a = big.getchannel("A").filter(ImageFilter.GaussianBlur(k * 0.6))
+    a = a.point(lambda v: 255 if v >= 128 else 0)
+    bb = a.getbbox()
+    if bb and abs((bb[2] - bb[0]) - (bb[3] - bb[1])) < k * 12:
+        # A round badge: a true circle on the shape's bounds, not the
+        # source's slightly flattened one.
+        from PIL import ImageDraw
+        a = Image.new("L", a.size, 0)
+        ImageDraw.Draw(a).ellipse(bb, fill=255)
+    a = a.filter(ImageFilter.GaussianBlur(1.2))
+    # The fill inside: the bicubic colours, with the light marks on a badge
+    # (Claude's spark) cut to a hard edge the same way.
+    rgb = big.convert("RGB")
+    light = rgb.convert("L").filter(ImageFilter.GaussianBlur(k * 0.5))
+    hard = light.point(lambda v: 255 if v >= 200 else 0).filter(ImageFilter.GaussianBlur(1.2))
+    fill = Image.composite(Image.new("RGB", rgb.size, (255, 250, 245)), rgb, hard)
+    out = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    fill.putalpha(a)
+    out.paste(fill, ((SIZE - fill.width) // 2, (SIZE - fill.height) // 2), fill)
+    return out
 
 
 def path(slug: str) -> Path:

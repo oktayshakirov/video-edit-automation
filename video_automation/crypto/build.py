@@ -187,7 +187,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "shares", "sweep", "mnemonic", "stake",
                         "behind", "pile", "lookalike", "audiogram",
                         "airgap", "relay", "breach", "diary", "reserve",
-                        "honeypot", "tiers"):
+                        "honeypot", "tiers", "lesson", "wall"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
         # where `gauge`'s horizontal track leaves a 9:16 frame two thirds
@@ -422,10 +422,16 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
             if len(rv) > 4:
                 cues.append((settle_time(rv[4]), "tick"))
         elif sh.graphic == "reel":
-            for i, t in enumerate((sh.reveals or [])[:12]):
-                if i:
-                    cues.append((t - 0.12, "pan"))
-                cues.append((t + 0.20, "reveal"))
+            from ..longform.beats.reel import sound_cues
+            cues += sound_cues(sh)
+        from ..longform.beats.lesson import extra_cues
+        cues += extra_cues(sh)
+        if getattr(sh, "verdict", None):
+            # A whole shot marked wrong or right (`core.verdict`), with its
+            # sound on the first stroke (2026-11-23).
+            kind = sh.verdict if isinstance(sh.verdict, str) else sh.verdict[0]
+            cues.append((sh.start + sh.verdict_at * sh.hold,
+                         "verdict_wrong" if kind == "wrong" else "verdict_right"))
     return [(t, k) for t, k in cues if 0.0 <= t < total]
 
 
@@ -615,7 +621,10 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                         # `render_bed`, which then normalises the result back
                         # to `BED_LUFS` and undoes most of it. To actually put
                         # a bed further under the voice, move the target.
-                        music_lufs=None) -> tuple[Path, float]:
+                        music_lufs=None,
+                        # Sound examples under the voice, no pause for them
+                        # (`samples.cues(under=)`).
+                        samples_under: bool = False) -> tuple[Path, float]:
     """One short, end to end.
 
     `gap` is tighter than the drone quotes' 0.65. A quote wants air between
@@ -648,6 +657,22 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         **profile_args(voice))
 
     spans = sentence_spans(sentences, captions)
+    # **`None` holds the shot before it across a sentence**, as in the long
+    # form (2026-11-23): a Short cut from a long form's chapters keeps its
+    # pictures held where the long form held them. `owner[i]` is the shot
+    # sentence `i` is under; `shots` from here is the shots actually shown.
+    owner, kept, kspans = [], [], []
+    for sh, sp in zip(shots, spans):
+        if sh is None:
+            if not kept:
+                raise ValueError("the first shot of a Short cannot be None")
+            kspans[-1] = (kspans[-1][0], sp[1])
+        else:
+            kept.append(sh)
+            kspans.append(sp)
+        owner.append(len(kept) - 1)
+    shots, spans = kept, kspans
+    groups = [[i for i, o in enumerate(owner) if o == k] for k in range(len(shots))]
     plan_shots(shots, spans)
 
     # Close the inter-sentence gaps: a shot's span ends at its last caption, so
@@ -659,8 +684,11 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         a.hold = max(a.hold, b.start - a.start)
     shots[-1].hold = max(shots[-1].hold, total - shots[-1].start)
 
-    first = 0
-    for sh, sent in zip(shots, sentences):
+    first_cap, ci = [], 0
+    for sent in sentences:
+        first_cap.append(ci)
+        ci += len(sent)
+    for sh, group in zip(shots, groups):
         # `quiz` is the quiz format's own graphic sentinel, not a beat in
         # `longform.beats.BEATS` — its reveals, marks and cues are all
         # precomputed once in `quiz.build.render_quiz_short`'s `plan()`
@@ -672,7 +700,8 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
         # `truthdare` is the same kind of sentinel, for
         # `quiz.truthdare.render_truth_dare_short`.
         if sh.graphic and sh.graphic not in ("quiz", "truthdare"):
-            starts = [captions[first + k].start for k in range(len(sent))]
+            starts = [captions[first_cap[si] + k].start
+                      for si in group for k in range(len(sentences[si]))]
             # **`item_count` knows the shapes `len(payload[0])` does not.**
             # That shortcut holds for every list beat, where payload[0] is the
             # items — and breaks on `dial`, whose reveal count depends on
@@ -692,7 +721,8 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
             # look synced until you watch it, and then every item is a beat
             # early or late. One caption per item and this needs no tuning.
             if sh.reveals is None:
-                sh.reveals = (starts + [starts[-1]] * n)[:n]
+                from ..longform.plan import reveal_times
+                reveal_times(sh, starts, n)
             # **Only a checklist has verdicts.** `grid` and `steps` draw no
             # marks, and giving them a `marks` list does not just waste work —
             # `_cues` reads the same list to place the cross and tick sounds, so
@@ -720,7 +750,6 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
                 flow = len(sh.payload) > 2 and bool(sh.payload[2])
                 sh.marks = ([r + FLOW_LAG for r in sh.reveals] if flow else
                             _mark_times(starts[-1], sh.start + sh.hold, n))
-        first += len(sent)
 
     # The post-hook runs *after* the block above rather than instead of it, so
     # a format that adds one beat does not have to re-derive the timings of
@@ -753,9 +782,10 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 
     if special_cuts:
         # One or two glitch / TV-static cuts where the cut means something
-        # (`transitions.plan_special`). Shots and sentences are one-to-one.
+        # (`transitions.plan_special`). One line per shot: the first sentence
+        # it is under.
         from ..core import transitions as _tr
-        lines = [_tr.sentence_text(s) for s in sentences]
+        lines = [_tr.sentence_text(sentences[g[0]]) for g in groups]
         n = None if special_cuts is True else int(special_cuts)
         for t, mode, why in _tr.plan_special(shots, lines, total, short=True,
                                              budget=n):
@@ -771,7 +801,8 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
     cap_font_index = FONT_KARAOKE_BOX_INDEX if karaoke_box else FONT_CAPTION_INDEX
 
     pngs, ci = [], 0
-    for sh, sent in zip(shots, sentences):
+    for si, sent in enumerate(sentences):
+        sh = shots[owner[si]]
         for _ in sent:
             c = captions[ci]
             ci += 1
@@ -949,7 +980,8 @@ def _render_crypto_short(sentences: list, shots: list[Shot], out: Path,
 
     # Sound samples a beat names (`core/samples.py`), in the pause after each
     # is spoken - and the bed dips under them below.
-    sample_cues = (samples.cues(shots, [c.start for c in captions], total)
+    sample_cues = (samples.cues(shots, [c.start for c in captions], total,
+                                under=samples_under)
                    if sound else [])
     if sample_cues:
         track = sfx.mix(track, workdir / "track-samples.wav", sample_cues,

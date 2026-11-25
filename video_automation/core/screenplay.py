@@ -58,7 +58,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-VERSION = 1
+VERSION = 2          # 2: ad slots hidden on every page (2026-11-23)
 REPO = Path(__file__).resolve().parents[2]
 # Where a crypto or tinnitus project's takes are recorded. Reproducible from
 # the project file, so out of git (`.gitignore`); OktAI keeps its own in the
@@ -143,9 +143,74 @@ def js(code: str) -> dict:
 
 # Terminal steps.
 
-def cmd(text: str, prompt: str = "~/app $ ", cps: float = 16) -> dict:
-    """A prompt, the command typed, Enter."""
-    return {"do": "cmd", "text": text, "prompt": prompt, "cps": cps}
+def cmd(text: str, prompt: str = "~/app $ ", cps: float = 16,
+        mark: bool = False) -> dict:
+    """A prompt, the command typed, Enter. `mark` types it under a yellow
+    highlighter - the line the viewer is meant to read (2026-11-24)."""
+    step = {"do": "cmd", "text": text, "prompt": prompt, "cps": cps}
+    if mark:
+        step["mark"] = True
+    return step
+
+
+MARK_COLOR = "rgba(255, 214, 64, 0.55)"     # a highlighter pen on a white page
+
+
+def mark(text: str, color: str = MARK_COLOR, secs: float = 0.7) -> dict:
+    """A highlighter drawn across `text` on the page, left to right over
+    `secs` - the line on a real page the narration is about (2026-11-24, the
+    editor on YouTube's policy page: "highlight the relevant part in the
+    screenshot with fitting colour"). The first place the text appears, in
+    one text node; a phrase not on the page is a script error and raises."""
+    code = """(() => {
+  const want = %s, color = %s, secs = %s;
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walk.nextNode())) {
+    const i = node.textContent.replace(/\\s+/g, " ").indexOf(want);
+    if (i < 0 || !node.parentElement || !node.parentElement.offsetParent) continue;
+    const raw = node.textContent, map = [];
+    for (let k = 0, n = 0; k < raw.length; k++) {
+      if (/\\s/.test(raw[k]) && k > 0 && /\\s/.test(raw[k - 1])) continue;
+      map.push(k);
+    }
+    const r = document.createRange();
+    r.setStart(node, map[i]);
+    r.setEnd(node, map[i + want.length - 1] + 1);
+    const s = document.createElement("span");
+    s.style.cssText = `background-image: linear-gradient(${color}, ${color});
+      background-repeat: no-repeat; background-size: 0%% 100%%;
+      transition: background-size ${secs}s ease-in-out; border-radius: 3px;
+      -webkit-box-decoration-break: clone; box-decoration-break: clone;`;
+    r.surroundContents(s);
+    s.getBoundingClientRect();
+    requestAnimationFrame(() => { s.style.backgroundSize = "100%% 100%%"; });
+    const b = s.getBoundingClientRect();
+    return [b.left + b.width / 2, b.top + b.height / 2];
+  }
+  throw new Error("mark: not on the page: " + want);
+})()""" % (json.dumps(text), json.dumps(color), float(secs))
+    # Its own step, so the capture logs where it is: the camera holds on a
+    # highlight being drawn as it does on a click, with no ripple (the first
+    # build drew both while zoomed out, too small to read - 2026-11-24).
+    return {"do": "mark", "code": code, "secs": float(secs)}
+
+
+def glide(dy: int, secs: float) -> dict:
+    """The page scrolled `dy` px smoothly over `secs`, eased - a slow read
+    down a page rather than a flick of the wheel (2026-11-25, the channel
+    grids: "scroll slowly down"). Not logged as input: the camera does not
+    treat it as a scroll's cut."""
+    code = """(() => new Promise(done => {
+  const y0 = window.scrollY, dy = %d, ms = %d, t0 = performance.now();
+  const step = now => {
+    const p = Math.min(1, (now - t0) / ms), e = p * p * (3 - 2 * p);
+    window.scrollTo(0, y0 + dy * e);
+    p < 1 ? requestAnimationFrame(step) : done(true);
+  };
+  requestAnimationFrame(step);
+}))()""" % (int(dy), int(secs * 1000))
+    return {"do": "js", "code": code}
 
 
 def out(text: str, secs: float = 0.0) -> dict:
@@ -163,6 +228,53 @@ def clear() -> dict:
     return {"do": "clear"}
 
 
+# A Claude Code session, as its terminal UI draws it.
+CLAUDE = "\x1b[38;2;217;119;87m"       # Claude's orange
+DIMMED = "\x1b[2m"
+RESET = "\x1b[0m"
+
+
+def claude_chat(prompt: str, reply: str, tools: list | None = None,
+                done: str = "", think_s: float = 1.2,
+                cwd: str = "~/Coding/video-edit-automation",
+                box: int = 47, mark: bool = True) -> list:
+    """Terminal steps for a Claude Code session: the welcome box, the prompt
+    typed, the thinking, the reply and each tool call it made.
+
+    **The prompt is highlighted** (`mark`, 2026-11-24, the editor: "mark the
+    sentence the viewer should read, which is our prompt ... highlight it in
+    yellow"): it is the line the narration is about; the rest is texture.
+
+    **Why (2026-11-23, the editor: "instead of just showing a terminal with
+    code, sometimes show a fake Claude Code chat where we give prompts").**
+    The prompt is what was asked, said plainly; `tools` are `(call, result)`
+    pairs - `("Write(video_automation/longform/beats/voice.py)", "Wrote 143
+    lines")` - and they must be real: a file that exists, its real size, a
+    command that ran. Reconstructed sessions say so in the project's
+    docstring.
+    """
+    welcome = "\n".join([
+        f"{CLAUDE}╭{'─' * box}╮{RESET}",
+        f"{CLAUDE}│{RESET} {CLAUDE}✻{RESET} Welcome to {chr(27)}[1mClaude Code{RESET}!"
+        + " " * (box - 26) + f"{CLAUDE}│{RESET}",
+        f"{CLAUDE}│{RESET}" + " " * box + f"{CLAUDE}│{RESET}",
+        f"{CLAUDE}│{RESET}   {DIMMED}cwd: {cwd}{RESET}"
+        + " " * max(0, box - 8 - len(cwd)) + f"{CLAUDE}│{RESET}",
+        f"{CLAUDE}╰{'─' * box}╯{RESET}", ""])
+    # Quick enough to finish under two sentences of narration: the welcome
+    # box is already up, the prompt types fast and the thinking is short (a
+    # chat under one 3 s sentence was still on its welcome box, 2026-11-23).
+    steps = [out(welcome, secs=0.0),
+             cmd(prompt, prompt="> ", cps=38, mark=mark), think(think_s, "Thinking"),
+             out(f"{CLAUDE}⏺{RESET} {reply}", secs=0.4)]
+    for call, result in tools or []:
+        steps.append(out(f"\n{CLAUDE}⏺{RESET} {chr(27)}[1m{call}{RESET}\n"
+                         f"  {DIMMED}⎿  {result}{RESET}", secs=0.4))
+    if done:
+        steps.append(out(f"\n{CLAUDE}⏺{RESET} {done}", secs=0.3))
+    return steps
+
+
 # -- takes ----------------------------------------------------------------------
 
 @dataclass
@@ -174,6 +286,14 @@ class Browser:
     dark: bool = True
     hide: list = field(default_factory=list)
     lead: float = 1.2                      # s on the loaded page before step 1
+    # Cookies set before the page loads: a site's own setting, like
+    # YouTube's dark theme (`YOUTUBE_DARK`) - signed out, it ignores the
+    # browser's colour scheme (2026-11-24).
+    cookies: list = field(default_factory=list)
+    # Steps done before filming starts, unseen: a sort picked, a filter run
+    # (2026-11-25: "don't show how you click the popular filter, just go
+    # straight to it"). `click`, `js` and `wait` steps; nothing is logged.
+    before: list = field(default_factory=list)
     tail: float = 1.5                      # s held after the last step
 
     def digest(self) -> str:
@@ -199,8 +319,47 @@ class Terminal:
 TERM_VERTICAL = (440, 405)
 
 
+# Chromium-based browsers a take can fall back to when Playwright's own is
+# not installed, in the order tried.
+INSTALLED = ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+             "/Applications/Chromium.app/Contents/MacOS/Chromium",
+             "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+             "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"]
+
+
+async def _launch(p, args: list):
+    """Playwright's headless Chromium, or an installed Chromium browser.
+
+    **Why (2026-11-24):** the Mac's `ms-playwright` cache was gone - a
+    storage clean-up takes it - and every take stopped with "Executable
+    doesn't exist" until `playwright install` downloaded it again. An
+    installed Chrome, Chromium, Brave or Edge runs the same takes headless,
+    in a throwaway profile of Playwright's own (no sign-ins, no history).
+    """
+    try:
+        return await p.chromium.launch(args=args)
+    except Exception as e:                          # noqa: BLE001
+        if "Executable doesn't exist" not in str(e):
+            raise
+        for exe in INSTALLED:
+            if Path(exe).exists():
+                print(f"screen: Playwright's Chromium is not installed - "
+                      f"using {Path(exe).name}")
+                return await p.chromium.launch(executable_path=exe, args=args)
+        raise
+
+
+YOUTUBE_DARK = [{"name": "PREF", "value": "f6=400&hl=en", "domain": ".youtube.com",
+                 "path": "/"}]
+
+
 def _digest(take) -> str:
     d = {"kind": type(take).__name__, "v": VERSION, **take.__dict__}
+    for k in ("cookies", "before"):
+        if not d.get(k):
+            d.pop(k, None)             # takes from before these keep their digest
+    if d.get("before"):
+        d["before_v"] = 2              # 2: no resting cursor, mouse parked (2026-11-25)
     raw = json.dumps(d, sort_keys=True, default=str)
     if isinstance(take, Terminal):
         raw += TERM_PAGE.read_text()
@@ -264,6 +423,7 @@ class _Log:
     def __init__(self):
         self.t0 = None
         self.samples, self.clicks, self.keys, self.scrolls = [], [], [], []
+        self.focus = []         # (t, x, y): a highlight being drawn - `mark`
         self.x, self.y = None, None
 
     def now(self) -> float:
@@ -288,7 +448,7 @@ def capture(take, out: Path, say=print, seed: int = 7) -> Path:
     ev = {"version": 1, "display": {"x": 0, "y": 0, "w": vw, "h": vh},
           "video_start": 0, "cursor": "draw" if log.samples else "none",
           "samples": log.samples, "clicks": log.clicks, "keys": log.keys,
-          "scrolls": log.scrolls}
+          "scrolls": log.scrolls, "focus": log.focus}
     out.with_suffix(".events.json").write_text(json.dumps(ev))
     take_path(out).write_text(json.dumps(
         {"digest": take.digest(), "captured": time.strftime("%Y-%m-%d"),
@@ -309,8 +469,7 @@ async def _play(take, work: Path, say, seed: int):
     async with async_playwright() as p:
         # The screencast sends frames at the CSS size whatever the context's
         # device_scale_factor; this flag is what gives it 2x pixels.
-        browser = await p.chromium.launch(
-            args=[f"--force-device-scale-factor={take.scale}"])
+        browser = await _launch(p, [f"--force-device-scale-factor={take.scale}"])
         is_term = isinstance(take, Terminal)
         ctx = await browser.new_context(
             viewport={"width": vw, "height": vh}, device_scale_factor=take.scale,
@@ -325,12 +484,29 @@ async def _play(take, work: Path, say, seed: int):
             await page.evaluate("([f, t]) => term.setup(f, t)",
                                 [take.font, take.title])
         else:
+            if getattr(take, "cookies", None):
+                await ctx.add_cookies(take.cookies)
             await page.goto(take.url, wait_until="load", timeout=60000)
+            await _decline(page)
             try:
                 await page.wait_for_load_state("networkidle", timeout=8000)
             except Exception:
                 pass
             await _hide(page, take.hide)
+            for st in getattr(take, "before", None) or []:
+                if st["do"] == "click":
+                    await page.locator(st["target"]).first.click(timeout=15000)
+                elif st["do"] == "js":
+                    await page.evaluate(st["code"])
+                elif st["do"] == "wait":
+                    await page.wait_for_timeout(st["secs"] * 1000)
+                else:
+                    raise ValueError(f"before: {st['do']!r} is not a setup step")
+            if getattr(take, "before", None):
+                # The mouse parked in an empty corner: left where the setup
+                # click was, it hovered the first video card through the take.
+                await page.mouse.move(2, take.viewport[1] - 2)
+                await page.wait_for_timeout(400)
             info["url"] = take.url
             info["title"] = await page.title()
 
@@ -360,8 +536,13 @@ async def _play(take, work: Path, say, seed: int):
                         "everyNthFrame": 1})
         # A first paint to start the stream on: nudge the page by nothing.
         await page.evaluate("document.body.style.outline='0px solid transparent'")
-        if not is_term:
-            log.at(vw * 0.62, vh * 0.58)            # where the hand rests
+        # Where the hand rests - only in a take that uses the mouse: a take
+        # of scrolls alone drew a still pointer over the page (2026-11-25,
+        # "don't hover any video with the mouse").
+        if not is_term and any(st.get("do") in ("move", "click", "type") or
+                               (st.get("do") == "scroll" and st.get("at"))
+                               for st in take.steps):
+            log.at(vw * 0.62, vh * 0.58)
         await page.wait_for_timeout(take.lead * 1000)
 
         for i, step in enumerate(take.steps):
@@ -391,8 +572,34 @@ async def _play(take, work: Path, say, seed: int):
     return frames, log, (vw * take.scale, vh * take.scale), info
 
 
+# **Ad slots collapse, everywhere** (2026-11-23, the editor: "when showing
+# screenshots from tinnitus and crypto make sure there is no gap from ads").
+# Headless gets no ad, but the slot still reserves its box: tinnitushelp.me
+# showed a band of empty page between its menu and "VIDEOS". Hidden by style
+# only - removing a node React rendered breaks the page's next update.
+ADS = ("ins.adsbygoogle", "div:has(> ins.adsbygoogle)", ".ad-slot",
+       "[data-ad-slot]", "iframe[id^='aswift']", "div[id^='google_ads']")
+
+
+async def _decline(page):
+    """A consent *page* in place of the one asked for - YouTube from the EU
+    redirects to consent.youtube.com - answered "Reject all", before the
+    recording starts, in the take's throwaway profile.
+
+    **Why (2026-11-24, the channel pages):** a consent *layer* is removed
+    (`_UNCONSENT`), never clicked; a whole page in its place cannot be
+    removed, and declining is the privacy-keeping answer - nothing of
+    anyone's is accepted. Not on camera: the screencast starts after."""
+    if "consent." not in page.url:
+        return
+    btn = page.get_by_role("button", name="Reject all").first
+    await btn.click(timeout=15000)
+    await page.wait_for_url(lambda u: "consent." not in u, timeout=30000)
+    await page.wait_for_load_state("load")
+
+
 async def _hide(page, hide):
-    css = ", ".join(list(CONSENT) + list(hide))
+    css = ", ".join(list(CONSENT) + list(ADS) + list(hide))
     await page.add_style_tag(content=f"{css} {{ display: none !important; }}")
 
 
@@ -487,8 +694,14 @@ async def _step(page, s: dict, log: _Log, rnd, take):
         await asyncio.sleep(0.4)
     elif do == "js":
         await page.evaluate(s["code"])
+    elif do == "mark":
+        x, y = await page.evaluate(s["code"])
+        log.focus.append([round(log.now(), 4), round(x, 2), round(y, 2)])
+        await asyncio.sleep(s["secs"])
+        log.focus.append([round(log.now(), 4), round(x, 2), round(y, 2)])
     elif do == "cmd":
-        await page.evaluate("p => term.prompt(p)", s["prompt"])
+        await page.evaluate("([p, m]) => term.prompt(p, m)",
+                            [s["prompt"], bool(s.get("mark"))])
         await asyncio.sleep(0.35)
         await _type(page, log, s["text"], s["cps"], rnd, term=True)
         await asyncio.sleep(0.25)

@@ -32,12 +32,16 @@ from . import audio as audio_mod
 from . import chrome as chrome_mod
 from .beats import Checklist, item_count, make_beat
 from .meta import Meta, write_srt
-from .overlay import (CinematicTitle, ClipOverlay, Emphasis, EndCard,
+from .overlay import (CinematicTitle, ClipOverlay, Coda, Emphasis, EndCard,
                       TitleOverlay, TvOff)
 from .plan import (Section, flatten, lay_out, mark_times, reveal_times,
                    style_chapters)
 from .thumb import render_thumb
 
+
+
+SUBTITLE_SIZE = 44      # px at 1080p: read on a phone, not shouted
+SUBTITLE_Y = 0.915      # centre of the line, as a share of the height
 
 
 def render_long(sections: list[Section], out: Path, workdir: Path, *args,
@@ -68,7 +72,18 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
                 # retired (`core.music.RETIRED`).
                 music: str | Path | None = "night-drift",
                 music_gain: float = 1.0,
+                # The bed's loudness target, None for `audio.BED_LUFS` (the
+                # gain above is normalised away). OktAI sits it 6 dB lower.
+                music_lufs: float | None = None,
+                # Up for the opening seconds and each chapter's way in.
+                music_swell: bool = False,
                 callouts: set[str] | None = None,
+                # Every line burned at the bottom, in this colour (RGB): the
+                # yellow subtitles some YouTubers use (OktAI, the editor's
+                # call 2026-11-23: "add subtitles on the bottom following the
+                # script ... yellow ... don't make them too big"). None = only
+                # `callouts`.
+                subtitles: tuple | None = None,
                 emoji: dict[str, str] | None = None,
                 thumb_image: Path | None = None,
                 thumb_headline: str | None = None,
@@ -103,6 +118,9 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
                 # colour; "type" the centred typed card.
                 chapter_style: str = "grid",
                 endcard: Path | None = None, endcard_lead: float = 7.0,
+                # A last word after the TV-off: (line, small line), on black
+                # with an arrow down, for `coda_hold` seconds (`overlay.Coda`).
+                coda: "tuple | None" = None, coda_hold: float = 2.5,
                 # The title sequence. `title_at` is the second it starts and
                 # turns the whole thing on; `title` defaults to `meta.title`
                 # and `title_eyebrow` to the brand's own domain. See
@@ -178,8 +196,20 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
     if revoice:
         from .revoice import patch_track
         track = patch_track(track, captions, revoice, workdir, voice)
+    if coda:
+        # The voice track runs on in silence under the closing card.
+        track = _pad(track, workdir / "narration-coda.wav", coda_hold)
+        total += coda_hold
 
     spans = sentence_spans(sentences, captions)
+    # A shot cued to a later caption of its sentence starts there; the shot
+    # before holds until it (`Shot.cue`).
+    ci = 0
+    for si, sent in enumerate(sentences):
+        sh = shots[si]
+        if sh is not None and sh.cue and 0 < sh.cue < len(sent):
+            spans[si] = (captions[ci + sh.cue].start, spans[si][1])
+        ci += len(sent)
     shots, groups, chapters = lay_out(sections, shots, spans, total)
     # A reel that dives into its last card, or opens out of its first, is
     # joined to the clip beside it here, once the holds are final.
@@ -210,8 +240,10 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
         n = item_count(sh.graphic, sh.payload) if sh.graphic else 0
         if not n:
             continue
+        skip = sh.cue or 0
         starts = [captions[first_cap[si] + k].start
-                  for si in group for k in range(len(sentences[si]))]
+                  for j, si in enumerate(group)
+                  for k in range(skip if j == 0 else 0, len(sentences[si]))]
         reveal_times(sh, starts, n)
         # `logos` carries optional verdicts on the same two-phase clock. Only
         # when the items actually have one — a plain lineup has no marks and
@@ -257,6 +289,17 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
 
     pngs = []
     for i, c in enumerate(captions):
+        if subtitles:
+            # Subtitles run under everything, drawn beats included: the line
+            # sits low, under where a beat's type ends.
+            p = workdir / f"sub{len(pngs):03d}.png"
+            render_text_png(c.text, p, size=SUBTITLE_SIZE, bg_luma=0.0,
+                            font_path=FONT_CAPTION, font_index=FONT_CAPTION_INDEX,
+                            y_frac=SUBTITLE_Y, stroke=3,
+                            max_w=CAPTION_MAX_W, frame=frame,
+                            ink=tuple(subtitles)[:3] + (255,))
+            pngs.append(p)
+            continue
         if c.text.strip() not in callouts or i in drawn:
             pngs.append(None)
             continue
@@ -290,7 +333,10 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
     title_ov = _title(title_at, title, title_hold, title_eyebrow,
                       meta, brand, frame, title_style)
     end_ov = _endcard(endcard, endcard_lead, total, frame, brand)
-    tv_ov = [TvOff(total, frame)]
+    tv_ov = [TvOff(total - coda_hold if coda else total, frame)]
+    if coda:
+        tv_ov.append(Coda(total - coda_hold, total, coda[0],
+                          coda[1] if len(coda) > 1 else "", frame=frame, brand=brand))
     emph_ov = _emphasis(emphasis, captions, shots, total, brand, frame,
                         avoid=[(o.start - 0.5, o.end + 0.5)
                                for o in title_ov + end_ov])
@@ -365,7 +411,21 @@ def _render_long(sections: list[Section], out: Path, workdir: Path,
         else:
             src = Path(music)
         bed = audio_mod.render_bed(src, workdir / "bed.wav", total,
-                                   gain=music_gain)
+                                   gain=music_gain,
+                                   **({} if music_lufs is None else {"lufs": music_lufs}))
+        if music_swell:
+            # The opening, until just after the first words, and every
+            # chapter's way in (a chapter card or a window the camera dives
+            # into).
+            first = captions[0].start if captions else 0.0
+            wins = [(0.0, first + 1.5)]
+            wins += [(sh.start, sh.start + sh.hold) for sh in shots
+                     if not sh.window and (
+                         (sh.graphic == "chapter" and len(sh.payload) > 2
+                          and sh.payload[2] != "headline")
+                         or (sh.graphic == "reel" and len(sh.payload) > 2
+                             and sh.payload[2]))]
+            bed = audio_mod.swell(bed, workdir / "bed-swell.wav", wins)
         if sample_cues:
             bed = audio_mod.dip(bed, workdir / "bed-dip.wav",
                                 samples.windows(sample_cues))
@@ -451,6 +511,13 @@ def _chrome(on: bool, chapters: list[tuple[float, str]], shots, total: float,
     out += [chrome_mod.ChapterCount(i + 1, len(cards), sh.start, sh.hold,
                                     brand, frame)
             for i, sh in enumerate(cards)]
+    return out
+
+
+def _pad(track: Path, out: Path, secs: float) -> Path:
+    """`track` with `secs` of silence on its end."""
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(track), "-af",
+                    f"apad=pad_dur={secs}", str(out)], check=True, capture_output=True)
     return out
 
 
@@ -572,7 +639,12 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
     """
     cues: list[tuple[float, str]] = []
     for i, sh in enumerate(shots):
-        if sh.graphic == "chapter":
+        if sh.graphic == "chapter" and len(sh.payload) > 2 \
+                and sh.payload[2] == "headline":
+            # A hand-set headline inside a sentence: its key clicks only - a
+            # riser and an impact would announce a chapter that is not one.
+            cues += typewriter.card_cues(sh.payload, sh.start, sh.hold)
+        elif sh.graphic == "chapter":
             # Riser *into* the card, impact *on* it. The riser has to start
             # before the cut it announces, so it is clamped at zero rather than
             # scheduled negative on an opening card.
@@ -736,11 +808,9 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
                 cues.append((settle_time(rv[4]), "tick"))
         elif sh.graphic == "reel":
             # A pan whoosh as the camera leaves for each next card, and the
-            # label's tick as it lands (`beats.reel.Reel`).
-            for i, t in enumerate((sh.reveals or [])[:12]):
-                if i:
-                    cues.append((t - 0.12, "pan"))
-                cues.append((t + 0.20, "reveal"))
+            # label's tick as it lands (`beats.reel.sound_cues`).
+            from .beats.reel import sound_cues
+            cues += sound_cues(sh)
         elif sh.graphic == "diagram":
             # Each node lands with its connector, so one cue per reveal marks
             # "and therefore" — `link`, not `reveal`, because a causal step is
@@ -778,10 +848,28 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
             for i, (text, _) in enumerate(items):
                 cues += typewriter.cues(text, note_type_times(
                     items, sh.reveals, sh.start, sh.hold, i))
-        elif sh.graphic in ("checklist", "compare", "stat", "quote", "logos",
+        elif sh.graphic == "lesson":
+            # The card set down; its label with a soft mark for a problem or
+            # a fix; a rising pip per counted unit (`beats.lesson`; the
+            # editor, 2026-11-23: "try a different layout and some sfx").
+            pass                     # in `extra_cues`, below
+        elif sh.graphic in ("steps", "logos"):
+            # A tile or a step set down (the editor, 2026-11-23: "when we
+            # drop each step, add sfx which fits the reveal").
+            for t in (sh.reveals or [])[:8]:
+                cues.append((t, "drop"))
+        elif sh.graphic in ("checklist", "compare", "stat", "quote",
                             "callout", "replicate", "pool"):
             for t in (sh.reveals or [])[:8]:
                 cues.append((t, "reveal"))
+        from .beats.lesson import extra_cues
+        cues += extra_cues(sh)
+        if sh.verdict:
+            # The editor's mark on a whole shot, with its sound on the first
+            # stroke (`core.verdict`; 2026-11-23, "use good sfx").
+            kind = sh.verdict if isinstance(sh.verdict, str) else sh.verdict[0]
+            cues.append((sh.start + sh.verdict_at * sh.hold,
+                         "verdict_wrong" if kind == "wrong" else "verdict_right"))
         if sh.graphic in ("checklist", "logos") and sh.marks:
             # The verdict is the item's **last** element whatever the beat: a
             # checklist row is `(text, ok)` and a logo tile is

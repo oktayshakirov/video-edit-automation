@@ -37,6 +37,9 @@ LEVEL_DB = -22.8        # under the finished mix's RMS. The approved A/B mixed
 MIN_RUN = 3.0           # seconds a place has to stay on screen to get a bed
 XF = 0.6                # crossfade at each end of a bed
 KIT_GAIN = {"tinnitus": 0.8}
+# A bed of sparse blips peaks far over its RMS; taken down so its bursts sit
+# where the steady beds' level does (2026-11-24).
+BED_GAIN = {"digital": 0.55}
 
 # Stock folder keywords -> bed. Order matters: the first match wins.
 KEYWORDS = [
@@ -127,13 +130,51 @@ def servers(n: int, seed: int = 0) -> np.ndarray:
     return fans * 0.7 + rush
 
 
-BEDS = {"city": city, "rain": rain, "office": office, "servers": servers}
+def digital(n: int, seed: int = 0) -> np.ndarray:
+    """Data at work: soft bit chirps in short bursts, like a machine reading
+    and writing, over a faint high air (2026-11-24, the editor on the OktAI
+    opener: a server room's fans under footage of data were "unrelated
+    background sfx, add something digital or binary sounding").
+
+    Every chirp is 25-60 ms - a blip, never a held pitch - so it stays out
+    of the way of a voice, and of a tinnitus audience's rule against tones.
+    """
+    rng = np.random.default_rng(seed + 13)
+    out = np.zeros((n, 2))
+    pitches = [880, 1175, 1320, 1568, 1760, 2093, 2349, 2637]
+    t = rng.uniform(0.1, 0.5)
+    while t * SR < n - SR // 4:
+        for _ in range(int(rng.integers(3, 9))):          # a burst of bits
+            L = int(rng.uniform(0.025, 0.06) * SR)
+            k = np.arange(L) / SR
+            f0 = pitches[int(rng.integers(0, len(pitches)))]
+            env = np.sin(np.pi * np.arange(L) / L) ** 2
+            # A square-ish chirp, softened: the "binary" colour.
+            blip = np.tanh(2.5 * np.sin(2 * np.pi * f0 * k)) * env
+            i = int(t * SR)
+            m = max(0, min(L, n - i))
+            pan = rng.uniform(0.25, 0.75)
+            out[i:i + m, 0] += blip[:m] * (1 - pan)
+            out[i:i + m, 1] += blip[:m] * pan
+            t += rng.uniform(0.05, 0.11)
+        t += rng.uniform(0.35, 1.1)
+    out = _band(out, 600, 6000) * 0.8
+    air = _band(_noise(n, seed + 14), 3000, 9000) * 0.06
+    return out + air
+
+
+BEDS = {"city": city, "rain": rain, "office": office, "servers": servers,
+        "digital": digital}
 
 
 def bed_for(shot) -> str | None:
-    """The bed a shot's footage calls for, or None."""
+    """The bed a shot's footage calls for, or None. `Shot.ambience` names
+    one outright ("" for none)."""
     if shot is None or getattr(shot, "clip", None) is None:
         return None
+    named = getattr(shot, "ambience", None)
+    if named is not None:
+        return named or None
     name = Path(shot.clip).parent.name.lower()
     return next((bed for key, bed in KEYWORDS if key in name), None)
 
@@ -165,6 +206,7 @@ def track(shots, total: float) -> np.ndarray:
             continue
         seg = BEDS[kind](i1 - i0, seed=i * 101)
         seg /= np.sqrt(np.mean(seg ** 2)) + 1e-9
+        seg *= BED_GAIN.get(kind, 1.0)
         ramp = min(int(XF * SR), (i1 - i0) // 2)
         env = np.ones(i1 - i0)
         env[:ramp] = np.linspace(0.0, 1.0, ramp)

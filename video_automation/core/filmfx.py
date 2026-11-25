@@ -307,6 +307,11 @@ def kind(shot) -> str:
     if getattr(shot, "clip", None) is not None:
         return "footage"
     if shot.graphic == "chapter":
+        pl = tuple(getattr(shot, "payload", ()) or ())
+        # A hand-set headline is a main screen: polished, no dust (the
+        # editor, 2026-11-23: "leave the main screens a polished look").
+        if len(pl) > 2 and pl[2] == "headline":
+            return "beat"
         return "chapter"
     if shot.graphic is None:
         return "photo"

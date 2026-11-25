@@ -909,6 +909,10 @@ without showing anybody's wallet.
 `.venv/bin/python -m playwright install chromium`. It is ~570MB on disk in
 `~/Library/Caches/ms-playwright` (Chromium, its headless shell and an
 ffmpeg build - measured on the Mac 2026-11-05), not the ~150MB download.
+A storage clean-up can take that cache; scripted takes (`core/screenplay.py`)
+then fall back to an installed Chrome, Chromium, Brave or Edge, headless in
+a throwaway profile (2026-11-24, when Brave ran them). `screencap` and the
+logo renderer still need Playwright's own.
 
 **Three capture lessons from `stablecoin-interest` (2026-11-16).**
 

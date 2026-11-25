@@ -143,6 +143,13 @@ class Shot:
     # landing `verdict_at` of the way in (`core/verdict.py`, 2026-11-21).
     verdict: "str | tuple | None" = None
     verdict_at: float = 0.45
+    # Any shot: a blinking red "REC" dot in the frame's top right - a page
+    # being read aloud, recorded (`core/rec.py`, 2026-11-24).
+    rec: bool = False
+    # A clip shot: the place-sound under it, by name (`core/ambience.BEDS`),
+    # in place of the one its stock folder suggests; "" for none (2026-11-24,
+    # "unrelated background sfx, add something digital or binary sounding").
+    ambience: str | None = None
     # A drawn beat with no photograph: its 3D emblem ("microphone", "chart",
     # ... `core/emblem3d.OBJECTS`), "arcs" for the old drawing, None for the
     # video's own (2026-11-21).
@@ -153,6 +160,11 @@ class Shot:
     # render - plays as it is: no grade toward the stills (it would grey the
     # type), no push-in (it has its own camera). 2026-11-21.
     raw: bool = False
+    # Long form: the caption of its sentence this shot starts on, instead of
+    # the sentence's start - the shot before holds until then. A chapter
+    # named mid-sentence ("the first mistake was | the picture") comes up on
+    # the word, not before it (2026-11-23).
+    cue: int | None = None
 
 
 def plan_shots(shots: list[Shot], spans: list[tuple[float, float]]) -> list[Shot]:
@@ -975,6 +987,13 @@ def render_shots(out: Path, shots: list[Shot], total: float, fps: int = 30,
         prepared = [VerdictShot(p, s.verdict, s.start, s.hold, frame,
                                 at=s.verdict_at)
                     if s is not None and getattr(s, "verdict", None) else p
+                    for p, s in zip(prepared, shots)]
+
+    # `Shot(rec=True)`: the recording dot, over everything the shot draws.
+    if any(s is not None and getattr(s, "rec", False) for s in shots):
+        from ..core.rec import RecShot
+        prepared = [RecShot(p, s.hold, frame)
+                    if s is not None and getattr(s, "rec", False) else p
                     for p, s in zip(prepared, shots)]
 
     if mark is not None:
