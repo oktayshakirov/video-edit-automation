@@ -60,6 +60,43 @@ Variant for a transparent PNG: replace the background line with
 If the text comes out wrong: ask for the same banner **without any text**,
 and we place the wordmark and tagline on it ourselves.
 
+## 3b. YouTube banner, "the one-person studio" (2026-11-25)
+
+The avatar is now his own 3D cartoon (the channel picture), so the banner
+stars him instead of the octopus. Attach the channel avatar image to the
+chat as the reference, then:
+
+> Use the attached avatar as the main character: keep his face, man bun,
+> beard, black t-shirt and the same soft 3D cartoon style exactly. A wide
+> panoramic YouTube channel banner, landscape. Scene: a calm night sky in
+> near-black navy (#050507 to #0a0a0f) full of tiny soft stars. In the
+> exact centre, the character sits relaxed at a small floating desk with a
+> laptop, one hand on the keyboard, a mug of coffee beside it, looking
+> pleased and a little mischievous. Behind and around him, a wide arc of
+> floating rounded glass screens fans out like a constellation: a video
+> editing timeline, an audio waveform, a code terminal with green text, a
+> grid of video thumbnails, a rising bar chart, and a vertical phone
+> showing a short video. The screens are joined by thin glowing gold lines
+> (#FFC05C to #FFDB70) like a star map, and the lines meet at his laptop,
+> as if he is conducting all of it. A tiny friendly gold robot arm reaches
+> in from one screen to refill his coffee. To the left of him, large and
+> clean, the word "oktAI" in a geometric sans serif like Poppins SemiBold:
+> "okt" in white, "AI" in the gold gradient. Under it, smaller, in light
+> grey: "OK, AI. Let's build." Keep the character, the word and the
+> tagline inside a central horizontal band about 60% of the width and 30%
+> of the height; the outer edges are only night sky and faint stars. Soft
+> cinematic lighting from the screens, gold rim light on the character,
+> crisp, premium, uncluttered. No real logos, no brand names, no other
+> text, no other people.
+
+Variant without text (when the letters come out wrong): replace the two
+text sentences with *"No text anywhere in the image; leave calm empty sky
+to the left of the character for a logo."* We set the wordmark ourselves.
+
+Then send the PNG back: we extend it to 2560 x 1440 with more night sky and
+check that everything sits inside YouTube's 1546 x 423 safe area (the strip
+every device shows).
+
 ## 4. TikTok / Instagram profile
 
 Use the avatar from prompt 1. TikTok crops to a circle - check the octopus
