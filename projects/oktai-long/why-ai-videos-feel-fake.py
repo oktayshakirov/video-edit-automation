@@ -53,7 +53,7 @@ pipeline, #5 the tells). Decided, with him:
   working - and one rule a viewer can use** ("If you make AI videos, ...").
 * **The pipeline is one beat**, not a minute: "And Claude runs all of it."
   The whole pipeline is its own video (the plan's #4).
-* **Title:** "I Made 89 AI Videos. 5 Mistakes Made Them Slop." **Cover:** a
+* **Title:** "My 89 AI Videos Were Slop. Here's What Fixed Them." (2026-11-25; first "I Made 89 AI Videos. 5 Mistakes Made Them Slop.") **Cover:** a
   before/after split - a slop frame (stock clip, big label) desaturated with
   a red cross, one of the fixed frames bright with a green tick, his face cut
   out between them looking at the slop; three words at most, "MINE WAS SLOP".
@@ -139,7 +139,7 @@ from video_automation.longform import Meta, Section
 from video_automation.oktai import build_long, examples, folder, own, screen, still
 
 NAME = "why-ai-videos-feel-fake"
-TITLE = "I Made 89 AI Videos. 5 Mistakes Made Them Slop."
+TITLE = "My 89 AI Videos Were Slop. Here's What Fixed Them."   # 2026-11-25, his pick ("B")
 
 # --- sounds: made once from our own engines (`oktai/examples.py`) -----------
 

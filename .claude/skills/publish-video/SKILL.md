@@ -80,6 +80,8 @@ link line is the same next step, in the same words.
 | tinnitus short | yes | Reel | Reel | yes (draft) | no |
 | drone long | yes | no | no | no | no |
 | drone short | yes | no | no | yes (draft) | no |
+| oktai long | yes (`--channel oktai`, with `--captions`) | no | no | no | the video's card on oktayshakirov.com/prompts gets its YouTube link |
+| oktai short | yes | no | no | yes (draft, project `oktai`) | no |
 
 **The two Facebook columns are different products and are not interchangeable.**
 A short goes up as a **Reel** (vertical, 3 to 90 seconds, the Publish Reel
@@ -90,6 +92,13 @@ feed video wastes the format. Pick by the video, not by the site.
 
 **Instagram is shorts only.** It has no long-form equivalent here - a 16:9
 explainer has nowhere sensible to go on that account.
+
+**OktAI posts to YouTube and TikTok only** (2026-11-25, "connect the oktai
+youtube and tiktok to the sharing pipeline"). Its TikTok uses the drone
+account's sandbox app with its own token (`publish/tiktok.py`, `PROJECTS`);
+its long form's description links the free prompt at
+`oktayshakirov.com/prompts/#<id>`, and after upload that card's
+`video.url` in the portfolio's `data/prompts.json` is set and pushed.
 
 **Drone posts to YouTube and TikTok only.** The user's decision, 2026-08-20. It
 has no Instagram or Facebook page wired up, and no site entry.

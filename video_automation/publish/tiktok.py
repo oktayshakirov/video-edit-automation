@@ -83,7 +83,10 @@ STATUS_URL = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
 # is unusable here (see the module docstring) but is kept because it is what
 # `creator_info` needs, and that is the only way to read the account nickname.
 SCOPES = "user.info.basic,video.upload,video.publish"
-PROJECTS = ("crypto", "tinnitus", "drone")
+# OktAI shares the drone account's sandbox app (registered on
+# oktayshakirov.com, OktAI's own domain) with its own token and bound open_id:
+# its TikTok account is added to that app's sandbox target users (2026-11-25).
+PROJECTS = ("crypto", "tinnitus", "drone", "oktai")
 
 
 class TikTokError(RuntimeError):
