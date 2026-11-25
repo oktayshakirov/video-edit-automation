@@ -46,6 +46,7 @@ tinnitushelp.me rather than any difference in the run:
 | The long form | `docs/video/longform.md` - shape, chapters, transitions, chrome |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
+| Tools shared with tinnitus and OktAI - pick per this channel's column | `docs/video/toolbox.md` |
 | Choosing and screening footage | `docs/video/footage.md` |
 | Type and layout on screen | `docs/video/design.md` |
 | Music and sound | `docs/video/audio.md` |

@@ -54,6 +54,7 @@ thecrypto.wiki rather than any difference in the run:
 | The long form | `docs/video/longform.md` - shape, chapters, transitions, chrome |
 | The Short | `docs/video/shorts.md` |
 | Drawn graphics | `docs/video/beats.md` |
+| Tools shared with crypto and OktAI - pick per this channel's column (calm: no slams, no held tones) | `docs/video/toolbox.md` |
 | Choosing and screening footage | `docs/video/footage.md` |
 | Type and layout on screen | `docs/video/design.md` |
 | Music and sound | `docs/video/audio.md` - the softer body kit is automatic; **the opener keeps its slam** |

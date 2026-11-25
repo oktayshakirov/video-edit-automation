@@ -406,6 +406,11 @@ had to edit both copies.)
 
 ## Write the picture first: the visual plan (2026-11-12)
 
+**Start from the whole toolbox, not this channel's habits** (2026-11-25):
+`toolbox.md` lists every general tool with how crypto, tinnitus and OktAI
+each use it - a highlighter on a real page, scripted screens, verdict
+marks, cut-outs, a closing card. Pick by your channel's column.
+
 The editor's review of `hardware-wallet`: "the videos generally lack
 creative visuals and diagrams or explanation from vectors and text, we have
 tools, we should use them more, we need better scripting", and "they look

@@ -21,6 +21,7 @@ user. A rule credited to the editor's note came out of that review.
 | `longform.md` | The 16:9 explainer: shape, chapters, timing, opener, outro |
 | `shorts.md` | The 9:16 cut: crop, captions, the four beats that transfer |
 | `beats.md` | The drawn graphics - every beat in `longform.beats.BEATS`, and when to reach for each |
+| `toolbox.md` | Every general tool, and how crypto, tinnitus and OktAI each use it - a tool made for one is for all |
 | `footage.md` | Stock and site photos: screening, contact sheets, reuse, motion |
 | `design.md` | Type, colour, layout, backgrounds |
 | `audio.md` | Music, generated beds, sound effects |
