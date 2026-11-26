@@ -399,3 +399,11 @@ One line per branch: date, the term or channel, what it added.
   news only (5-82k); the one English mechanism answer has 6 views. "bill
   gates bitcoin scam": the 2020 Twitter hack, not his claim. Medians not
   measured.
+- 2026-11-25, medians measured for the ponzi page (`yt-dlp`, last 32-60
+  uploads): **Casual Finance 555k, so its 602k is 1.1x - not a standout**;
+  Austin Talks Money "Bitcoin: Scam, Ponzi, or Something Bigger?" 31.7k on
+  an 8k median, **4.0x** (527 comments); The Iced Coffee Hour Clips "Why
+  Bitcoin is a SCAM! | Peter Schiff" 385k on 26.5k, **14.5x**; CNBC
+  Television "Why Bitcoin looks worse than a Madoff-style ponzi scheme" 31.5k
+  on 12k, 2.6x; Coinbase "Myth: Bitcoin is a Ponzi Scheme" 7.6k on 1.7k,
+  4.5x. Proven on 4 channels. Teardown: `teardowns/is-bitcoin-a-ponzi-scheme.md`.

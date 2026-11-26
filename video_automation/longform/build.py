@@ -712,6 +712,15 @@ def _cues(shots, total: float) -> list[tuple[float, str]]:
                 cues.append((ft["interest"], "reveal"))
             if "block" in ft:
                 cues.append((ft["block"], "cross"))
+        elif sh.graphic == "ponzi":
+            # The first two flows on a pan; the collapse on a cross, or the
+            # empty middle's lines on a reveal (`beats.ponzi`).
+            from .beats.ponzi import flow_times as ponzi_times
+            mode = sh.payload[0] if sh.payload else "ponzi"
+            pt = ponzi_times(sh.reveals or [], mode)
+            cues += [(pt[k] - 0.05, "pan") for k in ("first", "second") if k in pt]
+            if "third" in pt:
+                cues.append((pt["third"], "cross" if mode == "ponzi" else "reveal"))
         elif sh.graphic == "airgap":
             # Each crossing on a pan, the button on a tick (`beats.airgap`).
             rv = sh.reveals or []

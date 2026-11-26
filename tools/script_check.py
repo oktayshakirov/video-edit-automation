@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import re
 import subprocess
 import sys
@@ -323,6 +324,20 @@ RULES = {
     # clips showed a social feed.
     "toolbox": Rule("toolbox", "workflow.md, 'The toolbox is not optional'",
                     ("crypto", "tinnitus"), ("long",), since="2026-11-06"),
+    # The editor's notes on `bitcoin-ponzi` (2026-11-25): "use at least one
+    # cutout image screen, we dont use that tool much but looks good"; "at
+    # 1:35 give extra second or two at the end to read the fees title which
+    # we highlight"; the closing list "first lists the points and then
+    # stretch them, this is confusing ... list - stretch, list - stretch".
+    "cutout": Rule("cutout", "toolbox.md, 'Cut-out subject'; workflow.md, "
+                   "'Write the picture first'", ("crypto", "tinnitus"), ("long",),
+                   since="2026-11-25"),
+    "ring-hold": Rule("ring-hold", "footage.md, 'A real page: `screencap`' "
+                      "(a ringed line is held)", ("crypto", "tinnitus"), ("long",),
+                      since="2026-11-25"),
+    "checklist-flow": Rule("checklist-flow", "beats.md, 'Checklist: two timing "
+                           "modes'", ("crypto", "tinnitus"), ("long",),
+                           since="2026-11-25"),
     "disclaimer-bg": Rule("disclaimer-bg", "narration.md, 'The compliance line is "
                           "long-form only' (its background)", ("crypto", "tinnitus"),
                           ("long",), since="2026-11-06"),
@@ -458,7 +473,7 @@ def is_full_frame(sh) -> bool:
 SIGNATURE_BEATS = ("pile", "behind", "blindsign", "reel", "post", "sweep",
                    "lookalike", "mnemonic", "quorum", "shares", "stake",
                    "pool", "replicate", "airgap", "relay", "breach", "diary",
-                   "reserve", "honeypot", "tiers")
+                   "reserve", "ponzi", "peers", "honeypot", "tiers")
 # A cover's accent goes on the word that carries the subject, never on one
 # of these.
 WEAK_ACCENT = {"it", "its", "one", "this", "that", "them", "they", "you",
@@ -640,6 +655,44 @@ def check(sc: Script) -> list[Finding]:
                              "cutout or pile anywhere - a real page "
                              "(`screencap`), the site's photo with `behind`/"
                              "`isolate`/`parallax`, or `pile` for money moving"))
+    if "cutout" in on and shots:
+        cut = [sh for sh in shots
+               if getattr(sh, "graphic", None) == "behind"
+               or getattr(sh, "parallax", 0) or getattr(sh, "isolate", 0)
+               or getattr(sh, "pop", False)]
+        if not cut:
+            f.append(Finding("cutout", "shots", "no cut-out screen - a person "
+                             "or object cut out of its photo: `behind` (a word "
+                             "between room and subject), `isolate`, `pop` or "
+                             "`parallax`"))
+    for sec in getattr(sc.mod, "SECTIONS", None) or []:
+        sshots = list(getattr(sec, "shots", []) or [])
+        sgaps = list(getattr(sec, "gaps", []) or [])
+        for i, sh in enumerate(sshots):
+            if sh is None:
+                continue
+            held = i + 1 < len(sshots) and sshots[i + 1] is None
+            clip = str(getattr(sh, "clip", "") or "")
+            side = Path(clip).with_suffix(".json") if clip else None
+            ringed = True
+            if side is not None and side.is_file():
+                try:
+                    ringed = bool(json.loads(side.read_text()).get("ring"))
+                except ValueError:
+                    pass
+            if ("ring-hold" in on and "captures/" in clip and not held and ringed
+                    and i < len(sgaps) and sgaps[i] < 1.5):
+                f.append(Finding("ring-hold", Path(clip).name,
+                                 f"a captured page with gap {sgaps[i]:.2f} after "
+                                 "its sentence - give the ringed line 1.5-2.3s "
+                                 "to be read before the cut"))
+            pay = getattr(sh, "payload", ()) or ()
+            if ("checklist-flow" in on and getattr(sh, "graphic", None) == "checklist"
+                    and not (len(pay) > 2 and pay[2] is True)):
+                f.append(Finding("checklist-flow", getattr(sec, "title", "section"),
+                                 "a long-form checklist that lists everything "
+                                 "and then strikes it - say each verdict in its "
+                                 "own chunk and pass flow=True"))
     if "disclaimer-bg" in on:
         from video_automation.longform.meta import is_disclaimer
         for sh in shots:

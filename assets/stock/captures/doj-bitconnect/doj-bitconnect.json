@@ -1,0 +1,43 @@
+{
+  "name": "doj-bitconnect",
+  "url": "https://www.justice.gov/archives/opa/pr/bitconnect-founder-indicted-global-24-billion-cryptocurrency-scheme",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "head": "css=h1",
+    "amount": "text=approximately $2.4 billion",
+    "ponzi": "text=operated as a Ponzi scheme by paying earlier"
+  },
+  "hide": [],
+  "captured": "2026-11-26",
+  "title": "Office of Public Affairs | BitConnect Founder Indicted in Global $2.4 Billion Cryptocurrency Scheme | United States Department of Justice",
+  "size": [
+    3304,
+    6594
+  ],
+  "boxes": {
+    "head": [
+      320,
+      1080.96875,
+      2240,
+      1347.96875
+    ],
+    "amount": [
+      1392.1875,
+      2094.34375,
+      1777.53125,
+      2132.34375
+    ],
+    "ponzi": [
+      1015.21875,
+      2046.34375,
+      1681.3125,
+      2084.34375
+    ]
+  }
+}

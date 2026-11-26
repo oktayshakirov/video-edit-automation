@@ -150,6 +150,9 @@ copies that disagreed with each other.
    - **Frame what is left:** `callout` or `spotlight` on a photo, a clip in
      a `window=`. Never two full-frame pictures in a row; at least half the
      long form drawn or framed; signature beats rest for two videos.
+   - **At least one cut-out screen** (2026-11-25, from the crypto review):
+     `behind`, `isolate`, `pop` or `parallax` on a real photo of the
+     subject - `script_check` flags a long form without one.
    - **Do not reach for `anatomy`** unless there is a real picture where
      the parts are visible (`tmj-and-tinnitus` is the bar).
    - Clips show an *act* (headphones going in, a hand on a volume control),

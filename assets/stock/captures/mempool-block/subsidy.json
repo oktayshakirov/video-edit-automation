@@ -1,0 +1,5 @@
+{
+  "path": ["head", "subsidy"],
+  "ring": ["subsidy", "value"],
+  "secs": 11.0
+}

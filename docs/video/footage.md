@@ -867,7 +867,17 @@ element sits. `clip` moves a camera over that capture offline - an eased
 glide per framing, a slow push, the `spotlight` ring in the brand colour -
 and writes an MP4 for `Shot(clip=)`. For a still to direct with `spotlight`
 instead, `screencap.still(NAME, "tx")` cuts a screen around the element and
-returns every selected box as fractions of it.
+returns every selected box as fractions of it. `--out` takes a path or
+a bare name; a bare name lands beside the capture as `NAME.mp4` (it died on
+a broken pipe before 2026-11-25).
+
+**A ringed line is held 1.5-2.3s after its sentence** (the editor on
+`bitcoin-ponzi`, 2026-11-25: "give extra second or two at the end to read
+the fees title which we highlight"). The ring lands as the sentence ends,
+so a 0.8s gap cut away before anyone read it. `clip` now writes
+`NAME.json` beside the MP4 with the keys it ringed, and `script_check`'s
+`ring-hold` flags a ringed framing with a shorter gap (a framing held into
+the next sentence with `None` is fine).
 
 **`--select key="text=..."` rings a sentence, not its paragraph**
 (2026-11-10). The box is a DOM Range round the first text node holding
@@ -2014,3 +2024,43 @@ Read a site's terms before `screencap grab`.
 - Pexels has no hearing aid under "hearing aid isolated" (a megaphone, an
   otoscope, an ear); the site's `hearing-aid.jpg` is the only one.
 
+
+## Money on screen is US dollars (2026-11-25)
+
+The editor on `bitcoin-ponzi`'s first cut: the counted cash was "over used
+and the currency is not common one, use dollars" - the `3457909x` shoot is
+Polish zloty, and four slots of one shoot read as filler. **Banknotes on
+this channel are US dollars**, and one money clip is not used more than
+twice. Pexels' dollars are nearly all on bright wood (B84-195); the dark
+ones are `dollar-bills-black-background/6590462` ($20s on black),
+`6590464` ($1s, dark from 3s), `counting-money-low-light/6266432` (counting
+$100 stacks) and `7062994` (a lamp-lit desk). The bright fans
+(`counting-hundred-dollar-bills-hands-dark/5466773`, `5466780`) go in a
+`window=`. Where a later slot is about Bitcoin itself, draw it (`peers`)
+instead of showing cash.
+
+## The bitcoin-ponzi fetch: verdicts (2026-11-25)
+
+**The SEC's pages refuse a headless browser.** Investor.gov answers
+`screencap grab` with "Access Denied" and sec.gov with "Request Rate
+Threshold Exceeded"; the definition went on a `post` card, word for word.
+The DOJ's press-release archive (`justice.gov/archives/opa/pr/...`)
+captures cleanly and white - in a browser window. **mempool.space's block
+page captures dark with no price on it** (`/block/<height>`), the better
+explorer for "a public ledger" and "new coins go to miners": `--select
+subsidy="text=Subsidy + fees"`. `css=app-blockchain-blocks` matched nothing,
+so the chain of blocks is the `top` framing.
+
+- **Cut on review:** `buying-bitcoin-phone-app-dark/34953965` (its trading
+  app is a FTSE 100 chart - a stock index under "Bitcoin") and the notes
+  shoot `34579097` / `34579094` / `34579092` (Polish zloty; see "Money on
+  screen is US dollars").
+- Rejected: `8370138` / `34408323` (bright tables and a lit trading desk),
+  `4029316` (a lit window, no servers), `15157535` (an abstract light
+  tunnel), every "empty office desk" result (bright, B139-206), "gold bars"
+  and "gold bullion" (beer taps, a chocolate bar, abstract gold light, coins
+  on a pine table B72), every "two people exchanging" result (illustrations,
+  a delivery van), `8128278` (a gaming chair in blue and pink).
+- Commons: Charles Ponzi's Library of Congress portrait (Bain, ~1920, cropped
+  off its border and handwriting) and his 1910 mug shot, Madoff's 2009 mug
+  shot, the Bitcoin logo - all public domain (`assets/crypto/bitcoin-ponzi/CREDITS.md`).

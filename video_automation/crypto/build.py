@@ -186,7 +186,7 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
                         "spotlight", "blindsign", "spectrum",
                         "shares", "sweep", "mnemonic", "stake",
                         "behind", "pile", "lookalike", "audiogram",
-                        "airgap", "relay", "breach", "diary", "reserve",
+                        "airgap", "relay", "breach", "diary", "reserve", "ponzi", "peers",
                         "honeypot", "tiers", "lesson", "wall"):
         # **`dial` joined this set 2026-09-13, and it is the first beat that
         # prefers portrait.** A radial scale is as tall as it is wide, so
@@ -238,10 +238,18 @@ def _short_factory(shot: Shot, frame: Frame, brand: Brand = CRYPTO):
         # it burns no caption over itself because `build` already suppresses
         # captions on any shot with a `graphic`.
         from ..longform.beats import BEATS
+        # `ground` and `emblem` go through as `make_beat` passes them: until
+        # 2026-11-25 this call dropped both, so every Short's
+        # `ground="grid"` beat drew on the water backdrop instead of the
+        # ruled ground (seen on `bitcoin-ponzi`'s first cut).
         return BEATS[shot.graphic](*shot.payload, brand=brand, frame=frame,
                                    backdrop=shot.backdrop,
                                    reveals=shot.reveals, marks=shot.marks,
-                                   start=shot.start, hold=shot.hold)
+                                   start=shot.start, hold=shot.hold,
+                                   **({"ground": shot.ground}
+                                      if getattr(shot, "ground", None) else {}),
+                                   **({"emblem": shot.emblem}
+                                      if getattr(shot, "emblem", None) else {}))
     if shot.graphic not in (None, "checklist"):
         # **Anything else lands here silently and renders as a checklist.**
         # That is how `bars` first shipped into a tinnitus short: `Grid` and
@@ -327,6 +335,15 @@ def card_cues(shots, total: float) -> list[tuple[float, str]]:
                 cues.append((ft["interest"], "reveal"))
             if "block" in ft:
                 cues.append((ft["block"], "cross"))
+        elif sh.graphic == "ponzi":
+            # The first two flows on a pan; the collapse on a cross, or the
+            # empty middle's lines on a reveal (`beats.ponzi`).
+            from ..longform.beats.ponzi import flow_times as ponzi_times
+            mode = sh.payload[0] if sh.payload else "ponzi"
+            pt = ponzi_times(sh.reveals or [], mode)
+            cues += [(pt[k] - 0.05, "pan") for k in ("first", "second") if k in pt]
+            if "third" in pt:
+                cues.append((pt["third"], "cross" if mode == "ponzi" else "reveal"))
         elif sh.graphic == "airgap":
             # Each crossing on a pan, the button on a tick (`beats.airgap`).
             rv = sh.reveals or []

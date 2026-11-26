@@ -422,6 +422,12 @@ line to a dot, black, on the synthesized `tv_off` zap.
 script's `endcard=ENDCARD` keeps working. It sits mid-frame, so place the
 YouTube end-screen elements clear of the centre.
 
+**The closing line plays under the card** (2026-11-25). `endcard_lead=7.0`
+fades the picture almost to black for the last seven seconds, which is the
+whole closing question. `bitcoin-ponzi` first put its new `peers` screen
+there and it was all but invisible. Give the last sentence a picture
+already seen (the opening clip, for the loop); a new beat goes earlier.
+
 ## Key words, punched in as they are spoken (2026-10-22)
 
 The long form burns no captions, so the word a sentence turns on had no

@@ -120,3 +120,5 @@ each line names its evidence. **Read this before step 1 of a build.**
 | 2026-11-25 | oktai short | `why-ai-videos-feel-fake` | no evidence | drawn 8/8, stock 0/8; reel, voice, bars; opener -; cover -; voice - | - | too early | - |
 | 2026-11-25 | tinnitus long | `green-noise-46-breathing-60min` | a named noise leads (E25: Brown 10.3, Fan 9.5, Pink 6.0, HF white 41 v... | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | - | too early | - |
 | 2026-11-25 | tinnitus short | `green-noise-46-breathing-short` | no evidence | drawn 0/1, stock 0/1; -; opener -; cover -; voice - | - | too early | - |
+| 2026-11-26 | crypto long | `bitcoin-ponzi` | Austin Talks Money 'Bitcoin: Scam, Ponzi, or Something Bigger?' 4.0x (... | drawn 20/26, stock 7/26; post, grid, behind, stat, ponzi, peers, checklist; opener Search; cover vector; voice mia | - | too early | - |
+| 2026-11-26 | crypto short | `bitcoin-ponzi` | Austin Talks Money 'Bitcoin: Scam, Ponzi, or Something Bigger?' 4.0x (... | drawn 5/7, stock 2/7; ponzi; opener Split; cover vector; voice mia | - | too early | - |

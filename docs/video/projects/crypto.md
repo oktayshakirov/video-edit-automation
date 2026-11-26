@@ -393,6 +393,12 @@ Both tests need three videos and have one each, so the next crypto pair is
   direction; their published words, not clips of them.
 - **E26**, one heist told as a story (above).
 
+**E24's second is `bitcoin-ponzi` (built 2026-11-25)**: "Is Bitcoin a
+Ponzi Scheme? The Definition, Checked" - the famous sceptic's claim from
+the 11-24 branch, checked against the SEC's definition. **The next crypto
+pair is E26's second**, a heist told as a story (Malone Lam's $230M at
+117x is the strongest standout; no article yet - article first).
+
 Full test text: `videos-performance/experiments.md`.
 
 ### A scam video is shown to people who want to run the scam (2026-11-24)

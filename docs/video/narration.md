@@ -652,6 +652,22 @@ know. Market cap and Bear market, the two worst curves on the channel, are
 both "What is [finance term]?" - a definition question gives sentence 2
 little to withhold that the viewer cares about.
 
+## A named person gets who they were before what they did (2026-11-25)
+
+The editor on `bitcoin-ponzi`: "add one sentence of who bernie madoff is,
+we throw the name very random". A name the viewer may not know needs one
+plain line of who - "a former chairman of the Nasdaq stock market, with a
+Wall Street firm he'd run since 1960" - before the line about what they
+did. It is also the line a cut-out (`behind`) sits best under: the word
+behind the head is what the person *was*.
+
+**And sentence 2 says one thing.** The same Short's first sentence 2 was
+"Every real Ponzi has one, by name: Charles Ponzi, Bernie Madoff,
+BitConnect" over Ponzi's photo, and the editor found it confusing - "one"
+pointed back at the title, then three names ran past. "Every real Ponzi
+scheme has someone running it, like Charles Ponzi in 1920" keeps the same
+answer back in plain words. A list of names is a reel, not sentence 2.
+
 ## A tip needs a reason before it is a tip
 
 The first cut went straight from the custody beat into "turn on two-factor,

@@ -94,6 +94,12 @@ sequence drifted into four copies that disagreed.
    - **Frame what is left.** A photo gets `callout` or `spotlight`; a clip
      goes in a `window=`. Never two full-frame pictures in a row, and at
      least half the long form drawn or framed.
+   - **At least one cut-out screen** (2026-11-25): a person or object cut
+     out of its photo - `behind` with the word they *were* ("NASDAQ"
+     behind Madoff), `isolate`, `pop`, `parallax`. A 3:4 portrait needs a
+     wide copy first. `script_check` flags a long form without one.
+   - **Banknotes are US dollars**, and a line about Bitcoin itself is drawn
+     (`peers`), not shown as cash (`footage.md`, 2026-11-25).
    - **Rotate.** A signature beat (`pile`, `behind`, `blindsign`...) rests
      for two videos.
    - Clips show an *act*, never a portrait of a feeling, never a social

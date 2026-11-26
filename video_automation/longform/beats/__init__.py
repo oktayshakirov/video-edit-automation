@@ -72,6 +72,8 @@ from .lookalike import Lookalike
 from .airgap import Airgap
 from .relay import Relay
 from .reserve import Reserve
+from .ponzi import Ponzi
+from .peers import Peers
 from .honeypot import Honeypot
 from .tiers import Tiers
 from .breach import Breach
@@ -102,7 +104,7 @@ __all__ = [
     "Timeline", "Chart", "Spectrum", "Audiogram",
     "Callout", "Diagram", "Map", "Anatomy", "Quorum", "Reel", "Post",
     "Spotlight", "BlindSign", "Shares", "Sweep", "Mnemonic", "Stake",
-    "Behind", "Pile", "Lookalike", "Airgap", "Relay", "Breach", "Reserve", "Honeypot",
+    "Behind", "Pile", "Lookalike", "Airgap", "Relay", "Breach", "Reserve", "Ponzi", "Peers", "Honeypot",
     "Tiers", "Voice", "Wall", "Phones",
     "DRAW", "POP", "RISE",
 ]
@@ -145,6 +147,8 @@ BEATS = {
     "airgap": Airgap,
     "relay": Relay,
     "reserve": Reserve,
+    "ponzi": Ponzi,
+    "peers": Peers,
     "honeypot": Honeypot,
     "tiers": Tiers,
     "breach": Breach,
@@ -220,6 +224,10 @@ _COUNT = {
     # The source and its swap, each further place, then the verdict.
     "relay": lambda p: len(p[2]) + 1,
     "reserve": lambda p: 4,
+    # In, out, the collapse - or the trade and the middle card's two lines.
+    "ponzi": lambda p: 3,
+    # The field is there from the start; the label, if any, is the reveal.
+    "peers": lambda p: 1,
     # The buy, your sell refused, the rule, the creators' sell.
     "honeypot": lambda p: 4,
     # One per item placed after the ones already on the board; with none

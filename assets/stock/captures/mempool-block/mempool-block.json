@@ -1,0 +1,53 @@
+{
+  "name": "mempool-block",
+  "url": "https://mempool.space/block/920000",
+  "viewport": [
+    1280,
+    800
+  ],
+  "scale": 2,
+  "mobile": false,
+  "dark": false,
+  "select": {
+    "head": "css=h1",
+    "subsidy": "text=Subsidy + fees",
+    "value": "text=3.142",
+    "chain": "css=app-blockchain-blocks"
+  },
+  "hide": [
+    ".fiat",
+    "app-fiat"
+  ],
+  "captured": "2026-11-26",
+  "title": "Block 920000: 000000000000000000005e9de5d9e008d923ced659896d9ad012e347882bdc87 - mempool - Bitcoin Explorer",
+  "size": [
+    2560,
+    4900
+  ],
+  "boxes": {
+    "head": [
+      170,
+      742,
+      815.59375,
+      822
+    ],
+    "subsidy": [
+      1334,
+      1212,
+      1548,
+      1248
+    ],
+    "value": [
+      1838.40625,
+      1212,
+      1917.5625,
+      1248
+    ],
+    "chain": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

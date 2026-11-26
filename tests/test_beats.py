@@ -127,6 +127,12 @@ PAYLOADS = {
     "reserve": (("YOU", "hand over a dollar"), ("THE ISSUER", "Tether, Circle"),
                 ("US TREASURY BILL", "93 days or less"), "KEEPS THE INTEREST",
                 "$0", "BANNED BY LAW", "WHERE THE INTEREST GOES"),
+    # (mode, left, middle, right, label, verdict, title): portrait-safe.
+    "ponzi": ("ponzi", ("EARLY INVESTORS", "paid 'returns'"),
+              ("THE OPERATOR", "Ponzi, Madoff"), ("NEW INVESTORS", "pay in"),
+              "'RETURNS'", "COLLAPSES", "HOW A PONZI PAYS"),
+    # (title, label): portrait-safe.
+    "peers": ("", "NOBODY IN THE MIDDLE"),
     # (you, owner, pool, rule, note, exempt, title): portrait-safe.
     "honeypot": (("YOU", "a SQUID holder"), ("THE CREATORS", "anonymous"),
                  ("THE POOL", "BNB, on PancakeSwap"), "NEEDS MARBLES",
@@ -261,7 +267,7 @@ def test_beat_renders_on_both_brands(name):
 PORTRAIT = ["chapter", "checklist", "stat", "quote", "grid", "steps", "logos",
             "timeline", "chart", "map", "spectrum", "dial", "diagram", "reel",
             "post", "spotlight", "behind", "pile", "audiogram", "airgap",
-            "breach", "diary", "reserve", "honeypot", "tiers"]
+            "breach", "diary", "reserve", "ponzi", "peers", "honeypot", "tiers"]
 
 
 @pytest.mark.parametrize("name", PORTRAIT)
@@ -340,7 +346,7 @@ def test_every_beat_class_is_registered():
                 "spotlight", "blindsign", "shares", "sweep", "mnemonic", "stake",
                 "behind", "pile", "lookalike", "airgap", "relay", "breach", "diary",
                 "voice", "wall", "phones", "lesson",
-                "reserve", "honeypot", "tiers"):
+                "reserve", "ponzi", "peers", "honeypot", "tiers"):
         mod = importlib.import_module(f"video_automation.longform.beats.{fam}")
         for obj in vars(mod).values():
             # `obj.__module__` filters out the names each family imports from
@@ -451,3 +457,15 @@ def test_spotlight_label_stays_in_frame():
             sy0 = H / 2 + (ry0 * b.ih - cy) * s - W * 0.012
             _, ly0, _, ly1 = b.label_box(lab, (0, sy0, 10, sy1))
             assert ly0 >= sy1, (fr, t)               # under, not over the ring
+
+
+def test_short_factory_keeps_the_ruled_ground():
+    """A Short's `Shot(ground="grid")` beat draws on the ruled ground, as the
+    long form's does - the Short builder dropped `ground` until 2026-11-25."""
+    from video_automation.core.frame import VERTICAL
+    from video_automation.crypto.build import _short_factory
+    from video_automation.crypto.shots import Shot
+    sh = Shot(graphic="ponzi", ground="grid", payload=_payload("ponzi"))
+    sh.start, sh.hold = 0.0, 6.0
+    beat = _short_factory(sh, VERTICAL, CRYPTO)
+    assert beat.ground == "grid"

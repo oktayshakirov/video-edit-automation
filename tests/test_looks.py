@@ -30,8 +30,12 @@ def _used() -> list[type[looks.Look]]:
     out = []
     for m in pkgutil.iter_modules(session_looks.__path__):
         mod = importlib.import_module(f"{session_looks.__name__}.{m.name}")
+        # A `_Name` class is a template for the looks after it, not a look:
+        # `cat_purr_comfort._SleepingCat` has no `SRC` of its own and failed
+        # all three cases until 2026-11-25 (its `BlanketThumb` is tested).
         out += [c for _, c in inspect.getmembers(mod, inspect.isclass)
-                if issubclass(c, looks.Look) and c.__module__ == mod.__name__]
+                if issubclass(c, looks.Look) and c.__module__ == mod.__name__
+                and not c.__name__.startswith("_")]
     return out
 
 

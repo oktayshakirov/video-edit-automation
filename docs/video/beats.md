@@ -180,6 +180,14 @@ strike drawing through it. Default for every long form; nothing to pass.
 
 ## Checklist: two timing modes
 
+**Long form: list, strike, list, strike (2026-11-25).** The editor on
+`bitcoin-ponzi`'s closing checklist: it "first lists the points and then
+stretch[es] them, this is confusing while they are being listed. Instead
+list - stretch, list - stretch, one by one." So a long-form `checklist`
+says each verdict in its own chunk ("A promised return? No.") and passes
+`flow=True`; `script_check`'s `checklist-flow` flags one that does not.
+The two-phase mode below stays for a Short that asks a real open question.
+
 `flow=False` (default) is the shorts' original — every item appears unmarked, so
 the list is a genuine open question, then the verdicts land together. It has a
 payoff and needs a written pause.
@@ -1866,6 +1874,10 @@ sections, the current one doesnt fit that well".
   for being behind every beat; this one moves smoothly and a script asks
   for it per shot. Use it for the explaining beats (a loop, a chart, bars,
   steps), not all of them - the brand gradient stays for the rest.
+- **In a Short too, from 2026-11-25.** `crypto/build._short_factory`
+  dropped `ground` (and `emblem`) until then, so every Short asking for the
+  ruled ground since 11-13 drew its beat on the water instead - seen on
+  `bitcoin-ponzi`'s first render. `test_short_factory_keeps_the_ruled_ground`.
 - `render_long(chapter_style="grid")` sets every chapter card on that
   ground: "02  /  KICKER" small and tracked in the brand colour with a
   hairline drawing out under it, the title in the display face typed on
@@ -1887,6 +1899,55 @@ you turn your head"), and a leader to a jaw says nothing the word does not.
 Actions go in a list beat (`grid` with an icon each); `callout` is for
 labelling things the picture shows (the journaling photo's "how loud",
 "how bothered" worked, and stays).
+
+## `ponzi` - who pays whom, with someone in the middle and without (2026-11-25)
+
+`Shot(graphic="ponzi", payload=(mode, left, middle, right, label, verdict,
+title[, coin]))`, the three cards as `(name, sub)`, left to right: who is
+paid, the middle, who pays in. Built for `bitcoin-ponzi`, because the
+pair's argument is one picture drawn twice - money running *through*
+someone in the middle, then the same cards with the middle empty - and
+`reserve`, `pile`, `pool` and `diagram` each draw something else.
+
+- **`mode="ponzi"`, three reveals, three caption chunks**: in (coins stream
+  from the right card into the middle, for good), out (coins stream on to
+  the left card, `label` over the lane - "'RETURNS'"), stop (the inflow is
+  crossed out and dries up, the outflow dries up 0.8s after it, the middle
+  card turns red with `$0` and `verdict`).
+- **`mode="market"`**: the middle card is dashed and grey from the start;
+  `$` coins run from the right card straight through it to the left, `coin`
+  chips run back. The three reveals are the trade, then `label` and
+  `verdict` set under the middle card (inside it in 9:16).
+- Reuse it for any "is it a Ponzi?" claim: a yield product, a referral
+  scheme, an exchange paying "interest" out of deposits.
+- Both formats; portrait stacks the cards (who is paid on top). Names
+  shrink to their card and raise below 66%; the market lines are checked
+  against the room under the card.
+- Cues from `flow_times(rv, mode)`: `pan` on the first two reveals, `cross`
+  on the collapse or `reveal` on the market lines. Give its sentence a gap
+  of ~1.6s so the collapse lands before the cut.
+- A signature beat: it rests for two videos (`beat-rotation`).
+
+## `peers` - bitcoins moving wallet to wallet, with no centre (2026-11-25)
+
+`Shot(graphic="peers", ground="grid", payload=(title, label))`. A loose
+field of wallets, each linked to its three nearest, and coins carrying a
+drawn bitcoin sign travelling the links for the whole shot; a wallet glints
+as a coin lands. Nothing sits in the middle. One reveal, the optional
+`label` band. Fixed seed, so a re-render is identical. Portrait-safe.
+
+Built for `bitcoin-ponzi` on the editor's note: "replace one of the later
+[stock clips] with custom screen of moving bitcoins". A `pile` was tried
+first and is the wrong picture here - coins pouring into one bin is the
+Ponzi's pot. Reach for `peers` under any line about a network nobody runs,
+or a closing question about Bitcoin itself, in place of a clip of cash.
+
+- **The display face has no U+20BF.** `peers.coin_sign` draws the sign: a
+  bold B with two short bars through its top and bottom. Use it wherever a
+  beat needs a bitcoin on a coin; `pile`'s one-character `glyph` cannot
+  draw it.
+- Coins are 34px in 16:9 and 40px in 9:16 (radius) - the first test at
+  21px read as dust at full frame.
 
 ## `honeypot` - a token anyone can buy and only its creators can sell (2026-11-19)
 

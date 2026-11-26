@@ -378,8 +378,18 @@ def main(argv: list[str]) -> int:
         frame = VERTICAL if a.vertical else LANDSCAPE
         out = a.out or cap.png.with_name(
             f"{cap.name}-{'v' if a.vertical else 'l'}.mp4")
-        clip(cap, out, a.path.split(","), a.secs, frame,
-             ring=[k for k in a.ring.split(",") if k])
+        # A bare name ("--out amount") is a file beside the capture: ffmpeg
+        # took it as a path with no extension and died on a broken pipe
+        # (2026-11-25, `bitcoin-ponzi`).
+        if out.suffix != ".mp4":
+            out = cap.png.with_name(out.name + ".mp4")
+        ring = [k for k in a.ring.split(",") if k]
+        clip(cap, out, a.path.split(","), a.secs, frame, ring=ring)
+        # What the framing rings, beside it - `script_check`'s `ring-hold`
+        # reads it, so a framing with no ring is not asked to hold.
+        out.with_suffix(".json").write_text(
+            json.dumps({"path": a.path.split(","), "ring": ring,
+                        "secs": a.secs}, indent=2) + "\n")
         print(out)
         return 0
     print(f"{cap.png}  {cap.size[0]}x{cap.size[1]}  '{cap.title}'")

@@ -9,6 +9,24 @@ as different cohorts.
 
 Keep an entry to what changed for the viewer and where the rule lives.
 
+## 2026-11-25 - E24's second pair: Shorts' beats on the ruled ground, the `ponzi` beat, the line-up cover
+
+- **Short beats asking for `ground="grid"` now draw on it.** Every crypto
+  and tinnitus Short since 2026-11-13 showed those beats on the water /
+  mesh backdrop instead (`beats.md`, "The ruled ground"). Shorts from
+  `bitcoin-ponzi` on are a different cohort on this point.
+- **`ponzi`, a new beat**: the same three cards with someone in the middle
+  and with nobody (`beats.md`).
+- **First line-up cover on a real video** (`COVER_STYLE = "vector"`,
+  `bitcoin-ponzi`): two real mug shots and the Bitcoin logo under
+  "Ponzi. Madoff. [Bitcoin?]".
+- From the editor's review of the same pair, for every long form from
+  here: **at least one cut-out screen** (`behind` / `isolate` / `pop` /
+  `parallax`); **a ringed line on a captured page held 1.5-2.3s**; **the
+  closing checklist struck item by item** (`flow=True`); **a named person
+  gets one line of who they were**; **banknotes are US dollars**. `peers`,
+  a drawn screen of bitcoins moving wallet to wallet, is new.
+
 ## 2026-11-24 - the review: crypto build order, scam-search impressions
 
 From the 11-24 review, on the editor's yes (`history/2026-11-24.md`).
